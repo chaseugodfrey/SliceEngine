@@ -21,6 +21,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Serializer/JSONSerializer.h>
 #include "Core/Core.h"
 #include "Systems/SceneSystem.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -85,6 +86,24 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::Shader>::Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	// Custom Shader
+	std::unique_ptr<SliceEngineTypes::CustomShader> Type<SliceEngineTypes::CustomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		return std::make_unique<SliceEngineTypes::CustomShader>(SliceEngineTypes::CustomShader::LoadCShader(path));
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyCShader();	//calls glDeleteProgram
+	}
+
+	void Type<SliceEngineTypes::CustomShader>::Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyCShader();	//calls glDeleteProgram
+		resource->LoadCShader(path); // --TODO-- in case I store the val somewhere else
+	}
+
 	// Vertex Shader
 	std::unique_ptr<SliceEngineTypes::VertShader> Type<SliceEngineTypes::VertShader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
@@ -131,7 +150,28 @@ namespace SliceEngine
 	//Material
 	std::unique_ptr<SliceEngineTypes::Material> Type<SliceEngineTypes::Material>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		return std::make_unique<SliceEngineTypes::Material>( SliceEngineTypes::Material::LoadMaterial(path));
+		auto t = std::make_unique<SliceEngineTypes::Material>();
+		std::filesystem::path file(path);
+
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case Type<SliceEngineTypes::Material>::defaultResourceGUID:
+				t->LoadDefault();
+				break;
+			default:
+				return nullptr;
+				break;
+			}
+		}
+		else
+			return std::make_unique<SliceEngineTypes::Material>(SliceEngineTypes::Material::LoadMaterial(path));
+
+		return t;
 	}
 
 	void Type<SliceEngineTypes::Material>::Destroy(SliceEngineTypes::Material& resource, ResourceManager& resourceMgr)
@@ -161,18 +201,14 @@ namespace SliceEngine
 
 		try
 		{
-			
 			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
-			float newRoughness = materialJson["roughness"].get<float>();
-			float newMetallic = materialJson["metallic"].get<float>();
+			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
+
 			glm::from_json(materialJson["color"], materialToReload->color);
+			materialToReload->data.clear();
 
-			
-			materialToReload->roughness = newRoughness;
-			materialToReload->metallic = newMetallic;
-
-			
 			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
+			GUID oldShaderGUID = materialToReload->shader.getGUID();
 
 			
 			if (oldAlbedoGUID != newAlbedoGUID)
@@ -182,6 +218,50 @@ namespace SliceEngine
 			else
 			{
 				// The texture is the same. DO NOTHING to the handle.
+			}
+			if (newShaderGUID != oldShaderGUID)
+			{
+				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
+				for (auto& i : materialToReload->shader.get()->dataIn)
+					materialToReload->data.emplace(i.name, i.baseData);
+			}
+			else
+			{
+				for (auto& i : materialToReload->shader.get()->dataIn)
+				{
+					if (materialJson["data"].contains(i.name))
+					{
+						switch (i.dataType)
+						{
+						case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						{
+							bool b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						{
+							uint32_t b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						{
+							int32_t b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						{
+							float b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						}
+					}
+					else
+						materialToReload->data.emplace(i.name, i.baseData);
+				}
 			}
 		}
 		catch (nlohmann::json::exception& e)
@@ -213,6 +293,9 @@ namespace SliceEngine
 				break;
 			case DefaultResourceIDs::CAPSULE_DEFAULT:
 				m->LoadDefaultCapsuleModel();
+				break;
+			case DefaultResourceIDs::CYLINDER_DEFAULT:
+				m->LoadDefaultCylinderModel();
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
@@ -300,6 +383,7 @@ namespace SliceEngine
 
 			OnSceneLoadedEvent event;
 			event.isSceneLoaded = true;
+			event.scenePath = path;
 			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
 		}
 	}
@@ -400,4 +484,39 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::StateMachine>::Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
+
+	//Font
+	std::unique_ptr<SliceEngineTypes::Font_Data> Type<SliceEngineTypes::Font_Data>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto font = std::make_unique<SliceEngineTypes::Font_Data>();
+		if (!std::filesystem::exists(path)) {
+			font->InitializeDefault();
+		}
+		else {
+			if (!font->LoadFontResource(path)) {
+				return nullptr;
+			}
+		}
+		return font;
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr)
+	{
+		resource.DestroyFontResource();
+	}
+
+	void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+		resource->DestroyFontResource();
+		if (!std::filesystem::exists(path)) {
+			resource->InitializeDefault();
+		}
+		else {
+			resource->LoadFontResource(path);
+		}
+	}
+
+	/*void Type<SliceEngineTypes::Font_Data>::Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}*/
 }

@@ -30,6 +30,8 @@ namespace SliceEditor
 
 	void HierarchyWindow::DrawNode(SelectionManager& mSelection, SessionManager& mSession, entt::entity entity, SliceEngine::SceneGraph& scene_graph, bool isPrefab)
 	{
+		static bool pendingSelect = false;
+		static EntityNode* pendingNode = nullptr;
 		bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
 
 		ImGuiTreeNodeFlags flags = hasChildren ? parentFlags : childFlags;
@@ -66,6 +68,11 @@ namespace SliceEditor
 		//Temporary Change
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 
+		if (mSession.GetHierarchyEntityIDs())
+		{ 
+			name = std::to_string(entt::to_integral(entity)) + std::string(" ") + SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+		}
+
 		ImVec2 invisButtonSize = ImVec2(ImGui::GetContentRegionAvail().x, 2);
 		
 		if (invisButtonSize.x <= 0)
@@ -90,11 +97,37 @@ namespace SliceEditor
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		}
+
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::InactiveEntity>(node->entity))
+		{
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5);
+		}
+
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
+
+		bool itemHovered = ImGui::IsItemHovered();
+		//Set Pending Select when clicked
+		if (itemHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			pendingSelect = true;
+			pendingNode = node;
+		}
+
+		//Disable select when dragging off the threshold
+		if (pendingSelect && ImGui::IsItemActive() && ImGui::IsMouseDragPastThreshold(ImGuiMouseButton_Left))
+		{
+			pendingSelect = false;
+		}
+		
 
 		if (node->isPrefab)
 		{
 			ImGui::PopStyleColor();
+		}
+
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::InactiveEntity>(node->entity))
+		{
+			ImGui::PopStyleVar();
 		}
 		// check inputs
 
@@ -123,16 +156,19 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 
-		if (ImGui::IsItemClicked())
+		//Commit to the selection only if its released on the object
+		if (pendingSelect && ImGui::IsMouseReleased(ImGuiMouseButton_Left))
 		{
+			pendingSelect = false;
+
 			if (ImGui::GetIO().KeyCtrl)
 			{
-				mSelection.SelectSingleAdd(node);
+				mSelection.SelectSingleAdd(pendingNode);
 			}
 
 			else
 			{
-				mSelection.SelectSingle(node);
+				mSelection.SelectSingle(pendingNode);
 			}
 		}
 
@@ -165,9 +201,20 @@ namespace SliceEditor
 
 			while (child_entity != entt::null)
 			{
-				auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
-				DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph,false);
-				child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				//auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+				//DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+				//child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				if (engine_reg.any_of<SliceEngine::SceneGraph>(child_entity))
+				{
+					auto& child_scene_graph = engine_reg.get<SliceEngine::SceneGraph>(child_entity);
+					DrawNode(*mRegistry.GetManager<SelectionManager>("Selection"), *mRegistry.GetManager<SessionManager>("Session"), child_entity, child_scene_graph, false);
+					child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+				}
+				else
+				{
+					std::cout << "Unable to get scene graph of: " << int(child_entity) << std::endl;
+					break;
+				}
 			}
 
 			ImGui::TreePop();
@@ -177,7 +224,7 @@ namespace SliceEditor
 	void HierarchyWindow::DrawPrefabNode()
 	{
 		auto sessionManager = mRegistry.GetManager<SessionManager>("Session");
-		Entity parentEntity = sessionManager->GetPrefabInspected();
+		Entity parentEntity = sessionManager->GetPrefabEntityInspected();
 		auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(parentEntity);
 		std::string parentName = SliceEngine::FactoryInstance.GetGOByEntity(parentEntity).GetName();
 		auto treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow;
@@ -188,7 +235,21 @@ namespace SliceEditor
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
-		ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
+
+		//Get the parent entity node
+		if (sessionManager->GetPrefabNodes().find(parentEntity) == sessionManager->GetPrefabNodes().end())
+		{
+			SLICE_LOG_WARNING("This should not trigger!");
+			return;
+		}
+		
+		//Selection Check for PrefabNodes
+		if (sessionManager->GetPrefabNodes()[parentEntity]->isSelected)
+		{
+			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
+		}
+		
+		//ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 182, 193, 255)); // custom text color for prefabs
 		if (ImGui::TreeNodeEx(parentName.c_str(), treeNodeFlags))
 		{
 			if (ImGui::IsItemHovered()&&ImGui::IsItemClicked())
@@ -211,7 +272,7 @@ namespace SliceEditor
 			}
 			ImGui::TreePop();
 		}
-		ImGui::PopStyleColor();
+		//ImGui::PopStyleColor();
 		
 	}
 
@@ -278,14 +339,14 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("Model"))
-			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
-				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
-				}
-			}
+			//if (ImGui::AcceptDragDropPayload("Model"))
+			//{
+			//	if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Model"))
+			//	{
+			//		SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+			//		//EditorUtilities::GameObject_CreateModel(recievedPayload, entt::null, mRegistry.GetManager<HistoryManager>("History"));
+			//	}
+			//}
 
 			if (ImGui::AcceptDragDropPayload("Prefab"))
 			{
@@ -326,7 +387,7 @@ namespace SliceEditor
 				{
 					if(sessionManager->IsPrefabInspected())
 					{
-						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabInspected(), sessionManager->IsPrefabInspected());
+						EditorUtilities::MenuList_CreateGameObjects(mRegistry.GetManager<HistoryManager>("History"), sessionManager->GetPrefabEntityInspected(), sessionManager->IsPrefabInspected());
 					}
 					else
 					{

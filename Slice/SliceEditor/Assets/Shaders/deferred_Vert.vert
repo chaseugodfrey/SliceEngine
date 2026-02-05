@@ -10,10 +10,23 @@ layout (location=4) in vec4 aWeights;
 layout (location=0) out vec3 vPos; // World Space
 layout (location=1) out vec3 vNom;
 layout (location=2) out vec2 vTex;
-layout (location=3) out flat uint vGID;
+layout (location=3) out flat uint vInstance;
+
+struct BasicIDat
+{
+	mat4 mdlMtx;
+	uint entityID;
+	uint textureID; 
+	uint tex2ID;
+	uint col;
+};
+
+layout(binding=1, std430) readonly buffer ssbo1
+{
+	BasicIDat iDat[];
+};
 
 uniform uint aGID;
-uniform mat4 M; // model transform matrix
 uniform mat4 V; // View transform matrix
 uniform mat4 P; // Perspective transform matrix
 
@@ -42,15 +55,11 @@ void main(void){
 		}
 	}
 
-	mat4 model_to_world = M;
+	mat4 model_to_world = iDat[gl_InstanceID].mdlMtx;
 
 	if(is_bone_animated) {
-		model_to_world = M * inverse_root * bone_tform;
+		model_to_world = model_to_world * inverse_root * bone_tform;
 	}
-
-
-	//mat3 N = transpose(inverse(mat3(M)));
-	//vec4 posInWorld = M * vec4(aVertexPosition, 1.0);
 
 	mat3 N = transpose(inverse(mat3(model_to_world)));
 	vec4 posInWorld = model_to_world * vec4(aVertexPosition, 1.0);
@@ -58,6 +67,6 @@ void main(void){
 	vPos = posInWorld.xyz;
 	vNom = normalize(N * aNom);
 	vTex = aTex;
-	vGID = aGID;
+	vInstance = gl_InstanceID;
 	gl_Position	= P * V * posInWorld;
 }

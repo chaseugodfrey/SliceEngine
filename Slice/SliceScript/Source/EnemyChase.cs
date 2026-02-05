@@ -10,73 +10,71 @@ namespace SliceEngine
     {
         public float moveSpeed = 5.0f;
         public string targetObject;
-        Transform targetTransform;
-        Transform enemyT;
-        //GameObject player;
-        Transform playerT = null;
-        public Vector3[] test;
+
+        GameObject targetObjRef;
+
+        GameObject playerObjRef;
+
+        NavAgent navAgent;
+
+        float pathUpdateTimer = 0.0f;
+        float pathUpdateInterval = 0.2f;
 
         public override void OnCreate()
         {
-            enemyT = GetComponent<Transform>();
-            //player = gameObject.FindGameObjectWithName("RootNode");
+            FunctionCalls.Log("EnemyChase: OnCreate");
+            navAgent = GetComponent<NavAgent>();
 
-            //if (player != null)
-            //{
-            playerT = gameObject.FindGameObjectWithName("RootNode").GetComponent<Transform>();
-            //}
-            targetTransform = gameObject.FindGameObjectWithName(targetObject).GetComponent<Transform>();
+            if (navAgent != null)
+            {
+                navAgent.Speed = moveSpeed;
+            }
+            else
+            {
+                FunctionCalls.LogWarn("EnemyChase: Missing NavAgent component!");
+            }
+
+            if (!string.IsNullOrEmpty(targetObject))
+            {
+                targetObjRef = gameObject.FindGameObjectWithName(targetObject);
+                if (targetObjRef == null)
+                {
+                    FunctionCalls.LogWarn($"EnemyChase: Target '{targetObject}' not found. Falling back to RootNode.");
+                }
+            }
+
+            if (targetObjRef == null)
+            {
+                playerObjRef = gameObject.FindGameObjectWithName("RootNode");
+            }
         }
 
         public override void OnUpdate(float dt)
         {
-            //if (playerT != null)
-            //{
-            //    Vector3 direction_diff = playerT.Position - enemyT.Position;
-
-            //    enemyT.Position += direction_diff.Normalize() * moveSpeed * dt;
-            //}
-
-            //if (player.Has<Player>())
-            //{
-            //    PlayerController playerComp = player.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
-
-            //if (playerT.gameObject.Has<PlayerController>())
-            //{
-            //    PlayerController playerComp = playerT.gameObject.As<PlayerController>();
-            //    SliceLog.Log(playerComp.direction.ToString());
-            //}
-
-            if (targetTransform != null)
+            if (navAgent != null)
             {
-                //Console.WriteLine("Has target Transform");
-                if (HasComponent<NavAgent>())
+                GameObject activeTarget = targetObjRef != null ? targetObjRef : playerObjRef;
+
+                if (activeTarget != null)
                 {
-                   // Console.WriteLine("Has nav agent");
-                    if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                    pathUpdateTimer += dt;
+
+                    if (pathUpdateTimer > pathUpdateInterval)
                     {
-                       // Console.WriteLine("Pressed backspace");
-                        NavAgent agent = GetComponent<NavAgent>();
-                        agent.SetDestination(targetTransform.Position);
+                        pathUpdateTimer = 0.0f;
+
+                        Vector3 targetPos = activeTarget.GetComponent<Transform>().Position;
+
+                        navAgent.SetDestination(targetPos);
+
+                        // Debug print
+                        // FunctionCalls.Log($"Chasing... Target Pos: {targetPos.x}, {targetPos.z}");
                     }
                 }
             }
-
-
         }
 
-        public override void OnCollideEnter(uint other)
-        {
-         //   SliceLog.Log("OADMOSMODASM");
-            //gameObject.Destroy();
-        }
-
-        public override void OnCollideStay(uint other)
-        {
-          //  gameObject.Destroy();
-        }
-
+        public override void OnCollideEnter(uint other) { }
+        public override void OnCollideStay(uint other) { }
     }
 }

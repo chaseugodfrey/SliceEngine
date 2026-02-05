@@ -13,114 +13,162 @@ DigiPen Institute of Technology is prohibited.
 #include "Serializer/JSONSerializer.h"
 #include "Core/Core.h"
 #include "SceneSystem.h"
+#include "Configuration/ProjectSettingsManager.h"
+#include "Configuration/BuildSettings.h"
 
 namespace SliceEngine
 {
-	
 	void SceneSystem::Init()
 	{
-		//Will do all the loading of the resources based on the scene file
-		LoadScene(mDefaultScene);
 		mCurrentState = mNextState = SceneState::DEFAULT;
-
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
-
 	}
+
 	void SceneSystem::LoadSceneIntoQueue(std::filesystem::path const filePath)
 	{
 		mSceneQueue.push(filePath);
-		mNextScene = filePath;
-		UnloadCurrentScene();
 	}
 
-	
-	void SceneSystem::LoadScene(std::filesystem::path const filePath)
+	void SceneSystem::LoadDefaultScene()
 	{
-		//isSceneUnloaded = false;
+		//EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
+	}
 
-		SLICE_LOG(std::filesystem::current_path().string());
-		SLICE_LOG("Attempting to load scene from path: " + filePath.string());
+	bool SceneSystem::LoadSceneFromQueue()
+	{
+		auto asset_directory_path = std::filesystem::path("Assets");
+		auto next_scene_filepath = mSceneQueue.front();
+		mSceneQueue.pop();
 
-		/*if (!std::filesystem::exists(filePath))
+		// Check if initial scene is empty, then load default scene
+		if (next_scene_filepath.empty())
 		{
-			SLICE_LOG_ERROR("Filepath not found. Loading scene unsuccessful.");
-			return;
-		}*/
+			SLICE_LOG("No scene to load. Loading Default Scene.");
+			LoadDefaultScene();
+			return true;
+		}
 
-		mCurrentSceneName = filePath.filename().stem().string();
+		auto next_scene_filename = std::filesystem::relative(next_scene_filepath, asset_directory_path).generic_string();
 
-		mCurrentScene = filePath;
+		SLICE_LOG("Attempting to load scene from path: " + next_scene_filepath.string());
 
-		auto filePathGUID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Scene>(mCurrentSceneName).get();
-
-		if (filePathGUID)
+		if (!std::filesystem::exists(next_scene_filepath))
 		{
+			SLICE_LOG("Failed to load scene from path: " + next_scene_filepath.string());
+			return false;
+		}
 
-			std::filesystem::path filePathToLoad = filePathGUID->GetFilePath();
 
-			std::filesystem::path metaFile = filePathGUID->GetFilePath();
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::RELOAD_SCENE)
+		{
+			// publish event to scene change
+			OnSceneChangeEvent ChangeEvent;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
 
-			metaFile.replace_extension(".meta");
-
-			//LoadNavMeshFromMeta(metaFile);
-
-			if (mCurrentScene.extension() == ".temp")
+			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
 			{
-				filePathToLoad.replace_extension(".temp");
+				mCurrentState = SceneState::DEFAULT;
 			}
-
-			SLICE_LOG("Loading scene...");
-
-			auto map = JSONSerializer::DeserializeScene(filePathToLoad);
-
-			SLICE_LOG("Scene loaded successfully.");
-
-			Core::GetInstance()->mFactory.BuildSceneGraph(map);
-
-			OnSceneLoadedEvent event;
-			event.isSceneLoaded = true;
-
-			EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
-
 		}
-		else
+
+
+
+		UnloadCurrentScene();
+
+		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
+
+		auto map = JSONSerializer::DeserializeScene(next_scene_filepath);
+
+		//Call DeserializeSceneNavMesh function, will return a guid
+		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
+
+		mCurrentScene = next_scene_filepath;
+		mCurrentSceneName = next_scene_filepath.stem().string();
+
+		SLICE_LOG("Scene: " + next_scene_filepath.string() + " loaded successfully.");
+
+		Core::GetInstance()->mFactory.BuildSceneGraph(map);
+		Core::GetInstance()->mFactory.DebugPrint();
+
+		/*std::filesystem::path metaPath = next_scene_filepath;
+
+		std::string navMesh = "";
+		metaPath += ".meta";
+
+		navMesh = LoadNavMeshFromMeta(metaPath);*/
+
+		std::string navMeshBinString = "Resources/";
+		navMeshBinString += navMeshBinGUID.toString();
+
+		OnSceneLoadedEvent event;
+		event.isSceneLoaded = true;
+		event.navMeshBinPath = navMeshBinString;
+		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+
+
+		if (next_scene_filepath.extension() == ".temp")
 		{
-			SLICE_LOG_ERROR("Scene not found");
-			return;
+			//std::filesystem::remove(next_scene_filepath);
+			mCurrentScene.replace_extension(".scene");
 		}
 
+		if (mCurrentState == SceneState::RELOAD_SCENE && mNextState == SceneState::RELOAD_SCENE)
+		{
+			mNextState = mCurrentState = SceneState::DEFAULT;
+
+		}
+
+
+		return true;
 	}
 
-	void SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
+	std::string SceneSystem::LoadNavMeshFromMeta(std::filesystem::path metaFile)
 	{
+		if (!std::filesystem::exists(metaFile))
+			return "";
+
 		std::ifstream meta(metaFile);
+		if (!meta.is_open())
+			return "";
 
 		nlohmann::json metaData;
 
-		meta >> metaData;
-
+		try {
+			meta >> metaData;
+		}
+		catch (...) {
+			return "";
+		}
 		meta.close();
 
-		std::filesystem::path navMeshFile(metaData["navMeshFile"].get<std::string>());
+		std::string navMeshPath = "";
 
-		if (std::filesystem::exists(navMeshFile))
+		if (metaData.contains("navMeshFile"))
 		{
-			//Do sth idk
+			navMeshPath = metaData["navMeshFile"].get<std::string>();
+			
 		}
+
+		return navMeshPath;
 	}
 
-	void SceneSystem::LoadNextScene()
+	void SceneSystem::LoadSceneByIndex(size_t index)
 	{
-		/*auto scene_to_load = mSceneQueue.front();
-		mSceneQueue.pop();
-		LoadScene(scene_to_load);*/
-		if (mNextScene == mSceneQueue.front())
-		{
-			
-			LoadScene(mNextScene);
-			mSceneQueue.pop();
-			mNextScene = "";
-		}
+		auto handle = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<BuildSettings>()->GetSceneHandleByIndex(index);
+		if (!handle.IsValid())
+			return;
+
+		LoadSceneIntoQueue(handle->GetFilePath());
+	}
+
+	void SceneSystem::LoadSceneByName(std::string const& name)
+	{
+		auto handle = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<BuildSettings>()->GetSceneHandleByName(name);
+		if (!handle.IsValid())
+			return;
+
+		LoadSceneIntoQueue(handle->GetFilePath());
 	}
 
 	void SceneSystem::WriteTempFile()
@@ -131,25 +179,7 @@ namespace SliceEngine
 
 		CurrentSceneTemp.replace_extension(".temp");
 
-
 		JSONSerializer::SerializeScene(CurrentSceneTemp);
-
-		
-	}
-
-	void SceneSystem::SetCurrentScenePath(std::filesystem::path const& filePath)
-	{
-		mCurrentScene = filePath;
-	}
-
-	void SceneSystem::SetDefaultScenePath(std::filesystem::path const& filePath)
-	{
-		mDefaultScene = filePath;
-	}
-
-	std::filesystem::path SceneSystem::GetDefaultScenePath()
-	{
-		return mDefaultScene;
 	}
 
 	void SceneSystem::OnSceneSave(std::filesystem::path const filePath)
@@ -179,6 +209,11 @@ namespace SliceEngine
 
 	}
 
+	void SceneSystem::SaveScene(std::filesystem::path const filePath)
+	{
+		OnSceneSave(filePath);
+	}
+
 	void SceneSystem::SaveCurrentScene()
 	{
 		OnSceneSave(mCurrentScene);
@@ -191,7 +226,13 @@ namespace SliceEngine
 
 	void SceneSystem::UnloadCurrentScene()
 	{
-		SLICE_LOG("Unloading Scenes.");
+		if (mCurrentScene.empty())
+		{
+			SLICE_LOG("No scene is currently loaded. Skipping unload.");
+			return;
+		}
+
+		SLICE_LOG("Unloading scene: " + mCurrentScene.string());
 
 		Core::GetInstance()->mFactory.ClearGameObjects();
 		Core::GetInstance()->mFactory.UpdateDestroyed();
@@ -275,6 +316,9 @@ namespace SliceEngine
 
 	std::string SceneSystem::GetCurrentSceneName()
 	{
-		return mCurrentScene.stem().string();
+		if (mCurrentScene.empty())
+			return "New Scene";
+
+		return mCurrentSceneName;
 	}
 }

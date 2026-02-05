@@ -76,6 +76,19 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Instance something something");
 			return nullptr;
 		}
+
+		if (mono_domain_get() != gScriptSystem->mAppDomain)
+		{
+			// Attach the current C++ thread to the Mono JIT runtime
+			// This function is idempotent (safe to call if already attached),
+			// but we must use the root domain.
+			mono_thread_attach(gScriptSystem->mRootDomain);
+
+			// Set the current AppDomain for this thread
+			mono_domain_set(gScriptSystem->mAppDomain, false);
+		}
+
+
 		/*if (instance->synchronisation == nullptr || instance->vtable == nullptr)
 		{
 			SLICE_LOG_ERROR("Instance something something");
@@ -102,16 +115,7 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		if (mono_domain_get() != gScriptSystem->mAppDomain)
-		{
-			// Attach the current C++ thread to the Mono JIT runtime
-			// This function is idempotent (safe to call if already attached),
-			// but we must use the root domain.
-			mono_thread_attach(gScriptSystem->mRootDomain);
 
-			// Set the current AppDomain for this thread
-			mono_domain_set(gScriptSystem->mAppDomain, false);
-		}
 
 
 		// Exception so that we can check if any invoke fails
@@ -157,9 +161,12 @@ namespace SliceEngine
 		mOnAwake = scClass->GetMethod("OnAwake", 0);
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
-		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnLateUpdate = scClass->GetMethod("OnLateUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
+		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
+		mOnEntityDisabled = scClass->GetMethod("OnDisabled", 0);
 
 		//// Collision functions
 		mOnCollideEnter = scClass->GetMethod("OnCollideEnter", 1);
@@ -186,6 +193,21 @@ namespace SliceEngine
 		mHandle = mono_gchandle_new(mMonoInstance, true);
 	}
 
+	void ScriptObject::Destroy()
+	{
+		if (mHandle)
+		{
+			mono_gchandle_free(mHandle);
+			mHandle = 0;
+			mMonoInstance = nullptr;
+		}
+	}
+
+	ScriptObject::~ScriptObject()
+	{
+		Destroy();
+	}
+
 	MonoObject* ScriptObject::GetInstance()
 	{
 		return mMonoInstance;
@@ -201,6 +223,10 @@ namespace SliceEngine
 
 		}
 
+	}
+
+	void ScriptObject::InvokeOnAwake()
+	{
 		if (mOnAwake)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnAwake);
@@ -230,6 +256,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnLateUpdate(float dt)
+	{
+		if (mOnLateUpdate)
+		{
+			void* param = &dt;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnLateUpdate, &param);
 		}
 	}
 
@@ -370,6 +405,22 @@ namespace SliceEngine
 		if (mOnMouseHover)
 		{
 			mScriptClass->InvokeMethod(mMonoInstance, mOnMouseHover);
+		}
+	}
+
+	void ScriptObject::InvokeOnEnabled()
+	{
+		if (mOnEntityEnabled)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityEnabled);
+		}
+	}
+
+	void ScriptObject::InvokeOnDisabled()
+	{
+		if (mOnEntityDisabled)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnEntityDisabled);
 		}
 	}
 
@@ -541,10 +592,65 @@ namespace SliceEngine
 				return result;
 			}
 			break;
+		case MONO_TYPE_CLASS:
+		{
+			MonoObject* obj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+			if (!obj) return {};
+
+			MonoClass* objClass = mono_object_get_class(obj);
+			std::string className = mono_class_get_name(objClass);
+
+			if (className == "Prefab") 
+			{
+				// Extract the string field (e.g., "prefabPath") from the C# Prefab class
+				MonoClassField* pathField = mono_class_get_field_from_name(objClass, "prefabName");
+				MonoString* monoStr = nullptr;
+				mono_field_get_value(obj, pathField, &monoStr);
+				MonoString* strVal = reinterpret_cast<MonoString*>(mono_field_get_value_object(mono_domain_get(), field, scriptInstance));
+				if (strVal != nullptr)
+				{
+					char* utf8str = mono_string_to_utf8(strVal);
+					result = utf8str;
+					mono_free(utf8str);
+				}
+
+				return PrefabVar{ result };
+			}
+		}
+		break;
 		case MONO_TYPE_VALUETYPE:
 			std::string typeName = mono_type_get_name(type);
-			// Check for value type like vectors and stuff
 
+			// Check for value type like vectors and stuff
+			if (typeName == "SliceEngine.Prefab")
+			{
+				MonoObject* valueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+				
+				if (valueObj == nullptr)
+				{
+					return PrefabVar{ "" };
+				}
+				
+				void* unboxPtr = mono_object_unbox(valueObj);
+
+				MonoClass* prefabClass = mono_type_get_class(type);
+
+				// get the field related to "prefabName" from c#'s prefab.cs
+				MonoClassField* nameField = mono_class_get_field_from_name(prefabClass, "prefabName");
+
+				MonoString* monoStr = nullptr;
+				mono_field_get_value((MonoObject*)unboxPtr, nameField, &monoStr);
+
+				if (monoStr)
+				{
+					char* utf8 = mono_string_to_utf8(monoStr);
+					std::string name(utf8);
+					mono_free(utf8);
+					return PrefabVar{ name };
+				}
+
+				return PrefabVar{ "" };
+			}
 			break;
 		}
 
@@ -666,6 +772,20 @@ namespace SliceEngine
 		else if (type == rttr::type::get<glm::vec2>())
 		{
 			mono_field_set_value(scriptInstance, field, &value.get_value<glm::vec2>());
+		}		
+		else if (type == rttr::type::get<PrefabVar>())
+		{
+			MonoClass* prefabClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", "Prefab");
+			MonoObject* prefabInstance = mono_object_new(mono_domain_get(), prefabClass);
+
+			std::string path = value.get_value<PrefabVar>().prefabFileName;
+			MonoString* monoStr = mono_string_new(mono_domain_get(), path.c_str());
+
+			// Manual field set or call a constructor
+			MonoClassField* pathField = mono_class_get_field_from_name(prefabClass, "prefabName");
+			mono_field_set_value(prefabInstance, pathField, monoStr);
+
+			mono_field_set_value(scriptInstance, field, prefabInstance);
 		}
 	}
 

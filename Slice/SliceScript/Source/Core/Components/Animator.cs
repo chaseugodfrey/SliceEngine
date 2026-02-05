@@ -16,7 +16,7 @@ namespace SliceEngine
 
         public void SetBool(string name, bool value)
         {
-            Console.WriteLine("Setting bool animation parameter: " + name + " to " + value);
+            //Console.WriteLine("Setting bool animation parameter: " + name + " to " + value);
             FunctionCalls.SetBool(gameObject.mID, name, value);
         }
 
@@ -39,6 +39,11 @@ namespace SliceEngine
         {
             return FunctionCalls.GetCurrAnimTime(gameObject.mID);
         }
+        public bool SafeToChange(string name)
+        {
+            return FunctionCalls.SafeToChange(gameObject.mID, name);
+        }
+
         public float GetCurrAnimFPS()
         {
             return FunctionCalls.GetCurrAnimFPS(gameObject.mID);

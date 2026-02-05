@@ -18,7 +18,7 @@ written consent of DigiPen Institute of Technology is prohibited.
 namespace SliceEngine
 {
 	FramerateManager::FramerateManager() : deltaTime(0.0), prevTime(static_cast<float>(glfwGetTime())),
-		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) 
+		targetfps(60.0), accumulatedTime(0), currentNumberOfSteps(0), currFPS(0.0f) , mUntrackedTime(0.0f)
 	{
 		fixedDeltaTime = 1.0f / targetfps;
 	}
@@ -106,24 +106,9 @@ namespace SliceEngine
 		frameEndTime = Clock::now();
 
 		float frameTime = std::chrono::duration<float, std::milli>(frameEndTime - frameStartTime).count();
-		mTotalFrameTime =frameTime;
+		mTotalFrameTime = frameTime;
 
-		currFPS = (1.0f / frameTime) * 1000;
-
-
-
-		//std::cout << "1 frame time: " << frameTime << std::endl;
-
-		if (!firstFrameDone)
-		{
-			// can be removed if don't want it to be printed for every startup
-			std::cout << "First frame time: " << frameTime * 1000.0f << " ms\n";
-			for (auto &[name, duration] : systemDurations)
-				std::cout << name << ": " << duration << " ms\n";
-
-			firstFrameDone = true;
-		}
-
+		currFPS = (frameTime > 0.0f) ? (1000.0f / frameTime) : 0.0f;
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -137,7 +122,7 @@ namespace SliceEngine
 		systemStartEndTimes[name].second = endTime;
 
 		float duration = std::chrono::duration<float, std::milli>(endTime - systemStartEndTimes[name].first).count();
-		systemDurations[name] = duration;
+		systemDurations[name] += duration;
 	}
 
 	float FramerateManager::GetCurrFPS()
@@ -145,10 +130,10 @@ namespace SliceEngine
 		return currFPS;
 	}
 
-	const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
-	{
-		return systemStartEndTimes;
-	}
+	//const std::unordered_map<std::string, std::pair<FramerateManager::TimePoint, FramerateManager::TimePoint>> FramerateManager::GetSysStartEndTimes()
+	//{
+	//	return systemStartEndTimes;
+	//}
 
 	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
 	{
@@ -165,7 +150,7 @@ namespace SliceEngine
 		return mSystemPercentages;
 	}
 
-	void FramerateManager::CapFPS(int targetFPS)
+	/*void FramerateManager::CapFPS(int targetFPS)
 	{
 		using namespace std::chrono;
 
@@ -179,17 +164,20 @@ namespace SliceEngine
 			currentTime = Clock::now();
 			elapsedTime = duration<double>(currentTime - frameStartTime);
 		}
-	}
+	}*/
 
 	void FramerateManager::CalculateSystemPercentages()
 	{
 		mSystemPercentages.clear();
+		float trackedTime = 0.0f;
 
 		for (const auto [system, time] : systemDurations)
 		{
 			auto systemPercentage = (time / mTotalFrameTime) * 100.0f;
 
 			mSystemPercentages[system] = systemPercentage;
+			trackedTime += time;
 		}
+		mUntrackedTime = mTotalFrameTime - trackedTime;
 	}
 }

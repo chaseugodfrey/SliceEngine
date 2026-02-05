@@ -12,6 +12,14 @@ namespace SliceEngine
             gameObject = entity;
         }
 
+        public void ComponentState(bool componentState)
+        {
+            if(gameObject != null)
+            {
+                FunctionCalls.NavAgent_ComponentState(gameObject.mID, componentState);
+            }
+        }
+
         public float Speed
         {
             get
@@ -35,6 +43,16 @@ namespace SliceEngine
                 if (gameObject == null) return false;
                 return FunctionCalls.NavAgent_HasPath(gameObject.mID);
             }
+        }
+
+        public bool ComponentIsEnabled(GameObject go) 
+        {
+                return FunctionCalls.NavAgent_GetComponentEnabled(go.mID);
+        }
+
+        public void SetComponentIsEnabled(GameObject go, bool isEnabled) 
+        {
+                FunctionCalls.NavAgent_SetComponentEnabled(go.mID, isEnabled);
         }
 
         public void SetDestination(Vector3 target)

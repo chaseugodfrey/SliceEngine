@@ -37,23 +37,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'WeightOfTheSky|x64' ">
-    <PlatformTarget>x64</PlatformTarget>
-    <DebugType>portable</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <Optimize>false</Optimize>
-    <OutputPath>.\</OutputPath>
-    <BaseIntermediateOutputPath>obj\WeightOfTheSky\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorDebug|x64' ">
   </ItemGroup>
   <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'EditorRelease|x64' ">
-  </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)|$(Platform)' == 'WeightOfTheSky|x64' ">
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\Attack_1.cs" />
@@ -64,8 +50,14 @@
     <Compile Include="Source\Core\Components\AudioComponent.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
+    <Compile Include="Source\Core\Components\FontRenderer.cs" />
+    <Compile Include="Source\Core\Components\LayerMask.cs" />
     <Compile Include="Source\Core\Components\NavAgent.cs" />
+    <Compile Include="Source\Core\Components\ParticleSystem.cs" />
+    <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
+    <Compile Include="Source\Core\Components\RayCastHit.cs" />
+    <Compile Include="Source\Core\Components\RectTransform.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
@@ -81,11 +73,13 @@
     <Compile Include="Source\Core\Math\Utilities.cs" />
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
+    <Compile Include="Source\Core\Math\Vector4.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
+    <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
@@ -100,12 +94,15 @@
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\EditorTest.cs" />
+    <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\EnemySlime.cs" />
     <Compile Include="Source\EnemyState.cs" />
+    <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
+    <Compile Include="Source\Examples\TestFont.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
     <Compile Include="Source\Examples\TestMisc.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
@@ -119,6 +116,7 @@
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
+    <Compile Include="Source\PlayerTestNavAgent.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>

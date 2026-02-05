@@ -15,33 +15,79 @@ namespace SliceEditor
 	void AnimatorWindow::Init()
 	{
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
-		mAnimatorData = mSessionManager->GetAnimatorData();
+		//mAnimatorData = mSessionManager->GetAnimatorData();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &AnimatorWindow::ClearSelectionSubscribe>(this);
 
 		//ImNodes::PushColorStyle(ImNodesCol_NodeBackground, )
-		entryNode.id = 0;
-		entryNode.in_id = -1;
-		entryNode.out_id = 1;
-		entryNode.name = "Entry";
+		//entryNode.id = 0;
+		//entryNode.in_id = -1;
+		//entryNode.out_id = 1;
+		//entryNode.name = "Entry";
 
-		exitNode.id = 1;
-		exitNode.in_id = 2;
-		exitNode.out_id = -1;
-		exitNode.name = "Exit";
+		//exitNode.id = 1;
+		//exitNode.in_id = 2;
+		//exitNode.out_id = -1;
+		//exitNode.name = "Exit";
 	}
 
 	void AnimatorWindow::Draw()
 	{
-		bool hasAnimator = CheckForAnimator();
+		CheckForAnimator();
 		
 		ImGui::Begin("Animator");
-
+		DrawMenuBar();
 		DrawParameters();
 		ImGui::SameLine();
 		DrawNodeEditor();
 		DrawPostEditorElements();		
 		ImGui::End();
 	}
+
+	void AnimatorWindow::DrawMenuBar()
+	{
+		if (ImGui::Button("Save"))
+		{
+			if (!mAnimatorData)
+				return;
+
+			mAnimatorData->mStateMachineAsset->SerializeAsset();
+		}
+	}
+
+	void AnimatorWindow::CheckForAnimator()
+	{
+		// Check if any entities selected
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+
+		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+			return;
+
+		auto& nodes = selectionManager->GetSelectedNodes();
+		Entity entity = entt::null;
+
+		// if entities present
+		if (nodes.size() > 0)
+		{
+			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
+			entity = entityNode->entity;
+
+			// check if first entity has animator component
+			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
+
+			// if anim exists
+			if (anim)
+			{
+				// if current animator is null or mismatch
+				// ignore if anim == mCurrentAnimator
+				// either case, return true
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				{
+					LoadDataFromAnimator(anim, entity);
+				}
+			}
+		}
+	}
+
 
 	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
 	{
@@ -89,36 +135,39 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			int param_id{};
-			for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
+			if(!mAnimatorData->empty())
 			{
-				std::string param_label_id = "##param" + name + std::to_string(param_id);
-				std::string param_name = name;
-				ImGui::SetNextItemWidth(125.0f);
-				if (ImGui::InputText(param_label_id.c_str(), &param_name))
+				int param_id{};
+				for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
 				{
+					std::string param_label_id = "##param" + name + std::to_string(param_id);
+					std::string param_name = name;
+					ImGui::SetNextItemWidth(125.0f);
+					if (ImGui::InputText(param_label_id.c_str(), &param_name))
+					{
 
-				}
+					}
 
-				ImGui::SameLine(0.0f, 100.0f);
+					ImGui::SameLine(0.0f, 100.0f);
 
-				if (param.is_type<float>())
-				{
-					ImGui::SetNextItemWidth(150.0f);
-					DragFloatInputHeader(mRegistry, "", (param_label_id + "_float").c_str(), param.get_value<float>());
-				}
+					if (param.is_type<float>())
+					{
+						ImGui::SetNextItemWidth(150.0f);
+						DragFloatInputHeader(mRegistry, "", (param_label_id + "_float").c_str(), param.get_value<float>());
+					}
 
-				else if (param.is_type<int>())
-				{
-					ImGui::SetNextItemWidth(150.0f);
-					DragIntInputHeader(mRegistry, "", (param_label_id + "_int").c_str(), param.get_value<int>());
-				}
+					else if (param.is_type<int>())
+					{
+						ImGui::SetNextItemWidth(150.0f);
+						DragIntInputHeader(mRegistry, "", (param_label_id + "_int").c_str(), param.get_value<int>());
+					}
 
-				else if (param.is_type<bool>())
-				{
-					BoolInputHeader(mRegistry, "", (param_label_id + "_bool").c_str(), param.get_value<bool>());
+					else if (param.is_type<bool>())
+					{
+						BoolInputHeader(mRegistry, "", (param_label_id + "_bool").c_str(), param.get_value<bool>());
+					}
 				}
 			}
 		}
@@ -170,21 +219,24 @@ namespace SliceEditor
 
 		ImNodes::BeginNodeEditor();
 
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			for (auto& [id, node] : mAnimatorData->mStateNodes)
+			if (!mAnimatorData->empty())
 			{
-				DrawStateNode(&node);
-			}
+				for (auto& [id, node] : mAnimatorData->mStateNodes)
+				{
+					DrawStateNode(&node);
+				}
 
-			for (auto& [id, link] : mAnimatorData->mTransitionNodes)
-			{
-				DrawTransitionLinkNode(&link);
+				for (auto& [id, link] : mAnimatorData->mTransitionNodes)
+				{
+					DrawTransitionLinkNode(&link);
+				}
 			}
 		}
 
-		DrawEntryNode();
-		DrawExitNode();
+		//DrawEntryNode();
+		//DrawExitNode();
 		DrawPostEditorElements();
 
 		if (mAnimatorData)
@@ -196,109 +248,83 @@ namespace SliceEditor
 
 	void AnimatorWindow::DrawPostEditorElements()
 	{
-		if (!mAnimatorData->empty())
+		if (mAnimatorData != nullptr)
 		{
-			//// Check for inputs for popups
-			//for (auto& [id, node] : mAnimatorData->mStateNodes)
-			//{
-			//	if (CheckStateInput(&node))
-			//	{
-			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
-			//	}
-			//}
-
-			//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
-			//{
-			//	if (CheckLinkInput(&link))
-			//	{
-			//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
-			//	}
-			//}
-
-			if (ImNodes::IsEditorHovered())
+			if (!mAnimatorData->empty())
 			{
-				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-				{
-					ImGui::OpenPopup("NodeEditor_Popup");
-				}
-			}
+				//// Check for inputs for popups
+				//for (auto& [id, node] : mAnimatorData->mStateNodes)
+				//{
+				//	if (CheckStateInput(&node))
+				//	{
+				//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+				//	}
+				//}
 
-			if (ImGui::BeginPopup("Node_Popup"))
-			{
-				if (ImGui::Selectable("Make Entry State"))
-				{
+				//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
+				//{
+				//	if (CheckLinkInput(&link))
+				//	{
+				//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&link);
+				//	}
+				//}
 
+				if (ImNodes::IsEditorHovered())
+				{
+					if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+					{
+						ImGui::OpenPopup("NodeEditor_Popup");
+					}
 				}
 
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("Link_Popup"))
-			{
-				if (ImGui::Selectable("Delete"))
+				if (ImGui::BeginPopup("Node_Popup"))
 				{
+					if (ImGui::Selectable("Make Entry State"))
+					{
 
+					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("NodeEditor_Popup"))
-			{
-				if (ImGui::Selectable("Create Node"))
+				if (ImGui::BeginPopup("Link_Popup"))
 				{
+					if (ImGui::Selectable("Delete"))
+					{
 
+					}
+
+					ImGui::EndPopup();
 				}
 
-				ImGui::EndPopup();
+				if (ImGui::BeginPopup("NodeEditor_Popup"))
+				{
+					if (ImGui::Selectable("Create Node"))
+					{
+
+					}
+
+					ImGui::EndPopup();
+				}
 			}
 		}
 	}
 
-	bool AnimatorWindow::CheckForAnimator()
+	void AnimatorWindow::SaveAnimatorData()
 	{
-		// Check if any entities selected
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		auto& sm = mAnimatorData->mStateMachineAsset;
 
-		if (selectionManager->mSelectionType != SelectionType::ENTITY)
-		{
-			return (mCurrentAnimator != nullptr);
-		}
+		//sm->entryPosition = ImNodes::GetNodeEditorSpacePos(0);
+		//sm->exitPosition = ImNodes::GetNodeEditorSpacePos(1);
 
-		auto& nodes = selectionManager->GetSelectedNodes();
-		Entity entity = entt::null;
+		//for (auto& [id, node] : mAnimatorData->mStateNodes)
+		//{
+		//	if (id == 0 || id == 1)
+		//		continue;
 
-		// if entities present
-		if (nodes.size() > 0)
-		{
-			EntityNode* entityNode = static_cast<EntityNode*>(*nodes.begin());
-			entity = entityNode->entity;
+		//	
+		//}
 
-			// check if first entity has animator component
-			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-
-			// if anim exists
-			if (anim && anim->IsValid())
-			{
-				// if current animator is null or mismatch
-				// ignore if anim == mCurrentAnimator
-				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
-				{
-					LoadDataFromAnimator(anim, entity);
-					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
-				}
-
-				return true;
-			}
-
-			else
-				return (mCurrentAnimator != nullptr);
-		}
-
-		// if no entities present
-		else
-			return (mCurrentAnimator != nullptr);
 	}
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
@@ -331,7 +357,6 @@ namespace SliceEditor
 	void AnimatorWindow::DrawStateNode(StateNode* node)
 	{
 		ImNodes::BeginNode(node->id);
-
 		//ImNodes::BeginNodeTitleBar();
 		//ImGui::TextUnformatted(name.c_str());
 		//ImNodes::EndNodeTitleBar();
@@ -356,6 +381,14 @@ namespace SliceEditor
 		}
 
 		ImNodes::EndNode();
+
+		if (ImNodes::IsNodeSelected(node->id))
+		{
+			SelectNode(node->id);
+		}
+
+		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
+		mAnimatorData->set_position(node->id, pos);
 	}
 
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
@@ -370,6 +403,21 @@ namespace SliceEditor
 		auto guid = mCurrentAnimator->Handle_stateMachine.getGUID();
 		mSessionManager->LoadAnimatorData(guid);
 		mAnimatorData = mSessionManager->GetAnimatorData();
+
+		// Set Initial Node Positions
+		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
+
+		ImNodes::SetNodeEditorSpacePos(0, mAnimatorData->mStateMachineAsset->entryPosition);
+		ImNodes::SetNodeEditorSpacePos(1, mAnimatorData->mStateMachineAsset->exitPosition);
+
+		for (auto& [name, state] : stateMap)
+		{
+			auto it = mAnimatorData->mNameToStateID.find(name);
+			if (it != mAnimatorData->mNameToStateID.end())
+			{
+				ImNodes::SetNodeEditorSpacePos(it->second, state.mNodePos);
+			}
+		}
 	}
 
 	void AnimatorWindow::ClearData()
@@ -378,7 +426,24 @@ namespace SliceEditor
 		mAnimatorData = nullptr;
 	}
 
-	bool AnimatorWindow::RemoveTransitionFromState(int id)
+	void AnimatorWindow::CreateNode()
+	{
+		mAnimatorData->create_state();
+
+	}
+
+	void AnimatorWindow::DeleteNode(uint16_t id)
+	{
+
+	}
+
+	void AnimatorWindow::SelectNode(uint16_t id)
+	{
+		auto& node = mAnimatorData->mStateNodes.at(id);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+	}
+
+	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
 	{
 		auto transition_it = mAnimatorData->mTransitionNodes.find(id);
 

@@ -1,7 +1,8 @@
 #include <pch.h>
 #include "PreferenceWindow.h"
 #include "Core/Registry.h"
-#include "Session/SessionManager.h"
+#include "Configuration/PreferenceManager.h"
+#include <Inspector/ComponentPropertiesGUI.h>
 
 namespace SliceEditor
 {
@@ -28,56 +29,98 @@ namespace SliceEditor
 		return ImVec4(arr[0], arr[1], arr[2], arr[3]);
 	}
 
-	void PreferenceWindow::SetThemeColor(ImVec4 col)
-	{
-		//ImGuiStyle& style = ImGui::GetStyle();
-
-		//style.Colors[ImGuiCol_Header] = col;
-		//style.Colors[ImGuiCol_Tab] = col;
-		//style.Colors[ImGuiCol_TabActive] = col * 0.95f;
-		//style.Colors[ImGuiCol_TabHovered] = col * 1.05f;
-		//style.Colors[ImGuiCol_TabSelected] = style.Colors[ImGuiCol_TabHovered];
-		//style.Colors[ImGuiCol_TabSelected].w = style.Colors[ImGuiCol_TabHovered].w * 0.95f;
-		////style.Colors[ImGuiCol_TabDimmed].w = style.Colors[ImGuiCol_TabHovered].w * 0.95f;
-		//style.Colors[ImGuiCol_TabDimmedSelected]= style.Colors[ImGuiCol_Tab] * 0.35f;
-	}
-
 	void PreferenceWindow::Init()
 	{
-		preferences = &mRegistry.GetManager<SessionManager>("Session")->GetPreferences();
+		mPreferenceList.push_back(std::make_unique<ThemePreferenceDisplay>(mRegistry, "Theme"));
+		mPreferenceList.push_back(std::make_unique<ScenePreferenceDisplay>(mRegistry, "Scene"));
 	}
 
 	void PreferenceWindow::Draw()
 	{
+		ImVec2 window_size = ImVec2(800, 600);
+		ImGui::SetNextWindowSize(window_size);
 		bool isOpen;
-		if (ImGui::Begin("Preferences", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
-		{
-			ImGui::SeparatorText("Themes");
 
-			if (ImGui::BeginCombo("Theme", EditorThemes[preferences->Theme]))
+		if (ImGui::Begin("Preferences", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			//auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+
+			auto& mPreferences = mRegistry.GetManager<PreferenceManager>("Preferences")->GetPreferences();
+
+			ImVec2 left_size = ImVec2(window_size.x * 0.1f, window_size.y);
+			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Borders))
 			{
-				for (int i = 0; i < EditorThemes.size(); i++)
+				for (size_t i = 0; i < mPreferenceList.size(); i++)
 				{
-					if (ImGui::Selectable(EditorThemes[i]))
+					auto settings = mPreferenceList[i].get();
+					if (ImGui::Selectable(settings->name.c_str()))
 					{
-						preferences->Theme = EditorThemeType(i);
+						mCurrentPreferenceIndex = (PreferenceType)i;
 					}
 				}
-
-				ImGui::EndCombo();
 			}
+			ImGui::EndChild();
 
-			if (ImGui::Button("Save"))
+			auto& mCurrentPreference = mPreferenceList[(size_t)mCurrentPreferenceIndex];
+
+			ImGui::SameLine();
+
+			ImVec2 right_size = ImVec2(window_size.x * 0.9f, window_size.y);
+			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_Borders);
+			mCurrentPreference->DisplayHeader();
+			mCurrentPreference->DisplayPreferences(mPreferences);
+			if (ImGui::Button("Save Changes"))
 			{
-				mRegistry.GetManager<SessionManager>("Session")->SavePreferences();
+				mRegistry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
 			}
-
-			ImGui::End();
+			ImGui::EndChild();
 		}
 
 		if (!isOpen)
-		{
 			markForRemoval = true;
+
+		ImGui::End();
+	}
+
+	void BasePreferenceDisplay::DisplayHeader()
+	{
+		ImGui::PushFont(NULL, ImGui::GetFontSize() * 1.25f);
+		ImGui::Text(name.c_str());
+		ImGui::PopFont();
+	}
+
+	void ThemePreferenceDisplay::DisplayPreferences(Preferences& preferences)
+	{
+		ImGui::SeparatorText("Themes");
+		
+		if (ImGui::BeginCombo("##Theme", EditorThemes[preferences.theme.ID]))
+		{
+			for (int i = 0; i < EditorThemes.size(); i++)
+			{
+				if (ImGui::Selectable(EditorThemes[i]))
+				{
+					preferences.theme.ID = EditorThemeType(i);
+					EditorUtilities::SetTheme(preferences.theme.ID);
+				}
+			}
+
+			ImGui::EndCombo();
 		}
+	}
+
+	void ScenePreferenceDisplay::DisplayPreferences(Preferences& preferences)
+	{
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+
+		ImGui::SeparatorText("Scene");
+
+		auto startingSceneHandle = resourceMgr->get<SliceEngine::SliceEngineTypes::Scene>(preferences.scene.startingID);
+		auto startingSceneString = startingSceneHandle.IsValid() ? startingSceneHandle->GetFilePath().string() : "None.";
+
+		if (HandleDragDropInputHeader(mRegistry, "Startup Scene", "##startup_scene", startingSceneHandle, "Scene"))
+		{
+			preferences.scene.startingID = startingSceneHandle.getGUID();
+		}
+		
 	}
 }

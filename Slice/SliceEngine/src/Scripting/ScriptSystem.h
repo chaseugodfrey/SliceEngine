@@ -102,6 +102,11 @@ namespace SliceEngine
 		/// </summary>
 		void LoadEntityClasses();
 		/// <summary>
+		/// Update a entity's script to a new script.
+		/// </summary>
+		/// <param name="entity"></param>
+		void ReloadEntityScript(Entity entity);
+		/// <summary>
 		/// For debugging. Print the mono heap size. Used when I had memory leaks
 		/// </summary>
 		void LogMonoHeapSize();
@@ -130,6 +135,11 @@ namespace SliceEngine
 
 		void UnsubscribeToEvents();
 
+		void RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph);
+		
+		void RemapPrefabVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity);
+
+		void FixGOVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity, std::shared_ptr<ScriptObject>& scriptInstance);
 		/*!
 		OnStart() -> Called when play button is pressed. Loop through all entities and get a reference to their scripts
 		OnUpdate() -> Calls the script's update
@@ -138,13 +148,15 @@ namespace SliceEngine
 		void OnStart(); // Calls the Enter function of all game objects
 		void OnUpdate(float dt);
 		void OnFixedUpdate(float dt);
+		void OnLateUpdate(float dt);
 		void UpdateScripts();
 		void OnEnd();
 		//void ReceiveMessage(Message* msg) override;
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
-
+		void OnEnabled(entt::registry& reg, entt::entity entity);
+		void OnDisabled(entt::registry& reg, entt::entity entity);
 		//Collision Events
 		void OnCollideEnter(const OnCollisionEnterEvent& event);
 		void OnCollideStay(const OnCollisionStayEvent& event);
@@ -159,8 +171,14 @@ namespace SliceEngine
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
 
+		void OnAnimationEvent(const AnimationEvent& event);
+
 		//Slider events
 		void OnSliderValue(const OnSliderValueEvent& event);
+
+		// Get or create
+		MonoObject* GetOrCreateManagedObject(Entity entity);
+		void ClearManagedHandles();
 
 		// Variables
 		MonoDomain* mRootDomain;
@@ -182,13 +200,27 @@ namespace SliceEngine
 		std::unordered_map<std::string, std::shared_ptr<ScriptClass>> mEntityClasses;
 		// keep track of entity to script object
 		std::unordered_map<Entity, std::shared_ptr<ScriptObject>> mEntityInstances;
+		// keep track of handles
+		std::unordered_map<Entity, uint32_t> mManagedGameObjectHandles;
 
 		// cause I dont want to constantly loop through mEntitiesSet to pick up new entities
 		// ill store new entities thats added in a vector
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
+		std::set<Entity> entityToInit;
 
+		// Keep track of the entities that were disabled
+		// so that when its re-enabled, it wont call onStay 
+		// this is handled in JOLT now so I dont need this
+		//std::set<Entity> mEntitiesDisabled;
+		//std::map<Entity, std::set<Entity>> mEntityCollisionMap;
+
+		// for collision events
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
+
+		// These maps are for keeping track of collision and trigger stay
+		std::map<Entity, std::set<Entity>> mCollideMap;
+		std::map<Entity, std::set<Entity>> mTriggerMap;
 		std::mutex mQueueLock;
 
 	};

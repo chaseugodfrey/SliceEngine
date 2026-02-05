@@ -478,6 +478,114 @@ namespace SliceEngine
 			return;
 		}
 
+		void Model::LoadDefaultCylinderModel()
+		{
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
+			auto& indices = mesh.indices;	indices.clear();
+
+			float radius = 0.5f;
+			float halfHeight = 0.5f;    // Half the height of the *cylinder* part
+			int cylStackCount = 5;      // Stacks for the cylinder body
+			int sectorCount = 30;       // Vertical slices (longitude), same as sphere
+
+			// Total stacks for indexing
+			int totalStacks = 1 + cylStackCount + 1;
+
+			vertices.reserve((totalStacks + 1) * (sectorCount + 1));
+			indices.reserve(totalStacks * sectorCount * 6);
+
+			// 2. Generate Vertices
+			// We loop from i = 0 to totalStacks (inclusive)
+			// This creates (totalStacks + 1) rings of vertices
+			for (int i = 0; i <= totalStacks; ++i)
+			{
+				float v = static_cast<float>(i) / totalStacks;
+
+				float y, currentRadius, ny;
+
+				// 1. TOP CAP CENTER (i = 0)
+				if (i == 0) {
+					y = halfHeight;
+					currentRadius = 0.0f; // Converge to center
+					ny = 1.0f;            // Facing up
+				}
+				// 2. TOP RIM (i = 1)
+				else if (i == 1) {
+					y = halfHeight;
+					currentRadius = radius;
+					ny = 1.0f;            // Facing up
+				}
+				// 3. CYLINDER BODY (The tube)
+				else if (i > 1 && i <= 1 + cylStackCount - 1) {
+					float t = static_cast<float>(i - 1) / cylStackCount;
+					y = halfHeight - (t * (halfHeight * 2.0f));
+					currentRadius = radius;
+					ny = 0.0f;            // Facing sideways
+				}
+				// 4. BOTTOM RIM
+				else if (i == totalStacks - 1) {
+					y = -halfHeight;
+					currentRadius = radius;
+					ny = -1.0f;           // Facing down
+				}
+				// 5. BOTTOM CAP CENTER (i = totalStacks)
+				else {
+					y = -halfHeight;
+					currentRadius = 0.0f; // Converge to center
+					ny = -1.0f;           // Facing down
+				}
+
+				for (int j = 0; j <= sectorCount; ++j)
+				{
+					float u = static_cast<float>(j) / sectorCount;
+					float theta = u * 2.0f * PIF;
+
+					float cosTheta = std::cos(theta);
+					float sinTheta = std::sin(theta);
+
+					float x = currentRadius * cosTheta;
+					float z = currentRadius * sinTheta;
+
+					// Normal handling: 
+					// If it's a cap, normal is {0, ny, 0}. If it's the body, normal is {cos, 0, sin}
+					float nx = (ny == 0.0f) ? cosTheta : 0.0f;
+					float nz = (ny == 0.0f) ? sinTheta : 0.0f;
+
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+				}
+			}
+
+			// --- Generate Indices ---
+			// The logic remains identical to your sphere/capsule code!
+			for (int i = 0; i < totalStacks; ++i)
+			{
+				for (int j = 0; j < sectorCount; ++j)
+				{
+					int first = (i * (sectorCount + 1)) + j;
+					int second = first + (sectorCount + 1);
+
+					indices.emplace_back(first);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second);
+
+					indices.emplace_back(second);
+					indices.emplace_back(first + 1);
+					indices.emplace_back(second + 1);
+				}
+			}
+
+			mesh.setup_mesh();
+
+			//rootNode.local_transform = glm::identity<glm::mat4>();
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			name = "Cylinder";
+			return;
+		}
+
 		void Model::LoadDefaultQuadModel()
 		{
 			meshes.resize(1);
@@ -510,6 +618,7 @@ namespace SliceEngine
 			auto& m = meshes[0];
 			m.drawMode = GL_LINES;
 			m.drawCnt = 2;
+			std::vector<glm::vec3> vtx;
 			vtx.reserve(m.drawCnt);
 			vtx.emplace_back(-0.5, 0.0, 0.0);
 			vtx.emplace_back(0.5, 0.0, 0.0);
@@ -535,6 +644,7 @@ namespace SliceEngine
 		{
 			meshes.resize(1);
 			auto& mesh = meshes[0];
+			std::vector<glm::vec3> vtx;
 			vtx.reserve(8);
 			vtx.emplace_back(-0.5f, -0.5f, -0.5f); // 0: Near-Bottom-Left
 			vtx.emplace_back(0.5f, -0.5f, -0.5f); // 1: Near-Bottom-Right

@@ -9,10 +9,6 @@
       <Configuration>EditorRelease</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="WeightOfTheSky|x64">
-      <Configuration>WeightOfTheSky</Configuration>
-      <Platform>x64</Platform>
-    </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{8B2D1C09-F7E2-94FE-80D7-8ED5EC8B8B02}</ProjectGuid>
@@ -33,12 +29,6 @@
     <CharacterSet>Unicode</CharacterSet>
     <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'" Label="Configuration">
-    <ConfigurationType>StaticLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -46,9 +36,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -66,20 +53,13 @@
     <TargetExt>.lib</TargetExt>
     <ExternalIncludePath>thirdparty\Mono\bin;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
-    <OutDir>$(ProjectDir).\</OutDir>
-    <IntDir>$(ProjectDir)obj\WeightOfTheSky\</IntDir>
-    <TargetName>SliceEngine</TargetName>
-    <TargetExt>.lib</TargetExt>
-    <ExternalIncludePath>thirdparty\Mono\bin;$(ExternalIncludePath)</ExternalIncludePath>
-  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorDebug|x64'">
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -98,7 +78,7 @@
       <AdditionalOptions>/IGNORE:4204 /IGNORE:4006 /IGNORE:4098 %(AdditionalOptions)</AdditionalOptions>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Debug\Jolt.pdb" "."</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Debug" "."</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
@@ -107,7 +87,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -128,30 +108,8 @@
       <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
     <PostBuildEvent>
-      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release\Jolt.pdb" "."</Command>
+      <Command>copy /B /Y "$(SolutionDir)\SliceEngine\thirdparty\JoltPhysics\lib\Release" "."</Command>
     </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WeightOfTheSky|x64'">
-    <ClCompile>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <Optimization>Disabled</Optimization>
-      <MinimalRebuild>false</MinimalRebuild>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <ExternalWarningLevel>Level3</ExternalWarningLevel>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-    </Link>
-    <Lib>
-      <AdditionalDependencies>glew32.lib;opengl32.lib;glfw3.lib;fmod_vc.lib;mono-2.0-sgen.lib;MonoPosixHelper.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>thirdparty\glew;thirdparty\glfw\lib-vc2022;thirdparty\fmod\lib;thirdparty\rttr\lib;thirdparty\JoltPhysics\lib\Debug;thirdparty\JoltPhysics\lib\Release;thirdparty\Mono\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="src\Animator\AnimatorSystem.h" />
@@ -159,7 +117,11 @@
     <ClInclude Include="src\Animator\FSMSystem.h" />
     <ClInclude Include="src\Audio\AudioManager.h" />
     <ClInclude Include="src\Configuration\AudioSettings.h" />
+    <ClInclude Include="src\Configuration\BuildSettings.h" />
+    <ClInclude Include="src\Configuration\PhysicsSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
+    <ClInclude Include="src\Configuration\ProjectSettingsIncludes.h" />
+    <ClInclude Include="src\Configuration\ProjectSettingsManager.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\ComponentModified.h" />
     <ClInclude Include="src\Core\Core.h" />
@@ -177,10 +139,12 @@
     <ClInclude Include="src\Graphics\CameraSystem.h" />
     <ClInclude Include="src\Graphics\CanvasSystem.h" />
     <ClInclude Include="src\Graphics\LightingSystem.h" />
+    <ClInclude Include="src\Graphics\RenderCmdManager.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\UI_Interactible.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
+    <ClInclude Include="src\Helpers\Utilities.h" />
     <ClInclude Include="src\Input\ActionMapping.h" />
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
@@ -193,6 +157,7 @@
     <ClInclude Include="src\Physics\PhysicsDebug.h" />
     <ClInclude Include="src\Physics\PhysicsSystem.h" />
     <ClInclude Include="src\Resource\Audio.h" />
+    <ClInclude Include="src\Resource\Font.h" />
     <ClInclude Include="src\Resource\GUID.h" />
     <ClInclude Include="src\Resource\Material.h" />
     <ClInclude Include="src\Resource\Model.h" />
@@ -226,7 +191,10 @@
     <ClCompile Include="src\Animator\FSMSystem.cpp" />
     <ClCompile Include="src\Audio\AudioManager.cpp" />
     <ClCompile Include="src\Configuration\AudioSettings.cpp" />
+    <ClCompile Include="src\Configuration\BuildSettings.cpp" />
+    <ClCompile Include="src\Configuration\PhysicsSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
+    <ClCompile Include="src\Configuration\ProjectSettingsManager.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
@@ -239,10 +207,12 @@
     <ClCompile Include="src\Graphics\CameraSystem.cpp" />
     <ClCompile Include="src\Graphics\CanvasSystem.cpp" />
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
+    <ClCompile Include="src\Graphics\RenderCmdManager.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\UI_Interactible.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
+    <ClCompile Include="src\Helpers\Utilities.cpp" />
     <ClCompile Include="src\Input\ActionMapping.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
@@ -254,6 +224,7 @@
     <ClCompile Include="src\Physics\PhysicsDebug.cpp" />
     <ClCompile Include="src\Physics\PhysicsSystem.cpp" />
     <ClCompile Include="src\Resource\Audio.cpp" />
+    <ClCompile Include="src\Resource\Font.cpp" />
     <ClCompile Include="src\Resource\Material.cpp" />
     <ClCompile Include="src\Resource\Model.cpp" />
     <ClCompile Include="src\Resource\Prefab.cpp" />
@@ -279,6 +250,24 @@
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourCrowd.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourLocalBoundary.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathCorridor.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathQueue.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourProximityGrid.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

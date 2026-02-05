@@ -30,8 +30,6 @@ namespace SliceEngine
 	{
 		bool isRunning;
 
-		void LoadProjectSettings();
-
 	public:
 
 		// Gonna try to grp these tgt with the other systems in core.h
@@ -48,9 +46,9 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
-		void SceneInit();
 
 		void Update();
+		void SceneChangeEvent(const OnSceneChangeEvent& event);
 		void Draw();
 		void EndFrame();
 		void Exit();

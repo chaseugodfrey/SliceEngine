@@ -2,9 +2,20 @@
 
 layout (location=0) in vec3 aPos;
 
-uniform mat4 M; // model transform matrix
-uniform mat4 uLightMtx; // Shadow Transform Matrix
+struct BasicIDat
+{
+	mat4 mdlMtx;
+	uint entityID;
+	uint textureID; 
+	uint tex2ID;
+	uint col;
+};
+
+layout(binding=1, std430) readonly buffer ssbo1
+{
+	BasicIDat iDat[];
+};
 
 void main(void){
-	gl_Position = uLightMtx * M * vec4(aPos, 1.0f);
+	gl_Position = iDat[gl_InstanceID].mdlMtx * vec4(aPos, 1.0f);
 }

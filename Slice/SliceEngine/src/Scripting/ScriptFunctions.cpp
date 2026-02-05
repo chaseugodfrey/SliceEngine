@@ -25,9 +25,10 @@ DigiPen Institute of Technology is prohibited.
 #include "../Systems/PrefabSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
-#include "../Configuration/AudioSettings.h"
+#include "../Configuration/ProjectSettingsManager.h"
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
+#include "../Systems/LayerManager.h"
 
 namespace SliceEngine
 {
@@ -101,6 +102,7 @@ namespace SliceEngine
 
 	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
 	{
+		
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
 		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
@@ -254,6 +256,1046 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region PARTICLE SYSTEM FUNCTIONS
+
+	static void ParticleSystem_GetDuration(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().duration;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);		
+	}
+	static void ParticleSystem_SetDuration(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().duration = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetRepeating(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isRepeating;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetRepeating(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().isRepeating = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetLocalSpace(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isLocalSpace;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetLocalSpace(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().isLocalSpace = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetDestroyOnExpire(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().destroyOnExpire;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetDestroyOnExpire(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().destroyOnExpire = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void ParticleSystem_GetMaxParticles(unsigned int entity, unsigned long long* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxParticles;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMaxParticles(unsigned int entity, unsigned long long* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxParticles = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetGForce(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().gForce;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetCollision(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().hasCollision;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetCollision(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().hasCollision = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void ParticleSystem_GetFriction(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().friction;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetFriction(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().friction =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetBounciness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounciness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounciness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounciness =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetBounceDampening(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().bounceDampening;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetBounceDampening(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().bounceDampening =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetStickiness(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().stickiness;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetStickiness(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().stickiness =
+				glm::clamp(*value, 0.0f, 1.0f);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetGForce(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().gForce = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetEmissionRate(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().emissionRate;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetEmissionRate(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().emissionRate = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetConeArc(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().coneArc;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetConeArc(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().coneArc = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetConeRadius(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().coneRadius;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetConeRadius(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().coneRadius = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void ParticleSystem_GetSphereRadius(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().sphereRadius;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSphereRadius(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().sphereRadius = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetScaleValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().scaleType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetScaleValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().scaleType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetScale(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().scale;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetScale(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().scale = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetScaleMin(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRandomScale;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetScaleMin(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRandomScale = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetScaleMax(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRandomScale;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetScaleMax(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRandomScale = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetLifetimeValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().initialLifetimeType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetLifetimeValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().initialLifetimeType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetLifetime(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().lifetime;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetLifetime(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().lifetime = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMinLifetime(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minParticleLifetime;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMinLifetime(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minParticleLifetime = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMaxLifetime(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxParticleLifetime;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMaxLifetime(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxParticleLifetime = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetRotationValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().initialRotationType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetRotationValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().initialRotationType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetRotation(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().rotation;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetRotation(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().rotation = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetRotationMin(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRandomRotation;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetRotationMin(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRandomRotation = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetRotationMax(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRandomRotation;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetRotationMax(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRandomRotation = *value;
+			return;
+		}
+	
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	// 3D Rotation
+	static void ParticleSystem_GetIsRotation3D(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().isRotation3D;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetIsRotation3D(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().isRotation3D = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().rotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().rotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMinRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMinRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_GetMaxRotation3DHint(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRotation3DHint;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetMaxRotation3DHint(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRotation3DHint = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpawnPosValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().posValueType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSpawnPosValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().posValueType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpawnPos(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().spawnPos;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSpawnPos(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().spawnPos = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpawnPosMin(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRandomSpawnPos;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSpawnPosMin(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRandomSpawnPos = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpawnPosMax(unsigned int entity, glm::vec3* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRandomSpawnPos;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSpawnPosMax(unsigned int entity, glm::vec3* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRandomSpawnPos = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetColourValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().colourValueType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetColourValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().colourValueType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetColour(unsigned int entity, glm::vec4* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().colour;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetColour(unsigned int entity, glm::vec4* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().colour = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetColourMin(unsigned int entity, glm::vec4* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRandomColour;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetColourMin(unsigned int entity, glm::vec4* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRandomColour = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetColourMax(unsigned int entity, glm::vec4* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRandomColour;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetColourMax(unsigned int entity, glm::vec4* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRandomColour = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpeedValueType(unsigned int entity, ParticleSystem::ValueType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().speedValueType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetSpeedValueType(unsigned int entity, ParticleSystem::ValueType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().speedValueType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpeed(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().speed;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetSpeed(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().speed = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpeedMin(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minRandomSpeed;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetSpeedMin(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minRandomSpeed = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSpeedMax(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxRandomSpeed;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+	static void ParticleSystem_SetSpeedMax(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxRandomSpeed = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetColourOverLifetime(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().colourOverLifetime;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetColourOverLifetime(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().colourOverLifetime = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetTextureID(unsigned int entity, unsigned int* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().GetTextureID();
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetTextureID(unsigned int entity, unsigned int* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().textureGUID = GUID(*value);
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetShapeType(unsigned int entity, ParticleSystem::ShapeType* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().shapeType;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetShapeType(unsigned int entity, ParticleSystem::ShapeType* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().shapeType = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_IsExpired(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().expired;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetSystemTimer(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().systemTimer;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetSystemTimer(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().systemTimer = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
 #pragma endregion
 
 #pragma region CONSOLE LOGGING FUNCTIONS
@@ -347,7 +1389,7 @@ namespace SliceEngine
 
 #pragma endregion
 
-#pragma region ColliderShape FUNCTIONS
+#pragma region COLLIDERSHAPE FUNCTIONS
 	
 	static bool ColliderShape_IsEnabled(unsigned int entity)
 	{
@@ -383,6 +1425,100 @@ namespace SliceEngine
 		}
 				
 	}
+
+#pragma endregion
+
+#pragma region LAYERMASK FUNCTIONS
+
+	static uint32_t LayerMask_GetMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return Core::GetInstance()->GetLayerManager()->GetMask(name);
+	}
+
+	static MonoString* LayerMask_LayerToName(uint32_t layer)
+	{
+		if(layer >= MAX_LAYERS)
+		{
+			SLICE_LOG_ERROR("Scripting: Layer {} is out of bounds.", layer);
+			std::string errorLayer = "If your layer is this very long string u did something wrong or I did(Please contact Aloysius for assistance)";
+			return mono_string_new(mono_domain_get(), errorLayer.c_str());
+		}
+
+		std::string layerName = Core::GetInstance()->GetLayerManager()->GetLayerName(layer);
+		return mono_string_new(mono_domain_get(), layerName.c_str());
+	}
+
+	static uint32_t LayerMask_NameToLayer(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+		uint32_t layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
+
+		if(layer >= INVALID_LAYER)
+		{
+			SLICE_LOG_ERROR("Scripting: Layer '{}' does not exist.", name);
+			return INVALID_LAYER;
+		}
+
+		return layer;
+	}
+
+	
+
+#pragma endregion
+
+#pragma region RAYCASTING FUCNTIONS
+
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID,glm::vec3* hitPos, glm::vec3* normal,bool triggerInteraction,  uint32_t mask)
+	{
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
+	}
+
+	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
+	{
+		auto* eventManager = EventManager::GetInstance();
+		
+		DebugDrawRayEvent drawEvent{ *origin, *direction, magnitude };
+	
+		eventManager->Publish<DebugDrawRayEvent>(drawEvent);
+	}
+	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (!(go.IsValid() && go.HasComponent<ColliderShape>() && go.HasComponent<RigidBody>()))
+		{
+			return;
+		}
+
+		auto& transform = go.GetComponent<Transform>();
+		auto& collider = go.GetComponent<ColliderShape>();
+
+
+		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0,0,1);
+		uint32_t bodyHitID = 0;
+		glm::vec3 hitPos = glm::vec3(0.0f);
+		glm::vec3 normal = glm::vec3(0.0f);
+
+		if (!Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(origin, *d_m, bodyHitID, hitPos, normal, false))
+		{
+			return;
+		}
+
+		float distanceToHit = glm::length(hitPos - origin);
+		float distanceToMove = glm::length(*d_m);
+		if (distanceToHit <= distanceToMove)
+		{
+			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
+		}
+		else if (distanceToMove < distanceToHit)
+		{
+			glm::mix(transform.position,origin + (*d_m), 0.2f);
+		}
+
+
+	}
+
 
 #pragma endregion
 
@@ -442,12 +1578,11 @@ namespace SliceEngine
 		std::string key = MonoToString(string);
 		if (position == glm::vec3(0.f))
 		{
-			Core::GetInstance()->GetAudioSettings()->PlaySFX(key);
-
+			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
 		}
 		else
 		{
-			Core::GetInstance()->GetAudioSettings()->PlaySFX(key, position);
+			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
 		}
 	}
 
@@ -612,11 +1747,27 @@ namespace SliceEngine
 		}
 
 		std::string cStrName = MonoToString(baseName);
-		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		auto scriptInstance = gScriptSystem->mEntityInstances[(Entity)entityID];
+		// get the current class it is
+		MonoClass* instanceClass = scriptInstance->GetScriptClass()->mMonoClass;
+
+		// get the class we're trying to check for
+		MonoClass* targetClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", cStrName.c_str());
+
+		// if the target class doesn't exist/not loaded
+		if (!targetClass) return false;
+
+		// now check if it is or if its a subclass of
+		if (instanceClass == targetClass || mono_class_is_subclass_of(instanceClass, targetClass, false))
 		{
-			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
-				return true;
+			return true;
 		}
+
+		//if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		//{
+		//	if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+		//		return true;
+		//}
 
 		return false;
 	}
@@ -643,14 +1794,19 @@ namespace SliceEngine
 
 		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
 		{
+			MonoClass* typeClass = mono_type_get_class(monoType);
+			const char* className = mono_class_get_name(typeClass);
+			const char* nameSpace = mono_class_get_namespace(typeClass);
 			// component not registered
-			SLICE_LOG_ERROR("Component Not Registered");
+			SLICE_LOG_ERROR("Component Not Registered: {}.{}", nameSpace, className);
 			assert("Component not registered");
 		}
 
 		return mGameObjectHasComponentFuncs[monoType](GO);
 
 	}
+
+
 
 	static MonoArray *Entity_FindEntitiesWithTag(MonoString *tag)
 	{
@@ -670,6 +1826,18 @@ namespace SliceEngine
 		return monoArray;
 	}
 
+	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
+	{
+		std::string cStrName = MonoToString(tag);
+		Entity entity = FactoryInstance.GetEntityWithTag(cStrName);
+		if (entity == entt::null)
+		{
+			return 0;
+		}
+
+		return (unsigned int)entity;
+	}
+
 	static unsigned int CreateNewGameObject(MonoString *prefabName)
 	{
 		std::string cStrName = MonoToString(prefabName);
@@ -682,13 +1850,15 @@ namespace SliceEngine
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
 			if(cStrName == "EnemyTest")
 			{
-				std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">LOLOLOLOLOL\n";
+				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
+			//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
 		//mono_free(cStrName);
+		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
-		return entt::null;
+		return 0;
 	}
 
 	static unsigned int CloneGO(MonoString *GoName)
@@ -752,6 +1922,36 @@ namespace SliceEngine
 		}
 	}
 
+	static bool Entity_IsActive(unsigned int entity)
+	{
+		if (RegistryInstance.any_of<InactiveEntity>(entt::entity(entity)))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	static void Entity_SetActive(unsigned int entity, bool active)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		entt::entity e = entt::entity(entity);
+		if (active)
+		{
+			if (reg.any_of<InactiveEntity>(e))
+			{
+				reg.remove<InactiveEntity>(e);
+			}
+		}
+		else
+		{
+			if (!reg.any_of<InactiveEntity>(e))
+			{
+				reg.emplace<InactiveEntity>(e);
+			}
+		}
+	}
+
 #pragma endregion
 
 #pragma region ANIMATION FUNCTIONS
@@ -776,7 +1976,10 @@ namespace SliceEngine
 		{
 			std::string cStrName = MonoToString(string);
 
-			GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			if(GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName))
+			{
+				GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
+			}
 		}
 
 	}
@@ -839,7 +2042,7 @@ namespace SliceEngine
 			return GO.GetComponent<Animator>().stateMachine.GetCurrAnimFPS();
 		}
 
-		return false;
+		return 0.0f;
 	}
 
 	static float GetCurrAnimTime(unsigned int entityID)
@@ -851,6 +2054,18 @@ namespace SliceEngine
 		}
 
 		return 0.0f;
+	}
+
+	static bool SafeToChange(unsigned int entityID, MonoString* string)
+	{
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Animator>())
+		{
+			std::string cStrName = MonoToString(string);
+
+			return GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName);
+		}
+		return false;
 	}
 
 #pragma endregion
@@ -890,6 +2105,16 @@ namespace SliceEngine
 		}
 
 		return registry.try_get<NavAgent>(e);
+	}
+
+	static void NavAgent_ComponentState(uint32_t entityID, bool componentState)
+	{
+		NavAgent* agent = GetNavAgent(entityID);
+
+		if (agent)
+		{
+			agent->componentEnabled = componentState;
+		}
 	}
 
 	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3 *target)
@@ -932,9 +2157,19 @@ namespace SliceEngine
 		return agent && !agent->currentPath.empty();
 
 	}
+	static bool NavAgent_GetComponentEnabled(uint32_t entityID)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		return agent->componentEnabled;
+	}
+	static void NavAgent_SetComponentEnabled(uint32_t entityID, bool isEnabled)
+	{
+		NavAgent *agent = GetNavAgent(entityID);
+		if (agent) agent->componentEnabled = isEnabled;
+	}
 #pragma endregion
 
-#pragma region SpriteRenderer FUNCTIONS
+#pragma region UI FUNCTIONS
 	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -946,9 +2181,120 @@ namespace SliceEngine
 		}
 	}
 
-#pragma endregion
+	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
-#pragma region UI FUNCTIONS
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.componentEnabled = enabled;
+		}
+	}
+
+	static void FontRenderer_GetAlignment(unsigned int entity, FontRenderer::Alignment* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			*out = go.GetComponent<FontRenderer>().alignment;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Font component.", entity);
+	}
+
+	static void FontRenderer_SetAlignment(unsigned int entity, FontRenderer::Alignment* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			go.GetComponent<FontRenderer>().alignment = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void FontRenderer_SetText(uint32_t entityID, MonoString* text) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.text = MonoToString(text);
+			fontRenderer.token_updated = false;
+		}
+	}
+	static MonoString* FontRenderer_GetText(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+
+			return mono_string_new(mono_domain_get(), font.text.c_str());
+		}
+		return nullptr;
+	}
+
+	static void FontRenderer_SetFontsize(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.font_size = size;
+			fontRenderer.token_updated = false;
+		}
+	}
+	static float FontRenderer_GetFontsize(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.font_size;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetLinespacing(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.line_spacing = size;
+		}
+	}
+	static float FontRenderer_GetLinespacing(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.line_spacing;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.rgba = *color;
+		}
+	}
+	static void FontRenderer_GetColor(uint32_t entityID, glm::vec4* color_out) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			*color_out =  font.rgba;
+		}
+	}
 
 	static float Slider_GetValue(uint32_t entityID)
 	{
@@ -965,7 +2311,6 @@ namespace SliceEngine
 		auto const& slider = registry.get<Slider>(e);
 		return slider.GetValue();
 	}
-
 	static void Slider_SetValue(uint32_t entityID, float value)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -1021,11 +2366,11 @@ namespace SliceEngine
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
 		RegisterComponent<SpriteRenderer>();
+		RegisterComponent<FontRenderer>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<Renderer>();
 		//RegisterComponent<TextRenderer>();
-		//RegisterComponent<ParticleEmitter>();
 	}
 
 	/// <summary>
@@ -1042,6 +2387,7 @@ namespace SliceEngine
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
+		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
@@ -1052,6 +2398,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
+		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
+		ADD_INTERNAL_CALL(Entity_IsActive);
+		ADD_INTERNAL_CALL(Entity_SetActive);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -1081,6 +2430,124 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(AM_GetValue2D);
 		ADD_INTERNAL_CALL(AM_GetValue1D);
 
+		// Particle system
+		ADD_INTERNAL_CALL(ParticleSystem_GetDuration);
+		ADD_INTERNAL_CALL(ParticleSystem_SetDuration);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRepeating);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRepeating);
+		ADD_INTERNAL_CALL(ParticleSystem_GetLocalSpace);
+		ADD_INTERNAL_CALL(ParticleSystem_SetLocalSpace);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetDestroyOnExpire);
+		ADD_INTERNAL_CALL(ParticleSystem_SetDestroyOnExpire);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxParticles);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxParticles);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetGForce);
+		ADD_INTERNAL_CALL(ParticleSystem_SetGForce);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetCollision);
+		ADD_INTERNAL_CALL(ParticleSystem_SetCollision);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetFriction);
+		ADD_INTERNAL_CALL(ParticleSystem_SetFriction);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounciness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounciness);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetBounceDampening);
+		ADD_INTERNAL_CALL(ParticleSystem_SetBounceDampening);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetStickiness);
+		ADD_INTERNAL_CALL(ParticleSystem_SetStickiness);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetEmissionRate);
+		ADD_INTERNAL_CALL(ParticleSystem_SetEmissionRate);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetShapeType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetShapeType);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetConeArc);
+		ADD_INTERNAL_CALL(ParticleSystem_SetConeArc);
+		ADD_INTERNAL_CALL(ParticleSystem_GetConeRadius);
+		ADD_INTERNAL_CALL(ParticleSystem_SetConeRadius);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSphereRadius);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSphereRadius);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScale);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScale);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetScaleMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetScaleMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetLifetimeValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetLifetimeValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxLifetime);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotation);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotation);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotationMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotationMax);
+		ADD_INTERNAL_CALL(ParticleSystem_GetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_SetIsRotation3D);
+		ADD_INTERNAL_CALL(ParticleSystem_GetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxRotation3DHint);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxRotation3DHint);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPos);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPos);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpawnPosMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpawnPosMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColour);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColour);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedValueType);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeed);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeed);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedMin);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedMin);
+		ADD_INTERNAL_CALL(ParticleSystem_GetSpeedMax);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSpeedMax);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
+		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetTextureID);
+		ADD_INTERNAL_CALL(ParticleSystem_SetTextureID);
+
+		ADD_INTERNAL_CALL(ParticleSystem_IsExpired);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetSystemTimer);
+		ADD_INTERNAL_CALL(ParticleSystem_SetSystemTimer);
+
 		// Console logging
 		ADD_INTERNAL_CALL(Log);
 		ADD_INTERNAL_CALL(LogWarn);
@@ -1096,6 +2563,14 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_SetGravityFactor);
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
+		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
+		ADD_INTERNAL_CALL(Physics_DrawRay);
+
+		//LayerMask
+		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_LayerToName);
+		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
@@ -1128,18 +2603,38 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(IsCurrAnimFin);
 		ADD_INTERNAL_CALL(GetCurrAnimTime);
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
+		ADD_INTERNAL_CALL(SafeToChange);
 
 		// Navigation
 		ADD_INTERNAL_CALL(GetNavAgent);
+		ADD_INTERNAL_CALL(NavAgent_ComponentState);
 		ADD_INTERNAL_CALL(NavAgent_SetDestination);
 		ADD_INTERNAL_CALL(NavAgent_Stop);
 		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
 		ADD_INTERNAL_CALL(NavAgent_HasPath);
+		ADD_INTERNAL_CALL(NavAgent_GetComponentEnabled);
+		ADD_INTERNAL_CALL(NavAgent_SetComponentEnabled);
 
 		//UI
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetColor);
+		ADD_INTERNAL_CALL(FontRenderer_GetColor);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetFontsize);
+		ADD_INTERNAL_CALL(FontRenderer_GetFontsize);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetLinespacing);
+		ADD_INTERNAL_CALL(FontRenderer_GetLinespacing);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetText);
+		ADD_INTERNAL_CALL(FontRenderer_GetText);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
+		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
+
 	}
 
 #pragma endregion

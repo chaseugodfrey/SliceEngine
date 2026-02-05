@@ -22,6 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Audio.h"
 #include "Skeleton.h"
 #include "StateMachine.h"
+#include "Font.h"
 
 namespace SliceEngine
 {
@@ -31,11 +32,16 @@ namespace SliceEngine
 		constexpr uint64_t SPHERE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultSphere");
 		constexpr uint64_t SPHERE_LOW_POLY_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLowPolySphere");
 		constexpr uint64_t CAPSULE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCapsule");
+		constexpr uint64_t CYLINDER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCylinder");
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
+
+		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
+		constexpr uint64_t CSHADER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCShader");
+
 	}
 
 
@@ -58,7 +64,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Shader>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 13303718109627574413;
+		constexpr static inline uint64_t defaultResourceGUID = 0;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Shader> Load(ResourceManager& resourceMgr, const std::string& path);
@@ -66,6 +72,20 @@ namespace SliceEngine
 		static void Destroy(SliceEngineTypes::Shader& resource, ResourceManager& resourceMgr);
 
 		static void Reload(SliceEngineTypes::Shader* resource, ResourceManager& mgr, const std::string& path);
+
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::CustomShader>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::CSHADER_DEFAULT;
+
+		// for now load with file name directly
+		static std::unique_ptr<SliceEngineTypes::CustomShader> Load(ResourceManager& resourceMgr, const std::string& path);
+
+		static void Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path);
 
 	};
 
@@ -206,6 +226,17 @@ namespace SliceEngine
 		static void Destroy(SliceEngineTypes::StateMachine& resource, ResourceManager& resourceMgr);
 
 		static void Reload(SliceEngineTypes::StateMachine* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Font_Data>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::FONT_BLANK_DEFAULT;
+
+		static std::unique_ptr<SliceEngineTypes::Font_Data> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Font_Data& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Font_Data* resource, ResourceManager& mgr, const std::string& path);
 	};
 }
 

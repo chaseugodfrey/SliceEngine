@@ -1,5 +1,5 @@
 {
-    "VertexShader": "lighting_Vert",
-    "FragmentShader": "lighting_Frag",
+    "VertexShader": "Shaders/lighting_Vert.vert",
+    "FragmentShader": "Shaders/lighting_Frag.frag",
     "GeometryShader": ""
 }

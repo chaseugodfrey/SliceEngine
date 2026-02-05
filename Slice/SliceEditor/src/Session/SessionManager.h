@@ -11,13 +11,14 @@ namespace SliceEditor
 
 	class SessionManager : public IBaseManager
 	{
-		std::unique_ptr<Preferences> mPreferences;
 
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
+		SliceEngine::GUID mInspectedPrefabGUID;
 
 		bool mPrefabInspected;
+		bool mShowHierarchyEntityIDs;
 
 		std::unique_ptr<AnimatorData> mAnimatorData;
 
@@ -32,23 +33,34 @@ namespace SliceEditor
 		void Init() override;
 		void Update() override;
 
-		void OpenPreferences();
-		void SetPreferences();
-		void CreateDefaultPreferenceFile();
-		void SavePreferences();
-		Preferences& GetPreferences();
 
+		//Node Settings
+		void SetNodeAsPrefab(EntityNode* entity, bool isPrefab);
+
+		//Editor Hierarchy
+		//void CreateEntityNodes();
+		void UpdateEntityNodes();
+		void AddEntityNode(entt::entity entity);
+		void RemoveEntityNode(entt::entity entity);
+
+		//Scene Functions
 		void OnSceneSave(OnSceneSaveEvent);
-
-		void CreateEntityNodes();
-		void CreatePrefabNodes();
 		void OnSceneChange(const OnSceneLoadedEvent& event);
 		void OnSceneStop(const OnSceneStopEvent& event);
+
+
 		void OnAssetFileChanged(const AssetFileChangedEvent& event);
+
+		//Prefab Inspector Functions
 		void PrefabInspected(const PrefabInspectedEvent& event);
 		void BuildPrefabTree(Entity node);
 		bool IsPrefabInspected();
-		Entity GetPrefabInspected();
+		Entity GetPrefabEntityInspected();
+		SliceEngine::GUID GetPrefabGUIDInspected();
+
+		//Debug Settings
+		void ToggleHierarchyEntityIDs();
+		bool GetHierarchyEntityIDs();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetEntityNodes();
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& GetPrefabNodes();
 

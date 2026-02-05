@@ -50,10 +50,14 @@ namespace SliceEditor
 
 			if (left_region.x > 0 && left_region.y > 0)
 			{
-				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
+				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 				{
 					DisplayFolders(*mManager.rootNode);
 					//ImGui::Text("Directory Here!");
+
+					ImGui::SeparatorText("Categories");
+
+					DisplayCategories();
 
 					ImGui::EndChild();
 				}
@@ -75,7 +79,7 @@ namespace SliceEditor
 
 					if (ImGui::BeginPopupContextWindow("menu_create"))
 					{
-						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->path);
+						EditorUtilities::MenuList_CreateFiles(mRegistry, mManager.selectedFolder->fullPath);
 
 						ImGui::EndPopup();
 					}
@@ -114,7 +118,7 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolders(DirectoryNode& node)
 	{
-		if (node.path.empty())
+		if (node.fullPath.empty())
 		{
 			ImGui::Text("No Path Found!");
 			return;
@@ -140,6 +144,7 @@ namespace SliceEditor
 				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
 				{
 					SelectFolder(node);
+					currentCategoryIndex = -1;
 				}
 
 				for (auto& entry : node.children)
@@ -147,6 +152,20 @@ namespace SliceEditor
 					DisplayFolders(entry.second);
 				}
 				ImGui::TreePop();
+			}
+		}
+	}
+
+	void ContentBrowserWindow::DisplayCategories()
+	{
+		auto& categories = mManager.categoryNodes;
+		for (size_t i = 0; i < categories.size(); ++i)
+		{
+			bool isSelected = (currentCategoryIndex == static_cast<int>(i));
+			if (ImGui::Selectable(categories[i]->fileName.c_str(), isSelected))
+			{
+				currentCategoryIndex = static_cast<int>(i);
+				mManager.selectedFolder = categories[i].get();
 			}
 		}
 	}
@@ -182,16 +201,16 @@ namespace SliceEditor
 				}
 			}
 
-			if (mManager.openRenameFile)
-			{
-				mManager.openRenameFile = !mManager.openRenameFile;
-				ImGui::OpenPopup("##RenameFile");
-			}
+			//if (mManager.openRenameFile)
+			//{
+			//	//mManager.openRenameFile = !mManager.openRenameFile;
+			//	ImGui::OpenPopup("##RenameFile");
+			//}
 
-			if (selectedEntry != nullptr)
-			{
-				RenameFilePopup(*selectedEntry);
-			}
+			//if (selectedEntry != nullptr)
+			//{
+			//	RenameFilePopup(*selectedEntry);
+			//}
 
 			ImGui::EndTable();
 		}
@@ -199,8 +218,18 @@ namespace SliceEditor
 
 	void ContentBrowserWindow::DisplayFolderNode(DirectoryNode& node)
 	{
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
-		{}
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
+		{
+		}
+
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("%s", node.fileName.c_str());
+				ImGui::EndTooltip();
+			}
+		}
 
 		if (ImGui::BeginPopupContextItem("##ItemEditPopup"))
 		{
@@ -228,7 +257,7 @@ namespace SliceEditor
 			SelectFolder(node);
 		}
 
-		ImGui::Text("%s", node.fileName.c_str());
+		ImGui::TextWrapped("%s", node.fileName.c_str());
 	}
 
 	void ContentBrowserWindow::DisplayFileNode(DirectoryNode& node)
@@ -236,10 +265,14 @@ namespace SliceEditor
 		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		auto& assetMgr = mRegistry.GetAssetManager();
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
-		std::filesystem::path filePath = node.fileName;
-		std::string fileKey = filePath.stem().stem().string();
+		std::filesystem::path filePath = node.fullPath;
+		std::string fileKey = node.relativePath.generic_string();
 		std::string fileExt = filePath.extension().string();
 		bool canDrag = true;
+
+		/*Temp Debug Section*/
+		std::string fullPathStr = filePath.string();
+		std::string relativePathStr = node.relativePath.string();
 
 		if (resourceMgr->mFileNameToGUID.find(fileKey) == resourceMgr->mFileNameToGUID.end())
 		{
@@ -251,7 +284,7 @@ namespace SliceEditor
 			canDrag = false;
 		}
 
-		if (ImGui::ImageButton(node.path.filename().string().c_str(), GetIcon(node.type), ImVec2(64, 64)))
+		if (ImGui::ImageButton(node.fullPath.filename().string().c_str(), GetIcon(&node), ImVec2(64, 64)))
 		{
 			if(!(node.type == SelectionType::PREFAB))
 			{
@@ -272,6 +305,14 @@ namespace SliceEditor
 			ImGui::EndDragDropSource();
 		}
 
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("%s", node.fileName.c_str());
+				ImGui::EndTooltip();
+			}
+		}
 
 		if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 		{
@@ -293,18 +334,19 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Rename File"))
 			{
 				mManager.openRenameFile = true;
+				ImGui::CloseCurrentPopup();
 			}
 
 			if (ImGui::MenuItem("Re-compile File"))
 			{
 				//Get the metaData for this Asset:
-				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.path.stem().stem().string());
+				std::filesystem::path metaPath = assetMgr.GetMetaDataFromFilename(node.relativePath.generic_string());
 
 				//Technically this is a hack. But due to lack of time, i'll leave it here for this milestone. Will fix after M2
 				DroppedFile file;
 
 				file.assetType = mRegistry.GetAssetManager().mSupportedAssetTypes[fileExt].first;
-				file.filePath = node.path;
+				file.filePath = node.fullPath;
 				switch (file.assetType)
 				{
 				case AssetType::Texture:
@@ -325,6 +367,9 @@ namespace SliceEditor
 				case AssetType::Prefab:
 					file.metaData = std::make_unique<PrefabData>();
 					break;
+				case AssetType::Font:
+					file.metaData = std::make_unique<FontMetaData>();
+					break;
 				}
 				//Default Init the MetaData base class
 				file.metaData->Deserialize(metaPath);
@@ -342,7 +387,15 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 
-		ImGui::Text("%s", node.fileName.c_str());
+		if (mManager.openRenameFile)
+		{
+			ImGui::OpenPopup("##RenameFile");
+			mManager.openRenameFile = !mManager.openRenameFile;
+		}
+
+		RenameFilePopup(node);
+
+		ImGui::TextWrapped("%s", node.fileName.c_str());
 	}
 
 	void ContentBrowserWindow::SelectFolder(DirectoryNode& node)
@@ -358,7 +411,8 @@ namespace SliceEditor
 		{
 			if (ImGui::IsWindowAppearing()) //First-time copying the name of the file for ImGui to register it
 			{
-				std::snprintf(newName, sizeof(newName), "%s", entry.fileName.c_str());
+				std::string oldFileName = entry.relativePath.stem().stem().string();
+				std::snprintf(newName, sizeof(newName), "%s", oldFileName.c_str());
 				/*std::memset(newName, 0, sizeof(newName));
 				std::strncpy(newName, entry.fileName.c_str(), sizeof(newName) - 1);
 				newName[sizeof(newName) - 1] = '\0';*/
@@ -442,6 +496,15 @@ namespace SliceEditor
 				{
 					DisplayAudioData(data);
 				}
+				break;
+
+			case AssetType::Font:
+				if (auto* data = static_cast<FontMetaData*>(file.metaData.get()))
+				{
+					DisplayFontData(data);
+					//DisplayAudioData(data);
+				}
+				break;
 			}
 
 			if (ImGui::Button("Compile"))
@@ -451,17 +514,33 @@ namespace SliceEditor
 					auto* data = static_cast<ModelData*>(file.metaData.get());
 					if (data->is_static == false) //It has skele and anim
 					{
+						/*
+								std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
+								skeleData->InitMetaData(filePath, AssetType::Skeleton, mAssetExtensions[AssetType::Skeleton]);
+								data->skeleMetaPath = CreateResource(skeleData.get(), AssetType::Skeleton, AddToRM).string();
+								data->skeletonGUID = skeleData->guid;
+
+								std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+								animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
+								data->animMetaPath = CreateResource(animData.get(), AssetType::Animation, AddToRM).string();
+								data->animationGUID = animData->guid;
+
+						*/
 						//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData.get(), AssetType::Skeleton).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData.get(), AssetType::Animation).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						data->animationGUID = animData->guid;
+
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.metaData.get(), file.assetType);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				mRegistry.GetAssetManager().CreateAssetMaps();
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
@@ -479,13 +558,25 @@ namespace SliceEditor
 		}
 	}
 
-	ImTextureID ContentBrowserWindow::GetIcon(SelectionType type)
+	ImTextureID ContentBrowserWindow::GetIcon(DirectoryNode* node)
 	{
-		auto textureHandle = mManager.GetDefaultIconHandle(type);
+		using namespace SliceEngine;
+		std::optional<Handle<SliceEngineTypes::Texture>> handle;
 
-		if (textureHandle.has_value())
+		switch (node->type)
 		{
-			auto texture = textureHandle.value().get();
+		case SelectionType::TEXTURE:
+			handle = mManager.GetTextureIconHandle(node->relativePath.generic_string());
+			break;
+
+		default:
+			handle = mManager.GetDefaultIconHandle(node->type);
+			break;
+		}
+
+		if (handle.has_value())
+		{
+			auto texture = handle.value().get();
 			if (texture && texture->texture_id != 0)
 				return static_cast<ImU64>(texture->texture_id);
 		}
@@ -619,7 +710,32 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 		Label("Is Static: ");
-		ImGui::Checkbox("##Has_Alpha", &data->is_static);
+		ImGui::Checkbox("##Is_Static", &data->is_static);
+	}
+
+	void ContentBrowserWindow::DisplayFontData(FontMetaData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+		Label("Font Resolution: ");
+		int font_reso = data->font_resolution;
+		if (ImGui::DragInt("##Font_Reso", &font_reso, 1, 1, 200))
+		{
+			font_reso = std::clamp(font_reso, 1, 200);
+			data->font_resolution = font_reso;// = static_cast<unsigned char>(mip);
+		}
+		Label("Padding: ");
+		int padding = data->padding;
+		if (ImGui::DragInt("##Padding", &padding, 1, 1, 10))
+		{
+			padding = std::clamp(padding, 1, 10);
+			data->padding = padding;// = static_cast<unsigned char>(mip);
+		}
 	}
 
 	void ContentBrowserWindow::DisplayMaterialData(MaterialData* data)
@@ -632,17 +748,17 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		Label("Roughness: ");
-		if (ImGui::DragFloat("##Roughness", &data->roughness, 0.1f, 0.0f, 1.0f, "%.1f"))
-		{
-			data->roughness = std::clamp(data->roughness, 0.0f, 1.0f);
-		}
+		//Label("Roughness: ");
+		//if (ImGui::DragFloat("##Roughness", &data->roughness, 0.1f, 0.0f, 1.0f, "%.1f"))
+		//{
+		//	data->roughness = std::clamp(data->roughness, 0.0f, 1.0f);
+		//}
 
-		Label("Metallic: ");
-		if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
-		{
-			data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
-		}
+		//Label("Metallic: ");
+		//if (ImGui::DragFloat("##Metallic", &data->metallic, 0.1f, 0.0f, 1.0f, "%.1f"))
+		//{
+		//	data->metallic = std::clamp(data->metallic, 0.0f, 1.0f);
+		//}
 	}
 
 	void ContentBrowserWindow::DisplayAudioData(AudioData* data)

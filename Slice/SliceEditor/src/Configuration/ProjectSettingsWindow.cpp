@@ -6,17 +6,20 @@
 #include "Inspector/ComponentPropertiesGUI.h"
 
 #include <Core/Core.h>
+#include <Configuration/ProjectSettingsManager.h>
 #include <Physics/PhysicsSystem.h>
 #include <Audio/AudioManager.h>
 #include <Systems/LayerManager.h>
+#include <Systems/SceneSystem.h>
 
 namespace SliceEditor
 {
 	void ProjectSettingsWindow::Init()
 	{
-		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, "Audio"));
-		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, "Physics"));
-		mSettingsList.push_back(std::make_unique<ProjectSettingsDisplay>(mRegistry, "Project"));
+		auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::AudioSettings>(), "Audio"));
+		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::PhysicsSettings>(), "Physics"));
+		mSettingsList.push_back(std::make_unique<BuildSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::BuildSettings>(), "Build"));
 	}
 
 	void ProjectSettingsWindow::Draw()
@@ -26,7 +29,7 @@ namespace SliceEditor
 		bool isOpen;
 		if (ImGui::Begin("Project Settings Window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
 		{
-			auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
+			//auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
 
 			ImVec2 left_size = ImVec2(window_size.x * 0.1f, window_size.y);
 			if (ImGui::BeginChild("##left_group", left_size, ImGuiChildFlags_Borders))
@@ -49,13 +52,14 @@ namespace SliceEditor
 
 			ImGui::SameLine();
 
-
 			ImVec2 right_size = ImVec2(window_size.x * 0.9f, window_size.y);
 			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_Borders);
 			mCurrentSettings->DisplayHeader();
-			mCurrentSettings->DisplaySettings();
+			mCurrentSettings->DisplaySettings(right_size);
 			ImGui::EndChild();
 		}
+
+		SliceEngine::Core::GetInstance()->GetProjectSettingsManager()->Update();
 
 		if (!isOpen)
 			markForRemoval = true;
@@ -70,9 +74,9 @@ namespace SliceEditor
 		ImGui::PopFont();
 	}
 
-	void AudioSettingsDisplay::DisplaySettings()
+	void AudioSettingsDisplay::DisplaySettings(ImVec2 size)
 	{
-		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetAudioSettings();
+		SliceEngine::AudioSettings* audioSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsManager()->GetSettings<SliceEngine::AudioSettings>();
 		auto audioManager = SliceEngine::Core::GetInstance()->GetAudioManager();
 		const std::filesystem::path AUDIO_SETTINGS_PATH = std::filesystem::path("src/ProjectSettings/AudioSettings.asset");
 
@@ -99,6 +103,7 @@ namespace SliceEditor
 		ImGui::BeginChild("##sfx_list", ImVec2(), ImGuiChildFlags_Borders, ImGuiWindowFlags_AlwaysVerticalScrollbar);
 		if (ImGui::TreeNodeEx("list", ImGuiTreeNodeFlags_Framed))
 		{
+			std::string groupToDelete = "";
 
 			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
@@ -114,6 +119,8 @@ namespace SliceEditor
 				{
 					
 					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), name));
+
+
 					if (ImGui::IsItemDeactivatedAfterEdit())
 					{
 						if (name != key)
@@ -124,6 +131,12 @@ namespace SliceEditor
 
 						}
 
+					}
+
+					ImGui::SameLine();
+					if (ImGui::Button(("Remove Entry " + key).c_str()))
+					{
+						groupToDelete = key;
 					}
 
 					//hasChanged = DragFloatInputHeader(mRegistry, "Volume", ("##vol_" + key).c_str(), entry.volume, "%.3f", 0.f, 1.0f) || hasChanged;
@@ -203,7 +216,7 @@ namespace SliceEditor
 						std::function<void(SliceEngine::GUID)> setFunc = [&](SliceEngine::GUID guid)
 							{
 								//Take out key from parameter
-								audioSettings->ChangeAudioClip(oldClip, guid, entry.AudioClips);
+								audioSettings->ChangeAudioClip(key, oldClip, guid, entry.AudioClips);
 								hasChanged = true;
 							};
 						//std::string audioClipLabel = "Audio Clips_" + std::to_string(std::distance(entry.AudioClips.begin(),entry.AudioClips.size()));
@@ -213,10 +226,11 @@ namespace SliceEditor
 						ImGui::PopID();
 					}
 
+					ImGui::SameLine();
+
 					if (ImGui::Button("+"))
 					{
-						
-						audioSettings->AddAudioClip(entry.soundGroup, SliceEngine::GUID(10155432597037438324), entry.AudioClips);
+						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
@@ -232,6 +246,15 @@ namespace SliceEditor
 					}
 					ImGui::TreePop();
 				}
+			}
+
+			if (!groupToDelete.empty())
+			{
+				// Assuming you have or will add a RemoveSoundGroup overload that takes a key.
+				// If this function doesn't exist in AudioSettings, you will need to add it 
+				// or use: audioSettings->mSFXMap.erase(groupToDelete);
+				audioSettings->mSFXMap.erase(groupToDelete);
+				hasChanged = true;
 			}
 
 			ImGui::TreePop();
@@ -254,22 +277,24 @@ namespace SliceEditor
 
 		if (hasChanged)
 		{
-			audioSettings->Serialize(AUDIO_SETTINGS_PATH);
+			audioSettings->SaveSettings();
 		}
 
 		ImGui::EndChild();
 	}
 
-	void PhysicsSettingsDisplay::DisplaySettings()
+	void PhysicsSettingsDisplay::DisplaySettings(ImVec2 size)
 	{
 		// Retrieve variables
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
 		auto& physicsSystem = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
-		auto& matrixMap = layerManager->nameToLayer; 
+		auto& maskMap = layerManager->collisionMask;
+		auto& layerMap = layerManager->indexToLayerName;
+		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
 		
 		std::vector<std::string> layerNames{};
-		layerNames.reserve(matrixMap.size());
-		for (auto& [name, layer] : matrixMap)
+		layerNames.reserve(layerMap.size());
+		for (auto& [index, name] : layerMap)
 			layerNames.push_back(name);
 
 		const int n = static_cast<int>(layerNames.size());
@@ -291,24 +316,31 @@ namespace SliceEditor
 				ImGui::TableSetupColumn("BP Layer",
 					ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed);
 
-				for (size_t i = 0; i < n; i++)
+				for (auto& [index, name] : layerMap)
 				{
-					std::string layerName = layerNames[i];
-					auto layer = matrixMap.at(layerName);
-					auto bp_layer = physicsSystem.GetBroadPhaseLayer(layer);
+					auto bp_layer = physicsSystem.GetBroadPhaseLayer(index);
 					auto bp_layer_index = bp_layer.GetValue();
 
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 
-					ImGui::Text(layerName.c_str());
+					ImGui::Text(name.c_str());
 
 					ImGui::TableSetColumnIndex(1);
 
-					if (ComboHeader(mRegistry, "", ("##bp_" + layerName).c_str(), bp_layer_index, bplayer_to_name_list))
+					if (ImGui::BeginCombo(("##bp" + name).c_str(), bplayer_to_name_list[bp_layer_index].c_str(), ImGuiComboFlags_WidthFitPreview))
 					{
-						JPH::BroadPhaseLayer new_bp_layer(bp_layer_index);
-						physicsSystem.SetObjectBroadPhaseLayer(layer, new_bp_layer);
+						for (size_t i = 0; i < bplayer_to_name_list.size(); ++i)
+						{
+							if (ImGui::Selectable(bplayer_to_name_list[i].c_str()))
+							{
+								JPH::BroadPhaseLayer new_bp_layer(i);
+								physicsSystem.SetObjectBroadPhaseLayer(index, new_bp_layer);
+								physicsSettings.isDirty = true;
+							}
+						}
+
+						ImGui::EndCombo();
 					}
 				}
 
@@ -373,6 +405,7 @@ namespace SliceEditor
 						if (ImGui::Checkbox("##cell", &collides))
 						{
 							layerManager->AssignLayerInteraction(colName, rowName, collides);
+							physicsSettings.isDirty = true;
 						}
 
 						ImGui::PopID();
@@ -385,62 +418,134 @@ namespace SliceEditor
 		}
 	}
 
-	void ProjectSettingsDisplay::DisplaySettings()
+	bool BuildSettingsDisplay::AddSceneToList(SliceEngine::GUID guid)
 	{
-		//auto& s = gSettings->Edit(); // we�ll set dirty only if something changes
+		auto& buildSettings = static_cast<SliceEngine::BuildSettings&>(mSettings);
+		auto resourceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-		//bool changed = false;
-		//if (ImGui::InputText("Product Name", &s.productName)) { changed = true; }
-		//int w = s.width, h = s.height;
-		//if (ImGui::InputInt("Width", &w)) { s.width = std::max(16, w); changed = true; }
-		//if (ImGui::InputInt("Height", &h)) { s.height = std::max(16, h); changed = true; }
+		auto handle = resourceManager->get<SliceEngine::SliceEngineTypes::Scene>(guid);
 
-		//// Scenes list (very basic)
-		//for (size_t i = 0;i < s.scenes.size();++i) {
-		//	ImGui::PushID((int)i);
-		//	ImGui::InputText("Scene Path", &s.scenes[i]); // path string edit
-		//	if (ImGui::SmallButton("Up") && i > 0) { std::swap(s.scenes[i], s.scenes[i - 1]); changed = true; }
-		//	ImGui::SameLine();
-		//	if (ImGui::SmallButton("Down") && i + 1 < s.scenes.size()) { std::swap(s.scenes[i], s.scenes[i + 1]); changed = true; }
-		//	ImGui::SameLine();
-		//	if (ImGui::SmallButton("X")) { s.scenes.erase(s.scenes.begin() + i); changed = true; ImGui::PopID(); break; }
-		//	ImGui::PopID();
-		//}
-		//if (ImGui::Button("+ Add Scene")) { s.scenes.emplace_back("Assets/Scenes/New.scene"); changed = true; }
+		if (handle.IsValid())
+		{
+			auto filename = mRegistry.GetAssetManager().GetFilenameFromGUID(guid);
+			if (!filename.has_value())
+				return false;
 
-		//// Startup scene combo
-		//if (!s.scenes.empty()) {
-		//	int current = 0;
-		//	for (int i = 0;i < (int)s.scenes.size();++i) if (s.scenes[i] == s.startupScene) current = i;
-		//	if (ImGui::BeginCombo("Startup Scene", s.scenes[current].c_str())) {
-		//		for (int i = 0;i < (int)s.scenes.size();++i) {
-		//			bool sel = (i == current);
-		//			if (ImGui::Selectable(s.scenes[i].c_str(), sel)) { s.startupScene = s.scenes[i]; changed = true; }
-		//		}
-		//		ImGui::EndCombo();
-		//	}
-		//}
+			std::filesystem::path filepath = filename.value();
+			buildSettings.mSceneList.push_back({ filepath.stem().string(), handle});
+			mSettings.isDirty = true;
+			return true;
+		}
 
-		//// Save/Reload row
-		//if (ImGui::Button("Save")) gSettings->Save();
-		//ImGui::SameLine();
-		//if (ImGui::Button("Reload")) { gSettings->Load(); }
+		return false;
+	}
 
-		//// Set dirty timing + optional autosave
-		//if (changed) {
-		//	// touching Edit() already marked dirty; reset the debounce timer by re-setting the change time
-		//	// simplest: mark as dirty again; DebouncedAutosave accumulates time each frame
-		//}
+	void BuildSettingsDisplay::DisplaySettings(ImVec2 size)
+	{
+		auto core = SliceEngine::Core::GetInstance();
+		auto& mBuildSettings = static_cast<SliceEngine::BuildSettings&>(mSettings);
+		auto& assetManager = mRegistry.GetAssetManager();
+		auto& scene_list = mBuildSettings.mSceneList;
 
-		//gSettings->DebouncedAutosave(1.0f / 60.0f, /*delay*/0.75);
+		int to_delete = -1;
+		int to_swap_a = -1;
+		int to_swap_b = -1;
 
-		//// External change detection (prompt)
-		//if (gSettings->DetectExternalChange()) {
-		//	ImGui::TextDisabled("ProjectSettings.json changed on disk.");
-		//	ImGui::SameLine();
-		//	if (ImGui::Button("Reload from Disk")) gSettings->Load();
-		//}
+		auto table_width = ImVec2(size.x * .95f, size.y * 0.5f);
+		if (ImGui::BeginTable("##scene_table", 3, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollY, table_width))
+		{
+			ImGui::TableSetupColumn("ID", 
+				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed, 10);
+			ImGui::TableSetupColumn("Scene Name", 
+				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthStretch);
+			ImGui::TableSetupColumn("Scene Name", 
+				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed, 20);
 
+			for (int i = 0; i < scene_list.size(); ++i)
+			{
+				auto& entry = scene_list[i];
 
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::Text("%d", i);
+
+				auto file_name = assetManager.GetFilenameFromGUID(entry.handle.getGUID());
+				std::string buffer{"Invalid Scene"};
+
+				if (file_name.has_value())
+					buffer = file_name.value();
+
+				ImGui::TableNextColumn();
+				ImGui::Text(buffer.c_str());
+
+				if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_SourceAllowNullID))
+				{
+					ImGui::SetDragDropPayload("scene_table_row_payload", &i, sizeof(int));
+					ImGui::Text(buffer.c_str());
+					ImGui::EndDragDropSource();
+				}
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (auto payload = ImGui::AcceptDragDropPayload("scene_table_row_payload"))
+					{
+						int dragged = *(static_cast<int*>(payload->Data));
+						if (i != dragged)
+						{
+							to_swap_a = i;
+							to_swap_b = dragged;
+						}
+					}
+					ImGui::EndDragDropTarget();
+				}
+
+				ImGui::TableNextColumn();
+				buffer = "x##" + std::to_string(i);
+				if (ImGui::Button(buffer.c_str()))
+				{
+					to_delete = i;
+				}
+			}
+
+			ImGui::EndTable();
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (auto payload = ImGui::AcceptDragDropPayload("Scene"))
+			{
+				SliceEngine::GUID guid = *(static_cast<SliceEngine::GUID*>(payload->Data));
+				bool added = AddSceneToList(guid);
+				ImGui::EndDragDropTarget();
+			}
+		}
+
+		if (to_delete >= 0)
+		{
+			scene_list.erase(scene_list.begin() + to_delete);
+			mSettings.isDirty = true;
+		}
+
+		if (to_swap_a >= 0 && to_swap_b >= 0)
+		{
+			std::swap(scene_list[to_swap_a], scene_list[to_swap_b]);
+			mSettings.isDirty = true;
+		}
+
+		if (ImGui::Button("Add Current Scene"))
+		{
+			auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
+			auto current_scene_path = sceneSystem->GetCurrentScenePath();
+
+			if (!current_scene_path.empty())
+			{
+				current_scene_path = current_scene_path.parent_path().filename() / current_scene_path.filename();
+				auto it = assetManager.mFilenameToGUID.find(current_scene_path.generic_string());
+				if (it != assetManager.mFilenameToGUID.end())
+				{
+					bool added = AddSceneToList(it->second);
+				}
+			}
+		}
 	}
 }

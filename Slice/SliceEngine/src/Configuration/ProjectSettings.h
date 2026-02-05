@@ -1,6 +1,6 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			ProjectSettings.h
- author:		Chase Roderigues
+ author:		Chase Rodrigues
  email:			roderigues.i@digipen.edu
  brief:			Handles project settings
 
@@ -13,42 +13,29 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-    // ProjectSettingsService.h
-    struct ProjectSettings {
-        std::string productName = "Untitled";
-        int width = 1280, height = 720;
-        bool vsync = true;
-        std::vector<std::string> scenes;
-        std::string startupScene;
-    };
+	
+	struct ProjectSettings
+	{
+		bool isDirty;
+		std::string filepath;
+		
+		ProjectSettings(std::string name) : isDirty(false), filepath("ProjectSettings/" + name + ".asset") {};
+		virtual ~ProjectSettings() = default;
 
-    class ProjectSettingsService {
-    public:
-        explicit ProjectSettingsService(std::filesystem::path path)
-            : m_path(std::move(path)) {
-            Load();
-        }
+		void LoadFromFile();
+		virtual void Init() = 0;
+		virtual void LoadSettings(nlohmann::json) = 0;
+		virtual void SaveSettings() = 0;
+		virtual void Exit() = 0;
 
-        const ProjectSettings& Get() const { return m_settings; }
-        ProjectSettings& Edit() { m_dirty = true; return m_settings; }
+		// per-frame update for dirty checking
+		// only call in editor mode
+		void CheckDirty();
 
-        bool IsDirty() const { return m_dirty; }
-        void MarkClean() { m_dirty = false; m_lastChange = {}; }
-
-        bool Load();
-        bool Save(); // atomic
-        void DebouncedAutosave(double dtSeconds, double delay = 0.6); // call per-frame
-        bool DetectExternalChange(); // poll last_write_time
-
-
-    private:
-        std::filesystem::path m_path;
-        ProjectSettings m_settings;
-        bool m_dirty = false;
-        double m_lastChange = 0.0; // seconds since start
-        std::filesystem::file_time_type m_onDiskTime{};
-    };
-
+		// override only for settings that needs to change systems
+		// e.g. audio, physics 
+		virtual void ApplySettings() {};
+	};
 }
 
 #endif

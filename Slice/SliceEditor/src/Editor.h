@@ -21,6 +21,7 @@ struct GLFWwindow;
 #include "Engine.h"
 #include "Core/Registry.h"
 #include "AssetManager/AssetManager.h"
+#include "AssetManager/AssetFileWatcher.h"
 #include "EditorInputs.h"
 #include <Navigation/RecastNavmesh.h>
 
@@ -33,6 +34,7 @@ namespace SliceEditor
 		Registry registry;
 		std::unique_ptr<EditorInputs> inputs;
 		RecastNavMesh navMesh;
+
 		void InitImGUI(GLFWwindow* window);
 		void InitManagers();
 		void InitEditorState();
@@ -41,6 +43,7 @@ namespace SliceEditor
 
 		void Update();
 		void Render();
+		void Save();
 
 	public:
 

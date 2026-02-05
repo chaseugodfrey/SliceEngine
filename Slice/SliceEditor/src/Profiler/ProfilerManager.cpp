@@ -61,29 +61,66 @@ namespace SliceEditor
 	
 	void ProfilerManager::UpdateDebugStatistics()
 	{
-		mCurrFPS = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetCurrFPS();
+		auto engineFRM = SliceEngine::Core::GetInstance()->GetFramerateManager();
+		float dt = engineFRM->getDeltaTime();
+		float currFPS = engineFRM->GetCurrFPS();
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
-		
-		const auto& sysPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
-
-		for (const auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
+		const auto& currentDurations = engineFRM->GetSysDurations();
+		for (const auto& [system, time] : currentDurations)
 		{
-			ProfilerManager::DebugStats stats;
+			SystemHistory& history = mSystemMap[system];
 
-			auto it = sysPercentages.find(system);
+			//Add new entry
+			history.samples.push_back(time);
+			history.totalSum += time;
 
-			if(it != sysPercentages.end())
+			if (history.samples.size() > MAX_SAMPLES)
 			{
-				stats.width = (it->second / 100.f) * canvas_size.x;
-				stats.timeTaken = time;
-				stats.loadPercentage = it->second;
+				history.totalSum -= history.samples.front();
+				history.samples.pop_front();
+			}
+		}
+		
+		static float updateTimer = 0.0f;
+		const float updateInterval = 1.0f;
+
+		updateTimer += dt;
+		float totalFrameTime = engineFRM->GetFrameTime();
+		float trackedTime = 0.0f;
+		if(updateTimer >= updateInterval)
+		{
+			updateTimer = 0;
+			float aggregateTime = 0.0f;
+
+			for (auto& [system, history] : mSystemMap)
+			{
+				aggregateTime += (history.totalSum / history.samples.size());
+			}
+			for(auto& [system, history] : mSystemMap)
+			{
+				float averageTime = history.totalSum / history.samples.size();
+				float averagePercentage = (aggregateTime > 0) ? (averageTime / aggregateTime) * 100.0f : 0.0f;
+
+				ProfilerManager::DebugStats stats;
+
+				stats.timeTaken = averageTime;
+				stats.loadPercentage = averagePercentage;
+				stats.width = (averagePercentage / 100.f) * canvas_size.x;
+				mDebugStats.insert_or_assign(system, stats);
+				trackedTime += averageTime;
+			}
+			mCurrFPS = engineFRM->GetCurrFPS();
+			mDeltaTime = engineFRM->getDeltaTime();
+			mTotalFrameTime = engineFRM->GetFrameTime();
+			mUntrackedFrameTime = aggregateTime - trackedTime;
+			if(mUntrackedFrameTime > 0)
+			{
+				mUntrackedFrameTimePercentage = (mUntrackedFrameTime / aggregateTime) * 100.0f;
 			}
 			else
 			{
-				SLICE_LOG_CRITICAL("System Durations has something that Percentages does not have!");
+				mUntrackedFrameTimePercentage = 0.0f;
 			}
-
-			mDebugStats.insert_or_assign(system, stats);
 		}
 	}
 

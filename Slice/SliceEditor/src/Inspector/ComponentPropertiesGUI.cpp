@@ -52,11 +52,11 @@ namespace SliceEditor
 
 
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed)
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
+		bool changed = ImGui::DragFloat(id, &val, speed, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -115,11 +115,11 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
+	bool DragUInt64Input(Registry& reg, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max, float speed)
 	{
 		static uint64_t oldVal{};
 
-		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+		bool changed = ImGui::DragScalar(id, ImGuiDataType_U64, &val, speed, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -223,12 +223,12 @@ namespace SliceEditor
 		return false;
 	}
 
-	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInputHeader(Registry& reg, const char* property_label, const char* id, float& val, const char* format, float min, float max, float speed)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = DragFloatInput(reg, id, val, format, min, max) || changed;
+		changed = DragFloatInput(reg, id, val, format, min, max, speed) || changed;
 
 		return changed;
 	}
@@ -253,12 +253,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max)
+	bool DragUInt64InputHeader(Registry& reg, const char* property_label, const char* id, uint64_t& val, const char* format, uint64_t min, uint64_t max, float speed)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = DragUInt64Input(reg, id, val, format, min, max) || changed;
+		changed = DragUInt64Input(reg, id, val, format, min, max, speed) || changed;
 
 		return changed;
 	}
@@ -434,12 +434,114 @@ namespace SliceEditor
 		return changed;
 	}
 
-	//bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
-	//{
-	//	ImGui::Text(property_label);
-	//	ImGui::SameLine(150.f);
-	//	static SliceEngine::GameObject oldVal{};
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	{
+		static SliceEngine::GameObject oldVal{};
 
+		bool changed = false;
+		std::string propertyLabelID = property_label;
+
+		ImGui::Text(propertyLabelID.c_str());
+		ImGui::SameLine(150.f);
+
+		ImGui::BeginDisabled();
+		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
+		{
+			std::string empty = " ";
+			ImGui::InputText(id, &empty);
+		}
+		else
+		{
+			//wtf is this bs
+			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
+			ImGui::InputText(id, &goName);
+		}
+		ImGui::EndDisabled();
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				oldVal = val;
+				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+				val = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
+
+				std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
+				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+				changed = true;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+	}
+
+	bool PrefabInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::PrefabVar)> func, const char* property_label, const char* id, SliceEngine::PrefabVar& val)
+	{
+		bool changed = false;
+		auto& assetMan = reg.GetAssetManager();
+		SliceEngine::GUID currentGUID;
+		static SliceEngine::PrefabVar oldVal;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		//Search for the filename in the assetMap
+		if (assetMan.mFilenameToGUID.find(val.prefabFileName) == assetMan.mFilenameToGUID.end())
+		{
+			//If cant find the prefab fileName:
+			if (val.prefabFileName.empty())
+			{
+				ImGui::Text("No Prefab Set");
+			}
+			else
+			{
+				ImGui::Text(val.prefabFileName.c_str());
+			}
+			if(ImGui::IsItemHovered())
+			{
+				if (ImGui::BeginTooltip())
+				{
+					ImGui::Text("Asset not found!");
+					ImGui::EndTooltip();
+				}
+			}
+		}
+
+		else
+		{
+			currentGUID = assetMan.mFilenameToGUID[val.prefabFileName];
+			if (GUIDDragDropInputHeader(reg, "", id, currentGUID, "Prefab"))
+			{
+				val.prefabFileName = assetMan.mGUIDtoFilename[currentGUID];
+				changed = true;
+			}
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Prefab"))
+			{
+				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+
+				// Check if guid is same, if is, then dont execute anything
+				changed = (currentGUID != newGUID);
+				if (changed)
+				{
+					oldVal = val;
+					std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::PrefabVar>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::PrefabVar>>(func, std::string(property_label), oldVal, val);
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+					//I probably should have a check here.
+					val.prefabFileName = assetMan.mGUIDtoFilename[newGUID];
+				}
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+
+		return changed;
+	}
 	//	val.GetName();
 
 	//	ImGui::BeginDisabled();
@@ -687,6 +789,93 @@ namespace SliceEditor
 
 				// perform change
 				editFunc("Add", std::string(property_label), list, "", idx);
+
+				// record in history
+				/*if (oldList != list)
+				{
+					auto command = std::make_unique<ScriptFieldSetterCommand<std::vector<std::string>>>(
+						addFunc, std::string(property_label), "", "");
+					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+				}*/
+				changed = true;
+			}
+
+			ImGui::TreePop();
+		}
+
+		return changed;
+	}
+
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list)
+	{
+		static std::string elementNo_String = "Element ";
+		static std::vector<SliceEngine::GameObject > oldList{};
+		int idx = 0;
+		bool changed = false;
+		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
+		{
+			for (auto& entry : list)
+			{
+				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
+				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
+				std::string buttonLabel = "-##" + elementPropertyLabel;
+
+				ImGui::Text(elementPropertyLabel.c_str());
+				ImGui::SameLine(150.f);
+				ImGui::SetNextItemWidth(200.0f);
+				ImGui::BeginDisabled();
+				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
+				{
+					std::string empty = " ";
+					ImGui::InputText(newID.c_str(), &empty);
+				}
+				else
+				{
+					std::string goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
+					ImGui::InputText(newID.c_str(), &goName);
+				}
+				ImGui::EndDisabled();
+
+				if (ImGui::BeginDragDropTarget())
+				{
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+					{
+						oldList = list;
+						entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+						entry = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
+
+						//Disabled Undo/Redo for Lists atm
+						/*std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
+
+						changed = true;
+					}
+
+					ImGui::EndDragDropTarget();
+				}
+
+				//if (ImGui::IsItemDeactivatedAfterEdit())
+				//{
+				//	editFunc("Edit", std::string(property_label), list, entry, idx);
+				//}
+
+				ImGui::SameLine();
+				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
+				{
+					editFunc("Remove", std::string(property_label), list, entry, idx);
+				}
+
+				idx++;
+			}
+			ImGui::Dummy(ImVec2(0, 0));
+			ImGui::SameLine(150.f);
+			if (ImGui::Button("+", ImVec2(30, 20)))
+			{
+				// snapshot before change
+				//oldList = list;
+
+				// perform change
+				editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
 
 				// record in history
 				/*if (oldList != list)
@@ -1036,22 +1225,100 @@ namespace SliceEditor
 	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& guid, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
 	{
 		bool changed = false;
-		std::string filename{ "(empty)" };
-
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
-
 		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(guid);
+		auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
 
-		if (file.has_value())
+		if (mapPtr != nullptr)
 		{
-			filename = file.value();
-		}
+			std::vector<std::string> mapNames;
+			mapNames.reserve(assetManager.GetMapFromAssetType(asset_type)->size()); //Not sure if i need this but just to be sure.
 
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
+			int currentIndex = -1;
+			SliceEngine::GUID currentGUID = guid;
+
+			for (const auto& guid : *mapPtr)
+			{
+				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+				{
+					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+					continue;
+				}
+
+				if (guid == currentGUID)
+				{
+					currentIndex = (int)mapNames.size();
+				}
+
+				//Manipulate to the filename
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::string fileNameString = relativePath.filename().string();
+
+				mapNames.push_back(fileNameString);
+			}
+
+			int selectedIndex = currentIndex;
+
+			std::string guidString = currentGUID.toString();
+			std::string errorText;
+			if (assetManager.mGUIDtoFilename.find(currentGUID) == assetManager.mGUIDtoFilename.end())
+			{
+				//?????? wtf is this
+				//SLICE_LOG_ERROR("Cant find GUID of " + guidString);
+				errorText = "GUID not found in AssetManager";
+				mapNames.push_back(guidString);
+				//Should be the last added unknown GUID
+				selectedIndex = mapNames.size() - 1;
+				ImGui::Text("%s :", property_label);
+				ImGui::SameLine(150.f);
+			}
+			else
+			{
+				ImGui::Text(property_label);
+				ImGui::SameLine(150.0f);
+			}
+
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
+			{
+				const std::string& selectedName = mapNames[selectedIndex];
+				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+				changed = (guid != newGUID);
+				if (changed)
+				{
+					if (!setFunc)
+					{
+						std::unique_ptr<ValueCommand<SliceEngine::GUID>> command = std::make_unique<ValueCommand<SliceEngine::GUID>>(guid, guid, newGUID);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+						guid = newGUID;
+					}
+
+					else
+					{
+						std::unique_ptr<FunctionSetsValueCommand<SliceEngine::GUID>> command = std::make_unique<FunctionSetsValueCommand<SliceEngine::GUID>>(guid, newGUID, setFunc);
+						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+						setFunc(newGUID);
+					}
+				}
+			}
+		}
+		//No Drag-Drop for some reason
+		else
+		{
+			std::string filename{ "(empty)" };
+			ImGui::Text(property_label);
+			ImGui::SameLine(150.0f);
+
+			auto file = assetManager.GetFilenameFromGUID(guid);
+
+			if (file.has_value())
+			{
+				filename = file.value();
+			}
+
+			ImGui::BeginDisabled();
+			ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
+			ImGui::EndDisabled();
+			}
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -1084,7 +1351,37 @@ namespace SliceEditor
 		}
 
 		return changed;
+	}
 
+	bool EntityInputHeader(Registry& reg, const char* property_label, const char* id, Entity& val)
+	{
+		auto& factory = SliceEngine::FactoryInstance;
+		bool changed = false;
+		ImGui::Text(property_label);
+		ImGui::SameLine(150.f);
+		SliceEngine::GameObject go = factory.GetGOByEntity(val);
+		if (!go.IsValid())
+		{
+			ImGui::Text("Entity not set.");
+		}
+		else
+		{
+			ImGui::Text(go.GetName().c_str());
+		}
+		
+		if (ImGui::BeginDragDropTarget())
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
+			{
+				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
+				val = entityDropped;
+
+				changed = true;
+			}
+
+			ImGui::EndDragDropTarget();
+		}
+		return true;
 	}
 
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
@@ -1102,21 +1399,21 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f",min,max) || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f",min,max) || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f") || changed;
+		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f",min,max) || changed;
 
 		return changed;
 	}
@@ -1146,60 +1443,97 @@ namespace SliceEditor
 		return changed;
 	}
 
-	template <>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
-	{
-		bool changed = false;
-		std::string filename{ "(empty)" };
+	//template <>
+	//bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc)
+	//{
+	//	bool changed = false;
+	//	auto& assetManager = reg.GetAssetManager();
+	//	auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
 
-		ImGui::Text(property_label);
-		ImGui::SameLine(150.0f);
+	//	if (mapPtr != nullptr)
+	//	{
+	//		std::vector<std::string> mapNames;
+	//		mapNames.reserve(assetManager.GetMapFromAssetType(asset_type)->size()); //Not sure if i need this but just to be sure.
 
-		auto& assetManager = reg.GetAssetManager();
-		auto file = assetManager.GetFilenameFromGUID(handle.getGUID());
+	//		int currentIndex = -1;
+	//		SliceEngine::GUID currentGUID = handle.getGUID();
 
-		if (file.has_value())
-		{
-			filename = file.value();
-		}
+	//		for (const auto& guid : *mapPtr)
+	//		{
+	//			if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+	//			{
+	//				SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
+	//				continue;
+	//			}
 
-		ImGui::BeginDisabled();
-		ImGui::InputText(id, &filename, ImGuiInputTextFlags_ReadOnly);
-		ImGui::EndDisabled();
+	//			if (guid == currentGUID)
+	//			{
+	//				currentIndex = (int)mapNames.size();
+	//			}
 
-		if (ImGui::BeginDragDropTarget())
-		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
-			{
-				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
+	//			mapNames.push_back(assetManager.mGUIDtoFilename[guid]);
+	//		}
 
-				// Check if guid is same, if is, then dont execute anything
-				changed = (handle.getGUID() != newGUID);
-				if (changed)
-				{
-					if (!setFunc)
-					{
-						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
-						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Model>(newGUID);
+	//		//Fall-back
+	//		if (currentIndex < 0 && !mapNames.empty())
+	//			currentIndex = 0;
 
-						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Model>>>(handle, handle, newHandle);
-						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+	//		int selectedIndex = currentIndex;
 
-						handle = newHandle;
-					}
+	//		if (ComboHeader<int>(reg, property_label, id, selectedIndex, mapNames))
+	//		{
+	//			const std::string& selectedName = mapNames[selectedIndex];
+	//			SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
+	//			changed = (handle.getGUID() != newGUID);
+	//			if (changed)
+	//			{
+	//				if (!setFunc)
+	//				{
+	//					auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+	//					auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(newGUID);
 
-					else
-						setFunc(newGUID);
-				}
-			}
+	//					std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>>(handle, handle, newHandle);
+	//					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 
-			ImGui::EndDragDropTarget();
-		}
+	//					handle = newHandle;
+	//				}
 
-		return changed;
+	//				else
+	//					setFunc(newGUID);
+	//			}
+	//		}
 
-	}
+	//		if (ImGui::BeginDragDropTarget())
+	//		{
+	//			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(asset_type.c_str()))
+	//			{
+	//				SliceEngine::GUID newGUID(*(SliceEngine::GUID*)payload->Data);
 
+	//				// Check if guid is same, if is, then dont execute anything
+	//				changed = (handle.getGUID() != newGUID);
+	//				if (changed)
+	//				{
+	//					if (!setFunc)
+	//					{
+	//						auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+	//						auto newHandle = rm->get<SliceEngine::SliceEngineTypes::Material>(newGUID);
+
+	//						std::unique_ptr<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>> command = std::make_unique<ValueCommand<SliceEngine::Handle<SliceEngine::SliceEngineTypes::Material>>>(handle, handle, newHandle);
+	//						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+	//						handle = newHandle;
+	//					}
+
+	//					else
+	//						setFunc(newGUID);
+	//				}
+	//			}
+
+	//			ImGui::EndDragDropTarget();
+	//		}
+	//		return changed;
+	//	}
+	//}
 }
 
 void SetBit(unsigned char& mask, unsigned char bit, bool enabled)

@@ -18,6 +18,7 @@ namespace SliceEditor
 	void SessionManager::Init()
 	{
 		mPrefabInspected = false;
+		mShowHierarchyEntityIDs = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -27,81 +28,19 @@ namespace SliceEditor
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
-		OpenPreferences();
+		//CreateEntityNodes();
 	}
 
 	void SessionManager::Update()
 	{
-		CreateEntityNodes();
+		UpdateEntityNodes();
 
-		if (mPrefabInspected)
-		{
-
-		}
-		else
+		if (!mPrefabInspected && !mPrefabNodes.empty())
 		{
 			mPrefabNodes.clear();
 		}
 	}
 
-	void SessionManager::OpenPreferences()
-	{
-		std::string filepath = "preferences.json";
-		std::ifstream preferencesFile{ filepath };
-
-		if (preferencesFile.fail())
-		{
-			CreateDefaultPreferenceFile();
-			preferencesFile.open(filepath);
-		}
-
-		mPreferences = std::make_unique<Preferences>();
-
-		nlohmann::json preferencesJson;
-		preferencesFile >> preferencesJson; // here aloy
-		std::string theme = preferencesJson["Theme"].get<std::string>();
-		mPreferences->Theme = EditorUtilities::GetThemeTypeFromString(theme);
-
-		preferencesFile.close();
-
-		SetPreferences();
-	}
-
-	void SessionManager::SetPreferences()
-	{
-		EditorUtilities::SetTheme(mPreferences->Theme);
-	}
-
-	void SessionManager::CreateDefaultPreferenceFile()
-	{
-		std::string filepath = "preferences.json";
-		std::ofstream preferencesFile{ filepath };
-		nlohmann::json preferences;
-
-		preferences["Theme"] = EditorThemes[0];
-
-		preferencesFile << preferences.dump();
-		preferencesFile.close();
-	}
-
-	void SessionManager::SavePreferences()
-	{
-		std::string filepath = "preferences.json";
-		std::ofstream preferencesFile{ filepath };
-		nlohmann::json preferences;
-
-		preferences["Theme"] = EditorThemes[mPreferences->Theme];
-
-		preferencesFile << preferences.dump();
-		preferencesFile.close();
-
-		SetPreferences();
-	}
-
-	Preferences& SessionManager::GetPreferences()
-	{
-		return *mPreferences.get();
-	}
 
 	void SessionManager::OnSceneSave(OnSceneSaveEvent e)
 	{
@@ -131,17 +70,57 @@ namespace SliceEditor
 			}).detach();
 	}
 
-	void SessionManager::CreateEntityNodes()
+	void SessionManager::SetNodeAsPrefab(EntityNode* node, bool isPrefab)
+	{
+		node->isPrefab = isPrefab;
+		SliceEngine::GameObject go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(node->entity);
+
+		if (go.HasComponent<SliceEngine::SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SliceEngine::SceneGraph>();
+
+			auto childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			while (childEntity != entt::null)
+			{
+				//Need to find the EntityNode in the editor's map
+				if (mEntityNodes.find(childEntity) == mEntityNodes.end())
+				{
+					SLICE_LOG_WARNING("De-sync of mEntityNodes!");
+					return;
+				}
+				auto childEntityNode = mEntityNodes[childEntity].get();
+				
+				SetNodeAsPrefab(childEntityNode, isPrefab);
+				//Get SceneGraph component and update
+				auto childGO = SliceEngine::FactoryInstance.GetGOByEntity(childEntity);
+				auto& childSceneGraph = childGO.GetComponent<SliceEngine::SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+		}
+	}
+
+	/*void SessionManager::CreateEntityNodes()
 	{
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
 		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
 
 		if (view.size() != mEntityNodes.size())
 		{
-			mEntityNodes.clear();
+			//mEntityNodes.clear();
 			for (auto entity : view)
 			{
-				mEntityNodes.emplace(entity, std::make_unique<EntityNode>(entity));
+				mEntityNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+
+				for (auto node : selectionMan->GetSelectedNodes())
+				{
+					if (node->type == SelectionType::ENTITY)
+					{
+						mEntityNodes[entity].get()->isSelected = node->isSelected;
+					}
+				}
+				
 			}
 
 			for (auto entity : prefabView)
@@ -160,20 +139,111 @@ namespace SliceEditor
 				mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
 			}
 		}
-	}
+	}*/
 
-	void SessionManager::CreatePrefabNodes()
+	void SessionManager::UpdateEntityNodes()
 	{
-		//auto& sceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mPrefabParent.get()->entity);
+		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
+		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SliceEntity>();
+		auto isPrefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
+		auto prefabEditorView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::PrefabEditingEntity>();
+
+		//SLICE_LOG_DEBUG( "Prefab Editing Entity Size: " + std::to_string(prefabEditorView.size()));
+
+		//EntityNode Map for Hierarchy
+		if (view.size() != mEntityNodes.size())
+		{
+			//Set the seen to false for removal checking ltr on
+			for (auto& [entity,node] : mEntityNodes)
+			{
+				node->seen = false;
+			}
+
+			for (auto entity : view)
+			{
+				//Checking for un-added entities
+				if (mEntityNodes.find(entity) == mEntityNodes.end())
+				{
+					AddEntityNode(entity);
+				}
+				mEntityNodes[entity]->seen = true;
+			}
+
+			//Check for prefab Component
+			for (auto entity : isPrefabView)
+			{
+				auto it = mEntityNodes.find(entity);
+				if(it != mEntityNodes.end())
+				{
+					it->second->isPrefab = true;
+				}
+			}
+
+			//Removal of no longer existing entities (Check for removal after looping thru once to set seen to true
+			for (auto it = mEntityNodes.begin(); it != mEntityNodes.end(); )
+			{
+				//Was not found in the scene
+				if (it->second->seen == false)
+				{
+					it = mEntityNodes.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
+
+		//PrefabNode Map for Prefab Editor
+		if (prefabEditorView.size() != mPrefabNodes.size())
+		{
+			for (auto& [entity, node] : mPrefabNodes)
+			{
+				node->seen = false;
+			}
+
+			for (auto entity : prefabEditorView)
+			{
+				//Checking for un-added entities
+				if (mPrefabNodes.find(entity) == mPrefabNodes.end())
+				{
+					mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+					mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
+				}
+
+				mPrefabNodes[entity]->seen = true;
+			}
+
+			//Removal of no longer existing entities (Check for removal after looping thru once to set seen to true
+			for (auto it = mPrefabNodes.begin(); it != mPrefabNodes.end(); )
+			{
+				//Was not found in the scene
+				if (it->second->seen == false)
+				{
+					it = mPrefabNodes.erase(it);
+				}
+				else
+				{
+					++it;
+				}
+			}
+		}
 	}
 
+	void SessionManager::AddEntityNode(entt::entity entity)
+	{
+		mEntityNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
+	}
+
+	void SessionManager::RemoveEntityNode(entt::entity entity)
+	{
+		mEntityNodes.erase(entity);
+	}
+		
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)
 	{
-		if (event.isSceneLoaded)
-		{
-			mEntityNodes.clear();
-			CreateEntityNodes();
-		}
+		mEntityNodes.clear();
+		UpdateEntityNodes();
 	}
 
 	void SessionManager::OnSceneStop(const OnSceneStopEvent& event)
@@ -204,6 +274,7 @@ namespace SliceEditor
 		{
 			//Create the Prefab Instance
 			mPrefabRootEntity = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().CreatePrefab(event.prefabGUID, true).GetEntity();
+			mInspectedPrefabGUID = event.prefabGUID;
 			//Clear the look-up table just incase
 			mPrefabNodes.clear();
 			//Build the mPrefabNodes lookup table
@@ -215,11 +286,16 @@ namespace SliceEditor
 			//Delete the Root Entity from GOFactory
 			//SliceEngine::FactoryInstance.Destroy(mPrefabRootEntity);
 			
+			//Delete the Root Entity and its children mwahahahaa
+			EditorUtilities::GameObject_Destroy(mPrefabRootEntity);
+
 			//Clear Session Manager Variables
 			mPrefabRootEntity = entt::null;
+			mInspectedPrefabGUID = SliceEngine::GUID::null();
 			mPrefabNodes.clear();
 
 			registry.GetManager<SelectionManager>("Selection")->ClearSelection();
+
 		}
 	}
 
@@ -230,13 +306,13 @@ namespace SliceEditor
 		auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
 
 		//Add the parent to mPrefabNodes (just a lookup table)
-		auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());
-		auto& prefabNodePtr = pair.first->second;
-		EntityNode& prefabNode = *prefabNodePtr;
-		prefabNode.entity = entity;
-		prefabNode.isPrefab = true;
-		prefabNode.type = SelectionType::PREFAB_ENTITY;
-		prefabNode.isSelected = false;
+		//auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());
+		//auto& prefabNodePtr = pair.first->second;
+		//EntityNode& prefabNode = *prefabNodePtr;
+		//prefabNode.entity = entity;
+		////prefabNode.isPrefab = true;
+		//prefabNode.type = SelectionType::PREFAB_ENTITY;
+		//prefabNode.isSelected = false;
 
 		//First child of this entity
 		Entity childEntity = sceneGraph.neighbours[SliceEngine::SceneGraph::Direction::DOWN];
@@ -259,9 +335,24 @@ namespace SliceEditor
 		return mPrefabInspected;
 	}
 
-	Entity SessionManager::GetPrefabInspected()
+	Entity SessionManager::GetPrefabEntityInspected()
 	{
 		return mPrefabRootEntity;
+	}
+
+	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
+	{
+		return mInspectedPrefabGUID;
+	}
+
+	void SessionManager::ToggleHierarchyEntityIDs()
+	{
+		mShowHierarchyEntityIDs = !mShowHierarchyEntityIDs;
+	}
+
+	bool SessionManager::GetHierarchyEntityIDs()
+	{
+		return mShowHierarchyEntityIDs;
 	}
 
 	std::unordered_map<entt::entity, std::unique_ptr<EntityNode>>& SessionManager::GetEntityNodes()
@@ -282,15 +373,18 @@ namespace SliceEditor
 		if (!filename.has_value())
 			return SLICE_LOG_ERROR(".controller filename is wrong!");
 
-		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value() + ".controller";
+		std::filesystem::path filepath = registry.GetAssetManager().mAssetDirectory.string() + "/" + filename.value();
 
-		if (!mAnimatorData->empty())
-			mAnimatorData->reset();
-
-		if (!mAnimatorData->Load(filepath))
+		if (mAnimatorData)
 		{
-			mAnimatorData.reset();
-			SLICE_LOG_ERROR("Animator Data not loaded.");
+			if (!mAnimatorData->empty())
+				mAnimatorData->reset();
+
+			if (!mAnimatorData->Load(filepath))
+			{
+				mAnimatorData.reset();
+				SLICE_LOG_ERROR("Animator Data not loaded.");
+			}
 		}
 	}
 

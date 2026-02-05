@@ -90,6 +90,26 @@ namespace SliceEngine
 		uint32_t m_CollisionMask[Layers::NUM_LAYERS];
 	};
 
+	class ObjectLayerFilterImpl final : public JPH::ObjectLayerFilter
+	{
+	public:
+		ObjectLayerFilterImpl(uint32_t mask) : layerMask(mask) {}
+
+		bool ShouldCollide(JPH::ObjectLayer inLayer) const override;
+
+	private:
+		uint32_t layerMask;
+	};
+
+	class BodyFilterIgnore final : public JPH::BodyFilter
+	{
+	public:
+
+		bool ShouldCollideLocked(const JPH::Body& inBody) const override;
+
+	};
+
+
 }
 
 

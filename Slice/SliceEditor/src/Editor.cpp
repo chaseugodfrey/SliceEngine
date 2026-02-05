@@ -16,10 +16,14 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "Editor.h"
 #include "Scripting/ScriptEditor.h"
+#include <Core/Registry.h>
 #include <Input/InputSystem.h>
+#include <ContentBrowser/ContentBrowserManager.h>
 #include <Systems/SceneSystem.h>
 #include <Graphics/TransformHelper.h>
 #include <WindowManager/WindowManager.h>
+#include <Configuration/PreferenceManager.h>
+#include <Systems/FramerateManager.h>
 
 namespace SliceEditor
 {
@@ -87,59 +91,64 @@ namespace SliceEditor
 	void Editor::Init()
 	{
 		SLICE_LOG("Initializing Editor.");
-		EnableMemoryLeakChecking(-1);
+		//EnableMemoryLeakChecking(-1);
 
 		// Scan the resource folder for any hanging resource files or smth
 		// before engine's resource manager scans it to prevent broken meta files/resource files
-		inputs = std::make_unique<EditorInputs>(registry);
 
-		assetManager.ScanResourceFolder();
 		assetManager.Init();
 
+		// Engine Core
 		engine.Init();
-
+		inputs = std::make_unique<EditorInputs>(registry, false);
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		inputSys->UnbindCallbacks(); // unbind input callbacks, let editor handle input
-
-		// todo: calling this here first to put this when loading scene + 
-		// reminder to change scene root to a list in case we want to have multiple scenes
-		//SliceEngine::Core::GetInstance()->mFactory.InitRootEntity();
-
-		// default controller here pls
-		//assetManager.CreateDefaultAsset(assetManager.mAssetDirectory, SliceEditor::AssetType::Controller);
-
+		
+		// Editor Core
 		InitImGUI(SliceEngine::Core::GetInstance()->GetWindow());
-		SLICE_LOG("Initializing Editor Systems.");
-
 		InitManagers();
-		InitWindowManager();
 
-		engine.SceneInit();
-		//SliceEditor::InitFileWatcher();
+		// Load Preferences & Set starting scene
+		auto preferenceManager = registry.GetManager<PreferenceManager>("Preferences");
+		preferenceManager->LoadPreferences();
+		preferenceManager->SetPreferences();
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 		inputs->isActive = true;
-
-
-		//SliceEngine::GameObject NavmeshTest = SliceEngine::Core::FactoryInstance.GetGOByName("GameObject_2");
-		//NavmeshTest.AddComponent<SliceEngine::NavAgent>();
-		//NavmeshTest.GetComponent<SliceEngine::Transform>().position = glm::vec3(1,0.5,1);
-		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().target = glm::vec3(10, 0.5, 10);
-		//NavmeshTest.GetComponent<SliceEngine::NavAgent>().hasNewTarget = true;
-
 		
 	}
 
 	void Editor::Run()
 	{
+		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
+		auto engineFRM = SliceEngine::Core().GetInstance()->GetFramerateManager();
+
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+
+			engineFRM->StartFrame();
+
+
+			engineFRM->StartSystem("Editor");
 			registry.Update();
 			inputs->Update();
-			assetManager.UpdateFolder();
+			if (contentBrowser)
+			{
+				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
+			}
+			engineFRM->EndSystem("Editor");
+
+			//engineFRM->StartSystem("Engine");
 			engine.Update();
+			//engineFRM->EndSystem("Engine");
+			engineFRM->StartSystem("Editor");
 			Render();
 			engine.EndFrame();
+			engineFRM->EndSystem("Editor");
+
+			engineFRM->EndFrame();
+			engineFRM->CalculateSystemPercentages();
+
 		}
 	}
 
@@ -159,8 +168,17 @@ namespace SliceEditor
 		ImGui::RenderPlatformWindowsDefault();
 	}
 
+	void Editor::Save()
+	{
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
+	}
+
 	void Editor::Exit()
 	{
+		// Save all editor changes
+		// to add save engine changes if needed
+		Save();
+
 		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
@@ -183,6 +201,11 @@ namespace SliceEditor
 		ImGui::CreateContext();
 		ImNodes::CreateContext();
 		ImGuiIO& io = ImGui::GetIO();
+
+		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 22.0f);
+		if (font) io.FontDefault = font;
+
 		
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
@@ -250,7 +273,17 @@ namespace SliceEditor
 	void Editor::HandleDrop(const std::filesystem::path path)
 	{
 		auto manager = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto target = manager->selectedFolder->path / path.filename();
+		const std::filesystem::path selectedfolderPath = manager->selectedFolder->fullPath;
+		std::filesystem::path target = selectedfolderPath /path.filename();
+		int counter = 1;
+
+		while (std::filesystem::exists(target))
+		{
+			target = selectedfolderPath / (path.stem().string() + "_" + std::to_string(counter) + path.extension().string());
+			++counter;
+		}
+
+		//Need to check and rename if the name already exists
 
 		std::filesystem::copy(path, target, std::filesystem::copy_options::overwrite_existing);
 		SLICE_LOG("Dropped this file: " + path.filename().string());
@@ -291,6 +324,12 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			file.metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::Font:
+			file.metaData = std::make_unique<FontMetaData>();
+			break;
+		default:
+			SLICE_LOG_WARNING("File Type not supported in HandleDrop function yet: " + fileExt +". Letting Filewatcher handle.");
+			return;
 		}
 		//Default Init the MetaData base class
 		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);

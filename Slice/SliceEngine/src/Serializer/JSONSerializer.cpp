@@ -11,6 +11,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "JSONSerializer.h"
 #include "Animator/BoneSystem.h"
+#include "Scripting/ScriptSystem.h"
 
 namespace SliceEngine
 {
@@ -45,7 +46,50 @@ namespace SliceEngine
 
 		void SerializeScene(std::filesystem::path const& filePath)
 		{
-			json output;
+			json finalOutput;
+			finalOutput["SceneData"] = json::array();
+			finalOutput["NavMeshData"] = nullptr;
+
+			std::filesystem::path sceneMeta = filePath;
+			sceneMeta += ".meta";
+
+			if (!std::filesystem::exists(sceneMeta))
+			{
+				SLICE_LOG_ERROR("SCene meta file does not exist!");
+				//return;
+			}
+			else
+			{
+				std::ifstream file(sceneMeta);
+				if (!file.is_open())
+				{
+					SLICE_LOG_ERROR("Meta file cannot be opened");
+					//assert("Meta file cannot be open");
+				//	return;
+				}
+
+				json metaData;
+				try {
+					file >> metaData;
+				}
+				catch (json::parse_error& e)
+				{
+					SLICE_LOG_ERROR("Meta cannot be parsed as json");
+					return;
+				}
+
+				// safety checks
+				if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+				{
+					finalOutput["NavMeshData"]["navMeshGUID"] = metaData.value("navMeshGUID", 0ULL);
+				}
+
+				if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+				{
+					finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+				}
+
+			}
 
 			auto& registry = Core::GetInstance()->GetRegistry();
 			auto* rc = Core::GetInstance()->GetResourceManager();
@@ -53,10 +97,10 @@ namespace SliceEngine
 			auto entityView = registry.view<SliceEntity>();
 			for (auto entity : entityView)
 			{
-				output += SerializeGameObject(entity, registry);
+				finalOutput["SceneData"] += SerializeGameObject(entity, registry);
 			}
 
-			SerializeFile(output, filePath);
+			SerializeFile(finalOutput, filePath);
 
 			json GUIDFile = SerializeSceneResources();
 
@@ -65,6 +109,7 @@ namespace SliceEngine
 
 			SerializeFile(GUIDFile, resourcePath);
 		}
+
 
 		json SerializeSceneResources()
 		{
@@ -182,9 +227,8 @@ namespace SliceEngine
 
 		}
 
-		Entity DeserializePrefab(std::filesystem::path const& filePath, bool Editor)
+		Entity DeserializePrefab(std::unordered_map<uint32_t, uint32_t>& sceneGraphMap, std::filesystem::path const& filePath, bool Editor)
 		{
-			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			// TODO: ask hafiz if theres a btr way for this
 			// im just gonna duck tape this for now
@@ -250,7 +294,9 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::StateMachine>,
 								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
+								std::array<uint32_t, 4>,
 								std::array<Entity, 4>,
+								std::array<glm::vec4, Button::Total_States>,
 								std::vector<uint64_t>,
 								glm::vec2,
 								glm::vec3,
@@ -262,7 +308,14 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
+								RigidBody::FreezeOptions,
+								ParticleSystem::ValueType,
+								std::vector<ParticleSystem::Burst>,								
+								std::vector<Particle>,
+								GameObject,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, newObj.GetEntity());
 							// Anything that needs a second pass
@@ -273,6 +326,14 @@ namespace SliceEngine
 								sceneGraphMap[oldID] = entt::to_integral(newObj.GetEntity());
 							}
 						}
+						//if its a collider shape, dont add it now
+						if (componentName == typeid(ColliderShape).name())
+						{
+							delayedComponentInstance.push_back(componentInstance);
+							delayedComponentName.push_back(componentName);
+							delayedGO.push_back(newObj);
+							continue;
+						}
 
 						// if its a script component, dont add it now
 						if (componentName == typeid(Script).name())
@@ -282,6 +343,7 @@ namespace SliceEngine
 							delayedGO.push_back(newObj);
 							continue;
 						}
+
 
 						AddComponentFromVariant(newObj, componentInstance, componentName);
 					}
@@ -446,7 +508,9 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::StateMachine>,
 								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
+								std::array<uint32_t, 4>,
 								std::array<Entity, 4>,
+								std::array<glm::vec4, Button::Total_States>,
 								std::vector<uint64_t>,
 								glm::vec2,
 								glm::vec3,
@@ -458,7 +522,13 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
+								RigidBody::FreezeOptions,
+								ParticleSystem::ValueType,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, (Entity)0);
 
@@ -519,6 +589,10 @@ namespace SliceEngine
 				{
 					continue;
 				}
+				if (componentType == rttr::type::get<ColliderShape>())
+				{
+					continue;
+				}
 
 				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
 				if (it == Core::GetInstance()->mFactory.mComponentGetters.end())
@@ -536,17 +610,18 @@ namespace SliceEngine
 					// this should be the component's property data
 					std::string propName = property.get_name().to_string();
 
-					if (componentType == rttr::type::get<ColliderShape>())
-					{
-						size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+					//if (componentType == rttr::type::get<ColliderShape>())
+					//{
+					//	size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
 
-						if ((propName == "boxData" && activeIndex != 0) ||
-							(propName == "sphereData" && activeIndex != 1) ||
-							(propName == "capsuleData" && activeIndex != 2))
-						{
-							continue;
-						}
-					}
+					//	if ((propName == "boxData" && activeIndex != 0) ||
+					//		(propName == "sphereData" && activeIndex != 1) ||
+					//		(propName == "capsuleData" && activeIndex != 2)||
+					//		(propName == "meshData" && activeIndex != 3))
+					//	{
+					//		continue;
+					//	}
+					//}
 
 					rttr::variant propVal = property.get_value(componentData);
 
@@ -557,12 +632,12 @@ namespace SliceEngine
 						continue;
 					}
 
-					//if (propVal.get_type() == rttr::type::get<GUID>())
-					//{
-					//	Core::GetInstance()->GetResourceManager()->mGUIDToSerialize.insert(propVal.get_value<GUID>());
-					//}
-
-
+					// check if this property should be skipped
+					auto meta = property.get_metadata("Serialize");
+					if (meta.is_valid() && meta.to_bool() == false)
+					{
+						continue;
+					}
 
 					// To make it easy to see and add what types are supported. If added
 					// but the output is wrong, might need to create a specialized variant
@@ -588,7 +663,9 @@ namespace SliceEngine
 						Handle<SliceEngineTypes::StateMachine>,
 						Handle<SliceEngineTypes::Prefab>,
 						std::array<uint64_t, 4>,
+						std::array<uint32_t, 4>,
 						std::array<Entity, 4>,
+						std::array<glm::vec4, Button::Total_States>,
 						std::vector<uint64_t>,
 						glm::vec2,
 						glm::vec3,
@@ -600,15 +677,102 @@ namespace SliceEngine
 						ColliderShape::BoxData,
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
-						RigidBody::FreezeOptions
+						ColliderShape::MeshData,
+						ColliderShape::CylinderData,
+						RigidBody::FreezeOptions,
+						ParticleSystem::ValueType,
+						std::vector<ParticleSystem::Burst>,
+						std::vector<Particle>,
+						GameObject,
+						std::vector<SliceEngineTypes::AnimationKeyFrame>
 						>
 						(output, name, storage.type().name(), propName, propVal, static_cast<Entity>(entity));
 				}
 			}
 
+			if (registry.any_of<ColliderShape>(entity))
+			{
+				entt::id_type type_id = entt::type_id<ColliderShape>().hash();
+				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
+
+				if (it != Core::GetInstance()->mFactory.mComponentGetters.end())
+				{
+					rttr::variant componentData = it->second(registry, entity);
+					rttr::type componentType = rttr::type::get<ColliderShape>();
+					for (const auto& property : componentType.get_properties())
+					{
+						// this should be the component's property data
+						std::string propName = property.get_name().to_string();
+
+						if (componentType == rttr::type::get<ColliderShape>())
+						{
+							size_t activeIndex = componentData.get_value<ColliderShape>().shapeData.index();
+
+							if ((propName == "boxData" && activeIndex != 0) ||
+								(propName == "sphereData" && activeIndex != 1) ||
+								(propName == "capsuleData" && activeIndex != 2)||
+								(propName == "meshData" && activeIndex != 3) ||
+								(propName == "cylinderData" && activeIndex != 4))
+							{
+								continue;
+							}
+						}
+
+						rttr::variant propVal = property.get_value(componentData);
+
+						std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
+						// check if this property should be skipped
+						auto meta = property.get_metadata("Serialize");
+						if (meta.is_valid() && meta.to_bool() == false)
+						{
+							continue;
+						}
+
+						if (!propVal.is_valid())
+						{
+							continue;
+						}
+
+						SerializeProp
+							<
+							int,
+							unsigned int,
+							unsigned char,
+							float,
+							double,
+							bool,
+							Entity,
+							uint32_t,
+							uint64_t,
+							std::array<uint64_t, 4>,
+							std::array<uint32_t, 4>,
+							std::array<Entity, 4>,
+							std::array<glm::vec4, Button::Total_States>,
+							std::vector<uint64_t>,
+							glm::vec2,
+							glm::vec3,
+							glm::vec4,
+							glm::quat,
+							std::string,
+							std::unordered_map<std::string, rttr::variant>,
+							JPH::Vec3,
+							ColliderShape::BoxData,
+							ColliderShape::SphereData,
+							ColliderShape::CapsuleData,
+							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
+							RigidBody::FreezeOptions,
+							GameObject
+							>
+							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
+					}
+				}
+			}
+
 			// for now jus scripts
 			// idk if i have to do this for more stuff
-			if (registry.any_of<Script>(entity))
+			 if (registry.any_of<Script>(entity))
 			{
 				entt::id_type type_id = entt::type_id<Script>().hash();
 				auto it = Core::GetInstance()->mFactory.mComponentGetters.find(type_id);
@@ -625,6 +789,13 @@ namespace SliceEngine
 						rttr::variant propVal = property.get_value(componentData);
 
 						std::string name = FactoryInstance.GetGOByEntity(entity).GetName();
+
+						// check if this property should be skipped
+						auto meta = property.get_metadata("Serialize");
+						if (meta.is_valid() && meta.to_bool() == false)
+						{
+							continue;
+						}
 
 						if (!propVal.is_valid())
 						{
@@ -651,7 +822,9 @@ namespace SliceEngine
 							Handle<SliceEngineTypes::StateMachine>,
 							Handle<SliceEngineTypes::Prefab>,
 							std::array<uint64_t, 4>,
+							std::array<uint32_t, 4>,
 							std::array<Entity, 4>,
+							std::array<glm::vec4, Button::Total_States>,
 							std::vector<uint64_t>,
 							glm::vec2,
 							glm::vec3,
@@ -663,7 +836,13 @@ namespace SliceEngine
 							ColliderShape::BoxData,
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
-							RigidBody::FreezeOptions
+							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
+							RigidBody::FreezeOptions,
+							ParticleSystem::ValueType,
+							std::vector<ParticleSystem::Burst>,							
+							std::vector<Particle>,
+							GameObject
 							>
 							(output, name, componentType.get_name().to_string(), propName, propVal, static_cast<Entity>(entity));
 					}
@@ -705,7 +884,36 @@ namespace SliceEngine
 			std::unordered_map<uint32_t, uint32_t> sceneGraphMap{};
 			std::vector<Entity> entityID;
 			json input = DeserializeFile(filePath);
-			for (auto& [name, components] : input.items())
+			std::vector<rttr::variant> delayedComponentInstance;
+			std::vector<std::string> delayedComponentName;
+			std::vector<GameObject> delayedGO;
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format");
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("SceneData"))
+				{
+					sceneData = input["SceneData"];
+				}
+
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			for (auto& [name, components] : sceneData.items())
 			{
 				auto& factory = Core::GetInstance()->mFactory;
 				GameObject node = factory.CreateBlank();
@@ -764,7 +972,9 @@ namespace SliceEngine
 								Handle<SliceEngineTypes::StateMachine>,
 								Handle<SliceEngineTypes::Prefab>,
 								std::array<uint64_t, 4>,
+								std::array<uint32_t, 4>,
 								std::array<Entity, 4>,
+								std::array<glm::vec4, Button::Total_States>,
 								std::vector<uint64_t>,
 								glm::vec2,
 								glm::vec3,
@@ -776,7 +986,13 @@ namespace SliceEngine
 								ColliderShape::BoxData,
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
-								RigidBody::FreezeOptions
+								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
+								RigidBody::FreezeOptions,
+								ParticleSystem::ValueType,
+								std::vector<ParticleSystem::Burst>,
+								std::vector<Particle>,
+								std::vector<SliceEngineTypes::AnimationKeyFrame>
 								>
 								(componentInstance, prop, value, propName, componentName, node.GetEntity());
 
@@ -794,7 +1010,13 @@ namespace SliceEngine
 							}
 						}
 
-
+						if (componentName == typeid(ColliderShape).name())
+						{
+							delayedComponentInstance.push_back(componentInstance);
+							delayedComponentName.push_back(componentName);
+							delayedGO.push_back(node);
+							continue;
+						}
 
 						AddComponentFromVariant(node, componentInstance, componentName);
 					}
@@ -815,6 +1037,12 @@ namespace SliceEngine
 				boneComponent.skeleton_root = (Entity)sceneGraphMap[(uint32_t)boneComponent.skeleton_root];
 			}
 
+			// only once all the fixing of entity IDs and stuff is done, then we add the component
+			for (size_t i = 0; i < delayedComponentInstance.size(); ++i)
+			{
+				AddComponentFromVariant(delayedGO[i], delayedComponentInstance[i], delayedComponentName[i]);
+			}
+
 			for (auto entity : entityID)
 			{
 				if (!registry.any_of<Bone>(entity))
@@ -833,10 +1061,94 @@ namespace SliceEngine
 				slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
 				slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
 			}
+
+			gScriptSystem->RemapGameObjectVariables(sceneGraphMap);
+
 			// Using scene graph map to fix scenegraph component is done in another function in scene system.
 
 			return sceneGraphMap;
 		}
+
+		/*
+		
+			if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+			{
+				finalOutput["NavMeshData"] += {"navMeshGUID", metaData.value("navMeshGUID", 0ULL)};
+			}
+
+			if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+			{
+				finalOutput["NavMeshData"] += { "navMeshBinGUID", metaData.value("navMeshBinGUID", 0ULL) };
+			}
+
+	*/
+
+		GUID DeserializeNavMeshBinGUID(std::filesystem::path const& filePath)
+		{
+			json input = DeserializeFile(filePath);
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format, does not contain navmesh data yet");
+				return GUID();
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			if (navMeshData.contains("navMeshBinGUID"))
+			{
+				return GUID(navMeshData.value("navMeshBinGUID", 0ULL));
+			}
+
+			return GUID();
+		}
+
+		GUID DeserializeNavMeshGUID(std::filesystem::path const& filePath)
+		{
+			json input = DeserializeFile(filePath);
+
+			json sceneData;
+			json navMeshData = nullptr;
+
+			if (input.is_array() && input.size() == 1 && input[0].is_object()) {
+				input = input[0];
+			}
+
+			if (input.is_array())
+			{
+				sceneData = input;
+				SLICE_LOG("Loading legacy scene format, does not contain navmesh data yet");
+				return GUID();
+			}
+			else if (input.is_object())
+			{
+				if (input.contains("NavMeshData"))
+				{
+					navMeshData = input["NavMeshData"];
+				}
+			}
+
+			if (navMeshData.contains("navMeshGUID"))
+			{
+				return GUID(navMeshData.value("navMeshGUID", 0ULL));
+			}
+
+			return GUID();
+		}
+
 
 		/// <summary>
 		/// Used to convert variant elements into json format
@@ -878,6 +1190,15 @@ namespace SliceEngine
 			if (t == rttr::type::get<unsigned int>()) { return v.get_value<unsigned int>(); }
 			if (t == rttr::type::get<short>()) { return v.get_value<short>(); }
 			if (t == rttr::type::get<std::string>()) { return v.get_value<std::string>(); }
+			if (t == rttr::type::get<GameObject>()) 
+			{ 
+				Entity testVal = v.get_value<GameObject>().GetEntity();
+				return v.get_value<GameObject>().GetEntity();
+			}
+			if (t == rttr::type::get<PrefabVar>())
+			{
+				return v.get_value<PrefabVar>().prefabFileName;
+			}
 
 			// fall back is to return as a string
 			return v.to_string();

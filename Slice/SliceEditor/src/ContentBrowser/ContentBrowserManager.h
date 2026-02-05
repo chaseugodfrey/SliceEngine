@@ -67,6 +67,8 @@ namespace SliceEditor
 
 		std::unique_ptr<DirectoryNode> rootNode;
 
+		std::vector<std::unique_ptr<DirectoryNode>> categoryNodes;
+
 		DirectoryNode* selectedFolder;
 
 		std::queue<DroppedFile> mPendingDrops;
@@ -84,6 +86,8 @@ namespace SliceEditor
 		void LoadDefaultIcons();
 
 		std::optional<SliceEngine::Handle<Texture>> GetDefaultIconHandle(SelectionType);
+
+		std::optional<SliceEngine::Handle<Texture>> GetTextureIconHandle(std::string);
 
 		void RebuildDirectory();
 

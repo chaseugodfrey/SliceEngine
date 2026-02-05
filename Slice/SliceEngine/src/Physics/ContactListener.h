@@ -2,11 +2,11 @@
 #define CONTACTLISTENER_H
 
 #include <pch.h>
+#include "ECS/GameObject.h"
+
 
 namespace SliceEngine
 {
-
-	// An example contact listener
 	class MyContactListener : public JPH::ContactListener
 	{
 
@@ -18,17 +18,31 @@ namespace SliceEngine
 
 		virtual void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override;
 
-
-
 	private:
 
 		std::vector<JPH::SubShapeIDPair> bodiesInContact;
+		std::set<std::pair<GameObject, GameObject>> collisionPairs;
+		float timer = 0.0f;
+		const float timeBetweenEvents = 1.0f;
 
 	public:
 
 		void clearBodiesInContact();
 
 		std::vector<JPH::SubShapeIDPair> GetBodiesInContact() const;
+
+		void clearCollisionsPairs();
+
+		std::set<std::pair<GameObject, GameObject>> GetCollisionPairs() const;
+
+		std::pair<GameObject, GameObject> MakeOrderedPair(const GameObject& ent1, const GameObject& ent2);
+
+		void PublishCollisionPersistEvents();
+
+		void RemoveContactPair(const std::pair<GameObject, GameObject>& contactPair);
+
+
+
 	};
 
 

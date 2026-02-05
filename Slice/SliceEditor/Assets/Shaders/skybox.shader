@@ -1,5 +1,5 @@
 {
-    "VertexShader": "skybox_Vert",
-    "FragmentShader": "skybox_Frag",
+    "VertexShader": "Shaders/skybox_Vert.vert",
+    "FragmentShader": "Shaders/skybox_Frag.frag",
     "GeometryShader": ""
 }

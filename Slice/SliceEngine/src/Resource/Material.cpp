@@ -27,9 +27,8 @@ namespace SliceEngine
 			// figure out default textures
 			temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.roughness = 0.6f;
-			temp.metallic = 0.f;
-			temp.color = glm::vec3(1.f, 1.f, 1.f);
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
+			temp.color = glm::vec4(1.f);
 
 			// filepath to material.mat in resource folder
 			std::ifstream file(filepath);
@@ -52,18 +51,59 @@ namespace SliceEngine
 			// shouldn't need a [0]. Need check how the material file is created
 			temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.roughness = materialJson["roughness"].get<float>();
-			temp.metallic = materialJson["metallic"].get<float>();
+			temp.shader.mGUID = (GUID)materialJson["shader"].get<uint64_t>();
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<CustomShader>(temp.shader.mGUID);
 
-			// cause color is a vec 3
-			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 3)
-			{
+			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);
+
+			for (auto& i : temp.shader.get()->dataIn)
+			{
+				if (materialJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
+					}
+				}
+				else
+					temp.data[i.name] = i.baseData;
 			}
-
-
 			return temp;
 		}
+
+		void Material::LoadDefault()
+		 {
+			albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+			albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
+			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
+			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+			for (auto& i : shader.get()->dataIn)
+				data[i.name] = i.baseData;
+		 }
 
 		void Material::DestroyMaterial() {
 			albedo.Release();

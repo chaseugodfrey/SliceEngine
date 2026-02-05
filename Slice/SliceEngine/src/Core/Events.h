@@ -19,6 +19,13 @@ DigiPen Institute of Technology is prohibited.
 	Define any events here
 */
 
+struct DebugDrawRayEvent
+{
+	glm::vec3 Origin;
+	glm::vec3 Dir;
+	float magnitude;
+};
+
 struct EntityCollide
 {
 	Entity firstEntity;
@@ -54,6 +61,18 @@ struct GONetworkEvent {
 	Entity entity;
 	bool create;
 };
+
+struct AnimationEvent {
+	std::string funcName;
+	std::string scriptName;
+	Entity entity;
+};
+
+//struct SliceEntityModifiedEvent
+//{
+//	Entity entity;
+//};
+
 struct ColliderShapeModifiedEvent
 {
 	Entity entity;
@@ -66,7 +85,14 @@ struct RigidBodyModifiedEvent
 
 struct OnSceneLoadedEvent
 {
+	std::filesystem::path scenePath;
 	bool isSceneLoaded;
+	std::string navMeshBinPath;
+};
+
+struct OnSceneChangeEvent
+{
+
 };
 
 struct OnSceneStopEvent
@@ -129,26 +155,52 @@ struct OnSliderValueEvent
 
 struct OnPrefabModifiedEvent
 {
-	OnPrefabModifiedEvent(SliceEngine::GUID g_uid) : guid(g_uid)
+	OnPrefabModifiedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
 	{
 
 	}
+	Entity entity;
 	SliceEngine::GUID guid;
 };
 
 struct OnPrefabDeletedEvent
 {
+	OnPrefabDeletedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
+	{
+
+	}
+	Entity entity;
 	SliceEngine::GUID guid;
 };
 
 struct OnPrefabSerializedEvent
 {
+	OnPrefabSerializedEvent(Entity ent, SliceEngine::GUID g_uid) : entity(ent), guid(g_uid)
+	{
 
+	}
+	Entity entity;
+	SliceEngine::GUID guid;
+};
+
+struct AssetExistEvent
+{
+	AssetExistEvent(std::string name) : assetName(name)
+	{
+
+	}
+
+	std::string assetName;
 };
 
 struct OnPlayEvent
 {
 
+};
+
+struct OnStopEvent
+{
+	
 };
 
 struct OnGameStopEvent
@@ -169,9 +221,9 @@ RTTR_REGISTRATION
 	.constructor<>()
 	.property("entity", &ColliderShapeAddedEvent::entity);
 
-	rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
-	.constructor<>()
-	.property("entity", &ColliderShapeRemovedEvent::entity);
+	//rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
+	//.constructor<>()
+	//.property("entity", &ColliderShapeRemovedEvent::entity);
 
 	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
 	.constructor<>()

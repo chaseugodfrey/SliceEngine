@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Skeleton.h"
 #include <DetourNavMesh.h>
 #include <DetourNavMeshQuery.h>
+#include <DetourCrowd.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -33,9 +34,25 @@ using Registry = entt::registry;
 
 namespace SliceEngine
 {
+	/// <summary>
+	/// Purely for mapping C# prefab variable to our own
+	/// Cause the prefab var we use has too many unnecessary variables in it
+	/// </summary>
+	struct PrefabVar
+	{
+		std::string prefabFileName;
+	};
+
 	struct PrefabEditingEntity
 	{
 
+	};
+
+	struct InactiveEntity
+	{
+		bool mTest{ false };
+
+		InactiveEntity() {}
 	};
 
 	struct SliceEntity 
@@ -173,6 +190,7 @@ namespace SliceEngine
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
 		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_DRAW_RAY_TAG = 0x20,
 		DEBUG_ALL_DEBUG		= 0xFF,
 
 		RENDER_NONE			= 0x00,
@@ -196,6 +214,7 @@ namespace SliceEngine
 		unsigned char renderTag{};
 		bool componentEnabled{ true };
 		bool skinned{ false };
+		bool castShadow{ true };
 
 		RTTR_ENABLE();
 	};
@@ -213,6 +232,7 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
 		bool componentEnabled{ true };
@@ -230,7 +250,7 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthTex{};
+		GLuint depthMaps{};
 		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 
@@ -242,7 +262,7 @@ namespace SliceEngine
 		unsigned int prefabID;
 
 		// GUID reference to original prefab
-		GUID prefabGUID;
+		GUID prefabGUID{};
 
 		Handle<SliceEngineTypes::Prefab> prefabHandle;
 
@@ -296,8 +316,21 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
+		struct MeshData
+		{
+			//emtpy because the verticies are in the renderer component
+			//more for me to tell what shape it is
+			bool temp;
+		};
+
+		struct CylinderData
+		{
+			float radius{ 0.5f };
+			float height{ 0.5f };
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData, CylinderData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
@@ -308,11 +341,15 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+		ColliderShape(MeshData data) : shapeData(data) {};
+		ColliderShape(CylinderData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
-		inline static const CapsuleData defaultCapsuleData{};		
+		inline static const CapsuleData defaultCapsuleData{};	
+		inline static const MeshData defaultMeshData{};
+		inline static const CylinderData defaultCylinderData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -329,11 +366,22 @@ namespace SliceEngine
 			return std::holds_alternative<CapsuleData>(shapeData) ?
 				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
 		}
+		const MeshData& GetMeshData() const {
+			return std::holds_alternative<MeshData>(shapeData) ?
+				std::get<MeshData>(shapeData) : defaultMeshData;
+		}
+
+		const CylinderData& GetCylinderData() const {
+			return std::holds_alternative<CylinderData>(shapeData) ?
+				std::get<CylinderData>(shapeData) : defaultCylinderData;
+		}
 
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+		void SetMeshData(const MeshData& data) { shapeData = data; }
+		void SetCylinderData(const CylinderData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};
@@ -387,82 +435,81 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
-	// placeholder particle system component structure for reference
 	struct Particle
 	{
 		bool active{ false };
-		float age{};             // how long this particle has been alive
-		
-		glm::vec3 finalPosition{};	// including parent transform position if localspace
+
+		float maxAge{};
+		float age{};
+		float rotation{};
+
+		inline float normalizedAge() const { return age / maxAge; }
+
 		glm::vec3 position{};
-		glm::quat rotation{};
 		glm::vec3 scale{};
-		glm::vec3 velocity{};    // derived from speed + angle
-		glm::vec4 colour{};       // if you want per-particle tint
+		glm::vec3 velocity{};
+		glm::vec4 colour{};
+		glm::quat rotation3D{};
 	};
 
 	struct ParticleRenderPart
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
-		GLuint textureID{};
 
+		GLuint64 textureID{};
+
+		bool isMeshParticle{false};
+
+		GUID modelGUID;
+		GUID materialGUID;
 	};
 	struct ParticleSystem
 	{
-		enum ValueType
+		enum ValueType : unsigned int
 		{
 			CONSTANT,
-			CURVE,
 			TWO_CONSTANTS
 		};
 
 		Transform* parentTransform{ nullptr };
+		Transform* referenceTransform{ nullptr };
 
 		// System Settings
-		float duration{};                       // how long the system should last, 0.0f = forever
-		float speed{};							
+		float duration{};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
+		bool followTransformRotation{ true };
 
-		// Lifetime
-		ValueType initialLifetimeType{ CONSTANT };
-		float lifetime{};
-		float minParticleLifetime{};
-		float maxParticleLifetime{};
-		// Rotation
-
-		bool isInitialRotation3D{ false };
-		ValueType initialRotationType{ CONSTANT };
-		glm::quat rotation{};
-		glm::quat minRandomRotation{};
-		glm::quat maxRandomRotation{};
-		glm::vec3 eulerHint{};					// unimplemented
-		glm::vec3 minEulerHint{};				// unimplemented
-		glm::vec3 maxEulerHint{};				// unimplemented
-		
-		inline void Set1DRotation(float val)
+		inline float WrapAngle(float deg)
 		{
-			eulerHint.x = val;
+			while (deg > 180.f) deg -= 360.f;
+			while (deg < -180.f) deg += 360.f;
+			return deg;
 		}
 
-		inline float Get1DRotation()			
+		inline glm::vec3 WrapEuler(glm::vec3 e)
 		{
-			return eulerHint.x;
+			return {
+				WrapAngle(e.x),
+				WrapAngle(e.y),
+				WrapAngle(e.z)
+			};
 		}
-
-		// Size/Scale
-		ValueType scaleType{ CONSTANT };
-		glm::vec3 scale{ 1.0f };
-		glm::vec3 minRandomScale{ 1.0f };
-		glm::vec3 maxRandomScale{ 1.0f };
 
 		bool destroyOnExpire{ false };
-		uint64_t maxParticles{ 1000 };            // pool size. default 200
+		uint64_t maxParticles{ 200 };            // pool size. default 200
 
+		// Physics
 		float gForce{0.0f};
+		bool hasCollision{ false };
+		float friction{ 0.9f };
+		float bounciness{ 0.0f };
+		float bounceDampening{ 0.6f };
+		float stickiness{ 0.0f };
 
-		// EMISSION
+
+		// Emission
 		float emissionRate{ 0.0f };              // particles/sec
 		// Bursts		
 		struct Burst
@@ -476,67 +523,122 @@ namespace SliceEngine
 			uint64_t repsDone{};
 			float repTimer{};
 		};
+		uint64_t numBursts{};
 		std::vector<Burst> bursts{};
 
 
 		// Shape Settings
 		enum ShapeType
 		{
-			CONE,
 			SPHERE,
+			CONE,
 			BOX,
 			EDGE,
 			CIRCLE,
 			RECTANGLE
-		} shapeType;
+		} shapeType{ SPHERE };
 
-		float coneAngle{};
-		float shapeRadius{};					
-		float shapeArc{};						
+		// Cone
+		float coneArc{90.0f};
+		float coneRadius{0.1f};
+
+		// Sphere
+		float sphereArc{360.0f};
+		float sphereRadius{0.1f};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
-		// Initial Position
-		bool hasRandomSpawnPos{ false };        // can be calculated - can be internal
+
+		// Start Size/Scale
+		ValueType scaleType{ CONSTANT };
+		glm::vec3 scale{ 1.0f };
+		glm::vec3 minRandomScale{ 1.0f };
+		glm::vec3 maxRandomScale{ 1.0f };
+
+		// Start Lifetime
+		ValueType initialLifetimeType{ CONSTANT };
+		float lifetime{};
+		float minParticleLifetime{};
+		float maxParticleLifetime{};
+
+		// Start Rotation (1-D spins to reduce workload for a cosmetic system, referencing Unity3D)
+		ValueType initialRotationType{ CONSTANT };
+		float rotation{};
+		float minRandomRotation{};
+		float maxRandomRotation{};
+		
+		// 3D Rotation
+		bool isRotation3D{};
+		glm::vec3 rotation3DHint{};
+		glm::vec3 minRotation3DHint{};
+		glm::vec3 maxRotation3DHint{};		
+
+		// Start Position Offset
+		ValueType posValueType{ CONSTANT };
+		glm::vec3 spawnPos{};					// offset from component owner position
 		glm::vec3 minRandomSpawnPos{};
 		glm::vec3 maxRandomSpawnPos{};
 
-		// Color
-		ValueType colorValueType{ CONSTANT };
+		// Start Colour
+		ValueType colourValueType{ CONSTANT };
 		glm::vec4 colour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 minRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
 		glm::vec4 maxRandomColour{ 0.0f, 0.0f, 0.0f, 1.0f };
-		bool colorOverLifetime{ false };			// to add
-		std::map<float, glm::vec4> colorLifeTimeMap;	// to add
 
-		//bool hasRandomVelocity{ false };			// can remove
-		ValueType velocityValueType{ CONSTANT };
-		glm::vec3 velocity{ 1.0f };
-		glm::vec3 minRandomVelocity{ 1.0f };
-		glm::vec3 maxRandomVelocity{ 1.0f };
+		// Start Speed
+		ValueType speedValueType{ CONSTANT };
+		float speed{1.0f};
+		float minRandomSpeed{ 1.0f };
+		float maxRandomSpeed{ 1.0f };
 
-		//bool fadeOverLifetime{ false };				// can remove
-		bool hasCollision{ false };
+		// Size over lifetime
+		bool sizeOverLifetime{ false };
+		bool sizeSeparateAxis{ false };
+		glm::vec3 startScaleMultiplier{0.0f};
+		glm::vec3 endScaleMultiplier{1.0f};
+			
+		// Rotate over lifetime
+		bool rotateOverLifetime{ false };
+		bool rotateSeparateAxis{ false };
+		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
+
+		// Colour over lifetime
+		bool colourOverLifetime{ false };
+		std::map<float, glm::vec4> colourLifeTimeMap;
+		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
+
+		// Velocity over lifetime
+		bool velocityOverLifetime{ false };
+		glm::vec3 startVelocityMultiplier{ 1.0f };
+		glm::vec3 endVelocityMultiplier{ 0.0f };
+
+		// Orbit over lifetime
+		bool orbitOverLifetime{ false };
+		glm::vec3 orbitAxis{ glm::vec3(0,0,1) };
+		glm::vec3 startOrbitVelocity{1.0f};
+		glm::vec3 endOrbitVelocity{0.f};
 
 		// Renderer
-		GLuint textureID;							// change to guid
+		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
+
 		enum RenderMode
 		{
 			BILLBOARD,
 			MESH
-		} renderMode;
-		GUID textureGUID;
-		GUID materialGUID;
-		GUID meshGUID;
-		Handle<SliceEngineTypes::Texture> textureHandle;
-		Handle<SliceEngineTypes::Material> materialHandle;
-		Handle<SliceEngineTypes::Mesh> meshHandle;
+		} renderMode{ BILLBOARD };
 
-		// ------- Internal ----------
-		std::vector<Particle> particles{};
+		bool alwaysFaceCamera{ true };
+
+		GUID textureGUID;
+
+		Handle<SliceEngineTypes::Texture> textureHandle;
+		Handle<SliceEngineTypes::Model> modelHandle;
+		Handle<SliceEngineTypes::Material> materialHandle;
+
+		// Internal
+		std::vector<Particle> particles{};		// Main Storage of all particles
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
-
-		// Main Particle Storage Poooool
+		std::vector<ParticleRenderPart> renderData;
 
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
@@ -544,6 +646,8 @@ namespace SliceEngine
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
+
+		RTTR_ENABLE();
 	};
 
 	struct Timeline
@@ -566,11 +670,13 @@ namespace SliceEngine
 		std::vector<glm::mat4> final_tforms;
 		std::bitset<MAX_BONES> inverse_flags{};
 		std::unordered_map<unsigned int, glm::mat4> inverse_map{};
+		std::unordered_map<unsigned int, glm::vec2> node_position_map{};
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 
 		//tbh these 2 set_x stuff shld be taking in a guid/handle to these resources, then creating and instance of it
@@ -657,7 +763,7 @@ namespace SliceEngine
 			BOTTOM,
 			STRETCH_V
 		};
-
+	
 		//Settings only for imgui's display and component function calls
 		//old pivot serves as a flag to know how to update intermediate values during the update call
 		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
@@ -669,8 +775,8 @@ namespace SliceEngine
 		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
-		int final_x{}, final_y{};				//position with center of quad as position
-		int final_width{ 100 }, final_height{ 100 };
+		float final_x{}, final_y{};				//position with center of quad as position
+		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);
@@ -684,9 +790,45 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{1.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	/*
+	* Current assumptions:
+	* horizontal wrap
+	* text box is same size as rect transform
+	* 
+	* vertical overflow
+	*/
+	struct FontRenderer {
+		bool componentEnabled{ true };
+		bool token_updated{ false };
+		GUID fontHandle{};
+		glm::vec4 rgba{ 1.f };
+
+		enum Alignment {
+			LEFT = 0,
+			CENTER,
+			RIGHT
+		} alignment{ LEFT };
+
+
+		float font_size;
+		float line_spacing;	//multiplier of font_size
+		
+		std::string text{"Hello World\nNew Line"};
+
+		struct Token {
+			//std::string text{};
+			const char* pos{};
+			float size{};
+			unsigned int char_cnt{};
+		};
+		std::vector<Token> token_list{};
+
 		RTTR_ENABLE();
 	};
 
@@ -706,11 +848,12 @@ namespace SliceEngine
 		} state;
 
 		bool componentEnabled{ true };
-		glm::vec4 color_transitions[Total_States]{
-			{1.f, 1.f, 1.f, 1.f},	//white
-			{0.75f, 0.75f, 0.75f, 1.f},//light grey
-			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		std::array<glm::vec4, Total_States> color_transitions{
+			glm::vec4(1.f, 1.f, 1.f, 1.f),	//white
+			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
+			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
+
 		GUID sprite_transitions[Total_States]{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
@@ -757,6 +900,7 @@ namespace SliceEngine
 	{
 		dtNavMesh* navMesh;
 		dtNavMeshQuery* navMeshQuery;
+		dtCrowd *navMeshCrowd;
 	};
 
 	struct NavMeshDebugObj
@@ -781,6 +925,20 @@ namespace SliceEngine
 
 		float speed = 2.0f;
 		bool hasNewTarget = false;
+		int crowdAgentID = -1;
+	};
+
+	struct NavMeshLink
+	{
+		glm::vec3 startLink;
+		glm::vec3 endLink;
+		bool bidirectional;
+		float radius;
+	};
+
+	struct NavObstacle
+	{
+		bool isObstacle = false;
 	};
 }
 

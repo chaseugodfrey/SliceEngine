@@ -34,7 +34,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/TransformHelper.h"
 #include "Scripting/ScriptSystem.h"
 #include "Systems/SceneSystem.h"
-#include "Configuration/ProjectSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 #include "Networking/NetworkSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Systems/PrefabSystem.h"
@@ -44,6 +44,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
+
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
 {
@@ -91,10 +92,13 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
 
-	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	//register_std_array<glm::vec4, Button::Total_States>("ArrayBtnStates");
+	//register_std_array<float, Button::Total_States>("ArrayTest");
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
+		.constructor<>()(rttr::policy::ctor::as_object)
 		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
@@ -109,6 +113,11 @@ namespace SliceEngine
 	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
+	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
+	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
+	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
+	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
+
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -173,6 +182,10 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
+	
+	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
+		.constructor<>()
+		.property("mTest", &InactiveEntity::mTest);
 
 	rttr::registration::class_<RigidBody::FreezeOptions>("FreezeOptions")
 		.constructor<>()
@@ -208,11 +221,22 @@ namespace SliceEngine
 		.property("radius", &ColliderShape::CapsuleData::radius)
 		.property("height", &ColliderShape::CapsuleData::height);
 
+	rttr::registration::class_<ColliderShape::MeshData>("MeshData")
+		.constructor<>()
+		.property("UwU", &ColliderShape::MeshData::temp);
+
+	rttr::registration::class_<ColliderShape::CylinderData>("CylinderData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
+		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
+		.property("cylinderData", &ColliderShape::GetCylinderData, &ColliderShape::SetCylinderData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);
@@ -271,6 +295,7 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
@@ -300,6 +325,12 @@ namespace SliceEngine
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
 			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			);
+	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
+		(
+			rttr::value("Left", FontRenderer::LEFT),
+			rttr::value("Center", FontRenderer::CENTER),
+			rttr::value("Right", FontRenderer::RIGHT)
 			);
 	rttr::registration::enumeration<Button::Transition>("ButtonTransition")
 		(
@@ -340,75 +371,130 @@ namespace SliceEngine
 		.constructor<uint64_t>()
 		.property_readonly("Value", &GUID::GetGUID);
 
+	rttr::registration::class_<SliceEngineTypes::AnimationKeyFrame>("Animation Key Frames")
+		.constructor<>()
+		.property("scriptName", &SliceEngineTypes::AnimationKeyFrame::scriptName)
+		.property("scriptFunc", &SliceEngineTypes::AnimationKeyFrame::scriptFunc)
+		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
+		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
+
+	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
 			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
 			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
 			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
 			);
 
-	rttr::registration::class_<Particle>(typeid(Particle).name())
-		.constructor<>()
-		.property("active", &Particle::active)
-		.property("age", &Particle::age)
-		.property("position", &Particle::position)
-		.property("rotation", &Particle::rotation)
-		.property("scale", &Particle::scale)
-		.property("velocity", &Particle::velocity)
-		.property("colour", &Particle::colour);
+	rttr::registration::class_<Particle>(typeid(Particle).name());
+
+	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
+		(
+			rttr::value("CONSTANT", ParticleSystem::ValueType::CONSTANT),
+			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
+			);
+
+	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
+		(
+			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
+			);
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
 		.property("duration", &ParticleSystem::duration)
-		.property("speed",&ParticleSystem::speed)
 		.property("isRepeating", &ParticleSystem::isRepeating)
-		.property("isLocalSpace",&ParticleSystem::isLocalSpace)
+		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
+		.property("followTransformRotation", &ParticleSystem::followTransformRotation)
 
-		.property("initialLifetimeType",&ParticleSystem::initialLifetimeType)
+		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
+		.property("maxParticles", &ParticleSystem::maxParticles)
+
+		.property("gForce", &ParticleSystem::gForce)
+		.property("hasCollision", &ParticleSystem::hasCollision)
+		.property("friction", &ParticleSystem::friction)
+		.property("bounciness", &ParticleSystem::bounciness)
+		.property("bounceDampening", &ParticleSystem::bounceDampening)
+		.property("stickiness", &ParticleSystem::stickiness)
+
+		.property("emissionRate", &ParticleSystem::emissionRate)
+
+		.property("numBursts", &ParticleSystem::numBursts)
+		.property("bursts", &ParticleSystem::bursts)
+
+		.property("shapeType", &ParticleSystem::shapeType)
+
+		.property("coneArc", &ParticleSystem::coneArc)
+		.property("coneRadius", &ParticleSystem::coneRadius)
+
+		.property("sphereArc", &ParticleSystem::sphereArc)
+		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
+		.property("axis", &ParticleSystem::axis)
+
+		.property("scaleType", &ParticleSystem::scaleType)
+		.property("scale", &ParticleSystem::scale)
+		.property("minRandomScale", &ParticleSystem::minRandomScale)
+		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
+
+		.property("initialLifetimeType", &ParticleSystem::initialLifetimeType)
 		.property("lifetime", &ParticleSystem::lifetime)
 		.property("minParticleLifetime", &ParticleSystem::minParticleLifetime)
 		.property("maxParticleLifetime", &ParticleSystem::maxParticleLifetime)
 
-		.property("isInitialRotation3D", &ParticleSystem::isInitialRotation3D)
 		.property("initialRotationType", &ParticleSystem::initialRotationType)
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
 
-		.property("scaleType",&ParticleSystem::scaleType)
-		.property("scale", &ParticleSystem::scale)
-		.property("minRandomScale", &ParticleSystem::minRandomScale)
-		.property("maxRandomScale", &ParticleSystem::maxRandomScale)
-
-		.property("emissionRate", &ParticleSystem::emissionRate)
-		.property("coneAngle", &ParticleSystem::coneAngle)
-		.property("shapeArc", &ParticleSystem::shapeArc)
-		.property("shapeType", &ParticleSystem::shapeType)
-		.property("axis", &ParticleSystem::axis)
-		.property("hasRandomSpawnPos", &ParticleSystem::hasRandomSpawnPos)
+		.property("spawnPosValueType", &ParticleSystem::posValueType)
+		.property("spawnPos", &ParticleSystem::spawnPos)
 		.property("minRandomSpawnPos", &ParticleSystem::minRandomSpawnPos)
 		.property("maxRandomSpawnPos", &ParticleSystem::maxRandomSpawnPos)
-		.property("velocity", &ParticleSystem::velocity)
-		.property("minRandomVelocity", &ParticleSystem::minRandomVelocity)
-		.property("maxRandomVelocity", &ParticleSystem::maxRandomVelocity)
 
-		.property("colorValueType", &ParticleSystem::colorValueType)
+		.property("colorValueType", &ParticleSystem::colourValueType)
 		.property("colour", &ParticleSystem::colour)
 		.property("minRandomColour", &ParticleSystem::minRandomColour)
 		.property("maxRandomColour", &ParticleSystem::maxRandomColour)
-		.property("colorOverLifetime", &ParticleSystem::colorOverLifetime)
 
-		.property("gForce", &ParticleSystem::gForce)
-		.property("hasCollision", &ParticleSystem::hasCollision)
-		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
-		.property("maxParticles", &ParticleSystem::maxParticles)
-		.property("oldestIndex", &ParticleSystem::oldestIndex)
-		.property("particles", &ParticleSystem::particles)
+		.property("speedValueType", &ParticleSystem::speedValueType)
+		.property("speed", &ParticleSystem::speed)
+		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
+		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
 
-		.property("bursts", &ParticleSystem::bursts);
+		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
+		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
+		.property("startScaleMultiplier", &ParticleSystem::startScaleMultiplier)
+		.property("endScaleMultiplier", &ParticleSystem::endScaleMultiplier)
+
+		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
+		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
+		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
+
+		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
+		.property("colourMap", &ParticleSystem::colourLifeTimeMap)		
+		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+
+		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
+		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)
+		.property("endVelocityMultiplier", &ParticleSystem::endVelocityMultiplier)
+
+		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
+		.property("orbitAxis", &ParticleSystem::orbitAxis)
+		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
+		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
+
+		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+
+		.property("renderMode", &ParticleSystem::renderMode)
+		.property("textureGUID", &ParticleSystem::textureGUID)
+		.property("textureHandle", &ParticleSystem::textureHandle)
+		.property("modelHandle", &ParticleSystem::modelHandle)
+		.property("materialHandle", &ParticleSystem::materialHandle);
 
 	rttr::registration::class_<ParticleSystem::Burst>(typeid(ParticleSystem::Burst).name())
 		.constructor<>()
@@ -416,7 +502,25 @@ namespace SliceEngine
 		.property("burstRepetitions", &ParticleSystem::Burst::burstRepetitions)
 		.property("burstPeriod", &ParticleSystem::Burst::burstPeriod)
 		.property("triggerTime", &ParticleSystem::Burst::triggerTime)
-		.property("triggered", &ParticleSystem::Burst::triggered);
+		.property("triggered", &ParticleSystem::Burst::triggered)
+		(
+			rttr::metadata("Serialize", false)
+		);
+
+	rttr::registration::class_<std::vector<ParticleSystem::Burst>>("BurstVector");
+
+	rttr::registration::class_<Particle>(typeid(Particle).name())
+		.constructor<>()
+		.property("particles", &ParticleSystem::particles)
+		(
+			rttr::metadata("Serialize", false)
+		);
+
+	rttr::registration::class_<std::vector<Particle>>("vector<Particle>")
+		(
+			rttr::metadata("Serialize", false)
+		);
+
 
 	rttr::registration::class_<Animator>(typeid(Animator).name())
 		.constructor<>()
@@ -424,7 +528,8 @@ namespace SliceEngine
 		.property("stateMachine Handle", &Animator::Handle_stateMachine)
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
-		.property("componentEnabled", &Animator::componentEnabled);
+		.property("componentEnabled", &Animator::componentEnabled)
+		.property("eventFrames", &Animator::eventFrames);
 
 
 	rttr::registration::class_<Bone>(typeid(Bone).name())
@@ -442,6 +547,9 @@ namespace SliceEngine
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
 		.property("transition", &Button::transition)
+		.property("color_tints", &Button::color_transitions)
+		//.property("test_float", &Button::test)
+		//.property("test_float2", &Button::test2)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -475,6 +583,16 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 
+rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
+.constructor<>()
+.property("font", &FontRenderer::fontHandle)
+.property("rgba", &FontRenderer::rgba)
+.property("font_size", &FontRenderer::font_size)
+.property("line_spacing", &FontRenderer::line_spacing)
+.property("alignment", &FontRenderer::alignment)
+.property("text", &FontRenderer::text)
+.property("componentEnabled", &FontRenderer::componentEnabled);
+
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.constructor<>()
 	.property("speed", &NavAgent::speed)
@@ -483,6 +601,17 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("currentPath", &NavAgent::currentPath)
 	.property("currentPathIndex", &NavAgent::currentPathIndex)
 	.property("componentEnabled", &NavAgent::componentEnabled);
+
+rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
+.constructor<>()
+.property("startLink", &NavMeshLink::startLink)
+.property("endLink", &NavMeshLink::endLink)
+.property("bidirectional", &NavMeshLink::bidirectional)
+.property("currentPath", &NavMeshLink::radius);
+
+rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
+.constructor<>()
+.property("navobstacle", &NavObstacle::isObstacle);
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
@@ -501,7 +630,10 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-
+	namespace 
+	{
+		static bool isPlaying = false;
+	}
 
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
@@ -530,7 +662,7 @@ namespace SliceEngine
 
 	void Engine::Init()
 	{
-		//EnableMemoryLeakChecking(92083);
+		EnableMemoryLeakChecking(-1);
 
 		SLICE_LOG("Initializing Slice Engine.");
 		glfwInit();
@@ -580,6 +712,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -593,7 +726,12 @@ namespace SliceEngine
 		mRender->CreateInstancingParams();
 		mRender->CreateDeferredTextures();
 
+		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
 
+		Core::GetInstance()->GetProjectSettingsManager()->Init();
+
+		// =========================== TESTING AREA ===========================
+		// 
 		//mRender->CreateCamera();
 
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
@@ -604,44 +742,46 @@ namespace SliceEngine
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Init();
+		//auto mNetwork = Core::GetInstance()->GetNetwork();
+		//mNetwork->Init();
 
-		Core::GetInstance()->GetSystem<PrefabSystem>().InitEvent();
-		//NetworkingThread::printAddr();
-		//TestPlaySFX();
 
-	}
-
-	void Engine::SceneInit()
- 	{
-		LoadProjectSettings();
-		Core::GetInstance()->GetAudioSettings()->Init();
-		Core::GetInstance()->GetSceneSystem()->Init();
+		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
-		auto sTransform = core->GetSystem<TransformSystem>();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
+		auto& prefabSys = core->GetSystem<PrefabSystem>();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-		static bool isPlaying = false;
 
+		
+
+		//static bool isPlaying = false;
+
+		//
+
+		//frm->StartFrame();
+
+		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
 			{
-				sScene->LoadNextScene();
+				sScene->LoadSceneFromQueue();
 			}
 		}
 
@@ -662,6 +802,7 @@ namespace SliceEngine
 					SliceEngine::gScriptSystem->OnStart();
 					sAnimator.InitSystem();
 					sButton.InitSystem();
+					FactoryInstance.CreateGO("AudioManager");
 					isPlaying = true;
 				}
 
@@ -687,22 +828,29 @@ namespace SliceEngine
 			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
+
+				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
+				sParticleSystemManager.ResetManager();
 				sAudio->StopAllSound();
+				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+				audioSettings->DeleteAM();
+
+				gScriptSystem->OnEnd();*/
+
 				sScene->ReloadScene();
-				isPlaying = false;
-
-				gScriptSystem->OnEnd();
-
-				sScene->mCurrentState = SceneState::DEFAULT;
-				sScene->mNextState = SceneState::DEFAULT;
+				sScene->mCurrentState = SceneState::RELOAD_SCENE;
+				sScene->mNextState = SceneState::RELOAD_SCENE;
 			}
 		}
 
+		frm->EndSystem("Scene Handling");
+
+		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
-		frm->StartFrame();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
@@ -714,12 +862,6 @@ namespace SliceEngine
 		sInputs->UpdatePrevInput();
 		GetActionMappingSystem().processAllInput();
 		frm->EndSystem("Input");
-
-		// process all enabled action maps in Game mode
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			SliceEngine::GetActionMappingSystem().processAllInput();
-		}
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -733,6 +875,7 @@ namespace SliceEngine
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
 		}
 		frm->EndSystem("Script");
 
@@ -740,45 +883,62 @@ namespace SliceEngine
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
+		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();		//updates the rect transforms
+		
+		//cant start pause and continue frm for time check
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Physics");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
-				frm->StartSystem("Physics");
+				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
-				core->GetSystem<PhysicsSystem>().Update(static_cast<float>(frm->getFixedDeltaTime()));
+
+				//Prestep: push dynamic poses to physics world
+				core->GetSystem<PhysicsSystem>().PreStepSync();
 
 				// Single world step
 				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
 
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
-				frm->EndSystem("Physics");
 
-				//sTransform.UpdateTransforms();
 
 			}
+			frm->EndSystem("Physics");
+
+			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+			frm->EndSystem("Transform");
 
 		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Animation"); 
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 				sBone.Update_Scenegraph();
 				sAnimator.BoneUpdate();
 			}
-
+			frm->EndSystem("Animation");
 			//somehow convert to pixel coord
+			frm->StartSystem("Canvas");
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
+			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = (unsigned int)mouse_coord.x;
-			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
+			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
+			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
 			frm->StartSystem("UI Interaction");
 			sButton.HandleMouse(*sInputs, raycast_target);
@@ -790,22 +950,54 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
-		frm->StartSystem("Graphics");
-		sRender->Render();
-		frm->EndSystem("Graphics");
-
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas");
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		}
 
 		frm->StartSystem("Particle System");
-		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
 		frm->EndSystem("Particle System");
 
+		frm->StartSystem("Graphics");
+		sRender->Render();
 
-		frm->EndFrame();
-		frm->CalculateSystemPercentages();
+		//frm->StartSystem("Canvas");
+		sCanvas.DrawOverlay();
+		//frm->EndSystem("Canvas");
+		frm->EndSystem("Graphics");
+
+
+		//frm->EndFrame();
+		//frm->CalculateSystemPercentages();
+	}
+
+	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
+	{
+		auto core = Core::GetInstance();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
+
+
+		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sInputs->ResetCursorState();
+		sParticleSystemManager.ResetManager();
+		sAudio->StopAllSound();
+		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+		audioSettings->DeleteAM();
+		isPlaying = false;
+		gScriptSystem->OnEnd();
+
 	}
 
 	void Engine::Draw()
@@ -815,6 +1007,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
+		auto frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -822,7 +1015,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
+		frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()
@@ -830,80 +1025,9 @@ namespace SliceEngine
 		auto& mCanvas = Core::GetInstance()->GetSystem<CanvasSystem>();
 		mCanvas.Release();
 
-		auto mAudioManager = Core::GetInstance()->GetAudioManager();
-		//Core::GetInstance()->UnbindSystems();
 		Core::GetInstance()->ExitCore();
-		Core::GetInstance()->GetAudioSettings()->Exit();
-		mAudioManager->Exit();
 
-		auto mNetwork = Core::GetInstance()->GetNetwork();
-		mNetwork->Exit();
-
-		//Window::CloseWindow(window);
 		SLICE_LOG("Shutting Down Slice Engine.");
-	}
-
-	void Engine::LoadProjectSettings()
-	{
-		auto sScene = Core::GetInstance()->GetSceneSystem();
-		auto sResourceManager = Core::GetInstance()->GetResourceManager();
-
-		std::filesystem::path proj = "projectSettings.json";
-
-		ProjectSettings s;
-		if (!std::filesystem::exists(proj)) {
-			// Safe defaults if file missing
-			s.scenes = {};
-			s.startupScene.clear();
-		}
-
-		else
-		{
-			std::ifstream in(proj);
-			nlohmann::json j; in >> j;
-
-			if (j.contains("product") && j["product"].contains("name"))
-			{
-				s.productName = j["product"]["name"].get<std::string>();
-			}
-
-			if (j.contains("render")) 
-			{
-				s.width = j["render"].value("width", s.width);
-				s.height = j["render"].value("height", s.height);
-				s.vsync = j["render"].value("vsync", s.vsync);
-			}
-			if (j.contains("scenes"))
-			{
-				s.scenes = j["scenes"].get<std::vector<std::string>>();
-			}
-			s.startupScene = j.value("startupScene", s.startupScene);
-
-			// Fallback: if startupScene empty, use first scene
-			std::string sceneToLoad = !s.startupScene.empty()
-				? s.startupScene
-				: (s.scenes.empty() ? "" : s.scenes.front());
-
-			if (sceneToLoad.empty()) {
-				// Nothing to load�show blank/editor splash or exit gracefully
-				// log: "No scenes configured."
-			}
-
-			else
-			{
-				std::filesystem::path sceneFilePath(sceneToLoad);
-				
-				SLICE_LOG("Scene File Path" + sceneFilePath.string());
-				sScene->SetDefaultScenePath(sceneFilePath);
-
-				
-
-				//sScene->LoadScene(sceneToLoad); // for now by filepath
-				//sScene->mCurrentState = sScene->mNextState = SceneState::DEFAULT;
-
-
-			}
-		}
 	}
 
 }

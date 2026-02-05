@@ -1,5 +1,5 @@
 {
-    "VertexShader": "uiSprite_Vert",
-    "FragmentShader": "uiSprite_Frag",
+    "VertexShader": "Shaders/uiSprite_Vert.vert",
+    "FragmentShader": "Shaders/uiSprite_Frag.frag",
     "GeometryShader": ""
 }

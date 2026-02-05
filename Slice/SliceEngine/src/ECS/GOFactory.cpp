@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include "GOFactory.h"
 #include "ECS/ECSTypes.h"
 #include "../Core/ComponentEventHandler.h"
+#include "../Core/ComponentModified.h"
 #include "../Graphics/TransformHelper.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -26,9 +27,10 @@ namespace SliceEngine
 	GOFactory::GOFactory()
 	{
 		mRegistry.on_construct<ColliderShape>().connect<&OnColliderShapeAdded>();
-		mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
+		//mRegistry.on_destroy<ColliderShape>().connect<&OnColliderShapeRemoved>();
 		mRegistry.on_construct<RigidBody>().connect<&OnRigidBodyAdded>();
 		mRegistry.on_destroy<RigidBody>().connect<&OnRigidBodyRemoved>();
+		//mRegistry.on_update<SliceEntity>().connect<&NotifySliceEntityModified>();
 	}
 
 	GOFactory::~GOFactory()
@@ -192,6 +194,23 @@ namespace SliceEngine
 		return GameObject();
 	}
 
+	Entity GOFactory::GetEntityWithTag(std::string const& tag)
+	{
+		auto view = mRegistry.view<SceneGraph>();
+
+		for (auto entity : view)
+		{
+			GameObject go = mEntityToGO[entity];
+			if (go.HasComponent<SliceEntity>() &&
+				go.GetComponent<SliceEntity>().mTag == tag)
+			{
+				return entity;
+			}
+		}
+
+		return entt::null;
+	}
+
 	std::vector<Entity> GOFactory::GetEntitiesWithTag(std::string const& tag)
 	{
 		std::vector<Entity> result;
@@ -232,8 +251,8 @@ namespace SliceEngine
 
 		if (mDeleteList.contains(entity))
 		{
-			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
-			return;
+			//SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			//return;
 		}
 
 		//Check children and destroy them too
@@ -251,7 +270,7 @@ namespace SliceEngine
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
+			//SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
 		}
 		mDeleteList.insert(entity);
 	}
@@ -285,6 +304,16 @@ namespace SliceEngine
 			mNameToEntity[go.GetName()] = entity;
 		}
 
+	}
+
+	void GOFactory::RemoveFromNameMap(std::string name)
+	{
+		if (mNameToEntity.find(name) == mNameToEntity.end())
+		{
+			return;
+		}
+
+		mNameToEntity.erase(name);
 	}
 
 	bool GOFactory::isDescendant(Entity target, Entity dest)
@@ -340,9 +369,15 @@ namespace SliceEngine
 			return false;
 		}
 
+
 		auto& scene_graph = mRegistry.get<SceneGraph>(entity);
 		auto prev_parent_entity = scene_graph.neighbours[SceneGraph::UP];
-
+		//Check if there's even a need to update the parent.
+		if (prev_parent_entity == parentEntity && prev_parent_entity != entt::null)
+		{
+			SLICE_LOG_WARNING("Parenting to self. Does nothing.");
+			return false;
+		}
 		// if the base entity has a parent, then we want to unattach it from its current chain
 		if (prev_parent_entity != entt::null)
 		{
@@ -531,6 +566,12 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
 			return;
 		}
+
+		if (targetEntity == leftEntity)
+		{
+			SLICE_LOG_WARNING("Not changing SceneGraph at all");
+			return;
+		}
 		//Remove it from its current position
 		SceneGraphDelete(targetEntity);
 
@@ -653,13 +694,14 @@ namespace SliceEngine
 	void GOFactory::ClearGameObjects()
 	{
 		auto view = mRegistry.view<SliceEntity>();
-
+		mDeleteList.clear(); // might need it now again
 		for (auto entity : view)
 		{
+			SLICE_LOG("Entity : " + std::to_string((uint32_t)entity));
 			Destroy(entity);
 		}
 
-		//mDeleteList.clear(); // skip deferred destruction
+		//
 		//mNameToEntity.clear();
 		//mEntityToGO.clear();
 		//mRegistry.clear();
@@ -701,6 +743,17 @@ namespace SliceEngine
 		return go;
 	}
 
+	GameObject GOFactory::CreateGO_Cylinder()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CYLINDER_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::CylinderData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
 	GameObject GOFactory::CreateGO_Cam()
 	{
 		auto go = CreateGO("Camera");
@@ -726,8 +779,7 @@ namespace SliceEngine
 		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
 		ui_ele.AddComponent<SpriteRenderer>();
 		auto& ui_sprite = ui_ele.GetComponent<SpriteRenderer>();
-		ui_sprite.rgba = { 1.f,0.f,0.f,1.f };
-		auto rm = Core::GetInstance()->GetResourceManager();
+		ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
 		ui_sprite.textureHandle = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 
 		return ui_ele;
@@ -779,15 +831,31 @@ namespace SliceEngine
 		return ui_ele;
 	}
 
+	GameObject GOFactory::CreateGO_Text()
+	{
+		auto ui_ele = CreateGO("Text");
+		ui_ele.AddComponent<RectTransform>();
+		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
+		ui_rect.width = 100; ui_rect.height = 100; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_ele.AddComponent<FontRenderer>();
+		auto& ui_font = ui_ele.GetComponent<FontRenderer>();
+		ui_font.rgba = { 0.f,0.f,0.f,1.f };
+		ui_font.font_size = 50;
+		ui_font.line_spacing = 1.25f;
+		ui_font.fontHandle = (GUID)DefaultResourceIDs::FONT_BLANK_DEFAULT;
 
-	GameObject GOFactory::CreateGO_Model(GUID model_guid) {
+		return ui_ele;
+	}
+
+
+	GameObject GOFactory::CreateGO_Model(GUID skele_guid, GUID anim_guid, GUID model_guid) {
 		//Get the resource handle first
 		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(model_guid).get();
 		int skele_index = 0;
-		return CreateGO_ModelNode(model.rootNode, model_guid, entt::null, entt::null, skele_index, model.is_static);
+		return CreateGO_ModelNode(model.rootNode, skele_guid, anim_guid, model_guid, entt::null, entt::null, skele_index, model.is_static);
 	}
 
-	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID model_guid, Entity parent, Entity root, int& index, bool is_static) {
+	GameObject GOFactory::CreateGO_ModelNode(SliceEngineTypes::ModelNode const& node, GUID skele_guid, GUID anim_guid, GUID model_guid, Entity parent, Entity root, int& index, bool is_static) {
 		auto go = CreateGO(node.name);
 		SetParent(go.GetEntity(), parent);
 
@@ -852,13 +920,18 @@ namespace SliceEngine
 				root = go.GetEntity();
 				go.AddComponent<Animator>();
 				auto& animator = go.GetComponent<Animator>();
+				go.RemoveComponent<Bone>();
 
-				GUID skeletonGUID = Core::GetInstance()->GetResourceManager()->GetSkeletonGUIDFromModel(model_guid);
-				GUID animPkgGUID = Core::GetInstance()->GetResourceManager()->GetAnimationGUIDFromModel(model_guid);
-				animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
-				animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
-				animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
+				GUID skeletonGUID = skele_guid;
+				GUID animPkgGUID = anim_guid;
+				if (skeletonGUID != GUID::null())
+					animator.Handle_skeleton = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(skeletonGUID);
+				if (animPkgGUID != GUID::null())
+				{
+					animator.Handle_curr_anim_pkg = Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animPkgGUID);
+					animator.curr_anim_pkg = *animator.Handle_curr_anim_pkg.get();
 
+				}
 				if (animator.Handle_stateMachine.IsValid())
 				{
 					animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
@@ -868,7 +941,7 @@ namespace SliceEngine
 		}
 
 		for (auto& child : node.children) {
-			CreateGO_ModelNode(child, model_guid, go.GetEntity(), root, ++index, is_static);
+			CreateGO_ModelNode(child, skele_guid, anim_guid, model_guid, go.GetEntity(), root, ++index, is_static);
 		}
 		//set node local tform here, since setparent does some calculations to decompose relative mtx
 		//infact, do it after recursion, so everything has default values
@@ -878,6 +951,15 @@ namespace SliceEngine
 		tform.scale = node.scale;
 
 		return go;
+	}
+
+	void GOFactory::DebugPrint()
+	{
+		auto entityView = mRegistry.view<SliceEntity>();
+		for (auto entity : entityView)
+		{
+			std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
+		}
 	}
 
 	void GOFactory::TestLoop()
@@ -992,6 +1074,13 @@ namespace SliceEngine
 			std::string oldName = it->second.GetName();
 			//it->second.SetName(CreateName(newName)); changing name should be done in GO
 			// update the name to entity map
+
+			// if the old name wasnt in the map, means this entity's name doesnt belong in the map
+			if (mRegistry.any_of<PrefabEditingEntity>(entity))
+			{
+				return;
+			}
+
 			mNameToEntity.erase(oldName);
 			mNameToEntity.insert(std::make_pair(newName, entity));
 		}
@@ -1010,10 +1099,16 @@ namespace SliceEngine
 				SceneGraphDelete(Entity);
 			}
 
+
+			
+			// not the best way to check for prefab editing entity
+			// but this the fastest way i can think of rn
+			if (!mEntityToGO[Entity].HasComponent<PrefabEditingEntity>())
+				mNameToEntity.erase(mEntityToGO[Entity].GetName());
+
 			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
-			mNameToEntity.erase(mEntityToGO[Entity].GetName());
 			mEntityToGO[Entity].Destroy();
 
 			// erase from the maps

@@ -16,15 +16,19 @@ namespace SliceEngine
         std::optional<NavMeshObj> navMeshInstance;
         std::optional<NavMeshDebugObj> navMeshDebugInfo;
 
+        std::optional<NavMeshDebugObj> activePathDebugInfo;
+
+        std::unordered_map<int, glm::vec3> m_agentOffMeshTargets;
+
     public:
         void Init();
-        //void Update(float dt);
+        void Update(float dt);
         void Unbind() override;
 
         void ClearNavMesh();
         void LoadNavMeshOnSceneLoad(OnSceneLoadedEvent& e);
         void LoadNavMeshFromBake(NavMeshObj obj);
-        void LoadNavMeshFromFile();
+        void LoadNavMeshFromFile(const std::string& filePath = "");
         std::optional<NavMeshObj>& GetNavMeshObj();
         std::optional<NavMeshDebugObj>& GetNavMeshDebugData();
 

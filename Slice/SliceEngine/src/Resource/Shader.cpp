@@ -195,5 +195,255 @@ namespace SliceEngine
 			glDeleteShader(s);
 		}
 #pragma endregion
+#pragma region CustomShader
+		CustomShader CustomShader::LoadCShader(std::string const& filepath)
+		{
+			std::ifstream fragShaderFile(filepath, std::ios::binary);
+			if (!fragShaderFile)
+			{
+				SLICE_LOG_WARNING("Unable to open Fragment Shader File");
+				return {};
+			}
+			std::string fragShaderSource;
+			std::string line;
+			std::vector<ShaderParams> dataIn;
+			bool readingIn = false;
+			while (std::getline(fragShaderFile, line))
+			{
+				if (!line.empty() && line.back() == '\r')
+					line.pop_back();
+				if (line == std::string{ "#CODE" })
+					break;
+				if (line == std::string{ "" })
+					continue;
+				if (readingIn)
+				{
+					ShaderParams inParam{};
+					std::string throwaway;
+					std::stringstream ss{ line };
+					ss >> throwaway; // data type
+
+					if (throwaway == "uint")
+						inParam.dataType = SP_TYPE::UINT;
+					else if(throwaway == "int")
+						inParam.dataType = SP_TYPE::INT;
+					else if(throwaway == "bool")
+						inParam.dataType = SP_TYPE::BOOL;
+					else if (throwaway == "float")
+						inParam.dataType = SP_TYPE::FLOAT;
+
+					ss >> inParam.name;
+					ss >> throwaway;
+
+					switch (inParam.dataType)
+					{
+					case SP_TYPE::FLOAT:
+					{
+						float tempFloat{};
+						ss >> tempFloat;
+						inParam.baseData = tempFloat;
+						break;
+					}
+					case SP_TYPE::UINT:
+					{
+						uint32_t temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					case SP_TYPE::INT:
+					{
+						int32_t temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					case SP_TYPE::BOOL:
+					{
+						bool temp{};
+						ss >> temp;
+						inParam.baseData = temp;
+						break;
+					}
+					}
+
+					dataIn.push_back(inParam);
+				}
+				else if (line == std::string("#IN"))
+					readingIn = true;
+			}
+			auto midPos = fragShaderFile.tellg();
+			fragShaderFile.seekg(0, std::ios::end);
+			auto fileSize = fragShaderFile.tellg() - midPos;
+			fragShaderSource.resize(fileSize);
+			fragShaderFile.seekg(midPos, std::ios::beg);
+			fragShaderFile.read(&fragShaderSource[0], fragShaderSource.size());
+			fragShaderFile.close();
+
+			std::string fragStart{
+R"(#version 460 core
+// Custom Shader
+#extension GL_ARB_bindless_texture : require
+
+layout (location=0) in vec3 vPos; // In M Space
+layout (location=1) in vec3 vNom; // In MV Space
+layout (location=2) in vec2 vTex;
+layout (location=3) in flat uint vInstance;
+
+layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
+layout (location=1) out uint fGID;
+layout (location=2) out vec3 fPositionData;
+layout (location=3) out vec3 fNormalData;
+layout (location=4) out vec4 fMetalRoughData;
+
+uniform int translucentIDOnly;
+uniform float translucentSelectThreshold;
+
+struct BasicIDat
+{
+	mat4 mdlMtx;
+	uint entityID;
+	uint textureID; 
+	uint tex2ID;
+	uint col;
+};
+
+layout(binding=0, std430) readonly buffer ssbo0
+{
+	sampler2D textures[];
+};
+
+layout(binding=1, std430) readonly buffer ssbo1
+{
+	BasicIDat iDat[];
+};
+
+layout(binding=2, std430) readonly buffer ssbo2
+{
+	uvec4 eDat[];
+};
+)"};
+			std::string fragNumExtraElems{};
+			{
+				std::stringstream ss;
+				ss << "\nint numElem = " << dataIn.size() << ";\n";
+				fragNumExtraElems = ss.str();
+			}
+			fragNumExtraElems += std::string{
+R"(
+uint ExtractUint(int num)
+{
+	uint mainID = (vInstance * numElem + num) / 4;
+	uint subID = (vInstance * numElem + num) % 4;
+	return eDat[mainID][subID];
+}
+float ExtractFloat(int num)
+{
+	uint mainID = (vInstance * numElem + num) / 4;
+	uint subID = (vInstance * numElem + num) % 4;
+	return uintBitsToFloat(eDat[mainID][subID]);
+}
+)"};
+			{
+				std::stringstream ss;
+				for (int i = 0; i < dataIn.size(); ++i)
+				{
+					switch (dataIn[i].dataType)
+					{
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
+						break;
+					}
+				}
+				fragNumExtraElems += ss.str();
+			}
+			
+			std::string fragEnd{
+R"(
+void main(void){
+
+	fPositionData = vPos;
+	fNormalData = normalize(vNom);
+	vec4 color = vec4(
+	float(iDat[vInstance].col >> 24 & 0xFF),
+	float(iDat[vInstance].col >> 16 & 0xFF),
+	float(iDat[vInstance].col >> 8 & 0xFF),
+	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
+
+	vec4 texColor = texture(textures[iDat[vInstance].textureID], vTex);
+	if(texColor.a == 0.f)
+		discard;
+
+	fFragColor = TexColorC(texColor, color);
+
+	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold)
+		discard;
+	fGID = iDat[vInstance].entityID;
+	fMetalRoughData.xy = RoughMet();
+})"};
+
+			fragStart += fragNumExtraElems + fragShaderSource + fragEnd;
+			GLchar const* frag_shader_code[] = { fragStart.c_str() };
+
+			int success;
+			char infoLog[512];
+			GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragShader, 1, frag_shader_code, nullptr);
+			glCompileShader(fragShader);
+			glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(fragShader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Unable to compile custom fragment shader:" + std::string(infoLog));
+
+				return {};
+			}
+
+			//*********************************************************
+			std::string VertexShaderName{"Shaders/deferred_Vert.vert"};
+			//*********************************************************
+			
+			GLuint shader = glCreateProgram();
+			glAttachShader(shader, Core::GetInstance()->GetResourceManager()->get<VertShader>(VertexShaderName).get()->s);
+			glAttachShader(shader, fragShader);
+			glLinkProgram(shader);
+
+			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Link / Compile Custom Shader Failed:" + std::string(infoLog));
+				glDeleteShader(fragShader);
+				return {};
+			}
+			glValidateProgram(shader);
+			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Validate Custom Shader Failed:" + std::string(infoLog));
+				glDeleteShader(fragShader);
+				return {};
+			}
+
+			glDeleteShader(fragShader);
+			return { shader, dataIn };
+		}
+		void CustomShader::DestroyCShader()
+		{
+			glDeleteShader(s);
+			s = 0;
+			dataIn.clear();
+		}
+#pragma endregion
 }
 }

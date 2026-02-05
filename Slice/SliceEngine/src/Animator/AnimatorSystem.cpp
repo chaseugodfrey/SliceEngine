@@ -28,7 +28,6 @@ namespace SliceEngine
 	}
 	void AnimatorSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
-		
 		Animator& animator = reg.get<Animator>(entity);
 
 		animator.stateMachine.CheckStates();
@@ -89,6 +88,20 @@ namespace SliceEngine
 				else
 				{
 					animator.current_time += dt;
+
+					// publish animation key frame event
+					unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
+					for (auto eventFrame : animator.eventFrames)
+					{
+						//SLICE_LOG_VALUES("Event Frame:", eventFrame.frameNumber, "Current Frame:", currentFrame, "Anim Idx:", eventFrame.animIdx, "Curr Anim Idx:", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
+						{
+							// publish event
+							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity};
+							EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
+						}
+					}
+
 					if (animator.current_time > anim.duration)
 					{
 
@@ -126,7 +139,7 @@ namespace SliceEngine
 			Transform& transform = SliceEngine::Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
 			//if (!animator.stateMachine.EFSM.IsValid()) return;
-			if (!animator.IsValid()) return;
+			if (!animator.IsValid()) continue;
 
 			if (animator.timeline.isPlaying)
 			{
@@ -173,11 +186,16 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 
 		Animator& animator = reg.get<Animator>(entity);
+
 		animator.final_tforms.resize(MAX_BONES, glm::mat4(1.0f));
+
+		auto rscMgr = core->GetResourceManager();
+
+		GUID defCtrl = rscMgr->mFileNameToGUID["Default/BasicController.controller"];
 
 		animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(animator.Handle_stateMachine.getGUID());
 		if(!animator.Handle_stateMachine.IsValid())
-			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>((GUID)9857886709116471337);
+			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
 
@@ -193,5 +211,26 @@ namespace SliceEngine
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 		}
 
+	}
+	GUID AnimatorSystem::GetMdlGUID(entt::registry& reg, entt::entity entity, SceneGraph& scene_graph)
+	{
+		auto child_entity = scene_graph.neighbours[SceneGraph::DOWN];
+
+		while (child_entity != entt::null)
+		{
+			auto& child_scene_graph = reg.get<SceneGraph>(child_entity);
+			auto rend = reg.try_get<Renderer>(child_entity);
+
+			if (rend)
+			{
+				std::string name = FactoryInstance.GetGOByEntity(child_entity).GetName();
+				return rend->modelHandle.getGUID();
+			}
+
+			GetMdlGUID(reg, child_entity, child_scene_graph);
+
+			child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+		}
+		
 	}
 }

@@ -1,5 +1,5 @@
 {
-    "VertexShader": "fullScreen_Vert",
-    "FragmentShader": "debugOutlineBlur_Frag",
+    "VertexShader": "Shaders/fullScreen_Vert.vert",
+    "FragmentShader": "Shaders/debugOutlineBlur_Frag.frag",
     "GeometryShader": ""
 }

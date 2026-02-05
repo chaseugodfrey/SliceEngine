@@ -106,6 +106,9 @@ namespace SliceEngine
         SLICE_LOG("C# Time System Initialized");
 
         SubscribeToEvents();
+
+        mRegistry->on_construct<InactiveEntity>().connect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().connect<&ScriptSystem::OnEnabled>(this);
     }
 
     void ScriptSystem::LogMonoHeapSize()
@@ -120,6 +123,9 @@ namespace SliceEngine
 
     void ScriptSystem::CleanUp()
     {
+        mono_gchandle_free(mCoroutineInstance->mHandle);
+        mono_gchandle_free(mTimeInstance->mHandle);
+
         if (mAppDomain)
         {
             // Switch back to root domain to allow unloading
@@ -288,6 +294,8 @@ namespace SliceEngine
             return;
         }
 
+        ClearManagedHandles();
+
         // clear the collision queue events 
         {
             std::lock_guard<std::mutex> lock(mQueueLock);
@@ -302,6 +310,7 @@ namespace SliceEngine
         for (auto& it : mEntityInstances)
         {
             mono_gchandle_free(it.second->mHandle);
+            it.second->mHandle = 0;
         }
 
         mono_gchandle_free(mCoroutineInstance->mHandle);
@@ -458,6 +467,26 @@ namespace SliceEngine
 
 
             scriptRef->InvokeOnConstruct((unsigned int)id);
+        }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
+            scriptRef->InvokeOnAwake();
+        }
+
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            //continue if disabled
+            auto& scriptComponent = mRegistry->get<Script>(id);
+            if (!scriptComponent.componentEnabled)
+                continue;
+
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
         }
@@ -489,9 +518,113 @@ namespace SliceEngine
             else
             {
                 scriptRef->InvokeOnUpdate(dt);
-                UpdateScriptComponent(id);
+                
             }
         }
+
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            if (scriptRef == nullptr)
+            {
+                SLICE_LOG_ERROR("Error in initializing script reference");
+                continue;
+            }
+
+            UpdateScriptComponent(id);
+        }
+    
+        for (const auto& [id, entitySet] : mCollideMap)
+        {
+            auto scriptInstance = mEntityInstances[id];
+
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            for (const auto& ent : entitySet)
+            {
+                //if (mEntitiesDisabled.contains(id))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[id].contains(ent))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[id].erase(ent);
+                //        scriptInstance->InvokeOnCollideEnter((unsigned int)ent);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[id].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(id);
+                //    }
+                //}
+                //else
+                //{
+                //}
+
+                 scriptInstance->InvokeOnCollideStay((unsigned int)ent);
+            }
+        }
+
+        for (const auto& [id, entitySet] : mTriggerMap)
+        {
+            auto scriptInstance = mEntityInstances[id];
+
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            for (const auto& ent : entitySet)
+            {
+                //if (mEntitiesDisabled.contains(id))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[id].contains(ent))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[id].erase(ent);
+                //        scriptInstance->InvokeOnTriggerEnter((unsigned int)ent);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[id].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(id);
+                //    }
+                //}
+                //else
+                //{
+                //}
+
+                 scriptInstance->InvokeOnTriggerStay((unsigned int)ent);
+            }
+        }
+
     }
 
     void ScriptSystem::OnFixedUpdate(float dt)
@@ -501,9 +634,67 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             scriptRef->InvokeOnFixedUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             UpdateScriptComponent(id);
         }
+
+
+    }
+
+    void ScriptSystem::OnLateUpdate(float dt)
+    {
+        mTimeInstance->InvokeOnLateUpdate(dt);
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            scriptRef->InvokeOnLateUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            UpdateScriptComponent(id);
+        }
+
+
     }
 
     /// <summary>
@@ -535,15 +726,47 @@ namespace SliceEngine
                 }
             }
         }
+
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto entity : entityToInit)
+            {
+                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+            }
+
+            for(auto entity: entityToInit)
+            {
+                mEntityInstances[entity]->InvokeOnAwake();
+                mEntityInstances[entity]->InvokeOnCreate();
+            }
+
+            entityToInit.clear();
+        }
+
+
     }
 
     void ScriptSystem::OnEnd()
     {
+        ClearManagedHandles();
+
         for (auto& it : mEntityInstances)
         {
-            mono_gchandle_free(it.second->mHandle);
+            if (it.second->mHandle)
+            {
+                mono_gchandle_free(it.second->mHandle);
+                it.second->mHandle = 0;
+            }
         }
 
+        mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
+        mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
+
+        mCollisionQueue.clear();
+        //mEntityCollisionMap.clear();
+        //mEntitiesDisabled.clear();
+        mCollideMap.clear();
+        mTriggerMap.clear();
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -589,6 +812,25 @@ namespace SliceEngine
                         {
                             SLICE_LOG_ERROR("Mismach type.");
 
+                        }
+                    }
+                    else if (it.second.mType == ScriptFieldType::GameObject)
+                    {
+                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        if (variantVal.is_type<GameObject>())
+                        {
+                            GameObject go = variantVal.get_value<GameObject>();
+                            scriptRef->SetFieldValue(it.second.mName.c_str(), go);
+                        }
+
+                    }
+                    else if (it.second.mType == ScriptFieldType::Prefab)
+                    {
+                        rttr::variant& variantVal = scriptComponent.scriptableFieldMap[it.first];
+                        if (variantVal.is_type<PrefabVar>())
+                        {
+                            PrefabVar var = variantVal.get_value<PrefabVar>();
+                            scriptRef->SetFieldValue(it.second.mName.c_str(), var);
                         }
                     }
                     else
@@ -661,6 +903,12 @@ namespace SliceEngine
                             case ScriptFieldType::Vector3:
                                 scriptRef->AddListFieldValue<glm::vec3>(it.second.mName, item.get_value<glm::vec3>());
                                 break;
+                            case ScriptFieldType::GameObject:
+                                scriptRef->AddListFieldValue<GameObject>(it.second.mName, item.get_value<GameObject>());
+                                break;
+                            case ScriptFieldType::Prefab:
+                                //scriptRef->AddListFieldValue<PrefabVar>(it.second.mName, item.get_value<PrefabVar>());
+                                break;
                             }
                         }
                     }
@@ -720,6 +968,14 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetArrayFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
+                        //else if (it.second.mType == ScriptFieldType::GameObject)
+                        //{
+                        //    //GameObject var = scriptRef->GetArrayFieldValue<GameObject>(it.second.mName);
+                        //    //scriptComponent.scriptableFieldMap[it.first] = var;
+
+                        //    // test
+
+                        //}
                     }
                     else if (it.second.mContainerType == ScriptFieldType::List)
                     {
@@ -748,6 +1004,16 @@ namespace SliceEngine
                             std::vector<glm::vec3> var = scriptRef->GetListFieldValue<glm::vec3>(it.second.mName);
                             scriptComponent.scriptableFieldMap[it.first] = var;
                         }
+                        else if (it.second.mType == ScriptFieldType::GameObject)
+                        {
+                            std::vector<GameObject> var = scriptRef->GetListFieldValue<GameObject>(it.second.mName);
+                            scriptComponent.scriptableFieldMap[it.first] = var;
+                        }
+                        //else if (it.second.mType == ScriptFieldType::Prefab)
+                        //{
+                        //    std::vector<PrefabVar> var = scriptRef->GetListFieldValue<PrefabVar>(it.second.mName);
+                        //    scriptComponent.scriptableFieldMap[it.first] = var;
+                        //}
                     }
                 }
                 else if (it.second.mType == ScriptFieldType::Float)
@@ -773,6 +1039,23 @@ namespace SliceEngine
                 else if (it.second.mType == ScriptFieldType::Vector3)
                 {
                     glm::vec3 var = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+                }
+                else if (it.second.mType == ScriptFieldType::GameObject)
+                {
+                    GameObject var = scriptRef->GetFieldValue<GameObject>(it.second.mName);
+                    scriptComponent.scriptableFieldMap[it.first] = var;
+
+                    // test
+                   
+                }
+                else if (it.second.mType == ScriptFieldType::Prefab)
+                {
+                    // this shit broken
+                    //rttr::variant prefabVar = scriptRef->GetFieldValue(it.second.mName);
+                    //scriptComponent.scriptableFieldMap[it.first] = prefabVar;
+
+                    PrefabVar var = scriptRef->GetFieldValue<PrefabVar>(it.second.mName);
                     scriptComponent.scriptableFieldMap[it.first] = var;
                 }
             }
@@ -816,7 +1099,9 @@ namespace SliceEngine
             // for now we just invoke the moment it has been added
             if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
             {
+               // entityToInit.insert(entity);
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
 
             }
@@ -837,15 +1122,38 @@ namespace SliceEngine
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
 
+
+
+        {
+            std::lock_guard<std::mutex> lock(mQueueLock);
+            mCollisionQueue.erase(
+                std::remove_if(mCollisionQueue.begin(), mCollisionQueue.end(),
+                    [entity](const QueuedCollisionEvent& ev) {
+                        // Remove if the script-owning entity OR the 'other' entity is gone
+                        return ev.entity == entity || ev.other == entity;
+                    }),
+                mCollisionQueue.end()
+            );
+        }
+
         for (auto& it : mEntityInstances)
         {
             if (it.first == entity)
             {
-                mono_gchandle_free(it.second->mHandle);
+    //            mono_gchandle_free(it.second->mHandle);
+				//it.second->mHandle = 0;
+                it.second->Destroy();
 
                 mEntityInstances.erase(it.first);
                 break;
             }
+        }
+
+        auto it = mManagedGameObjectHandles.find(entity);
+        if (it != mManagedGameObjectHandles.end())
+        {
+            mono_gchandle_free(it->second);
+            mManagedGameObjectHandles.erase(it);
         }
 
         for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
@@ -856,6 +1164,17 @@ namespace SliceEngine
                 break;
             }
         }
+
+        //mEntitiesDisabled.erase(entity);
+        //mEntityCollisionMap.erase(entity); 
+
+        mCollideMap.erase(entity);
+        mTriggerMap.erase(entity);
+
+        //for (auto& [otherEntity, collisionSet] : mEntityCollisionMap)
+        //{
+        //    collisionSet.erase(entity);
+        //}
     }
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -864,6 +1183,37 @@ namespace SliceEngine
         // so I update after every onUpdate call for any thing script related
         // Editor calls it when anything is modified in the inspector as well
         //UpdateScriptComponent(entity);
+    }
+
+    void ScriptSystem::OnEnabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    //mEntitiesDisabled.emplace(entt);
+                    // invoke onEnabled
+                    instance->InvokeOnEnabled();
+                }
+            }
+        }
+    }
+
+    void ScriptSystem::OnDisabled(entt::registry& reg, entt::entity entity)
+    {
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto& [entt, instance] : mEntityInstances)
+            {
+                if (entt == entity)
+                {
+                    // invoke onDisabled
+                    instance->InvokeOnDisabled();
+                }
+            }
+        }
     }
 
     void ScriptSystem::LoadEntityClasses()
@@ -931,10 +1281,35 @@ namespace SliceEngine
                         {
                             MonoType* type = mono_field_get_type(field);
 
+                            std::string fieldTypeStr = mono_type_get_name(type);
+
                             MonoClass* elementClass = nullptr;
                             ScriptFieldType containerType = ScriptFieldType::None;
                             ScriptFieldType fieldType = GetScriptFieldType(type, &elementClass, containerType);
+                            //if (fieldType == ScriptFieldType::GameObject && containerType != ScriptFieldType::None)
+                            //    continue;
+                            if (fieldType == ScriptFieldType::Prefab )
+                                continue;
+                            /*
+                            MonoTypeEnum e = (MonoTypeEnum)mono_type_get_type(type);*/
+                           /* if (e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY)
+                            {
+                                SLICE_LOG(fieldTypeStr + "is an array!");
+                            }
 
+                            if (mono_type_get_array_type(type)&& !(e == MONO_TYPE_SZARRAY || e == MONO_TYPE_ARRAY || e == MONO_TYPE_GENERICINST))
+                            {
+                                SLICE_LOG_CRITICAL("This type " + fieldTypeStr + " in " + className +  " is considered an array type.");
+
+                                if (!mono_type_is_struct(type))
+                                {
+                                    SLICE_LOG_VALUES("However, it is not a struct");
+                                }
+                                else
+                                {
+                                    SLICE_LOG_VALUES("It is a struct");
+                                }
+                            }*/
                             rttr::variant var;
                             // Store it in the script's field map
                             script->mFields[fieldName] = { fieldType, containerType, fieldName, field, var, elementClass };
@@ -972,11 +1347,33 @@ namespace SliceEngine
         }
     }
 
+    void ScriptSystem::ReloadEntityScript(Entity entity)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        if (mEntityInstances.count(entity) > 0)
+        {
+            mono_gchandle_free(mEntityInstances[entity]->mHandle);
+            mEntityInstances[entity]->mHandle = 0;
+            mEntityInstances.erase(entity);
+        }
+
+        if (HasEntityClass(scriptComponent.scriptName))
+        {
+            std::shared_ptr<ScriptObject> scriptObj = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            mEntityInstances[entity] = scriptObj;
+            UpdateScriptVariables(entity);
+            UpdateScriptComponent(entity);
+		}
+    }
+
     ScriptFieldType ScriptSystem::GetScriptFieldType(MonoType* type, MonoClass** outElementClass, ScriptFieldType& containerType)
     {
         *outElementClass = nullptr;
 
         std::string fullTypeName = mono_type_get_name(type);
+        
+
 
         std::string listPrefix = "System.Collections.Generic.List<";
 
@@ -1039,9 +1436,11 @@ namespace SliceEngine
 
         MonoArrayType* arrayType = mono_type_get_array_type(type);
         mono_bool isStruct = mono_type_is_struct(type);
-        if (arrayType && !isStruct)
+        MonoTypeEnum enumType = (MonoTypeEnum)mono_type_get_type(type);
+        if ((enumType == MONO_TYPE_ARRAY || enumType == MONO_TYPE_SZARRAY) && !isStruct)
         {
             MonoClass* elementClass = arrayType->eklass;
+            SLICE_LOG_DEBUG(mono_class_get_name(elementClass));
             *outElementClass = elementClass;
 
             MonoType* elementType = mono_class_get_type(elementClass);
@@ -1102,6 +1501,7 @@ namespace SliceEngine
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
+        eventManager->Subscribe< AnimationEvent, &ScriptSystem::OnAnimationEvent>(this);
     }
 
     void ScriptSystem::UnsubscribeToEvents()
@@ -1122,6 +1522,81 @@ namespace SliceEngine
 
     }
 
+    void ScriptSystem::RemapGameObjectVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph)
+    {
+        for (auto& [entity, scriptInstance] : mEntityInstances)
+        {
+            FixGOVariables(sceneGraph, entity, scriptInstance);
+        }
+    }
+
+    void ScriptSystem::RemapPrefabVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity)
+    {
+        if (mEntityInstances.find(entity) == mEntityInstances.end())
+        {
+            return;
+        }
+
+        FixGOVariables(sceneGraph, entity, mEntityInstances[entity]);
+    }
+
+    void ScriptSystem::FixGOVariables(const std::unordered_map<uint32_t, uint32_t>& sceneGraph, Entity entity, std::shared_ptr<ScriptObject>& scriptInstance)
+    {
+        auto& scriptComponent = mRegistry->get<Script>(entity);
+
+        for (auto& [fieldName, variantVal] : scriptComponent.scriptableFieldMap)
+        {
+            if (variantVal.is_type<GameObject>())
+            {
+                GameObject go = variantVal.get_value<GameObject>();
+                uint32_t oldID = (uint32_t)go.GetEntity();
+
+                if (sceneGraph.contains(oldID))
+                {
+                    uint32_t newID = sceneGraph.at(oldID);
+                    GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
+                    scriptInstance->SetFieldValue<GameObject>(fieldName, newGO);
+                }
+            }
+            else if (variantVal.is_type <std::vector<GameObject>>())
+            {
+                // NOTE for gideon
+                // i realise, i should probblay be using set index instead because there is already a list existing
+                // but with the old IDs
+                // but i'm just going to clear and readd again
+                // not as efficient but time is of the essence! We must ride at noon.
+
+                std::vector<GameObject> oldGOs = variantVal.get_value<std::vector<GameObject>>();
+                MonoObject* listObject = scriptInstance->GetListObject(fieldName);
+                if (listObject == nullptr)
+                {
+                    SLICE_LOG_ERROR("List " + fieldName + " is null or Clear() isn't defined");
+                    continue;
+                }
+
+                // clear the list first before adding from the serialized vector
+                scriptInstance->mScriptClass->InvokeMethod(listObject, scriptInstance->mScriptClass->mFields[fieldName].mListClear, nullptr);
+
+                // clear the list first before adding from the serialized vector
+                for (GameObject oldGO : oldGOs)
+                {
+                    uint32_t oldID = (uint32_t)oldGO.GetEntity();
+
+                    if (sceneGraph.contains(oldID))
+                    {
+                        uint32_t newID = sceneGraph.at(oldID);
+                        GameObject newGO = GameObject(RegistryInstance, (Entity)newID);
+                        scriptInstance->AddListFieldValue<GameObject>(fieldName, newGO);
+                        //newGOs.push_back(newGO);
+                    }
+                }
+            }
+        }
+
+        UpdateScriptComponent(entity);
+
+    }
+
     void ScriptSystem::QueueCollision(ScriptCollisionType type, Entity entity, Entity otherEntity)
     {
         std::lock_guard<std::mutex> lock(mQueueLock);
@@ -1136,7 +1611,7 @@ namespace SliceEngine
             if (mCollisionQueue.empty()) return;
             tempQueue.swap(mCollisionQueue);
         }
-
+        std::cout << tempQueue.size() << std::endl;
         for (const auto& event : tempQueue)
         {
             // make sure entity is still alive
@@ -1154,27 +1629,93 @@ namespace SliceEngine
 
             auto scriptInstance = mEntityInstances[event.entity];
 
-            if (!scriptInstance) continue;
+            if (!scriptInstance || scriptInstance->mHandle == 0) continue; // Check for freed handle
 
             switch (event.type)
             {
             case ScriptCollisionType::CollideEnter:
+            {
+               // mEntityCollisionMap[event.entity].insert(event.other);
+                mCollideMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+            }
                 break;
             case ScriptCollisionType::CollideStay:
-                scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+            {
+                //if (mEntitiesDisabled.contains(event.entity))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[event.entity].contains(event.other))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[event.entity].erase(event.other);
+                //        scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[event.entity].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(event.entity);
+                //    }
+                //}
+                //else
+                //{
+                //    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+                //}
+            }
                 break;
             case ScriptCollisionType::CollideExit:
+            {
+                //mEntityCollisionMap[event.entity].erase(event.other);
+                mCollideMap.erase(event.other);
                 scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+            }
                 break;
             case ScriptCollisionType::TriggerEnter:
+            {
+                //mEntityCollisionMap[event.entity].insert(event.other);
+                mTriggerMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+            }
                 break;
             case ScriptCollisionType::TriggerStay:
-                scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+                // check if it was recently re-enabled
+                //if (mEntitiesDisabled.contains(event.entity))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[event.entity].contains(event.other))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+               // //        mEntityCollisionMap[event.entity].erase(event.other);
+                //        scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[event.entity].empty())
+                //    {
+                //       // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(event.entity);
+                //    }
+
+                //}
+                //else
+                //{
+                //   scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+                //}
                 break;
             case ScriptCollisionType::TriggerExit:
+            {
+               // mEntityCollisionMap[event.entity].erase(event.other);
+                mTriggerMap[event.entity].erase(event.other);
                 scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+            }
                 break;
             }
         }
@@ -1288,6 +1829,35 @@ namespace SliceEngine
         }
     }
 
+    void ScriptSystem::OnAnimationEvent(const AnimationEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState != SceneState::PLAY_SCENE)
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        auto scriptClass = scriptInstance->GetScriptClass();
+
+        MonoString* varStr = mono_string_new(mono_domain_get(), event.scriptName.c_str());
+        void* param = varStr;
+        // TODO: Look into whether we want to allow multiple variables or just a string instead
+        // if we do then 1 string for func name, 1 string for the variable
+        MonoMethod* eventMethod = scriptClass->GetMethod(event.funcName, 1);
+        if (!eventMethod)
+        {
+            SLICE_LOG_ERROR("Animation event: Function '{}' not found in script '{}'", event.funcName, scriptClass->mClassName);
+            return;
+        }
+
+        // if its here means we can invoke it
+        scriptClass->InvokeMethod(scriptInstance->GetInstance(), eventMethod, &param);
+
+        // for now im just going to invoke blank functions to make sure it works
+        // look to adding support for either string or x number of variables after this is working.
+    }
+
     void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
     {
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
@@ -1298,5 +1868,46 @@ namespace SliceEngine
         {
             scriptInstance->InvokeOnSliderValue(event.value);
         }
+    }
+    MonoObject* ScriptSystem::GetOrCreateManagedObject(Entity entity)
+    {
+        if (entity == entt::null) return nullptr;
+     
+        if (mono_domain_get() != mAppDomain)
+        {
+            mono_thread_attach(mRootDomain);
+            mono_domain_set(mAppDomain, false);
+        }
+
+        if (mManagedGameObjectHandles.find(entity) != mManagedGameObjectHandles.end())
+        {
+            MonoObject* obj = mono_gchandle_get_target(mManagedGameObjectHandles[entity]);
+            if (obj) return obj;
+
+            mono_gchandle_free(mManagedGameObjectHandles[entity]);
+            mManagedGameObjectHandles.erase(entity);
+        }
+
+        MonoClass* gameObjectClass = mono_class_from_name(mCoreAssemblyImage, "SliceEngine", "GameObject");
+        MonoObject* managedInstance = mono_object_new(mAppDomain, gameObjectClass);
+
+        MonoMethod* ctor = mono_class_get_method_from_name(gameObjectClass, ".ctor", 1);
+        uint32_t entityID = (uint32_t)entity;
+        void* args[1] = { &entityID };
+        mono_runtime_invoke(ctor, managedInstance, args, nullptr);
+
+        uint32_t handle = mono_gchandle_new(managedInstance, false);
+        mManagedGameObjectHandles[entity] = handle;
+
+        return managedInstance;
+    }
+    void ScriptSystem::ClearManagedHandles()
+    {
+        for (auto& [entity, handle] : mManagedGameObjectHandles)
+        {
+            mono_gchandle_free(handle);
+        }
+
+        mManagedGameObjectHandles.clear();
     }
 }

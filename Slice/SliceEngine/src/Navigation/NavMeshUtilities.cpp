@@ -30,6 +30,22 @@ namespace SliceEngine
 		return dx * dx + dz * dz;
 	}
 
+	dtCrowd *NavMeshUtilities::InitCrowd(dtNavMesh *navMesh)
+	{
+		dtCrowd *crowd = dtAllocCrowd();
+		if (!crowd) return nullptr;
+
+		// Max Agents: 50, Max Radius: 2.0f (may need to edit to cover agent size)
+		if (!crowd->init(50, 5.0f, navMesh))
+		{
+			dtFreeCrowd(crowd);
+			return nullptr;
+		}
+
+		// tune obstacle avoidance here if needed
+		return crowd;
+	}
+
 	std::optional<NavMeshObj> NavMeshUtilities::LoadNavMesh(const std::string &filePath)
     {
         dtNavMesh *navMesh;
@@ -61,11 +77,12 @@ namespace SliceEngine
         }
 
         navQuery = dtAllocNavMeshQuery();
-        navQuery->init(navMesh, 2048);
+        navQuery->init(navMesh, 2048); 
+		dtCrowd *crowd = InitCrowd(navMesh);
 
 		std::cout << "NavMesh loaded successfully!" << std::endl;
 
-        return { NavMeshObj{navMesh, navQuery} };
+        return { NavMeshObj{navMesh, navQuery, crowd}};
     }
 
     bool NavMeshUtilities::FindPath(NavMeshObj& navMeshObj, const float *start, const float *end, std::vector<glm::vec3> &outPath)
@@ -170,7 +187,7 @@ namespace SliceEngine
             );
         }
 
-        return !outPath.empty();
+        return !outPath.empty();	
     }
 
 	bool NavMeshUtilities::GetNavMeshHeightAtPos(NavMeshObj &navMeshObj, glm::vec3 pos, float &outHeight)
@@ -218,8 +235,11 @@ namespace SliceEngine
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
+
+					// skip offmesh polygons as they dont contain valid detail meshes
 					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
 						continue;
+
 					const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 					// The Blue Floor
@@ -343,5 +363,35 @@ namespace SliceEngine
 
 			return dataObjArr;
 		}
+	}
+
+	NavMeshDebugObj NavMeshUtilities::CreateDebugPathMesh(const std::vector<glm::vec3> &pathPoints)
+	{
+		NavMeshDebugObj dataObjArr{};
+		std::vector<float> vertices;
+
+		// Convert glm::vec3 path to float array for rendering
+		// Raise the line slightly (Y+0.1) so it draws on top of the NavMesh
+		for (const auto &point : pathPoints)
+		{
+			vertices.push_back(point.x);
+			vertices.push_back(point.y + 0.2f);
+			vertices.push_back(point.z);
+		}
+
+		// Use the first slot (data[0]) for the path line
+		glCreateBuffers(1, &dataObjArr.data[0].vbo);
+		glNamedBufferStorage(dataObjArr.data[0].vbo, vertices.size() * sizeof(float), vertices.data(), 0);
+
+		glCreateVertexArrays(1, &dataObjArr.data[0].vao);
+		glEnableVertexArrayAttrib(dataObjArr.data[0].vao, 0);
+		glVertexArrayAttribFormat(dataObjArr.data[0].vao, 0, 3, GL_FLOAT, false, 0);
+
+		glVertexArrayVertexBuffer(dataObjArr.data[0].vao, 0, dataObjArr.data[0].vbo, 0, sizeof(float) * 3);
+		glVertexArrayAttribBinding(dataObjArr.data[0].vao, 0, 0);
+
+		dataObjArr.data[0].drawCnt = static_cast<uint32_t>(vertices.size() / 3);
+
+		return dataObjArr;
 	}
 }

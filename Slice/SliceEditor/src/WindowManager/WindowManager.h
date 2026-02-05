@@ -122,6 +122,8 @@ namespace SliceEditor
 
 		void OpenSaveScenePopup();
 		void CloseSaveScenePopup();
+
+		void MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit);
 	};
 }
 

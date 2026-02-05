@@ -22,7 +22,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Systems/LayerManager.h"
 #include "Navigation/NavigationSystem.h"
-#include "Configuration/AudioSettings.h"
+#include "Configuration/ProjectSettingsManager.h"
 
 namespace SliceEngine
 {
@@ -57,9 +57,8 @@ namespace SliceEngine
 		mInputPtr->BindCallbacksToWindow(mWindowManager.GetWindow());
 		SliceEngine::GetActionMappingSystem().SetInputSystem(mInputPtr.get()); // set global action mapping system's input system pointer
 		mScenePtr = std::make_unique<SceneSystem>();
+		mProjectSettingsManager = std::make_unique<ProjectSettingsManager>();
 
-		mProjectSettingsService = std::make_unique<ProjectSettingsService>("projectSettings.json");
-		mAudioSettings = std::make_unique<AudioSettings>();
 		mFactory.RegisterComponent<Transform>();
 		mFactory.RegisterComponent<SceneGraph>();
 		mFactory.RegisterComponent<Renderer>();
@@ -75,17 +74,18 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Prefab>();
 		mFactory.RegisterComponent<Animator>();
 		mFactory.RegisterComponent<Bone>();
-
+		mFactory.RegisterComponent<InactiveEntity>();
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
+		mFactory.RegisterComponent<FontRenderer>();
 		mFactory.RegisterComponent<Button>();
 		mFactory.RegisterComponent<Slider>();
-
 		mFactory.RegisterComponent<NavAgent>();
+		mFactory.RegisterComponent<NavMeshLink>();
+		mFactory.RegisterComponent<NavObstacle>();
 
 		mFactory.RegisterComponent<Prefab>();
-
 		mResource->InitResourceManager();
 
 	}
@@ -95,8 +95,11 @@ namespace SliceEngine
 		mFactory.FactoryShutdown();
 		mResource->Shutdown();
 		mWindowManager.CloseWindow();
+		mProjectSettingsManager->Exit();
 		UnbindSystems();
 		glfwTerminate();
+
+		mAudioManager->Exit();
 	}
 
 	void Core::UnbindSystems()
@@ -160,12 +163,9 @@ namespace SliceEngine
 	//	return mNavAgent.get();
 	//}
 
-	ProjectSettingsService* Core::GetProjectSettingsService()
+	ProjectSettingsManager* Core::GetProjectSettingsManager()
 	{
-		return mProjectSettingsService.get();
+		return mProjectSettingsManager.get();
 	}
-	AudioSettings* Core::GetAudioSettings()
-	{
-		return mAudioSettings.get();
-	}
+
 }

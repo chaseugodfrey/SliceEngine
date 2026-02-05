@@ -2,6 +2,7 @@
 #define PROJECT_SETTINGS_WINDOW_H
 
 #include "WindowManager/EditorWindow.h"
+#include <Configuration/ProjectSettingsIncludes.h>
 
 namespace SliceEditor
 {
@@ -13,31 +14,35 @@ namespace SliceEditor
 		Registry& mRegistry;
 
 	public:
-		std::string name;
+		std::string const name;
+		SliceEngine::ProjectSettings& mSettings;
 
-		BaseSettingsDisplay(Registry& reg, std::string nm) : mRegistry(reg), name(nm) {};
+		BaseSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& settings, std::string nm) : mRegistry(reg), mSettings(settings), name(nm) {};
 		void DisplayHeader();
-		virtual void DisplaySettings() = 0;
+		virtual void DisplaySettings(ImVec2 size) = 0;
 	};
 
 	struct AudioSettingsDisplay : BaseSettingsDisplay
 	{
-		AudioSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
-		void DisplaySettings() override;
+		AudioSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
+		void DisplaySettings(ImVec2 size) override;
 	};
 
 	struct PhysicsSettingsDisplay : BaseSettingsDisplay
 	{
 		ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
 
-		PhysicsSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
-		void DisplaySettings() override;
+		PhysicsSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
+		void DisplaySettings(ImVec2 size) override;
 	};
 
-	struct ProjectSettingsDisplay : BaseSettingsDisplay
+	struct BuildSettingsDisplay : BaseSettingsDisplay
 	{
-		ProjectSettingsDisplay(Registry& reg, std::string nm) : BaseSettingsDisplay(reg, nm) {};
-		void DisplaySettings() override;
+	private:
+		bool AddSceneToList(SliceEngine::GUID guid);
+	public:
+		BuildSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
+		void DisplaySettings(ImVec2 size) override;
 	};
 
 	class ProjectSettingsWindow : public EditorWindow
@@ -46,15 +51,14 @@ namespace SliceEditor
 		{
 			AUDIO,
 			PHYSICS,
-			PROJECT
-		} mCurrentSettingsIndex;
+			BUILD
+		} mCurrentSettingsIndex{};
 
 		std::vector<std::unique_ptr<BaseSettingsDisplay>> mSettingsList{};
 
-
 	public:
 		
-		ProjectSettingsWindow(Registry& reg) : EditorWindow(reg), mCurrentSettingsIndex(SettingsType::AUDIO) { };
+		ProjectSettingsWindow(Registry& reg) : EditorWindow(reg) { };
 		~ProjectSettingsWindow() = default;
 		void Init() override;
 		void Draw() override final;

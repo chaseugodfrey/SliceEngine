@@ -8,6 +8,7 @@ project "SliceEditor"
 
     files { "src/**", "thirdparty/imgui/include/**", 
     "thirdparty/recast/Recast/Source/*.cpp",
+    "thirdparty/recast/Detour/DetourCrowd/Source/**.cpp",
     "thirdparty/recast/Detour/Detour/Source/**.cpp" }
 
     --rtti "On"
@@ -26,6 +27,7 @@ project "SliceEditor"
         ThirdParty.MONO_INC,
         ThirdParty.RECAST_INC,
         ThirdParty.DETOUR_INC,
+        ThirdParty.DETOUR_CROWD_INC,
         "thirdparty/imgui/include",
         "thirdparty/filewatch/FileWatch"
         
@@ -62,58 +64,7 @@ project "SliceEditor"
     pchheader "pch.h"
     pchsource "src/pch.cpp"
 
-    -- Disable PCH for external files
-    filter "files:thirdparty/**"
-        flags { "NoPCH" }
-
-    filter "configurations:EditorDebug"
-        --defines {"DEBUG_MODE" }
-       -- staticruntime "off" -- Comment this back in to get release to work but debug will break
-        symbols "On"
-        
-        links {
-            "rttr_core_d",
-            "Jolt_d.lib"
-             }
-        
-        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
-        -- includedirs
-        -- {
-        --     ThirdParty.RTTR_INC
-        -- }
-         postbuildcommands {
-                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_D .. '" "%{cfg.targetdir}"'
-            }
-    
-    filter "configurations:EditorRelease"
-        --defines { "RELEASE_MODE " }
-        --staticruntime "off"
-        
-        optimize "On"
-        
-         links {
-            "rttr_core",
-            "Jolt_r.lib"
-            }
-         postbuildcommands {
-                '{COPYFILE} "' .. ThirdParty.JOLT_PDB_R .. '" "%{cfg.targetdir}"'
-            }
-    
-
-        -- includedirs
-        -- {
-        --     ThirdParty.RTTR_INC
-        -- }
-    -- Reset filter
-    filter {}
-
- 
-    prebuildcommands {
-        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
-        '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
-    }
-
-    postbuildcommands {
+        postbuildcommands {
         '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
         '{COPYDIR} "%{assets_build_path}" "%{cfg.targetdir}/Assets"',
@@ -128,6 +79,49 @@ project "SliceEditor"
         '{COPYDIR} "%{wks.location}/SliceEditor/thirdparty/Mono/bin" "%{cfg.targetdir}/thirdparty/Mono/bin"',
         '{COPYFILE} "%{wks.location}/SliceEditor/imgui.ini" "%{cfg.targetdir}"'
 
+    }
+
+    -- Disable PCH for external files
+    filter "files:thirdparty/**"
+        flags { "NoPCH" }
+
+    filter "configurations:EditorRelease"
+        optimize "On"
+        links {
+            "rttr_core",
+            "Jolt_r.lib"
+        }
+        -- Removed /mir and /s to prevent deleting your build folder
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_R .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }    
+
+
+    filter "configurations:EditorDebug"
+        symbols "On"
+        links {
+            "rttr_core_d",
+            "Jolt_d.lib"
+        }
+        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
+        
+        -- Removed /mir and /s to prevent deleting your build folder
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_D .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }
+    
+
+        -- includedirs
+        -- {
+        --     ThirdParty.RTTR_INC
+        -- }
+    -- Reset filter
+    filter {}
+
+ 
+    prebuildcommands {
+        '{COPYFILE}  "%{engine_lib_path}" "%{cfg.targetdir}"',
+        '{COPYDIR}  "%{script_dev_path}" "%{cfg.targetdir}/../SliceScript"'
     }
 
 print("editor")

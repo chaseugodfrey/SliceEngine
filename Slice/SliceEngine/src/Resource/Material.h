@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #define MATERIALS_H
 
 #include <string>
+#include "shader.h"
 
 namespace SliceEngine
 {
@@ -26,15 +27,15 @@ namespace SliceEngine
 		class Material {
 		public:
 			Handle<Texture> albedo;
+			Handle<CustomShader> shader;
 
-			//GUID albedo;
-			glm::vec3 color;
-			float roughness;
-			float metallic;
+			glm::vec4 color;
+			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
 
 			//takes in a shader resource file that links to shader files
 			//and compile
 			static Material LoadMaterial(std::string const&);
+			void LoadDefault();
 			void DestroyMaterial();
 
 		};

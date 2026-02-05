@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include "IBaseManager.h"
 #include "../AssetManager/AssetManager.h"
+#include "Systems/FramerateManager.h"
 
 namespace SliceEditor
 {

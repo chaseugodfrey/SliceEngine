@@ -1,5 +1,5 @@
 #version 460 core
-
+//pointShadow_Frag
 layout (location=0)	in vec4 gFragPos;
 
 uniform vec3 uLightPos;

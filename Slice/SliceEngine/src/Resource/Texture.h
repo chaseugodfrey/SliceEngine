@@ -26,6 +26,7 @@ namespace SliceEngine
 			void DestroyTexture();
 
 			unsigned int texture_id{};
+			GLuint64 bindless_id{};
 		};
 	}
 }
