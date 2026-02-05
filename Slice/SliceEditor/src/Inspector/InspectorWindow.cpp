@@ -1410,18 +1410,82 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Size Over Lifetime", "##sizeOverLifetime", ps.sizeOverLifetime);
 				if (ps.sizeOverLifetime)
 				{
-					BoolInputHeader(mRegistry, "Separate Axis", "##sizeSeparateAxis", ps.sizeSeparateAxis);
-					if (ps.sizeSeparateAxis)
+					BoolInputHeader(mRegistry, "Separate Axis", "##sizeSeparateAxis", ps.sizeSeparateAxis);					
+
+					auto num = ps.sizeMapIntermediary.size();
+					if (DragUInt64InputHeader(mRegistry, "Number of Points", "##numSizePoints", num, "%llu", 0, 20))
+					{ 
+						ps.sizeMapIntermediary.resize(num);
+					};
+
+
+					if (ImGui::BeginTable("Size Over Lifetime", ps.sizeSeparateAxis ? 4 : 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
 					{
-						DragVec3InputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier3D", ps.startScaleMultiplier);
-						DragVec3InputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier3D", ps.endScaleMultiplier);
-					}
-					else
-					{
-						DragFloatInputHeader(mRegistry, "Start Multiplier", "##sizeStartMultiplier", ps.startScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
-						DragFloatInputHeader(mRegistry, "End Multiplier", "##sizeEndMultiplier", ps.endScaleMultiplier.z, "%.1f", 0.0f, FLT_MAX);
+						ImGui::TableSetupColumn("Time");
+
+						if (ps.sizeSeparateAxis)
+						{
+							ImGui::TableSetupColumn("X");
+							ImGui::TableSetupColumn("Y");
+							ImGui::TableSetupColumn("Z");
+						}
+						else 
+						{
+							ImGui::TableSetupColumn("Size");
+						}
+						
+						ImGui::TableHeadersRow();
+
+						int counter = 0;
+						float itemWidth = 50.0f;
+
+						for (auto& kv : ps.sizeMapIntermediary)
+						{
+							auto& time = kv.first;
+							auto& value = kv.second;
+
+							ImGui::TableNextRow();
+
+							ImGui::TableNextColumn();
+							float columnWidth = ImGui::GetColumnWidth();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string sizeTime = ("##sizeMap_Time" + std::to_string(counter));
+							DragFloatInput(mRegistry, sizeTime.c_str(), time, "%.2f", 0.0f, 1.0f);	
+
+							if (ps.sizeSeparateAxis)
+							{
+								ImGui::TableNextColumn();
+								ImGui::SetNextItemWidth(itemWidth);
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+								std::string sizeX = ("##sizeMap_X" + std::to_string(counter));
+								DragFloatInput(mRegistry, sizeX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
+
+								ImGui::TableNextColumn();
+								ImGui::SetNextItemWidth(itemWidth);
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+								std::string sizeY = ("##sizeMap_Y" + std::to_string(counter));
+								DragFloatInput(mRegistry, sizeY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
+							}
+
+							ImGui::TableNextColumn();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string sizeZ = ("##sizeMap_Z" + std::to_string(counter));
+							DragFloatInput(mRegistry, sizeZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
+
+							++counter;
+						}
+						ImGui::EndTable();
+											
+						for (const auto& kv : ps.sizeMap)
+						{
+											
+						}												
 					}
 				}
+
+
 			}
 
 			if (ImGui::CollapsingHeader("Rotate Over Lifetime"))
@@ -1446,7 +1510,7 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
 				if (ps.colourOverLifetime)
 				{
-					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourOverLifetimeEnd);
+					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourLifeTimeMap[1.0f]);
 				}
 			}
 

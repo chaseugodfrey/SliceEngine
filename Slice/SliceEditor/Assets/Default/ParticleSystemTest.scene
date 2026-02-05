@@ -32,11 +32,11 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048579,
+                    "entity_id": 9,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048580,
+                        8,
                         4294967295
                     ]
                 },
@@ -122,12 +122,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048580,
+                    "entity_id": 8,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048582,
-                        1048579
+                        6,
+                        9
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -192,12 +192,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048581,
+                    "entity_id": 7,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        1048585
+                        3
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -283,18 +283,12 @@
                     "colorValueType": 0,
                     "colour": [
                         1.0,
-                        1.0,
-                        1.0,
+                        0.0,
+                        0.0,
                         1.0
                     ],
                     "colourMap": "",
                     "colourOverLifetime": true,
-                    "colourOverLifetimeEnd": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
                     "coneArc": 0.0,
                     "coneRadius": 0.0,
                     "destroyOnExpire": false,
@@ -439,12 +433,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048582,
+                    "entity_id": 6,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048583,
-                        1048580
+                        5,
+                        8
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -526,12 +520,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048583,
+                    "entity_id": 5,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048584,
-                        1048582
+                        4,
+                        6
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -612,12 +606,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048584,
+                    "entity_id": 4,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048585,
-                        1048583
+                        3,
+                        5
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -672,12 +666,6 @@
                     ],
                     "colourMap": "",
                     "colourOverLifetime": false,
-                    "colourOverLifetimeEnd": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
                     "coneArc": 0.0,
                     "coneRadius": 0.0,
                     "destroyOnExpire": false,
@@ -822,12 +810,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048585,
+                    "entity_id": 3,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048581,
-                        1048584
+                        7,
+                        4
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -845,7 +833,7 @@
                     "position": [
                         2.0,
                         0.0,
-                        2.0
+                        15.725030899047852
                     ],
                     "rotation": [
                         1.0,

@@ -79,7 +79,6 @@ namespace SliceEngine
 		if (ps.colourOverLifetime)
 		{			
 			ps.colourLifeTimeMap[0.0f] = ps.colour;
-			ps.colourLifeTimeMap[1.0f] = ps.colourOverLifetimeEnd;
 		}
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
@@ -219,7 +218,7 @@ namespace SliceEngine
 					p.rotation = glm::eulerAngles(baseRot).z;
 			}
 
-			glm::quat finalRot = ps.alwaysFaceCamera && !ps.rotateOverLifetime? (billboardRot * baseRot) : baseRot;
+			glm::quat finalRot = ps.alwaysFaceCamera ? (billboardRot * baseRot) : baseRot;
 
 			transformMatrix *= glm::mat4_cast(finalRot);
 			
@@ -611,13 +610,13 @@ namespace SliceEngine
 		if (ps.sizeSeparateAxis)
 		{
 			// per-axis lerp
-			scaleMul = glm::mix(ps.startScaleMultiplier, ps.endScaleMultiplier, t);
+			//scaleMul = glm::mix(ps.startScaleMultiplier, ps.endScaleMultiplier, t);
 		}
 		else
 		{
 			// uniform scale using Z component
-			float uniformScale = glm::mix(ps.startScaleMultiplier.z, ps.endScaleMultiplier.z, t);
-			scaleMul = glm::vec3(uniformScale); // same for x,y,z
+			//float uniformScale = glm::mix(ps.startScaleMultiplier.z, ps.endScaleMultiplier.z, t);
+			//scaleMul = glm::vec3(uniformScale); // same for x,y,z
 		}
 
 		return scaleMul;
@@ -629,16 +628,14 @@ namespace SliceEngine
 		if (ps.rotateSeparateAxis)
 		{
 			// Angular velocity per axis (radians/sec)
-			glm::vec3 deltaAngle = ps.rotateVelocity * dt;
-
-			deltaQ = glm::quat(deltaAngle);
+			glm::vec3 deltaAngleRad = glm::radians(ps.rotateVelocity * dt);
+			deltaQ = glm::quat(deltaAngleRad);
 		}
 		else
 		{
 			// Uniform rotation using Z as scalar
-			float angle = ps.rotateVelocity.z * dt;
-
-			deltaQ = glm::angleAxis(angle, glm::vec3(0, 0, 1));
+			float angleRad = glm::radians(ps.rotateVelocity.z * dt);
+			deltaQ = glm::angleAxis(angleRad, glm::vec3(0, 0, 1));
 		}
 
 		return deltaQ;

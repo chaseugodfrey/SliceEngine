@@ -455,16 +455,15 @@ namespace SliceEngine
 
 		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
 		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
-		.property("startScaleMultiplier", &ParticleSystem::startScaleMultiplier)
-		.property("endScaleMultiplier", &ParticleSystem::endScaleMultiplier)
+		.property("sizeMap", &ParticleSystem::sizeMap)
+		.property("sizeMapIntermediary", &ParticleSystem::sizeMapIntermediary)
 
 		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
 		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
 		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
 
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colourMap", &ParticleSystem::colourLifeTimeMap)		
-		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+		.property("colourMap", &ParticleSystem::colourLifeTimeMap)
 
 		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
 		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)

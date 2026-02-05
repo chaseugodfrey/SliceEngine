@@ -414,7 +414,7 @@ namespace SliceEngine
 		float age{};
 		float rotation{};
 
-		inline float normalizedAge() const { return age / maxAge; }
+		inline float normalizedAge() const { return age / maxAge; }	
 
 		glm::vec3 position{};
 		glm::vec3 scale{};
@@ -444,7 +444,6 @@ namespace SliceEngine
 		};
 
 		Transform* parentTransform{ nullptr };
-		Transform* referenceTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever					
@@ -564,23 +563,23 @@ namespace SliceEngine
 		// Size over lifetime
 		bool sizeOverLifetime{ false };
 		bool sizeSeparateAxis{ false };
-		glm::vec3 startScaleMultiplier{0.0f};
-		glm::vec3 endScaleMultiplier{1.0f};
+		std::map<float, glm::vec3> sizeMap;
+		std::vector <std::pair<float, glm::vec3>> sizeMapIntermediary{};
 			
 		// Rotate over lifetime
-		bool rotateOverLifetime{ false };
+		bool rotateOverLifetime{ false };	
 		bool rotateSeparateAxis{ false };
 		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
 		std::map<float, glm::vec4> colourLifeTimeMap;
-		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
 
 		// Velocity over lifetime
 		bool velocityOverLifetime{ false };
 		glm::vec3 startVelocityMultiplier{ 1.0f };
 		glm::vec3 endVelocityMultiplier{ 0.0f };
+		std::map<float, glm::vec4> VelocityMap;
 
 		// Orbit over lifetime
 		bool orbitOverLifetime{ false };
