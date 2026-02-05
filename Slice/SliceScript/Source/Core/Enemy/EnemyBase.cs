@@ -96,8 +96,17 @@ namespace SliceEngine
 
             SliceLog.Log("Call after NavAgent");
 
+            if (navAgent == null)
+            {
+                SliceLog.Log("Navgent is empty actually");
+            }
+
             navAgent.Speed = this.movementSpeed;
+
+            SliceLog.Log("Call after MovementSpeed");
             targetObjRef = Bootstrap.Player.gameObject;
+
+            SliceLog.Log("Call after Player");
             //
 
 
