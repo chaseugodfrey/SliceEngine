@@ -16,6 +16,8 @@ namespace SliceEngine
         public delegate void levelCompleteObserver();
         public event levelCompleteObserver LevelCompleteEvent;
 
+        public GameObject respawnPoint;
+
         public int levelIndex = 0;
 
         // If it will constantlyy spawn once the total enemies drops below max

@@ -13,11 +13,14 @@ namespace SliceEngine
         public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
-        public Dictionary<int, GameObject> finishedTriggers = new Dictionary<int, GameObject>();
+        //public List<GameObject> respawnPoint = new List<GameObject>();
+        //public Dictionary<int, GameObject> finishedTriggers = new Dictionary<int, GameObject>();
         // To prevent spawning on the same point
         public float SafetyDistance = 4.0f;
         public int currLevel = 0;
         public bool levelDone = false;
+
+        public GameObject deathBox;
 
         private bool isActive = false;
 
@@ -52,6 +55,11 @@ namespace SliceEngine
                 Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
+            }
+
+            if (deathBox != null)
+            {
+                deathBox.GetComponent<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
             }
 
             //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
@@ -205,5 +213,25 @@ namespace SliceEngine
             //    levelDone = false;
             //}
         }
+
+
+        public void RespawnPlayer(GameObject input)
+        {
+            if (!input.Has<PlayerController>())
+            {
+                return;
+            }
+            if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
+            {
+                Bootstrap.Player.Teleport(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+            }
+
+        }
+
+        public void Lose()
+        {
+            Bootstrap.HUDManager.GameLoseScreen();
+        }
+
     }
 }

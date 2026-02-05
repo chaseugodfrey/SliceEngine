@@ -165,6 +165,8 @@ namespace SliceEngine
         private AudioSource audio;
         private bool canIncrement = true;
 
+        public bool canTeleport = false;
+
         public void Initialize()
         {
             camera = Bootstrap.CameraController;
@@ -197,11 +199,10 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (debugMode)
+            if (debugMode || canTeleport)
             {
                 return;
             }
-
             
             GroundCheck();
             if (canInput)
@@ -980,6 +981,18 @@ namespace SliceEngine
 
         #endregion
 
+
+        // ----------- Teleport --------------------
+
+        public void Teleport(Vector3 toTeleport)
+        {
+            canTeleport = true;
+
+            transform.Position = toTeleport;
+
+            canTeleport = false;
+        }
+
         #region On Overrides
         public override void OnCollideEnter(uint other)
         {
@@ -1006,7 +1019,7 @@ namespace SliceEngine
             {
                 isDead = true;
 
-                //Bootstrap.LevelDirector.Lose();
+                Bootstrap.LevelDirector.Lose();
                 //this.gameObject.Destroy();
             }
         }
