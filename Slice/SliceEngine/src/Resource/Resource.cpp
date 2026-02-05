@@ -101,7 +101,9 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::CustomShader>::Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path)
 	{
 		resource->DestroyCShader();	//calls glDeleteProgram
-		resource->LoadCShader(path); // --TODO-- in case I store the val somewhere else
+		auto newResource = resource->LoadCShader(path);
+		resource->s = newResource.s;
+		resource->dataIn = newResource.dataIn;
 	}
 
 	// Vertex Shader

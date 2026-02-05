@@ -263,39 +263,39 @@ switch(n){
 		};
 
 		std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates{
-			{"END_COLOR", {"finalCol = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC4}}},
-			{"END_MET_ROUGH", {"roughMet = %s;\n", "", CSHAD_T::NIL, {CSHAD_T::VEC2}}},
+			{"END_COLOR", {"finalCol = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
+			{"END_MET_ROUGH", {"roughMet = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC2}}},
 
-			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			
-			{"GetX_Vec2", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetY_Vec2", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},			
-			{"GetX_Vec3", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetY_Vec3", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetZ_Vec3", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetX_Vec4", {"float %s = %s.x;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetY_Vec4", {"float %s = %s.y;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetZ_Vec4", {"float %s = %s.z;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetA_Vec4", {"float %s = %s.a;\n", "", CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetX_Vec2", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"GetY_Vec2", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"GetX_Vec3", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetY_Vec3", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetZ_Vec3", {"float %s = %s.z;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetX_Vec4", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetY_Vec4", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetZ_Vec4", {"float %s = %s.z;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetA_Vec4", {"float %s = %s.a;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
 
-			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);\n", "SetV4F", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);\n", "SetV4F", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);\n", "SetV4F", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);\n", "SetV4F", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
-			{"sat_f", {"float %s = sat_f(%s);\n", "sat_f",CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
-			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);\n", "sat_Vec3",CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
+			{"sat_f", {"float %s = sat_f(%s);\n", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);\n", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
 
-			{"Mul_f", {"float %s = %s * %s;\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Mul_Vec2", {"vec2 %s = %s * %s;\n", "", CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
-			{"Mul_Vec3", {"vec3 %s = %s * %s;\n", "", CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
-			{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"Mul_f", {"float %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Mul_Vec2", {"vec2 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
+			{"Mul_Vec3", {"vec3 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
+			{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			
-			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
+			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
-			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
+			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
 		};
 		// ----- Inside LoadCShader Func =====
 		std::unordered_map<std::string, CSHAD_T> dataIDS
@@ -503,7 +503,7 @@ void main(void){
 			// Combine all the texts
 			fragStart += fragNumExtraElems;
 			for (auto& i : fragInclFunctions)
-				fragStart += cShaderPredefines.find(i.first)->second;
+				fragStart += cShaderPredefines.find(i.first)->second + "\n";
 			fragStart += fragMainShaderSource + fragEnd;
 			GLchar const* frag_shader_code[] = { fragStart.c_str() };
 

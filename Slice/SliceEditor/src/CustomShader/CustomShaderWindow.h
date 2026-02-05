@@ -34,6 +34,7 @@ namespace SliceEditor
 
 			std::string name;
 			std::variant<bool, uint32_t, int32_t, float> baseData;
+			SliceEngine::SliceEngineTypes::CSHAD_T baseDataType;
 			ShaderEditableNode()
 			{
 				type = SelectionType::SHADER_STATE;

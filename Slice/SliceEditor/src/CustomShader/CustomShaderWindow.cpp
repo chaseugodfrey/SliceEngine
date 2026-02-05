@@ -537,6 +537,9 @@ namespace SliceEditor
 		{
 			if (ImNodes::IsEditorHovered())
 			{
+				if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					mSelectionManager->ClearSelection();
+
 				if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 				{
 					ImGui::OpenPopup("NodeEditor_Popup");
@@ -568,7 +571,17 @@ namespace SliceEditor
 			{
 				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
 				{
-					std::string createName{ "Create" + funcName };
+					if (funcDets.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+						continue;
+					std::string createName;
+
+					if (funcDets.FuncType == CST::ShaderGraphFunc_T::MATH)
+						createName = "Math: " + funcName;
+					else if(funcDets.FuncType == CST::ShaderGraphFunc_T::UTILITIES)
+						createName = "Util: " + funcName;
+					else if(funcDets.FuncType == CST::ShaderGraphFunc_T::VECTOR_MANIP)
+						createName = "Vec: " + funcName;
+
 					if (ImGui::Selectable(createName.c_str()))
 					{
 						newNodeID = CreateNode(funcName);
@@ -583,14 +596,59 @@ namespace SliceEditor
 		int start_attr{}, end_attr{};
 		if (ImNodes::IsLinkCreated(&start_attr, &end_attr)) // In Node & Out Node ID
 		{
-			ShaderLinkNode n;
-			n.sourceAttr = start_attr;
-			n.destAttr = end_attr;
-			n.id = ++uniqueIDCnt;
-			DeleteLinkFromAttr(end_attr);
-			mTransitionNodes.insert(std::make_pair(n.id, n));
-			attrIDToLinkID[start_attr] = n.id;
-			attrIDToLinkID[end_attr] = n.id;
+			// Find the Node IDs to connect
+			if (attrIDToNodeID.find(start_attr) != attrIDToNodeID.end() &&
+				attrIDToNodeID.find(end_attr) != attrIDToNodeID.end())
+			{
+				auto startNodeID = attrIDToNodeID.at(start_attr);
+
+				CST::CSHAD_T startAttrType = CST::CSHAD_T::NIL;
+				// Loop through ALL possible locations where start_attr comes from
+				if (mDefaultIns.find(startNodeID) != mDefaultIns.end())
+				{
+					auto dets = CST::dataIDS.find(mDefaultIns.at(startNodeID).name);
+					if (dets != CST::dataIDS.end())
+						startAttrType = dets->second;
+				}
+				else if (mEditableIns.find(startNodeID) != mEditableIns.end())
+					startAttrType = mEditableIns.at(startNodeID).baseDataType;
+				else if (mStateNodes.find(startNodeID) != mStateNodes.end())
+				{
+					auto dets = CST::cShaderFuncsTemplates.find(mStateNodes.at(startNodeID).name);
+					if (dets != CST::cShaderFuncsTemplates.end())
+						startAttrType = dets->second.outType;
+				}
+
+				auto endNodeID = attrIDToNodeID.at(end_attr);
+				// Find End Node
+				if (mStateNodes.find(endNodeID) != mStateNodes.end())
+				{
+					auto endStateNode = mStateNodes.find(endNodeID)->second;
+					auto endFuncDets = CST::cShaderFuncsTemplates.find(endStateNode.name)->second;
+
+					// Loop through possible in's to find the correct IN attr
+					for (size_t i{}; i < endStateNode.in_ids.size(); ++i)
+					{
+						if (endStateNode.in_ids[i] == end_attr)
+						{
+							// If type match then Link
+							if (startAttrType == endFuncDets.inIDs[i])
+							{
+								ShaderLinkNode n;
+								n.sourceAttr = start_attr;
+								n.destAttr = end_attr;
+								n.id = ++uniqueIDCnt;
+								DeleteLinkFromAttr(end_attr);
+								mTransitionNodes.insert(std::make_pair(n.id, n));
+								attrIDToLinkID[start_attr] = n.id;
+								attrIDToLinkID[end_attr] = n.id;
+							}
+							break;
+						}
+					}
+				}
+			}
+			mSelectionManager->ClearSelection();
 		}
 		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
 		{

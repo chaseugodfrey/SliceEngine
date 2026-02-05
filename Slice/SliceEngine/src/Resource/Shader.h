@@ -69,10 +69,20 @@ namespace SliceEngine
 			VEC3,
 			VEC4
 		};
+
+		enum class ShaderGraphFunc_T : unsigned char
+		{
+			IMMUTABLE,
+			MATH,
+			UTILITIES,
+			VECTOR_MANIP
+		};
+
 		struct cShaderFunc
 		{
 			std::string code;
 			std::string opPredefine;
+			ShaderGraphFunc_T FuncType;
 			CSHAD_T outType;
 			std::vector<CSHAD_T> inIDs;
 		};
