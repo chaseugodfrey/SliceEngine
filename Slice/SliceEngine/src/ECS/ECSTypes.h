@@ -190,6 +190,7 @@ namespace SliceEngine
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
 		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_DRAW_RAY_TAG = 0x20,
 		DEBUG_ALL_DEBUG		= 0xFF,
 
 		RENDER_NONE			= 0x00,
@@ -322,8 +323,14 @@ namespace SliceEngine
 			bool temp;
 		};
 
+		struct CylinderData
+		{
+			float radius{ 0.5f };
+			float height{ 0.5f };
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData, MeshData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData, CylinderData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
@@ -335,12 +342,14 @@ namespace SliceEngine
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
 		ColliderShape(MeshData data) : shapeData(data) {};
+		ColliderShape(CylinderData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
 		inline static const CapsuleData defaultCapsuleData{};	
 		inline static const MeshData defaultMeshData{};
+		inline static const CylinderData defaultCylinderData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -362,11 +371,17 @@ namespace SliceEngine
 				std::get<MeshData>(shapeData) : defaultMeshData;
 		}
 
+		const CylinderData& GetCylinderData() const {
+			return std::holds_alternative<CylinderData>(shapeData) ?
+				std::get<CylinderData>(shapeData) : defaultCylinderData;
+		}
+
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
 		void SetMeshData(const MeshData& data) { shapeData = data; }
+		void SetCylinderData(const CylinderData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};

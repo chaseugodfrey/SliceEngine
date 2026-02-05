@@ -265,26 +265,7 @@ namespace SliceEngine
 			}
 		}
 
-
-
 		sliceEngineVariantShape shapeData = colliderShape.shapeData;
-
-		//if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity)) // if true set the layer so it can collide
-		//{
-		//	if ( physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
-		//	{
-		//		physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
-		//	}
-		//}
-		//if(!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
-		//{
-		//	
-		//	physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, Layers::COLLISION_OFF);
-		//}
-
-
-
-		//std::cout << "Aloysius test collision layer here" << physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) << std::endl;
 
 		if (colliderShape.isTrigger && !physicsSystem->GetBodyInterface().IsSensor(colliderShape.bodyID))
 		{
@@ -481,6 +462,67 @@ namespace SliceEngine
 		else if (std::holds_alternative<ColliderShape::MeshData>(shapeData))
 		{
 			return;
+		}
+		else if (std::holds_alternative<ColliderShape::CylinderData>(shapeData))
+		{
+			const JPH::Shape* shape = colliderShape.shape.GetPtr();
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(shape);
+			const JPH::CylinderShape* cylinderShape = static_cast<const JPH::CylinderShape*>(wrappedShape->GetInnerShape());
+
+			float cylinderRadius = cylinderShape->GetRadius();
+			float cylinderHeight = cylinderShape->GetHalfHeight();
+
+			auto& cylinderData = std::get < ColliderShape::CylinderData >(colliderShape.shapeData);
+			float tempScaleX = cylinderData.radius * fabs(transform.scale.x);
+			float tempScaleZ = cylinderData.radius * fabs(transform.scale.z);
+			float tempScaleHeight = cylinderData.height * fabs(transform.scale.y);
+
+			if (tempScaleX == cylinderRadius && tempScaleZ == cylinderRadius && tempScaleHeight == cylinderHeight && colliderShape.offSet == colliderShape.prevOffSet)
+			{
+				return;
+			}
+
+			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				colliderShape.offSet,
+				JPH::Quat::sIdentity(),
+				settings);
+			auto result = newShape.Create();
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to rebuild scaled Cylinder: " + std::string(result.GetError()));
+				return;
+			}
+			colliderShape.prevOffSet = colliderShape.offSet;
+			colliderShape.shape = result.Get();
+			// Replace shape on body if it already exists
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+
+				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+				if (mRegistry->any_of<RigidBody>(event.entity))
+				{
+					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					if (!rb.isKinematic)
+					{
+						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+						if (lock.Succeeded())
+						{
+							JPH::Body& body = lock.GetBody();
+							if (auto* mp = body.GetMotionProperties())
+							{
+								mp->ScaleToMass(rb.mass);
+								mp->SetLinearDamping(rb.linearDamping);
+								mp->SetAngularDamping(rb.angularDamping);
+							}
+						}
+					}
+				}
+			}
+
 		}
 
 	}
@@ -800,6 +842,67 @@ namespace SliceEngine
 			// Actually set it on the body
 			physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, finalShape, false, JPH::EActivation::Activate);
 		}
+		else if (std::holds_alternative<ColliderShape::CylinderData>(shapeData))
+		{
+			const JPH::Shape* shape = colliderShape.shape.GetPtr();
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(shape);
+			const JPH::CylinderShape* cylinderShape = static_cast<const JPH::CylinderShape*>(wrappedShape->GetInnerShape());
+
+			float cylinderRadius = cylinderShape->GetRadius();
+			float cylinderHeight = cylinderShape->GetHalfHeight();
+
+			auto& cylinderData = std::get < ColliderShape::CylinderData >(colliderShape.shapeData);
+			float tempScaleX = cylinderData.radius * fabs(transform.scale.x);
+			float tempScaleZ = cylinderData.radius * fabs(transform.scale.z);
+			float tempScaleHeight = cylinderData.height * fabs(transform.scale.y);
+
+			if (tempScaleX == cylinderRadius && tempScaleZ == cylinderRadius && tempScaleHeight == cylinderHeight && colliderShape.offSet == colliderShape.prevOffSet)
+			{
+				return;
+			}
+
+			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+				colliderShape.offSet,
+				JPH::Quat::sIdentity(),
+				settings);
+			auto result = newShape.Create();
+			if (result.HasError())
+			{
+				SLICE_LOG_ERROR("Failed to rebuild scaled Cylinder: " + std::string(result.GetError()));
+				return;
+			}
+			colliderShape.prevOffSet = colliderShape.offSet;
+			colliderShape.shape = result.Get();
+			// Replace shape on body if it already exists
+			if (!colliderShape.bodyID.IsInvalid())
+			{
+
+				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
+
+				if (mRegistry->any_of<RigidBody>(entity))
+				{
+					auto& rb = mRegistry->get<RigidBody>(entity);
+					if (!rb.isKinematic)
+					{
+						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
+						if (lock.Succeeded())
+						{
+							JPH::Body& body = lock.GetBody();
+							if (auto* mp = body.GetMotionProperties())
+							{
+								mp->ScaleToMass(rb.mass);
+								mp->SetLinearDamping(rb.linearDamping);
+								mp->SetAngularDamping(rb.angularDamping);
+							}
+						}
+					}
+				}
+			}
+
+		}
 
 	}
 
@@ -827,6 +930,10 @@ namespace SliceEngine
 		{
 			auto& renderer = mRegistry->get<Renderer>(entity);
 			shapeReference = CreateMeshShape(renderer);
+		}
+		else if(std::holds_alternative<ColliderShape::CylinderData>(shapeData))
+		{
+			shapeReference = CreateCylinderShape(collider);
 		}
 		else
 		{ 
@@ -1091,6 +1198,26 @@ namespace SliceEngine
 		if (result.HasError())
 		{
 			SLICE_LOG_ERROR("Failed to get MeshShape Data: " + std::string(result.GetError()));
+			return nullptr;
+		}
+
+		return result.Get();
+	}
+
+	JPH::ShapeRefC PhysicsSystem::CreateCylinderShape(const ColliderShape& collider) const
+	{
+		const ColliderShape::CylinderData& cylinderData = std::get<ColliderShape::CylinderData>(collider.shapeData);
+		JPH::CylinderShapeSettings* shapeSetting = new JPH::CylinderShapeSettings(cylinderData.height, cylinderData.radius);
+		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
+			collider.offSet,
+			JPH::Quat::sIdentity(),
+			shapeSetting);
+
+		auto result = newShape.Create();
+
+		if (result.HasError())
+		{
+			SLICE_LOG_ERROR("Failed to get Cylinder Data: " + std::string(result.GetError()));
 			return nullptr;
 		}
 

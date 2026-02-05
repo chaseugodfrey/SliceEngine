@@ -23,7 +23,7 @@ namespace SliceEditor
 
 		if (preferencesFile.fail())
 		{
-			SavePreferences();
+			SavePreferences(true);
 			preferencesFile.open(filepath);
 		}
 
@@ -57,7 +57,7 @@ namespace SliceEditor
 		preferencesFile.close();
 	}
 
-	void PreferenceManager::SavePreferences()
+	void PreferenceManager::SavePreferences(bool onStartup)
 	{
 		std::string filepath = "preferences.json";
 		std::ofstream preferencesFile{ filepath };
@@ -78,7 +78,10 @@ namespace SliceEditor
 		preferencesFile << preferences.dump(4);
 		preferencesFile.close();
 
-		SetPreferences();
+		if(onStartup)
+		{
+			SetPreferences();
+		}
 	}
 
 	void PreferenceManager::UpdateLastSceneLoaded(OnSceneLoadedEvent e)
@@ -130,7 +133,7 @@ namespace SliceEditor
 	{
 		switch (version)
 		{
-		case 0: SavePreferences();  break;
+		case 0: SavePreferences(true);  break;
 		case 1: break;
 		default: break;
 		}

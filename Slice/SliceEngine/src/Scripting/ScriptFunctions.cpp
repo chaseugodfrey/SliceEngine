@@ -1475,13 +1475,13 @@ namespace SliceEngine
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
 	}
 
-	static void Physics_DrawLine(glm::vec3* origin, glm::vec3* direction, float magnitude)
+	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
 	{
 		auto* eventManager = EventManager::GetInstance();
 		
-		DebugDrawLineEvent drawEvent{ *origin, *direction, magnitude };
+		DebugDrawRayEvent drawEvent{ *origin, *direction, magnitude };
 	
-		eventManager->Publish<DebugDrawLineEvent>(drawEvent);
+		eventManager->Publish<DebugDrawRayEvent>(drawEvent);
 	}
 	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
 	{
@@ -1509,11 +1509,11 @@ namespace SliceEngine
 		float distanceToMove = glm::length(*d_m);
 		if (distanceToHit <= distanceToMove)
 		{
-			transform.position = hitPos; // idk what collider will be used for this function lol so just gona do thsi for now
+			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
 		}
 		else if (distanceToMove < distanceToHit)
 		{
-			transform.position = origin + (*d_m);
+			glm::mix(transform.position,origin + (*d_m), 0.2f);
 		}
 
 
@@ -1794,8 +1794,11 @@ namespace SliceEngine
 
 		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
 		{
+			MonoClass* typeClass = mono_type_get_class(monoType);
+			const char* className = mono_class_get_name(typeClass);
+			const char* nameSpace = mono_class_get_namespace(typeClass);
 			// component not registered
-			SLICE_LOG_ERROR("Component Not Registered");
+			SLICE_LOG_ERROR("Component Not Registered: {}.{}", nameSpace, className);
 			assert("Component not registered");
 		}
 
@@ -2561,8 +2564,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
-		ADD_INTERNAL_CALL(Physics_DrawLine);
 		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
+		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);

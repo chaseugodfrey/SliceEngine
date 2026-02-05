@@ -104,15 +104,6 @@ namespace SliceEditor
 		DrawSystemTimeline();
 
 		DrawSystemBreakdown();
-		/*for (auto& [system, time] : SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations())
-		{
-			ImGui::Text("%s ", system.c_str());
-			ImGui::SameLine();
-			ImGui::Text("Duration: %.4f", time);
-
-			auto sysPercent = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
-			ImGui::Text("Percentage: %.2f%", sysPercent[system]);
-		}*/
 
 	}
 
@@ -171,7 +162,6 @@ namespace SliceEditor
 				);
 
 				// System label if there's enough space
-
 				float luminance = mManager.LuminanceCalculation(sysColor);
 				ImU32 textColor = IM_COL32(255, 255, 255, 255);
 

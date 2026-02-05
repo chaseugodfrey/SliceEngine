@@ -566,6 +566,12 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
 			return;
 		}
+
+		if (targetEntity == leftEntity)
+		{
+			SLICE_LOG_WARNING("Not changing SceneGraph at all");
+			return;
+		}
 		//Remove it from its current position
 		SceneGraphDelete(targetEntity);
 
@@ -731,6 +737,17 @@ namespace SliceEngine
 		go.AddComponent<Renderer>();
 		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CAPSULE_DEFAULT);
 		go.AddComponent<ColliderShape>(ColliderShape::CapsuleData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
+	GameObject GOFactory::CreateGO_Cylinder()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CYLINDER_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::CylinderData{});
 		go.AddComponent<RigidBody>();
 
 		return go;

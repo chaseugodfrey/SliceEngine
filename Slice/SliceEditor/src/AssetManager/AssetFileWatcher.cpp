@@ -465,7 +465,8 @@ namespace SliceEditor
 
         if (modifiedFilePath.extension() == ".temp")
         {
-            auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+         
+           /* auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
             std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
             std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
 
@@ -482,8 +483,8 @@ namespace SliceEditor
                     std::ofstream outFile(tempSceneMetaFilePath);
                     outFile << tempMetaJson.dump(4);
                     outFile.close();
-                }
-            }
+                
+            }}*/
 
 
             return;
