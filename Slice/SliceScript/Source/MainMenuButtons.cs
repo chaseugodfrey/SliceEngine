@@ -11,6 +11,12 @@ namespace SliceEngine
         public override void OnButtonClick()
         {
             Console.WriteLine("Main menu is being pressed");
+
+            if(isPlay > 0.5f)
+            {
+                SceneManager.LoadScene("AloyTest");
+                Console.WriteLine("LOad");
+            }
         }
 
         public override void OnButtonRelease()

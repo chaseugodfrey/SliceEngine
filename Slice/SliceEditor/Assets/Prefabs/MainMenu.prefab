@@ -1,0 +1,442 @@
+[
+    {
+        "MainMenu": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097162,
+                "neighbours": [
+                    4294967295,
+                    2097161,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "MainMenu_Cam": {
+            "struct SliceEngine::Camera": {
+                "bloomExposure": 10.0,
+                "bloomFilterRadius": 5.0,
+                "bloomStrength": 0.4000000059604645,
+                "componentEnabled": true,
+                "debugRenderTag": "0",
+                "depthTex": 41,
+                "far": 200.0,
+                "fogColor": [
+                    0.20000000298023224,
+                    0.20000000298023224,
+                    0.20000000298023224
+                ],
+                "fogIntensity": 0.03999999910593033,
+                "height": 1080,
+                "near": 0.009999999776482582,
+                "postRenderTag": "0",
+                "pov": 60.0,
+                "textureID": 40,
+                "translucentSelectCutoff": 0.20000000298023224,
+                "vignetteCenter": [
+                    0.5,
+                    0.5
+                ],
+                "vignetteIntensity": 0.335999995470047,
+                "vignetteSmoothness": 0.699999988079071,
+                "width": 1920
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097161,
+                "neighbours": [
+                    2097162,
+                    4294967295,
+                    4294967295,
+                    2097160
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.MainMenuCamera",
+                "scriptableFieldMap": {
+                    "totalAnimTime": {
+                        "Type": "float",
+                        "Value": 5.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu_Cam",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "MainMenu_Canvas": {
+            "struct SliceEngine::Canvas": {
+                "canvas_type": "Overlay",
+                "componentEnabled": true,
+                "graphics_raycast": true,
+                "sort_order": 0
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 1080,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 1920
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097160,
+                "neighbours": [
+                    2097162,
+                    2097159,
+                    2097161,
+                    2097157
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu_Canvas",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "MainMenu_Play_1": {
+            "struct SliceEngine::Button": {
+                "componentEnabled": true,
+                "transition": "Color"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 100,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 400
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097159,
+                "neighbours": [
+                    2097160,
+                    4294967295,
+                    4294967295,
+                    2097158
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.MainMenuButtons",
+                "scriptableFieldMap": {
+                    "isPlay": {
+                        "Type": "float",
+                        "Value": 1.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu_Play_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "11697903386653029786"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "MainMenu_Quit": {
+            "struct SliceEngine::Button": {
+                "componentEnabled": true,
+                "transition": "Color"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 9
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 100,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": -141,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 400
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097158,
+                "neighbours": [
+                    2097160,
+                    4294967295,
+                    2097159,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.MainMenuButtons",
+                "scriptableFieldMap": {
+                    "isPlay": {
+                        "Type": "float",
+                        "Value": 0.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu_Quit",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "11697903386653029786"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "MainMenu_Sfx": {
+            "struct SliceEngine::AudioSource": {
+                "componentEnabled": true,
+                "currentVolume": 0.6000000238418579,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 500.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "soundGUID": "16032732054234455058",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Logarithmic"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12854187215604683955",
+                "prefabHandle": {
+                    "GUID": "12854187215604683955"
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097157,
+                "neighbours": [
+                    2097162,
+                    4294967295,
+                    2097160,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "MainMenu_Sfx",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

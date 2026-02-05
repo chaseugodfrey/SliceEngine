@@ -850,7 +850,7 @@ namespace SliceEditor
 
 		static std::string sceneName = "";
 
-		bool isOpen;
+		bool isOpen = true;
 		if (ImGui::Begin("Save Scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::InputText("New Scene Name", &sceneName))
@@ -895,7 +895,7 @@ namespace SliceEditor
 
 		static std::string sceneName = "NewScene";
 
-		bool isOpen;
+		bool isOpen = true;
 		if (ImGui::Begin("new scene window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::InputText("New Scene Name", &sceneName))
