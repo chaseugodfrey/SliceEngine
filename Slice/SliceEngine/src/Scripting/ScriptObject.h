@@ -128,6 +128,7 @@ namespace SliceEngine
 		MonoMethod* mOnCreate = nullptr;
 		MonoMethod* mOnUpdate = nullptr;
 		MonoMethod* mOnFixedUpdate = nullptr;
+		MonoMethod* mOnLateUpdate = nullptr;
 		MonoMethod* mOnEntityDestroy = nullptr;
 		MonoMethod* mOnEntityEnabled = nullptr;
 		MonoMethod* mOnEntityDisabled = nullptr;
@@ -217,6 +218,12 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="dt">Delta time</param>
 		void InvokeOnFixedUpdate(float dt);
+
+		/// <summary>
+		/// Function for delaying update
+		/// </summary>
+		/// <param name="dt">Delta time</param>
+		void InvokeOnLateUpdate(float dt);
 
 		/// <summary>
 		/// Calls the OnEntityDestroy function. This is done every loop when the game is in runtime for every entity destroyed

@@ -148,6 +148,7 @@ namespace SliceEngine
 		void OnStart(); // Calls the Enter function of all game objects
 		void OnUpdate(float dt);
 		void OnFixedUpdate(float dt);
+		void OnLateUpdate(float dt);
 		void UpdateScripts();
 		void OnEnd();
 		//void ReceiveMessage(Message* msg) override;
