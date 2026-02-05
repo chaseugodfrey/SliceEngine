@@ -243,11 +243,16 @@ namespace SliceEngine {
 		* ismousereleased = mouse up
 		* ismousedown = ismousepressed
 		*/
+		//std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
 		if (!input.IsMouseDown(MouseButtons::LEFT) || !mRegistry->any_of<Slider>(raycast_entity)) {
 			return;
 		}
 		//std::cout << "handling" << std::endl;
 		auto& slider = mRegistry->get<Slider>(raycast_entity);
+		if (!slider.componentEnabled) {
+			return;
+		}
+		//std::cout << "value: " << slider.GetValue() << std::endl;
 		auto const& rect = mRegistry->get<RectTransform>(raycast_entity);
 
 		glm::vec2 direction{};
@@ -265,8 +270,15 @@ namespace SliceEngine {
 		}
 
 		glm::vec2 mouse_coord = input.GetMousePosition();
-		int mouse_x = (int)mouse_coord.x;
-		int mouse_y = CanvasSystem::target_height - (int)mouse_coord.y;
+		glm::vec2 mouse_NDC = input.GetMouseNDC();
+
+
+		//for now im just gona directly convert to game screen coord
+		int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
+		int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
+
+		//int mouse_x = (int)mouse_coord.x;
+		//int mouse_y = CanvasSystem::target_height - (int)mouse_coord.y;
 
 		//First convert mouse into canvas coord - 0,0 is center
 		mouse_x -= CanvasSystem::target_width / 2;
