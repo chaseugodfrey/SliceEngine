@@ -97,14 +97,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawPerformanceTab()
 	{
-		static int time = 0;
-		time += 1;
-
-		if (time % 30 == 0) //Change this later
-		{
-			time = 0;
-			mManager.UpdateDebugStatistics();
-		}
+		mManager.UpdateDebugStatistics();
 
 		ImGui::Text("FPS: %f", mManager.mCurrFPS);
 
@@ -216,10 +209,15 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemBreakdown()
 	{
-		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
+		auto frm = SliceEngine::Core::GetInstance()->GetFramerateManager();
+		const auto& systemPercentages = frm->GetSystemPercentages();
 		ImGui::Text("System Statistics");
 		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
 		{
+			ImGui::Text("Total Frame Time: %.4f", mManager.mTotalFrameTime);
+			ImGui::Text("%.2f %% of Frame Time Untracked", mManager.mUntrackedFrameTimePercentage);
+			ImGui::Text("Delta Time: %.4f", mManager.mDeltaTime);
+			//ImGui::Text("Fixed Delta Time: %.4f", frm->getFixedDeltaTime());
 			for (const auto& pair : systemPercentages) {
 				// Create a bordered box for each system
 				ImGui::BeginChild(pair.first.c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
@@ -257,7 +255,6 @@ namespace SliceEditor
 		}
 		ImGui::EndChild();
 
-		ImGui::Text("Total Frame Time: %.4f", SliceEngine::Core::GetInstance()->GetFramerateManager()->GetFrameTime());
 	}
 
 	//Move this function to Inspector in future/Keep it here but restructure.

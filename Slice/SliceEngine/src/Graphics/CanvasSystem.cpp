@@ -401,11 +401,11 @@ namespace SliceEngine {
 					}
 										   break;
 					case FontRenderer::CENTER: {
-						x_pen = left_ref + rect.final_width / 2 - line.line_width / 2;
+						x_pen = left_ref + (float)rect.final_width / 2 - line.line_width / 2;
 					}
 											 break;
 					case FontRenderer::RIGHT: {
-						x_pen = left_ref + rect.final_width - line.line_width;
+						x_pen = left_ref + (float)rect.final_width - line.line_width;
 					}
 											break;
 					}
@@ -649,15 +649,15 @@ namespace SliceEngine {
 		};
 	}
 	void RectTransform::Update(Canvas const& ctx, RectTransform const& parent) {
-		const int parent_x = parent.final_x;
-		const int parent_y = parent.final_y;
-		const int parent_width = parent.final_width;
-		const int parent_height = parent.final_height;
+		const float parent_x = parent.final_x;
+		const float parent_y = parent.final_y;
+		const float parent_width = parent.final_width;
+		const float parent_height = parent.final_height;
 		//x axis
-		const int half_width = parent_width / 2;
+		const float half_width = parent_width / 2;
 
-		const int parent_left = parent_x - half_width;
-		const int parent_right = parent_x + half_width;
+		const float parent_left = parent_x - half_width;
+		const float parent_right = parent_x + half_width;
 
 		//if (old_hori != hori_pivot) {
 		//	old_hori = hori_pivot;
@@ -667,11 +667,13 @@ namespace SliceEngine {
 		//}
 
 		if (hori_pivot == HoriPivot::STRETCH_H) {
-			const int left_ref = parent_left + left;	//apply left pad
-			const int right_ref = parent_right - right;	//apply right pad
+			const float left_ref = parent_left + left;	//apply left pad
+			const float right_ref = parent_right - right;	//apply right pad
 
 			final_width = right_ref - left_ref;
 			final_x = left_ref + final_width / 2;
+
+			//std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
 		}
 		else {
 			final_width = width;
@@ -689,12 +691,12 @@ namespace SliceEngine {
 		}
 
 		//y axis
-		const int half_height = parent_height / 2;
-		const int parent_top = parent_y + half_height;
-		const int parent_bot = parent_y - half_height;
+		const float half_height = parent_height / 2;
+		const float parent_top = parent_y + half_height;
+		const float parent_bot = parent_y - half_height;
 		if (vert_pivot == VertPivot::STRETCH_V) {
-			const int top_ref = parent_top - top;		//apply top pad
-			const int bot_ref = parent_bot + bot;		//apply bot pad
+			const float top_ref = parent_top - top;		//apply top pad
+			const float bot_ref = parent_bot + bot;		//apply bot pad
 
 			final_height = top_ref - bot_ref;
 			final_y = bot_ref + final_height / 2;

@@ -598,6 +598,10 @@ rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 .property("bidirectional", &NavMeshLink::bidirectional)
 .property("currentPath", &NavMeshLink::radius);
 
+rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
+.constructor<>()
+.property("navobstacle", &NavObstacle::isObstacle);
+
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
 .property("prefabID", &Prefab::prefabID)
@@ -775,6 +779,7 @@ namespace SliceEngine
 
 		static bool isPlaying = false;
 
+		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -846,8 +851,11 @@ namespace SliceEngine
 			}
 		}
 
+		frm->EndSystem("Scene Handling");
+
+		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
-		frm->StartFrame();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
@@ -880,22 +888,22 @@ namespace SliceEngine
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
-
-		sCanvas.UpdateHierachy();		//updates the rect transforms
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();		//updates the rect transforms
 		
 		//cant start pause and continue frm for time check
-		frm->StartSystem("Canvas 1");
 		sCanvas.ConstructWorldCanvas();
-		frm->EndSystem("Canvas 1");
+		frm->EndSystem("Canvas");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Physics");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
-				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
 				core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -906,9 +914,10 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 
-				frm->EndSystem("Physics");
 
 			}
+			frm->EndSystem("Physics");
+
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
@@ -917,7 +926,7 @@ namespace SliceEngine
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			frm->StartSystem("Animation");
+			frm->StartSystem("Animation"); 
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
@@ -947,11 +956,11 @@ namespace SliceEngine
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
-		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Canvas overlay");
+		//frm->StartSystem("Canvas");
 		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas overlay");
+		//frm->EndSystem("Canvas");
+		frm->EndSystem("Graphics");
 
 		frm->StartSystem("Particle System");
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
@@ -960,8 +969,6 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Particle System");
 
-		frm->EndFrame();
-		frm->CalculateSystemPercentages();
 	}
 
 	void Engine::Draw()
@@ -971,6 +978,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
+		auto frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -978,7 +986,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
+		frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()
