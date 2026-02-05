@@ -171,7 +171,6 @@ namespace SliceEditor
 				);
 
 				// System label if there's enough space
-
 				float luminance = mManager.LuminanceCalculation(sysColor);
 				ImU32 textColor = IM_COL32(255, 255, 255, 255);
 

@@ -90,10 +90,16 @@ namespace SliceEditor
 		if(updateTimer >= updateInterval)
 		{
 			updateTimer = 0;
+			float aggregateTime = 0.0f;
+
+			for (auto& [system, history] : mSystemMap)
+			{
+				aggregateTime += (history.totalSum / history.samples.size());
+			}
 			for(auto& [system, history] : mSystemMap)
 			{
 				float averageTime = history.totalSum / history.samples.size();
-				float averagePercentage = (totalFrameTime > 0) ? (averageTime / totalFrameTime) * 100.0f : 0.0f;
+				float averagePercentage = (aggregateTime > 0) ? (averageTime / aggregateTime) * 100.0f : 0.0f;
 
 				ProfilerManager::DebugStats stats;
 
@@ -106,8 +112,15 @@ namespace SliceEditor
 			mCurrFPS = engineFRM->GetCurrFPS();
 			mDeltaTime = engineFRM->getDeltaTime();
 			mTotalFrameTime = engineFRM->GetFrameTime();
-			mUntrackedFrameTime = totalFrameTime - trackedTime;
-			mUntrackedFrameTimePercentage = (mUntrackedFrameTime / totalFrameTime) * 100.0f;
+			mUntrackedFrameTime = aggregateTime - trackedTime;
+			if(mUntrackedFrameTime > 0)
+			{
+				mUntrackedFrameTimePercentage = (mUntrackedFrameTime / aggregateTime) * 100.0f;
+			}
+			else
+			{
+				mUntrackedFrameTimePercentage = 0.0f;
+			}
 		}
 	}
 
