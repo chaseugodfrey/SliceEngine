@@ -301,8 +301,8 @@ namespace SliceEngine
 			//bool ys = true;
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
-		if (EFSM.currState->stateName == name)
-			return;
+		//if (EFSM.currState->stateName == name)
+			//return;
 
 		SLICE_LOG(name);
 

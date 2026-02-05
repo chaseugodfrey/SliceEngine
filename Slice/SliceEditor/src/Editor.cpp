@@ -129,29 +129,22 @@ namespace SliceEditor
 			engineFRM->StartFrame();
 
 
-			engineFRM->StartSystem("Editor Registry");
+			engineFRM->StartSystem("Editor");
 			registry.Update();
-			engineFRM->EndSystem("Editor Registry");
-
-			engineFRM->StartSystem("Editor Inputs");
 			inputs->Update();
-			engineFRM->EndSystem("Editor Inputs");
-
-			engineFRM->StartSystem("Filewatcher");
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
-			engineFRM->EndSystem("Filewatcher");
+			engineFRM->EndSystem("Editor");
 
 			//engineFRM->StartSystem("Engine");
 			engine.Update();
 			//engineFRM->EndSystem("Engine");
-			engineFRM->StartSystem("Editor Render");
+			engineFRM->StartSystem("Editor");
 			Render();
-			engineFRM->EndSystem("Editor Render");
-
 			engine.EndFrame();
+			engineFRM->EndSystem("Editor");
 
 			engineFRM->EndFrame();
 			engineFRM->CalculateSystemPercentages();
@@ -177,7 +170,7 @@ namespace SliceEditor
 
 	void Editor::Save()
 	{
-		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences();
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
 	}
 
 	void Editor::Exit()
