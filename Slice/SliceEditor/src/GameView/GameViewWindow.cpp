@@ -187,7 +187,15 @@ namespace SliceEditor
 			if (mIsHoveringGameScreen)
 			{
 				ImGui::SetWindowFocus();
-				inputSystem->SetCursorState(mLastCursorState);
+				//inputSystem->SetCursorState(SliceEngine::CursorState::CONFINED);
+				ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+			}
+
+			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				ImGui::SetWindowFocus(NULL);
+				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
+				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
 			}
 		}
 		
@@ -195,7 +203,8 @@ namespace SliceEditor
 		{
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				ImGui::SetWindowFocus(NULL);
+				//ImGui::SetWindowFocus(NULL);
+				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
 			}
 		}
