@@ -1483,6 +1483,42 @@ namespace SliceEngine
 	
 		eventManager->Publish<DebugDrawLineEvent>(drawEvent);
 	}
+	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (!(go.IsValid() && go.HasComponent<ColliderShape>() && go.HasComponent<RigidBody>()))
+		{
+			return;
+		}
+
+		auto& transform = go.GetComponent<Transform>();
+		auto& collider = go.GetComponent<ColliderShape>();
+
+
+		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0,0,1);
+		uint32_t bodyHitID = 0;
+		glm::vec3 hitPos = glm::vec3(0.0f);
+		glm::vec3 normal = glm::vec3(0.0f);
+
+		if (!Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(origin, *d_m, bodyHitID, hitPos, normal, false))
+		{
+			return;
+		}
+
+		float distanceToHit = glm::length(hitPos - origin);
+		float distanceToMove = glm::length(*d_m);
+		if (distanceToHit <= distanceToMove)
+		{
+			transform.position = hitPos; // idk what collider will be used for this function lol so just gona do thsi for now
+		}
+		else if (distanceToMove < distanceToHit)
+		{
+			transform.position = origin + (*d_m);
+		}
+
+
+	}
+
 
 #pragma endregion
 
@@ -2526,6 +2562,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
 		ADD_INTERNAL_CALL(Physics_DrawLine);
+		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);
