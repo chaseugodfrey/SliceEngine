@@ -251,8 +251,8 @@ namespace SliceEngine
 
 		if (mDeleteList.contains(entity))
 		{
-			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
-			return;
+			//SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			//return;
 		}
 
 		//Check children and destroy them too
@@ -270,7 +270,7 @@ namespace SliceEngine
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
+			//SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
 		}
 		mDeleteList.insert(entity);
 	}
@@ -695,13 +695,14 @@ namespace SliceEngine
 	void GOFactory::ClearGameObjects()
 	{
 		auto view = mRegistry.view<SliceEntity>();
-
+		mDeleteList.clear(); // might need it now again
 		for (auto entity : view)
 		{
+			SLICE_LOG("Entity : " + std::to_string((uint32_t)entity));
 			Destroy(entity);
 		}
 
-		//mDeleteList.clear(); // skip deferred destruction
+		//
 		//mNameToEntity.clear();
 		//mEntityToGO.clear();
 		//mRegistry.clear();
