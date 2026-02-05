@@ -503,32 +503,7 @@ namespace SliceEditor
         std::filesystem::path modifiedFilePath(event.filePath);
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-        /*if (modifiedFilePath.extension() == ".temp")
-        {
-         
-           /* auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-            std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-            std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
-
-            std::ifstream tempInFile(tempSceneMetaFilePath);
-
-            nlohmann::json tempMetaJson;
-            if (tempInFile >> tempMetaJson) {
-                tempInFile.close();
-                auto navMeshPath = resourceMgr->GetResourcePath("Default/" + modifiedFilePath.filename().string());
-
-                if (navMeshPath.has_value()) {
-                    tempMetaJson["navMeshFile"] = navMeshPath.value();
-                    tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
-                    std::ofstream outFile(tempSceneMetaFilePath);
-                    outFile << tempMetaJson.dump(4);
-                    outFile.close();
-                
-            }}*/
-
-
-            return;
-        }*/
+        
 
         if (modifiedFilePath.extension() == ".resource")
         {
