@@ -11,17 +11,10 @@ namespace SliceEngine
         int test = 0;
 
         Slider slider;
-        public override void OnButtonClick()
+        public override void OnCreate()
         {
-            test++;
-
-            SliceLog.Log("Test click"+ test);
-        }
-        public override void OnButtonRelease()
-        {
-            test++;
-
-            SliceLog.Log("Test release" + test);
+            slider = GetComponent<Slider>();
+            SliceLog.Log("Creating slider button test script");
         }
 
         public override void OnSliderValue(float value)
@@ -29,11 +22,6 @@ namespace SliceEngine
             SliceLog.Log("Slider value changed waor" + value);
         }
 
-        public override void OnCreate()
-        {
-            slider = GetComponent<Slider>();
-            SliceLog.Log("Creating slider button test script");
-        }
 
         public override void OnUpdate(float dt)
         {

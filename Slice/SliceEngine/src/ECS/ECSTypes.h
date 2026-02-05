@@ -760,8 +760,8 @@ namespace SliceEngine
 		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
-		int final_x{}, final_y{};				//position with center of quad as position
-		int final_width{ 100 }, final_height{ 100 };
+		float final_x{}, final_y{};				//position with center of quad as position
+		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);

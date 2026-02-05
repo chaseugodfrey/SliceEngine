@@ -132,9 +132,9 @@ namespace SliceEngine {
 
 		auto& self_node = reg.get<SceneGraph>(self);
 	
-		int handle_pos{};
+		float handle_pos{};
 		if (axis == X_Axis) {
-			handle_pos = (int)(rect.final_width * value);
+			handle_pos = (rect.final_width * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -178,7 +178,7 @@ namespace SliceEngine {
 			}
 		}
 		else {
-			handle_pos = (int)(rect.final_height * value);
+			handle_pos = (rect.final_height * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -285,8 +285,8 @@ namespace SliceEngine {
 		mouse_y += CanvasSystem::target_height / 2;
 
 		//find the relative mouse coord
-		int rel_x = mouse_x - (rect.final_x - rect.final_width / 2);
-		float target_value = (float)rel_x / rect.final_width;
+		float rel_x = mouse_x - (rect.final_x - (float)rect.final_width / 2);
+		float target_value = rel_x / rect.final_width;
 
 		assert(target_value <= 1.f && target_value >= 0.f);
 		slider.SetValue(target_value, raycast_entity);
