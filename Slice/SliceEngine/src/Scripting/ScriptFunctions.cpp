@@ -1637,11 +1637,11 @@ namespace SliceEngine
 		Core::GetInstance()->GetAudioManager()->SetCategoryVolume(categoryInt, volValue);
 	}
 
-	static void Audio_SetMasterVolume(float* volume)
+	static void Audio_SetMasterVolume(float volume)
 	{
-		float volValue = *volume;
 		
-		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volValue);
+		
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
