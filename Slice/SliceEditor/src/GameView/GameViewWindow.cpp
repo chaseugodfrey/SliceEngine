@@ -193,7 +193,7 @@ namespace SliceEditor
 
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				ImGui::SetWindowFocus(NULL);
+				//ImGui::SetWindowFocus(NULL);
 				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
 				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
 			}
