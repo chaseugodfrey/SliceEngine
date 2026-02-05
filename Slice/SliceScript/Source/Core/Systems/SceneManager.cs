@@ -43,6 +43,12 @@ namespace SliceEngine
             Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
         }
 
+        //Putting it here first cause idk where else to put it
+        public static void QuitGame()
+        {
+            FunctionCalls.QuitGame();
+        }
+
 
         //public static void UnloadScene(Scene scene)
         //{

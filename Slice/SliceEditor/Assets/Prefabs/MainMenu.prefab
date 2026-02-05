@@ -9,10 +9,10 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048586,
+                "entity_id": 16,
                 "neighbours": [
                     4294967295,
-                    1048585,
+                    17,
                     4294967295,
                     4294967295
                 ]
@@ -56,7 +56,7 @@
                 "bloomStrength": 0.4000000059604645,
                 "componentEnabled": true,
                 "debugRenderTag": "0",
-                "depthTex": 32,
+                "depthTex": 37,
                 "far": 200.0,
                 "fogColor": [
                     0.20000000298023224,
@@ -68,7 +68,7 @@
                 "near": 0.009999999776482582,
                 "postRenderTag": "0",
                 "pov": 60.0,
-                "textureID": 31,
+                "textureID": 36,
                 "translucentSelectCutoff": 0.20000000298023224,
                 "vignetteCenter": [
                     0.5,
@@ -86,12 +86,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048585,
+                "entity_id": 17,
                 "neighbours": [
-                    1048586,
+                    16,
                     4294967295,
                     4294967295,
-                    1048584
+                    18
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -153,12 +153,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048584,
+                "entity_id": 18,
                 "neighbours": [
-                    1048586,
-                    1048583,
-                    1048585,
-                    1048579
+                    16,
+                    19,
+                    17,
+                    23
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -218,12 +218,12 @@
                 "width": 400
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048583,
+                "entity_id": 19,
                 "neighbours": [
-                    1048584,
-                    1048582,
+                    18,
+                    20,
                     4294967295,
-                    1048581
+                    21
                 ]
             },
             "struct SliceEngine::Script": {
@@ -313,9 +313,9 @@
                 "width": 100
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048582,
+                "entity_id": 20,
                 "neighbours": [
-                    1048583,
+                    19,
                     4294967295,
                     4294967295,
                     4294967295
@@ -378,11 +378,11 @@
                 "width": 400
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048581,
+                "entity_id": 21,
                 "neighbours": [
-                    1048584,
-                    1048580,
-                    1048583,
+                    18,
+                    22,
+                    19,
                     4294967295
                 ]
             },
@@ -473,9 +473,9 @@
                 "width": 100
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 22,
                 "neighbours": [
-                    1048581,
+                    21,
                     4294967295,
                     4294967295,
                     4294967295
@@ -541,11 +541,11 @@
                 "prefabID": 4
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048579,
+                "entity_id": 23,
                 "neighbours": [
-                    1048586,
+                    16,
                     4294967295,
-                    1048584,
+                    18,
                     4294967295
                 ]
             },

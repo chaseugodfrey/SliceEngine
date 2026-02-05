@@ -6,17 +6,42 @@ namespace SliceEngine
 {
     public class MainMenuButtons : SliceBehaviour
     {
-        public float isPlay = 1.0f;
+        public bool isPlay = false;
+        public bool isSettings = false;
+        public bool isQuit = false;
+        public bool isSettingsPopup = false;
+
+        GameObject settingsPopup;
+        GameObject MainMenuCanvas;
+
+        public override void OnCreate()
+        {
+            settingsPopup = FindGameObjectWithName("Settings_Popup");
+            MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
+        }
 
         public override void OnButtonClick()
         {
             Console.WriteLine("Main menu is being pressed");
 
-            if(isPlay > 0.5f)
+            //Lerp thingy here
+
+            if(isPlay)
             {
-                
                 SceneManager.LoadScene("Gid_Working_Scene");
                 Console.WriteLine("LOad");
+            }else if(isSettings)
+            {
+                ShowSettingsPopup();
+                Console.WriteLine("Settings pop");
+            }else if(isQuit)
+            {
+                SceneManager.QuitGame();
+                Console.WriteLine("Bye Bye");
+            }else if(isSettingsPopup)
+            {
+                HideSettingsPopup();
+                Console.WriteLine("Settings bye");
             }
         }
 
@@ -55,6 +80,18 @@ namespace SliceEngine
                 myAudio.Play();
                 SliceLog.Log("MainMenu Audio");
             }
+        }
+
+        public void ShowSettingsPopup()
+        {
+            settingsPopup.SetActive(true);
+            MainMenuCanvas.SetActive(false);
+        }
+
+        public void HideSettingsPopup()
+        {
+            settingsPopup.SetActive(false);
+            MainMenuCanvas.SetActive(true);
         }
     }
 }
