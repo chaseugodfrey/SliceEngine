@@ -669,19 +669,31 @@ namespace SliceEditor
 	{
 		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 
+		//if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+		//{
+		//	DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+
+		//	DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
+
+		//	DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
+
+		//	BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
+
+		//	DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
+
+		//	ImGui::TreePop();
+		//}
 		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
 		{
 			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
 			
 			
-			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
+			EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);
 			ImGui::TreePop();
 		}
 
-
-			//ImGui::TreePop();
 		}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
