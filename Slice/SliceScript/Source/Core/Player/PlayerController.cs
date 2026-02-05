@@ -41,6 +41,7 @@ namespace SliceEngine
         private Vector3 input;
         private float verticalVelocity = 0f;
         public float terminalVelocity = -50f;
+        private Vector3 finalMove;
 
         private Vector3 velocity;
         private bool wasGrounded;
@@ -100,6 +101,7 @@ namespace SliceEngine
         public float attackRecoveryDuration = 0.5f;
         private bool attackQueued = false;
         private bool attackAutoRecover = false;
+        public float attack1Delay, attack2Delay, attack3Delay;
 
         public string attack1HBName;
         public int attack1Damage;
@@ -251,6 +253,7 @@ namespace SliceEngine
         private void HandleMovement()
         {
             Vector3 camForward = new Vector3();
+            finalMove = Vector3.Zero;
             if (camera != null)
             {
                 camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
@@ -282,7 +285,7 @@ namespace SliceEngine
                 }
 
                 Vector3 dashVel = dashDir * moveAmount;
-                Vector3 finalMove = isGroundDashing
+                finalMove = isGroundDashing
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
 
@@ -340,8 +343,8 @@ namespace SliceEngine
                 }
                 else
                 {
-                // existing behavior for attacks / active plunge impulse
-                Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
+                    // existing behavior for attacks / active plunge impulse
+                    finalMove = new Vector3(0f, velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
                 }
             }
@@ -356,9 +359,11 @@ namespace SliceEngine
                 }
 
                 Vector3 horizontal = moveDirInput * movementSpeed;
-                Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
+                finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
             }
+
+            //Console.WriteLine($"Final move is x: {finalMove.x}, y: {finalMove.y}, z: {finalMove.z}");
         }
 
         // -------------------- Jump ------------------------------------------------------------------------------------------
@@ -638,10 +643,22 @@ namespace SliceEngine
             dashTimer = Math.Max(0.0001f, airDashDuration);
             velocity.y = 0f;
 
-            Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
-            Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
-            float dot = Vector3.Dot(flatDash, flatFacing);
-            bool isBackDash = dot < backDashDotThreshold;
+            //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+            //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+            //float dot = Vector3.Dot(flatDash, flatFacing);
+            //bool isBackDash = dot < backDashDotThreshold;
+
+            allowedDashDistance = airDashDistance;
+
+            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
+            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            {
+                if (allowedDashDistance >= dashHitInfo.distance)
+                {
+                    allowedDashDistance = dashHitInfo.distance * 0.98f;
+                }
+                //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+            }
 
             if (animator != null)
             {
@@ -677,10 +694,11 @@ namespace SliceEngine
         {
             attackIndex = 0;
             attackTimer = 0f;
+            attackCounter = 0;
             attackQueued = false;
             isAttacking = false;
             attackResetTimer = 0f;
-
+            TurnOffHitboxes();
 
             queuedNext = false;
             queuedFacingOverride = false;
@@ -765,7 +783,7 @@ namespace SliceEngine
                 switch (attackCounter)
                 {
                     case 1:
-                        attack1HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
 
                         animator.SetBool("Attack1", true);
                         AudioSettings.PlaySFX("A1");
@@ -773,7 +791,7 @@ namespace SliceEngine
                         StartCoroutine(Lunge());
                         break;
                     case 2:
-                        attack2HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
@@ -784,7 +802,7 @@ namespace SliceEngine
                         StartCoroutine(Lunge());
                         break;
                     case 3:
-                        attack3HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
@@ -869,21 +887,38 @@ namespace SliceEngine
         }
         private void Attack1(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack1Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack1Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 1 executed");
         }
         private void Attack2(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack2Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack2Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 2 executed");
         }
         private void Attack3(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack3Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack3Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 3 executed");
+        }
+        private IEnumerator AttackDelay(float delay, Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            action.Invoke();
         }
         private bool AttackAnimationState()
         {

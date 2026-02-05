@@ -37,6 +37,8 @@ namespace SliceEngine
         #region Slice Behavior Overrides
         public override void OnCreate()
         {
+            Console.WriteLine("On create enemy base");
+            
             base.OnCreate();
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();

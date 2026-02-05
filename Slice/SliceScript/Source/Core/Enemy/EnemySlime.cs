@@ -64,6 +64,10 @@ namespace SliceEngine
 
             this.ChangeState(new EnemySlimeChaseState(this));
         }
+        public override void OnCreate()
+        {
+            base.OnCreate();
+        }
 
         public void Reset()
         {   active = false; }
