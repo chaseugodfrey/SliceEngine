@@ -89,7 +89,7 @@ namespace SliceEngine
 
         public override void OnTriggerEnter(uint other)
         {
-            Console.WriteLine("GENERAL HIT BOX Trigger Enter called");
+            SliceLog.Log("GENERAL HIT BOX Trigger Enter called");
             //base.OnTriggerEnter(other);
 
             if (_enabled)

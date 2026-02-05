@@ -101,6 +101,7 @@ namespace SliceEngine
         public float attackRecoveryDuration = 0.5f;
         private bool attackQueued = false;
         private bool attackAutoRecover = false;
+        public float attack1Delay, attack2Delay, attack3Delay;
 
         public string attack1HBName;
         public int attack1Damage;
@@ -770,7 +771,7 @@ namespace SliceEngine
                 switch (attackCounter)
                 {
                     case 1:
-                        attack1HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
 
                         animator.SetBool("Attack1", true);
                         AudioSettings.PlaySFX("A1");
@@ -778,7 +779,7 @@ namespace SliceEngine
                         StartCoroutine(Lunge());
                         break;
                     case 2:
-                        attack2HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
@@ -789,7 +790,7 @@ namespace SliceEngine
                         StartCoroutine(Lunge());
                         break;
                     case 3:
-                        attack3HB.TurnOn();
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
@@ -874,21 +875,38 @@ namespace SliceEngine
         }
         private void Attack1(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack1Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack1Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 1 executed");
         }
         private void Attack2(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack2Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack2Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 2 executed");
         }
         private void Attack3(GameObject target)
         {
-            EnemySlime enemy = target.As<EnemySlime>();
-            if (enemy != null) enemy.TakeDamage(attack3Damage);
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack3Damage);
+                Console.WriteLine("Hit enemy");
+            }
             Console.WriteLine("Attack 3 executed");
+        }
+        private IEnumerator AttackDelay(float delay, Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            action.Invoke();
         }
         private bool AttackAnimationState()
         {
