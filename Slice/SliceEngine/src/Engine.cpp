@@ -579,6 +579,7 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("font_size", &FontRenderer::font_size)
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
+.property("text", &FontRenderer::text)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
