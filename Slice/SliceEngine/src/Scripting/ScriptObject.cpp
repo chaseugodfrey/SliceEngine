@@ -162,6 +162,7 @@ namespace SliceEngine
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnLateUpdate = scClass->GetMethod("OnLateUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
@@ -255,6 +256,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnLateUpdate(float dt)
+	{
+		if (mOnLateUpdate)
+		{
+			void* param = &dt;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnLateUpdate, &param);
 		}
 	}
 
