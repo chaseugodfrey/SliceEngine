@@ -1,0 +1,76 @@
+[
+    {
+        "Text": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Left",
+                "componentEnabled": true,
+                "font": "17252748523279415740",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 313,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 1748
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 84,
+                "neighbours": [
+                    83,
+                    4294967295,
+                    4294967295,
+                    85
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Text",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

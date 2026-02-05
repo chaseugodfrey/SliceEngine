@@ -17,7 +17,7 @@ namespace SliceEngine
         {
             return mask.value;
         }
-        public uint GetMask(string layerName)
+        public static uint GetMask(string layerName)
         {
             //return the mask 0 if invalid
             return FunctionCalls.LayerMask_GetMask(layerName);
@@ -29,7 +29,7 @@ namespace SliceEngine
             return FunctionCalls.LayerMask_LayerToName(layer);
         }
         
-        public uint NameTolayer(string layerName)
+        public static uint NameTolayer(string layerName)
         {
             //return the layer index check returns -1 if invalid
             return FunctionCalls.LayerMask_NameToLayer(layerName);

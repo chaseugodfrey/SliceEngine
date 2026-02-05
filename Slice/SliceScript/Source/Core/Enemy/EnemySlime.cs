@@ -64,16 +64,22 @@ namespace SliceEngine
 
             this.ChangeState(new EnemySlimeChaseState(this));
         }
+        public override void OnCreate()
+        {
+            base.OnCreate();
+        }
 
         public void Reset()
         {   active = false; }
 
         public override void OnUpdate(float dt)
         {
+            /*
             if (Input.IsKeyDown(Keys.KEY_P) && active == false)
             {
                 Console.WriteLine("PPPPressed"); SetUp();
             }
+            */
             base.OnUpdate(dt);
         }
 
@@ -177,12 +183,12 @@ namespace SliceEngine
 
         public override void OnCollideEnter(uint other)
         {
-
+            base.OnCollideEnter(other);
         }
 
         public override void OnCollideStay(uint other)
         {
-
+            base.OnCollideStay(other);
         }
 
         public override void TakeDamage(int amount, GameObject source = null)

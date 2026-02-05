@@ -40,6 +40,11 @@ namespace SliceEngine
 
         public GameObject windupSignalObject;
 
+        public override void OnCreate()
+        {
+            base.OnCreate();
+        }
+
         //Function called when you want the enemy to be active
         public override void SetUp()
         {
@@ -211,7 +216,7 @@ namespace SliceEngine
         {
             // This override is just to insert a debug
             Console.WriteLine("Enemy is taking damage");
-            SliceLog.Console("Enemy is taking damage");
+            //SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
         }
 
@@ -220,8 +225,13 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
+            if (rb == null)
+            {
+                Console.WriteLine("RigidBody is null, cannot apply knockback");
+                return;
+            }
             rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
-            ChangeState(new EnemyGruntStunnedState(this));
+           // ChangeState(new EnemyGruntStunnedState(this));
             SliceLog.Console("ENEMY IS BEING HIT");
         }
 

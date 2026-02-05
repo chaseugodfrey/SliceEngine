@@ -1,5 +1,6 @@
-using SliceEngine;
 using System;
+using System.IO;
+using SliceEngine;
 
 
 namespace SliceEngine
@@ -57,6 +58,12 @@ namespace SliceEngine
             //pitch = newPitch;
 
             //transform.Rotate(deltaToApply, Vector3.Forward);
+        }
+        public Vector3 GetFlatAimDirection(Transform from)
+        {
+            Vector3 fwd = transform.Forward;
+            fwd.y = 0f;
+            return fwd.SquareMagnitude() < 1e-4f ? from.Forward : fwd.Normalize();
         }
     }
 }

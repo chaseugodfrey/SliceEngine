@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,25 +9,62 @@ namespace SliceEngine
 {
     public class LevelDirector : SliceBehaviour, IInitializable
     {
-        public List<GameObject> levels = new List<GameObject>();
+        //public List<GameObject> levelsList = new List<GameObject>();
+        public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
+        //public List<GameObject> respawnPoint = new List<GameObject>();
+        //public Dictionary<int, GameObject> finishedTriggers = new Dictionary<int, GameObject>();
         // To prevent spawning on the same point
         public float SafetyDistance = 4.0f;
         public int currLevel = 0;
         public bool levelDone = false;
+
+        public GameObject deathBox;
+
+        private bool isActive = false;
 
         /// <summary>
         /// Initialize the levels and stuff
         /// </summary>
         public void Initialize()
         {
-            foreach(GameObject trigger in levelTriggers)
+            Console.WriteLine("Initialize Level Director");
+            isActive = true;
+
+            //gameObject.FindGameObjectsWithTag("Level").Length;
+            foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
+            {
+                int index = levelObject.As<BaseLevel>().levelIndex;
+
+                if (!levels.ContainsKey(index))
+                {
+                    levels.Add(index, levelObject);
+                }
+                else
+                {
+                    SliceLog.Log("Duplicate Level Detected, Not ");
+                }
+            }
+
+            //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
+            //       levelTriggers.Add(trigger);
+
+            foreach (GameObject trigger in levelTriggers)
             {
                 Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
             }
+
+            if (deathBox != null)
+            {
+                SliceLog.Log("Death box is not empty, setting it");
+                deathBox.As<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
+            }
+
+            //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
+            //Console.WriteLine("Num of levels: " + levels.Count);
         }
 
         public GameObject CreateEnemy(Prefab prefab)
@@ -36,8 +74,12 @@ namespace SliceEngine
             newEnemy.As<EnemySlime>().SetUp();
             enemies.Add(newEnemy);
 
+
+
             return newEnemy;
         }
+
+        public int EnemyCount() { return enemies.Count; }
 
         public void EnemyDeath(GameObject enemy)
         {
@@ -49,6 +91,16 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (!isActive)
+                return;
+
+
+            if (Input.IsKeyPressed(Keys.KEY_L))
+            {
+                SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
+                TriggerNextLevel(Bootstrap.Player.gameObject);
+            }
+
             if (currLevel > levels.Count)
             {
                 SliceLog.Error("Current level is more than the number of levels");
@@ -108,6 +160,8 @@ namespace SliceEngine
             return true;
         }
 
+
+
         /// <summary>
         /// Trigger the next level to update the level obj
         /// Takes in next level to prevent double triggering or triggering the wrong level
@@ -115,11 +169,14 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            //SliceLog.Log("Triggering Next Level Part 1");
+            SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
             //SliceLog.Log("Triggering Next Level Part 2");
+
+            //if (finishedTriggers.ContainsKey((int)input.mID))
+            //    return;
 
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
@@ -131,8 +188,18 @@ namespace SliceEngine
 
                 currLevel++;
                 levelDone = false;
+                //finishedTriggers.Add((int)input.mID, input);
 
-                SliceLog.Log("Triggering Next Level Part 3");
+                SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
+
+                //SliceLog.Log("Triggering Next Level Part 3");
+
+                if (!levels.ContainsKey(currLevel))
+                {
+                    
+                    SliceLog.Log("Level does not exist");
+                    TriggerNextLevel(input);
+                }
 
             }
 
@@ -147,5 +214,29 @@ namespace SliceEngine
             //    levelDone = false;
             //}
         }
+
+
+        public void RespawnPlayer(GameObject input)
+        {
+            SliceLog.Log("Respawn is called");
+            if (!input.Has<PlayerController>())
+            {
+                SliceLog.Log("There is no player script in the object");
+                return;
+            }
+
+            if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
+            {
+                SliceLog.Log("Teleporting player");
+                Bootstrap.Player.Teleport(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+            }
+
+        }
+
+        public void Lose()
+        {
+            Bootstrap.HUDManager.GameLoseScreen();
+        }
+
     }
 }

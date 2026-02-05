@@ -19,6 +19,7 @@ namespace SliceEngine
         {
 
         }
+
         public override void OnCreate()
         {
             Console.WriteLine("General Hitbox On Create " + gameObject.mID);
@@ -82,12 +83,13 @@ namespace SliceEngine
                 _enabled = false;
                 _collider.ComponentEnabled = false;
             }
+            Console.WriteLine("Turning off General Hit box");
         }
 
 
         public override void OnTriggerEnter(uint other)
         {
-            Console.WriteLine("GENERAL HIT BOX Trigger Enter called");
+            SliceLog.Log("GENERAL HIT BOX Trigger Enter called");
             //base.OnTriggerEnter(other);
 
             if (_enabled)
@@ -99,6 +101,13 @@ namespace SliceEngine
             {
                 Console.WriteLine("Enabled not enabled");
             }
+        }
+
+        public override void OnTriggerStay(uint other)
+        {
+            GameObject temp = new GameObject(other);
+            if (temp.tag == "Player")
+                Console.WriteLine("Ur mudder");
         }
 
     }

@@ -28,17 +28,17 @@ namespace SliceEngine {
 	namespace SliceEngineTypes {
 		/*
 		* a token is a string that should be treated as 1 unit when dealing with text wrapping
-		*
+		* 
 		* to handle wrapping in text box
 		* first tokenize according to spaces and line breaks
 		* calculate the size of each word and ensure the line does not exceed limit
-		*
+		* 
 		* potentially do this only when text gets changed, and calculate only size at runtime
 		* see if this really cooks performance first
 		*/
 		void Tokenize(FontRenderer& font_render, Font_Data const& font) {
 			float relative_size = font_render.font_size / font.font_size;
-
+			
 			auto const& font_text = font_render.text;
 			std::vector<FontRenderer::Token> token_list{};
 			token_list.reserve(50);	//probably less then 50 words and spaces in 1 component, just a heuristic
@@ -62,19 +62,19 @@ namespace SliceEngine {
 					token.char_cnt = 1;
 					break;
 				default:
-				{
+					{
 					size_t next = font_text.find_first_of(pattern, pos);
 					if (next == std::string::npos) {
 						next = font_text.size();
 					}
-
+					
 					for (size_t ch = pos; ch < next; ++ch) {
 						token.size += font.glyph_datas.at(font_text[ch]).advance * relative_size;
 					}
 					token.char_cnt = next - pos;
 					pos += next - pos - 1;	//-1 because of loop increments
-				}
-				break;
+					}
+					break;
 				}
 
 				token_list.push_back(std::move(token));
@@ -101,7 +101,7 @@ namespace SliceEngine {
 		ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
 		font_shader = rm->mFileNameToGUID.at("Shaders/uiFont.shader").GetGUID();
 		//ui_sprite_eid = rm->mFileNameToGUID.at("Shaders/uiSpriteEID.shader").GetGUID();
-
+		
 		eid_shader_map[sprite_shader] = ui_sprite_eid;
 		eid_shader_map[font_shader] = ui_font_eid;
 
@@ -201,8 +201,8 @@ namespace SliceEngine {
 		}
 
 		GLenum render_targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		GLenum render_color[] = { GL_COLOR_ATTACHMENT0 };
-		GLenum render_eid[] = { GL_COLOR_ATTACHMENT1 };
+		GLenum render_color[] = {GL_COLOR_ATTACHMENT0};
+		GLenum render_eid[] = {GL_COLOR_ATTACHMENT1};
 
 		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
 
@@ -308,7 +308,7 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "M");
 				glm::mat4 model = rect.ToMatrix();
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-				//		CheckGLError();
+		//		CheckGLError();
 
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
@@ -316,10 +316,10 @@ namespace SliceEngine {
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
-				//	CheckGLError();
+			//	CheckGLError();
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				//	CheckGLError();
+			//	CheckGLError();
 			}
 			else if (shader_guid == font_shader) {	//font
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
@@ -386,8 +386,8 @@ namespace SliceEngine {
 
 				//Use rect as the text box
 				//position the pen
-				float left_ref = rect.final_x - (float)rect.final_width / 2;
-				float top_ref = rect.final_y + (float)rect.final_height / 2;
+				float left_ref = rect.final_x -(float)rect.final_width / 2;
+				float top_ref = rect.final_y +(float)rect.final_height / 2;
 				float x_pen = left_ref;
 				float y_pen = top_ref - font_render.font_size;
 
@@ -397,15 +397,15 @@ namespace SliceEngine {
 					case FontRenderer::LEFT: {
 						x_pen = left_ref;
 					}
-										   break;
+						break;
 					case FontRenderer::CENTER: {
 						x_pen = left_ref + (float)rect.final_width / 2 - line.line_width / 2;
 					}
-											 break;
+						break;
 					case FontRenderer::RIGHT: {
 						x_pen = left_ref + (float)rect.final_width - line.line_width;
 					}
-											break;
+						break;
 					}
 
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
@@ -600,7 +600,7 @@ namespace SliceEngine {
 				auto const& font_data = rm->get<SliceEngineTypes::Font_Data>(font->fontHandle);
 				SliceEngineTypes::Tokenize(*font, *font_data.get());
 				font->token_updated = true;
-
+				
 			}
 			render.push_back({ node, font_shader });
 		}
@@ -714,32 +714,32 @@ namespace SliceEngine {
 			}
 		}
 	}
-
+	
 }
 
 
 	void _CheckGLError(const char* file, int line)
 	{
 #ifndef _DEBUG 
-	return;
+		return;
 #endif // only do this on debug
 
-	GLenum err(glGetError());
+		GLenum err(glGetError());
 
-	while (err != GL_NO_ERROR)
-	{
-		std::string error;
-		switch (err)
+		while (err != GL_NO_ERROR)
 		{
-		case GL_INVALID_OPERATION:  error = "INVALID_OPERATION";      break;
-		case GL_INVALID_ENUM:       error = "INVALID_ENUM";           break;
-		case GL_INVALID_VALUE:      error = "INVALID_VALUE";          break;
-		case GL_OUT_OF_MEMORY:      error = "OUT_OF_MEMORY";          break;
-		case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
+			std::string error;
+			switch (err)
+			{
+			case GL_INVALID_OPERATION:  error = "INVALID_OPERATION";      break;
+			case GL_INVALID_ENUM:       error = "INVALID_ENUM";           break;
+			case GL_INVALID_VALUE:      error = "INVALID_VALUE";          break;
+			case GL_OUT_OF_MEMORY:      error = "OUT_OF_MEMORY";          break;
+			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
+			}
+			std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
+			err = glGetError();
 		}
-		std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
-		err = glGetError();
-	}
 
-	return;
-}
+		return;
+	}

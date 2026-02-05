@@ -37,6 +37,8 @@ namespace SliceEngine
         #region Slice Behavior Overrides
         public override void OnCreate()
         {
+            Console.WriteLine("On create enemy base");
+            
             base.OnCreate();
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
@@ -88,9 +90,23 @@ namespace SliceEngine
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
 
+            SliceLog.Log("Call after Rigibody");
+
             navAgent = GetComponent<NavAgent>();
+
+            SliceLog.Log("Call after NavAgent");
+
+            if (navAgent == null)
+            {
+                SliceLog.Log("Navgent is empty actually");
+            }
+
             navAgent.Speed = this.movementSpeed;
+
+            SliceLog.Log("Call after MovementSpeed");
             targetObjRef = Bootstrap.Player.gameObject;
+
+            SliceLog.Log("Call after Player");
             //
 
 

@@ -15,8 +15,31 @@ namespace SliceEngine
 
         SpriteRenderer defeat;
         public GameObject defeatObject;
-        public override void OnCreate()
+
+        public GameObject textBoxParentObject;
+        public GameObject regularTextObject;
+        public GameObject nameTextObject;
+
+        //Letters per second
+        public float typeSpeed = 5f;
+
+        private bool enterPressed = false;
+        private bool inputOpen = false;
+
+        public override void OnUpdate(float dt)
         {
+            base.OnUpdate(dt);
+
+            if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
+            {
+                enterPressed = true;
+                PlayDialogueForLevel(0);
+            }
+
+            if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
+            {
+                enterPressed = false;
+            }
 
         }
 
@@ -51,12 +74,175 @@ namespace SliceEngine
             SliceLog.Log("Button Release");
         }
 
+        private SliceCSV loader = new SliceCSV();
+        public void LoadDialogues()
+        {
+            //Load dialogues from a CSV
+
+            loader.Load("C:\\Users\\User\\Desktop\\Y3Tri1\\GAM 300\\SliceEngine\\Slice\\SliceEditor\\Assets\\[80]Streaming_Assets\\Dialogue.csv");
+
+            if (loader == null)
+            {
+                SliceLog.Log("Loader is empty");
+            }
+            else
+            {
+                SliceLog.Log("Load has this many rows" + loader.RowCount);
+            }
+
+        }
+
+        private bool typing = false;
+        
+        //string[] for listed things 0 = name, 1 = text
+        private List<string[]> levelDialogues = new List<string[]>();
+
+        private int dialogueIndex = 0;
+
+        public void PlayDialogueForLevel(int level)
+        {
+
+
+            // Skip to display full line when type writer effect is playing.
+            if (typing == true)
+            {
+                typing = false;
+                return;
+            }
+
+            //Close dialogue box if it is the last line of the set
+            if (levelDialogues.Count == dialogueIndex + 1)
+            {
+                // end of dialogue stack
+                // clear stack
+
+                dialogueIndex = 0;
+                levelDialogues.Clear();
+                SetTextBox("");
+                CloseTextBox();
+                return;
+            }
+
+            // Will tick dialogue up if it is already loaded, else will load fresh set and play
+            if (levelDialogues.Count > 0)
+            {
+                // dialogues is not empty
+                //  tick up number
+
+                SliceLog.Log("Dialogue is not empty");
+                dialogueIndex++;
+
+            }
+            else
+            {
+
+                SliceLog.Log("Dialogue is empty");
+                dialogueIndex = 0;
+                for (int i = loader.FindRowIndex( "Level",level.ToString()); i > -1 ; i++)
+                {
+                    SliceLog.Log("index is at" + i);
+
+                    if (loader.GetValue(i, "Level") != level.ToString())
+                    {
+                        break;
+                    }
+
+                    levelDialogues.Add( new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                }
+            }
+
+
+            OpenTextBox();
+            typing = true;
+            StartCoroutine(TypeText(levelDialogues[dialogueIndex][1]));
+            SetName(levelDialogues[dialogueIndex][0]);
+
+
+        }
+
+        IEnumerator TypeText(string toType)
+        {
+            //float timecounter = 0f;
+            float speed = 1f / typeSpeed;
+            string displaying = "";
+
+            SliceLog.Log("To type is:" + toType);
+            for (int i = 0; i < toType.Length; i++)
+            {
+
+                if (typing == false)
+                {
+                    break;
+                }
+
+                SliceLog.Log("Displaying is " + displaying);
+                displaying += toType[i];
+
+                SetTextBox(displaying);
+
+                yield return new WaitForSeconds(speed);
+            }
+
+            SetTextBox(toType);
+
+            yield break;
+        }
+
+
+
+        #region Textbox controls
+
+
+        public void SetTextBox(string input)
+        {
+            SliceLog.Log("Setting Textbox");
+
+            if (regularTextObject.HasComponent<FontRenderer>())
+            {
+                SliceLog.Log("Has Font");
+                regularTextObject.GetComponent<FontRenderer>().Text_val = input;
+            }
+            else
+            {
+                SliceLog.Log("No Font component");
+            }
+            //Set Text
+        }
+
+        public void SetName(string input)
+        {
+            SliceLog.Log("Setting Namebox");
+
+            if (nameTextObject.HasComponent<FontRenderer>())
+            {
+                SliceLog.Log("Has Font");
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+            }
+            else
+            {
+                SliceLog.Log("No Font component");
+            }
+        }
+
+        public void  OpenTextBox()
+        {
+            textBoxParentObject.SetActive(true);
+        }
+
+        public void CloseTextBox()
+        {
+            textBoxParentObject.SetActive(false);
+        }
+
+        #endregion
+
         public void Initialize()
         {
             Console.WriteLine("HUD Ini called");
             health = healthSliderObject.GetComponent<Slider>();      
-            victory = victoryObject.GetComponent<SpriteRenderer>();  
-            defeat = defeatObject.GetComponent<SpriteRenderer>();    
+            victory = victoryObject.GetComponent<SpriteRenderer>();
+            defeat = defeatObject.GetComponent<SpriteRenderer>();
+            LoadDialogues();
         }
     }
 }
