@@ -643,10 +643,22 @@ namespace SliceEngine
             dashTimer = Math.Max(0.0001f, airDashDuration);
             velocity.y = 0f;
 
-            Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
-            Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
-            float dot = Vector3.Dot(flatDash, flatFacing);
-            bool isBackDash = dot < backDashDotThreshold;
+            //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+            //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+            //float dot = Vector3.Dot(flatDash, flatFacing);
+            //bool isBackDash = dot < backDashDotThreshold;
+
+            allowedDashDistance = airDashDistance;
+
+            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
+            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            {
+                if (allowedDashDistance >= dashHitInfo.distance)
+                {
+                    allowedDashDistance = dashHitInfo.distance * 0.98f;
+                }
+                //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+            }
 
             if (animator != null)
             {
