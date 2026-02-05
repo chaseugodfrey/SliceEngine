@@ -730,6 +730,9 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		//auto mNetwork = Core::GetInstance()->GetNetwork();
 		//mNetwork->Init();
+
+
+		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
 	void Engine::Update()
@@ -805,20 +808,8 @@ namespace SliceEngine
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 
-				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-				sInputs->SetMode(InputMode::Editor);
-				sInputs->SetEnabled(false);
-				sInputs->ResetCursorState();
-				sParticleSystemManager.ResetManager();
-				sAudio->StopAllSound();
-				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
-				audioSettings->DeleteAM();
-				
+
 				sScene->ReloadScene();
-				isPlaying = false;
-
-				gScriptSystem->OnEnd();
-
 				sScene->mCurrentState = SceneState::DEFAULT;
 				sScene->mNextState = SceneState::DEFAULT;
 			}
@@ -941,6 +932,30 @@ namespace SliceEngine
 			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
 		}
 		frm->EndSystem("Particle System");
+
+	}
+
+	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
+	{
+		auto core = Core::GetInstance();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
+
+
+		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sInputs->ResetCursorState();
+		sParticleSystemManager.ResetManager();
+		sAudio->StopAllSound();
+		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+		audioSettings->DeleteAM();
+
+		gScriptSystem->OnEnd();
 
 	}
 
