@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "../Systems/SceneSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
 #include "../Configuration/ProjectSettingsManager.h"
@@ -1470,9 +1471,53 @@ namespace SliceEngine
 
 #pragma region RAYCASTING FUCNTIONS
 
-	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID,glm::vec3* hitPos, glm::vec3* normal,bool triggerInteraction,  uint32_t* mask)
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID,glm::vec3* hitPos, glm::vec3* normal,bool triggerInteraction,  uint32_t mask)
 	{
-		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, *mask);
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
+	}
+
+	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
+	{
+		auto* eventManager = EventManager::GetInstance();
+		
+		DebugDrawRayEvent drawEvent{ *origin, *direction, magnitude };
+	
+		eventManager->Publish<DebugDrawRayEvent>(drawEvent);
+	}
+	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (!(go.IsValid() && go.HasComponent<ColliderShape>() && go.HasComponent<RigidBody>()))
+		{
+			return;
+		}
+
+		auto& transform = go.GetComponent<Transform>();
+		auto& collider = go.GetComponent<ColliderShape>();
+
+
+		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0,0,1);
+		uint32_t bodyHitID = 0;
+		glm::vec3 hitPos = glm::vec3(0.0f);
+		glm::vec3 normal = glm::vec3(0.0f);
+
+		if (!Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(origin, *d_m, bodyHitID, hitPos, normal, false))
+		{
+			return;
+		}
+
+		float distanceToHit = glm::length(hitPos - origin);
+		float distanceToMove = glm::length(*d_m);
+		if (distanceToHit <= distanceToMove)
+		{
+			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
+		}
+		else if (distanceToMove < distanceToHit)
+		{
+			glm::mix(transform.position,origin + (*d_m), 0.2f);
+		}
+
+
 	}
 
 
@@ -1703,11 +1748,27 @@ namespace SliceEngine
 		}
 
 		std::string cStrName = MonoToString(baseName);
-		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		auto scriptInstance = gScriptSystem->mEntityInstances[(Entity)entityID];
+		// get the current class it is
+		MonoClass* instanceClass = scriptInstance->GetScriptClass()->mMonoClass;
+
+		// get the class we're trying to check for
+		MonoClass* targetClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", cStrName.c_str());
+
+		// if the target class doesn't exist/not loaded
+		if (!targetClass) return false;
+
+		// now check if it is or if its a subclass of
+		if (instanceClass == targetClass || mono_class_is_subclass_of(instanceClass, targetClass, false))
 		{
-			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
-				return true;
+			return true;
 		}
+
+		//if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		//{
+		//	if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+		//		return true;
+		//}
 
 		return false;
 	}
@@ -2008,6 +2069,23 @@ namespace SliceEngine
 #pragma endregion
 	
 #pragma region SCENE FUNCTIONS
+
+	static void Scene_LoadScene(MonoString* string)
+	{
+		auto sceneSys = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+		std::string cStrName = MonoToString(string);
+		sceneSys->LoadSceneByName(cStrName);
+
+	}
+
+	static void Scene_UnloadCurrentScene()
+	{
+		auto sceneSys = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+		sceneSys->UnloadCurrentScene();
+	}
+
 	static void QuitGame()
 	{
 		EventManager::GetInstance()->Publish<OnGameStopEvent>();
@@ -2317,6 +2395,8 @@ namespace SliceEngine
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
 		ADD_INTERNAL_CALL(QuitGame);
+		ADD_INTERNAL_CALL(Scene_LoadScene);
+		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
@@ -2501,6 +2581,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
+		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);

@@ -588,6 +588,8 @@ namespace SliceEditor
 					colliderName = "Capsule Collider";
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::MeshData>)
 					colliderName = "Mesh Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CylinderData>)
+					colliderName = "Cylinder Collider";
 			}, colliderData.shapeData);
 
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
@@ -642,6 +644,21 @@ namespace SliceEditor
 					{
 						// nothing for now UwU
 					}
+					else if (std::holds_alternative<SliceEngine::ColliderShape::CylinderData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::CylinderData>(col.shapeData).radius;
+						float height = std::get<SliceEngine::ColliderShape::CylinderData>(col.shapeData).height;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##capsuleRadius", radius))
+						{
+							col.SetCylinderData(SliceEngine::ColliderShape::CylinderData(radius, height));
+						}
+
+						if (DragFloatInputHeader(mRegistry, "Height", "##capsuleHeight", height))
+						{
+							col.SetCylinderData(SliceEngine::ColliderShape::CylinderData(radius, height));
+						}
+					}
+
 				});
 			}
 			ImGui::TreePop();
@@ -667,8 +684,6 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
 	{
-		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-
 		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
 		{
 			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
@@ -683,6 +698,19 @@ namespace SliceEditor
 
 			//ImGui::TreePop();
 		}
+
+	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
+	{
+		auto& navObstacle = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavObstacle>(entity);
+
+		if (ImGui::TreeNodeEx("Nav Obstacle", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::NavObstacle>(entity);
+
+			BoolInputHeader(mRegistry, "Is Obstacle: ", "##isNavObstacle", navObstacle.isObstacle);
+			ImGui::TreePop();
+		}
+	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -1574,6 +1602,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
+			{
+				if (ImGui::Selectable("Add Nav Obstacle"))
+				{
+					reg.emplace<SliceEngine::NavObstacle>(entity);
+				}
+			}
+
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
 				if (ImGui::Selectable("Add Box Collider"))
@@ -1604,6 +1640,14 @@ namespace SliceEditor
 					SliceEngine::ColliderShape meshData{};
 					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
 					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+
+				}
+
+				if (ImGui::Selectable("Add Cylinder Collider"))
+				{
+					SliceEngine::ColliderShape cylinderData{};
+					cylinderData.shapeData = SliceEngine::ColliderShape::CylinderData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
 
 				}
 			}
@@ -1810,6 +1854,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
 			{
 				DisplayNavMeshLink(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
+			{
+				DisplayNavObstacle(node->entity);
 				ImGui::Separator();
 			}
 

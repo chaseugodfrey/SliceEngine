@@ -77,6 +77,8 @@ namespace SliceEngine
 
                             metaFile.close();
                         }
+
+
                         break;
                     }
                 }

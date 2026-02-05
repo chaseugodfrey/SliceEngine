@@ -70,8 +70,6 @@ namespace SliceEngine
 
 			glfwMakeContextCurrent(window);
 
-			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
 
 			isFullScreen = true;
 

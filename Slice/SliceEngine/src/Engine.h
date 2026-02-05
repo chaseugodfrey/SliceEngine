@@ -49,6 +49,7 @@ namespace SliceEngine
 		void WindowSizeSwitch();
 
 		void Update();
+		void SceneChangeEvent(const OnSceneChangeEvent& event);
 		void Draw();
 		void EndFrame();
 		void Exit();

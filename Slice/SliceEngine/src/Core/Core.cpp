@@ -83,6 +83,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Slider>();
 		mFactory.RegisterComponent<NavAgent>();
 		mFactory.RegisterComponent<NavMeshLink>();
+		mFactory.RegisterComponent<NavObstacle>();
 
 		mFactory.RegisterComponent<Prefab>();
 		mResource->InitResourceManager();

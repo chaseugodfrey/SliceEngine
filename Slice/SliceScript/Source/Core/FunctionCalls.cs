@@ -17,6 +17,12 @@ namespace SliceEngine
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_LoadScene(string sceneName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_UnloadCurrentScene();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void QuitGame();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -94,6 +100,13 @@ namespace SliceEngine
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
+        
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);

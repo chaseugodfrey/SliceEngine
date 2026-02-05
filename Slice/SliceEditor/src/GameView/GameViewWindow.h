@@ -38,6 +38,7 @@ namespace SliceEditor
 		Screen mGameScreen;
 
 		ImVec2 mGameMousePosition;
+		ImVec2 mGameMouseNDC;
 		ImVec2 mGameMouseDelta;
 
 		SliceEngine::CursorState mLastCursorState{};

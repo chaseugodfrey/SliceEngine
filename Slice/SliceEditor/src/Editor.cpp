@@ -97,7 +97,6 @@ namespace SliceEditor
 		// before engine's resource manager scans it to prevent broken meta files/resource files
 
 		assetManager.Init();
-		editorFRM.Init();
 
 		// Engine Core
 		engine.Init();
@@ -122,29 +121,41 @@ namespace SliceEditor
 	void Editor::Run()
 	{
 		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto& editorFRM = registry.GetEditorFRM();
+		auto engineFRM = SliceEngine::Core().GetInstance()->GetFramerateManager();
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
-			editorFRM.StartFrame();
-			editorFRM.StartSystem("Editor Registry");
-			registry.Update();
-			editorFRM.EndSystem("Editor Registry");
-			editorFRM.StartSystem("Editor Inputs");
-			inputs->Update();
-			editorFRM.EndSystem("Editor Inputs");
 
-			editorFRM.StartSystem("Filewatcher");
+			engineFRM->StartFrame();
+
+
+			engineFRM->StartSystem("Editor Registry");
+			registry.Update();
+			engineFRM->EndSystem("Editor Registry");
+
+			engineFRM->StartSystem("Editor Inputs");
+			inputs->Update();
+			engineFRM->EndSystem("Editor Inputs");
+
+			engineFRM->StartSystem("Filewatcher");
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
-			editorFRM.EndSystem("Filewatcher");
-			editorFRM.EndFrame();
-			editorFRM.CalculateSystemPercentages();
+			engineFRM->EndSystem("Filewatcher");
+
+			//engineFRM->StartSystem("Engine");
 			engine.Update();
+			//engineFRM->EndSystem("Engine");
+			engineFRM->StartSystem("Editor Render");
 			Render();
+			engineFRM->EndSystem("Editor Render");
+
 			engine.EndFrame();
+
+			engineFRM->EndFrame();
+			engineFRM->CalculateSystemPercentages();
+
 		}
 	}
 

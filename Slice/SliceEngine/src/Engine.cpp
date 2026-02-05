@@ -223,12 +223,18 @@ namespace SliceEngine
 		.constructor<>()
 		.property("UwU", &ColliderShape::MeshData::temp);
 
+	rttr::registration::class_<ColliderShape::CylinderData>("CylinderData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
+		.property("cylinderData", &ColliderShape::GetCylinderData, &ColliderShape::SetCylinderData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);
@@ -579,6 +585,7 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("font_size", &FontRenderer::font_size)
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
+.property("text", &FontRenderer::text)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
@@ -597,6 +604,10 @@ rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 .property("bidirectional", &NavMeshLink::bidirectional)
 .property("currentPath", &NavMeshLink::radius);
 
+rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
+.constructor<>()
+.property("navobstacle", &NavObstacle::isObstacle);
+
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
 .property("prefabID", &Prefab::prefabID)
@@ -614,7 +625,10 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-
+	namespace 
+	{
+		static bool isPlaying = false;
+	}
 
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
@@ -725,6 +739,9 @@ namespace SliceEngine
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
 		//auto mNetwork = Core::GetInstance()->GetNetwork();
 		//mNetwork->Init();
+
+
+		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
 	void Engine::WindowSizeSwitch()
@@ -770,10 +787,16 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
+
 		
 
-		static bool isPlaying = false;
+		//static bool isPlaying = false;
 
+		//
+
+		//frm->StartFrame();
+
+		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -826,7 +849,7 @@ namespace SliceEngine
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 
-				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
@@ -834,19 +857,20 @@ namespace SliceEngine
 				sAudio->StopAllSound();
 				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 				audioSettings->DeleteAM();
-				
+
+				gScriptSystem->OnEnd();*/
+
 				sScene->ReloadScene();
-				isPlaying = false;
-
-				gScriptSystem->OnEnd();
-
-				sScene->mCurrentState = SceneState::DEFAULT;
-				sScene->mNextState = SceneState::DEFAULT;
+				sScene->mCurrentState = SceneState::RELOAD_SCENE;
+				sScene->mNextState = SceneState::RELOAD_SCENE;
 			}
 		}
 
+		frm->EndSystem("Scene Handling");
+
+		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
-		frm->StartFrame();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
@@ -879,22 +903,22 @@ namespace SliceEngine
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
-
-		sCanvas.UpdateHierachy();		//updates the rect transforms
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();		//updates the rect transforms
 		
 		//cant start pause and continue frm for time check
-		frm->StartSystem("Canvas 1");
 		sCanvas.ConstructWorldCanvas();
-		frm->EndSystem("Canvas 1");
+		frm->EndSystem("Canvas");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Physics");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
-				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
 				core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -905,9 +929,10 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 
-				frm->EndSystem("Physics");
 
 			}
+			frm->EndSystem("Physics");
+
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
@@ -916,7 +941,7 @@ namespace SliceEngine
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			frm->StartSystem("Animation");
+			frm->StartSystem("Animation"); 
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
@@ -927,9 +952,12 @@ namespace SliceEngine
 			//somehow convert to pixel coord
 			frm->StartSystem("Canvas");
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
+			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = (unsigned int)mouse_coord.x;
-			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
+
+			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
+			//std::cout << "MouseNDC * Target: " << mouse_y << " MouseCoord:" << mouse_coord.y << std::endl;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
@@ -945,11 +973,11 @@ namespace SliceEngine
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
-		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Canvas overlay");
+		//frm->StartSystem("Canvas");
 		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas overlay");
+		//frm->EndSystem("Canvas");
+		frm->EndSystem("Graphics");
 
 		frm->StartSystem("Particle System");
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
@@ -958,8 +986,33 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Particle System");
 
-		frm->EndFrame();
-		frm->CalculateSystemPercentages();
+		//frm->EndFrame();
+		//frm->CalculateSystemPercentages();
+	}
+
+	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
+	{
+		auto core = Core::GetInstance();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
+
+
+		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sInputs->ResetCursorState();
+		sParticleSystemManager.ResetManager();
+		sAudio->StopAllSound();
+		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+		audioSettings->DeleteAM();
+		isPlaying = false;
+		gScriptSystem->OnEnd();
+
 	}
 
 	void Engine::Draw()
@@ -969,6 +1022,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
+		auto frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -976,7 +1030,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
+		frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

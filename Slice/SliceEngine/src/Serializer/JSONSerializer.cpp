@@ -56,36 +56,39 @@ namespace SliceEngine
 			if (!std::filesystem::exists(sceneMeta))
 			{
 				SLICE_LOG_ERROR("SCene meta file does not exist!");
-				return;
+				//return;
 			}
-
-			std::ifstream file(sceneMeta);
-			if (!file.is_open())
+			else
 			{
-				SLICE_LOG_ERROR("Meta file cannot be opened");
-				//assert("Meta file cannot be open");
-				return;
-			}
+				std::ifstream file(sceneMeta);
+				if (!file.is_open())
+				{
+					SLICE_LOG_ERROR("Meta file cannot be opened");
+					//assert("Meta file cannot be open");
+				//	return;
+				}
 
-			json metaData;
-			try {
-				file >> metaData;
-			}
-			catch (json::parse_error& e)
-			{
-				SLICE_LOG_ERROR("Meta cannot be parsed as json");
-				return;
-			}
+				json metaData;
+				try {
+					file >> metaData;
+				}
+				catch (json::parse_error& e)
+				{
+					SLICE_LOG_ERROR("Meta cannot be parsed as json");
+					return;
+				}
 
-			// safety checks
-			if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
-			{
-				finalOutput["NavMeshData"]["navMeshGUID"] = metaData.value("navMeshGUID", 0ULL);
-			}
+				// safety checks
+				if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+				{
+					finalOutput["NavMeshData"]["navMeshGUID"] = metaData.value("navMeshGUID", 0ULL);
+				}
 
-			if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
-			{
-				finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+				if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+				{
+					finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+				}
+
 			}
 
 			auto& registry = Core::GetInstance()->GetRegistry();
@@ -304,6 +307,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
@@ -515,6 +519,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
@@ -667,6 +672,7 @@ namespace SliceEngine
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
 						ColliderShape::MeshData,
+						ColliderShape::CylinderData,
 						RigidBody::FreezeOptions,
 						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
@@ -699,7 +705,8 @@ namespace SliceEngine
 							if ((propName == "boxData" && activeIndex != 0) ||
 								(propName == "sphereData" && activeIndex != 1) ||
 								(propName == "capsuleData" && activeIndex != 2)||
-								(propName == "meshData" && activeIndex != 3))
+								(propName == "meshData" && activeIndex != 3) ||
+								(propName == "cylinderData" && activeIndex != 4))
 							{
 								continue;
 							}
@@ -746,6 +753,7 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
 							RigidBody::FreezeOptions,
 							GameObject
 							>
@@ -819,6 +827,7 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
 							RigidBody::FreezeOptions,
 							ParticleSystem::ValueType,
 							std::vector<ParticleSystem::Burst>,							
@@ -966,6 +975,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,

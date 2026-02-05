@@ -58,6 +58,21 @@ namespace SliceEngine
 			return false;
 		}
 
+
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::RELOAD_SCENE)
+		{
+			// publish event to scene change
+			OnSceneChangeEvent ChangeEvent;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
+
+			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			{
+				mCurrentState = SceneState::DEFAULT;
+			}
+		}
+
+
+
 		UnloadCurrentScene();
 
 		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
@@ -91,6 +106,8 @@ namespace SliceEngine
 		event.isSceneLoaded = true;
 		event.navMeshBinPath = navMeshBinString;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+
 
 		if (next_scene_filepath.extension() == ".temp")
 		{
