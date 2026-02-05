@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
+#include <Jolt/Physics/Collision/Shape/CylinderShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision//Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Raycast.h>
@@ -40,7 +41,7 @@ namespace SliceEngine
 	// for keeping track of entities that belong to physics system
 	struct PhysicEntity {};
 
-	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData, ColliderShape::MeshData>;
+	using sliceEngineVariantShape = std::variant<ColliderShape::BoxData, ColliderShape::SphereData, ColliderShape::CapsuleData, ColliderShape::MeshData, ColliderShape::CylinderData>;
 
 	class PhysicsSystem final: public BaseSystem<PhysicEntity, Transform, ColliderShape>
 	{
@@ -94,6 +95,8 @@ namespace SliceEngine
 		JPH::ShapeRefC CreateCapsuleShape(const ColliderShape& collider) const;
 
 		JPH::ShapeRefC CreateMeshShape(const Renderer& renderComponent) const;
+
+		JPH::ShapeRefC CreateCylinderShape(const ColliderShape& collider) const;
 
 		//System required functions
 	public:

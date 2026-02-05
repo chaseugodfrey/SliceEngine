@@ -1,8 +1,8 @@
 # Slice Engine                                                                         
 
-Module Code: CSD3401/UXG3450
+Module Code: CSD3451/UXG3450
 
-Milestone: 3
+Milestone: 4
 Team: SR3C
 Engine Name: Slice Engine
 
@@ -55,9 +55,9 @@ Role: Systems Designer & Technical Designer
 		
 ------------------------------------------------------------------------------------------------------
 
-This file will contain the guide to the Slice Engine. Enjoy your time here.
+This file will contain the guide to the Slice Engine. Enjoy your time here(or not).
 This document provides an overview of the setup and controls for efficient utilization of our game engine.
-It also details major changes to the engine since Milestone 2.
+It also details major changes to the engine since Milestone 3.
 
 ## Setup
 The game engine solution was developed in Visual Studio 2022.
@@ -80,57 +80,55 @@ When running the engine for the first time, the engine will take a while to star
 
 ------------------------------------------------------------------------------------------------------
 
-## Changes Since Milestone 2
+## Changes Since Milestone 3
 ### Graphics
-- Unified Shader File Strucutre. Converted all shader pairs to consistent naming scheme. Simplifying shader reloading and external tooling integration.
-- Improved Shader Loading System.
-- Skybox & Skybox lighting. Skybox is code generated, and provides global illumination.
-- Added more Post-post processing effects
+- Added a render queue system
+- Added cascading shadow map
+- Added functionality where materials update based on custom shaders
 
 ### Animation
-- Animator Window overhaul. Rebuilt using ImNodes. Improvements include safer state editing, clearer visual presentation and better drag & drop support.
-- New FSM structures. Expanded FSM data, cleaner state naming conventions and better control transitions.
-- Scene Graph & Bone System updated. Improved bone transform handling & better support for FPS style animation logic.
-- Prefab compatibility with Animations. Animation data now serializes better.
-
-### Audio
-- Attack, walk and BGM sounds included in default scenes for testing.
-
-### Scripting
-- Hot reload stability fixes. Reload no longer resets the entire scripting context incorrectly.
-- Added new rotation utilities, vec2 & vec3 helpers and templated clamp and general math extensions.
-- Improved rotation clamping and improved movement logic in Camera controller.
-- Script based sound triggering as scripts can now play SFX & BGM directly from C#.
+- Stabilised animation & FSM systems
+- Added functionality for animation system to have script events
+- Animator now has states available and more types of states to encompass player animations
 
 ### Navigation (Recast & Detour)
-- Recast Intregration stabilised. Fixed rasterization and region settigs, enabling agent visualisation.
-- Detour runtime functions added. Runtime structures added to engine, enabling NPC movement and path queries.
-- Inspector updates now expose more parameters and allow baking directly from editor.
+- Implemented navigation/pathfinding around obstacles
+- Implemented off mesh navigation
 
-### ImGui, Inspector, Windows
-- Updated console window, showing logs, warnings and script outputs.
-- Scene graph updated. Debug tool improvements for visualising parent-child relationships.
-- Added CTRL+D for duplication of game objects.
-- Better drag-&-drop behaviour for animation controllers and prefabs.
+### ImGui, Inspector, Windows, Animator
+- General debugging
+- Added support for Game Object script variables
+- Able to save preferred scene to load on startup
+- Loads last opened scene if no preferred scene was saved
+- Added functionality to add scenes to the build version
+- Added functionality to displays states and transitions
 
 ### Physics
-- Transform & Rigidbody fixes. Overhauled sync logic to keep ECS transforms and physics bodies aligned.
-- Collider Runtime enhancements. Collder now de/activates correctly during gameplay events.
-- API Extensions for C#. Added missing constructors, helper functions and scripting hooks for rigidbody and collider manipulation.
+- Implemented raycasting, impulse physics, layermask and mesh collider.
+- Scripting functionality added for ray and raycastinfo.
 
 ### Serialization
-- Core serialisation converted to a templated system, improving type extensibility.
-- Added support for serialising animation controllers and state machine data.
+- Added linking and saving specific navmeshes to specific scenes
 
-### Input
-- Better prefab saving ensures Input components persist correctly.
-- Full Action Mapping functionality exposed to C# scripts, including 1D and multiple action types.
+### Particle System
+- Able to create 3D particles
+- Mesh rendering supports all shapes that is available
+- Cone and Spherical area shape support
+- Orbits, size, rotation, velocity and colour over time
+- Added Burst support
+- Added physics interaction upport (Stickiness, Bounciness, Friction, Gravity)
+- Added Collision support
 
-### Networking
-- No changes as there are no plans to include multiplayer in the final product as of yet.
+### Scene System
+- Loads scene into queue and by index
+- String in-app by accessing scene handles from build settings
+
+### UI
+- Added UI font/text rendering, text alignment and wrapping
+- Implemented canvas raycast with alpha threshold
 
 ### Editor Gameplay
-- Created a usable level "Level: Populated".
+- Created a playable start-to-end level
 - Updated player logic in C# for movement and attacks.
 - Improved spawner and enemy behaviour stability.
 - Added support for animation driven attacks via collider activation.
@@ -145,7 +143,7 @@ users can drag and resize the editor and the windows in it.
 Here are the controls you can use within the game engine:
 
 #### Scene Window
-When the scene window is in focus (when the scene tab header is lit up and dark blue):
+When the scene window is in focus (when the scene tab header is lit up):
 WHILE holding down the right mouse button, 
         - Move the mouse around to move the camera
         - Press the WASD keys to move the camera forward, left, back or right
@@ -194,7 +192,7 @@ Allows users to edit and adjust game object Transform, Renderer and Script value
 
 #### Content Browser
 Contains an asset browser and allows users to drag and drop assets into scene window to use.
-Assets include audio, materials, shaders, textures, tests and default scenes.
+Assets include audio, materials, shaders, textures, tests and default scenes, editors, materials, models, navmeshes, prefabs
         - If a new asset is added via the file explorer, press the "Refresh" 
           button to refresh the files shown in the Assets Browser window.
         - Left click with mouse on selected asset and drag into the scene window for use
@@ -209,13 +207,13 @@ This window is used primarily for camera game objects
         - Use WASD Keys to move the camera around.
 
 #### Animator
-Users can use the animtor to create sequences of movement for characters, creatures, and objects.
+Users can use the animator to create sequences of movement for characters, creatures, and objects.
         - Right click mouse to create a node in the animator window.
         - Left click on a node and drag to move it around, click on its side nodules to create a link 
           that can connect nodes to each other.
 
 #### Animation
-Users can choose and play animation clips from the animation resource.
+Users can play, stop, loop and add animation clips/events from the animation resource.
         - Drag & drop an .fbx asset from the content browser, then click on the root node to play,
           pause and stop the animations in the editor.
 
@@ -237,31 +235,41 @@ Users can choose and play animation clips from the animation resource.
         - Save Scene as:
                         Save the current scene with another name
         - Project Settings:
-                        Selected scenes will be loaded in the game build
+                        Build:
+                                - Selected scenes will be loaded in the game build
+                                - Press button to add current scene to game build
+                        Audio: 
+                                - Adjust master volume in editor
+                                - Open SFX List to choose and play loaded SFX
+                                - Click "+" & "-" buttons to add/delete SFX
+                        Physics:
+                                - Broad Phase Layer Optimization allows user to determine whether 
+                                  objects like UI, Player, Environment & Enemies can be affected by
+                                  physics
+                                - Layer Collision Matrix allows users to determine whether objects
+                                  can collide with each other. Uncheck/boxes to toggle on/off
+
         - Preferences:
-                        Use to adjust the theme of the editor to light, dark or Microsoft standard
+                        Theme:
+                                - Use to adjust the theme of the editor to light, dark or Microsoft standard
+                        Scene:
+                                - Use to choose which scene will be the startup scene
         - Exit:
                         Closes the "File" options
 
 ##### "Window" Options:
         - Click to create a window if it does not exist.
+        - Click "Undo History" to clear history of actions done in editor
+
+##### "Debug" Options:
+        - Click "Show Entity IDs" to show Entity IDs in Hierarchy
 
 ##### "GameObject" Options:
         - Create Objects: Click to create camera, 3D object or UI components.
+        - Click "Empty" to replicate latest created GameObject
 
 ------------------------------------------------------------------------------------------------------
 
 ## Known Limitations:
-1. Input system between game and engine doesn't work.
-
-2. No fonts, no transparency on 3D objects. No custom shaders for editor users.
-
+1. Cannot modify animations (not edit animation grpahs nor can create animation controllers)
 ------------------------------------------------------------------------------------------------------
-
-## Design Changes since M1
-        - Updated level design
-        - Addition of ultimate ability
-        - Addition of 2 new enemies
-        - Split up ember nodes into two versions
-        - Updated HUD
-        - Updated models
