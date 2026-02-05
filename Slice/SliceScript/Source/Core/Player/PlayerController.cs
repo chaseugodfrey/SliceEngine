@@ -22,7 +22,6 @@ namespace SliceEngine
 
         // =========== Debug Mod ==========
 
-
         public GameObject playerModel;
 
         // =============== Movement variables =============== 
@@ -218,6 +217,8 @@ namespace SliceEngine
             if (canMove && !isAttacking && !attackAutoRecover) HandleMovement();
             HandleJump();
             AttackResetTimer();
+            //Console.WriteLine($"Velocity is {velocity.x}, {velocity.y}, {velocity.z}");
+            //Console.WriteLine($"Input is {input.x}, {input.y}, {input.z}");
         }
         private void HandleInput()
         {
@@ -267,24 +268,25 @@ namespace SliceEngine
             {
                 float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
                                                   : airDashDistance / Math.Max(0.0001f, airDashDuration);
+                float distanceThisFrame = dashSpeed * Time.deltaTime;
+                float moveAmount = Math.Min(allowedDashDistance, distanceThisFrame);
 
                 if (allowedDashDistance >= 0f)
                 {
-                    allowedDashDistance -= dashSpeed * Time.deltaTime;
+                    allowedDashDistance -= moveAmount;
                 }
                 else
                 {
-                    dashSpeed = allowedDashDistance;
                     if (isGroundDashing) EndGroundDash();
                     else if (isAirDashing) EndAirDash();
                 }
 
-                    Vector3 dashVel = dashDir * dashSpeed;
+                Vector3 dashVel = dashDir * moveAmount;
                 Vector3 finalMove = isGroundDashing
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
 
-                transform.Position += finalMove * Time.deltaTime;
+                transform.Position += finalMove;
 
                 if (rotateToDashDirection)
                 {
@@ -595,14 +597,17 @@ namespace SliceEngine
                 dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
             }
 
-            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
-            Ray dashRay = new Ray(transform.Position + new Vector3(0f, 0.5f, 0f), dashDir);
-            if (Physics.Raycast(dashRay, out RayCastHit dashHitInfo, LayerMask.NameTolayer("Environment")))
-            {
-                allowedDashDistance = dashHitInfo.distance - 0.5f;
-                Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
-            }
+            allowedDashDistance = dashDistance;
 
+            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
+            if (Physics.Raycast(transform.Position + new Vector3 (0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            {
+                if (allowedDashDistance >= dashHitInfo.distance)
+                {
+                    allowedDashDistance = dashHitInfo.distance * 0.98f;
+                }
+                //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+            }
             dashTimer = Math.Max(0.0001f, dashStartDuration);
 
             //Vector3 flatFacing = transform.Forward;

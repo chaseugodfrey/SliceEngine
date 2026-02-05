@@ -17,7 +17,7 @@ namespace SliceEngine
         {
             return mask.value;
         }
-        public uint GetMask(string layerName)
+        public static uint GetMask(string layerName)
         {
             //return the mask 0 if invalid
             return FunctionCalls.LayerMask_GetMask(layerName);
