@@ -697,6 +697,10 @@ namespace SliceEngine
             for (auto entity : entityToInit)
             {
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+            }
+
+            for(auto entity: entityToInit)
+            {
                 mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
             }

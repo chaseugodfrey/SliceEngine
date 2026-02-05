@@ -223,12 +223,18 @@ namespace SliceEngine
 		.constructor<>()
 		.property("UwU", &ColliderShape::MeshData::temp);
 
+	rttr::registration::class_<ColliderShape::CylinderData>("CylinderData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
 		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
+		.property("cylinderData", &ColliderShape::GetCylinderData, &ColliderShape::SetCylinderData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);
@@ -619,7 +625,10 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-
+	namespace 
+	{
+		static bool isPlaying = false;
+	}
 
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
@@ -753,7 +762,7 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-		static bool isPlaying = false;
+		//
 
 		//frm->StartFrame();
 
@@ -810,10 +819,20 @@ namespace SliceEngine
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 
+				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+				sInputs->SetMode(InputMode::Editor);
+				sInputs->SetEnabled(false);
+				sInputs->ResetCursorState();
+				sParticleSystemManager.ResetManager();
+				sAudio->StopAllSound();
+				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+				audioSettings->DeleteAM();
+
+				gScriptSystem->OnEnd();*/
 
 				sScene->ReloadScene();
-				sScene->mCurrentState = SceneState::DEFAULT;
-				sScene->mNextState = SceneState::DEFAULT;
+				sScene->mCurrentState = SceneState::RELOAD_SCENE;
+				sScene->mNextState = SceneState::RELOAD_SCENE;
 			}
 		}
 
@@ -958,7 +977,7 @@ namespace SliceEngine
 		sAudio->StopAllSound();
 		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 		audioSettings->DeleteAM();
-
+		isPlaying = false;
 		gScriptSystem->OnEnd();
 
 	}

@@ -307,6 +307,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,								
@@ -518,6 +519,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
@@ -670,6 +672,7 @@ namespace SliceEngine
 						ColliderShape::SphereData,
 						ColliderShape::CapsuleData,
 						ColliderShape::MeshData,
+						ColliderShape::CylinderData,
 						RigidBody::FreezeOptions,
 						ParticleSystem::ValueType,
 						std::vector<ParticleSystem::Burst>,
@@ -702,7 +705,8 @@ namespace SliceEngine
 							if ((propName == "boxData" && activeIndex != 0) ||
 								(propName == "sphereData" && activeIndex != 1) ||
 								(propName == "capsuleData" && activeIndex != 2)||
-								(propName == "meshData" && activeIndex != 3))
+								(propName == "meshData" && activeIndex != 3) ||
+								(propName == "cylinderData" && activeIndex != 4))
 							{
 								continue;
 							}
@@ -749,6 +753,7 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
 							RigidBody::FreezeOptions,
 							GameObject
 							>
@@ -822,6 +827,7 @@ namespace SliceEngine
 							ColliderShape::SphereData,
 							ColliderShape::CapsuleData,
 							ColliderShape::MeshData,
+							ColliderShape::CylinderData,
 							RigidBody::FreezeOptions,
 							ParticleSystem::ValueType,
 							std::vector<ParticleSystem::Burst>,							
@@ -969,6 +975,7 @@ namespace SliceEngine
 								ColliderShape::SphereData,
 								ColliderShape::CapsuleData,
 								ColliderShape::MeshData,
+								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
 								std::vector<ParticleSystem::Burst>,
