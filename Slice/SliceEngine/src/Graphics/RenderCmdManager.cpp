@@ -568,7 +568,7 @@ namespace SliceEngine
 				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				cmd.push_back(glm::uvec4{});
 				subID = 0;
@@ -583,8 +583,8 @@ namespace SliceEngine
 
 		auto numVar = mat->shader.get()->dataIn.size();
 
-		int mainID = num * numVar / 4;
-		int subID = num * numVar % 4;
+		int mainID = (num * numVar) / 4;
+		int subID = (num * numVar) % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
 
@@ -606,7 +606,7 @@ namespace SliceEngine
 				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				rc.ext.push_back(glm::uvec4{});
 				subID = 0;

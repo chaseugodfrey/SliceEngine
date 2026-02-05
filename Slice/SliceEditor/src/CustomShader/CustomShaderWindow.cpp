@@ -834,6 +834,7 @@ namespace SliceEditor
 			break;
 		}
 		}
+		mEditableIns[node.id] = node;
 		return node.id;
 	}
 }
