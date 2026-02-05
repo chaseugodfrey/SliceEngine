@@ -91,6 +91,7 @@ namespace SliceEditor
 		void DeleteLink(int);
 		void DeleteLinkFromAttr(int);
 		int CreateNode(std::string);
+		int CreateEditable(SliceEngine::SliceEngineTypes::CSHAD_T);
 	public:
 
 		CustomShaderWindow(Registry& reg) : EditorWindow(reg) {};

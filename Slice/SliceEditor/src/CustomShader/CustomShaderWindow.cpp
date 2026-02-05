@@ -569,24 +569,86 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopup("NodeEditor_Popup"))
 			{
+				int popUp = 0;
+				if (ImGui::Selectable("Make New Editable"))
+					popUp = 1;
+				if (ImGui::Selectable("Maths"))
+					popUp = 2;
+				if (ImGui::Selectable("Utilities"))
+					popUp = 3;
+				if (ImGui::Selectable("Vector Manipulation"))
+					popUp = 4;
+
+				ImGui::EndPopup();
+
+				if(popUp == 1)
+					ImGui::OpenPopup("Make_Editables_Popup");
+				else if(popUp == 2)
+					ImGui::OpenPopup("Math_Popup");
+				else if(popUp == 3)
+					ImGui::OpenPopup("Utilities_Popup");
+				else if(popUp == 4)
+					ImGui::OpenPopup("Vector_Popup");
+			}
+			if (ImGui::BeginPopup("Make_Editables_Popup"))
+			{
+				if (ImGui::Selectable("Make Bool"))
+					newNodeID = CreateEditable(CST::CSHAD_T::BOOL);
+				if (ImGui::Selectable("Make int"))
+					newNodeID = CreateEditable(CST::CSHAD_T::INT);
+				if (ImGui::Selectable("Make uint"))
+					newNodeID = CreateEditable(CST::CSHAD_T::UINT);
+				if (ImGui::Selectable("Make float"))
+					newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
+				ImGui::EndPopup();
+			}
+
+			if (ImGui::BeginPopup("Math_Popup"))
+			{
 				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
 				{
-					if (funcDets.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+					if (funcDets.FuncType != CST::ShaderGraphFunc_T::MATH)
 						continue;
-					std::string createName;
 
-					if (funcDets.FuncType == CST::ShaderGraphFunc_T::MATH)
-						createName = "Math: " + funcName;
-					else if(funcDets.FuncType == CST::ShaderGraphFunc_T::UTILITIES)
-						createName = "Util: " + funcName;
-					else if(funcDets.FuncType == CST::ShaderGraphFunc_T::VECTOR_MANIP)
-						createName = "Vec: " + funcName;
-
+					std::string createName{ "Math: " + funcName };
 					if (ImGui::Selectable(createName.c_str()))
-					{
 						newNodeID = CreateNode(funcName);
-					}
 				}
+				if (ImGui::Selectable("<--"))
+					ImGui::OpenPopup("NodeEditor_Popup");
+
+				ImGui::EndPopup();
+			}
+			if (ImGui::BeginPopup("Utilities_Popup"))
+			{
+				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				{
+					if (funcDets.FuncType != CST::ShaderGraphFunc_T::UTILITIES)
+						continue;
+
+					std::string createName{ "Util: " + funcName };
+					if (ImGui::Selectable(createName.c_str()))
+						newNodeID = CreateNode(funcName);
+				}
+				if (ImGui::Selectable("<--"))
+					ImGui::OpenPopup("NodeEditor_Popup");
+
+				ImGui::EndPopup();
+			}
+			if (ImGui::BeginPopup("Vector_Popup"))
+			{
+				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				{
+					if (funcDets.FuncType != CST::ShaderGraphFunc_T::VECTOR_MANIP)
+						continue;
+
+					std::string createName{ "Vec: " + funcName };
+					if (ImGui::Selectable(createName.c_str()))
+						newNodeID = CreateNode(funcName);
+				}
+				if (ImGui::Selectable("<--"))
+					ImGui::OpenPopup("NodeEditor_Popup");
+
 				ImGui::EndPopup();
 			}
 		}
@@ -738,5 +800,40 @@ namespace SliceEditor
 			return n.id;
 		}
 		return 0;
+	}
+	int CustomShaderWindow::CreateEditable(SliceEngine::SliceEngineTypes::CSHAD_T type)
+	{
+		ShaderEditableNode node;
+		node.baseDataType = type;
+		node.id = ++uniqueIDCnt;
+		node.out_id = ++uniqueIDCnt;
+		node.name = "NODE_" + std::to_string(node.id);
+
+		attrIDToNodeID[node.out_id] = node.id;
+		switch (type)
+		{
+		case CST::CSHAD_T::BOOL:
+		{
+			node.baseData = false;
+			break;
+		}
+		case CST::CSHAD_T::INT:
+		{
+			node.baseData = 0;
+			break;
+		}
+		case CST::CSHAD_T::UINT:
+		{
+			uint32_t temp{};
+			node.baseData = temp;
+			break;
+		}
+		case CST::CSHAD_T::FLOAT:
+		{
+			node.baseData = 0.f;
+			break;
+		}
+		}
+		return node.id;
 	}
 }
