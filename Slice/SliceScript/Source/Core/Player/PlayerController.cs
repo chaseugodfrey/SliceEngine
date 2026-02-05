@@ -41,6 +41,7 @@ namespace SliceEngine
         private Vector3 input;
         private float verticalVelocity = 0f;
         public float terminalVelocity = -50f;
+        private Vector3 finalMove;
 
         private Vector3 velocity;
         private bool wasGrounded;
@@ -251,6 +252,7 @@ namespace SliceEngine
         private void HandleMovement()
         {
             Vector3 camForward = new Vector3();
+            finalMove = Vector3.Zero;
             if (camera != null)
             {
                 camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
@@ -282,7 +284,7 @@ namespace SliceEngine
                 }
 
                 Vector3 dashVel = dashDir * moveAmount;
-                Vector3 finalMove = isGroundDashing
+                finalMove = isGroundDashing
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
 
@@ -340,8 +342,8 @@ namespace SliceEngine
                 }
                 else
                 {
-                // existing behavior for attacks / active plunge impulse
-                Vector3 finalMove = new Vector3(0f, velocity.y, 0f);
+                    // existing behavior for attacks / active plunge impulse
+                    finalMove = new Vector3(0f, velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
                 }
             }
@@ -356,9 +358,11 @@ namespace SliceEngine
                 }
 
                 Vector3 horizontal = moveDirInput * movementSpeed;
-                Vector3 finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
+                finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
             }
+
+            //Console.WriteLine($"Final move is x: {finalMove.x}, y: {finalMove.y}, z: {finalMove.z}");
         }
 
         // -------------------- Jump ------------------------------------------------------------------------------------------
@@ -677,10 +681,11 @@ namespace SliceEngine
         {
             attackIndex = 0;
             attackTimer = 0f;
+            attackCounter = 0;
             attackQueued = false;
             isAttacking = false;
             attackResetTimer = 0f;
-
+            TurnOffHitboxes();
 
             queuedNext = false;
             queuedFacingOverride = false;
