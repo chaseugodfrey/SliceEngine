@@ -24,6 +24,8 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
+	struct DebugDrawLine;
+
 	class RenderManager
 	{
 	public:
@@ -236,6 +238,8 @@ namespace SliceEngine
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
 
+		std::vector<DebugDrawLine> mDebugDrawLines;
+
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
@@ -244,6 +248,8 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+
+		void AddDebugLinesToDraw(const DebugDrawLine&);
 
 		void IDPick();
 	};

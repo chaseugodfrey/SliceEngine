@@ -36,9 +36,13 @@ namespace SliceEngine
 {
 	struct PrefabCameraEntity {};
 
+
 #pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
+		auto* eventManager = EventManager::GetInstance();
+		eventManager->Subscribe<DebugDrawLine, &AddDebugLinesToDraw>(this);
+
 		CreateFramebuffers();
 	}
 	RenderManager::~RenderManager()
@@ -456,6 +460,8 @@ namespace SliceEngine
 			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
+
+		mDebugDrawLines.clear();
 		
 		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FB_TOTAL, 0);
@@ -665,6 +671,14 @@ namespace SliceEngine
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		}
+	
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DEBUG_LINE_TAG)
+		{
+			for (auto& i : mDebugDrawLines)
+			{
+
+			}
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
@@ -1175,6 +1189,10 @@ namespace SliceEngine
 		glCullFace(GL_BACK);
 		glDepthFunc(GL_LESS);
 		mCurrGPUSetting = GPS_DEFAULT;
+	}
+	void RenderManager::AddDebugLinesToDraw(const DebugDrawLine&)
+	{
+
 	}
 	void RenderManager::ForceSetCustomShader(const std::string& sh, GLuint s)
 	{
