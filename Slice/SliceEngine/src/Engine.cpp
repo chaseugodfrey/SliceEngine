@@ -870,6 +870,7 @@ namespace SliceEngine
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
 		}
 		frm->EndSystem("Script");
 
@@ -944,6 +945,18 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		}
+
+		frm->StartSystem("Particle System");
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
+		frm->EndSystem("Particle System");
+
 		frm->StartSystem("Graphics");
 		sRender->Render();
 
@@ -952,12 +965,6 @@ namespace SliceEngine
 		//frm->EndSystem("Canvas");
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
-		frm->EndSystem("Particle System");
 
 		//frm->EndFrame();
 		//frm->CalculateSystemPercentages();
