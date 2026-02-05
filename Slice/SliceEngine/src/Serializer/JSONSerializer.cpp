@@ -305,6 +305,10 @@ namespace SliceEngine
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								//std::vector <std::pair<float, glm::vec3>>,
+								//std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>,
 								GameObject,
@@ -506,6 +510,10 @@ namespace SliceEngine
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								//std::vector <std::pair<float, glm::vec3>>,
+								//std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -652,6 +660,10 @@ namespace SliceEngine
 						ColliderShape::CapsuleData,
 						RigidBody::FreezeOptions,
 						ParticleSystem::ValueType,
+						std::map<float, glm::vec3>,
+						std::map<float, glm::vec4>,
+						//std::vector <std::pair<float, glm::vec3>>,
+						//std::vector <std::pair<float, glm::vec4>>,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
 						GameObject,
@@ -727,6 +739,10 @@ namespace SliceEngine
 							ColliderShape::CapsuleData,
 							RigidBody::FreezeOptions,
 							ParticleSystem::ValueType,
+							std::map<float, glm::vec3>,
+							std::map<float, glm::vec4>,
+							//std::vector <std::pair<float, glm::vec3>>,
+							//std::vector <std::pair<float, glm::vec4>>,
 							std::vector<ParticleSystem::Burst>,							
 							std::vector<Particle>,
 							GameObject
@@ -870,6 +886,10 @@ namespace SliceEngine
 								ColliderShape::CapsuleData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								//std::vector <std::pair<float, glm::vec3>>,
+								//std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -1046,7 +1066,6 @@ namespace SliceEngine
 
 				return jArray;
 			}
-
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
 			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
 			if (t == rttr::type::get<JPH::Vec3>()) { return v.get_value<JPH::Vec3>(); }

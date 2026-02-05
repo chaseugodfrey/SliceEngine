@@ -1438,7 +1438,7 @@ namespace SliceEditor
 
 						int counter = 0;
 						float itemWidth = 50.0f;
-
+						bool modified{ false };
 						for (auto& kv : ps.sizeMapIntermediary)
 						{
 							auto& time = kv.first;
@@ -1451,7 +1451,7 @@ namespace SliceEditor
 							ImGui::SetNextItemWidth(itemWidth);
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 							std::string sizeTime = ("##sizeMap_Time" + std::to_string(counter));
-							DragFloatInput(mRegistry, sizeTime.c_str(), time, "%.2f", 0.0f, 1.0f);	
+							modified |= DragFloatInput(mRegistry, sizeTime.c_str(), time, "%.2f", 0.0f, 1.0f);
 
 							if (ps.sizeSeparateAxis)
 							{
@@ -1459,28 +1459,32 @@ namespace SliceEditor
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string sizeX = ("##sizeMap_X" + std::to_string(counter));
-								DragFloatInput(mRegistry, sizeX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, sizeX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
 
 								ImGui::TableNextColumn();
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string sizeY = ("##sizeMap_Y" + std::to_string(counter));
-								DragFloatInput(mRegistry, sizeY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, sizeY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
 							}
 
 							ImGui::TableNextColumn();
 							ImGui::SetNextItemWidth(itemWidth);
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 							std::string sizeZ = ("##sizeMap_Z" + std::to_string(counter));
-							DragFloatInput(mRegistry, sizeZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
+							modified |= DragFloatInput(mRegistry, sizeZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
 
 							++counter;
 						}
 						ImGui::EndTable();
-											
-						for (const auto& kv : ps.sizeMap)
+						
+						// If there is any change, rebuild the map
+						if (modified)
 						{
-											
+							for (const auto& kv : ps.sizeMapIntermediary)
+							{
+								ps.sizeMap.insert_or_assign(kv.first, kv.second);
+							}
 						}												
 					}
 				}

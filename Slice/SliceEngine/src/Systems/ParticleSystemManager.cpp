@@ -605,18 +605,45 @@ namespace SliceEngine
 	glm::vec3 ParticleSystemManager::SizeOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
 		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
-		glm::vec3 scaleMul{ 1.0f }; // default 1
+		glm::vec3 scaleMul{ 1.0f }; // default scale
+
+		if (ps.sizeMap.empty())
+			return scaleMul;
+
+		// If t is before the first key
+		if (t <= ps.sizeMap.begin()->first)
+			return ps.sizeMap.begin()->second;
+
+		// If t is after the last key
+		if (t >= ps.sizeMap.rbegin()->first)
+			return ps.sizeMap.rbegin()->second;
+
+		// Find the two keys between which t lies
+		auto it = ps.sizeMap.lower_bound(t); // first key >= t
+
+		if (it == ps.sizeMap.end())
+			return ps.sizeMap.rbegin()->second;
+
+		auto itPrev = std::prev(it);
+
+		float t0 = itPrev->first;
+		float t1 = it->first;
+
+		const glm::vec3& v0 = itPrev->second;
+		const glm::vec3& v1 = it->second;
+
+		float factor = (t - t0) / (t1 - t0);
 
 		if (ps.sizeSeparateAxis)
 		{
-			// per-axis lerp
-			//scaleMul = glm::mix(ps.startScaleMultiplier, ps.endScaleMultiplier, t);
+			// Lerp per-axis
+			scaleMul = glm::mix(v0, v1, factor);
 		}
 		else
 		{
-			// uniform scale using Z component
-			//float uniformScale = glm::mix(ps.startScaleMultiplier.z, ps.endScaleMultiplier.z, t);
-			//scaleMul = glm::vec3(uniformScale); // same for x,y,z
+			// Uniform scale using Z component
+			float s = glm::mix(v0.z, v1.z, factor);
+			scaleMul = glm::vec3(s);
 		}
 
 		return scaleMul;
