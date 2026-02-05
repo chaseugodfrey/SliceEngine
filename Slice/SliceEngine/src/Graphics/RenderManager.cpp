@@ -43,7 +43,7 @@ namespace SliceEngine
 	RenderManager::RenderManager()
 	{
 		auto* eventManager = EventManager::GetInstance();
-		eventManager->Subscribe<DebugDrawLineEvent, &RenderManager::AddDebugLinesToDraw>(this);
+		eventManager->Subscribe<DebugDrawRayEvent, &RenderManager::AddDebugRaysToDraw>(this);
 
 		CreateFramebuffers();
 	}
@@ -463,7 +463,7 @@ namespace SliceEngine
 			RenderGammaCorrection(cam);
 		}
 
-		mDebugDrawLines.clear();
+		mDebugDrawRays.clear();
 		
 		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FB_TOTAL, 0);
@@ -675,7 +675,7 @@ namespace SliceEngine
 
 		}
 	
-		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DEBUG_LINE_TAG)
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DRAW_RAY_TAG)
 		{
 			SetShader(ShaderPaths[S_INSTANCED]);
 			UpdateCamVP();
@@ -686,7 +686,7 @@ namespace SliceEngine
 			glBindVertexArray(mdl.vao);
 
 			int count{};
-			for (auto& i : mDebugDrawLines)
+			for (auto& i : mDebugDrawRays)
 			{
 				renderQueue.mBasicIMtx[count].mdlMtx = i;
 				if (++count > renderQueue.mMaxInstance)
@@ -1205,7 +1205,7 @@ namespace SliceEngine
 		glDepthFunc(GL_LESS);
 		mCurrGPUSetting = GPS_DEFAULT;
 	}
-	void RenderManager::AddDebugLinesToDraw(const DebugDrawLineEvent& e)
+	void RenderManager::AddDebugRaysToDraw(const DebugDrawRayEvent& e)
 	{
 		const float thickness = 0.05f;
 
@@ -1232,7 +1232,7 @@ namespace SliceEngine
 
 		// Scale: X and Z are thickness, Y is the length (magnitude)
 		model = glm::scale(model, glm::vec3(thickness, e.magnitude, thickness));
-		mDebugDrawLines.push_back(model);
+		mDebugDrawRays.push_back(model);
 	}
 	void RenderManager::ForceSetCustomShader(const std::string& sh, GLuint s)
 	{
