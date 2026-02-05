@@ -253,7 +253,7 @@ namespace SliceEditor
 			* will need to update this token_updated from scripts too
 			*/
 
-			if (StringInput(mRegistry, "##font_text", font.text, 150.f)) {
+			if (StringInputHeader(mRegistry, "Font Text: ", "##font_text", font.text, ImGui::GetContentRegionAvail().x)) {
 				font.token_updated = false;
 			}
 
