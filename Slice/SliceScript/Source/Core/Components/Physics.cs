@@ -16,7 +16,7 @@ namespace SliceEngine
 
         public const uint DefaultRaycastLayers = ~0u; // All layers
 
-        public static QueryTriggerInteraction globalInteraction = QueryTriggerInteraction.Collide;
+        //public static QueryTriggerInteraction globalInteraction = QueryTriggerInteraction.Collide;
 
         public static void RayUpdateMovement(uint entityID, Vector3 d_m)
         {
