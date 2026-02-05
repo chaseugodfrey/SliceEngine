@@ -65,6 +65,10 @@ namespace SliceEngine
 			OnSceneChangeEvent ChangeEvent;
 			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
 
+			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			{
+				mCurrentState = SceneState::DEFAULT;
+			}
 		}
 
 
