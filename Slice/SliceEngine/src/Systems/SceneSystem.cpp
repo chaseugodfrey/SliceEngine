@@ -113,6 +113,13 @@ namespace SliceEngine
 			mCurrentScene.replace_extension(".scene");
 		}
 
+		if (mCurrentState == SceneState::RELOAD_SCENE && mNextState == SceneState::RELOAD_SCENE)
+		{
+			mNextState = mCurrentState = SceneState::DEFAULT;
+
+		}
+
+
 		return true;
 	}
 
