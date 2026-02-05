@@ -365,7 +365,28 @@ namespace SliceEngine
 		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
 		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
 
+	rttr::registration::class_<std::pair<float, glm::vec4>>("PairFloatVec4")
+		.constructor<>()
+		.property("first", &std::pair<float, glm::vec4>::first)
+		.property("second", &std::pair<float, glm::vec4>::second);
+
+	rttr::registration::class_<std::vector<std::pair<float, glm::vec4>>>("VectorPairFloatVec4");
+
 	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
+	rttr::registration::class_<std::map<float, glm::vec3>>("map_float_vec3")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec3>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec3>::iterator, bool>
+			(std::map<float, glm::vec3>::*)(const float&, const glm::vec3&)>(&std::map<float, glm::vec3>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec3>::clear);
+
+	rttr::registration::class_<std::map<float, glm::vec4>>("map_float_vec4")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec4>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec4>::iterator, bool>
+			(std::map<float, glm::vec4>::*)(const float&, const glm::vec4&)>(&std::map<float, glm::vec4>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec4>::clear);
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
@@ -463,11 +484,13 @@ namespace SliceEngine
 		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
 
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colourMap", &ParticleSystem::colourLifeTimeMap)
+		.property("colourLifetimeMap", &ParticleSystem::colourLifetimeMap)
+		.property("colourMapIntermediary", &ParticleSystem::colourMapIntermediary)
 
 		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
-		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)
-		.property("endVelocityMultiplier", &ParticleSystem::endVelocityMultiplier)
+		.property("velocitySeparateAxis", &ParticleSystem::velocitySeparateAxis)
+		.property("velocityMap", &ParticleSystem::velocityMap)
+		.property("velocityMapIntermediary", &ParticleSystem::velocityMapIntermediary)
 
 		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
 		.property("orbitAxis", &ParticleSystem::orbitAxis)

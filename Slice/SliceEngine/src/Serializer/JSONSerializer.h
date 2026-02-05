@@ -699,14 +699,11 @@ namespace nlohmann
 		{
 			throw std::runtime_error("Invalid JSON type for unsigned char: " + j.dump());
 		}
-	}
+	}	
 }
-
-
 
 namespace SliceEngine
 {
-
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{
@@ -809,7 +806,6 @@ namespace SliceEngine
 		{
 			const json& v = it.value();
 
-			// Expecting [x, y, z]
 			glm::vec3 vec{};
 			vec.x = v.at(0).get<float>();
 			vec.y = v.at(1).get<float>();
@@ -827,7 +823,6 @@ namespace SliceEngine
 		{
 			const json& v = it.value();
 
-			// Expecting [x, y, z]
 			glm::vec4 vec{};
 			vec.x = v.at(0).get<float>();
 			vec.y = v.at(1).get<float>();
@@ -837,35 +832,6 @@ namespace SliceEngine
 			map.emplace(std::stof(it.key()), vec);
 		}
 	}
-
-	/*inline void from_json(const nlohmann::json& j, std::pair<float, glm::vec3>& p)
-	{
-		if (!j.is_array() || j.size() != 2)
-			throw std::runtime_error("Invalid JSON for pair<float, glm::vec3>");
-
-		p.first = j.at(0).get<float>();
-		p.second = j.at(1).get<glm::vec3>();
-	}
-
-	inline void to_json(nlohmann::json& j, const std::pair<float, glm::vec3>& p)
-	{
-		j = nlohmann::json::array({ p.first, p.second });
-	}
-
-	inline void from_json(const nlohmann::json& j, std::pair<float, glm::vec4>& p)
-	{
-		if (!j.is_array() || j.size() != 2)
-			throw std::runtime_error("Invalid JSON for pair<float, glm::vec4>");
-
-		p.first = j.at(0).get<float>();
-		p.second = j.at(1).get<glm::vec4>();
-	}
-
-	inline void to_json(nlohmann::json& j, const std::pair<float, glm::vec4>& p)
-	{
-		j = nlohmann::json::array({ p.first, p.second });
-	}*/
-
 
 	// GameObject
 	// From Json doesnt work because mRegistry should not be accessible in this file
@@ -933,6 +899,57 @@ namespace glm
 	inline void to_json(json& j, const glm::quat& q)
 	{
 		j = json::array({ q.w, q.x, q.y, q.z });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec3>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key()); // JSON object keys are strings
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 3)
+				throw std::runtime_error("Invalid JSON array for vec3");
+
+			glm::vec3 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec3>& p)
+	{
+		j = json::array({ p.first, p.second });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec4>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key());
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 4)
+				throw std::runtime_error("Invalid JSON array for vec4");
+
+			glm::vec4 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+			value.w = arr[3].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec4>& p)
+	{
+		j = json::array({ p.first, p.second });
 	}
 }
 

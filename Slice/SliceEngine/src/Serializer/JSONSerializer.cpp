@@ -307,8 +307,8 @@ namespace SliceEngine
 								ParticleSystem::ValueType,
 								std::map<float, glm::vec3>,
 								std::map<float, glm::vec4>,
-								//std::vector <std::pair<float, glm::vec3>>,
-								//std::vector <std::pair<float, glm::vec4>>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>,
 								GameObject,
@@ -512,8 +512,8 @@ namespace SliceEngine
 								ParticleSystem::ValueType,
 								std::map<float, glm::vec3>,
 								std::map<float, glm::vec4>,
-								//std::vector <std::pair<float, glm::vec3>>,
-								//std::vector <std::pair<float, glm::vec4>>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -662,8 +662,8 @@ namespace SliceEngine
 						ParticleSystem::ValueType,
 						std::map<float, glm::vec3>,
 						std::map<float, glm::vec4>,
-						//std::vector <std::pair<float, glm::vec3>>,
-						//std::vector <std::pair<float, glm::vec4>>,
+						std::vector <std::pair<float, glm::vec3>>,
+						std::vector <std::pair<float, glm::vec4>>,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
 						GameObject,
@@ -741,8 +741,8 @@ namespace SliceEngine
 							ParticleSystem::ValueType,
 							std::map<float, glm::vec3>,
 							std::map<float, glm::vec4>,
-							//std::vector <std::pair<float, glm::vec3>>,
-							//std::vector <std::pair<float, glm::vec4>>,
+							std::vector <std::pair<float, glm::vec3>>,
+							std::vector <std::pair<float, glm::vec4>>,
 							std::vector<ParticleSystem::Burst>,							
 							std::vector<Particle>,
 							GameObject
@@ -888,8 +888,8 @@ namespace SliceEngine
 								ParticleSystem::ValueType,
 								std::map<float, glm::vec3>,
 								std::map<float, glm::vec4>,
-								//std::vector <std::pair<float, glm::vec3>>,
-								//std::vector <std::pair<float, glm::vec4>>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -1066,6 +1066,22 @@ namespace SliceEngine
 
 				return jArray;
 			}
+
+			if (t.is_associative_container())
+			{
+				auto view = v.create_associative_view();
+				nlohmann::json jObject = nlohmann::json::object();
+
+				for (auto& item : view)
+				{
+					auto key = item.first.to_string(); // keys in JSON must be strings
+					auto val = GetJsonFromVariant(item.second);
+					jObject[key] = val;
+				}
+
+				return jObject;
+			}
+
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
 			if (t == rttr::type::get<glm::vec2>()) { return v.get_value<glm::vec2>(); }
 			if (t == rttr::type::get<JPH::Vec3>()) { return v.get_value<JPH::Vec3>(); }

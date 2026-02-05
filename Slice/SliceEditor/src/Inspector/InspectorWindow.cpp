@@ -1413,7 +1413,7 @@ namespace SliceEditor
 					BoolInputHeader(mRegistry, "Separate Axis", "##sizeSeparateAxis", ps.sizeSeparateAxis);					
 
 					auto num = ps.sizeMapIntermediary.size();
-					if (DragUInt64InputHeader(mRegistry, "Number of Points", "##numSizePoints", num, "%llu", 0, 20))
+					if (DragUInt64InputHeader(mRegistry, "Number of Points", "##numSizePoints", num, "%llu", 0, 10))
 					{ 
 						ps.sizeMapIntermediary.resize(num);
 					};
@@ -1431,7 +1431,7 @@ namespace SliceEditor
 						}
 						else 
 						{
-							ImGui::TableSetupColumn("Size");
+							ImGui::TableSetupColumn("Size Multiplier");
 						}
 						
 						ImGui::TableHeadersRow();
@@ -1481,6 +1481,7 @@ namespace SliceEditor
 						// If there is any change, rebuild the map
 						if (modified)
 						{
+							ps.sizeMap.clear();
 							for (const auto& kv : ps.sizeMapIntermediary)
 							{
 								ps.sizeMap.insert_or_assign(kv.first, kv.second);
@@ -1488,8 +1489,6 @@ namespace SliceEditor
 						}												
 					}
 				}
-
-
 			}
 
 			if (ImGui::CollapsingHeader("Rotate Over Lifetime"))
@@ -1514,7 +1513,62 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Colour Over Lifetime", "##colourOverLifetime", ps.colourOverLifetime);
 				if (ps.colourOverLifetime)
 				{
-					DragColor4InputHeader(mRegistry, "Colour Over Lifetime End", "##colourOverLifetimeEnd", ps.colourLifeTimeMap[1.0f]);
+					auto num = ps.colourMapIntermediary.size();
+					if (DragUInt64InputHeader(mRegistry, "Number of Points", "##numColPoints", num, "%llu", 0, 10))
+					{
+						auto oldSize = ps.colourMapIntermediary.size();
+						ps.colourMapIntermediary.resize(num);
+
+						for (size_t i = oldSize; i < num; ++i)
+						{
+							ps.colourMapIntermediary[i].first = 1.0f;              // or i / (num - 1)
+							ps.colourMapIntermediary[i].second = glm::vec4(1.0f);  // white
+						}
+					};
+
+					if (ImGui::BeginTable("Colour Over Lifetime", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+					{
+						ImGui::TableSetupColumn("Time");
+						ImGui::TableSetupColumn("Colour");
+						ImGui::TableHeadersRow();
+
+						int counter = 0;
+						float itemWidth = 50.0f;
+						bool modified{ false };
+						for (auto& kv : ps.colourMapIntermediary)
+						{
+							auto& time = kv.first;
+							auto& value = kv.second;
+
+							ImGui::TableNextRow();
+
+							ImGui::TableNextColumn();
+							float columnWidth = ImGui::GetColumnWidth();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string colTime = ("##colourMap_Time" + std::to_string(counter));
+							modified |= DragFloatInput(mRegistry, colTime.c_str(), time, "%.2f", 0.0f, 1.0f);
+
+							ImGui::TableNextColumn();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string colVal = ("##colourMap_Colour" + std::to_string(counter));
+							modified |= DragColor4InputHeader(mRegistry, "", colVal.c_str(), value);
+							
+							++counter;
+						}
+						ImGui::EndTable();
+
+						// If there is any change, rebuild the map
+						if (modified)
+						{
+							ps.colourLifetimeMap.clear();
+							for (const auto& kv : ps.colourMapIntermediary)
+							{
+								ps.colourLifetimeMap[kv.first] = kv.second;
+							}
+						}
+					}
 				}
 			}
 
@@ -1523,8 +1577,90 @@ namespace SliceEditor
 				BoolInputHeader(mRegistry, "Velocity Over Lifetime", "##velocityOverLifetime", ps.velocityOverLifetime);
 				if (ps.velocityOverLifetime)
 				{
-					DragVec3InputHeader(mRegistry, "Start Multiplier", "##startVelocityMultiplier", ps.startVelocityMultiplier);
-					DragVec3InputHeader(mRegistry, "End Multiplier", "##endVelocityMultiplier", ps.endVelocityMultiplier);
+					BoolInputHeader(mRegistry, "Separate Axis", "##velocitySeparateAxis", ps.velocitySeparateAxis);
+
+					auto num = ps.velocityMapIntermediary.size();
+					if (DragUInt64InputHeader(mRegistry, "Number of Points", "##numVelPoints", num, "%llu", 0, 10))
+					{
+						auto oldSize = ps.velocityMapIntermediary.size();
+						ps.velocityMapIntermediary.resize(num);
+
+						for (size_t i = oldSize; i < num; ++i)
+						{
+							ps.velocityMapIntermediary[i].first = 1.0f;              // or i / (num - 1)
+							ps.velocityMapIntermediary[i].second = glm::vec3(1.0f);  // white
+						}
+					};
+
+					if (ImGui::BeginTable("Velocity Over Lifetime", ps.velocitySeparateAxis ? 4 : 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg))
+					{
+						ImGui::TableSetupColumn("Time");
+
+						if (ps.velocitySeparateAxis)
+						{
+							ImGui::TableSetupColumn("X");
+							ImGui::TableSetupColumn("Y");
+							ImGui::TableSetupColumn("Z");
+						}
+						else
+						{
+							ImGui::TableSetupColumn("Velocity Multiplier");
+						}
+
+						ImGui::TableHeadersRow();
+
+						int counter = 0;
+						float itemWidth = 50.0f;
+						bool modified{ false };
+						for (auto& kv : ps.velocityMapIntermediary)
+						{
+							auto& time = kv.first;
+							auto& value = kv.second;
+
+							ImGui::TableNextRow();
+
+							ImGui::TableNextColumn();
+							float columnWidth = ImGui::GetColumnWidth();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string velTime = ("##velocityMap_Time" + std::to_string(counter));
+							modified |= DragFloatInput(mRegistry, velTime.c_str(), time, "%.2f", 0.0f, 1.0f);
+
+							if (ps.velocitySeparateAxis)
+							{
+								ImGui::TableNextColumn();
+								ImGui::SetNextItemWidth(itemWidth);
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+								std::string velocityX = ("##velocityMap_X" + std::to_string(counter));
+								modified |= DragFloatInput(mRegistry, velocityX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
+
+								ImGui::TableNextColumn();
+								ImGui::SetNextItemWidth(itemWidth);
+								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+								std::string velocityY = ("##velocityMap_Y" + std::to_string(counter));
+								modified |= DragFloatInput(mRegistry, velocityY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
+							}
+
+							ImGui::TableNextColumn();
+							ImGui::SetNextItemWidth(itemWidth);
+							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
+							std::string velocityZ = ("##velocityMap_Z" + std::to_string(counter));
+							modified |= DragFloatInput(mRegistry, velocityZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
+
+							++counter;
+						}
+						ImGui::EndTable();
+
+						// If there is any change, rebuild the map
+						if (modified)
+						{
+							ps.velocityMap.clear();
+							for (const auto& kv : ps.velocityMapIntermediary)
+							{
+								ps.velocityMap.insert_or_assign(kv.first, kv.second);
+							}
+						}
+					}					
 				}
 			}
 

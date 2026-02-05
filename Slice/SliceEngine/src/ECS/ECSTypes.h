@@ -573,13 +573,14 @@ namespace SliceEngine
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
-		std::map<float, glm::vec4> colourLifeTimeMap;
+		std::map<float, glm::vec4> colourLifetimeMap;
+		std::vector <std::pair<float, glm::vec4>> colourMapIntermediary{};
 
 		// Velocity over lifetime
 		bool velocityOverLifetime{ false };
-		glm::vec3 startVelocityMultiplier{ 1.0f };
-		glm::vec3 endVelocityMultiplier{ 0.0f };
-		std::map<float, glm::vec4> VelocityMap;
+		bool velocitySeparateAxis{ false };
+		std::map<float, glm::vec3> velocityMap;
+		std::vector <std::pair<float, glm::vec3>> velocityMapIntermediary{};
 
 		// Orbit over lifetime
 		bool orbitOverLifetime{ false };
