@@ -667,34 +667,33 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
 	{
-		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-
-		//if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		//{
-		//	DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-
-		//	DragVec3InputHeader(mRegistry, "Start Link", "##start_link", agent.startLink);
-
-		//	DragVec3InputHeader(mRegistry, "End Link", "##end_link", agent.endLink);
-
-		//	BoolInputHeader(mRegistry, "Bidirectional", "##bidirectional", agent.bidirectional);
-
-		//	DragFloatInputHeader(mRegistry, "Radius", "#radius", agent.radius, "%.1f");
-
-		//	ImGui::TreePop();
-		//}
 		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
 		{
 			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
 			
 			
-			EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);
+			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
 			ImGui::TreePop();
 		}
 
+
+			//ImGui::TreePop();
 		}
+
+	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
+	{
+		auto& navObstacle = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavObstacle>(entity);
+
+		if (ImGui::TreeNodeEx("Nav Obstacle", mBaseFlags))
+		{
+			DisplayComponentHeader<SliceEngine::NavObstacle>(entity);
+
+			BoolInputHeader(mRegistry, "Is Obstacle: ", "##isNavObstacle", navObstacle.isObstacle);
+			ImGui::TreePop();
+		}
+	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -1586,6 +1585,14 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
+			{
+				if (ImGui::Selectable("Add Nav Obstacle"))
+				{
+					reg.emplace<SliceEngine::NavObstacle>(entity);
+				}
+			}
+
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
 				if (ImGui::Selectable("Add Box Collider"))
@@ -1822,6 +1829,12 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
 			{
 				DisplayNavMeshLink(node->entity);
+				ImGui::Separator();
+			}
+
+			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
+			{
+				DisplayNavObstacle(node->entity);
 				ImGui::Separator();
 			}
 

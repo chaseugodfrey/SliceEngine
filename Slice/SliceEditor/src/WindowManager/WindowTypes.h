@@ -27,7 +27,6 @@ DigiPen Institute of Technology is prohibited.
 #include <Navigation/NavigationWindow.h>
 #include <Configuration/PreferenceWindow.h>
 #include <Configuration/ProjectSettingsWindow.h>
-#include <CustomShader/CustomShaderWindow.h>
 #include <Console/ConsoleWindow.h>
 #include <History/HistoryWindow.h>
 
