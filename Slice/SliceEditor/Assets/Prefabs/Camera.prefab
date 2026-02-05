@@ -1,0 +1,79 @@
+[
+    {
+        "Camera": {
+            "struct SliceEngine::Camera": {
+                "bloomExposure": 10.0,
+                "bloomFilterRadius": 5.0,
+                "bloomStrength": 0.4000000059604645,
+                "componentEnabled": true,
+                "debugRenderTag": "0",
+                "depthTex": 33,
+                "far": 200.0,
+                "fogColor": [
+                    0.09613192081451416,
+                    0.1627907156944275,
+                    0.07798811048269272
+                ],
+                "fogIntensity": 0.03999999910593033,
+                "height": 1080,
+                "near": 0.009999999776482582,
+                "postRenderTag": "13",
+                "pov": 60.0,
+                "textureID": 32,
+                "translucentSelectCutoff": 0.20000000298023224,
+                "vignetteCenter": [
+                    0.5,
+                    0.5
+                ],
+                "vignetteIntensity": 0.0,
+                "vignetteSmoothness": 1.0,
+                "width": 1920
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194377,
+                "neighbours": [
+                    4194376,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Camera",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    -6.800000190734863
+                ],
+                "position": [
+                    6.07139760688824e-09,
+                    3.0920000076293945,
+                    -4.5
+                ],
+                "rotation": [
+                    0.7058621644973755,
+                    0.041935939341783524,
+                    -0.7058621048927307,
+                    -0.041935939341783524
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048657,
+                "entity_id": 6291533,
                 "neighbours": [
                     0,
-                    1048656,
-                    1048658,
-                    1048655
+                    6291532,
+                    6291534,
+                    6291551
                 ]
             },
             "struct SliceEngine::Script": {
@@ -80,31 +80,31 @@
     {
         "Camera": {
             "struct SliceEngine::Camera": {
-                "bloomExposure": 10.0,
+                "bloomExposure": 21.0,
                 "bloomFilterRadius": 5.0,
-                "bloomStrength": 0.4000000059604645,
+                "bloomStrength": 10.0,
                 "componentEnabled": true,
                 "debugRenderTag": "0",
-                "depthTex": 36,
+                "depthTex": 35,
                 "far": 200.0,
                 "fogColor": [
-                    0.20000000298023224,
-                    0.20000000298023224,
-                    0.20000000298023224
+                    0.10524608939886093,
+                    0.1627907156944275,
+                    0.12184035032987595
                 ],
-                "fogIntensity": 0.03999999910593033,
+                "fogIntensity": 0.019999999552965164,
                 "height": 1080,
                 "near": 0.009999999776482582,
                 "postRenderTag": "13",
                 "pov": 60.0,
-                "textureID": 35,
+                "textureID": 34,
                 "translucentSelectCutoff": 0.20000000298023224,
                 "vignetteCenter": [
                     0.5,
                     0.5
                 ],
-                "vignetteIntensity": 0.0,
-                "vignetteSmoothness": 1.0,
+                "vignetteIntensity": 0.20000000298023224,
+                "vignetteSmoothness": 1.5,
                 "width": 1920
             },
             "struct SliceEngine::Prefab": {
@@ -115,9 +115,9 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048656,
+                "entity_id": 6291532,
                 "neighbours": [
-                    1048657,
+                    6291533,
                     4294967295,
                     4294967295,
                     4294967295
