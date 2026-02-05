@@ -1,4 +1,5 @@
 using SliceEngine;
+using SliceScript.Source.Core.Systems;
 using System;
 
 
@@ -10,14 +11,64 @@ namespace SliceEngine
         public bool isSettings = false;
         public bool isQuit = false;
         public bool isSettingsPopup = false;
+        public bool isMaxVolumeSlider = false;
+        public bool isSFXVolumeSlider = false;
+        public bool isBGMVolumeSlider = false;
 
         GameObject settingsPopup;
         GameObject MainMenuCanvas;
+        GameObject BGMSlider;
+        GameObject SFXSlider;
+        GameObject MasterSlider;
+        Slider bgmVol;
+        Slider sfxVol;
+        Slider masterVol;
 
         public override void OnCreate()
         {
             settingsPopup = FindGameObjectWithName("Settings_Popup");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
+            BGMSlider = FindGameObjectWithName("BGMVolumeSlider");
+            SFXSlider = FindGameObjectWithName("SFXVolumeSlider");
+            MasterSlider = FindGameObjectWithName("MasterVolumeSlider");
+
+            bgmVol = BGMSlider.GetComponent<Slider>();
+            sfxVol = BGMSlider.GetComponent<Slider>();
+            masterVol = BGMSlider.GetComponent<Slider>();
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            //if (isSFXVolumeSlider)
+            //{
+
+            //    AudioManager.SetCategoryVolume("SFX", value);
+            //}
+            //else if (isMaxVolumeSlider)
+            //{
+            //    AudioManager.SetMasterVolume(value);
+            //}
+            //else if (isBGMVolumeSlider)
+            //{
+            //    AudioManager.SetCategoryVolume("BGM", value);
+            //    Console.WriteLine("BGM volume");
+            //}
+
+            Slider bgmVol = BGMSlider.GetComponent<Slider>();
+
+            if (bgmVol.GetValue() != AudioManager.GetCategoryVolume("BGM"))
+            {
+                AudioManager.SetCategoryVolume("BGM", bgmVol.GetValue());
+            }
+            if (sfxVol.GetValue() != AudioManager.GetCategoryVolume("SFX"))
+            {
+                AudioManager.SetCategoryVolume("SFX", sfxVol.GetValue());
+            }
+
+            if (masterVol.GetValue() != AudioManager.GetMasterVolume())
+            {
+                AudioManager.SetMasterVolume(masterVol.GetValue());
+            }
         }
 
         public override void OnButtonClick()

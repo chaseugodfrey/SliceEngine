@@ -1611,6 +1611,45 @@ namespace SliceEngine
 		return false;
 	}
 
+	static float Audio_GetCategoryVolume(MonoString* categoryName)
+	{
+
+		std::string cStrName = MonoToString(categoryName);
+		int categoryInt = 0;
+		if (cStrName == "BGM")
+		{
+			categoryInt = 1;
+		}
+
+		return Core::GetInstance()->GetAudioManager()->GetCategoryVolume(categoryInt);
+	}
+
+	static void Audio_SetCategoryVolume(MonoString* categoryName, float* volume)
+	{
+
+		std::string cStrName = MonoToString(categoryName);
+		float volValue = *volume; 
+		int categoryInt = 0;
+		if (cStrName == "BGM")
+		{
+			categoryInt = 1;
+		}
+		Core::GetInstance()->GetAudioManager()->SetCategoryVolume(categoryInt, volValue);
+	}
+
+	static void Audio_SetMasterVolume(float* volume)
+	{
+		float volValue = *volume;
+		
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volValue);
+	}
+
+	static float Audio_SetMasterVolume()
+	{
+
+		return Core::GetInstance()->GetAudioManager()->GetMasterVolume();
+	}
+
 	static void Audio_SetPaused(unsigned int entity, bool paused)
 	{
 		if (auto *audioComp = GetAudioComponent(entity))
@@ -2603,6 +2642,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetPaused);
 		ADD_INTERNAL_CALL(Audio_SetLoop);
 		ADD_INTERNAL_CALL(Audio_GetLoop);
+		ADD_INTERNAL_CALL(Audio_SetCategoryVolume);
+		ADD_INTERNAL_CALL(Audio_SetMasterVolume);
 		ADD_INTERNAL_CALL(Audio_SetVolume);
 		ADD_INTERNAL_CALL(Audio_GetVolume);
 		ADD_INTERNAL_CALL(Audio_SetPitch);
