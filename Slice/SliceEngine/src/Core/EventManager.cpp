@@ -29,6 +29,7 @@ void EventManager::SetupEventManager()
 	RegisterEvent<RigidBodyModifiedEvent>();
 	RegisterEvent<OnSceneLoadedEvent>();
 	RegisterEvent<OnSceneStopEvent>();
+	RegisterEvent<OnSceneChangeEvent>();
 
 	//Collision Events
 	RegisterEvent<OnCollisionEnterEvent>();

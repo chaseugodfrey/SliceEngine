@@ -90,6 +90,11 @@ struct OnSceneLoadedEvent
 	std::string navMeshBinPath;
 };
 
+struct OnSceneChangeEvent
+{
+
+};
+
 struct OnSceneStopEvent
 {
 	bool isSceneStopped;
