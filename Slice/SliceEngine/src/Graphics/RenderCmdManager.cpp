@@ -82,6 +82,8 @@ namespace SliceEngine
 
 			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
 
+			if (material->data.size() != material->shader.get()->dataIn.size())
+				SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
@@ -174,6 +176,9 @@ namespace SliceEngine
 
 				if (!model || !material)
 					continue;
+
+				if (material->data.size() != material->shader.get()->dataIn.size())
+					SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(materialGUID);
 
 				RCK_ModelT mdlDet = GetModelDetails(
 					modelGUID.GetGUID(),
@@ -440,6 +445,10 @@ namespace SliceEngine
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 		auto& rend = core->GetRegistry().get<Renderer>(entity);
 		if (!rend.modelHandle.IsValid()) return;
+
+		if (rend.materialHandle->data.size() != rend.materialHandle->shader.get()->dataIn.size())
+			SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
+
 		auto meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(rend.modelHandle.get()->meshes.size() - 1));
 
 		auto& mesh = rend.modelHandle.get()->meshes[meshOffset];
