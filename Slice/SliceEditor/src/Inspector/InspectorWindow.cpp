@@ -588,6 +588,8 @@ namespace SliceEditor
 					colliderName = "Capsule Collider";
 				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::MeshData>)
 					colliderName = "Mesh Collider";
+				else if constexpr (std::is_same_v<T, SliceEngine::ColliderShape::CylinderData>)
+					colliderName = "Cylinder Collider";
 			}, colliderData.shapeData);
 
 		if (ImGui::TreeNodeEx(colliderName.c_str(), mBaseFlags))
@@ -642,6 +644,21 @@ namespace SliceEditor
 					{
 						// nothing for now UwU
 					}
+					else if (std::holds_alternative<SliceEngine::ColliderShape::CylinderData>(col.shapeData))
+					{
+						float radius = std::get<SliceEngine::ColliderShape::CylinderData>(col.shapeData).radius;
+						float height = std::get<SliceEngine::ColliderShape::CylinderData>(col.shapeData).height;
+						if (DragFloatInputHeader(mRegistry, "Radius", "##capsuleRadius", radius))
+						{
+							col.SetCylinderData(SliceEngine::ColliderShape::CylinderData(radius, height));
+						}
+
+						if (DragFloatInputHeader(mRegistry, "Height", "##capsuleHeight", height))
+						{
+							col.SetCylinderData(SliceEngine::ColliderShape::CylinderData(radius, height));
+						}
+					}
+
 				});
 			}
 			ImGui::TreePop();
@@ -1623,6 +1640,14 @@ namespace SliceEditor
 					SliceEngine::ColliderShape meshData{};
 					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
 					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+
+				}
+
+				if (ImGui::Selectable("Add Cylinder Collider"))
+				{
+					SliceEngine::ColliderShape cylinderData{};
+					cylinderData.shapeData = SliceEngine::ColliderShape::CylinderData{};
+					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
 
 				}
 			}
