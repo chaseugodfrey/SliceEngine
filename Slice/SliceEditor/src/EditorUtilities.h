@@ -20,6 +20,7 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateBox(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreateSphere(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateCylinder(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 
 		//2D Objects
