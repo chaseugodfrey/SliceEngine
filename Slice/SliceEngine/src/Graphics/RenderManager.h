@@ -82,15 +82,16 @@ namespace SliceEngine
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
-		const float mLightZDist = 50.f;
+		const float mLightZDist = 5.f;
+		const float mZBufferShadow = 175.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
-		const int mNumCascadeShadow = 5;
-		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
+		const int mNumCascadeShadow = 6;
+		const float shadowCascadeLevels[6] {50.f, 25.f, 10.f, 5.f, 2.f, 1.05f};
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -200,7 +201,7 @@ namespace SliceEngine
 			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SKYBOX				= 0b0000'0001,
 			GPS_SKYBOX_AMBIENT		= 0b0101'0011,
-			GPS_SHADOW				= 0b1001'0101,
+			GPS_SHADOW				= 0b1001'0100,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
 			GPS_DEBUG				= 0b1100'0110,

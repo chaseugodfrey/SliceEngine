@@ -327,6 +327,9 @@ namespace SliceEditor
 		case AssetType::Font:
 			file.metaData = std::make_unique<FontMetaData>();
 			break;
+		default:
+			SLICE_LOG_WARNING("File Type not supported in HandleDrop function yet: " + fileExt +". Letting Filewatcher handle.");
+			return;
 		}
 		//Default Init the MetaData base class
 		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);

@@ -68,7 +68,7 @@ void main(void){
 			int layer = -1;
 			for(int i = 0; i < cascadeCnt; ++i)
 			{
-				if(depthVal < cascadePlaneDist[i])
+				if(depthVal <= cascadePlaneDist[i])
 				{
 					layer = i;
 					break;
@@ -79,16 +79,17 @@ void main(void){
 				layer = cascadeCnt - 1;
 			}
 
-			vec4 vLightPos = lightSpaceMtx[layer] * vec4(wPos, 1.0f);
+			vec3 offsetPos = wPos + nom * 0.05;
+			vec4 vLightPos = lightSpaceMtx[layer] * vec4(offsetPos, 1.0f);
 			vec3 projCoords = vLightPos.xyz / vLightPos.w;
 			projCoords = projCoords * 0.5f + 0.5f;
 
-			vec3 ambient = dif.rgb * ambient; // if blocked by shadow
+			vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
 
 			vec3 l = normalize(-uLight.direction);// Surface to Light
 			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
-			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
-			fFragColor = vec4(ambient, 1.0f);
+			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
+			fFragColor = vec4(finalLighting, 1.0f);
 		}
 		else if(uLight.type == isPoint)
 		{
@@ -159,15 +160,23 @@ float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
 	if(projCoords.z > 1.0)
         return 0.0;
 
-	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
-	if(layer == cascadeCnt - 1)
-	{
-		bias *= 1 / (uFarPlane * biasModifier);
-	}
-	else
-	{
-		bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
-	}
+	float bias = max(0.05 * (1.0 - dot(n, l)), 0.005); 
+	// Scale bias by the ratio of the current cascade distance to the total far plane
+	bias *= (cascadePlaneDist[layer] / uFarPlane);
+
+	//float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	//if(layer == cascadeCnt - 1)
+	//{
+	//	//bias *= 1 / (uFarPlane * biasModifier);
+	//	bias *= (uFarPlane / 200.f) * biasModifier;
+	//}
+	//else
+	//{
+	//	//bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
+	//	bias *= (cascadePlaneDist[layer] / 200.f) * biasModifier;
+	//}
+
+
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / vec2(textureSize(uShadowTex, 0));
 	for(int x = -1; x <= 1; ++x)

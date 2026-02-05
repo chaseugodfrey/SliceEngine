@@ -357,14 +357,25 @@ namespace SliceEngine
 			minZ = std::min(minZ, trf.z);
 			maxZ = std::max(maxZ, trf.z);
 		}
-		if (minZ < 0)
-			minZ *= mLightZDist;
-		else
-			minZ /= mLightZDist;
-		if (maxZ < 0)
-			maxZ /= mLightZDist;
-		else
-			maxZ *= mLightZDist;
+		minZ -= mZBufferShadow;
+		maxZ += mZBufferShadow;
+
+		float worldUnitsPerTexel = (maxX - minX) / Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
+		minX = floor(minX / worldUnitsPerTexel) * worldUnitsPerTexel;
+		maxX = floor(maxX / worldUnitsPerTexel) * worldUnitsPerTexel;
+
+		float worldUnitsPerTexelY = (maxY - minY) / Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
+		minY = floor(minY / worldUnitsPerTexelY) * worldUnitsPerTexelY;
+		maxY = floor(maxY / worldUnitsPerTexelY) * worldUnitsPerTexelY;
+
+		//if (minZ < 0)
+		//	minZ *= mLightZDist;
+		//else
+		//	minZ /= mLightZDist;
+		//if (maxZ < 0)
+		//	maxZ /= mLightZDist;
+		//else
+		//	maxZ *= mLightZDist;
 
 		return glm::ortho(minX, maxX, minY, maxY, minZ, maxZ) * lightView;
 	}
