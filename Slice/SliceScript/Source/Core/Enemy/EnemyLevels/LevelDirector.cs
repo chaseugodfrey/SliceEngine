@@ -59,7 +59,7 @@ namespace SliceEngine
 
             if (deathBox != null)
             {
-                deathBox.GetComponent<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
+                deathBox.As<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
             }
 
             //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
