@@ -236,6 +236,10 @@ namespace SliceEngine
 				{
 					const dtPoly* p = &tile->polys[i];
 
+					// skip offmesh polygons as they dont contain valid detail meshes
+					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+						continue;
+
 					const dtPolyDetail* pd = &tile->detailMeshes[i];
 
 					// The Blue Floor

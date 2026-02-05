@@ -919,6 +919,11 @@ namespace SliceEngine
 		bool bidirectional;
 		float radius;
 	};
+
+	struct NavObstacle
+	{
+		bool isObstacle = false;
+	};
 }
 
 #endif
