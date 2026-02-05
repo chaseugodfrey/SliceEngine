@@ -317,39 +317,39 @@ namespace SliceEditor
 				DragColor4InputHeader(mRegistry, "Highlighted", "##btncolor2", button.color_transitions[SliceEngine::Button::Highlighted]);
 				DragColor4InputHeader(mRegistry, "Pressed", "##btncolor3", button.color_transitions[SliceEngine::Button::Pressed]);
 				break;
-			case SliceEngine::Button::Sprite:	//i didnt test this
-			{
-				const char* state_names[] = { "Normal", "Highlighted", "Pressed" };
-				for (int i = 0; i < 3; ++i) {
-					auto& btn_sprites = button.sprite_transitions;
-					ImGui::Text(state_names[i]);
-					ImGui::SameLine(150.0f);
-					ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			//case SliceEngine::Button::Sprite:	//i didnt test this
+			//{
+			//	const char* state_names[] = { "Normal", "Highlighted", "Pressed" };
+			//	for (int i = 0; i < 3; ++i) {
+			//		auto& btn_sprites = button.sprite_transitions;
+			//		ImGui::Text(state_names[i]);
+			//		ImGui::SameLine(150.0f);
+			//		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 
-					auto& texture_guid = btn_sprites[SliceEngine::Button::Normal];
-					std::string texture_guid_string = std::to_string(texture_guid.GetGUID());
-					std::string textureFileName;
-					if (mRegistry.GetAssetManager().mGUIDtoFilename.find(texture_guid) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-					{
-						textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[texture_guid];
-					}
-					else //Its a default texture
-					{
-						textureFileName = texture_guid_string;
-					}
-					ImGui::InputText(state_names[i], &textureFileName, ImGuiInputTextFlags_ReadOnly);
-					if (ImGui::BeginDragDropTarget())
-					{
-						if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(state_names[i]))
-						{
-							SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-							texture_guid = recievedPayload;
-							// update the handle after
-						}
-					}
-				}
-			}
-				break;
+			//		auto& texture_guid = btn_sprites[SliceEngine::Button::Normal];
+			//		std::string texture_guid_string = std::to_string(texture_guid.GetGUID());
+			//		std::string textureFileName;
+			//		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(texture_guid) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
+			//		{
+			//			textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[texture_guid];
+			//		}
+			//		else //Its a default texture
+			//		{
+			//			textureFileName = texture_guid_string;
+			//		}
+			//		ImGui::InputText(state_names[i], &textureFileName, ImGuiInputTextFlags_ReadOnly);
+			//		if (ImGui::BeginDragDropTarget())
+			//		{
+			//			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(state_names[i]))
+			//			{
+			//				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+			//				texture_guid = recievedPayload;
+			//				// update the handle after
+			//			}
+			//		}
+			//	}
+			//}
+			//	break;
 			}
 
 			ImGui::TreePop();

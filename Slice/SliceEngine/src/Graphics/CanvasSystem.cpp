@@ -82,10 +82,6 @@ namespace SliceEngine {
 
 			font_render.token_list.swap(token_list);
 		}
-
-		void Fit_Line(FontRenderer const& font_render, RectTransform const& rect) {
-
-		}
 	}
 
 	void CanvasSystem::Init() {
@@ -115,6 +111,8 @@ namespace SliceEngine {
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, font_binding_index, font_ssbo);
 	}
 	void CanvasSystem::Release() {
+
+		glDeleteBuffers(1, &font_ssbo);
 		glDeleteTextures(1, &raycast_tex);
 		glDeleteFramebuffers(1, &fbo);
 		CheckGLError();
