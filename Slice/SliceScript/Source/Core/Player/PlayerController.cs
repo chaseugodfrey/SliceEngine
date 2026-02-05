@@ -595,10 +595,12 @@ namespace SliceEngine
                 dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
             }
 
-            Ray dashRay = new Ray(transform.Position, dashDir);
+            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
+            Ray dashRay = new Ray(transform.Position + new Vector3(0f, 0.5f, 0f), dashDir);
             if (Physics.Raycast(dashRay, out RayCastHit dashHitInfo, LayerMask.NameTolayer("Environment")))
             {
-                allowedDashDistance = dashHitInfo.distance - 0.5f; 
+                allowedDashDistance = dashHitInfo.distance - 0.5f;
+                Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
             }
 
             dashTimer = Math.Max(0.0001f, dashStartDuration);
@@ -935,8 +937,10 @@ namespace SliceEngine
         {
             canIncrement = flag;
         }
-        
+
         #endregion
+
+        #region On Overrides
         public override void OnCollideEnter(uint other)
         {
             // SliceLog.Log("OADMOSMODASM");
@@ -946,8 +950,6 @@ namespace SliceEngine
         {
 
         }
-
-        #region On Overrides
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
