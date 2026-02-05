@@ -19,6 +19,13 @@ DigiPen Institute of Technology is prohibited.
 	Define any events here
 */
 
+struct DebugDrawLineEvent
+{
+	glm::vec3 Origin;
+	glm::vec3 Dir;
+	float magnitude;
+};
+
 struct EntityCollide
 {
 	Entity firstEntity;

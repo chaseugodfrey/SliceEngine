@@ -1475,6 +1475,14 @@ namespace SliceEngine
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
 	}
 
+	static void Physics_DrawLine(glm::vec3* origin, glm::vec3* direction, float magnitude)
+	{
+		auto* eventManager = EventManager::GetInstance();
+		
+		DebugDrawLineEvent drawEvent{ *origin, *direction, magnitude };
+	
+		eventManager->Publish<DebugDrawLineEvent>(drawEvent);
+	}
 
 #pragma endregion
 
@@ -2517,6 +2525,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_DrawLine);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);
