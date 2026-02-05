@@ -4,16 +4,16 @@
             "struct SliceEngine::ColliderShape": {
                 "boxData": {
                     "scale": [
-                        0.5,
-                        1.0,
-                        0.5
+                        1.5,
+                        3.0,
+                        1.2000000476837158
                     ]
                 },
                 "componentEnabled": true,
                 "isTrigger": false,
                 "offSet": [
                     0.0,
-                    1.0,
+                    2.5,
                     0.0
                 ]
             },
@@ -57,12 +57,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 22,
+                "entity_id": 1048654,
                 "neighbours": [
                     0,
-                    23,
-                    15,
-                    24
+                    1048655,
+                    1048647,
+                    1048656
                 ]
             },
             "struct SliceEngine::Script": {
@@ -78,11 +78,11 @@
                     },
                     "attackHitBoxObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 13
+                        "Value": 1048645
                     },
                     "attackHitBoxRenderObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 85
+                        "Value": 1048717
                     },
                     "attackOdds": {
                         "Type": "float",
@@ -146,7 +146,7 @@
                     },
                     "windupSignalObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 86
+                        "Value": 1048718
                     }
                 }
             },
@@ -197,18 +197,18 @@
                 },
                 "meshOffset": "0",
                 "model": {
-                    "GUID": "12802300298583430329"
+                    "GUID": "18084038472398471024"
                 },
                 "renderTag": "0",
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 23,
+                "entity_id": 1048655,
                 "neighbours": [
-                    22,
+                    1048654,
                     4294967295,
                     4294967295,
-                    3
+                    1048635
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -221,23 +221,23 @@
                 "euler_hint": [
                     0.0,
                     0.0,
-                    0.0
+                    -61.90882873535156
                 ],
                 "position": [
                     0.0,
-                    1.0,
+                    4.699999809265137,
                     0.0
                 ],
                 "rotation": [
-                    1.0,
+                    0.8575767874717712,
                     0.0,
                     0.0,
-                    0.0
+                    -0.5143559575080872
                 ],
                 "scale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929
                 ]
             }
         }
@@ -252,12 +252,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 1048635,
                 "neighbours": [
-                    22,
-                    13,
-                    23,
-                    86
+                    1048654,
+                    1048645,
+                    1048655,
+                    1048718
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -274,7 +274,7 @@
                 ],
                 "position": [
                     0.0,
-                    1.0,
+                    1.399999976158142,
                     1.2070000171661377
                 ],
                 "rotation": [
@@ -285,7 +285,7 @@
                 ],
                 "scale": [
                     1.281000018119812,
-                    3.700000047683716,
+                    5.599999904632568,
                     3.0339999198913574
                 ]
             }
@@ -317,12 +317,12 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 13,
+                "entity_id": 1048645,
                 "neighbours": [
-                    3,
+                    1048635,
                     4294967295,
                     4294967295,
-                    85
+                    1048717
                 ]
             },
             "struct SliceEngine::Script": {
@@ -381,11 +381,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 85,
+                "entity_id": 1048717,
                 "neighbours": [
-                    3,
+                    1048635,
                     4294967295,
-                    13,
+                    1048645,
                     4294967295
                 ]
             },
@@ -442,11 +442,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 86,
+                "entity_id": 1048718,
                 "neighbours": [
-                    22,
+                    1048654,
                     4294967295,
-                    3,
+                    1048635,
                     4294967295
                 ]
             },
@@ -463,8 +463,8 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    2.799999952316284,
+                    1.642930030822754,
+                    5.290465354919434,
                     0.0
                 ],
                 "rotation": [

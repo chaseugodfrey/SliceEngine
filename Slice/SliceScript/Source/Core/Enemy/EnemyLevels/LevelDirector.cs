@@ -59,6 +59,7 @@ namespace SliceEngine
 
             if (deathBox != null)
             {
+                SliceLog.Log("Death box is not empty, setting it");
                 deathBox.As<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
             }
 
@@ -217,12 +218,16 @@ namespace SliceEngine
 
         public void RespawnPlayer(GameObject input)
         {
+            SliceLog.Log("Respawn is called");
             if (!input.Has<PlayerController>())
             {
+                SliceLog.Log("There is no player script in the object");
                 return;
             }
+
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
+                SliceLog.Log("Teleporting player");
                 Bootstrap.Player.Teleport(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
