@@ -59,11 +59,12 @@ namespace SliceEngine
 		}
 
 
-		if (mCurrentState == SceneState::PLAY_SCENE)
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::RELOAD_SCENE)
 		{
 			// publish event to scene change
-			OnSceneChangeEvent event;
-			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(event);
+			OnSceneChangeEvent ChangeEvent;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
+
 		}
 
 
