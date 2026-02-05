@@ -943,6 +943,7 @@ namespace SliceEngine
 		auto projSettingsManager = core->GetProjectSettingsManager();
 
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 
