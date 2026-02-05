@@ -111,6 +111,7 @@ namespace SliceEditor
 					n.out_id = ++uniqueIDCnt;
 					n.name = name;
 					n.baseData = components.get<float>();
+					n.baseDataType = CST::CSHAD_T::FLOAT;
 
 					mEditableIns[n.id] = n;
 					attrIDToNodeID[n.out_id] = n.id;
@@ -124,6 +125,7 @@ namespace SliceEditor
 					n.out_id = ++uniqueIDCnt;
 					n.name = name;
 					n.baseData = components.get<int32_t>();
+					n.baseDataType = CST::CSHAD_T::INT;
 
 					mEditableIns[n.id] = n;
 					attrIDToNodeID[n.out_id] = n.id;
@@ -137,6 +139,7 @@ namespace SliceEditor
 					n.out_id = ++uniqueIDCnt;
 					n.name = name;
 					n.baseData = components.get<uint32_t>();
+					n.baseDataType = CST::CSHAD_T::UINT;
 
 					mEditableIns[n.id] = n;
 					attrIDToNodeID[n.out_id] = n.id;
@@ -150,6 +153,7 @@ namespace SliceEditor
 					n.out_id = ++uniqueIDCnt;
 					n.name = name;
 					n.baseData = components.get<bool>();
+					n.baseDataType = CST::CSHAD_T::BOOL;
 
 					mEditableIns[n.id] = n;
 					attrIDToNodeID[n.out_id] = n.id;
