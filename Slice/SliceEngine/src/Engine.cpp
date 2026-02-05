@@ -579,6 +579,7 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("font_size", &FontRenderer::font_size)
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
+.property("text", &FontRenderer::text)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
@@ -856,12 +857,21 @@ namespace SliceEngine
 		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
+
+		sCanvas.UpdateHierachy();		//updates the rect transforms
 		frm->EndSystem("Transform");
+		
+		//cant start pause and continue frm for time check
+		frm->StartSystem("Canvas 1");
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas 1");
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
+				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+
 				frm->StartSystem("Physics");
 
 				//Prestep: push dynamic poses to physics world
@@ -895,9 +905,10 @@ namespace SliceEngine
 			//somehow convert to pixel coord
 			frm->StartSystem("Canvas");
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
+			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = (unsigned int)mouse_coord.x;
-			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
+			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
@@ -915,10 +926,9 @@ namespace SliceEngine
 		sRender->Render();
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
+		frm->StartSystem("Canvas overlay");
 		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas");
+		frm->EndSystem("Canvas overlay");
 
 		frm->StartSystem("Particle System");
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)

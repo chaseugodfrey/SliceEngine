@@ -1675,6 +1675,31 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::SpriteRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Sprite"))
+				{
+					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					reg.emplace<SliceEngine::SpriteRenderer>(entity);
+					auto& ui_sprite = reg.get<SliceEngine::SpriteRenderer>(entity);
+					ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
+					ui_sprite.textureHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+				}
+			}
+			if (!selectedGO.HasComponent<SliceEngine::FontRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Font"))
+				{
+					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					reg.emplace<SliceEngine::FontRenderer>(entity);
+					auto& ui_font = reg.get<SliceEngine::FontRenderer>(entity);
+					ui_font.rgba = { 0.f,0.f,0.f,1.f };
+					ui_font.font_size = 50;
+					ui_font.line_spacing = 1.25f;
+					ui_font.fontHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 	}

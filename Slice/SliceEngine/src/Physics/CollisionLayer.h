@@ -104,11 +104,8 @@ namespace SliceEngine
 	class BodyFilterIgnore final : public JPH::BodyFilter
 	{
 	public:
+
 		bool ShouldCollideLocked(const JPH::Body& inBody) const override;
-
-	private:
-
-
 
 	};
 
