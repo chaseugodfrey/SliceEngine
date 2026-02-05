@@ -1703,11 +1703,27 @@ namespace SliceEngine
 		}
 
 		std::string cStrName = MonoToString(baseName);
-		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		auto scriptInstance = gScriptSystem->mEntityInstances[(Entity)entityID];
+		// get the current class it is
+		MonoClass* instanceClass = scriptInstance->GetScriptClass()->mMonoClass;
+
+		// get the class we're trying to check for
+		MonoClass* targetClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", cStrName.c_str());
+
+		// if the target class doesn't exist/not loaded
+		if (!targetClass) return false;
+
+		// now check if it is or if its a subclass of
+		if (instanceClass == targetClass || mono_class_is_subclass_of(instanceClass, targetClass, false))
 		{
-			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
-				return true;
+			return true;
 		}
+
+		//if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		//{
+		//	if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+		//		return true;
+		//}
 
 		return false;
 	}
