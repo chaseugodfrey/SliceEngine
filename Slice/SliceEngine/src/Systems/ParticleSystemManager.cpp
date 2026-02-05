@@ -533,7 +533,7 @@ namespace SliceEngine
 
 		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal))
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false))
 		{			
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal

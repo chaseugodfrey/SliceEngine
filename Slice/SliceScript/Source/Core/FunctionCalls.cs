@@ -93,7 +93,14 @@ namespace SliceEngine
 
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, uint mask);
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
+        
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Audio_GetSoundName(uint entityID);
@@ -574,14 +581,58 @@ namespace SliceEngine
         internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
 
 
+        //UI
+        //*************************
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Slider_SetValue(uint entityID, float value);
+        internal extern static void RectTransform_GetHoriAlign(uint entityID, out RectTransform.HoriPivot hori);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetHoriAlign(uint entityID, ref RectTransform.HoriPivot hori);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_GetVertAlign(uint entityID, out RectTransform.VertPivot vert);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetVertAlign(uint entityID, ref RectTransform.VertPivot vert);
+        //*************************
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Slider_SetValue(uint entityID, float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string FontRenderer_GetText(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetText(uint entityID, string value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float FontRenderer_GetFontsize(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetFontsize(uint entityID, float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float FontRenderer_GetLinespacing(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetLinespacing(uint entityID, float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_GetColor(uint entityID, out Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetColor(uint entityID, ref Vector4 value);
+
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_GetAlignment(uint entityID, out FontRenderer.FontAlignment shapeType);
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetAlignment(uint entityID, ref FontRenderer.FontAlignment shapeType);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void FontRenderer_SetEnabled(uint entityID, bool enabled);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
 
+
+        //Entity active
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_SetActive(uint entityID, bool active);
 

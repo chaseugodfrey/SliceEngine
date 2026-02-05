@@ -540,6 +540,91 @@ namespace SliceEngine
 
             UpdateScriptComponent(id);
         }
+    
+        for (const auto& [id, entitySet] : mCollideMap)
+        {
+            auto scriptInstance = mEntityInstances[id];
+
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            for (const auto& ent : entitySet)
+            {
+                //if (mEntitiesDisabled.contains(id))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[id].contains(ent))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[id].erase(ent);
+                //        scriptInstance->InvokeOnCollideEnter((unsigned int)ent);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[id].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(id);
+                //    }
+                //}
+                //else
+                //{
+                //}
+
+                 scriptInstance->InvokeOnCollideStay((unsigned int)ent);
+            }
+        }
+
+        for (const auto& [id, entitySet] : mTriggerMap)
+        {
+            auto scriptInstance = mEntityInstances[id];
+
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            for (const auto& ent : entitySet)
+            {
+                //if (mEntitiesDisabled.contains(id))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[id].contains(ent))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[id].erase(ent);
+                //        scriptInstance->InvokeOnTriggerEnter((unsigned int)ent);
+                //    }
+
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[id].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(id);
+                //    }
+                //}
+                //else
+                //{
+                //}
+
+                 scriptInstance->InvokeOnTriggerStay((unsigned int)ent);
+            }
+        }
+
     }
 
     void ScriptSystem::OnFixedUpdate(float dt)
@@ -549,9 +634,32 @@ namespace SliceEngine
         // Loop through all entity instances
         for (const auto& [id, scriptRef] : mEntityInstances)
         {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             scriptRef->InvokeOnFixedUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
             UpdateScriptComponent(id);
         }
+
+
     }
 
     /// <summary>
@@ -583,6 +691,20 @@ namespace SliceEngine
                 }
             }
         }
+
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        {
+            for (auto entity : entityToInit)
+            {
+                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                mEntityInstances[entity]->InvokeOnAwake();
+                mEntityInstances[entity]->InvokeOnCreate();
+            }
+
+            entityToInit.clear();
+        }
+
+
     }
 
     void ScriptSystem::OnEnd()
@@ -601,7 +723,11 @@ namespace SliceEngine
         mRegistry->on_construct<InactiveEntity>().disconnect<&ScriptSystem::OnDisabled>(this);
         mRegistry->on_destroy<InactiveEntity>().disconnect<&ScriptSystem::OnEnabled>(this);
 
-
+        mCollisionQueue.clear();
+        //mEntityCollisionMap.clear();
+        //mEntitiesDisabled.clear();
+        mCollideMap.clear();
+        mTriggerMap.clear();
         mEntityInstances.clear();
         entityAdded.clear();
     }
@@ -934,8 +1060,10 @@ namespace SliceEngine
             // for now we just invoke the moment it has been added
             if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
             {
-                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
-                mEntityInstances[entity]->InvokeOnCreate();
+                entityToInit.insert(entity);
+               /* mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                mEntityInstances[entity]->InvokeOnAwake();
+                mEntityInstances[entity]->InvokeOnCreate();*/
 
             }
         }
@@ -954,6 +1082,8 @@ namespace SliceEngine
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
+
+
 
         {
             std::lock_guard<std::mutex> lock(mQueueLock);
@@ -996,13 +1126,16 @@ namespace SliceEngine
             }
         }
 
-        mEntitiesDisabled.erase(entity);
-        mEntityCollisionMap.erase(entity); 
+        //mEntitiesDisabled.erase(entity);
+        //mEntityCollisionMap.erase(entity); 
 
-        for (auto& [otherEntity, collisionSet] : mEntityCollisionMap)
-        {
-            collisionSet.erase(entity);
-        }
+        mCollideMap.erase(entity);
+        mTriggerMap.erase(entity);
+
+        //for (auto& [otherEntity, collisionSet] : mEntityCollisionMap)
+        //{
+        //    collisionSet.erase(entity);
+        //}
     }
 
     void ScriptSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -1021,7 +1154,7 @@ namespace SliceEngine
             {
                 if (entt == entity)
                 {
-                    mEntitiesDisabled.emplace(entt);
+                    //mEntitiesDisabled.emplace(entt);
                     // invoke onEnabled
                     instance->InvokeOnEnabled();
                 }
@@ -1439,7 +1572,7 @@ namespace SliceEngine
             if (mCollisionQueue.empty()) return;
             tempQueue.swap(mCollisionQueue);
         }
-
+        std::cout << tempQueue.size() << std::endl;
         for (const auto& event : tempQueue)
         {
             // make sure entity is still alive
@@ -1463,81 +1596,85 @@ namespace SliceEngine
             {
             case ScriptCollisionType::CollideEnter:
             {
-                mEntityCollisionMap[event.entity].insert(event.other);
+               // mEntityCollisionMap[event.entity].insert(event.other);
+                mCollideMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
             }
                 break;
             case ScriptCollisionType::CollideStay:
             {
-                if (mEntitiesDisabled.contains(event.entity))
-                {
-                    // if it was, check if the entity currently colliding with
-                    // had already been collided with before
-                    if (mEntityCollisionMap[event.entity].contains(event.other))
-                    {
-                        // if it has then we want to trigger on enter instead of on stay
-                        // then erase that entity
-                        mEntityCollisionMap[event.entity].erase(event.other);
-                        scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
-                    }
+                //if (mEntitiesDisabled.contains(event.entity))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[event.entity].contains(event.other))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+                //        mEntityCollisionMap[event.entity].erase(event.other);
+                //        scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+                //    }
 
-                    // if no more entities that it has collided with previously exist
-                    // then erase it from the recently disabled as it has cleared all existing collisions
-                    if (mEntityCollisionMap[event.entity].empty())
-                    {
-                        // mEntityCollisionMap.erase(event.entity);
-                        mEntitiesDisabled.erase(event.entity);
-                    }
-                }
-                else
-                {
-                    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
-                }
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[event.entity].empty())
+                //    {
+                //        // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(event.entity);
+                //    }
+                //}
+                //else
+                //{
+                //    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+                //}
             }
                 break;
             case ScriptCollisionType::CollideExit:
             {
-                mEntityCollisionMap[event.entity].erase(event.other);
+                //mEntityCollisionMap[event.entity].erase(event.other);
+                mCollideMap.erase(event.other);
                 scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
             }
                 break;
             case ScriptCollisionType::TriggerEnter:
             {
-                mEntityCollisionMap[event.entity].insert(event.other);
+                //mEntityCollisionMap[event.entity].insert(event.other);
+                mTriggerMap[event.entity].insert(event.other);
                 scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
             }
                 break;
             case ScriptCollisionType::TriggerStay:
                 // check if it was recently re-enabled
-                if (mEntitiesDisabled.contains(event.entity))
-                {
-                    // if it was, check if the entity currently colliding with
-                    // had already been collided with before
-                    if (mEntityCollisionMap[event.entity].contains(event.other))
-                    {
-                        // if it has then we want to trigger on enter instead of on stay
-                        // then erase that entity
-                        mEntityCollisionMap[event.entity].erase(event.other);
-                        scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
-                    }
+                //if (mEntitiesDisabled.contains(event.entity))
+                //{
+                //    // if it was, check if the entity currently colliding with
+                //    // had already been collided with before
+                //    if (mEntityCollisionMap[event.entity].contains(event.other))
+                //    {
+                //        // if it has then we want to trigger on enter instead of on stay
+                //        // then erase that entity
+               // //        mEntityCollisionMap[event.entity].erase(event.other);
+                //        scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+                //    }
 
-                    // if no more entities that it has collided with previously exist
-                    // then erase it from the recently disabled as it has cleared all existing collisions
-                    if (mEntityCollisionMap[event.entity].empty())
-                    {
-                       // mEntityCollisionMap.erase(event.entity);
-                        mEntitiesDisabled.erase(event.entity);
-                    }
+                //    // if no more entities that it has collided with previously exist
+                //    // then erase it from the recently disabled as it has cleared all existing collisions
+                //    if (mEntityCollisionMap[event.entity].empty())
+                //    {
+                //       // mEntityCollisionMap.erase(event.entity);
+                //        mEntitiesDisabled.erase(event.entity);
+                //    }
 
-                }
-                else
-                {
-                   scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
-                }
+                //}
+                //else
+                //{
+                //   scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+                //}
                 break;
             case ScriptCollisionType::TriggerExit:
             {
-                mEntityCollisionMap[event.entity].erase(event.other);
+               // mEntityCollisionMap[event.entity].erase(event.other);
+                mTriggerMap[event.entity].erase(event.other);
                 scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
             }
                 break;

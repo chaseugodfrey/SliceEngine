@@ -1470,11 +1470,55 @@ namespace SliceEngine
 
 #pragma region RAYCASTING FUCNTIONS
 
-	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID, uint32_t* mask)
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID,glm::vec3* hitPos, glm::vec3* normal,bool triggerInteraction,  uint32_t mask)
 	{
-		//return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *mask);
-		return false;
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
 	}
+
+	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
+	{
+		auto* eventManager = EventManager::GetInstance();
+		
+		DebugDrawRayEvent drawEvent{ *origin, *direction, magnitude };
+	
+		eventManager->Publish<DebugDrawRayEvent>(drawEvent);
+	}
+	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (!(go.IsValid() && go.HasComponent<ColliderShape>() && go.HasComponent<RigidBody>()))
+		{
+			return;
+		}
+
+		auto& transform = go.GetComponent<Transform>();
+		auto& collider = go.GetComponent<ColliderShape>();
+
+
+		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0,0,1);
+		uint32_t bodyHitID = 0;
+		glm::vec3 hitPos = glm::vec3(0.0f);
+		glm::vec3 normal = glm::vec3(0.0f);
+
+		if (!Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(origin, *d_m, bodyHitID, hitPos, normal, false))
+		{
+			return;
+		}
+
+		float distanceToHit = glm::length(hitPos - origin);
+		float distanceToMove = glm::length(*d_m);
+		if (distanceToHit <= distanceToMove)
+		{
+			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
+		}
+		else if (distanceToMove < distanceToHit)
+		{
+			glm::mix(transform.position,origin + (*d_m), 0.2f);
+		}
+
+
+	}
+
 
 #pragma endregion
 
@@ -1703,11 +1747,27 @@ namespace SliceEngine
 		}
 
 		std::string cStrName = MonoToString(baseName);
-		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		auto scriptInstance = gScriptSystem->mEntityInstances[(Entity)entityID];
+		// get the current class it is
+		MonoClass* instanceClass = scriptInstance->GetScriptClass()->mMonoClass;
+
+		// get the class we're trying to check for
+		MonoClass* targetClass = mono_class_from_name(gScriptSystem->mCoreAssemblyImage, "SliceEngine", cStrName.c_str());
+
+		// if the target class doesn't exist/not loaded
+		if (!targetClass) return false;
+
+		// now check if it is or if its a subclass of
+		if (instanceClass == targetClass || mono_class_is_subclass_of(instanceClass, targetClass, false))
 		{
-			if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
-				return true;
+			return true;
 		}
+
+		//if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
+		//{
+		//	if (gScriptSystem->mEntityInstances[(Entity)entityID]->GetScriptClass()->mClassName == cStrName)
+		//		return true;
+		//}
 
 		return false;
 	}
@@ -2106,7 +2166,7 @@ namespace SliceEngine
 	}
 #pragma endregion
 
-#pragma region SpriteRenderer FUNCTIONS
+#pragma region UI FUNCTIONS
 	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2118,10 +2178,7 @@ namespace SliceEngine
 		}
 	}
 
-#pragma endregion
-
-#pragma region FontRenderer FUNCTIONS
-	static void FonteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
@@ -2132,9 +2189,109 @@ namespace SliceEngine
 		}
 	}
 
-#pragma endregion
+	static void FontRenderer_GetAlignment(unsigned int entity, FontRenderer::Alignment* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			*out = go.GetComponent<FontRenderer>().alignment;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Font component.", entity);
+	}
 
-#pragma region UI FUNCTIONS
+	static void FontRenderer_SetAlignment(unsigned int entity, FontRenderer::Alignment* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<FontRenderer>())
+		{
+			go.GetComponent<FontRenderer>().alignment = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+
+	static void FontRenderer_SetText(uint32_t entityID, MonoString* text) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.text = MonoToString(text);
+			fontRenderer.token_updated = false;
+		}
+	}
+	static MonoString* FontRenderer_GetText(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+
+			return mono_string_new(mono_domain_get(), font.text.c_str());
+		}
+		return nullptr;
+	}
+
+	static void FontRenderer_SetFontsize(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.font_size = size;
+			fontRenderer.token_updated = false;
+		}
+	}
+	static float FontRenderer_GetFontsize(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.font_size;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetLinespacing(uint32_t entityID, float size) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.line_spacing = size;
+		}
+	}
+	static float FontRenderer_GetLinespacing(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			return font.line_spacing;
+		}
+		return 0.f;
+	}
+
+	static void FontRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& fontRenderer = GO.GetComponent<FontRenderer>();
+			fontRenderer.rgba = *color;
+		}
+	}
+	static void FontRenderer_GetColor(uint32_t entityID, glm::vec4* color_out) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<FontRenderer>())
+		{
+			auto& font = GO.GetComponent<FontRenderer>();
+			*color_out =  font.rgba;
+		}
+	}
 
 	static float Slider_GetValue(uint32_t entityID)
 	{
@@ -2151,7 +2308,6 @@ namespace SliceEngine
 		auto const& slider = registry.get<Slider>(e);
 		return slider.GetValue();
 	}
-
 	static void Slider_SetValue(uint32_t entityID, float value)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -2239,6 +2395,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
+		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
 
@@ -2404,6 +2561,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
+		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
 		ADD_INTERNAL_CALL(LayerMask_GetMask);
@@ -2457,6 +2616,22 @@ namespace SliceEngine
 		//UI
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetColor);
+		ADD_INTERNAL_CALL(FontRenderer_GetColor);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetFontsize);
+		ADD_INTERNAL_CALL(FontRenderer_GetFontsize);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetLinespacing);
+		ADD_INTERNAL_CALL(FontRenderer_GetLinespacing);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetText);
+		ADD_INTERNAL_CALL(FontRenderer_GetText);
+
+		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
+		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
+
 	}
 
 #pragma endregion

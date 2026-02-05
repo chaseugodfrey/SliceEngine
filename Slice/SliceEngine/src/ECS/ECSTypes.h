@@ -190,6 +190,7 @@ namespace SliceEngine
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
 		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_DRAW_RAY_TAG = 0x20,
 		DEBUG_ALL_DEBUG		= 0xFF,
 
 		RENDER_NONE			= 0x00,
@@ -315,8 +316,21 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
+		struct MeshData
+		{
+			//emtpy because the verticies are in the renderer component
+			//more for me to tell what shape it is
+			bool temp;
+		};
+
+		struct CylinderData
+		{
+			float radius{ 0.5f };
+			float height{ 0.5f };
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData, CylinderData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
@@ -327,11 +341,15 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+		ColliderShape(MeshData data) : shapeData(data) {};
+		ColliderShape(CylinderData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
-		inline static const CapsuleData defaultCapsuleData{};		
+		inline static const CapsuleData defaultCapsuleData{};	
+		inline static const MeshData defaultMeshData{};
+		inline static const CylinderData defaultCylinderData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -348,11 +366,22 @@ namespace SliceEngine
 			return std::holds_alternative<CapsuleData>(shapeData) ?
 				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
 		}
+		const MeshData& GetMeshData() const {
+			return std::holds_alternative<MeshData>(shapeData) ?
+				std::get<MeshData>(shapeData) : defaultMeshData;
+		}
+
+		const CylinderData& GetCylinderData() const {
+			return std::holds_alternative<CylinderData>(shapeData) ?
+				std::get<CylinderData>(shapeData) : defaultCylinderData;
+		}
 
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+		void SetMeshData(const MeshData& data) { shapeData = data; }
+		void SetCylinderData(const CylinderData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};
@@ -734,7 +763,7 @@ namespace SliceEngine
 			BOTTOM,
 			STRETCH_V
 		};
-
+	
 		//Settings only for imgui's display and component function calls
 		//old pivot serves as a flag to know how to update intermediate values during the update call
 		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
@@ -746,8 +775,8 @@ namespace SliceEngine
 		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
-		int final_x{}, final_y{};				//position with center of quad as position
-		int final_width{ 100 }, final_height{ 100 };
+		float final_x{}, final_y{};				//position with center of quad as position
+		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);
@@ -781,7 +810,7 @@ namespace SliceEngine
 		glm::vec4 rgba{ 1.f };
 
 		enum Alignment {
-			LEFT,
+			LEFT = 0,
 			CENTER,
 			RIGHT
 		} alignment{ LEFT };
@@ -904,6 +933,11 @@ namespace SliceEngine
 		glm::vec3 endLink;
 		bool bidirectional;
 		float radius;
+	};
+
+	struct NavObstacle
+	{
+		bool isObstacle = false;
 	};
 }
 

@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #define PI05F 1.57079632679f
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 #include "Core/Core.h"
 
@@ -24,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Core/EventManager.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -36,9 +38,13 @@ namespace SliceEngine
 {
 	struct PrefabCameraEntity {};
 
+
 #pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
+		auto* eventManager = EventManager::GetInstance();
+		eventManager->Subscribe<DebugDrawRayEvent, &RenderManager::AddDebugRaysToDraw>(this);
+
 		CreateFramebuffers();
 	}
 	RenderManager::~RenderManager()
@@ -456,6 +462,8 @@ namespace SliceEngine
 			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
+
+		mDebugDrawRays.clear();
 		
 		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FB_TOTAL, 0);
@@ -506,29 +514,42 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
-			for (int i{}; i < 3; ++i)
-			{
-				GUID modelID;
-				switch (i)
-				{
-				case 0:
-					modelID = (GUID)DefaultResourceIDs::CUBE_DEFAULT;
-					break;
-				case 1:
-					modelID = (GUID)DefaultResourceIDs::SPHERE_DEFAULT;
-					break;
-				case 2:
-					modelID = (GUID)DefaultResourceIDs::CAPSULE_DEFAULT;
-					break;
-				}
 
+			std::unordered_map<GUID, std::vector<Entity>> debugShapes{};
+
+			auto view = Core::GetInstance()->GetRegistry().view<PhysicEntity>(entt::exclude<InactiveEntity>); //renderEntity
+			for (auto entity : view)
+			{
+				auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
+				
+				if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::CUBE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::SPHERE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
+				{
+					debugShapes[(GUID)DefaultResourceIDs::CAPSULE_DEFAULT].push_back(entity);
+				}
+				if (std::holds_alternative<ColliderShape::MeshData>(shape.shapeData) && Core::GetInstance()->mFactory.mRegistry.any_of<Renderer>(entity))
+				{
+					GUID guid = Core::GetInstance()->mFactory.mRegistry.get<Renderer>(entity).modelHandle.getGUID();
+					debugShapes[guid].push_back(entity);
+				}
+			}
+
+
+			for (auto& [modelID, entities] : debugShapes)
+			{
 				auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>(modelID).get();
 				auto& mdl = model.meshes[0];	//i call it mdl cuz im lazy to change the below
 				glBindVertexArray(mdl.vao);
 
 				int num{};
-				for (auto entity : view)
+				for (auto entity : entities)
 				{
 					auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 					auto& shape = Core::GetInstance()->mFactory.mRegistry.get<ColliderShape>(entity);
@@ -540,24 +561,22 @@ namespace SliceEngine
 
 					if (std::holds_alternative<ColliderShape::BoxData>(shape.shapeData))
 					{
-						if (i != 0)
-							continue;
 						auto& boxData = std::get<ColliderShape::BoxData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(),shape.offSet.GetY(),shape.offSet.GetZ())), glm::vec3(boxData.scale.GetX() * 2.f, boxData.scale.GetY() * 2.f, boxData.scale.GetZ() * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::SphereData>(shape.shapeData))
 					{
-						if (i != 1)
-							continue;
 						auto& sphereData = std::get<ColliderShape::SphereData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(sphereData.radius * 2.f));
 					}
 					if (std::holds_alternative<ColliderShape::CapsuleData>(shape.shapeData))
 					{
-						if (i != 2)
-							continue;
 						auto& capsuleData = std::get<ColliderShape::CapsuleData>(shape.shapeData);
 						renderQueue.mBasicIMtx[num].mdlMtx = glm::scale(glm::translate(transform.transform, glm::vec3(shape.offSet.GetX(), shape.offSet.GetY(), shape.offSet.GetZ())), glm::vec3(capsuleData.radius * 2.f, capsuleData.height * 2.f, capsuleData.radius * 2.f));
+					}
+					if (std::holds_alternative<ColliderShape::MeshData>(shape.shapeData)) // already passed the has Renderer Check
+					{
+						renderQueue.mBasicIMtx[num].mdlMtx = transform.transform;
 					}
 
 					num++;
@@ -654,6 +673,27 @@ namespace SliceEngine
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		}
+	
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DRAW_RAY_TAG)
+		{
+			SetShader(ShaderPaths[S_INSTANCED]);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& mdl = model.meshes[0];
+			glBindVertexArray(mdl.vao);
+
+			int count{};
+			for (auto& i : mDebugDrawRays)
+			{
+				renderQueue.mBasicIMtx[count].mdlMtx = i;
+				if (++count > renderQueue.mMaxInstance)
+					break;
+			}
+			glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat)* count, renderQueue.mBasicIMtx.data());
+			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
@@ -1164,6 +1204,35 @@ namespace SliceEngine
 		glCullFace(GL_BACK);
 		glDepthFunc(GL_LESS);
 		mCurrGPUSetting = GPS_DEFAULT;
+	}
+	void RenderManager::AddDebugRaysToDraw(const DebugDrawRayEvent& e)
+	{
+		const float thickness = 0.05f;
+
+		glm::vec3 direction = glm::normalize(e.Dir);
+
+		// 2. Calculate Rotation
+		// We want to rotate the default UP vector (0,1,0) to our target direction
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		// Handle the edge case where direction is exactly opposite of UP
+		glm::quat rotation;
+		float dot = glm::dot(up, direction);
+		if (dot < -0.9999f) {
+			rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		}
+		else {
+			rotation = glm::rotation(up, direction);
+		}
+		glm::mat4 model{ 1.f };
+		model = glm::translate(model, e.Origin + (direction * (e.magnitude * 0.5f)));
+
+		// Rotation: Orient towards Dir
+		model = model * glm::toMat4(rotation);
+
+		// Scale: X and Z are thickness, Y is the length (magnitude)
+		model = glm::scale(model, glm::vec3(thickness, e.magnitude, thickness));
+		mDebugDrawRays.push_back(model);
 	}
 	void RenderManager::ForceSetCustomShader(const std::string& sh, GLuint s)
 	{

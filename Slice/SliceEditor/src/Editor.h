@@ -31,7 +31,6 @@ namespace SliceEditor
 	{
 		SliceEngine::Engine engine;
 		AssetManager assetManager;
-		SliceEngine::FramerateManager editorFRM;
 		Registry registry;
 		std::unique_ptr<EditorInputs> inputs;
 		RecastNavMesh navMesh;
@@ -48,7 +47,7 @@ namespace SliceEditor
 
 	public:
 
-		Editor() : assetManager(), editorFRM(), registry(assetManager,editorFRM)
+		Editor() : assetManager(), registry(assetManager)
 		{
 		}
 

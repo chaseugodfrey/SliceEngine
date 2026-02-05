@@ -7,6 +7,7 @@ namespace SliceEngine
         //disatnce, point, transformtt main ones for now
         public float distance;
         public Vector3 point;
+        public Vector3 normal;
         public Transform transform;
 
         // migth add collider, rigidbody, normal in the future if requested other will need further research
