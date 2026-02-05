@@ -495,7 +495,11 @@ namespace SliceEngine
                 animator.SetBool("AirDashStart", true);
             }
         }
-
+        public void TeleportPlayer(Vector3 pos)
+        {
+            EndAttackState();
+            transform.Position = pos;
+        }
         #endregion
 
         // -------------------- Dash ------------------------------------------------------------------------------------------
