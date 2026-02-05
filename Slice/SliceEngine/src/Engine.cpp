@@ -762,6 +762,12 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
+<<<<<<< Updated upstream
+=======
+		
+
+		//static bool isPlaying = false;
+>>>>>>> Stashed changes
 		//
 
 		//frm->StartFrame();
