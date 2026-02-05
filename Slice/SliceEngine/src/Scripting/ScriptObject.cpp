@@ -60,7 +60,18 @@ namespace SliceEngine
 
 	MonoMethod* ScriptClass::GetMethod(const std::string& name, int varCount)
 	{
-		return mono_class_get_method_from_name(mMonoClass, name.c_str(), varCount);
+		MonoClass* currentClass = mMonoClass;
+		MonoMethod* method = nullptr;
+
+		while (currentClass != nullptr && method == nullptr)
+		{
+			method = mono_class_get_method_from_name(currentClass, name.c_str(), varCount);
+			if (!method)
+			{
+				currentClass = mono_class_get_parent(currentClass);
+			}
+		}
+		return method;
 	}
 
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
