@@ -128,6 +128,7 @@ namespace SliceEditor
 
 			engineFRM->StartFrame();
 
+
 			engineFRM->StartSystem("Editor Registry");
 			registry.Update();
 			engineFRM->EndSystem("Editor Registry");

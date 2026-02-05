@@ -755,6 +755,8 @@ namespace SliceEngine
 
 		static bool isPlaying = false;
 
+		//frm->StartFrame();
+
 		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -933,6 +935,8 @@ namespace SliceEngine
 		}
 		frm->EndSystem("Particle System");
 
+		//frm->EndFrame();
+		//frm->CalculateSystemPercentages();
 	}
 
 	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
