@@ -90,7 +90,12 @@ namespace SliceEngine
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
 
+            SliceLog.Log("Call after Rigibody");
+
             navAgent = GetComponent<NavAgent>();
+
+            SliceLog.Log("Call after NavAgent");
+
             navAgent.Speed = this.movementSpeed;
             targetObjRef = Bootstrap.Player.gameObject;
             //
