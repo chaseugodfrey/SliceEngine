@@ -69,6 +69,10 @@ namespace SliceEditor
 			ImGui::BeginChild("##right_group", right_size, ImGuiChildFlags_Borders);
 			mCurrentPreference->DisplayHeader();
 			mCurrentPreference->DisplayPreferences(mPreferences);
+			if (ImGui::Button("Save Changes"))
+			{
+				mRegistry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
+			}
 			ImGui::EndChild();
 		}
 
@@ -88,8 +92,8 @@ namespace SliceEditor
 	void ThemePreferenceDisplay::DisplayPreferences(Preferences& preferences)
 	{
 		ImGui::SeparatorText("Themes");
-
-		if (ImGui::BeginCombo("Theme", EditorThemes[preferences.theme.ID]))
+		
+		if (ImGui::BeginCombo("##Theme", EditorThemes[preferences.theme.ID]))
 		{
 			for (int i = 0; i < EditorThemes.size(); i++)
 			{

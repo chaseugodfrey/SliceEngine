@@ -566,6 +566,12 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
 			return;
 		}
+
+		if (targetEntity == leftEntity)
+		{
+			SLICE_LOG_WARNING("Not changing SceneGraph at all");
+			return;
+		}
 		//Remove it from its current position
 		SceneGraphDelete(targetEntity);
 
