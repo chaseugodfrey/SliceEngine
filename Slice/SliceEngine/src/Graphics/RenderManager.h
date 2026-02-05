@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <memory>
 #include "../ECS/ECSTypes.h"
 #include "../ECS/GameObject.h"
+#include "Core/Events.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Resource.h"
@@ -236,6 +237,8 @@ namespace SliceEngine
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
 
+		std::vector<glm::mat4> mDebugDrawLines;
+
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
 		void QuickSetSettings(GPUSetting setting, bool toggleOn);
@@ -244,6 +247,8 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+
+		void AddDebugLinesToDraw(const DebugDrawLineEvent&);
 
 		void IDPick();
 	};

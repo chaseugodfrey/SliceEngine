@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #define PI05F 1.57079632679f
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 #include "Core/Core.h"
 
@@ -24,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
 #include "Navigation/NavigationSystem.h"
+#include "Core/EventManager.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -36,9 +38,13 @@ namespace SliceEngine
 {
 	struct PrefabCameraEntity {};
 
+
 #pragma region Generate GPU Objects
 	RenderManager::RenderManager()
 	{
+		auto* eventManager = EventManager::GetInstance();
+		eventManager->Subscribe<DebugDrawLineEvent, &RenderManager::AddDebugLinesToDraw>(this);
+
 		CreateFramebuffers();
 	}
 	RenderManager::~RenderManager()
@@ -456,6 +462,8 @@ namespace SliceEngine
 			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
+
+		mDebugDrawLines.clear();
 		
 		mObjPickedThisFrame = false;
 		LinkFrameBufferSettings(FB_TOTAL, 0);
@@ -665,6 +673,27 @@ namespace SliceEngine
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 
+		}
+	
+		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DEBUG_LINE_TAG)
+		{
+			SetShader(ShaderPaths[S_INSTANCED]);
+			UpdateCamVP();
+			BindCameraDepth(cam);
+
+			auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get();
+			auto& mdl = model.meshes[0];
+			glBindVertexArray(mdl.vao);
+
+			int count{};
+			for (auto& i : mDebugDrawLines)
+			{
+				renderQueue.mBasicIMtx[count].mdlMtx = i;
+				if (++count > renderQueue.mMaxInstance)
+					break;
+			}
+			glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat)* count, renderQueue.mBasicIMtx.data());
+			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
@@ -1175,6 +1204,35 @@ namespace SliceEngine
 		glCullFace(GL_BACK);
 		glDepthFunc(GL_LESS);
 		mCurrGPUSetting = GPS_DEFAULT;
+	}
+	void RenderManager::AddDebugLinesToDraw(const DebugDrawLineEvent& e)
+	{
+		const float thickness = 0.05f;
+
+		glm::vec3 direction = glm::normalize(e.Dir);
+
+		// 2. Calculate Rotation
+		// We want to rotate the default UP vector (0,1,0) to our target direction
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+
+		// Handle the edge case where direction is exactly opposite of UP
+		glm::quat rotation;
+		float dot = glm::dot(up, direction);
+		if (dot < -0.9999f) {
+			rotation = glm::angleAxis(glm::radians(180.0f), glm::vec3(1, 0, 0));
+		}
+		else {
+			rotation = glm::rotation(up, direction);
+		}
+		glm::mat4 model{ 1.f };
+		model = glm::translate(model, e.Origin + (direction * (e.magnitude * 0.5f)));
+
+		// Rotation: Orient towards Dir
+		model = model * glm::toMat4(rotation);
+
+		// Scale: X and Z are thickness, Y is the length (magnitude)
+		model = glm::scale(model, glm::vec3(thickness, e.magnitude, thickness));
+		mDebugDrawLines.push_back(model);
 	}
 	void RenderManager::ForceSetCustomShader(const std::string& sh, GLuint s)
 	{
