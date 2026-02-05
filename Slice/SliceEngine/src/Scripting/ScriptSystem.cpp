@@ -688,6 +688,41 @@ namespace SliceEngine
 
     }
 
+    void ScriptSystem::OnLateUpdate(float dt)
+    {
+        mTimeInstance->InvokeOnLateUpdate(dt);
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            scriptRef->InvokeOnLateUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            UpdateScriptComponent(id);
+        }
+
+
+    }
+
     /// <summary>
     /// the only use for this is if a new entity is created in the editor
     /// and a script is assigned after having a script component

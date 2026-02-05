@@ -743,6 +743,17 @@ namespace SliceEngine
 		return go;
 	}
 
+	GameObject GOFactory::CreateGO_Cylinder()
+	{
+		auto go = CreateGO("GameObject");
+		go.AddComponent<Renderer>();
+		go.GetComponent<Renderer>().modelHandle = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CYLINDER_DEFAULT);
+		go.AddComponent<ColliderShape>(ColliderShape::CylinderData{});
+		go.AddComponent<RigidBody>();
+
+		return go;
+	}
+
 	GameObject GOFactory::CreateGO_Cam()
 	{
 		auto go = CreateGO("Camera");

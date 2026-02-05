@@ -484,7 +484,7 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
-			JPH::CapsuleShapeSettings* settings = new JPH::CapsuleShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				colliderShape.offSet,
 				JPH::Quat::sIdentity(),
@@ -863,7 +863,7 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
-			JPH::CapsuleShapeSettings* settings = new JPH::CapsuleShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				colliderShape.offSet,
 				JPH::Quat::sIdentity(),
