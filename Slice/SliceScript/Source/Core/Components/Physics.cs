@@ -72,6 +72,11 @@ namespace SliceEngine
             return true;
         }
 
+        public static void DebugDrawRay(Vector3 origin, Vector3 direction, float magnitute)
+        {
+            FunctionCalls.Physics_DrawRay(ref origin, ref direction, magnitute);
+        }
+
         public bool SphereCast()
         {
             return true;

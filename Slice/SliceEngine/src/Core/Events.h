@@ -19,7 +19,7 @@ DigiPen Institute of Technology is prohibited.
 	Define any events here
 */
 
-struct DebugDrawLineEvent
+struct DebugDrawRayEvent
 {
 	glm::vec3 Origin;
 	glm::vec3 Dir;

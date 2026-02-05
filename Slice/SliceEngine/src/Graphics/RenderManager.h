@@ -237,7 +237,7 @@ namespace SliceEngine
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
 
-		std::vector<glm::mat4> mDebugDrawLines;
+		std::vector<glm::mat4> mDebugDrawRays;
 
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
@@ -248,7 +248,7 @@ namespace SliceEngine
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
 
-		void AddDebugLinesToDraw(const DebugDrawLineEvent&);
+		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 
 		void IDPick();
 	};
