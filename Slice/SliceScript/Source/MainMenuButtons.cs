@@ -54,21 +54,9 @@ namespace SliceEngine
             //    Console.WriteLine("BGM volume");
             //}
 
-            Slider bgmVol = BGMSlider.GetComponent<Slider>();
+           
 
-            if (bgmVol.GetValue() != AudioManager.GetCategoryVolume("BGM"))
-            {
-                AudioManager.SetCategoryVolume("BGM", bgmVol.GetValue());
-            }
-            if (sfxVol.GetValue() != AudioManager.GetCategoryVolume("SFX"))
-            {
-                AudioManager.SetCategoryVolume("SFX", sfxVol.GetValue());
-            }
-
-            if (masterVol.GetValue() != AudioManager.GetMasterVolume())
-            {
-                AudioManager.SetMasterVolume(masterVol.GetValue());
-            }
+            
         }
 
         public override void OnButtonClick()
@@ -93,6 +81,26 @@ namespace SliceEngine
             {
                 HideSettingsPopup();
                 Console.WriteLine("Settings bye");
+            }
+        }
+
+        public override void OnSliderValue(float value)
+        {
+            float bgmCurrVol = bgmVol.GetValue();
+            float sfxCurrVol = sfxVol.GetValue();
+            float masterCurrVol = masterVol.GetValue();
+            if (bgmCurrVol != AudioManager.GetCategoryVolume("BGM"))
+            {
+                AudioManager.SetCategoryVolume("BGM", bgmVol.GetValue());
+            }
+            if (sfxCurrVol != AudioManager.GetCategoryVolume("SFX"))
+            {
+                AudioManager.SetCategoryVolume("SFX", sfxVol.GetValue());
+            }
+
+            if (masterCurrVol != AudioManager.GetMasterVolume())
+            {
+                AudioManager.SetMasterVolume(masterVol.GetValue());
             }
         }
 

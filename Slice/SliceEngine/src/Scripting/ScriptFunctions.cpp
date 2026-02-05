@@ -1644,7 +1644,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volValue);
 	}
 
-	static float Audio_SetMasterVolume()
+	static float Audio_GetMasterVolume()
 	{
 
 		return Core::GetInstance()->GetAudioManager()->GetMasterVolume();
@@ -2643,7 +2643,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_SetLoop);
 		ADD_INTERNAL_CALL(Audio_GetLoop);
 		ADD_INTERNAL_CALL(Audio_SetCategoryVolume);
+		ADD_INTERNAL_CALL(Audio_GetCategoryVolume);
 		ADD_INTERNAL_CALL(Audio_SetMasterVolume);
+		ADD_INTERNAL_CALL(Audio_GetMasterVolume);
 		ADD_INTERNAL_CALL(Audio_SetVolume);
 		ADD_INTERNAL_CALL(Audio_GetVolume);
 		ADD_INTERNAL_CALL(Audio_SetPitch);
