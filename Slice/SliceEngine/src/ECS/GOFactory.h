@@ -209,6 +209,7 @@ namespace SliceEngine
 		GameObject CreateGO_Box();
 		GameObject CreateGO_Sphere();
 		GameObject CreateGO_Capsule();
+		GameObject CreateGO_Cylinder();
 		GameObject CreateGO_Cam();
 		GameObject CreateGO_Model(GUID skele_guid = GUID::null(), GUID anim_guid = GUID::null(), GUID model_guid = GUID(DefaultResourceIDs::CUBE_DEFAULT));
 		GameObject CreateGO_Canvas();
