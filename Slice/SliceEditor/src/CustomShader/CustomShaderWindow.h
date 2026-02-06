@@ -33,7 +33,7 @@ namespace SliceEditor
 			int out_id{};
 
 			std::string name;
-			std::variant<bool, uint32_t, int32_t, float> baseData;
+			rttr::variant baseData;
 			SliceEngine::SliceEngineTypes::CSHAD_T baseDataType = SliceEngine::SliceEngineTypes::CSHAD_T::NIL;
 			ShaderEditableNode()
 			{
@@ -78,6 +78,8 @@ namespace SliceEditor
 		std::unordered_map<int, int> attrIDToLinkID; // Both Ways
 
 		void create_default();
+		void DrawSideBar();
+		void DrawNodeEditor();
 		void DrawStateNode(ShaderStateNode&);
 		void DrawDefaultInNode(ShaderStateNode&);
 		void DrawEditableInNode(ShaderEditableNode&);

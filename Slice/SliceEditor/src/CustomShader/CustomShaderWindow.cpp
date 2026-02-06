@@ -234,17 +234,17 @@ namespace SliceEditor
 
 			for (auto& [id, node] : mEditableIns)
 			{
-				if (std::holds_alternative<float>(node.baseData))
-					paramsJson["Floats"][node.name] = std::get<float>(node.baseData);
+				if (node.baseData.is_type<float>())
+					paramsJson["Floats"][node.name] = node.baseData.get_value<float>();
 
-				else if (std::holds_alternative<int32_t>(node.baseData))
-					paramsJson["Ints"][node.name] = std::get<int32_t>(node.baseData);
+				else if (node.baseData.is_type<int32_t>())
+					paramsJson["Ints"][node.name] = node.baseData.get_value<int32_t>();
 
-				else if (std::holds_alternative<uint32_t>(node.baseData))
-					paramsJson["Uints"][node.name] = std::get<uint32_t>(node.baseData);
+				else if (node.baseData.is_type<uint32_t>())
+					paramsJson["Uints"][node.name] = node.baseData.get_value<uint32_t>();
 
-				else if (std::holds_alternative<bool>(node.baseData))
-					paramsJson["Bools"][node.name] = std::get<bool>(node.baseData);
+				else if (node.baseData.is_type<bool>())
+					paramsJson["Bools"][node.name] = node.baseData.get_value<bool>();
 			}
 			shaderGraphJson["Params"] = paramsJson;
 
@@ -334,6 +334,76 @@ namespace SliceEditor
 	{
 		//SliceEngine::SliceEngineTypes::cShaderPredefines.find("");
 	}
+
+	void CustomShaderWindow::DrawSideBar()
+	{
+		ImGui::BeginChild("##left_ShaderGraph_region", ImVec2(0.2f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+		ImGui::SeparatorText("Parameters");
+		int toDeleteID{};
+		for (auto& [id, data] : mEditableIns)
+		{
+			std::string param_id = "##SG_Param" + data.name + std::to_string(id);
+			std::string param_button_id = "##SG_ParamButton" + data.name + std::to_string(id);
+			std::string paramName = data.name;
+
+			ImGui::SetNextItemWidth(20.f);
+			switch (data.baseDataType)
+			{
+			case CST::CSHAD_T::BOOL:ImGui::Text("Bool"); break;
+			case CST::CSHAD_T::UINT:ImGui::Text("Uint"); break;
+			case CST::CSHAD_T::INT:ImGui::Text("Int"); break;
+			case CST::CSHAD_T::FLOAT:ImGui::Text("Float"); break;
+			}
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(125.f);
+			if (ImGui::InputText(param_id.c_str(), &paramName, ImGuiInputTextFlags_EnterReturnsTrue))
+			{
+				data.name = paramName;
+			}
+			ImGui::SameLine();
+			ImGui::Text("Del?");
+			ImGui::SameLine();
+			if (ImGui::Button(param_button_id.c_str(),ImVec2(20.f, 0.f)))
+			{
+				toDeleteID = data.id;
+				if (attrIDToNodeID.find(data.out_id) != attrIDToNodeID.end())
+				{
+					attrIDToNodeID.erase(data.out_id);
+				}
+				DeleteLinkFromAttr(data.out_id);
+			}
+		}
+
+		if (toDeleteID != 0)
+		{
+			mEditableIns.erase(toDeleteID);
+		}
+
+		ImGui::EndChild();
+	}
+	void CustomShaderWindow::DrawNodeEditor()
+	{
+		ImGui::BeginChild("##right_ShaderGraph_region", ImVec2(0.f, 0.0f), ImGuiChildFlags_Borders);
+		ImNodes::BeginNodeEditor();
+
+		// Ins
+		for (auto& i : mDefaultIns)
+			DrawDefaultInNode(i.second);
+		for (auto& i : mEditableIns)
+			DrawEditableInNode(i.second);
+		// Mids
+		for (auto& i : mStateNodes)
+			DrawStateNode(i.second);
+		// Transitions
+		for (auto& i : mTransitionNodes)
+			DrawTransitionNodes(i.second);
+
+		DrawPostEditorElements();
+		// must be called right before EndNodeEditor
+		ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_TopLeft);
+		ImNodes::EndNodeEditor();
+		ImGui::EndChild();
+	}
 	
 #pragma region Drawing
 	void CustomShaderWindow::Draw()
@@ -349,37 +419,12 @@ namespace SliceEditor
 			//auto texture = handle.get();
 			//ImGui::Image(static_cast<ImU64>(texture->texture_id), ImGui::GetWindowSize());
 		}
-
+		DrawSideBar();
+		ImGui::SameLine();
 		ImNodes::EditorContextSet(*editor_context_this.get());
-		ImNodes::BeginNodeEditor();
-
-		// Ins
-		for(auto& i : mDefaultIns)
-			DrawDefaultInNode(i.second);
-		for(auto& i : mEditableIns)
-			DrawEditableInNode(i.second);
-		// Mids
-		for(auto& i : mStateNodes)
-			DrawStateNode(i.second);
-		// Transitions
-		for (auto& i : mTransitionNodes)
-			DrawTransitionNodes(i.second);
-
-		DrawPostEditorElements();
-		// must be called right before EndNodeEditor
-		ImNodes::MiniMap(0.2f, ImNodesMiniMapLocation_TopLeft);
-		ImNodes::EndNodeEditor();
+		DrawNodeEditor();
 
 		PostEditorChecks();
-
-		if (tempLoadPos)
-			TempLoadPosAll();
-		if (newNodeID != 0)
-		{
-			ImNodes::SetNodeEditorSpacePos(newNodeID, mouseSelectPos);
-			ImNodes::SnapNodeToGrid(newNodeID);
-			newNodeID = 0;
-		}
 
 		ImNodes::EditorContextSet(*editor_context_other.get());
 		ImGui::End();
@@ -409,27 +454,27 @@ namespace SliceEditor
 		ImGui::SameLine();
 		ImNodes::BeginOutputAttribute(node.out_id);
 		ImGui::PushItemWidth(50.f);
-		if (std::holds_alternative<float>(node.baseData))
+		if (node.baseData.is_type<float>())
 		{
-			float temp = std::get<float>(node.baseData);
+			float temp = node.baseData.get_value<float>();
 			ImGui::DragFloat("", &temp, 0.01f);
 			node.baseData = temp;
 		}
-		if (std::holds_alternative<uint32_t>(node.baseData))
+		if (node.baseData.is_type<uint32_t>())
 		{
-			int temp = static_cast<int>(std::get<uint32_t>(node.baseData));
+			int temp = static_cast<int>(node.baseData.get_value<uint32_t>());
 			ImGui::DragInt("", &temp);
-			node.baseData = static_cast<int>(temp);
+			node.baseData = static_cast<uint32_t>(temp);
 		}
-		if (std::holds_alternative<int32_t>(node.baseData))
+		if (node.baseData.is_type<int32_t>())
 		{
-			int temp = std::get<int32_t>(node.baseData);
+			int temp = node.baseData.get_value<float>();
 			ImGui::DragInt("", &temp);
 			node.baseData = temp;
 		}
-		if (std::holds_alternative<bool>(node.baseData))
+		if (node.baseData.is_type<bool>())
 		{
-			bool temp = std::get<bool>(node.baseData);
+			bool temp = node.baseData.get_value<bool>();
 			ImGui::Checkbox("", &temp);
 			node.baseData = temp;
 		}
@@ -735,6 +780,11 @@ namespace SliceEditor
 					case SelectionType::SHADER_FUNCTION_STATE:
 					{
 						auto stateNode = static_cast<ShaderStateNode*>(node);
+						if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
+						{
+							if(CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+								break;
+						}
 						if (mStateNodes.find(stateNode->id) != mStateNodes.end())
 						{
 							// Delete Attr To Node
@@ -757,6 +807,15 @@ namespace SliceEditor
 				mSelectionManager->ClearSelection();
 			}
 
+		}
+	
+		if (tempLoadPos)
+			TempLoadPosAll();
+		if (newNodeID != 0)
+		{
+			ImNodes::SetNodeEditorSpacePos(newNodeID, mouseSelectPos);
+			ImNodes::SnapNodeToGrid(newNodeID);
+			newNodeID = 0;
 		}
 	}
 
