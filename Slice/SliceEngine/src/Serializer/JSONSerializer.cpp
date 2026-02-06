@@ -50,44 +50,44 @@ namespace SliceEngine
 			finalOutput["SceneData"] = json::array();
 			finalOutput["NavMeshData"] = nullptr;
 
-			std::filesystem::path sceneMeta = filePath;
-			sceneMeta += ".meta";
+			std::string assetName = filePath.stem().string();
+			std::filesystem::path prefix = "../SliceEditor/Assets/";
+			std::filesystem::path assetDir = filePath.parent_path().parent_path();
+			assetDir += "/NavMesh/";
+			assetDir += assetName;
 
-			if (!std::filesystem::exists(sceneMeta))
+			std::filesystem::path navMeshPath = assetDir.generic_string() + ".navmesh";
+			std::filesystem::path binPath = assetDir.generic_string() + ".bin";
+			auto* rm = Core::GetInstance()->GetResourceManager();
+
 			{
-				SLICE_LOG_ERROR("SCene meta file does not exist!");
-				//return;
-			}
-			else
-			{
-				std::ifstream file(sceneMeta);
-				if (!file.is_open())
-				{
-					SLICE_LOG_ERROR("Meta file cannot be opened");
-					//assert("Meta file cannot be open");
-				//	return;
-				}
-
-				json metaData;
-				try {
-					file >> metaData;
-				}
-				catch (json::parse_error& e)
-				{
-					SLICE_LOG_ERROR("Meta cannot be parsed as json");
-					return;
-				}
-
 				// safety checks
-				if (metaData.contains("navMeshGUID") && metaData["navMeshGUID"] != 0)
+				if (std::filesystem::exists(navMeshPath))
 				{
-					finalOutput["NavMeshData"]["navMeshGUID"] = metaData.value("navMeshGUID", 0ULL);
+					std::string navPath = navMeshPath.lexically_relative(prefix).generic_string();
+
+					if (rm->mFileNameToGUID.contains(navPath))
+					{
+						GUID guid = rm->mFileNameToGUID[navPath];
+						finalOutput["NavMeshData"]["navMeshGUID"] = guid;
+
+					}
+				}
+				if (std::filesystem::exists(binPath))
+				{
+					std::string navPath = binPath.lexically_relative(prefix).generic_string();
+
+					if (rm->mFileNameToGUID.contains(navPath))
+					{
+						GUID guid = rm->mFileNameToGUID[navPath];
+						finalOutput["NavMeshData"]["navMeshBinGUID"] = guid;
+					}
 				}
 
-				if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
-				{
-					finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
-				}
+				//if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+				//{
+				//	finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+				//}
 
 			}
 

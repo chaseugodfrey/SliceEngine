@@ -304,7 +304,7 @@ namespace SliceEngine
 		//if (EFSM.currState->stateName == name)
 			//return;
 
-		SLICE_LOG(name);
+		//SLICE_LOG(name);
 
 		EFSM.parameters[name] = value;
 
