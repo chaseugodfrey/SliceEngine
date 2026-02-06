@@ -776,7 +776,6 @@ namespace SliceEngine
 
 		//frm->StartFrame();
 
-		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -846,7 +845,6 @@ namespace SliceEngine
 			}
 		}
 
-		frm->EndSystem("Scene Handling");
 
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
