@@ -55,7 +55,7 @@ namespace SliceEngine
 
 			if (!std::filesystem::exists(sceneMeta))
 			{
-				SLICE_LOG_ERROR("SCene meta file does not exist!");
+				SLICE_LOG_ERROR("Scene meta file does not exist!");
 				//return;
 			}
 			else
