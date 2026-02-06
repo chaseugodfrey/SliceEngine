@@ -30,16 +30,16 @@ namespace SliceEngine
         {
             base.OnUpdate(dt);
 
-            if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
-            {
-                enterPressed = true;
-                PlayDialogueForLevel(0);
-            }
+            //if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
+            //{
+            //    enterPressed = true;
+            //    PlayDialogueForLevel(0);
+            //}
 
-            if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
-            {
-                enterPressed = false;
-            }
+            //if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
+            //{
+            //    enterPressed = false;
+            //}
 
         }
 
