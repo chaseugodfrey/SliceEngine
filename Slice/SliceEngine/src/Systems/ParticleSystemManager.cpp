@@ -66,6 +66,24 @@ namespace SliceEngine
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
 
+		ps.colourLifetimeMap.clear();
+		for (const auto& kv : ps.colourMapIntermediary)
+		{
+			ps.colourLifetimeMap[kv.first] = kv.second;
+		}
+
+		ps.sizeMap.clear();
+		for (const auto& kv : ps.sizeMapIntermediary)
+		{
+			ps.sizeMap.insert_or_assign(kv.first, kv.second);
+		}
+
+		ps.velocityMap.clear();
+		for (const auto& kv : ps.velocityMapIntermediary)
+		{
+			ps.velocityMap.insert_or_assign(kv.first, kv.second);
+		}
+
 		try 
 		{
 			ps.renderData.reserve(ps.maxParticles);
@@ -73,13 +91,6 @@ namespace SliceEngine
 		catch (const std::bad_alloc&) 
 		{
 			std::cerr << "Allocation failed!" << std::endl;
-		}
-
-		// Temp example having specific points of the curve to have certain colours
-		if (ps.colourOverLifetime)
-		{			
-			ps.colourLifeTimeMap[0.0f] = ps.colour;
-			ps.colourLifeTimeMap[1.0f] = ps.colourOverLifetimeEnd;
 		}
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
@@ -219,7 +230,7 @@ namespace SliceEngine
 					p.rotation = glm::eulerAngles(baseRot).z;
 			}
 
-			glm::quat finalRot = ps.alwaysFaceCamera && !ps.rotateOverLifetime? (billboardRot * baseRot) : baseRot;
+			glm::quat finalRot = ps.alwaysFaceCamera ? (billboardRot * baseRot) : baseRot;
 
 			transformMatrix *= glm::mat4_cast(finalRot);
 			
@@ -490,8 +501,6 @@ namespace SliceEngine
 		{
 			p.colour = ps.colour;
 		}
-		// May need to remove in future
-		ps.colourLifeTimeMap[0.0f] = ps.colour;
 	}
 #pragma endregion
 
@@ -606,18 +615,45 @@ namespace SliceEngine
 	glm::vec3 ParticleSystemManager::SizeOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
 		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
-		glm::vec3 scaleMul{ 1.0f }; // default 1
+		glm::vec3 scaleMul{ 1.0f }; // default scale
+
+		if (ps.sizeMap.empty())
+			return scaleMul;
+
+		// If t is before the first key
+		if (t <= ps.sizeMap.begin()->first)
+			return ps.sizeMap.begin()->second;
+
+		// If t is after the last key
+		if (t >= ps.sizeMap.rbegin()->first)
+			return ps.sizeMap.rbegin()->second;
+
+		// Find the two keys between which t lies
+		auto it = ps.sizeMap.lower_bound(t); // first key >= t
+
+		if (it == ps.sizeMap.end())
+			return ps.sizeMap.rbegin()->second;
+
+		auto itPrev = std::prev(it);
+
+		float t0 = itPrev->first;
+		float t1 = it->first;
+
+		const glm::vec3& v0 = itPrev->second;
+		const glm::vec3& v1 = it->second;
+
+		float factor = (t1 > t0) ? (t - t0) / (t1 - t0) : 0.0f;
 
 		if (ps.sizeSeparateAxis)
 		{
-			// per-axis lerp
-			scaleMul = glm::mix(ps.startScaleMultiplier, ps.endScaleMultiplier, t);
+			// Lerp per-axis
+			scaleMul = glm::mix(v0, v1, factor);
 		}
 		else
 		{
-			// uniform scale using Z component
-			float uniformScale = glm::mix(ps.startScaleMultiplier.z, ps.endScaleMultiplier.z, t);
-			scaleMul = glm::vec3(uniformScale); // same for x,y,z
+			// Uniform scale using Z component
+			float s = glm::mix(v0.z, v1.z, factor);
+			scaleMul = glm::vec3(s);
 		}
 
 		return scaleMul;
@@ -629,16 +665,14 @@ namespace SliceEngine
 		if (ps.rotateSeparateAxis)
 		{
 			// Angular velocity per axis (radians/sec)
-			glm::vec3 deltaAngle = ps.rotateVelocity * dt;
-
-			deltaQ = glm::quat(deltaAngle);
+			glm::vec3 deltaAngleRad = glm::radians(ps.rotateVelocity * dt);
+			deltaQ = glm::quat(deltaAngleRad);
 		}
 		else
 		{
 			// Uniform rotation using Z as scalar
-			float angle = ps.rotateVelocity.z * dt;
-
-			deltaQ = glm::angleAxis(angle, glm::vec3(0, 0, 1));
+			float angleRad = glm::radians(ps.rotateVelocity.z * dt);
+			deltaQ = glm::angleAxis(angleRad, glm::vec3(0, 0, 1));
 		}
 
 		return deltaQ;
@@ -646,7 +680,7 @@ namespace SliceEngine
 
 	void ParticleSystemManager::ApplyColourOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
-		auto& map = ps.colourLifeTimeMap;
+		auto& map = ps.colourLifetimeMap;
 
 		if (map.empty())
 			return;		
@@ -693,13 +727,47 @@ namespace SliceEngine
 
 	glm::vec3 ParticleSystemManager::VelocityOverLifetime(Particle& p, ParticleSystem& ps, float dt)
 	{
-		float t = p.normalizedAge();
+		float t = glm::clamp(p.normalizedAge(), 0.0f, 1.0f);
+		glm::vec3 velocityMul{ 1.0f }; // default scale
 
-		glm::vec3 velocityMul = glm::mix(
-			ps.startVelocityMultiplier,
-			ps.endVelocityMultiplier,
-			t
-		);
+		if (ps.velocityMap.empty())
+			return velocityMul;
+
+		// If t is before the first key
+		if (t <= ps.velocityMap.begin()->first)
+			return ps.velocityMap.begin()->second;
+
+		// If t is after the last key
+		if (t >= ps.velocityMap.rbegin()->first)
+			return ps.velocityMap.rbegin()->second;
+
+		// Find the two keys between which t lies
+		auto it = ps.velocityMap.lower_bound(t); // first key >= t
+
+		if (it == ps.velocityMap.end())
+			return ps.velocityMap.rbegin()->second;
+
+		auto itPrev = std::prev(it);
+
+		float t0 = itPrev->first;
+		float t1 = it->first;
+
+		const glm::vec3& v0 = itPrev->second;
+		const glm::vec3& v1 = it->second;
+
+		float factor = (t1 > t0) ? (t - t0) / (t1 - t0) : 0.0f;
+
+		if (ps.velocitySeparateAxis)
+		{
+			// Lerp per-axis
+			velocityMul = glm::mix(v0, v1, factor);
+		}
+		else
+		{
+			// Uniform scale using Z component
+			float s = glm::mix(v0.z, v1.z, factor);
+			velocityMul = glm::vec3(s);
+		}
 
 		return velocityMul;
 	}
