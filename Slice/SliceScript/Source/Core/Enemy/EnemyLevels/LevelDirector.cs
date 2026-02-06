@@ -22,6 +22,9 @@ namespace SliceEngine
 
         public GameObject deathBox;
 
+        public Prefab enemyGruntPrefab = new Prefab("Prefabs/EnemyGrunt.prefab");
+        public Prefab enemySlimePrefab = new Prefab("Prefabs/EnemySlime.prefab");
+
         private bool isActive = false;
 
         /// <summary>
@@ -76,8 +79,6 @@ namespace SliceEngine
             GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
             newEnemy.As<EnemyGrunt>().SetUp();
             enemies.Add(newEnemy);
-
-
 
             return newEnemy;
         }

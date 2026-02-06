@@ -117,6 +117,8 @@ namespace SliceEngine
             {
                 Console.Write("| Failed player check on damage, no damage done |");
             }
+
+            ChangeState(new EnemyGruntStrafeState(this));
         }
 
         public void StartWindUp()
@@ -135,7 +137,7 @@ namespace SliceEngine
         IEnumerator WindUpCoroutine()
         {
             float count = 0f;
-
+            float maxSignalScale = windupSignalObject.GetComponent<Transform>().Scale.x;
 
             while(isWinding && count < attackWindUpTiming)
             {
@@ -143,6 +145,10 @@ namespace SliceEngine
                 count += Time.deltaTime;
                 //Windup smt
                 //Normally it should be an animation
+
+                float currSignalScale = maxSignalScale * (count / attackWindUpTiming);
+
+                windupSignalObject.GetComponent<Transform>().Scale = new Vector3(currSignalScale, currSignalScale, currSignalScale);
 
                 yield return new WaitForSeconds(Time.deltaTime);
             }
