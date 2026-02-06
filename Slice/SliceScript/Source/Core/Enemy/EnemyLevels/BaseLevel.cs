@@ -24,6 +24,7 @@ namespace SliceEngine
         public bool constantSpawning = false;
         // Keep spawning till it hits max;
         public int maxEnemies = 0;
+        public int slimeCount = 0;
         private bool toggleSpawning = true;
         // Maybe change to a list down the line to randomise
         public Prefab enemyPrefab = new Prefab("Prefabs/EnemyGrunt.prefab"); 

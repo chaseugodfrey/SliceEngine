@@ -103,12 +103,13 @@ namespace SliceEngine
             }
         }
 
-        public override void OnTriggerStay(uint other)
-        {
-            GameObject temp = new GameObject(other);
-            //if (temp.tag == "Player")
-            //    Console.WriteLine("Ur mudder");
-        }
+
+        //public override void OnTriggerStay(uint other)
+        //{
+        //    GameObject temp = new GameObject(other);
+        //    if (temp.tag == "Player")
+        //        Console.WriteLine("Ur mudder");
+        //}
 
     }
 }
