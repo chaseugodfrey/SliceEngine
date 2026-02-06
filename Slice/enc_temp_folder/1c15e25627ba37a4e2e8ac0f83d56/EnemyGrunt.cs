@@ -261,12 +261,10 @@ namespace SliceEngine
         }
 
 
-        public override void OnDeath()
-        {
-            base.OnDeath();
+        //public override void OnDeath()
+        //{
 
-            Bootstrap.LevelDirector.EnemyDeath(this.gameObject);
-        }
+        //}
         #endregion
     }
 }

@@ -178,7 +178,7 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            SliceLog.Log("Triggering Next Level Part 1");
+            //SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
@@ -199,7 +199,7 @@ namespace SliceEngine
                 levelDone = false;
                 //finishedTriggers.Add((int)input.mID, input);
 
-                SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
+                //SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
 
                 //SliceLog.Log("Triggering Next Level Part 3");
 
