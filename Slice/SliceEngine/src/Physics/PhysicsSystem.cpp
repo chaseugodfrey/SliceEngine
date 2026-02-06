@@ -1025,7 +1025,7 @@ namespace SliceEngine
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
 				std::pair<GameObject, GameObject> collisionPair = contactListener->MakeOrderedPair(checkEntity1, checkEntity2);
-				contactListener->RemoveContactPair(collisionPair);
+				//contactListener->RemoveContactPair(collisionPair);
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
