@@ -57,12 +57,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048654,
+                "entity_id": 1048622,
                 "neighbours": [
                     0,
-                    1048655,
-                    1048647,
-                    1048656
+                    1048621,
+                    1048683,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
@@ -78,15 +78,15 @@
                     },
                     "attackHitBoxObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048645
+                        "Value": 1048619
                     },
                     "attackHitBoxRenderObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048717
+                        "Value": 1048618
                     },
                     "attackOdds": {
                         "Type": "float",
-                        "Value": 0.10000000149011612
+                        "Value": 0.30000001192092896
                     },
                     "attackOddsCheckFrequency": {
                         "Type": "float",
@@ -98,7 +98,7 @@
                     },
                     "attackWindUpTiming": {
                         "Type": "float",
-                        "Value": 3.0
+                        "Value": 2.0
                     },
                     "currentHealth": {
                         "Type": "int",
@@ -106,7 +106,11 @@
                     },
                     "damage": {
                         "Type": "int",
-                        "Value": 5
+                        "Value": 10
+                    },
+                    "damagedSignal": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 1048616
                     },
                     "flickerTiming": {
                         "Type": "float",
@@ -126,15 +130,15 @@
                     },
                     "strafeDistance": {
                         "Type": "float",
-                        "Value": 5.0
+                        "Value": 10.0
                     },
                     "strafeSpeed": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 0.20000000298023224
                     },
                     "strafeTolerance": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 0.5
                     },
                     "stunned": {
                         "Type": "bool",
@@ -146,7 +150,7 @@
                     },
                     "windupSignalObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048718
+                        "Value": 1048617
                     }
                 }
             },
@@ -203,12 +207,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048655,
+                "entity_id": 1048621,
                 "neighbours": [
-                    1048654,
+                    1048622,
                     4294967295,
                     4294967295,
-                    1048635
+                    1048620
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -252,12 +256,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048635,
+                "entity_id": 1048620,
                 "neighbours": [
-                    1048654,
-                    1048645,
-                    1048655,
-                    1048718
+                    1048622,
+                    1048619,
+                    1048621,
+                    1048617
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -317,12 +321,12 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048645,
+                "entity_id": 1048619,
                 "neighbours": [
-                    1048635,
+                    1048620,
                     4294967295,
                     4294967295,
-                    1048717
+                    1048618
                 ]
             },
             "struct SliceEngine::Script": {
@@ -381,11 +385,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048717,
+                "entity_id": 1048618,
                 "neighbours": [
-                    1048635,
+                    1048620,
                     4294967295,
-                    1048645,
+                    1048619,
                     4294967295
                 ]
             },
@@ -442,12 +446,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048718,
+                "entity_id": 1048617,
                 "neighbours": [
-                    1048654,
+                    1048622,
                     4294967295,
-                    1048635,
-                    4294967295
+                    1048620,
+                    1048616
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -477,6 +481,67 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        }
+    },
+    {
+        "Damaged Signal": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "17656138608147415398"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048616,
+                "neighbours": [
+                    1048622,
+                    4294967295,
+                    1048617,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Damaged Signal",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -4.76837158203125e-07,
+                    2.4800148010253906,
+                    -0.46003150939941406
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.0,
+                    3.0,
+                    3.0
                 ]
             }
         }

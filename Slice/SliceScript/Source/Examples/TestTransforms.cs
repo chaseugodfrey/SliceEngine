@@ -25,7 +25,7 @@ namespace SliceEngine
            animator = GetComponent<Animator>();
 
 
-            SliceLog.Log("Rotation: x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
+            //SliceLog.Log("Rotation: x<" + t.Rotation.x + ">y<" + t.Rotation.y + ">z<" + t.Rotation.z);
         }
 
         public override void OnUpdate(float dt)

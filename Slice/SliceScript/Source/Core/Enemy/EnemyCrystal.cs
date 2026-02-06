@@ -87,7 +87,7 @@ namespace SliceEngine
 
         public void BasicExplode(GameObject hit)
         {
-            Console.Write("| Basic Attack called |");
+            //Console.Write("| Basic Attack called |");
 
             if ( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
             {
@@ -98,7 +98,7 @@ namespace SliceEngine
             }
             else
             {
-                Console.Write("| Failed player check on damage, no damage done |");
+                //Console.Write("| Failed player check on damage, no damage done |");
             }
         }
 
@@ -207,7 +207,7 @@ namespace SliceEngine
         public override void TakeDamage(int amount, GameObject source = null)
         {
             // This override is just to insert a debug
-            Console.WriteLine("Enemy is taking damage");
+            //Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
 

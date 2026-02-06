@@ -18,7 +18,7 @@ namespace SliceEngine
 
         public void AttackRecovery(string str)
         {
-            Console.WriteLine("Attack recovery started.");
+            //Console.WriteLine("Attack recovery started.");
             Bootstrap.Player.StartAttackRecovery();
         }
         public void CanAttack(string str)
@@ -37,15 +37,15 @@ namespace SliceEngine
                 case "true":
                     Bootstrap.Player.canMove = false;
                     Bootstrap.Player.isAttacking = true;
-                    Console.WriteLine("Player is now attacking.");
+                    //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
                     Bootstrap.Player.canMove = true;
                     Bootstrap.Player.isAttacking = false;
-                    Console.WriteLine("Player is no longer attacking.");
+                    //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
-                    Console.WriteLine("Invalid state for SetAttacking: " + state);
+                    //Console.WriteLine("Invalid state for SetAttacking: " + state);
                     break;
             }
         }

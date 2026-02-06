@@ -22,6 +22,9 @@ namespace SliceEngine
 
         public GameObject deathBox;
 
+        public Prefab enemyGruntPrefab = new Prefab("Prefabs/EnemyGrunt.prefab");
+        public Prefab enemySlimePrefab = new Prefab("Prefabs/EnemySlime.prefab");
+
         private bool isActive = false;
 
         /// <summary>
@@ -29,13 +32,7 @@ namespace SliceEngine
         /// </summary>
         public void Initialize()
         {
-
-            if (Input.IsKeyPressed(Keys.KEY_P))
-            {
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
-            }
-
-            Console.WriteLine("Initialize Level Director");
+            //SliceLog.Log("Initialize Level Director");
             isActive = true;
 
             //gameObject.FindGameObjectsWithTag("Level").Length;
@@ -49,7 +46,7 @@ namespace SliceEngine
                 }
                 else
                 {
-                    SliceLog.Log("Duplicate Level Detected, Not ");
+                    //SliceLog.Log("Duplicate Level Detected, Not ");
                 }
             }
 
@@ -58,15 +55,16 @@ namespace SliceEngine
 
             foreach (GameObject trigger in levelTriggers)
             {
-                Console.WriteLine("id of triggerbox: " + trigger.mID);
+                //Console.WriteLine("id of triggerbox: " + trigger.mID);
                 trigger.As<GeneralHitbox>().HitBoxListeners += TriggerNextLevel;
                 trigger.As<GeneralHitbox>().TurnOn(); // turn on all hitboxes first, cause they'll be planned to be sequential anyway
             }
 
             if (deathBox != null)
             {
-                SliceLog.Log("Death box is not empty, setting it");
+                //SliceLog.Log("Death box is not empty, setting it");
                 deathBox.As<GeneralHitbox>().HitBoxListeners += RespawnPlayer;
+                deathBox.As<GeneralHitbox>().TurnOn();
             }
 
             //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
@@ -79,8 +77,6 @@ namespace SliceEngine
             GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
             newEnemy.As<EnemyGrunt>().SetUp();
             enemies.Add(newEnemy);
-
-
 
             return newEnemy;
         }
@@ -100,20 +96,27 @@ namespace SliceEngine
             if (!isActive)
                 return;
 
+            if (Input.IsKeyPressed(Keys.KEY_P))
+            {
+                //Vector3 loc = levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position;
+                //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
+                //SliceLog.Log("Teleporting player");
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+            }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
-                SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
+                //SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
                 TriggerNextLevel(Bootstrap.Player.gameObject);
             }
 
             if (currLevel > levels.Count)
             {
-                SliceLog.Error("Current level is more than the number of levels");
+                //SliceLog.Error("Current level is more than the number of levels");
             }
             else if (currLevel == levels.Count)
             {
-                SliceLog.Log("End of level director");
+                //SliceLog.Log("End of level director");
                 // end of level director?
                 return;
             }
@@ -152,16 +155,16 @@ namespace SliceEngine
             // do simple dist check 
             foreach(GameObject enemy in enemies)
             {
-                SliceLog.Log("Died in here 0");
+                //SliceLog.Log("Died in here 0");
 
                 float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
-                SliceLog.Log("Died in here 1");
+                //SliceLog.Log("Died in here 1");
                 if (Dist < SafetyDistance)
                 {
                     return false;
                 }
             }
-            SliceLog.Log("Died in here 2");
+            //SliceLog.Log("Died in here 2");
 
             return true;
         }
@@ -175,7 +178,7 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            SliceLog.Log("Triggering Next Level Part 1");
+            //SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
@@ -196,14 +199,14 @@ namespace SliceEngine
                 levelDone = false;
                 //finishedTriggers.Add((int)input.mID, input);
 
-                SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
+                //SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
 
                 //SliceLog.Log("Triggering Next Level Part 3");
 
                 if (!levels.ContainsKey(currLevel))
                 {
                     
-                    SliceLog.Log("Level does not exist");
+                    //SliceLog.Log("Level does not exist");
                     TriggerNextLevel(input);
                 }
 
@@ -224,17 +227,17 @@ namespace SliceEngine
 
         public void RespawnPlayer(GameObject input)
         {
-            SliceLog.Log("Respawn is called");
+            //SliceLog.Log("Respawn is called");
             if (!input.Has<PlayerController>())
             {
-                SliceLog.Log("There is no player script in the object");
+                //SliceLog.Log("There is no player script in the object");
                 return;
             }
 
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
-                SliceLog.Log("Teleporting player");
-                Bootstrap.Player.Teleport(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+                ////SliceLog.Log("Teleporting player");
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
         }

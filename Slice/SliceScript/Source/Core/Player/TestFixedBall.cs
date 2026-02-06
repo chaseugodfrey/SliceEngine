@@ -30,7 +30,7 @@ namespace SliceEngine
 
         public void Testing()
         {
-            SliceLog.Log("I AM BEING PUSHEDDD");
+            //SliceLog.Log("I AM BEING PUSHEDDD");
             rb.AddForce(new Vector3(100, 0, 0) * Time.fixedDeltaTime, ForceMode.Impulse);
         }
 

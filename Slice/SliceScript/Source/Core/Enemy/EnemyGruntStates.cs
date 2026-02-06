@@ -16,7 +16,7 @@ namespace SliceEngine
     public class EnemyGruntState : EnemyState
     {
         protected EnemyGrunt enemyOwner;
-        public EnemyGruntState(EnemyGrunt owner) { this.enemyOwner = owner; /*SliceLog.Log("Grunt chase state created");*/ Console.WriteLine("Grunt chase state created"); }
+        public EnemyGruntState(EnemyGrunt owner) { this.enemyOwner = owner; }/*SliceLog.Log("Grunt chase state created");*/ //Console.WriteLine("Grunt chase state created"); }
         public override void DoEnemyAction(float dt) {}
         public override void DoEnemyActionFixed() {}
         public override void OnCollide() {}
