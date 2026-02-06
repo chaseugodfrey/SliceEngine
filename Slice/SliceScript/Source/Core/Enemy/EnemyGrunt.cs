@@ -23,6 +23,7 @@ namespace SliceEngine
         public float attackTriggerRange = 1f;
         public float attackDamageRange = 1f;
         public float flickerTiming = 1f;
+        public float damageFlickerTiming = 0.1f;
 
         public bool isWinding { get; private set; } = false;
         public float attackWindUpTiming = 1f;
@@ -220,6 +221,18 @@ namespace SliceEngine
         }
         
 
+        IEnumerator DamageFlicker()
+        {
+
+            damagedSignal.SetActive(true);
+
+            yield return new WaitForSeconds(damageFlickerTiming);
+
+            damagedSignal.SetActive(false);
+
+            yield break;
+        }
+
         #endregion
 
         public override void TakeDamage(int amount, GameObject source = null)
@@ -240,9 +253,11 @@ namespace SliceEngine
                 //Console.WriteLine("RigidBody is null, cannot apply knockback");
                 return;
             }
-            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
+            //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
            // ChangeState(new EnemyGruntStunnedState(this));
             SliceLog.Console("ENEMY IS BEING HIT");
+
+            StartCoroutine(DamageFlicker());
         }
 
 
