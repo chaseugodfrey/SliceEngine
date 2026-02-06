@@ -129,29 +129,22 @@ namespace SliceEditor
 			engineFRM->StartFrame();
 
 
-			engineFRM->StartSystem("Editor Registry");
+			engineFRM->StartSystem("Editor");
 			registry.Update();
-			engineFRM->EndSystem("Editor Registry");
-
-			engineFRM->StartSystem("Editor Inputs");
 			inputs->Update();
-			engineFRM->EndSystem("Editor Inputs");
-
-			engineFRM->StartSystem("Filewatcher");
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
-			engineFRM->EndSystem("Filewatcher");
+			engineFRM->EndSystem("Editor");
 
 			//engineFRM->StartSystem("Engine");
 			engine.Update();
 			//engineFRM->EndSystem("Engine");
-			engineFRM->StartSystem("Editor Render");
+			engineFRM->StartSystem("Editor");
 			Render();
-			engineFRM->EndSystem("Editor Render");
-
 			engine.EndFrame();
+			engineFRM->EndSystem("Editor");
 
 			engineFRM->EndFrame();
 			engineFRM->CalculateSystemPercentages();
@@ -177,7 +170,7 @@ namespace SliceEditor
 
 	void Editor::Save()
 	{
-		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences();
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
 	}
 
 	void Editor::Exit()
@@ -331,6 +324,12 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			file.metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::Font:
+			file.metaData = std::make_unique<FontMetaData>();
+			break;
+		default:
+			SLICE_LOG_WARNING("File Type not supported in HandleDrop function yet: " + fileExt +". Letting Filewatcher handle.");
+			return;
 		}
 		//Default Init the MetaData base class
 		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);

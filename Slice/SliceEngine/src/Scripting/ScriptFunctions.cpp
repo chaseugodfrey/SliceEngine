@@ -1794,8 +1794,11 @@ namespace SliceEngine
 
 		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
 		{
+			MonoClass* typeClass = mono_type_get_class(monoType);
+			const char* className = mono_class_get_name(typeClass);
+			const char* nameSpace = mono_class_get_namespace(typeClass);
 			// component not registered
-			SLICE_LOG_ERROR("Component Not Registered");
+			SLICE_LOG_ERROR("Component Not Registered: {}.{}", nameSpace, className);
 			assert("Component not registered");
 		}
 

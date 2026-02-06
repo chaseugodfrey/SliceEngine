@@ -662,6 +662,41 @@ namespace SliceEngine
 
     }
 
+    void ScriptSystem::OnLateUpdate(float dt)
+    {
+        mTimeInstance->InvokeOnLateUpdate(dt);
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            scriptRef->InvokeOnLateUpdate(dt);
+        }
+
+        // Loop through all entity instances
+        for (const auto& [id, scriptRef] : mEntityInstances)
+        {
+            auto& scriptComponent = mRegistry->get<Script>(id);
+
+            //if disabled should not update
+            if (!scriptComponent.componentEnabled)
+            {
+                continue;
+            }
+
+            UpdateScriptComponent(id);
+        }
+
+
+    }
+
     /// <summary>
     /// the only use for this is if a new entity is created in the editor
     /// and a script is assigned after having a script component
@@ -697,6 +732,10 @@ namespace SliceEngine
             for (auto entity : entityToInit)
             {
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+            }
+
+            for(auto entity: entityToInit)
+            {
                 mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
             }
@@ -1060,10 +1099,10 @@ namespace SliceEngine
             // for now we just invoke the moment it has been added
             if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
             {
-                entityToInit.insert(entity);
-               /* mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+               // entityToInit.insert(entity);
+                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
                 mEntityInstances[entity]->InvokeOnAwake();
-                mEntityInstances[entity]->InvokeOnCreate();*/
+                mEntityInstances[entity]->InvokeOnCreate();
 
             }
         }

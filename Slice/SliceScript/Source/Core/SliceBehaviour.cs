@@ -38,6 +38,7 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+        public virtual void OnLateUpdate(float dt) { }
         public virtual void OnCollideEnter(uint other) {  }
 
         public virtual void OnCollideStay(uint other) { }
