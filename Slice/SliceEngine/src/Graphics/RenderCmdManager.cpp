@@ -360,7 +360,7 @@ namespace SliceEngine
 					{
 						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
-						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
+						glNamedBufferSubData(mEVBO, 0, sizeof(float) * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
@@ -429,7 +429,7 @@ namespace SliceEngine
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &dat);
-					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * i.ext.size(), &i.ext);
+					glNamedBufferSubData(mEVBO, 0, sizeof(float) * i.ext.size() * 4, reinterpret_cast<const float*>(i.ext.data()));
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
@@ -478,7 +478,7 @@ namespace SliceEngine
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
-			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4) * ext.size(), &ext);
+			glNamedBufferSubData(mEVBO, 0, sizeof(float) * material->data.size(), &ext);
 			break;
 		}
 		}

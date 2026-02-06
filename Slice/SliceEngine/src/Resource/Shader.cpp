@@ -259,7 +259,94 @@ switch(n){
 	case 1: return vec4(inv.r, val, inv.ba);
 	case 2: return vec4(inv.rg, val, inv.a);
 	case 3: return vec4(inv.rgb, val);
-}})"}
+}})"},
+			{"GradientNoise_Deterministic", R"(
+uint Hash_Tchou_2_1_uint(uvec2 v)
+{
+	v.y ^= 1103515245U;
+	v.x += v.y;
+	v.x *= v.y;
+	v.x ^= v.x >> 5u;
+	v.x *= 0x27d4eb2du;
+	return v.x;
+}
+
+float Hash_Tchou_2_1_float(vec2 i)
+{
+	
+	uvec2 v = (uvec2) (ivec2) round(i);
+	uint r = Hash_Tchou_2_1_uint(v);
+	return (r >> 8) * (1.0 / float(0x00ffffff));
+}
+
+vec2 GradientNoise_Deterministic_Float(vec2 p)
+{
+	float x = Hash_Tchou_2_1_float(p);
+	return normalize(vec2(x - floor(x + 0.5), abs(x) - 0.5));
+}
+float GradientNoise_Deterministic(vec2 uv, vec3 scale)
+{
+	vec2 p = uv * scale.xy;
+	vec2 ip = floor(p);
+	vec2 fp = frac(p);
+	float d00 = dot(GradientNoise_Deterministic_Float(ip), fp);
+	float d01 = dot(GradientNoise_Deterministic_Float(ip + vec2(0, 1)), fp - vec2(0, 1));
+	float d10 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 0)), fp - vec2(1, 0));
+	float d11 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 1)), fp - vec2(1, 1));
+	fp = fp * fp * fp * (fp * (fp * 6 - 15) + 10);
+	return lerp(lerp(d00, d01, fp.y), lerp(d10, d11, fp.y), fp.x) + 0.5;
+})"},
+			{"Voronoi_Deterministic", R"(
+uvec2 Hash_Tchou_2_2_uint(uvec2 v)
+{
+    v . y ^= 1103515245U;
+    v . x += v . y;
+    v . x = v . y;
+    v . x ^= v . x >> 5u;
+    v . x= 0x27d4eb2du;
+    v . y ^= (v . x << 3u);
+    return v;
+}
+void Hash_Tchou_2_2_float(vec2 i, out vec2 o)
+{
+    uvec2 v = (uvec2) (ivec2) round (i);
+    uvec2 r = Hash_Tchou_2_2_uint(v);
+    o = (r >> 8) * (1.0 / float (0x00ffffff));
+}
+
+vec2 Voronoi_Deterministic_float(vec2 uv, float offset)
+{
+	Hash_Tchou_2_2_float(uv, uv);
+	return vec2(sin(uv.y * offset), cos(uv.x * offset)) * 0.5 + vec2(0.5);
+}
+
+float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
+{
+	vec2 g = floor(uv * cellDensity);
+	vec2 f = frac(uv * cellDensity);
+	float t = 8.0;
+	vec3 res = vec3(8.0, 0.0, 0.0);
+
+	float out = 0.0;
+	float cells = 0.0;
+
+	for(int y = -1, y <= 1; ++y)
+	{
+		for(int x = -1; x <= 1; ++x)
+		{
+			vec2 lattice = vec2(x, y);
+			vec2 offset = Voronoi_Deterministic_float(lattice + g, angleOffset);
+			float d = distance(lattice + offset, f);
+			if(d < res.x)
+			{
+				res = vec3(d, offset.x, offset.y);
+				out = res.x;
+				cells = res.y;
+			}
+		}
+	}
+	return out;
+})"}// Supposed to have 2 outs
 		};
 
 		std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates{
@@ -287,15 +374,19 @@ switch(n){
 
 			{"sat_f", {"float %s = sat_f(%s);\n", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
 			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);\n", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
+			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);\n", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
 			{"Mul_f", {"float %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			{"Mul_Vec2", {"vec2 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
 			{"Mul_Vec3", {"vec3 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
 			{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"One_Minus_f", {"float %s = 1.f - %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
 			
 			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
-			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}}
+			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"Tiling_And_Offset_Vec2", {"vec2 %s = %s * %s + %s;\n", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
+			{"Gradient_Noise_f", {"float %s = GradientNoise_Deterministic(%s, %s);\n", "GradientNoise_Deterministic", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2, CSHAD_T::VEC3}}}
 		};
 		// ----- Inside LoadCShader Func =====
 		std::unordered_map<std::string, CSHAD_T> dataIDS
@@ -383,6 +474,28 @@ switch(n){
 R"(void CustomCalc(in vec4 texCol, in vec4 color, inout vec4 finalCol, inout vec2 roughMet)
 {
 )"};
+			{
+				std::stringstream ss;
+				for (int i = 0; i < dataIn.size(); ++i)
+				{
+					switch (dataIn[i].dataType)
+					{
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+						ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+						ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+						ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
+						break;
+					}
+				}
+				fragMainShaderSource += ss.str();
+			}
 			LoadCShaderFunctions(fragMainShaderSource, fragInclFunctions, dataI, cshaderJson["Main"]);
 
 			std::string fragStart{
@@ -450,28 +563,6 @@ float ExtractFloat(int num)
 	return uintBitsToFloat(eDat[mainID][subID]);
 }
 )"};
-			{
-				std::stringstream ss;
-				for (int i = 0; i < dataIn.size(); ++i)
-				{
-					switch (dataIn[i].dataType)
-					{
-					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						ss << "bool " << dataIn[i].name << " = bool(ExtractUint(" << i << "));\n";
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						ss << "uint " << dataIn[i].name << " = ExtractUint(" << i << ");\n";
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
-						break;
-					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
-						break;
-					}
-				}
-				fragNumExtraElems += ss.str();
-			}
 			// GLSL Main Func
 			std::string fragEnd{
 R"(
@@ -489,10 +580,10 @@ void main(void){
 	if(texColor.a == 0.f)
 		discard;
 
-	vec4 finalCol = vec4(0.f);
+	fFragColor = vec4(0.f);
 	vec2 roughMetal = vec2(0.f);
 	CustomCalc(texColor, color, fFragColor, roughMetal);
-
+ 
 	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold)
 		discard;
 
@@ -643,7 +734,7 @@ void main(void){
 				}
 				ret += dependenciesLockedLines[i].funcStr;
 			}
-			ret += "}\n";
+			ret += "if(finalCol.a > 1.0) finalCol.a = 1.0;\n}\n";
 			//SLICE_LOG("\nCShaderCode: [" + ret + "]\n");
 		}
 		void CustomShader::DestroyCShader()
