@@ -1222,6 +1222,12 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::ParticleSystem>(entity);
 
+			ImGui::Text("Play Preview");
+			ImGui::SameLine(150);
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			if (ImGui::Button(ps.playPreview ? "Stop Preview" : "Play Preview"))
+				ps.playPreview = !ps.playPreview;
+
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
 				// Duration

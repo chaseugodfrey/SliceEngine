@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Graphics/RenderManager.h"
 #include "../Serializer/JSONSerializer.h"
 #include "../src/Physics/PhysicsSystem.h"
+#include "Systems/SceneSystem.h"
 #include <Core/Core.h>
 
 namespace SliceEngine
@@ -30,7 +31,17 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{		
+		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto& ps = reg.get<ParticleSystem>(entity);
+		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			ps.playPreview = false;
+		}
+		else if (sceneSystem->mCurrentState == SceneState::DEFAULT && !ps.playPreview)
+		{			
+			return;
+		}
+
 		ps.parentTransform = mRegistry->try_get<Transform>(entity);
 		if (ps.expired || (!ps.isActive))
 		{
@@ -38,13 +49,13 @@ namespace SliceEngine
 			{
 				FactoryInstance.Destroy(entity);
 			}
-			else 
+			else
 			{
 				ps.isActive = false;
 			}
 			return;
 		}
-		UpdateSystem(ps,dt);
+		UpdateSystem(ps, dt);
 	}
 	void ParticleSystemManager::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
@@ -925,6 +936,5 @@ namespace SliceEngine
 			return ps.parentTransform->rotation * localPoint;
 		}
 	}
-
 }
 #pragma endregion
