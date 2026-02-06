@@ -37,7 +37,7 @@ namespace SliceEngine
         #region Slice Behavior Overrides
         public override void OnCreate()
         {
-            Console.WriteLine("On create enemy base");
+            //Console.WriteLine("On create enemy base");
             
             base.OnCreate();
             enemyT = GetComponent<Transform>();
@@ -85,28 +85,28 @@ namespace SliceEngine
         #region Creation and Set Up
         public virtual void SetUp()
         {
-            SliceLog.Log("Base Setup Called");
+            //SliceLog.Log("Base Setup Called");
             //REMEMBER TO REMOVE THIS 
             enemyT = GetComponent<Transform>();
             rb = GetComponent<RigidBody>();
 
-            SliceLog.Log("Call after Rigibody");
+            //SliceLog.Log("Call after Rigibody");
 
             navAgent = GetComponent<NavAgent>();
 
-            SliceLog.Log("Call after NavAgent");
+            //SliceLog.Log("Call after NavAgent");
 
             if (navAgent == null)
             {
-                SliceLog.Log("Navgent is empty actually");
+                //SliceLog.Log("Navgent is empty actually");
             }
 
             navAgent.Speed = this.movementSpeed;
 
-            SliceLog.Log("Call after MovementSpeed");
+            //SliceLog.Log("Call after MovementSpeed");
             targetObjRef = Bootstrap.Player.gameObject;
 
-            SliceLog.Log("Call after Player");
+            //SliceLog.Log("Call after Player");
             //
 
 
@@ -121,12 +121,12 @@ namespace SliceEngine
 
         public void StartNav()
         {
-            SliceLog.Log("Navmesh is starting");
+            //SliceLog.Log("Navmesh is starting");
             navAgent.ComponentState(true);
             //navAgent.enabled = true;
             if (navAgent == null)
             {
-                SliceLog.Log("NavAgentEmpty");
+                //SliceLog.Log("NavAgentEmpty");
             }
         }
 

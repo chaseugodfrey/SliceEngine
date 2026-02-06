@@ -105,7 +105,7 @@ namespace SliceEngine
 
             if (toggleSpawning && timer > spawnInterval)
             {
-                SliceLog.Log("CREATING ENEMY");
+                //SliceLog.Log("CREATING ENEMY");
                 Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
                 if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
                 {
@@ -125,7 +125,7 @@ namespace SliceEngine
 
                 if (maxEnemies <= levelDirectorObject.As<LevelDirector>().EnemyCount())
                 {
-                    SliceLog.Log("Max enemies spanwed");
+                    //SliceLog.Log("Max enemies spanwed");
                     toggleSpawning = false;
                 }
 

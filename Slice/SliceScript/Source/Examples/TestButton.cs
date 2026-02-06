@@ -14,12 +14,12 @@ namespace SliceEngine
         public override void OnCreate()
         {
             slider = GetComponent<Slider>();
-            SliceLog.Log("Creating slider button test script");
+            //SliceLog.Log("Creating slider button test script");
         }
 
         public override void OnSliderValue(float value)
         {
-            SliceLog.Log("Slider value changed waor" + value);
+            //SliceLog.Log("Slider value changed waor" + value);
         }
 
 
@@ -28,14 +28,14 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_B))
             {
                 float curr_val = slider.GetValue();
-                SliceLog.Log("Current Slider Value: " + curr_val);
+                //SliceLog.Log("Current Slider Value: " + curr_val);
                 curr_val += 0.1f;
                 while (curr_val > 1.0f)
                 {
                     curr_val -= 1.0f;
                 }
 
-                SliceLog.Log("New Slider Value: " + curr_val);
+                //SliceLog.Log("New Slider Value: " + curr_val);
                 slider.SetValue(curr_val);
             }
         }

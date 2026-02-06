@@ -22,17 +22,17 @@ namespace SliceEngine
         {
             base.OnCreate();
 
-            if (levelToTurnOn != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>())) 
-            { levelToTurnOn.As<BaseLevel>().LevelCompleteEvent += TurnOn; SliceLog.Log("Bounding Box Added Turn On Behaviour"); }
-            else if (levelToTurnOn == null)
-            { SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Reference is empty"); }
-            else if (!levelToTurnOn.Has<BaseLevel>())
-            { SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Cannot grab script"); }
+            if (levelToTurnOn != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
+            { levelToTurnOn.As<BaseLevel>().LevelCompleteEvent += TurnOn; }//SliceLog.Log("Bounding Box Added Turn On Behaviour"); }
+            //else if (levelToTurnOn == null)
+            //{ SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Reference is empty"); }
+            //else if (!levelToTurnOn.Has<BaseLevel>())
+            //{ SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Cannot grab script"); }
 
             if (levelToTurnOff != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
-            { levelToTurnOff.As<BaseLevel>().LevelCompleteEvent += TurnOff; SliceLog.Log("Bounding Box Added Turn Off Behaviour"); }
-            else
-            { SliceLog.Log("Bounding Box Failed To Add Turn Off Behaviour"); }
+            { levelToTurnOff.As<BaseLevel>().LevelCompleteEvent += TurnOff; /*SliceLog.Log("Bounding Box Added Turn Off Behaviour");*/ }
+            //else
+            //{ SliceLog.Log("Bounding Box Failed To Add Turn Off Behaviour"); }
 
             if (startOn) { TurnOn(); }
             else { TurnOff(); }

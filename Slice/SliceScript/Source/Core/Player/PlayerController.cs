@@ -173,7 +173,7 @@ namespace SliceEngine
             camera = Bootstrap.CameraController;
             if (camera == null)
             {
-                Console.WriteLine("Camera Var in player is EMPTY");
+                //console.writeline("Camera Var in player is EMPTY");
             }
         }
         public override void OnCreate()
@@ -183,17 +183,17 @@ namespace SliceEngine
                 return;
             }
 
-            Console.WriteLine("Test");
+            //console.writeline("Test");
             playerModel = gameObject.FindGameObjectWithName("RootNode");
             animator = playerModel?.GetComponent<Animator>();
-            if (animator == null) Console.WriteLine("No animator found");
-            else Console.WriteLine("Animator found");
+            //if (animator == null) Console.WriteLine("No animator found");
+            //else Console.WriteLine("Animator found");
             audio = gameObject.GetComponent<AudioSource>();
             rb = GetComponent<RigidBody>();
-            if (rb == null) Console.WriteLine("No rb found");
-            else Console.WriteLine("RB found");
+            //if (rb == null) Console.WriteLine("No rb found");
+            //else Console.WriteLine("RB found");
             groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
-            if (groundCheck == null) Console.WriteLine("No ground check found");
+            //if (groundCheck == null) Console.WriteLine("No ground check found");
 
             InitializeAttackHitboxes();
         }
@@ -216,7 +216,7 @@ namespace SliceEngine
             {
                 ExecuteAttack();
                 attackQueued = false;
-                Console.WriteLine("AttackQueued set to false");
+                //console.writeline("AttackQueued set to false");
             }
             UpdateDash();
             if (canMove && !isAttacking && !attackAutoRecover) HandleMovement();
@@ -611,14 +611,14 @@ namespace SliceEngine
 
             allowedDashDistance = dashDistance;
 
-            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
+            //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
             if (Physics.Raycast(transform.Position + new Vector3 (0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
             {
                 if (allowedDashDistance >= dashHitInfo.distance)
                 {
                     allowedDashDistance = dashHitInfo.distance * 0.98f;
                 }
-                //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+                //console.writeline($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
             }
             dashTimer = Math.Max(0.0001f, dashStartDuration);
 
@@ -634,7 +634,7 @@ namespace SliceEngine
 
             if (animator != null)
             {
-                SliceLog.Log("Dash???");
+                //SliceLog.Log("Dash???");
                 animator.SetBool("DashStart", true);
             }
         }
@@ -657,7 +657,7 @@ namespace SliceEngine
 
             allowedDashDistance = airDashDistance;
 
-            Console.WriteLine($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
+            //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
             if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
             {
                 if (allowedDashDistance >= dashHitInfo.distance)
@@ -748,22 +748,22 @@ namespace SliceEngine
         {
             attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<GeneralHitbox>();
             attack1HB.HitBoxListeners += Attack1;
-            if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
-            else Console.WriteLine("Attack 1 hitbox found");
+            //if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
+            //else Console.WriteLine("Attack 1 hitbox found");
 
             attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<GeneralHitbox>();
             attack2HB.HitBoxListeners += Attack2;
-            if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
-            else Console.WriteLine("Attack 2 hitbox found");
+            //if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
+            //else Console.WriteLine("Attack 2 hitbox found");
 
             attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<GeneralHitbox>();
             attack3HB.HitBoxListeners += Attack3;
-            if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
-            else Console.WriteLine("Attack 3 hitbox found");
+            //if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
+            //else Console.WriteLine("Attack 3 hitbox found");
 
             if (attack1HB != null && attack2HB != null && attack3HB != null)
             {
-                Console.WriteLine("All attack hitboxes found, turning them off");
+                //Console.WriteLine("All attack hitboxes found, turning them off");
                 TurnOffHitboxes();
             }
         }
@@ -776,7 +776,7 @@ namespace SliceEngine
                 return;
             }
             attackQueued = true;
-            Console.WriteLine("AttackQueued set to true");
+            //console.writeline("AttackQueued set to true");
         }
         private void ExecuteAttack()
         {
@@ -820,7 +820,7 @@ namespace SliceEngine
                     default:
                         break;
                 }
-                Console.WriteLine("Attack Counter: " + attackCounter);
+                //console.writeline("Attack Counter: " + attackCounter);
             }
         }
         private IEnumerator Lunge()
@@ -878,7 +878,7 @@ namespace SliceEngine
         }
         private IEnumerator Plunge(float duration)
         {
-            Console.WriteLine("Plunging");
+            //console.writeline("Plunging");
             isPlunging = true;
             if (animator != null)
             {
@@ -898,9 +898,9 @@ namespace SliceEngine
             if (enemy != null)
             {
                 enemy.TakeDamage(attack1Damage);
-                Console.WriteLine("Hit enemy");
+                //console.writeline("Hit enemy");
             }
-            Console.WriteLine("Attack 1 executed");
+            //console.writeline("Attack 1 executed");
         }
         private void Attack2(GameObject target)
         {
@@ -908,9 +908,9 @@ namespace SliceEngine
             if (enemy != null)
             {
                 enemy.TakeDamage(attack2Damage);
-                Console.WriteLine("Hit enemy");
+                //console.writeline("Hit enemy");
             }
-            Console.WriteLine("Attack 2 executed");
+            //console.writeline("Attack 2 executed");
         }
         private void Attack3(GameObject target)
         {
@@ -918,9 +918,9 @@ namespace SliceEngine
             if (enemy != null)
             {
                 enemy.TakeDamage(attack3Damage);
-                Console.WriteLine("Hit enemy");
+                //console.writeline("Hit enemy");
             }
-            Console.WriteLine("Attack 3 executed");
+            //console.writeline("Attack 3 executed");
         }
         private IEnumerator AttackDelay(float delay, Action action)
         {
@@ -1012,8 +1012,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine("Player Taking Damage. Current Health: ");
-            Console.WriteLine(currentHealth);
+            //console.writeline("Player Taking Damage. Current Health: ");
+            //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
         }
 

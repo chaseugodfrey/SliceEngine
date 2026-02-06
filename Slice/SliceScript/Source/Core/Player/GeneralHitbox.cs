@@ -22,11 +22,11 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            Console.WriteLine("General Hitbox On Create " + gameObject.mID);
+            //Console.WriteLine("General Hitbox On Create " + gameObject.mID);
             _collider = GetComponent<ColliderShape>();
             if (_collider == null)
             {
-                Console.WriteLine("collider is null");
+                //console.writeline("collider is null");
             }
         }
 
@@ -35,18 +35,18 @@ namespace SliceEngine
 
         public void TurnOn()
         {
-            Console.WriteLine("Turning on General Hit box for " + gameObject.mID);
+            //console.writeline("Turning on General Hit box for " + gameObject.mID);
 
             if (_collider == null && !debugFlag1)
             {
 
-                Console.WriteLine("collider is null");
+                //console.writeline("collider is null");
                 debugFlag1 = true;
             }
 
             if (!this.HasComponent<ColliderShape>() && !debugFlag2)
             {
-                Console.WriteLine("collider has no collider shape");
+                //console.writeline("collider has no collider shape");
 
             }
 
@@ -55,14 +55,14 @@ namespace SliceEngine
                 _collider = GetComponent<ColliderShape>();
 
                 //Console.WriteLine("Getting collider shape in turn on for some reason");
-                Console.Write("++ Box Turned On version 2++");
+                //Console.Write("++ Box Turned On version 2++");
                 _enabled = true;
                 _collider.ComponentEnabled = true;
 
             }
             else if (_collider != null)
             {
-                Console.Write("++ Box Turned On ++");
+                //Console.Write("++ Box Turned On ++");
                 _enabled = true;
                 _collider.ComponentEnabled = true;
             }
@@ -83,31 +83,31 @@ namespace SliceEngine
                 _enabled = false;
                 _collider.ComponentEnabled = false;
             }
-            Console.WriteLine("Turning off General Hit box");
+            //console.writeline("Turning off General Hit box");
         }
 
 
         public override void OnTriggerEnter(uint other)
         {
-            SliceLog.Log("GENERAL HIT BOX Trigger Enter called");
+            //SliceLog.Log("GENERAL HIT BOX Trigger Enter called");
             //base.OnTriggerEnter(other);
 
             if (_enabled)
             {
-                Console.WriteLine("Enabled");
+                //console.writeline("Enabled");
                 HitBoxListeners(gameObject.FindGameObjectWithID(other));
             }
             else
             {
-                Console.WriteLine("Enabled not enabled");
+                //console.writeline("Enabled not enabled");
             }
         }
 
         public override void OnTriggerStay(uint other)
         {
             GameObject temp = new GameObject(other);
-            if (temp.tag == "Player")
-                Console.WriteLine("Ur mudder");
+            //if (temp.tag == "Player")
+            //    Console.WriteLine("Ur mudder");
         }
 
     }

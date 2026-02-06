@@ -28,7 +28,7 @@ namespace SliceEngine
             //ActiveSceneChanged?.Invoke(scene);
             FunctionCalls.Scene_LoadScene(name);
 
-            Console.WriteLine($"[SceneManager] Loaded scene: {name}");
+            //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
 
         public static void LoadScene(Scene scene)
@@ -40,7 +40,7 @@ namespace SliceEngine
             SceneLoaded?.Invoke(scene);
             ActiveSceneChanged?.Invoke(scene);
 
-            Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+            //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
         }
 
         //Putting it here first cause idk where else to put it
@@ -63,7 +63,7 @@ namespace SliceEngine
         {
 
             FunctionCalls.Scene_UnloadCurrentScene();
-            Console.WriteLine($"Unload scene");
+            //Console.WriteLine($"Unload scene");
         }
 
         public static Scene GetActiveScene()
@@ -79,7 +79,7 @@ namespace SliceEngine
             _activeScene = scene;
             ActiveSceneChanged?.Invoke(scene);
 
-            Console.WriteLine($"[SceneManager] Active scene set to: {scene.name}");
+            //Console.WriteLine($"[SceneManager] Active scene set to: {scene.name}");
         }
 
         public static void RestartScene()
@@ -88,7 +88,7 @@ namespace SliceEngine
                 return;
 
             string name = _activeScene.name;
-            Console.WriteLine($"[SceneManager] Restarting scene: {name}");
+            //Console.WriteLine($"[SceneManager] Restarting scene: {name}");
 
             // FunctionCalls.Scene_Restart(name);
             SceneUnloaded?.Invoke(_activeScene);

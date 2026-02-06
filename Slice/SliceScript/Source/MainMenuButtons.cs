@@ -61,26 +61,26 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-            Console.WriteLine("Main menu is being pressed");
+            //Console.WriteLine("Main menu is being pressed");
 
             //Lerp thingy here
 
             if(isPlay)
             {
                 SceneManager.LoadScene("M4 Level 1");
-                Console.WriteLine("LOad");
+                //Console.WriteLine("LOad");
             }else if(isSettings)
             {
                 ShowSettingsPopup();
-                Console.WriteLine("Settings pop");
+                //Console.WriteLine("Settings pop");
             }else if(isQuit)
             {
                 SceneManager.QuitGame();
-                Console.WriteLine("Bye Bye");
+                //Console.WriteLine("Bye Bye");
             }else if(isSettingsPopup)
             {
                 HideSettingsPopup();
-                Console.WriteLine("Settings bye");
+                //Console.WriteLine("Settings bye");
             }
         }
 
@@ -108,7 +108,7 @@ namespace SliceEngine
         {
             AudioSource myAudio = gameObject.FindGameObjectWithName("MainMenu_Sfx").GetComponent<AudioSource>();
 
-            Console.WriteLine("Main menu is being released");
+            //Console.WriteLine("Main menu is being released");
 
             //if (isPlay > 0.5f)
             //{

@@ -54,7 +54,7 @@ namespace SliceEngine
 
 
             base.SetUp(); 
-            Console.WriteLine("Grunt setup called");
+            //Console.WriteLine("Grunt setup called");
 
             this.ChangeState(new EnemyGruntChaseState(this));
 
@@ -74,18 +74,18 @@ namespace SliceEngine
                 if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
                 {
                     //Console.WriteLine("Hit Box successfully turned off");
-                    SliceLog.Log("Hit Box successfully turned off");
+                    //SliceLog.Log("Hit Box successfully turned off");
                 }
                 else
                 {
                     //Console.WriteLine("Hit Box still on");
-                    SliceLog.Log("Hit Box still on");
+                    //SliceLog.Log("Hit Box still on");
                 }
                 #endregion
             }
             else
             {
-                Console.WriteLine("Slime has no hitbox");
+                //Console.WriteLine("Slime has no hitbox");
             }
         }
 
@@ -115,7 +115,7 @@ namespace SliceEngine
             }
             else
             {
-                Console.Write("| Failed player check on damage, no damage done |");
+                //Console.Write("| Failed player check on damage, no damage done |");
             }
         }
 
@@ -165,50 +165,50 @@ namespace SliceEngine
 
         IEnumerator AttackCoroutine()
         {
-            Console.Write("Attacking is On -> ");
+            //Console.Write("Attacking is On -> ");
             attacking = true;
 
             attackHitBox.TurnOn();
             attackHitBoxRenderObject.SetActive(true);
-            Console.Write("Box On | ");
+            //Console.Write("Box On | ");
 
             #region Collider Check Debug
             if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
-                Console.Write("Hit Box successfully turned on -> ");
+                //Console.Write("Hit Box successfully turned on -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
             }
             else
             {
-                Console.WriteLine("Hit Box still off -> ");
+                //Console.WriteLine("Hit Box still off -> ");
                 //SliceLog.Log("Hit Box still on");
             }
             #endregion
 
-            Console.Write("Flicker waiting -> ");
+            //Console.Write("Flicker waiting -> ");
             yield return new WaitForSeconds(flickerTiming);
-            Console.Write("Flicker returned -> ");
+            //Console.Write("Flicker returned -> ");
 
 
             attackHitBox.TurnOff();
             attackHitBoxRenderObject.SetActive(false);
-            Console.Write("Box Off | ");
+            //Console.Write("Box Off | ");
 
             #region Collider Check debug
             if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
             {
-                Console.WriteLine("Hit Box successfully turned off -> ");
+                //Console.WriteLine("Hit Box successfully turned off -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
             }
             else
             {
-                Console.WriteLine("Hit Box still on -> ");
+                //Console.WriteLine("Hit Box still on -> ");
                 //SliceLog.Log("Hit Box still on");
             }
             #endregion
 
             attacking = false;
-            Console.WriteLine("Attacking is Off");
+            //Console.WriteLine("Attacking is Off");
 
             yield break;
         }
@@ -219,7 +219,7 @@ namespace SliceEngine
         public override void TakeDamage(int amount, GameObject source = null)
         {
             // This override is just to insert a debug
-            Console.WriteLine("Enemy is taking damage");
+            //Console.WriteLine("Enemy is taking damage");
             //SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
         }
@@ -231,7 +231,7 @@ namespace SliceEngine
         {
             if (rb == null)
             {
-                Console.WriteLine("RigidBody is null, cannot apply knockback");
+                //Console.WriteLine("RigidBody is null, cannot apply knockback");
                 return;
             }
             rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);

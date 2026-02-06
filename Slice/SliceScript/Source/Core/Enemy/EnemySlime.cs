@@ -35,7 +35,7 @@ namespace SliceEngine
 
 
             base.SetUp(); 
-            Console.WriteLine("Slime setup called");
+            //Console.WriteLine("Slime setup called");
             if(explosionHitBoxObject.Has<GeneralHitbox>())
             {
                 explosionHitBox = explosionHitBoxObject.As<GeneralHitbox>();
@@ -48,18 +48,18 @@ namespace SliceEngine
 
                 if(explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
                 {
-                    Console.WriteLine("Hit Box successfully turned off");
-                    SliceLog.Log("Hit Box successfully turned off");
+                    //Console.WriteLine("Hit Box successfully turned off");
+                    //SliceLog.Log("Hit Box successfully turned off");
                 }
                 else
                 {
-                    Console.WriteLine("Hit Box still on");
-                    SliceLog.Log("Hit Box still on");
+                    //Console.WriteLine("Hit Box still on");
+                    //SliceLog.Log("Hit Box still on");
                 }
             }
             else
             {
-                Console.WriteLine("Slime has no hitbox");
+                //Console.WriteLine("Slime has no hitbox");
             }
 
             this.ChangeState(new EnemySlimeChaseState(this));
@@ -85,7 +85,7 @@ namespace SliceEngine
 
         public void BasicExplode(GameObject hit)
         {
-            Console.Write("| Basic Attack called |");
+            //Console.Write("| Basic Attack called |");
 
             if ( hit.Has<PlayerController>()  && hit.As<PlayerController>() == Bootstrap.Player)
             {
@@ -96,7 +96,7 @@ namespace SliceEngine
             }
             else
             {
-                Console.Write("| Failed player check on damage, no damage done |");
+                //Console.Write("| Failed player check on damage, no damage done |");
             }
         }
 
@@ -107,10 +107,10 @@ namespace SliceEngine
 
         IEnumerator ExplodeCoroutine()
         {
-            Console.Write("exploding is On -> ");
+            //Console.Write("exploding is On -> ");
             exploding = true;
 
-            Console.Write("Building Up-> ");
+            //Console.Write("Building Up-> ");
             float buildupCount = 0f;
 
 
@@ -127,53 +127,53 @@ namespace SliceEngine
 
                 yield return new WaitForSeconds(Time.deltaTime);
             }
-            Console.Write("Build Up Done -> ");
+            //Console.Write("Build Up Done -> ");
 
             // COMMENTING THIS OUT UNTIL ENABLE/DISABLE IS WORKING
             //_basicHitBox.SetActive(true);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = true;
             explosionHitBox.TurnOn();
             explodeMeshObject.SetActive(true);
-            Console.Write("Box On | ");
+            //Console.Write("Box On | ");
 
 
             if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
             {
-                Console.Write("Hit Box successfully turned on -> ");
+                //Console.Write("Hit Box successfully turned on -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
             }
             else
             {
-                Console.WriteLine("Hit Box still off -> ");
+                ////Console.WriteLine("Hit Box still off -> ");
                 //SliceLog.Log("Hit Box still on");
             }
 
 
-            Console.Write("Flicker waiting -> ");
+            //Console.Write("Flicker waiting -> ");
             yield return new WaitForSeconds(flickerTiming);
-            Console.Write("Flicker returned -> ");
+            //Console.Write("Flicker returned -> ");
 
 
             //_basicHitBox.As<GeneralHitbox>().SetActive(false);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
             explosionHitBox.TurnOff();
             explodeMeshObject.SetActive(false);
-            Console.Write("Box Off | ");
+            //Console.Write("Box Off | ");
 
 
             if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
             {
-                Console.WriteLine("Hit Box successfully turned off -> ");
+                //Console.WriteLine("Hit Box successfully turned off -> ");
                 //SliceLog.Log("Hit Box successfully turned off");
             }
             else
             {
-                Console.WriteLine("Hit Box still on -> ");
+                //Console.WriteLine("Hit Box still on -> ");
                 //SliceLog.Log("Hit Box still on");
             }
 
             exploding = false;
-            Console.WriteLine("exploding is Off");
+            //Console.WriteLine("exploding is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
 
@@ -194,7 +194,7 @@ namespace SliceEngine
         public override void TakeDamage(int amount, GameObject source = null)
         {
             // This override is just to insert a debug
-            Console.WriteLine("Enemy is taking damage");
+            //Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
 

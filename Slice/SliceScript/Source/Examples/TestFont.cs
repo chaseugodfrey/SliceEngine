@@ -13,24 +13,24 @@ namespace SliceEngine
         public override void OnCreate()
         {
             text = GetComponent<FontRenderer>();
-            SliceLog.Log("Creating font test script");
+            //SliceLog.Log("Creating font test script");
 
-            SliceLog.Log("\nCurrent font details: " +
-                "\nFontsize: " + text.Fontsize +
-                "\nLinespacing: " + text.Linespacing +
-                "\nText: " + text.Text_val +
-                "\nColor: " + text.Colour);
+            //SliceLog.Log("\nCurrent font details: " +
+                //"\nFontsize: " + text.Fontsize +
+                //"\nLinespacing: " + text.Linespacing +
+                //"\nText: " + text.Text_val +
+                //"\nColor: " + text.Colour);
 
             text.Colour = (new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
             text.Fontsize = (30);
             text.Linespacing = (1.2f);
             text.Text_val = ("testing setting text from script :) \nThis can have multiple lines");
 
-            SliceLog.Log("\nModified font details: " +
-                "\nFontsize: " + text.Fontsize +
-                "\nLinespacing: " + text.Linespacing +
-                "\nText: " + text.Text_val +
-                "\nColor: " + text.Colour);
+            //SliceLog.Log("\nModified font details: " +
+                //"\nFontsize: " + text.Fontsize +
+                //"\nLinespacing: " + text.Linespacing +
+                //"\nText: " + text.Text_val +
+                //"\nColor: " + text.Colour);
         }
 
         public override void OnUpdate(float dt)
