@@ -222,6 +222,10 @@ namespace SliceEngine
 
 		for (auto entity : view)
 		{
+			if (entity == Entity(0))
+			{
+				continue;
+			}
 			GameObject go = mEntityToGO[entity];
 			if (go.HasComponent<SliceEntity>() &&
 				go.GetComponent<SliceEntity>().mTag == tag)
@@ -251,8 +255,8 @@ namespace SliceEngine
 
 		if (mDeleteList.contains(entity))
 		{
-			SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
-			return;
+			//SLICE_LOG_WARNING("Trying to destroy entity that is already marked for deletion");
+			//return;
 		}
 
 		//Check children and destroy them too
@@ -270,7 +274,7 @@ namespace SliceEngine
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
+			//SLICE_LOG_ERROR("Trying to destroy entity that does not have a scene graph component");
 		}
 		mDeleteList.insert(entity);
 	}
@@ -694,13 +698,14 @@ namespace SliceEngine
 	void GOFactory::ClearGameObjects()
 	{
 		auto view = mRegistry.view<SliceEntity>();
-
+		mDeleteList.clear(); // might need it now again
 		for (auto entity : view)
 		{
+			SLICE_LOG("Entity : " + std::to_string((uint32_t)entity));
 			Destroy(entity);
 		}
 
-		//mDeleteList.clear(); // skip deferred destruction
+		//
 		//mNameToEntity.clear();
 		//mEntityToGO.clear();
 		//mRegistry.clear();
@@ -1121,11 +1126,26 @@ namespace SliceEngine
 
 	void GOFactory::SceneGraphDelete(Entity entity)
 	{
+		auto it = mEntityToGO.find(entity);
+
+		if (it == mEntityToGO.end())
+		{
+			SLICE_LOG("Entity already deleted!");
+			return;
+		}
 		auto& sceneGraph = mEntityToGO[entity].GetComponent<SceneGraph>();
 		//Check for siblings
 		if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null && sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
 		{
-			if(mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			//Check if the left/right neighbours exist in the mEntityToGO(For changing scenes)
+			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::LEFT]);
+			auto it2 = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::RIGHT]);
+
+			if (it == mEntityToGO.end() || it2 == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			{
+
+			}
+			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
 			{
 				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
 				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
@@ -1134,9 +1154,14 @@ namespace SliceEngine
 				rightSiblingGraph.neighbours[SceneGraph::LEFT] = sceneGraph.neighbours[SceneGraph::LEFT];
 			}
 		}
-		else if(sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
+		else if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
 		{
-			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
+			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::LEFT]);
+			if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			{
+				//wait idk what to do here tho
+			}
+			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
 			{
 				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
 				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = entt::null;
@@ -1144,7 +1169,12 @@ namespace SliceEngine
 		}
 		else if (sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
 		{
-			if (mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::RIGHT]);
+			if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			{
+				//wait idk what to do here tho
+			}
+			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
 			{
 				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
 				rightSiblingGraph.neighbours[SceneGraph::LEFT] = entt::null;
@@ -1154,23 +1184,26 @@ namespace SliceEngine
 		//Re-set parent down if needed
 		if (sceneGraph.neighbours[SceneGraph::UP] != entt::null)
 		{
-			if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity)
+			if (mEntityToGO.find(sceneGraph.neighbours[SceneGraph::UP]) != mEntityToGO.end())
 			{
-				auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
-				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity) //Shouldnt matter for deletion
 				{
-					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+					auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
+					if (parentGraph.neighbours[SceneGraph::DOWN] == entity)
+					{
+						parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+					}
+					//parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
 				}
-				//parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
-			}
 
-			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
-			{
-				auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
-
-				if(parentGraph.neighbours[SceneGraph::DOWN] == entity)
+				else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
 				{
-					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+					auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
+
+					if (parentGraph.neighbours[SceneGraph::DOWN] == entity)
+					{
+						parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+					}
 				}
 			}
 		}
