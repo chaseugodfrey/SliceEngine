@@ -33,12 +33,25 @@ namespace SliceEngine
 	{		
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto& ps = reg.get<ParticleSystem>(entity);
+
+		if (ps.resetPreview)
+		{
+			InitializeSystem(ps);
+			ps.resetPreview = false;
+		}
+
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			ps.playPreview = false;
+			ps.pausePreview = false;
 		}
 		else if (sceneSystem->mCurrentState == SceneState::DEFAULT && !ps.playPreview)
-		{			
+		{
+			return;
+		}
+		else if (ps.pausePreview)
+		{
+			UpdateSystem(ps, 0.0f);
 			return;
 		}
 
@@ -62,17 +75,13 @@ namespace SliceEngine
 		auto& ps = reg.get<ParticleSystem>(entity);
 		ExitSystem(ps);
 	}
-
-	void ParticleSystemManager::ResetManager()
-	{
-	}
-
 #pragma endregion
 
 #pragma region System Stuff
 	void ParticleSystemManager::InitializeSystem(ParticleSystem& ps)
 	{
 		ps.systemTimer = 0.0f;
+		ps.particles.clear();
 		ps.particles.resize(ps.maxParticles);
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
