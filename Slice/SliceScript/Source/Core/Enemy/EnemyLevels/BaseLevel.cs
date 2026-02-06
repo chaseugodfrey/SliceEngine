@@ -26,7 +26,7 @@ namespace SliceEngine
         public int maxEnemies = 0;
         private bool toggleSpawning = true;
         // Maybe change to a list down the line to randomise
-        public Prefab enemyPrefab = new Prefab("Prefabs/EnemySlime.prefab"); 
+        public Prefab enemyPrefab = new Prefab("Prefabs/EnemyGrunt.prefab"); 
         public bool toggleLevel = false;
         // Gap between each enemy spawning per enemy point
         public float spawnInterval = 1.0f;
@@ -58,19 +58,28 @@ namespace SliceEngine
 
             if (CheckObjective())
             {
-                LevelCompleteEvent();
+                if (LevelCompleteEvent != null)
+                {
+                    LevelCompleteEvent();
+                }
                 toggleLevel = true;
             }
+
+            SliceLog.Log("Base Level passed check objective");
 
             if (toggleLevel)
             {
                 return;
             }
 
+            SliceLog.Log("Base Level passed toggle level");
+
             if (toggleSpawning)
             {
                 timer += dt;
             }
+
+            SliceLog.Log("Base Level passed toggle spawning");
 
             // when it reaches the last enemy point
             if (currPoint >= enemyPoints.Count)
@@ -84,13 +93,15 @@ namespace SliceEngine
                 return;
             }
 
+            SliceLog.Log("Base Level passed curr");
+
             if (levelDirectorObject == null)
             {
                 return;
             }
             //SliceLog.Log("Curr time : " + timer);
 
-            
+            SliceLog.Log("Base Level passed ;vl dri object");
 
             if (toggleSpawning && timer > spawnInterval)
             {
@@ -119,6 +130,8 @@ namespace SliceEngine
                 }
 
             }
+
+            SliceLog.Log("Base Level should be working");
 
         }
 
