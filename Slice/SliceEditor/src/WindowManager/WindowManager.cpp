@@ -318,6 +318,7 @@ namespace SliceEditor
 				{
 					isPaused = false;
 					scene->Stop();
+					registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 					ClearSelectionEvent clearedEvent;
 					clearedEvent.suppressHistory = true;
 					EventManager::GetInstance()->Publish<ClearSelectionEvent>(clearedEvent);

@@ -65,7 +65,14 @@ namespace SliceEngine
 
 		while (currentClass != nullptr && method == nullptr)
 		{
+			const char* className = mono_class_get_name(currentClass);
+			//std::cout << "Looking for : " << name << " in " << className << std::endl;
+			// dont get the very base slice behaviour
+			if (std::string(className) == "SliceBehaviour" && name != ".ctor")
+				break;
+
 			method = mono_class_get_method_from_name(currentClass, name.c_str(), varCount);
+
 			if (!method)
 			{
 				currentClass = mono_class_get_parent(currentClass);
