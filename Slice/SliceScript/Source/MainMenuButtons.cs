@@ -67,7 +67,7 @@ namespace SliceEngine
 
             if(isPlay)
             {
-                SceneManager.LoadScene("Gid_Working_Scene");
+                SceneManager.LoadScene("M4 Level 1");
                 Console.WriteLine("LOad");
             }else if(isSettings)
             {
