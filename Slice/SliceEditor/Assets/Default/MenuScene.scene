@@ -6,17 +6,17 @@
                 "struct SliceEngine::Renderer": {
                     "componentEnabled": true,
                     "material": {
-                        "GUID": "10819322238111217941"
+                        "GUID": "16649409170736443788"
                     },
                     "meshOffset": "0",
                     "model": {
-                        "GUID": "16254085942649778049"
+                        "GUID": "14949169321333336329"
                     },
                     "renderTag": "0",
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048586,
+                    "entity_id": 34,
                     "neighbours": [
                         0,
                         4294967295,
@@ -99,7 +99,7 @@
                         8,
                         4294967295,
                         32,
-                        34
+                        10
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -812,7 +812,7 @@
                         0,
                         4294967295,
                         14,
-                        1048586
+                        34
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1488,7 +1488,7 @@
                     "bloomStrength": 0.4000000059604645,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 33,
+                    "depthTex": 32,
                     "far": 200.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -1913,7 +1913,7 @@
                     "width": 500
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 34,
+                    "entity_id": 10,
                     "neighbours": [
                         8,
                         4294967295,
