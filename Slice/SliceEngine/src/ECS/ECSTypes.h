@@ -209,6 +209,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
+		SliceEngineTypes::Material materialInstance;
 
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};

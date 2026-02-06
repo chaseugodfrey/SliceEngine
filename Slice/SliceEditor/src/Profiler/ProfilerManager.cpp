@@ -68,6 +68,10 @@ namespace SliceEditor
 		const auto& currentDurations = engineFRM->GetSysDurations();
 		for (const auto& [system, time] : currentDurations)
 		{
+			if (time <= FLT_EPSILON)
+			{
+				continue;
+			}
 			SystemHistory& history = mSystemMap[system];
 
 			//Add new entry
@@ -122,6 +126,18 @@ namespace SliceEditor
 				mUntrackedFrameTimePercentage = 0.0f;
 			}
 		}
+	}
+
+	void ProfilerManager::ClearDebugStatistics()
+	{
+		mSystemMap.clear();
+		mDebugStats.clear();
+		mCurrFPS = 0.0f;
+		mDeltaTime = 0.0f;
+		mTotalFrameTime = 0.0f;
+		mUntrackedFrameTime = 0.0f;
+		mUntrackedFrameTimePercentage = 0.0f;
+		mClearStatistics = false;
 	}
 
 	ImU32 ProfilerManager::GetSystemColor(const std::string& systemName)
