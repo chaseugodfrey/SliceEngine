@@ -58,7 +58,7 @@ namespace SliceEditor
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				if (!mCurrentAnimator && anim != mCurrentAnimator && mCurrentAnimator != NULL)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
