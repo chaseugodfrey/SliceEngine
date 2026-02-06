@@ -69,18 +69,6 @@ namespace SliceBuild
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
 			}
 
-			if (inputSys->IsKeyPressed(GLFW_KEY_SPACE))
-			{
-				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::PLAY_SCENE)
-				{
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::STOP_SCENE;
-				}
-				else
-				{
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
-				}
-
-			}
 		}
 
 	}
