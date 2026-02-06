@@ -20,19 +20,19 @@ namespace SliceEngine
             base.OnCreate();
 
             groundObject = gameObject.FindGameObjectsWithTag(groundName);
-            if (groundObject != null) Console.WriteLine("Found ground");
-            else Console.WriteLine("Ground not found");
+            //if (groundObject != null) Console.WriteLine("Found ground");
+            //else Console.WriteLine("Ground not found");
         }
         public override void OnTriggerEnter(uint other)
         {
             if (IsGround(other))
             {
-                Console.WriteLine("Player grounded");
+                //Console.WriteLine("Player grounded");
                 Bootstrap.Player.OnGrounded();
                 grounded = true;
 
                 TriggerBoxCount += 1;
-                Console.WriteLine("Grounded set to true");
+                //Console.WriteLine("Grounded set to true");
             }
         }
         public override void OnTriggerExit(uint other)
@@ -41,12 +41,12 @@ namespace SliceEngine
             {
                 TriggerBoxCount -= 1;
                 TriggerBoxCount = Utilities.Clamp<int>(TriggerBoxCount, 0, 999);
-                Console.WriteLine("Player off ground");
+                //Console.WriteLine("Player off ground");
                 if (TriggerBoxCount <= 0)
                 {
                     grounded = false;
                 }
-                Console.WriteLine("Grounded set to false");
+                //Console.WriteLine("Grounded set to false");
             }
         }
         private bool IsGround(uint id)

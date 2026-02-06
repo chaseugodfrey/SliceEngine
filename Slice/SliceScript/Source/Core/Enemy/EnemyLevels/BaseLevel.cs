@@ -24,9 +24,10 @@ namespace SliceEngine
         public bool constantSpawning = false;
         // Keep spawning till it hits max;
         public int maxEnemies = 0;
+        public int slimeCount = 0;
         private bool toggleSpawning = true;
         // Maybe change to a list down the line to randomise
-        public Prefab enemyPrefab = new Prefab("Prefabs/EnemySlime.prefab"); 
+        public Prefab enemyPrefab = new Prefab("Prefabs/EnemyGrunt.prefab"); 
         public bool toggleLevel = false;
         // Gap between each enemy spawning per enemy point
         public float spawnInterval = 1.0f;
@@ -58,19 +59,28 @@ namespace SliceEngine
 
             if (CheckObjective())
             {
-                LevelCompleteEvent();
+                if (LevelCompleteEvent != null)
+                {
+                    LevelCompleteEvent();
+                }
                 toggleLevel = true;
             }
+
+            //SliceLog.Log("Base Level passed check objective");
 
             if (toggleLevel)
             {
                 return;
             }
 
+            //SliceLog.Log("Base Level passed toggle level");
+
             if (toggleSpawning)
             {
                 timer += dt;
             }
+
+            //SliceLog.Log("Base Level passed toggle spawning");
 
             // when it reaches the last enemy point
             if (currPoint >= enemyPoints.Count)
@@ -84,21 +94,23 @@ namespace SliceEngine
                 return;
             }
 
+            //SliceLog.Log("Base Level passed curr");
+
             if (levelDirectorObject == null)
             {
                 return;
             }
             //SliceLog.Log("Curr time : " + timer);
 
-            
+            //SliceLog.Log("Base Level passed ;vl dri object");
 
             if (toggleSpawning && timer > spawnInterval)
             {
-                SliceLog.Log("CREATING ENEMY");
+                //SliceLog.Log("CREATING ENEMY");
                 Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
                 if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
                 {
-                    SliceLog.Log("Died in here 3");
+                    //SliceLog.Log("Died in here 3");
                     // if the curr point can't then just go next point instead
                     timer = 0.0f;
                     currPoint++;
@@ -114,11 +126,13 @@ namespace SliceEngine
 
                 if (maxEnemies <= levelDirectorObject.As<LevelDirector>().EnemyCount())
                 {
-                    SliceLog.Log("Max enemies spanwed");
+                    //SliceLog.Log("Max enemies spanwed");
                     toggleSpawning = false;
                 }
 
             }
+
+            //SliceLog.Log("Base Level should be working");
 
         }
 

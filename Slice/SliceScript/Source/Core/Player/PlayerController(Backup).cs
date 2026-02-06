@@ -191,7 +191,7 @@ namespace SliceEngine
             camera = Bootstrap.CameraController;
             if (camera == null)
             {
-                Console.WriteLine("Camera Var in player is EMPTY");
+                //Console.WriteLine("Camera Var in player is EMPTY");
             }
         }
         public override void OnCreate()
@@ -201,17 +201,17 @@ namespace SliceEngine
                 return;
             }
 
-            Console.WriteLine("Test");
+            //Console.WriteLine("Test");
             playerModel = gameObject.FindGameObjectWithName("RootNode");
             animator = playerModel?.GetComponent<Animator>();
-            if (animator == null) Console.WriteLine("No animator found");
-            else Console.WriteLine("Animator found");
+            //if (animator == null) Console.WriteLine("No animator found");
+            //else Console.WriteLine("Animator found");
             audio = gameObject.GetComponent<AudioSource>();
             rb = GetComponent<RigidBody>();
-            if (rb == null) Console.WriteLine("No rb found");
-            else Console.WriteLine("RB found");
+            //if (rb == null) Console.WriteLine("No rb found");
+            //else Console.WriteLine("RB found");
             groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
-            if (groundCheck == null) Console.WriteLine("No ground check found");
+            //if (groundCheck == null) Console.WriteLine("No ground check found");
 
             InitializeAttackHitboxes();
         }
@@ -674,7 +674,7 @@ namespace SliceEngine
 
             if (animator != null)
             {
-                SliceLog.Log("Dash???");
+                //SliceLog.Log("Dash???");
                 animator.SetBool("DashStart", true);
             }
 
@@ -1475,18 +1475,18 @@ namespace SliceEngine
         {
             attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<Hitbox>();
             attack1HB.OnAttack += Attack1;
-            if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
-            else Console.WriteLine("Attack 1 hitbox found");
+            //if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
+            //else Console.WriteLine("Attack 1 hitbox found");
 
             attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<Hitbox>();
             attack2HB.OnAttack += Attack2;
-            if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
-            else Console.WriteLine("Attack 2 hitbox found");
+            //if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
+            //else Console.WriteLine("Attack 2 hitbox found");
 
             attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<Hitbox>();
             attack3HB.OnAttack += Attack3;
-            if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
-            else Console.WriteLine("Attack 3 hitbox found");
+            //if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
+            //else Console.WriteLine("Attack 3 hitbox found");
         }
         private void TryAttack()
         {
@@ -1521,7 +1521,7 @@ namespace SliceEngine
                         break;
                 }
                 attackResetTimer = 0f;
-                Console.WriteLine("Attack Counter: " + attackCounter);
+                //Console.WriteLine("Attack Counter: " + attackCounter);
             }
         }
         private void AttackResetTimer()
@@ -1575,7 +1575,7 @@ namespace SliceEngine
             {
                 enemy.TakeDamage(attack1Damage);
             }
-            Console.WriteLine("Attack 1 executed");
+            //Console.WriteLine("Attack 1 executed");
         }
         private void Attack2()
         {
@@ -1601,7 +1601,7 @@ namespace SliceEngine
             {
                 enemy.TakeDamage(attack2Damage);
             }
-            Console.WriteLine("Attack 2 executed");
+            //Console.WriteLine("Attack 2 executed");
         }
         private void Attack3()
         {
@@ -1618,15 +1618,15 @@ namespace SliceEngine
             {
                 enemy.TakeDamage(attack3Damage);
             }
-            Console.WriteLine("Attack 3 executed");
+            //Console.WriteLine("Attack 3 executed");
         }
         private IEnumerator InAttackCoroutine(float duration, Action endAction)
         {
             canMove = false;
             isAttacking = true;
-            Console.WriteLine("Is attacking");
+            //Console.WriteLine("Is attacking");
             yield return new WaitForSeconds(duration);
-            Console.WriteLine("Can attack");
+            //Console.WriteLine("Can attack");
             endAction?.Invoke();
             canMove = true;
             isAttacking = false;
@@ -1699,8 +1699,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine("Player Taking Damage. Current Health: ");
-            Console.WriteLine(currentHealth);
+            //Console.WriteLine("Player Taking Damage. Current Health: ");
+            //Console.WriteLine(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
         }
 

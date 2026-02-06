@@ -89,23 +89,23 @@ namespace SliceEngine
         /// </summary>
         public int FindRowIndex(string keyColumn, string keyValue)
         {
-            SliceLog.Log("Column is " + keyColumn + " value to search is " + keyValue);
+            //SliceLog.Log("Column is " + keyColumn + " value to search is " + keyValue);
             int i = 0;
             foreach (var row in _rows)
             { 
-                SliceLog.Log("trying to find row, i is:" + i);
+                //SliceLog.Log("trying to find row, i is:" + i);
                 if (row.TryGetValue(keyColumn, out var val) && val == keyValue)
                 {
-                    SliceLog.Log("Check passed");
+                    //SliceLog.Log("Check passed");
                     return i;
                 }
                 else
                 {
-                    SliceLog.Log("Failed Check");
+                    //SliceLog.Log("Failed Check");
                 }
                 i++;
             }
-            SliceLog.Log("Finished display");
+            //SliceLog.Log("Finished display");
             return -1;
         }
     }

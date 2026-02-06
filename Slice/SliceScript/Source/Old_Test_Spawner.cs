@@ -21,7 +21,7 @@ namespace SliceEngine
             StartCoroutine(SpawnLoop());            
             for(int i = 0; i < testList.Count; ++i)
             {
-                SliceLog.Log(testList[i].ToString());
+                //SliceLog.Log(testList[i].ToString());
             }
         }
 
@@ -33,7 +33,7 @@ namespace SliceEngine
                 yield return new WaitForSeconds(spawnTime);
 
                 spawning = true;
-                Console.WriteLine("Starting spawn wave...");
+                //Console.WriteLine("Starting spawn wave...");
                 // Spawn N enemies with interval
                 for (int i = 0; i < spawnCount; i++)
                 {
@@ -45,7 +45,7 @@ namespace SliceEngine
                 }
 
                 spawning = false;
-                Console.WriteLine("Wave complete!");
+                //Console.WriteLine("Wave complete!");
             }
         }
     }

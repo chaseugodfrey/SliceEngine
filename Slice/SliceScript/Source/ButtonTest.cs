@@ -8,12 +8,12 @@ namespace SliceEngine
     {
         public override void OnButtonClick()
         {
-            SliceLog.Log("Button CLick");
+            //SliceLog.Log("Button CLick");
         }
 
         public override void OnButtonRelease()
         {
-            SliceLog.Log("Button Release");
+            //SliceLog.Log("Button Release");
         }
     }
 }

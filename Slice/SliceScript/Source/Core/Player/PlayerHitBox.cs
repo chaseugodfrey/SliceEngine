@@ -12,7 +12,7 @@ namespace SliceEngine
 
         public void TriggerBox(string str)
         {
-            SliceLog.Log("Testing :" + str);
+            //SliceLog.Log("Testing :" + str);
         }
 
         //public void DisableBox(string str) 

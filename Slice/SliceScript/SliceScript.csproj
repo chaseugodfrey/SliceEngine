@@ -67,6 +67,7 @@
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\Systems\AudioManager.cs" />
     <Compile Include="Source\Core\Systems\Bootstrap.cs" />
     <Compile Include="Source\Core\Systems\Camera.cs" />
     <Compile Include="Source\Core\Systems\CoroutineManager.cs" />

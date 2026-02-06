@@ -442,15 +442,16 @@ namespace SliceEngine
 				Core::GetInstance()->GetSystem<BoneSystem>().Update_Bones(registry, entity);
 			}
 
-			if (rootGO.HasComponent<Slider>()) {	//handle and fill entity remapping for slider
-				auto entityView = registry.view<Slider>();
-				for (auto entity : entityView) {
+			for (auto entity : entityID) {
+				if (registry.any_of<Slider>(entity)) {    //handle and fill entity remapping for slider
+
 					auto& slider = registry.get<Slider>(entity);
 
 					slider.fill = (Entity)sceneGraphMap[(uint32_t)slider.fill];
 					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
 				}
 			}
+
 
 
 			return rootEntity;

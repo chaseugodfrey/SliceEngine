@@ -30,26 +30,26 @@ namespace SliceEngine
         {
             base.OnUpdate(dt);
 
-            if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
-            {
-                enterPressed = true;
-                PlayDialogueForLevel(0);
-            }
+            //if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
+            //{
+            //    enterPressed = true;
+            //    PlayDialogueForLevel(0);
+            //}
 
-            if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
-            {
-                enterPressed = false;
-            }
+            //if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
+            //{
+            //    enterPressed = false;
+            //}
 
         }
 
 
         public void SetHealth(float input)
         {
-            Console.WriteLine("Setting health");
+            //console.writeline("Setting health");
             //health.SetValue(input);
             healthSliderObject.GetComponent<Slider>().SetValue(input);
-            Console.WriteLine("Finish setting health");
+            //console.writeline("Finish setting health");
         }
 
         public void GameWinScreen()
@@ -66,12 +66,12 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-            SliceLog.Log("Button CLick");
+            //SliceLog.Log("Button CLick");
         }
 
         public override void OnButtonRelease()
         {
-            SliceLog.Log("Button Release");
+            //SliceLog.Log("Button Release");
         }
 
         private SliceCSV loader = new SliceCSV();
@@ -83,11 +83,11 @@ namespace SliceEngine
 
             if (loader == null)
             {
-                SliceLog.Log("Loader is empty");
+                //SliceLog.Log("Loader is empty");
             }
             else
             {
-                SliceLog.Log("Load has this many rows" + loader.RowCount);
+                //SliceLog.Log("Load has this many rows" + loader.RowCount);
             }
 
         }
@@ -129,18 +129,18 @@ namespace SliceEngine
                 // dialogues is not empty
                 //  tick up number
 
-                SliceLog.Log("Dialogue is not empty");
+                //SliceLog.Log("Dialogue is not empty");
                 dialogueIndex++;
 
             }
             else
             {
 
-                SliceLog.Log("Dialogue is empty");
+                //SliceLog.Log("Dialogue is empty");
                 dialogueIndex = 0;
                 for (int i = loader.FindRowIndex( "Level",level.ToString()); i > -1 ; i++)
                 {
-                    SliceLog.Log("index is at" + i);
+                    //SliceLog.Log("index is at" + i);
 
                     if (loader.GetValue(i, "Level") != level.ToString())
                     {
@@ -166,7 +166,7 @@ namespace SliceEngine
             float speed = 1f / typeSpeed;
             string displaying = "";
 
-            SliceLog.Log("To type is:" + toType);
+            //SliceLog.Log("To type is:" + toType);
             for (int i = 0; i < toType.Length; i++)
             {
 
@@ -175,7 +175,7 @@ namespace SliceEngine
                     break;
                 }
 
-                SliceLog.Log("Displaying is " + displaying);
+                //SliceLog.Log("Displaying is " + displaying);
                 displaying += toType[i];
 
                 SetTextBox(displaying);
@@ -195,32 +195,32 @@ namespace SliceEngine
 
         public void SetTextBox(string input)
         {
-            SliceLog.Log("Setting Textbox");
+            //SliceLog.Log("Setting Textbox");
 
             if (regularTextObject.HasComponent<FontRenderer>())
             {
-                SliceLog.Log("Has Font");
+                //SliceLog.Log("Has Font");
                 regularTextObject.GetComponent<FontRenderer>().Text_val = input;
             }
             else
             {
-                SliceLog.Log("No Font component");
+                //SliceLog.Log("No Font component");
             }
             //Set Text
         }
 
         public void SetName(string input)
         {
-            SliceLog.Log("Setting Namebox");
+            //SliceLog.Log("Setting Namebox");
 
             if (nameTextObject.HasComponent<FontRenderer>())
             {
-                SliceLog.Log("Has Font");
+                //SliceLog.Log("Has Font");
                 nameTextObject.GetComponent<FontRenderer>().Text_val = input;
             }
             else
             {
-                SliceLog.Log("No Font component");
+                //SliceLog.Log("No Font component");
             }
         }
 
@@ -238,11 +238,11 @@ namespace SliceEngine
 
         public void Initialize()
         {
-            Console.WriteLine("HUD Ini called");
+            //console.writeline("HUD Ini called");
             health = healthSliderObject.GetComponent<Slider>();      
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            LoadDialogues();
+            //LoadDialogues();
         }
     }
 }
