@@ -68,7 +68,7 @@ namespace SliceEngine
         }
         public override void OnCreate()
         {
-            base.OnCreate();
+            //base.OnCreate();
         }
 
         public void Reset()
@@ -226,7 +226,8 @@ namespace SliceEngine
         
         public override void OnDeath()
         {
-            this.gameObject.Destroy();   
+            Bootstrap.LevelDirector.Win();
+            //this.gameObject.Destroy();   
         }
 
     }

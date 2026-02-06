@@ -29,6 +29,12 @@ namespace SliceEngine
         /// </summary>
         public void Initialize()
         {
+
+            if (Input.IsKeyPressed(Keys.KEY_P))
+            {
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+            }
+
             Console.WriteLine("Initialize Level Director");
             isActive = true;
 
@@ -70,8 +76,8 @@ namespace SliceEngine
         public GameObject CreateEnemy(Prefab prefab)
         {
             // instantiate the enemy
-            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
-            newEnemy.As<EnemySlime>().SetUp();
+            GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
+            newEnemy.As<EnemyGrunt>().SetUp();
             enemies.Add(newEnemy);
 
 
@@ -236,6 +242,11 @@ namespace SliceEngine
         public void Lose()
         {
             Bootstrap.HUDManager.GameLoseScreen();
+        }
+
+        public void Win()
+        {
+            Bootstrap.HUDManager.GameWinScreen();
         }
 
     }

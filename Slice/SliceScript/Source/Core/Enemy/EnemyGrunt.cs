@@ -92,10 +92,12 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            /*
             if (Input.IsKeyDown(Keys.KEY_O) && active == false)
             {
                 Console.WriteLine("PPPPressed"); SetUp();
             }
+            */
             base.OnUpdate(dt);
         }
 
