@@ -159,7 +159,15 @@ namespace SliceEngine
     void ScriptSystem::InitMono()
     {
         // while (true) {};
-        mono_set_assemblies_path("thirdparty/Mono/bin");
+        std::string assemblyBinPath = "Data/thirdparty/Mono/bin";
+
+        if (!std::filesystem::exists(assemblyBinPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyBinPath = "thirdparty/Mono/bin";
+        }
+
+        mono_set_assemblies_path(assemblyBinPath.c_str());
 
         //mRootDomain = rootDomain;
         if (debug)
@@ -189,8 +197,16 @@ namespace SliceEngine
             mono_debug_domain_create(mRootDomain);
         }
 
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+
+        LoadMonoAssembly(assemblyPath);
 
 
         PrintAssemblyTypes(mCoreAssembly);
@@ -327,7 +343,17 @@ namespace SliceEngine
             mAppDomain = nullptr;
         }
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
+
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+        LoadMonoAssembly(assemblyPath);
+
+        //LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
         //ScriptFunctions::RegisterFunctions();
         LoadEntityClasses();

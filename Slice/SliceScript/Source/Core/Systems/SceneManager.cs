@@ -17,23 +17,23 @@ namespace SliceEngine
 
         public static void LoadScene(string name)
         {
-            // FunctionCalls.Scene_Load(name);
 
-            int index = _loadedScenes.Count;
-            var scene = new Scene(name, index);
+            //int index = _loadedScenes.Count;
+            //var scene = new Scene(name, index);
 
-            _loadedScenes.Add(scene);
-            _activeScene = scene;
+            //_loadedScenes.Add(scene);
+            //_activeScene = scene;
 
-            SceneLoaded?.Invoke(scene);
-            ActiveSceneChanged?.Invoke(scene);
+            //SceneLoaded?.Invoke(scene);
+            //ActiveSceneChanged?.Invoke(scene);
+            FunctionCalls.Scene_LoadScene(name);
 
             Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
 
         public static void LoadScene(Scene scene)
         {
-            // FunctionCalls.Scene_Load(scene.Name);
+            //FunctionCalls.Scene_Load(scene.Name);
             _loadedScenes.Add(scene);
             _activeScene = scene;
 
@@ -43,14 +43,27 @@ namespace SliceEngine
             Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
         }
 
-
-        public static void UnloadScene(Scene scene)
+        //Putting it here first cause idk where else to put it
+        public static void QuitGame()
         {
-            if (_loadedScenes.Remove(scene))
-            {
-                SceneUnloaded?.Invoke(scene);
-                Console.WriteLine($"[SceneManager] Unloaded scene: {scene.name}");
-            }
+            FunctionCalls.QuitGame();
+        }
+
+
+        //public static void UnloadScene(Scene scene)
+        //{
+        //    if (_loadedScenes.Remove(scene))
+        //    {
+        //        SceneUnloaded?.Invoke(scene);
+        //    }
+        //    Console.WriteLine($"[SceneManager] Unloaded scene: {scene.name}");
+        //}
+
+        public static void UnloadScene()
+        {
+
+            FunctionCalls.Scene_UnloadCurrentScene();
+            Console.WriteLine($"Unload scene");
         }
 
         public static Scene GetActiveScene()

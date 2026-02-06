@@ -103,6 +103,8 @@ namespace SliceEngine
 
 		GLFWwindow* GetWindow();
 
+		GLFWWindowManager* GetWindowManager();
+
 		ProjectSettingsManager* GetProjectSettingsManager();
 
 		void UnbindSystems();

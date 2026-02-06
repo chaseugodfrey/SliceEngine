@@ -227,7 +227,7 @@ namespace SliceEditor
                 tempSceneMetaFilePath.replace_extension(".temp.meta");
 
                 std::ifstream inFile(sceneMetaFilePath);
-                std::ifstream tempInFile(tempSceneMetaFilePath);
+                //std::ifstream tempInFile(tempSceneMetaFilePath);
                 nlohmann::json metaJson;
                 nlohmann::json tempMetaJson;
                 auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
@@ -244,18 +244,23 @@ namespace SliceEditor
                     }
                 }
 
-                if (tempInFile >> tempMetaJson) {
-                    tempInFile.close();
+                if (std::filesystem::exists(tempSceneMetaFilePath))
+                {
+                    std::ifstream tempInFile(tempSceneMetaFilePath);
+                    if (tempInFile >> tempMetaJson) {
+                        tempInFile.close();
 
-                    auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+                        auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
-                    if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-                        std::ofstream tempOutFile(tempSceneMetaFilePath);
-                        tempOutFile << tempMetaJson.dump(4);
-                        tempOutFile.close();
+                        if (tempNavMeshPath.has_value()) {
+                            tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
+                            tempMetaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                            std::ofstream tempOutFile(tempSceneMetaFilePath);
+                            tempOutFile << tempMetaJson.dump(4);
+                            tempOutFile.close();
+                        }
                     }
+
                 }
             }
 

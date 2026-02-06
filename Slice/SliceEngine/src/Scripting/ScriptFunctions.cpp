@@ -23,6 +23,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Logger/Logger.h"
 #include "../Graphics/TransformHelper.h"
 #include "../Systems/PrefabSystem.h"
+#include "../Systems/SceneSystem.h"
 #include "ScriptObject.h"
 #include "../Audio/AudioManager.h"
 #include "../Configuration/ProjectSettingsManager.h"
@@ -1610,6 +1611,45 @@ namespace SliceEngine
 		return false;
 	}
 
+	static float Audio_GetCategoryVolume(MonoString* categoryName)
+	{
+
+		std::string cStrName = MonoToString(categoryName);
+		int categoryInt = 0;
+		if (cStrName == "BGM")
+		{
+			categoryInt = 1;
+		}
+
+		return Core::GetInstance()->GetAudioManager()->GetCategoryVolume(categoryInt);
+	}
+
+	static void Audio_SetCategoryVolume(MonoString* categoryName, float* volume)
+	{
+
+		std::string cStrName = MonoToString(categoryName);
+		float volValue = *volume; 
+		int categoryInt = 0;
+		if (cStrName == "BGM")
+		{
+			categoryInt = 1;
+		}
+		Core::GetInstance()->GetAudioManager()->SetCategoryVolume(categoryInt, volValue);
+	}
+
+	static void Audio_SetMasterVolume(float volume)
+	{
+		
+		
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+	}
+
+	static float Audio_GetMasterVolume()
+	{
+
+		return Core::GetInstance()->GetAudioManager()->GetMasterVolume();
+	}
+
 	static void Audio_SetPaused(unsigned int entity, bool paused)
 	{
 		if (auto *audioComp = GetAudioComponent(entity))
@@ -2071,6 +2111,23 @@ namespace SliceEngine
 #pragma endregion
 	
 #pragma region SCENE FUNCTIONS
+
+	static void Scene_LoadScene(MonoString* string)
+	{
+		auto sceneSys = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+		std::string cStrName = MonoToString(string);
+		sceneSys->LoadSceneByName(cStrName);
+
+	}
+
+	static void Scene_UnloadCurrentScene()
+	{
+		auto sceneSys = SliceEngine::Core::GetInstance()->GetSceneSystem();
+
+		sceneSys->UnloadCurrentScene();
+	}
+
 	static void QuitGame()
 	{
 		EventManager::GetInstance()->Publish<OnGameStopEvent>();
@@ -2380,6 +2437,8 @@ namespace SliceEngine
 	{
 		ADD_INTERNAL_CALL(Debug_Console);
 		ADD_INTERNAL_CALL(QuitGame);
+		ADD_INTERNAL_CALL(Scene_LoadScene);
+		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
@@ -2583,6 +2642,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetPaused);
 		ADD_INTERNAL_CALL(Audio_SetLoop);
 		ADD_INTERNAL_CALL(Audio_GetLoop);
+		ADD_INTERNAL_CALL(Audio_SetCategoryVolume);
+		ADD_INTERNAL_CALL(Audio_GetCategoryVolume);
+		ADD_INTERNAL_CALL(Audio_SetMasterVolume);
+		ADD_INTERNAL_CALL(Audio_GetMasterVolume);
 		ADD_INTERNAL_CALL(Audio_SetVolume);
 		ADD_INTERNAL_CALL(Audio_GetVolume);
 		ADD_INTERNAL_CALL(Audio_SetPitch);
