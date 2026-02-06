@@ -848,11 +848,12 @@ namespace SliceEngine
 		} state;
 
 		bool componentEnabled{ true };
-		glm::vec4 color_transitions[Total_States]{
-			{1.f, 1.f, 1.f, 1.f},	//white
-			{0.75f, 0.75f, 0.75f, 1.f},//light grey
-			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		std::array<glm::vec4, Total_States> color_transitions{
+			glm::vec4(1.f, 1.f, 1.f, 1.f),	//white
+			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
+			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
+
 		GUID sprite_transitions[Total_States]{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,

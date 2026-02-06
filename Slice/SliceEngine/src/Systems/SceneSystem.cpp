@@ -59,11 +59,16 @@ namespace SliceEngine
 		}
 
 
-		if (mCurrentState == SceneState::PLAY_SCENE)
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::RELOAD_SCENE)
 		{
 			// publish event to scene change
-			OnSceneChangeEvent event;
-			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(event);
+			OnSceneChangeEvent ChangeEvent;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
+
+			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			{
+				mCurrentState = SceneState::DEFAULT;
+			}
 		}
 
 
@@ -107,6 +112,13 @@ namespace SliceEngine
 			//std::filesystem::remove(next_scene_filepath);
 			mCurrentScene.replace_extension(".scene");
 		}
+
+		if (mCurrentState == SceneState::RELOAD_SCENE && mNextState == SceneState::RELOAD_SCENE)
+		{
+			mNextState = mCurrentState = SceneState::DEFAULT;
+
+		}
+
 
 		return true;
 	}

@@ -484,7 +484,7 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
-			JPH::CapsuleShapeSettings* settings = new JPH::CapsuleShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				colliderShape.offSet,
 				JPH::Quat::sIdentity(),
@@ -863,7 +863,7 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
-			JPH::CapsuleShapeSettings* settings = new JPH::CapsuleShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
+			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				colliderShape.offSet,
 				JPH::Quat::sIdentity(),
@@ -1025,7 +1025,7 @@ namespace SliceEngine
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
 				std::pair<GameObject, GameObject> collisionPair = contactListener->MakeOrderedPair(checkEntity1, checkEntity2);
-				contactListener->RemoveContactPair(collisionPair);
+				//contactListener->RemoveContactPair(collisionPair);
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{

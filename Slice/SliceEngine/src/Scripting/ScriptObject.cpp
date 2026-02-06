@@ -60,7 +60,25 @@ namespace SliceEngine
 
 	MonoMethod* ScriptClass::GetMethod(const std::string& name, int varCount)
 	{
-		return mono_class_get_method_from_name(mMonoClass, name.c_str(), varCount);
+		MonoClass* currentClass = mMonoClass;
+		MonoMethod* method = nullptr;
+
+		while (currentClass != nullptr && method == nullptr)
+		{
+			const char* className = mono_class_get_name(currentClass);
+			//std::cout << "Looking for : " << name << " in " << className << std::endl;
+			// dont get the very base slice behaviour
+			if (std::string(className) == "SliceBehaviour" && name != ".ctor")
+				break;
+
+			method = mono_class_get_method_from_name(currentClass, name.c_str(), varCount);
+
+			if (!method)
+			{
+				currentClass = mono_class_get_parent(currentClass);
+			}
+		}
+		return method;
 	}
 
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
@@ -162,6 +180,7 @@ namespace SliceEngine
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
 		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnLateUpdate = scClass->GetMethod("OnLateUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
@@ -255,6 +274,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnLateUpdate(float dt)
+	{
+		if (mOnLateUpdate)
+		{
+			void* param = &dt;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnLateUpdate, &param);
 		}
 	}
 

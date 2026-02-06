@@ -92,8 +92,10 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
 
-	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	//register_std_array<glm::vec4, Button::Total_States>("ArrayBtnStates");
+	//register_std_array<float, Button::Total_States>("ArrayTest");
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
@@ -567,6 +569,9 @@ namespace SliceEngine
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
 		.property("transition", &Button::transition)
+		.property("color_tints", &Button::color_transitions)
+		//.property("test_float", &Button::test)
+		//.property("test_float2", &Button::test2)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -647,7 +652,10 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-
+	namespace 
+	{
+		static bool isPlaying = false;
+	}
 
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
@@ -781,7 +789,12 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-		static bool isPlaying = false;
+
+		
+
+		//static bool isPlaying = false;
+
+		//
 
 		//frm->StartFrame();
 
@@ -838,10 +851,20 @@ namespace SliceEngine
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 
+				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+				sInputs->SetMode(InputMode::Editor);
+				sInputs->SetEnabled(false);
+				sInputs->ResetCursorState();
+				sParticleSystemManager.ResetManager();
+				sAudio->StopAllSound();
+				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+				audioSettings->DeleteAM();
+
+				gScriptSystem->OnEnd();*/
 
 				sScene->ReloadScene();
-				sScene->mCurrentState = SceneState::DEFAULT;
-				sScene->mNextState = SceneState::DEFAULT;
+				sScene->mCurrentState = SceneState::RELOAD_SCENE;
+				sScene->mNextState = SceneState::RELOAD_SCENE;
 			}
 		}
 
@@ -870,10 +893,11 @@ namespace SliceEngine
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		gScriptSystem->Update((float)frm->getDeltaTime());
+		//gScriptSystem->Update((float)frm->getDeltaTime());
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
 		}
 		frm->EndSystem("Script");
 
@@ -948,6 +972,18 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		}
+
+		frm->StartSystem("Particle System");
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{			
+			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
+		}
+		frm->EndSystem("Particle System");
+
 		frm->StartSystem("Graphics");
 		sRender->Render();
 
@@ -956,12 +992,6 @@ namespace SliceEngine
 		//frm->EndSystem("Canvas");
 		frm->EndSystem("Graphics");
 
-		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
-		frm->EndSystem("Particle System");
 
 		//frm->EndFrame();
 		//frm->CalculateSystemPercentages();
@@ -975,6 +1005,7 @@ namespace SliceEngine
 		auto projSettingsManager = core->GetProjectSettingsManager();
 
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 
@@ -986,7 +1017,7 @@ namespace SliceEngine
 		sAudio->StopAllSound();
 		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 		audioSettings->DeleteAM();
-
+		isPlaying = false;
 		gScriptSystem->OnEnd();
 
 	}

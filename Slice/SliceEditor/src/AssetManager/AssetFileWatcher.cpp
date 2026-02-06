@@ -221,10 +221,10 @@ namespace SliceEditor
             if (addEvent.filePath.extension() == ".bin")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
-                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-                std::filesystem::path sceneMetaFilePath = am.GetMetaDataFromFilename(sceneName);
-                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
+                std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
+                sceneMetaFilePath += ".meta";
+                std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
+                tempSceneMetaFilePath.replace_extension(".temp.meta");
 
                 std::ifstream inFile(sceneMetaFilePath);
                 std::ifstream tempInFile(tempSceneMetaFilePath);
@@ -261,10 +261,15 @@ namespace SliceEditor
             else if (addEvent.filePath.extension() == ".navmesh")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
-                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-                std::filesystem::path sceneMetaFilePath = am.GetMetaDataFromFilename(sceneName);
-                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
+                //std::string sceneDirectory = sScene->GetCurrentScenePath().parent_path().parent_path().string();
+
+                //std::string sceneName = sceneDirectory + "/" + sScene->GetCurrentSceneName() + ".scene";
+                ////std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
+                //std::string tempSceneName = sceneDirectory + "/" + sScene->GetCurrentSceneName() + ".temp";
+                std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
+                sceneMetaFilePath += ".meta";
+                std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
+                tempSceneMetaFilePath.replace_extension(".temp.meta");
 
                 std::ifstream inFile(sceneMetaFilePath);
                 std::ifstream tempInFile(tempSceneMetaFilePath);
@@ -298,6 +303,7 @@ namespace SliceEditor
                     }
                 }
             }
+            
             /*else if (addEvent.filePath.extension() == ".temp")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
