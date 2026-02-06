@@ -258,21 +258,16 @@ namespace SliceEditor
                     }
                 }
             }
+            
             else if (addEvent.filePath.extension() == ".navmesh")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                //std::string sceneDirectory = sScene->GetCurrentScenePath().parent_path().parent_path().string();
-
-                //std::string sceneName = sceneDirectory + "/" + sScene->GetCurrentSceneName() + ".scene";
-                ////std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
-                //std::string tempSceneName = sceneDirectory + "/" + sScene->GetCurrentSceneName() + ".temp";
-                std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
-                sceneMetaFilePath += ".meta";
-                std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
-                tempSceneMetaFilePath.replace_extension(".temp.meta");
+                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
+                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
+                std::filesystem::path sceneMetaFilePath = am.GetMetaDataFromFilename(sceneName);
+                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
 
                 std::ifstream inFile(sceneMetaFilePath);
-                std::ifstream tempInFile(tempSceneMetaFilePath);
                 nlohmann::json metaJson;
                 nlohmann::json tempMetaJson;
                 auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
@@ -289,18 +284,23 @@ namespace SliceEditor
                     }
                 }
 
-                if (tempInFile >> tempMetaJson) {
-                    tempInFile.close();
+                if (std::filesystem::exists(tempSceneMetaFilePath))
+                {
+                    std::ifstream tempInFile(tempSceneMetaFilePath);
+                    if (tempInFile >> tempMetaJson) {
+                        tempInFile.close();
 
-                    auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+                        auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
-                    if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-                        std::ofstream tempOutFile(tempSceneMetaFilePath);
-                        tempOutFile << tempMetaJson.dump(4);
-                        tempOutFile.close();
+                        if (tempNavMeshPath.has_value()) {
+                            tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
+                            tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                            std::ofstream tempOutFile(tempSceneMetaFilePath);
+                            tempOutFile << tempMetaJson.dump(4);
+                            tempOutFile.close();
+                        }
                     }
+
                 }
             }
             
@@ -469,32 +469,7 @@ namespace SliceEditor
         std::filesystem::path modifiedFilePath(event.filePath);
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-        if (modifiedFilePath.extension() == ".temp")
-        {
-         
-           /* auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-            std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-            std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
-
-            std::ifstream tempInFile(tempSceneMetaFilePath);
-
-            nlohmann::json tempMetaJson;
-            if (tempInFile >> tempMetaJson) {
-                tempInFile.close();
-                auto navMeshPath = resourceMgr->GetResourcePath("Default/" + modifiedFilePath.filename().string());
-
-                if (navMeshPath.has_value()) {
-                    tempMetaJson["navMeshFile"] = navMeshPath.value();
-                    tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
-                    std::ofstream outFile(tempSceneMetaFilePath);
-                    outFile << tempMetaJson.dump(4);
-                    outFile.close();
-                
-            }}*/
-
-
-            return;
-        }
+        
 
         if (modifiedFilePath.extension() == ".resource")
         {
