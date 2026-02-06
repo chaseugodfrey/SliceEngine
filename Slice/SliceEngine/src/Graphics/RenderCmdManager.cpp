@@ -15,6 +15,7 @@
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h" // --TODO-- Sus
 #include "Systems/PrefabSystem.h"
+#include "Systems/SceneSystem.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
@@ -33,6 +34,9 @@ namespace SliceEngine
 {
 	RenderCmdManager::RenderCmdManager()
 	{
+		auto* eventManager = EventManager::GetInstance();
+		eventManager->Subscribe<OnPlayEvent, &RenderCmdManager::HandlePlayEvent>(this);
+
 		glCreateBuffers(1, &mTextureVBO);
 		glNamedBufferStorage(mTextureVBO, mMaxInstance * sizeof(GLuint64), NULL, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mTextureVBO);
@@ -52,6 +56,19 @@ namespace SliceEngine
 		glDeleteBuffers(1, &mIVBO);
 		glDeleteBuffers(1, &mEVBO);
 	}
+
+	void RenderCmdManager::HandlePlayEvent(const OnPlayEvent& event)
+	{
+		// Particles don't have instanced Materials
+		// Copy all materials
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>();
+		for (auto entity : view)
+		{
+			auto& rend = Core::GetInstance()->GetRegistry().get<Renderer>(entity);
+			rend.materialInstance = *(rend.materialHandle.get());
+		}
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -61,14 +78,18 @@ namespace SliceEngine
 		prefabTranslucentCmds.clear();
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
-		
+		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
+		//sScene->mCurrentState;
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
-			const auto material = rend.materialHandle.get();
+			const SliceEngine::SliceEngineTypes::Material* material;
+			if(core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+				material = &rend.materialInstance;
+			else
+				material = rend.materialHandle.get();
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
@@ -456,7 +477,11 @@ namespace SliceEngine
 		}
 		case DrawType::DRAW_OPAQUE:
 		{
-			const auto& material = rend.materialHandle.get();
+			const SliceEngine::SliceEngineTypes::Material* material;
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+				material = &rend.materialInstance;
+			else
+				material = rend.materialHandle.get();
 
 			BasicIDat data{};
 			data.mdlMtx = transform.transform;

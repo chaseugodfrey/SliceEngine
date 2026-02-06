@@ -97,7 +97,14 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawPerformanceTab()
 	{
-		mManager.UpdateDebugStatistics();
+		if(!mManager.mClearStatistics)
+		{
+			mManager.UpdateDebugStatistics();
+		}
+		else
+		{
+			mManager.ClearDebugStatistics();
+		}
 
 		ImGui::Text("FPS: %f", mManager.mCurrFPS);
 

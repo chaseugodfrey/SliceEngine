@@ -631,6 +631,12 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
 
+        //Material
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_GetColor(uint entityID, out Vector4 color);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_SetColor(uint entityID, ref Vector4 value);
 
         //Entity active
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
