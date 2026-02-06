@@ -203,8 +203,9 @@ namespace SliceEngine
             {
                 return;
             }
-            
+
             GroundCheck();
+
             if (canInput)
             {
                 HandleInput();

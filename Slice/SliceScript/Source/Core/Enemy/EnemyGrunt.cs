@@ -39,6 +39,7 @@ namespace SliceEngine
         private GeneralHitbox attackHitBox;
 
         public GameObject windupSignalObject;
+        public GameObject damagedSignal;
 
         public override void OnCreate()
         {
@@ -67,6 +68,7 @@ namespace SliceEngine
                 attackHitBox.TurnOff();
                 attackHitBoxRenderObject.SetActive(false);
                 windupSignalObject.SetActive(false);
+                damagedSignal.SetActive(false);
 
                 #region Hitbox off Debug
                 if (attackHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)

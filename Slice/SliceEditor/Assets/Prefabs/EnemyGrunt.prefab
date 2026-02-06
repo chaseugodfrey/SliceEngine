@@ -57,12 +57,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048654,
+                "entity_id": 4194509,
                 "neighbours": [
                     0,
-                    1048655,
-                    1048647,
-                    1048656
+                    4194508,
+                    4194516,
+                    4194507
                 ]
             },
             "struct SliceEngine::Script": {
@@ -78,11 +78,11 @@
                     },
                     "attackHitBoxObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048645
+                        "Value": 5242914
                     },
                     "attackHitBoxRenderObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048717
+                        "Value": 4194440
                     },
                     "attackOdds": {
                         "Type": "float",
@@ -107,6 +107,10 @@
                     "damage": {
                         "Type": "int",
                         "Value": 5
+                    },
+                    "damagedSignal": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4194438
                     },
                     "flickerTiming": {
                         "Type": "float",
@@ -146,7 +150,7 @@
                     },
                     "windupSignalObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048718
+                        "Value": 4194439
                     }
                 }
             },
@@ -203,12 +207,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048655,
+                "entity_id": 4194508,
                 "neighbours": [
-                    1048654,
+                    4194509,
                     4294967295,
                     4294967295,
-                    1048635
+                    5243062
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -252,12 +256,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048635,
+                "entity_id": 5243062,
                 "neighbours": [
-                    1048654,
-                    1048645,
-                    1048655,
-                    1048718
+                    4194509,
+                    5242914,
+                    4194508,
+                    4194439
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -317,12 +321,12 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048645,
+                "entity_id": 5242914,
                 "neighbours": [
-                    1048635,
+                    5243062,
                     4294967295,
                     4294967295,
-                    1048717
+                    4194440
                 ]
             },
             "struct SliceEngine::Script": {
@@ -381,11 +385,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048717,
+                "entity_id": 4194440,
                 "neighbours": [
-                    1048635,
+                    5243062,
                     4294967295,
-                    1048645,
+                    5242914,
                     4294967295
                 ]
             },
@@ -442,12 +446,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048718,
+                "entity_id": 4194439,
                 "neighbours": [
-                    1048654,
+                    4194509,
                     4294967295,
-                    1048635,
-                    4294967295
+                    5243062,
+                    4194438
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -477,6 +481,67 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        }
+    },
+    {
+        "Damaged Signal": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "17656138608147415398"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194438,
+                "neighbours": [
+                    4194509,
+                    4294967295,
+                    4194439,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Damaged Signal",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -4.76837158203125e-07,
+                    2.4800148010253906,
+                    -0.46003150939941406
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.0,
+                    3.0,
+                    3.0
                 ]
             }
         }

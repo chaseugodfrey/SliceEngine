@@ -30,10 +30,7 @@ namespace SliceEngine
         public void Initialize()
         {
 
-            if (Input.IsKeyPressed(Keys.KEY_P))
-            {
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
-            }
+
 
             Console.WriteLine("Initialize Level Director");
             isActive = true;
@@ -100,6 +97,10 @@ namespace SliceEngine
             if (!isActive)
                 return;
 
+            if (Input.IsKeyPressed(Keys.KEY_P))
+            {
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+            }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
@@ -234,7 +235,7 @@ namespace SliceEngine
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
                 SliceLog.Log("Teleporting player");
-                Bootstrap.Player.Teleport(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
         }
