@@ -473,6 +473,8 @@ namespace SliceEngine
 			TWO_CONSTANTS
 		};
 
+		bool playPreview{ false };
+
 		Transform* parentTransform{ nullptr };
 
 		// System Settings

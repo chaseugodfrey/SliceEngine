@@ -1003,10 +1003,8 @@ namespace SliceEngine
 		}
 
 		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
