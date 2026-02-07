@@ -141,13 +141,16 @@ namespace SliceEngine
 		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
 			return;
 
-		// Remove body form physics world
-		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		if (physicsSystem->GetBodyInterface().IsAdded(colliderShape.bodyID))
+		{
+			// Remove body form physics world
+			physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
-		// Destroy the body from the physics world
-		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+			// Destroy the body from the physics world
+			physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 
-		isBroadPhaseDirty = true;
+			isBroadPhaseDirty = true;
+		}
 	}
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)

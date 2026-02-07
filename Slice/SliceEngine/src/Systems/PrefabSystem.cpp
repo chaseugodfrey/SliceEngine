@@ -758,7 +758,7 @@ namespace SliceEngine
 					}
 				}
 
-				gScriptSystem->UpdateScriptVariables(entity);
+				gScriptSystem->UpdateScriptVariables(ent);
 			}
 
 		}

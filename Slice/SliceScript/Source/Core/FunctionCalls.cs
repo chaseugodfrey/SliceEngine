@@ -611,6 +611,42 @@ namespace SliceEngine
         internal extern static void RectTransform_GetVertAlign(uint entityID, out RectTransform.VertPivot vert);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_SetVertAlign(uint entityID, ref RectTransform.VertPivot vert);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetPosX(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetPosX(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetPosY(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetPosY(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetWidth(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetWidth(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetHeight(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetHeight(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetTop(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetTop(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetBot(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetBot(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetLeft(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetLeft(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetRight(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetRight(uint entityID, int value);
         //*************************
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

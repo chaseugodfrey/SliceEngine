@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -115,6 +113,7 @@
     <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
+    <Compile Include="Source\Examples\TestRectTransform.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />

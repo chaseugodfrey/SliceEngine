@@ -17,6 +17,8 @@ namespace SliceEngine
 {
 	glm::quat Vec3ToQuat(const glm::vec3& in);
 	glm::vec3 QuatToVec3(glm::quat q);
+
+	void ShiftTransformMtx(glm::mat4&, const glm::vec3);
 }
 
 #endif
