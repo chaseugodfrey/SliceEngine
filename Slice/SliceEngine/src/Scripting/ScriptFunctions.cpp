@@ -2229,17 +2229,206 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region UI FUNCTIONS
-	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	//Rect Transform
+	static void RectTransform_GetHoriAlign(unsigned int entity, RectTransform::HoriPivot* out)
 	{
-		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
-
-		if (GO.HasComponent<SpriteRenderer>())
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RectTransform>())
 		{
-			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
-			spriteRenderer.componentEnabled = enabled;
+			*out = go.GetComponent<RectTransform>().hori_pivot;
+			return;
+		}
+	}
+	static void RectTransform_SetHoriAlign(unsigned int entity, RectTransform::HoriPivot* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RectTransform>())
+		{
+			go.GetComponent<RectTransform>().hori_pivot = *value;
+			return;
 		}
 	}
 
+	static void RectTransform_GetVertAlign(unsigned int entity, RectTransform::VertPivot* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RectTransform>())
+		{
+			*out = go.GetComponent<RectTransform>().vert_pivot;
+			return;
+		}
+	}
+	static void RectTransform_SetVertAlign(unsigned int entity, RectTransform::VertPivot* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RectTransform>())
+		{
+			go.GetComponent<RectTransform>().vert_pivot = *value;
+			return;
+		}
+	}
+
+	static int RectTransform_GetPosX(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.pos_x;
+		}
+		return 0;
+	}
+	static void RectTransform_SetPosX(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.pos_x = value;
+		}
+	}
+
+	static int RectTransform_GetPosY(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.pos_y;
+		}
+		return 0;
+	}
+	static void RectTransform_SetPosY(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.pos_y = value;
+		}
+	}
+
+	static int RectTransform_GetWidth(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.width;
+		}
+		return 0;
+	}
+	static void RectTransform_SetWidth(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.width = value;
+		}
+	}
+
+	static int RectTransform_GetHeight(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.height;
+		}
+		return 0;
+	}
+	static void RectTransform_SetHeight(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.height = value;
+		}
+	}
+
+	static int RectTransform_GetTop(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.top;
+		}
+		return 0;
+	}
+	static void RectTransform_SetTop(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.top = value;
+		}
+	}
+
+	static int RectTransform_GetBot(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.bot;
+		}
+		return 0;
+	}
+	static void RectTransform_SetBot(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.bot = value;
+		}
+	}
+
+	static int RectTransform_GetLeft(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.left;
+		}
+		return 0;
+	}
+	static void RectTransform_SetLeft(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.left = value;
+		}
+	}
+
+	static int RectTransform_GetRight(uint32_t entityID) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			return rect.right;
+		}
+		return 0;
+	}
+	static void RectTransform_SetRight(uint32_t entityID, int value) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<RectTransform>())
+		{
+			auto& rect = GO.GetComponent<RectTransform>();
+			rect.right = value;
+		}
+	}
+
+	//Font Renderer
 	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2270,7 +2459,7 @@ namespace SliceEngine
 			go.GetComponent<FontRenderer>().alignment = *value;
 			return;
 		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Font component.", entity);
 	}
 
 
@@ -2355,6 +2544,18 @@ namespace SliceEngine
 		}
 	}
 
+	//Sprite Renderer
+	static void SpriteRenderer_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			spriteRenderer.componentEnabled = enabled;
+		}
+	}
+
 	static void SpriteRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 
@@ -2374,6 +2575,17 @@ namespace SliceEngine
 		}
 	}
 
+	//Slider
+	static void Slider_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Slider>())
+		{
+			auto& slider = GO.GetComponent<Slider>();
+			slider.componentEnabled = enabled;
+		}
+	}
 	static float Slider_GetValue(uint32_t entityID)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -2465,6 +2677,7 @@ namespace SliceEngine
 		RegisterComponent<NavAgent>();
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
+		RegisterComponent<RectTransform>();
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
@@ -2499,8 +2712,6 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_SetTag);
 		ADD_INTERNAL_CALL(CloneGO);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
-		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
-		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
 
@@ -2723,9 +2934,43 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(NavAgent_SetComponentEnabled);
 
 		//UI
+		ADD_INTERNAL_CALL(RectTransform_GetHoriAlign);
+		ADD_INTERNAL_CALL(RectTransform_SetHoriAlign);
+
+		ADD_INTERNAL_CALL(RectTransform_GetVertAlign);
+		ADD_INTERNAL_CALL(RectTransform_SetVertAlign);
+
+		ADD_INTERNAL_CALL(RectTransform_GetPosX);
+		ADD_INTERNAL_CALL(RectTransform_SetPosX);
+
+		ADD_INTERNAL_CALL(RectTransform_GetPosY);
+		ADD_INTERNAL_CALL(RectTransform_SetPosY);
+
+		ADD_INTERNAL_CALL(RectTransform_GetWidth);
+		ADD_INTERNAL_CALL(RectTransform_SetWidth);
+
+		ADD_INTERNAL_CALL(RectTransform_GetHeight);
+		ADD_INTERNAL_CALL(RectTransform_SetHeight);
+
+		ADD_INTERNAL_CALL(RectTransform_GetTop);
+		ADD_INTERNAL_CALL(RectTransform_SetTop);
+
+		ADD_INTERNAL_CALL(RectTransform_GetBot);
+		ADD_INTERNAL_CALL(RectTransform_SetBot);
+
+		ADD_INTERNAL_CALL(RectTransform_GetLeft);
+		ADD_INTERNAL_CALL(RectTransform_SetLeft);
+
+		ADD_INTERNAL_CALL(RectTransform_GetRight);
+		ADD_INTERNAL_CALL(RectTransform_SetRight);
+
+
+		ADD_INTERNAL_CALL(Slider_SetEnabled);
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
 
+
+		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(FontRenderer_SetColor);
 		ADD_INTERNAL_CALL(FontRenderer_GetColor);
 
@@ -2741,6 +2986,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
 		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
 
+
+		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
