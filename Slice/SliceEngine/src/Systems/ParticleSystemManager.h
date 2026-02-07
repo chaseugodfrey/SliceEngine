@@ -33,7 +33,6 @@ namespace SliceEngine
 		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
 
-		void ResetManager();
 		void ValidateParticleSystem(ParticleSystem& ps);
 	private:
 		// System Layer

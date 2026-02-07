@@ -60,6 +60,7 @@
     <Compile Include="Source\Core\Components\Prefab.cs" />
     <Compile Include="Source\Core\Components\RayCastHit.cs" />
     <Compile Include="Source\Core\Components\RectTransform.cs" />
+    <Compile Include="Source\Core\Components\Renderer.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
+    <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\Core\UI\MainMenuButtons.cs" />

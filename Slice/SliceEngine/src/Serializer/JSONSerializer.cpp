@@ -60,36 +60,35 @@ namespace SliceEngine
 			std::filesystem::path binPath = assetDir.generic_string() + ".bin";
 			auto* rm = Core::GetInstance()->GetResourceManager();
 
+			
+			// safety checks
+			if (std::filesystem::exists(navMeshPath))
 			{
-				// safety checks
-				if (std::filesystem::exists(navMeshPath))
+				std::string navPath = navMeshPath.lexically_relative(prefix).generic_string();
+
+				if (rm->mFileNameToGUID.contains(navPath))
 				{
-					std::string navPath = navMeshPath.lexically_relative(prefix).generic_string();
+					GUID guid = rm->mFileNameToGUID[navPath];
+					finalOutput["NavMeshData"]["navMeshGUID"] = guid;
 
-					if (rm->mFileNameToGUID.contains(navPath))
-					{
-						GUID guid = rm->mFileNameToGUID[navPath];
-						finalOutput["NavMeshData"]["navMeshGUID"] = guid;
-
-					}
 				}
-				if (std::filesystem::exists(binPath))
-				{
+			}
+			if (std::filesystem::exists(binPath))
+			{
 					std::string navPath = binPath.lexically_relative(prefix).generic_string();
 
-					if (rm->mFileNameToGUID.contains(navPath))
-					{
-						GUID guid = rm->mFileNameToGUID[navPath];
-						finalOutput["NavMeshData"]["navMeshBinGUID"] = guid;
-					}
+				if (rm->mFileNameToGUID.contains(navPath))
+				{
+					GUID guid = rm->mFileNameToGUID[navPath];
+					finalOutput["NavMeshData"]["navMeshBinGUID"] = guid;
 				}
-
-				//if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
-				//{
-				//	finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
-				//}
-
 			}
+
+			//if (metaData.contains("navMeshBinGUID") && metaData["navMeshBinGUID"] != 0)
+			//{
+			//	finalOutput["NavMeshData"]["navMeshBinGUID"] = metaData.value("navMeshBinGUID", 0ULL);
+			//}
+			
 
 			auto& registry = Core::GetInstance()->GetRegistry();
 			auto* rc = Core::GetInstance()->GetResourceManager();
@@ -312,6 +311,10 @@ namespace SliceEngine
 								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,								
 								std::vector<Particle>,
 								GameObject,
@@ -527,6 +530,10 @@ namespace SliceEngine
 								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -682,6 +689,10 @@ namespace SliceEngine
 						ColliderShape::CylinderData,
 						RigidBody::FreezeOptions,
 						ParticleSystem::ValueType,
+						std::map<float, glm::vec3>,
+						std::map<float, glm::vec4>,
+						std::vector <std::pair<float, glm::vec3>>,
+						std::vector <std::pair<float, glm::vec4>>,
 						std::vector<ParticleSystem::Burst>,
 						std::vector<Particle>,
 						GameObject,
@@ -841,6 +852,10 @@ namespace SliceEngine
 							ColliderShape::CylinderData,
 							RigidBody::FreezeOptions,
 							ParticleSystem::ValueType,
+							std::map<float, glm::vec3>,
+							std::map<float, glm::vec4>,
+							std::vector <std::pair<float, glm::vec3>>,
+							std::vector <std::pair<float, glm::vec4>>,
 							std::vector<ParticleSystem::Burst>,							
 							std::vector<Particle>,
 							GameObject
@@ -991,6 +1006,10 @@ namespace SliceEngine
 								ColliderShape::CylinderData,
 								RigidBody::FreezeOptions,
 								ParticleSystem::ValueType,
+								std::map<float, glm::vec3>,
+								std::map<float, glm::vec4>,
+								std::vector <std::pair<float, glm::vec3>>,
+								std::vector <std::pair<float, glm::vec4>>,
 								std::vector<ParticleSystem::Burst>,
 								std::vector<Particle>,
 								std::vector<SliceEngineTypes::AnimationKeyFrame>
@@ -1178,6 +1197,21 @@ namespace SliceEngine
 				}
 
 				return jArray;
+			}
+
+			if (t.is_associative_container())
+			{
+				auto view = v.create_associative_view();
+				nlohmann::json jObject = nlohmann::json::object();
+
+				for (auto& item : view)
+				{
+					auto key = item.first.to_string(); // keys in JSON must be strings
+					auto val = GetJsonFromVariant(item.second);
+					jObject[key] = val;
+				}
+
+				return jObject;
 			}
 
 			if (t == rttr::type::get<glm::vec3>()) { return v.get_value<glm::vec3>(); }
