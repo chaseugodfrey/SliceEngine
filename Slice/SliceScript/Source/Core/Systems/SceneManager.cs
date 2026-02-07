@@ -25,7 +25,7 @@ namespace SliceEngine
             _transitionRunner = runner;
             _transitionRenderer = renderer;
 
-            // Automatically Fade In when a new transition object registers (Scene Start)
+            
             if (_transitionRunner != null && _transitionRenderer != null)
             {
                 _transitionRunner.StartCoroutine(FadeInRoutine());
@@ -34,13 +34,13 @@ namespace SliceEngine
 
         public static void LoadScene(string name)
         {
-            // FunctionCalls.Scene_Load(name);
 
-            int index = _loadedScenes.Count;
-            var scene = new Scene(name, index);
+            //int index = _loadedScenes.Count;
+            //var scene = new Scene(name, index);
 
-<<<<<<< Updated upstream
-=======
+
+            //_loadedScenes.Add(scene);
+            //_activeScene = scene;
             //_loadedScenes.Add(scene);
             //_activeScene = scene;
 
@@ -52,10 +52,10 @@ namespace SliceEngine
             }
             else
             {
-                
+                // Fallback: If no transition object exists, load immediately
                 FunctionCalls.Scene_LoadScene(name);
             }
-            
+
 
             //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
@@ -63,22 +63,24 @@ namespace SliceEngine
         public static void LoadScene(Scene scene)
         {
             //FunctionCalls.Scene_Load(scene.Name);
->>>>>>> Stashed changes
+
             _loadedScenes.Add(scene);
             _activeScene = scene;
 
-            SceneLoaded?.Invoke(scene);
-            ActiveSceneChanged?.Invoke(scene);
+            //SceneLoaded?.Invoke(scene);
+            //ActiveSceneChanged?.Invoke(scene);
+            
 
-            Console.WriteLine($"[SceneManager] Loaded scene: {name}");
+            //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
 
-<<<<<<< Updated upstream
-        public static void LoadScene(Scene scene)
-=======
         private static IEnumerator FadeInRoutine()
         {
             float elapsedTime = 0f;
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(true);
+            }
             SetRectAlpha(1.0f); // Start black
 
             while (elapsedTime < TransitionDuration)
@@ -91,11 +93,17 @@ namespace SliceEngine
                 yield return null;
             }
             SetRectAlpha(0.0f); // Ensure fully transparent
+
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(false);
+            };
         }
 
         private static IEnumerator FadeOutAndLoad(string sceneName)
         {
             float elapsedTime = 0f;
+            if (_transitionRenderer != null) _transitionRenderer.SetEnabled(true);
             SetRectAlpha(0.0f); // Start transparent
 
             while (elapsedTime < TransitionDuration)
@@ -117,6 +125,7 @@ namespace SliceEngine
         {
             if (_transitionRenderer != null)
             {
+                
                 Vector4 color = _transitionRenderer.Colour;
                 color.w = alpha;
                 _transitionRenderer.Colour = color;
@@ -124,27 +133,40 @@ namespace SliceEngine
         }
 
         //Putting it here first cause idk where else to put it
+        // public static void QuitGame()
+        //public static void LoadScene(Scene scene)
+        // {
+        //     //FunctionCalls.Scene_Load(scene.Name);
+        //     _loadedScenes.Add(scene);
+        //     _activeScene = scene;
+
+        //     SceneLoaded?.Invoke(scene);
+        //     ActiveSceneChanged?.Invoke(scene);
+
+        //     //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+        // }
+
+        //Putting it here first cause idk where else to put it
         public static void QuitGame()
->>>>>>> Stashed changes
         {
-            // FunctionCalls.Scene_Load(scene.Name);
-            _loadedScenes.Add(scene);
-            _activeScene = scene;
-
-            SceneLoaded?.Invoke(scene);
-            ActiveSceneChanged?.Invoke(scene);
-
-            Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+            FunctionCalls.QuitGame();
         }
 
 
-        public static void UnloadScene(Scene scene)
+        //public static void UnloadScene(Scene scene)
+        //{
+        //    if (_loadedScenes.Remove(scene))
+        //    {
+        //        SceneUnloaded?.Invoke(scene);
+        //    }
+        //    Console.WriteLine($"[SceneManager] Unloaded scene: {scene.name}");
+        //}
+
+        public static void UnloadScene()
         {
-            if (_loadedScenes.Remove(scene))
-            {
-                SceneUnloaded?.Invoke(scene);
-                Console.WriteLine($"[SceneManager] Unloaded scene: {scene.name}");
-            }
+
+            FunctionCalls.Scene_UnloadCurrentScene();
+            //Console.WriteLine($"Unload scene");
         }
 
         public static Scene GetActiveScene()
@@ -160,7 +182,7 @@ namespace SliceEngine
             _activeScene = scene;
             ActiveSceneChanged?.Invoke(scene);
 
-            Console.WriteLine($"[SceneManager] Active scene set to: {scene.name}");
+            //Console.WriteLine($"[SceneManager] Active scene set to: {scene.name}");
         }
 
         public static void RestartScene()
@@ -169,7 +191,7 @@ namespace SliceEngine
                 return;
 
             string name = _activeScene.name;
-            Console.WriteLine($"[SceneManager] Restarting scene: {name}");
+            //Console.WriteLine($"[SceneManager] Restarting scene: {name}");
 
             // FunctionCalls.Scene_Restart(name);
             SceneUnloaded?.Invoke(_activeScene);
