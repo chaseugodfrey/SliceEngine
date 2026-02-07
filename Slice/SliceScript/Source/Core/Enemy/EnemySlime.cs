@@ -205,7 +205,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
+            rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
+            CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
             SliceLog.Console("ENEMY IS BEING HIT");
         }
 

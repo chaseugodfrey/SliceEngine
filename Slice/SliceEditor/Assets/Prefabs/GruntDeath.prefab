@@ -1,6 +1,6 @@
 [
     {
-        "Bloodsplatter": {
+        "GruntDeath": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -12,7 +12,7 @@
                 "bounciness": 0.0,
                 "bursts": [
                     [
-                        50,
+                        200,
                         1,
                         0.0,
                         0.0
@@ -33,7 +33,7 @@
                         1.0
                     ],
                     "1.000000": [
-                        0.5647059082984924,
+                        0.0,
                         0.0,
                         0.0,
                         0.0
@@ -52,7 +52,7 @@
                     [
                         1.0,
                         [
-                            0.5647059082984924,
+                            0.0,
                             0.0,
                             0.0,
                             0.0
@@ -72,7 +72,7 @@
                 ],
                 "followTransformRotation": true,
                 "friction": 0.5,
-                "gForce": 1.0,
+                "gForce": 5.0,
                 "hasCollision": false,
                 "initialLifetimeType": 1,
                 "initialRotationType": 0,
@@ -83,7 +83,7 @@
                     "GUID": "15666473067063233781"
                 },
                 "maxParticleLifetime": 1.0,
-                "maxParticles": 100,
+                "maxParticles": 200,
                 "maxRandomColour": [
                     0.0,
                     0.0,
@@ -92,9 +92,9 @@
                 ],
                 "maxRandomRotation": 0.0,
                 "maxRandomScale": [
-                    0.4000000059604645,
-                    0.4000000059604645,
-                    0.4000000059604645
+                    0.5,
+                    0.5,
+                    0.5
                 ],
                 "maxRandomSpawnPos": [
                     0.0,
@@ -111,16 +111,16 @@
                 ],
                 "minRandomRotation": 0.0,
                 "minRandomScale": [
-                    0.20000000298023224,
-                    0.20000000298023224,
-                    0.20000000298023224
+                    0.25,
+                    0.25,
+                    0.25
                 ],
                 "minRandomSpawnPos": [
                     0.0,
                     0.0,
                     0.0
                 ],
-                "minRandomSpeed": 1.0,
+                "minRandomSpeed": 2.0,
                 "modelHandle": {
                     "GUID": "4412061832024819835"
                 },
@@ -146,7 +146,7 @@
                     1.0
                 ],
                 "scaleType": 1,
-                "shapeRadius": 0.30000001192092896,
+                "shapeRadius": 0.10000000149011612,
                 "shapeType": "SPHERE",
                 "sizeMap": {
                     "0.000000": [
@@ -201,7 +201,7 @@
                 "spawnPosValueType": 0,
                 "speed": 10.0,
                 "speedValueType": 1,
-                "sphereArc": 180.0,
+                "sphereArc": 90.0,
                 "startOrbitVelocity": [
                     1.0,
                     1.0,
@@ -253,23 +253,23 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291635,
+                "entity_id": 3145903,
                 "neighbours": [
                     0,
                     4294967295,
-                    7340207,
-                    6291657
+                    2097326,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Bloodsplatter",
+                "mName": "GruntDeath",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    0.0,
+                    -90.0,
                     0.0,
                     0.0
                 ],
@@ -279,9 +279,9 @@
                     -1.3840405941009521
                 ],
                 "rotation": [
-                    1.0,
-                    0.0,
-                    0.0,
+                    -0.7071067690849304,
+                    0.7071067690849304,
+                    -0.0,
                     0.0
                 ],
                 "scale": [
