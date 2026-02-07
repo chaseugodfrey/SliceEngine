@@ -793,8 +793,8 @@ namespace SliceEngine
 		// Get the "GUID" key from the object, which is a string (or null).
 		// Then, deserialize that string value into the handle's mGUID member.
 		j.at("GUID").get_to(handle.mGUID);
-		std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
-		SLICE_LOG_DEBUG(msg);
+		//std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
+		//SLICE_LOG_DEBUG(msg);
 
 	}
 
