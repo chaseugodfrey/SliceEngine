@@ -8,6 +8,7 @@
 
 #include "Core/Core.h"
 
+#include "TransformHelper.h"
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
@@ -76,6 +77,7 @@ namespace SliceEngine
 		translucentCmds.clear();
 		prefabRenderCmds.clear();
 		prefabTranslucentCmds.clear();
+		lastShadowOffset = lastRenderOffset = lastRenderPrefabOffset = lastTranslucentOffset = lastTranslucentPrefabOffset = glm::vec3(0, 0, 0);
 
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
@@ -93,7 +95,8 @@ namespace SliceEngine
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
-			if (Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity))
+			bool isPrefab = Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity);
+			if (isPrefab)
 			{
 				rcmds = &prefabRenderCmds;
 				rtcmds = &prefabTranslucentCmds;
@@ -122,7 +125,7 @@ namespace SliceEngine
 			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 
-			if (rend.castShadow)
+			if (rend.castShadow && !isPrefab)
 				shadowRenderCmds[mdlDet].push_back(data);
 
 			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
@@ -237,23 +240,20 @@ namespace SliceEngine
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
-	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
-	{
-		VP = P * V;
-	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
 		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
-		glm::vec3 camFront, camRight, camUp;
+		glm::vec3 camFront, camRight, camUp, camPos;
 		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
 		Core::GetInstance()->GetRenderManager()->GetCameraAxis(camRot, camFront, camRight, camUp);
+		camPos = camT.GetWorldPosition() - lastTranslucentOffset;
 
 		// Calcluate depth
 		assert(sizeof(float) == 4);
 		for (auto& i : translucentCmds)
 		{
-			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camT.GetWorldPosition();
+			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camPos;
 			float d = glm::dot(dir, camFront);
 			i.id = (i.id & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
 		}
@@ -266,7 +266,7 @@ namespace SliceEngine
 		// Prefabs sorting too
 		for (auto& i : prefabTranslucentCmds)
 		{
-			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camT.GetWorldPosition();
+			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camPos;
 			float d = glm::dot(dir, camFront);
 			i.id = (i.id & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
 		}
@@ -275,7 +275,7 @@ namespace SliceEngine
 			});
 
 	}
-	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType)
+	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset)
 	{
 		// Tags I need
 			// Cast Shadows
@@ -298,6 +298,8 @@ namespace SliceEngine
 		// Only used for shadows, so dun need change shader
 		case DrawType::DRAW_MODELS:
 		{
+			glm::vec3 offsetDelta = lastShadowOffset - newOffset;
+			lastShadowOffset = newOffset;
 			for (auto& i : shadowRenderCmds)
 			{
 				const auto& id = i.first;
@@ -321,6 +323,9 @@ namespace SliceEngine
 				}
 				//else
 				{
+					for (auto& i : batch)
+						ShiftTransformMtx(i.mdlMtx, offsetDelta);
+
 					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
 					for(size_t drawCounter{}; drawCounter < batch.size(); )
 					{
@@ -338,8 +343,19 @@ namespace SliceEngine
 		case DrawType::DRAW_PREFAB_OPAQUE:
 		{
 			auto* cmds = &renderCmds;
+			glm::vec3 offsetDelta{};
 			if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
+			{
 				cmds = &prefabRenderCmds;
+				offsetDelta = lastRenderPrefabOffset - newOffset;
+				lastRenderPrefabOffset = newOffset;
+			}
+			else
+			{
+				offsetDelta = lastRenderOffset - newOffset;
+				lastRenderOffset = newOffset;
+			}
+
 
 			for (auto& i : *cmds)
 			{
@@ -368,6 +384,9 @@ namespace SliceEngine
 					meshOffset = 0;
 				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
+
+				for (auto& i : batch.base)
+					ShiftTransformMtx(i.mdlMtx, offsetDelta);
 
 				GLint uniformLoc;
 				if (mdlRef.isSkin)
@@ -401,10 +420,20 @@ namespace SliceEngine
 		case DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY:
 		{
 			RCK_ModelT currMdlID = 0xFFFF;
+			glm::vec3 offsetDelta{};
 
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
+			{
 				cmds = &prefabTranslucentCmds;
+				offsetDelta = lastRenderPrefabOffset - newOffset;
+				lastRenderPrefabOffset = newOffset;
+			}
+			else
+			{
+				offsetDelta = lastRenderOffset - newOffset;
+				lastRenderOffset = newOffset;
+			}
 
 			for (auto& i : *cmds)
 			{
@@ -428,6 +457,8 @@ namespace SliceEngine
 						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
 					}
 				}
+
+				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
@@ -453,7 +484,7 @@ namespace SliceEngine
 		}
 	}
 
-	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType)
+	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)
 	{
 		auto core = Core::GetInstance();
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
@@ -472,6 +503,7 @@ namespace SliceEngine
 			BasicIDat i;
 			i.entityID = static_cast<unsigned int>(entity);
 			i.mdlMtx = transform.transform;
+			ShiftTransformMtx(i.mdlMtx, -relPos);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &i);
 			break;
 		}
@@ -485,6 +517,7 @@ namespace SliceEngine
 
 			BasicIDat data{};
 			data.mdlMtx = transform.transform;
+			ShiftTransformMtx(data.mdlMtx, -relPos);
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
