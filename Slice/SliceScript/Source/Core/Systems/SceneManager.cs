@@ -52,10 +52,10 @@ namespace SliceEngine
             }
             else
             {
-                
+                // Fallback: If no transition object exists, load immediately
                 FunctionCalls.Scene_LoadScene(name);
             }
-            
+
 
             //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
@@ -69,15 +69,7 @@ namespace SliceEngine
 
             //SceneLoaded?.Invoke(scene);
             //ActiveSceneChanged?.Invoke(scene);
-            if (_transitionRunner != null && _transitionRenderer != null)
-            {
-                _transitionRunner.StartCoroutine(FadeOutAndLoad(name));
-            }
-            else
-            {
-                // Fallback: If no transition object exists, load immediately
-                FunctionCalls.Scene_LoadScene(name);
-            }
+            
 
             //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
@@ -85,7 +77,10 @@ namespace SliceEngine
         private static IEnumerator FadeInRoutine()
         {
             float elapsedTime = 0f;
-
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(true);
+            }
             SetRectAlpha(1.0f); // Start black
 
             while (elapsedTime < TransitionDuration)
@@ -99,7 +94,10 @@ namespace SliceEngine
             }
             SetRectAlpha(0.0f); // Ensure fully transparent
 
-            if (_transitionRenderer != null) _transitionRenderer.SetEnabled(false);
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(false);
+            };
         }
 
         private static IEnumerator FadeOutAndLoad(string sceneName)
@@ -128,56 +126,6 @@ namespace SliceEngine
             if (_transitionRenderer != null)
             {
                 
-                Vector4 color = _transitionRenderer.Colour;
-                color.w = alpha;
-                _transitionRenderer.Colour = color;
-            }
-        }
-
-
-        
-
-        private static IEnumerator FadeInRoutine()
-        {
-            float elapsedTime = 0f;
-            SetRectAlpha(1.0f); // Start black
-
-            while (elapsedTime < TransitionDuration)
-            {
-                elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
-                float alpha = Utilities.Lerp(1.0f, 0.0f, t); // 1 -> 0
-
-                SetRectAlpha(alpha);
-                yield return null;
-            }
-            SetRectAlpha(0.0f); // Ensure fully transparent
-        }
-
-        private static IEnumerator FadeOutAndLoad(string sceneName)
-        {
-            float elapsedTime = 0f;
-            SetRectAlpha(0.0f); // Start transparent
-
-            while (elapsedTime < TransitionDuration)
-            {
-                elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
-                float alpha = Utilities.Lerp(0.0f, 1.0f, t); // 0 -> 1
-
-                SetRectAlpha(alpha);
-                yield return null;
-            }
-            SetRectAlpha(1.0f); // Ensure fully black
-
-            // Now that screen is black, load the next scene
-            FunctionCalls.Scene_LoadScene(sceneName);
-        }
-
-        private static void SetRectAlpha(float alpha)
-        {
-            if (_transitionRenderer != null)
-            {
                 Vector4 color = _transitionRenderer.Colour;
                 color.w = alpha;
                 _transitionRenderer.Colour = color;
