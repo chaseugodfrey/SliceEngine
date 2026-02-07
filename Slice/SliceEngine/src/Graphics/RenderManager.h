@@ -51,6 +51,7 @@ namespace SliceEngine
 		// Rendering functions
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
+		void ForceCamNormalVP(Entity cam);
 		void BindCameraDepth(Entity cam);
 		// Rendering calls
 		void Render();
@@ -82,16 +83,17 @@ namespace SliceEngine
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
-		const float mLightZDist = 5.f;
+		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 175.f;
+		const float mMinShadowSize = 20.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
-		const int mNumCascadeShadow = 6;
-		const float shadowCascadeLevels[6] {50.f, 25.f, 10.f, 5.f, 2.f, 1.05f};
+		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
+		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -237,6 +239,7 @@ namespace SliceEngine
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
+		glm::vec3 cameraPos;
 
 		std::vector<glm::mat4> mDebugDrawRays;
 
