@@ -21,6 +21,7 @@ namespace SliceEngine
                 settingsPopup.SetActive(false);
             }
 
+
         }
 
         public void StartGame(string sceneName)
@@ -29,6 +30,11 @@ namespace SliceEngine
             {
                 SceneManager.LoadScene(sceneName);
             }
+        }
+
+        public void BackToMenu()
+        {
+            SceneManager.LoadScene("MenuScene");
         }
 
         public void QuitGame()

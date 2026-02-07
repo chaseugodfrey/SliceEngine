@@ -8,7 +8,8 @@ namespace SliceEngine
         public int buttonType = 0;
         public string sceneToLoad = "";
 
-        private MainMenuController controller;
+        private MainMenuController mainController;
+        private GameSettings gameSettingsController;
         private AudioSource btnAudio;
 
         public override void OnCreate()
@@ -18,7 +19,13 @@ namespace SliceEngine
 
             if (controllerObj != null)
             {
-                controller = controllerObj.As<MainMenuController>();
+                mainController = controllerObj.As<MainMenuController>();
+            }
+
+            GameObject settingsObj = FindGameObjectWithName("GameManager");
+            if (settingsObj != null)
+            {
+                gameSettingsController = settingsObj.As<GameSettings>();
             }
 
             GameObject audioObj = FindGameObjectWithName("MainMenu_Sfx");
@@ -30,26 +37,35 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-            if (controller == null) 
-            { 
-                return; 
+            if (mainController != null)
+            {
+                if (buttonType == 0) mainController.StartGame(sceneToLoad);
+                else if (buttonType == 1) mainController.OpenSettings();
+                else if (buttonType == 2) mainController.QuitGame();
+                else if (buttonType == 3) mainController.CloseSettings();
+                else if (buttonType == 4) mainController.BackToMenu();
             }
 
-            if (buttonType == 0) // Play
+            // --- GAME SCENE ACTIONS ---
+            if (gameSettingsController != null)
             {
-                controller.StartGame(sceneToLoad);
+                if (buttonType == 5) // Resume
+                {
+                    gameSettingsController.ResumeGame();
+                }
+                else if (buttonType == 1) // Open Settings (Sub-menu)
+                {
+                    gameSettingsController.OpenSubSettings();
+                }
+                else if (buttonType == 3) // Close Settings (Back button inside popup)
+                {
+                    gameSettingsController.CloseSubSettings();
+                }
             }
-            else if (buttonType == 1) // Settings
+
+            if (buttonType == 4)
             {
-                controller.OpenSettings();
-            }
-            else if (buttonType == 2) // Quit
-            {
-                controller.QuitGame();
-            }
-            else if (buttonType == 3) // Close Settings
-            {
-                controller.CloseSettings();
+                SceneManager.LoadScene("MenuScene");
             }
         }
 
