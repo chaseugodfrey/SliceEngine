@@ -17,18 +17,17 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            rect = FindGameObjectWithName("Transition");
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+
+            if (sr != null)
+            {
+                SceneManager.RegisterTransition(this, sr);
+            }
         }
 
         public override void OnUpdate(float dt)
         {
-            SpriteRenderer image = rect.GetComponent<SpriteRenderer>();
-
-            elapsedTime += dt;
-
-            t = Clamp<float>(t, 0, elapsedTime); // Normalize t to 0-1
-            float result = a + (b - a) * t; // Becomes 0 + (1-0) * t
-
+            
         }
     }
 }

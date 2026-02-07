@@ -20,30 +20,14 @@
                         1.0,
                         1.0
                     ],
-                    "colourMap": "",
+                    "colourMapIntermediary": [],
                     "colourOverLifetime": true,
-                    "colourOverLifetimeEnd": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
                     "coneArc": 90.0,
                     "coneRadius": 0.10000000149011612,
                     "destroyOnExpire": false,
                     "duration": 8.199999809265137,
                     "emissionRate": 19.299999237060547,
                     "endOrbitVelocity": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "endScaleMultiplier": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "endVelocityMultiplier": [
                         0.0,
                         0.0,
                         0.0
@@ -126,6 +110,7 @@
                     "scaleType": 0,
                     "shapeRadius": 0.10000000149011612,
                     "shapeType": "SPHERE",
+                    "sizeMapIntermediary": [],
                     "sizeOverLifetime": false,
                     "sizeSeparateAxis": false,
                     "spawnPos": [
@@ -142,29 +127,21 @@
                         1.0,
                         1.0
                     ],
-                    "startScaleMultiplier": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "startVelocityMultiplier": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
                     "stickiness": 0.0,
                     "textureGUID": "10119110391915830736",
                     "textureHandle": {
                         "GUID": ""
                     },
-                    "velocityOverLifetime": false
+                    "velocityMapIntermediary": [],
+                    "velocityOverLifetime": false,
+                    "velocitySeparateAxis": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 34603152,
+                    "entity_id": 3145732,
                     "neighbours": [
                         0,
                         4294967295,
-                        37748913,
+                        3145765,
                         4294967295
                     ]
                 },
@@ -228,12 +205,12 @@
                     "width": 500
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651729,
+                    "entity_id": 3145733,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
-                        35651732,
-                        35651751
+                        3145736,
+                        3145755
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -282,11 +259,11 @@
                     "width": 50
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651730,
+                    "entity_id": 3145734,
                     "neighbours": [
-                        35651732,
+                        3145736,
                         4294967295,
-                        35651731,
+                        3145735,
                         4294967295
                     ]
                 },
@@ -347,12 +324,12 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651731,
+                    "entity_id": 3145735,
                     "neighbours": [
-                        35651732,
+                        3145736,
                         4294967295,
                         4294967295,
-                        35651730
+                        3145734
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -412,17 +389,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651732,
+                    "entity_id": 3145736,
                     "neighbours": [
-                        35651734,
-                        35651731,
-                        35651733,
-                        35651729
+                        3145738,
+                        3145735,
+                        3145737,
+                        3145733
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -463,8 +444,8 @@
                     "Axis": "X_Axis",
                     "Direction": "Positive",
                     "enabled": true,
-                    "fill": 35651731,
-                    "handle": 35651730,
+                    "fill": 3145735,
+                    "handle": 3145734,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -518,12 +499,12 @@
                     "width": 1100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651733,
+                    "entity_id": 3145737,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
                         4294967295,
-                        35651732
+                        3145736
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -592,11 +573,11 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651734,
+                    "entity_id": 3145738,
                     "neighbours": [
-                        35651740,
-                        35651733,
-                        35651747,
+                        3145744,
+                        3145737,
+                        3145751,
                         4294967295
                     ]
                 },
@@ -670,17 +651,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651735,
+                    "entity_id": 3145739,
                     "neighbours": [
-                        35651742,
-                        35651748,
-                        35651743,
-                        35651745
+                        3145746,
+                        3145752,
+                        3145747,
+                        3145749
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -782,11 +767,11 @@
                     "width": 500
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651736,
+                    "entity_id": 3145740,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
-                        37748911,
+                        3145763,
                         4294967295
                     ]
                 },
@@ -857,7 +842,7 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651737,
+                    "entity_id": 3145741,
                     "neighbours": [
                         1048662,
                         4294967295,
@@ -942,17 +927,21 @@
                     "width": 650
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651738,
+                    "entity_id": 3145742,
                     "neighbours": [
                         3145811,
-                        35651739,
-                        35651738,
+                        3145743,
+                        3145742,
                         4294967295
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -1061,9 +1050,9 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651739,
+                    "entity_id": 3145743,
                     "neighbours": [
-                        35651738,
+                        3145742,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1103,12 +1092,12 @@
         {
             "MainMenu": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651740,
+                    "entity_id": 3145744,
                     "neighbours": [
                         0,
-                        35651741,
+                        3145745,
                         4294967295,
-                        35651750
+                        3145754
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1150,7 +1139,7 @@
                     "bloomStrength": 0.4000000059604645,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 34,
+                    "depthTex": 32,
                     "far": 200.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -1173,12 +1162,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651741,
+                    "entity_id": 3145745,
                     "neighbours": [
-                        35651740,
+                        3145744,
                         4294967295,
                         4294967295,
-                        35651742
+                        3145746
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -1246,12 +1235,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651742,
+                    "entity_id": 3145746,
                     "neighbours": [
-                        35651740,
-                        35651743,
-                        35651741,
-                        35651747
+                        3145744,
+                        3145747,
+                        3145745,
+                        3145751
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1324,17 +1313,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651743,
+                    "entity_id": 3145747,
                     "neighbours": [
-                        35651742,
-                        35651744,
+                        3145746,
+                        3145748,
                         4294967295,
-                        35651735
+                        3145739
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": "M4 Level 1"
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -1436,9 +1429,9 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651744,
+                    "entity_id": 3145748,
                     "neighbours": [
-                        35651743,
+                        3145747,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1514,17 +1507,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651745,
+                    "entity_id": 3145749,
                     "neighbours": [
-                        35651742,
-                        35651746,
-                        35651735,
-                        35651749
+                        3145746,
+                        3145750,
+                        3145739,
+                        3145753
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -1626,9 +1623,9 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651746,
+                    "entity_id": 3145750,
                     "neighbours": [
-                        35651745,
+                        3145749,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1687,12 +1684,12 @@
                     "volumeRollOff": "Logarithmic"
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651747,
+                    "entity_id": 3145751,
                     "neighbours": [
-                        35651740,
+                        3145744,
                         4294967295,
-                        35651742,
-                        35651734
+                        3145746,
+                        3145738
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1755,9 +1752,9 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651748,
+                    "entity_id": 3145752,
                     "neighbours": [
-                        35651735,
+                        3145739,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1809,12 +1806,12 @@
                     "width": 1403
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651749,
+                    "entity_id": 3145753,
                     "neighbours": [
-                        35651742,
+                        3145746,
                         4294967295,
-                        35651745,
-                        4294967295
+                        3145749,
+                        3145766
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1881,12 +1878,12 @@
                     "volumeRollOff": "Logarithmic"
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651750,
+                    "entity_id": 3145754,
                     "neighbours": [
                         0,
                         4294967295,
-                        35651740,
-                        37748912
+                        3145744,
+                        3145764
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1935,17 +1932,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651751,
+                    "entity_id": 3145755,
                     "neighbours": [
-                        35651734,
-                        35651752,
-                        35651729,
-                        36700330
+                        3145738,
+                        3145756,
+                        3145733,
+                        3145758
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -1986,8 +1987,8 @@
                     "Axis": "X_Axis",
                     "Direction": "Positive",
                     "enabled": true,
-                    "fill": 35651752,
-                    "handle": 35651753,
+                    "fill": 3145756,
+                    "handle": 3145757,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -2041,12 +2042,12 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651752,
+                    "entity_id": 3145756,
                     "neighbours": [
-                        35651751,
+                        3145755,
                         4294967295,
                         4294967295,
-                        35651753
+                        3145757
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2106,11 +2107,11 @@
                     "width": 50
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 35651753,
+                    "entity_id": 3145757,
                     "neighbours": [
-                        35651751,
+                        3145755,
                         4294967295,
-                        35651752,
+                        3145756,
                         4294967295
                     ]
                 },
@@ -2185,12 +2186,12 @@
                     "width": 500
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 36700330,
+                    "entity_id": 3145758,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
-                        35651751,
-                        37748907
+                        3145755,
+                        3145759
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2239,17 +2240,21 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748907,
+                    "entity_id": 3145759,
                     "neighbours": [
-                        35651734,
-                        37748908,
-                        36700330,
-                        37748910
+                        3145738,
+                        3145760,
+                        3145758,
+                        3145762
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": true
@@ -2290,8 +2295,8 @@
                     "Axis": "X_Axis",
                     "Direction": "Positive",
                     "enabled": true,
-                    "fill": 37748908,
-                    "handle": 37748909,
+                    "fill": 3145760,
+                    "handle": 3145761,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -2345,12 +2350,12 @@
                     "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748908,
+                    "entity_id": 3145760,
                     "neighbours": [
-                        37748907,
+                        3145759,
                         4294967295,
                         4294967295,
-                        37748909
+                        3145761
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2410,11 +2415,11 @@
                     "width": 50
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748909,
+                    "entity_id": 3145761,
                     "neighbours": [
-                        37748907,
+                        3145759,
                         4294967295,
-                        37748908,
+                        3145760,
                         4294967295
                     ]
                 },
@@ -2489,12 +2494,12 @@
                     "width": 500
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748910,
+                    "entity_id": 3145762,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
-                        37748907,
-                        37748911
+                        3145759,
+                        3145763
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2567,17 +2572,21 @@
                     "width": 325
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748911,
+                    "entity_id": 3145763,
                     "neighbours": [
-                        35651734,
+                        3145738,
                         4294967295,
-                        37748910,
-                        35651736
+                        3145762,
+                        3145740
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.MainMenuButtons",
                     "scriptableFieldMap": {
+                        "SceneToLoad": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
                         "isBGMVolumeSlider": {
                             "Type": "bool",
                             "Value": false
@@ -2665,12 +2674,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748912,
+                    "entity_id": 3145764,
                     "neighbours": [
                         0,
                         4294967295,
-                        35651750,
-                        37748913
+                        3145754,
+                        3145765
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2723,30 +2732,14 @@
                         0.5411764979362488,
                         0.9725490212440491
                     ],
-                    "colourMap": "",
+                    "colourMapIntermediary": [],
                     "colourOverLifetime": true,
-                    "colourOverLifetimeEnd": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
                     "coneArc": 0.0,
                     "coneRadius": 0.0,
                     "destroyOnExpire": false,
                     "duration": 2.0,
                     "emissionRate": 100.0,
                     "endOrbitVelocity": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "endScaleMultiplier": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "endVelocityMultiplier": [
                         0.0,
                         0.0,
                         0.0
@@ -2829,6 +2822,7 @@
                     "scaleType": 1,
                     "shapeRadius": 34.599998474121094,
                     "shapeType": "SPHERE",
+                    "sizeMapIntermediary": [],
                     "sizeOverLifetime": true,
                     "sizeSeparateAxis": false,
                     "spawnPos": [
@@ -2845,22 +2839,14 @@
                         1.0,
                         1.0
                     ],
-                    "startScaleMultiplier": [
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "startVelocityMultiplier": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
                     "stickiness": 1.0,
                     "textureGUID": "",
                     "textureHandle": {
                         "GUID": ""
                     },
-                    "velocityOverLifetime": true
+                    "velocityMapIntermediary": [],
+                    "velocityOverLifetime": true,
+                    "velocitySeparateAxis": false
                 },
                 "struct SliceEngine::Renderer": {
                     "componentEnabled": true,
@@ -2875,12 +2861,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 37748913,
+                    "entity_id": 3145765,
                     "neighbours": [
                         0,
                         4294967295,
-                        37748912,
-                        34603152
+                        3145764,
+                        3145732
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2910,6 +2896,74 @@
                         0.3636098802089691,
                         0.19313809275627136,
                         0.2857281267642975
+                    ]
+                }
+            }
+        },
+        {
+            "TransitionRect": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0,
+                    "height": 1080,
+                    "hori_pivot": "Center",
+                    "left": 0,
+                    "pos_x": 0,
+                    "pos_y": 0,
+                    "right": 0,
+                    "top": 0,
+                    "vert_pivot": "Middle",
+                    "width": 1920
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 3145766,
+                    "neighbours": [
+                        3145746,
+                        4294967295,
+                        3145753,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.SceneTransition"
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "TransitionRect",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "texture": "11697903386653029786"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 }
             }
