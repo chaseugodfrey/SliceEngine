@@ -9,12 +9,12 @@ namespace SliceEngine
     public class EditorTest : SliceBehaviour
     {
         //public bool boolTest = false;
-        //public GameObject GOtest;
+        public GameObject GOtest;
         //private float t = 0.0f;
         //public Prefab prefabObj = new Prefab();
 
         //public List<int> intList = new List<int>();
-        //public List<GameObject> goListTest = new List<GameObject>();
+        public List<GameObject> goListTest = new List<GameObject>();
         //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {

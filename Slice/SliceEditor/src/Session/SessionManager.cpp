@@ -19,6 +19,7 @@ namespace SliceEditor
 	{
 		mPrefabInspected = false;
 		mShowHierarchyEntityIDs = false;
+		mHighlightGOs = false;
 		auto* eventManager = EventManager::GetInstance();
 
 		eventManager->Subscribe<OnSceneLoadedEvent, &SessionManager::OnSceneChange>(this);
@@ -26,6 +27,7 @@ namespace SliceEditor
 		eventManager->Subscribe<OnSceneSaveEvent, &SessionManager::OnSceneSave>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
+		eventManager->Subscribe<GameObjectScriptSelected, &SessionManager::HighlightGameObjects>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
 		//CreateEntityNodes();
@@ -38,6 +40,26 @@ namespace SliceEditor
 		if (!mPrefabInspected && !mPrefabNodes.empty())
 		{
 			mPrefabNodes.clear();
+		}
+
+		if (mHighlightGOs)
+		{
+			mGOScriptTimer -= SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+
+			if (mGOScriptTimer <= FLT_EPSILON)
+			{
+				mGOScriptTimer = 0.0f;
+				for (auto entity : mHighlightedGameObjects)
+				{
+					if (mEntityNodes.find(entity) != mEntityNodes.end())
+					{
+						mEntityNodes[entity].get()->isScriptSelected = false;
+					}
+				}
+
+				mHighlightedGameObjects.clear();
+				mHighlightGOs = false;
+			}
 		}
 	}
 
@@ -99,47 +121,6 @@ namespace SliceEditor
 			}
 		}
 	}
-
-	/*void SessionManager::CreateEntityNodes()
-	{
-		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SceneGraph>();
-		auto prefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
-		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
-
-		if (view.size() != mEntityNodes.size())
-		{
-			//mEntityNodes.clear();
-			for (auto entity : view)
-			{
-				mEntityNodes.try_emplace(entity, std::make_unique<EntityNode>(entity));
-
-				for (auto node : selectionMan->GetSelectedNodes())
-				{
-					if (node->type == SelectionType::ENTITY)
-					{
-						mEntityNodes[entity].get()->isSelected = node->isSelected;
-					}
-				}
-				
-			}
-
-			for (auto entity : prefabView)
-			{
-				mEntityNodes[entity].get()->isPrefab = true;
-			}
-		}
-		
-		if (prefabView.size() != mPrefabNodes.size())
-		{
-			mPrefabNodes.clear();
-			for (auto entity : prefabView)
-			{
-				mPrefabNodes.emplace(entity, std::make_unique<EntityNode>(entity));
-				mPrefabNodes[entity].get()->isPrefab = true;
-				mPrefabNodes[entity].get()->type = SelectionType::PREFAB_ENTITY;
-			}
-		}
-	}*/
 
 	void SessionManager::UpdateEntityNodes()
 	{
@@ -238,6 +219,20 @@ namespace SliceEditor
 	void SessionManager::RemoveEntityNode(entt::entity entity)
 	{
 		mEntityNodes.erase(entity);
+	}
+
+	void SessionManager::HighlightGameObjects(const GameObjectScriptSelected& event)
+	{
+		mGOScriptTimer = 5.0f; //TODO Add to Preferences
+		mHighlightGOs = true;
+		for (auto entity : event.entities)
+		{
+			mHighlightedGameObjects.push_back(entity);
+			if (mEntityNodes.find(entity) != mEntityNodes.end())
+			{
+				mEntityNodes[entity].get()->isScriptSelected = true;
+			}
+		}
 	}
 		
 	void SessionManager::OnSceneChange(const OnSceneLoadedEvent& event)

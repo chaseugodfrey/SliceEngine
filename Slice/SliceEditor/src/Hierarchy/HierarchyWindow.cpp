@@ -103,6 +103,11 @@ namespace SliceEditor
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 0.5);
 		}
 
+		if (node->isScriptSelected)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 0, 255));
+		}
+
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
 		bool itemHovered = ImGui::IsItemHovered();
@@ -128,6 +133,11 @@ namespace SliceEditor
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::InactiveEntity>(node->entity))
 		{
 			ImGui::PopStyleVar();
+		}
+
+		if (node->isScriptSelected)
+		{
+			ImGui::PopStyleColor();
 		}
 		// check inputs
 

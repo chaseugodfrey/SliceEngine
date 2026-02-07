@@ -444,19 +444,30 @@ namespace SliceEditor
 		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
 
-		ImGui::BeginDisabled();
+		if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+		{
+			Entity entity = val.GetEntity();
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			{
+				GameObjectScriptSelected event;
+				event.entities.push_back(entity);
+				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+			}
+		}
+
+		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
 		{
 			std::string empty = " ";
-			ImGui::InputText(id, &empty);
+			ImGui::InputText(id, &empty,ImGuiInputTextFlags_ReadOnly);
 		}
 		else
 		{
 			//wtf is this bs
 			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
-			ImGui::InputText(id, &goName);
+			ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
 		}
-		ImGui::EndDisabled();
+		//ImGui::EndDisabled();
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -542,26 +553,6 @@ namespace SliceEditor
 
 		return changed;
 	}
-	//	val.GetName();
-
-	//	ImGui::BeginDisabled();
-	//	bool changed = ImGui::InputText(id, &val.GetName(),ImGuiInputTextFlags_ReadOnly);
-	//	ImGui::EndDisabled();
-
-	//	if (ImGui::IsItemActivated())
-	//		oldVal = val;
-
-	//	if (ImGui::IsItemDeactivatedAfterEdit())
-	//	{
-	//		if (oldVal != val)
-	//		{
-	//			std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
-	//			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-	//		}
-	//	}
-
-	//	return changed;
-	//}
 
 #pragma endregion
 
@@ -812,10 +803,22 @@ namespace SliceEditor
 		static std::vector<SliceEngine::GameObject > oldList{};
 		int idx = 0;
 		bool changed = false;
+		bool publishEvent = false;
+		GameObjectScriptSelected event;
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
 		{
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			{
+				publishEvent = true;
+			}
 			for (auto& entry : list)
 			{
+				if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+				{
+					Entity entity = entry.GetEntity();
+					event.entities.push_back(entity);
+				}
+
 				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
@@ -885,6 +888,11 @@ namespace SliceEditor
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}*/
 				changed = true;
+			}
+
+			if (publishEvent)
+			{
+				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
 			}
 
 			ImGui::TreePop();
