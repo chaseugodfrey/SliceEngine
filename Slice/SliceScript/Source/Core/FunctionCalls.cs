@@ -17,6 +17,12 @@ namespace SliceEngine
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_LoadScene(string sceneName);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Scene_UnloadCurrentScene();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void QuitGame();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -93,8 +99,8 @@ namespace SliceEngine
 
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
-        
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal, bool triggerInteraction, uint mask);
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
 
@@ -129,6 +135,19 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_SetVolume(uint entityID, float volume);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetCategoryVolume(string category, ref float volume);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetCategoryVolume(string category);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetMasterVolume(float volume);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Audio_GetMasterVolume();
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Audio_GetVolume(uint entityID);
 
@@ -525,10 +544,10 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetBool(uint entity, string parameter, bool val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetInt(uint entity, string parameter, int val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetFloat(uint entity, string parameter, float val);
 
