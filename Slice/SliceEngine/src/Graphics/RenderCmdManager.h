@@ -104,6 +104,7 @@ namespace SliceEngine
 
 		RenderCmdManager();
 		~RenderCmdManager();
+		void HandlePlayEvent(const OnPlayEvent& event);
 		void GatherDrawCalls();
 		void SetVP(glm::mat4& V, glm::mat4& P);
 		void SortTranslucent(Entity camEntity);
