@@ -38,8 +38,34 @@ namespace SliceEngine
             //int index = _loadedScenes.Count;
             //var scene = new Scene(name, index);
 
+
             //_loadedScenes.Add(scene);
             //_activeScene = scene;
+            //_loadedScenes.Add(scene);
+            //_activeScene = scene;
+
+            //SceneLoaded?.Invoke(scene);
+            //ActiveSceneChanged?.Invoke(scene);
+            if (_transitionRunner != null && _transitionRenderer != null)
+            {
+                _transitionRunner.StartCoroutine(FadeOutAndLoad(name));
+            }
+            else
+            {
+                
+                FunctionCalls.Scene_LoadScene(name);
+            }
+            
+
+            //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
+        }
+
+        public static void LoadScene(Scene scene)
+        {
+            //FunctionCalls.Scene_Load(scene.Name);
+
+            _loadedScenes.Add(scene);
+            _activeScene = scene;
 
             //SceneLoaded?.Invoke(scene);
             //ActiveSceneChanged?.Invoke(scene);
@@ -108,17 +134,69 @@ namespace SliceEngine
             }
         }
 
-        public static void LoadScene(Scene scene)
+
+        
+
+        private static IEnumerator FadeInRoutine()
         {
-            //FunctionCalls.Scene_Load(scene.Name);
-            _loadedScenes.Add(scene);
-            _activeScene = scene;
+            float elapsedTime = 0f;
+            SetRectAlpha(1.0f); // Start black
 
-            SceneLoaded?.Invoke(scene);
-            ActiveSceneChanged?.Invoke(scene);
+            while (elapsedTime < TransitionDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
+                float alpha = Utilities.Lerp(1.0f, 0.0f, t); // 1 -> 0
 
-            //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+                SetRectAlpha(alpha);
+                yield return null;
+            }
+            SetRectAlpha(0.0f); // Ensure fully transparent
         }
+
+        private static IEnumerator FadeOutAndLoad(string sceneName)
+        {
+            float elapsedTime = 0f;
+            SetRectAlpha(0.0f); // Start transparent
+
+            while (elapsedTime < TransitionDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
+                float alpha = Utilities.Lerp(0.0f, 1.0f, t); // 0 -> 1
+
+                SetRectAlpha(alpha);
+                yield return null;
+            }
+            SetRectAlpha(1.0f); // Ensure fully black
+
+            // Now that screen is black, load the next scene
+            FunctionCalls.Scene_LoadScene(sceneName);
+        }
+
+        private static void SetRectAlpha(float alpha)
+        {
+            if (_transitionRenderer != null)
+            {
+                Vector4 color = _transitionRenderer.Colour;
+                color.w = alpha;
+                _transitionRenderer.Colour = color;
+            }
+        }
+
+        //Putting it here first cause idk where else to put it
+        // public static void QuitGame()
+        //public static void LoadScene(Scene scene)
+        // {
+        //     //FunctionCalls.Scene_Load(scene.Name);
+        //     _loadedScenes.Add(scene);
+        //     _activeScene = scene;
+
+        //     SceneLoaded?.Invoke(scene);
+        //     ActiveSceneChanged?.Invoke(scene);
+
+        //     //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+        // }
 
         //Putting it here first cause idk where else to put it
         public static void QuitGame()
