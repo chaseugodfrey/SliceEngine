@@ -86,8 +86,12 @@ namespace SliceEngine
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if(core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			{
+				if (!rend.materialInstance.albedo.IsValid() || !rend.materialInstance.shader.IsValid())
+					rend.materialInstance = *(rend.materialHandle.get());
 				material = &rend.materialInstance;
+			}
 			else
 				material = rend.materialHandle.get();
 
@@ -479,7 +483,11 @@ namespace SliceEngine
 		{
 			const SliceEngine::SliceEngineTypes::Material* material;
 			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			{
+				if (!rend.materialInstance.albedo.IsValid() || !rend.materialInstance.shader.IsValid())
+					rend.materialInstance = *(rend.materialHandle.get());
 				material = &rend.materialInstance;
+			}
 			else
 				material = rend.materialHandle.get();
 
