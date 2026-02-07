@@ -38,6 +38,9 @@ namespace SliceEngine
             //int index = _loadedScenes.Count;
             //var scene = new Scene(name, index);
 
+
+            //_loadedScenes.Add(scene);
+            //_activeScene = scene;
             //_loadedScenes.Add(scene);
             //_activeScene = scene;
 
@@ -53,13 +56,31 @@ namespace SliceEngine
                 FunctionCalls.Scene_LoadScene(name);
             }
 
+
+            //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
+        }
+
+        public static void LoadScene(Scene scene)
+        {
+            //FunctionCalls.Scene_Load(scene.Name);
+
+            _loadedScenes.Add(scene);
+            _activeScene = scene;
+
+            //SceneLoaded?.Invoke(scene);
+            //ActiveSceneChanged?.Invoke(scene);
+            
+
             //Console.WriteLine($"[SceneManager] Loaded scene: {name}");
         }
 
         private static IEnumerator FadeInRoutine()
         {
             float elapsedTime = 0f;
-
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(true);
+            }
             SetRectAlpha(1.0f); // Start black
 
             while (elapsedTime < TransitionDuration)
@@ -73,7 +94,10 @@ namespace SliceEngine
             }
             SetRectAlpha(0.0f); // Ensure fully transparent
 
-            if (_transitionRenderer != null) _transitionRenderer.SetEnabled(false);
+            if (_transitionRenderer != null)
+            {
+                _transitionRenderer.SetEnabled(false);
+            };
         }
 
         private static IEnumerator FadeOutAndLoad(string sceneName)
@@ -108,17 +132,19 @@ namespace SliceEngine
             }
         }
 
-        public static void LoadScene(Scene scene)
-        {
-            //FunctionCalls.Scene_Load(scene.Name);
-            _loadedScenes.Add(scene);
-            _activeScene = scene;
+        //Putting it here first cause idk where else to put it
+        // public static void QuitGame()
+        //public static void LoadScene(Scene scene)
+        // {
+        //     //FunctionCalls.Scene_Load(scene.Name);
+        //     _loadedScenes.Add(scene);
+        //     _activeScene = scene;
 
-            SceneLoaded?.Invoke(scene);
-            ActiveSceneChanged?.Invoke(scene);
+        //     SceneLoaded?.Invoke(scene);
+        //     ActiveSceneChanged?.Invoke(scene);
 
-            //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
-        }
+        //     //Console.WriteLine($"[SceneManager] Loaded scene object: {scene.name}");
+        // }
 
         //Putting it here first cause idk where else to put it
         public static void QuitGame()
