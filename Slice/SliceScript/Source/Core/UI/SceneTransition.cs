@@ -10,10 +10,8 @@ namespace SliceEngine
 {
     public class SceneTransition : SliceBehaviour
     {
-        GameObject rect;
-        float duration = 2.0f;
-        float elapsedTime = 0.0f;
-        float t = 0.0f;
+  
+        
 
         public override void OnCreate()
         {
@@ -28,6 +26,9 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             
+
         }
+
+        
     }
 }
