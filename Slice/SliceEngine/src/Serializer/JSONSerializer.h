@@ -286,6 +286,68 @@ namespace SliceEngine
 			}
 		}
 
+		template<>
+		inline void Serialize<std::map<float, glm::vec3>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::map<float, glm::vec3>& value, const Entity& entity)
+		{
+			for (const auto& [k, v] : value)
+			{
+				output[name][typeName][propName][std::to_string(k)] =
+				{
+					v.x, v.y, v.z
+				};
+			}
+		}
+
+		template<>
+		inline void Serialize<std::map<float, glm::vec4>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::map<float, glm::vec4>& value, const Entity& entity)
+		{
+			for (const auto& [k, v] : value)
+			{
+				output[name][typeName][propName][std::to_string(k)] =
+				{
+					v.x, v.y, v.z, v.w
+				};
+			}
+		}
+
+		template<>
+		inline void Serialize<std::vector<std::pair<float, glm::vec3>>>(
+			json& output,
+			const std::string& name,
+			const std::string_view& typeName,
+			const std::string& propName,
+			const std::vector<std::pair<float, glm::vec3>>& value,
+			const Entity& entity)
+		{
+			json& arr = output[name][typeName][propName]; // JSON array for the pairs
+			arr = json::array();
+
+			for (const auto& [k, v] : value)
+			{
+				arr.push_back({ k, { v.x, v.y, v.z } }); // pair as [float, vec3 array]
+			}
+		}
+
+		template<>
+		inline void Serialize<std::vector<std::pair<float, glm::vec4>>>(
+			json& output,
+			const std::string& name,
+			const std::string_view& typeName,
+			const std::string& propName,
+			const std::vector<std::pair<float, glm::vec4>>& value,
+			const Entity& entity)
+		{
+			json& arr = output[name][typeName][propName]; // JSON array for the pairs
+			arr = json::array();
+
+			for (const auto& [k, v] : value)
+			{
+				arr.push_back({ k, { v.x, v.y, v.z, v.w } }); // pair as [float, vec4 array]
+			}
+		}
+
 
 		// Handle
 		template<typename T>
@@ -375,13 +437,14 @@ namespace SliceEngine
 				}
 				else
 				{
-					// Base case � just add the element
+					// Base case, just add the element
 					result.push_back(elem);
 				}
 			}
 
 			prop.set_value(componentInstance, result);
 		}
+
 
 		// For generic strings + special exceptions
 		template <>
@@ -688,14 +751,11 @@ namespace nlohmann
 		{
 			throw std::runtime_error("Invalid JSON type for unsigned char: " + j.dump());
 		}
-	}
+	}	
 }
-
-
 
 namespace SliceEngine
 {
-
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{
@@ -790,7 +850,42 @@ namespace SliceEngine
 		}
 	}
 
-	//GameObject
+	inline void from_json(const json& j, std::map<float, glm::vec3>& map)
+	{
+		map.clear();
+
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			const json& v = it.value();
+
+			glm::vec3 vec{};
+			vec.x = v.at(0).get<float>();
+			vec.y = v.at(1).get<float>();
+			vec.z = v.at(2).get<float>();
+
+			map.emplace(std::stof(it.key()), vec);
+		}
+	}
+
+	inline void from_json(const json& j, std::map<float, glm::vec4>& map)
+	{
+		map.clear();
+
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			const json& v = it.value();
+
+			glm::vec4 vec{};
+			vec.x = v.at(0).get<float>();
+			vec.y = v.at(1).get<float>();
+			vec.z = v.at(2).get<float>();
+			vec.w = v.at(3).get<float>();
+
+			map.emplace(std::stof(it.key()), vec);
+		}
+	}
+
+	// GameObject
 	// From Json doesnt work because mRegistry should not be accessible in this file
 	inline void from_json(const json& j, GameObject& go)
 	{
@@ -856,6 +951,57 @@ namespace glm
 	inline void to_json(json& j, const glm::quat& q)
 	{
 		j = json::array({ q.w, q.x, q.y, q.z });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec3>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key()); // JSON object keys are strings
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 3)
+				throw std::runtime_error("Invalid JSON array for vec3");
+
+			glm::vec3 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec3>& p)
+	{
+		j = json::array({ p.first, p.second });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec4>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key());
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 4)
+				throw std::runtime_error("Invalid JSON array for vec4");
+
+			glm::vec4 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+			value.w = arr[3].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec4>& p)
+	{
+		j = json::array({ p.first, p.second });
 	}
 }
 
@@ -971,7 +1117,6 @@ namespace rttr
 			if (typeName == "SliceEngine::PrefabVar")
 			{
 				return rttr::variant(SliceEngine::PrefabVar{ valueJson.get<std::string>() });
-
 			}
 
 			return rttr::variant(valueJson.get<std::string>());
