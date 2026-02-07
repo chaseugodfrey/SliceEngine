@@ -220,15 +220,16 @@ namespace SliceEngine
         {
             //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
             CreateGameObject("Prefabs/Sparks.prefab").GetComponent<Transform>().Position = transform.Position;
-            SliceLog.Console("ENEMY IS BEING HIT"); 
+            SliceLog.Console("ENEMY IS BEING HIT");
 
         }
 
         
         public override void OnDeath()
         {
+            CreateGameObject("Prefabs/SpawnerDeath.prefab").GetComponent<Transform>().Position = transform.Position;
             Bootstrap.LevelDirector.Win();
-            //this.gameObject.Destroy();   
+            //this.gameObject.Destroy(); 
         }
 
     }
