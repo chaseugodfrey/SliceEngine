@@ -2296,6 +2296,25 @@ namespace SliceEngine
 		}
 	}
 
+	static void SpriteRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			spriteRenderer.rgba = *color;
+		}
+	}
+	static void SpriteRenderer_GetColor(uint32_t entityID, glm::vec4* color_out) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			*color_out = spriteRenderer.rgba;
+		}
+	}
+
 	static float Slider_GetValue(uint32_t entityID)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -2326,7 +2345,29 @@ namespace SliceEngine
 		auto& slider = registry.get<Slider>(e);
 		slider.SetValue(value, e);
 	}
+#pragma endregion
 
+#pragma region Material
+	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.materialInstance.color = *color;
+		}
+	}
+	static void Material_GetColor(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*color = renderer.materialInstance.color;
+		}
+	}
 #pragma endregion
 
 #pragma region COMPONENT REGISTRATION
@@ -2367,9 +2408,9 @@ namespace SliceEngine
 		RegisterComponent<AudioSource>();
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<FontRenderer>();
+		RegisterComponent<Renderer>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
-		//RegisterComponent<Renderer>();
 		//RegisterComponent<TextRenderer>();
 	}
 
@@ -2635,6 +2676,12 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
 		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
 
+		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
+		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
+
+		// Material
+		ADD_INTERNAL_CALL(Material_SetColor);
+		ADD_INTERNAL_CALL(Material_GetColor);
 	}
 
 #pragma endregion

@@ -388,6 +388,9 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::CSV:
+			metaData = std::make_unique<CSVData>();
+			break;
 		case AssetType::Font:
 			metaData = std::make_unique<FontMetaData>();
 			break;

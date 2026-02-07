@@ -195,7 +195,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
+				//SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
 			}
 		}
 		if (agent.crowdAgentID != -1)
