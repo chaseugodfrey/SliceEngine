@@ -134,10 +134,12 @@ namespace SliceEngine
         {
             if (mID != 0)
             {
+                SliceLog.Log("Enemy dying with id: " + mID);
                 FunctionCalls.Destroy(mID);
                 CoroutineManager.EntityDestroyed(mID);
+                return;
             }
-
+            SliceLog.Log("Killing an enemy with 0 id");
             
             //mID = 0;
         }
@@ -146,5 +148,28 @@ namespace SliceEngine
         {
             FunctionCalls.Entity_SetActive(mID, input);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is GameObject other)
+            {
+                return this.mID == other.mID;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (int)mID;
+        }
+
+        public static bool operator ==(GameObject lhs, GameObject rhs)
+        {
+            if (ReferenceEquals(lhs, rhs)) return true;
+            if (lhs is null || rhs is null) return false;
+            return lhs.mID == rhs.mID;
+        }
+
+        public static bool operator !=(GameObject lhs, GameObject rhs) => !(lhs == rhs);
     }
 }
