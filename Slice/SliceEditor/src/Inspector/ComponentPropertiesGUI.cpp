@@ -734,7 +734,7 @@ namespace SliceEditor
 	}
 
 #pragma endregion
-
+	 
 #pragma region List Script Functions
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector< std::string>& list)
 	{
@@ -804,7 +804,7 @@ namespace SliceEditor
 		int idx = 0;
 		bool changed = false;
 		bool publishEvent = false;
-		GameObjectScriptSelected event;
+		GameObjectScriptSelected event; //not sure if this is a good idea
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
 		{
 			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
