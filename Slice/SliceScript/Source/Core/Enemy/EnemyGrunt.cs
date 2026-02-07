@@ -254,7 +254,8 @@ namespace SliceEngine
                 return;
             }
             //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse);
-           // ChangeState(new EnemyGruntStunnedState(this));
+            // ChangeState(new EnemyGruntStunnedState(this));
+            CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
             SliceLog.Console("ENEMY IS BEING HIT");
 
             StartCoroutine(DamageFlicker());

@@ -36,7 +36,7 @@ namespace SliceEngine
 
 		if (ps.resetPreview)
 		{
-			InitializeSystem(ps);
+			ResetSystem(ps, dt);
 			ps.resetPreview = false;
 		}
 
@@ -81,8 +81,10 @@ namespace SliceEngine
 	void ParticleSystemManager::InitializeSystem(ParticleSystem& ps)
 	{
 		ps.systemTimer = 0.0f;
+		ps.systemEnding = false;
+		ps.expired = false;
 		ps.particles.clear();
-		ps.particles.resize(ps.maxParticles);
+		ps.particles.resize(ps.maxParticles);		
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
 
@@ -128,7 +130,7 @@ namespace SliceEngine
 			{
 				ResetSystem(ps, dt);
 			}
-			else 
+			else if (!ps.playPreview)
 			{
 				ps.systemTimer = ps.duration;
 				ps.systemEnding = true;
@@ -198,7 +200,8 @@ namespace SliceEngine
 			}
 			ApplyVeloctiy(p, ps, dt);
 		}
-		if (!haveActiveParticle && ps.systemEnding)
+
+		if ((!haveActiveParticle && ps.systemEnding) && !ps.playPreview)
 		{
 			ps.expired = true;
 		}
