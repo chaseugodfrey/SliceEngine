@@ -21,22 +21,13 @@ namespace SliceEngine
                 settingsPopup.SetActive(false);
             }
 
-
-            if (MainMenuCanvas != null) 
-            {
-                MainMenuCanvas.SetActive(true); 
-            }
         }
 
         public void StartGame(string sceneName)
         {
-            if (!string.IsNullOrEmpty(sceneName))
+            if (sceneName != "")
             {
                 SceneManager.LoadScene(sceneName);
-            }
-            else
-            {
-                SliceLog.Log("MainMenuController: No scene name provided for StartGame!");
             }
         }
 
@@ -45,18 +36,19 @@ namespace SliceEngine
             SceneManager.QuitGame();
         }
 
-        public void ToggleSettings(bool isOpen)
+        public void OpenSettings()
         {
-            if (settingsPopup != null) 
-            { 
-                settingsPopup.SetActive(isOpen); 
-            }
-            if (MainMenuCanvas != null) 
-            { 
-                MainMenuCanvas.SetActive(!isOpen); 
-            }
+            if (settingsPopup != null) settingsPopup.SetActive(true);
+            
+            if(MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
 
-        
+        public void CloseSettings()
+        {
+            if (settingsPopup != null) settingsPopup.SetActive(false);
+            if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
+        }
+
+
     }
 }
