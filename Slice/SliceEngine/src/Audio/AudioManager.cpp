@@ -208,6 +208,13 @@ namespace SliceEngine
 		master->setVolume(volume);
 	}
 
+	float AudioManager::GetMasterVolume()
+	{
+		float volume = 0.0f;
+		master->getVolume(&volume);
+		return volume;
+	}
+
 	void AudioManager::SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance)
 	{
 		channel->set3DMinMaxDistance(minDistance, maxDistance);
@@ -286,6 +293,8 @@ namespace SliceEngine
 
 		return volume;
 	}
+
+	
 
 	float AudioManager::GetChannelVolume(FMOD::Channel* channel)
 	{

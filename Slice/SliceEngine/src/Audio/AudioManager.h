@@ -165,6 +165,8 @@ namespace SliceEngine
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
 
+		float GetMasterVolume();
+
 		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
 		std::pair<float, float> GetMinMaxDistance(FMOD::Channel* channel);
 		
