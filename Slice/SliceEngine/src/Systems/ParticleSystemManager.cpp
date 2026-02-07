@@ -37,6 +37,7 @@ namespace SliceEngine
 		if (ps.resetPreview)
 		{
 			ResetSystem(ps, dt);
+			InitializeSystem(ps);
 			ps.resetPreview = false;
 		}
 
@@ -128,7 +129,7 @@ namespace SliceEngine
 		{
 			if (ps.isRepeating)
 			{
-				ResetSystem(ps, dt);
+				ResetSystem(ps, dt);				
 			}
 			else if (!ps.playPreview)
 			{

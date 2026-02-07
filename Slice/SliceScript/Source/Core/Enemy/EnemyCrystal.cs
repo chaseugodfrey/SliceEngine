@@ -219,6 +219,7 @@ namespace SliceEngine
         protected override void OnDamaged(GameObject source)
         {
             //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
+            CreateGameObject("Prefabs/Sparks.prefab").GetComponent<Transform>().Position = transform.Position;
             SliceLog.Console("ENEMY IS BEING HIT"); 
 
         }
