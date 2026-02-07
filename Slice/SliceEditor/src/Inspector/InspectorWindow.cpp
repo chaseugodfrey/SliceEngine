@@ -1081,11 +1081,6 @@ namespace SliceEditor
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
-								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
-								{
-									scriptRef->SetFieldValue(it.second.mName, data);
-									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-								}*/
 							}
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
 							{
@@ -2363,9 +2358,9 @@ namespace SliceEditor
 		DisplayEntity(node);
 	}
 
-	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
+	/*void InspectorWindow::DisplaySceneGraph(entt::entity entity)
 	{
-		/*auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 
 		entt::entity ent_display{};
 		ImGui::Text("Parent:");
@@ -2386,7 +2381,7 @@ namespace SliceEditor
 		ImGui::Text("Next Sibling:");
 		ImGui::SameLine(150.0f);
 		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());*/
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 
 		if (entity == SliceEngine::FactoryInstance.GetRootEntity())
 		{
@@ -2506,5 +2501,5 @@ namespace SliceEditor
 				ImGui::Text("First Child: --");
 			}
 		}
-	}
+	}*/
 }

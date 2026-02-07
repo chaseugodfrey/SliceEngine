@@ -332,7 +332,7 @@ namespace SliceEditor
 			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
 			{
 				isPaused = !isPaused;
-
+				registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 				if (isPaused)
 				{
 					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
@@ -349,6 +349,7 @@ namespace SliceEditor
 			{
 				isPaused = !isPaused;
 
+				registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 				if (!isPaused)
 				{
 					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
