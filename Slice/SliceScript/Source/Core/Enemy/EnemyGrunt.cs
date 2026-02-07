@@ -264,9 +264,10 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
-            base.OnDeath();
             CreateGameObject("Prefabs/GruntDeath.prefab").GetComponent<Transform>().Position = transform.Position;
             Bootstrap.LevelDirector.EnemyDeath(this.gameObject);
+
+            base.OnDeath();
         }
         #endregion
     }
