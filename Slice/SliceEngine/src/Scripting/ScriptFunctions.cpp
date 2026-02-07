@@ -33,11 +33,11 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEngine
 {
-	std::string MonoToString(MonoString *monoStr)
+	std::string MonoToString(MonoString* monoStr)
 	{
 		if (!monoStr) return "";
 
-		char *utf8Str = mono_string_to_utf8(monoStr);
+		char* utf8Str = mono_string_to_utf8(monoStr);
 		if (!utf8Str) return "";
 
 		std::string result(utf8Str);
@@ -46,7 +46,7 @@ namespace SliceEngine
 		return result;
 	}
 
-	static std::unordered_map<MonoType *, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
+	static std::unordered_map<MonoType*, std::function<bool(GameObject)>> mGameObjectHasComponentFuncs;
 
 	// Define to make it easier to add internal function calls
 #define ADD_INTERNAL_CALL(Name) mono_add_internal_call("SliceEngine.FunctionCalls::" #Name, Name)
@@ -84,12 +84,12 @@ namespace SliceEngine
 
 #pragma region TRANSFORM FUNCTIONS
 
-	static void Transform_GetPosition(unsigned int entity, glm::vec3 *outPosition)
+	static void Transform_GetPosition(unsigned int entity, glm::vec3* outPosition)
 	{
 		//SLICE_LOG("Getting position from C++ for entity: {}", entity);
 		// note if we add UI objects
 		// this might need to be modified to check which transform it has
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 
 		*outPosition = transform.position;
 	}
@@ -101,37 +101,37 @@ namespace SliceEngine
 		*outPosition = transform.GetWorldPosition();
 	}
 
-	static void Transform_SetPosition(unsigned int entity, glm::vec3 *position)
+	static void Transform_SetPosition(unsigned int entity, glm::vec3* position)
 	{
-		
+
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.position = *position;
 	}
 
-	static void Transform_GetScale(unsigned int entity, glm::vec3 *outScale)
+	static void Transform_GetScale(unsigned int entity, glm::vec3* outScale)
 	{
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		*outScale = transform.scale;
 	}
 
-	static void Transform_SetScale(unsigned int entity, glm::vec3 *scale)
+	static void Transform_SetScale(unsigned int entity, glm::vec3* scale)
 	{
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.scale = *scale;
 	}
 
-	static void Transform_GetRotation(unsigned int entity, glm::vec3 *outRotation)
+	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
 	{
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		glm::vec3 euler = SliceEngine::QuatToVec3(transform.rotation);
 		*outRotation = euler;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
 	}
 
-	static void Transform_SetRotation(unsigned int entity, glm::vec3 *rotation)
+	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
 	{
-		auto &transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
 		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
 		transform.eulerAnglesHint = *rotation;
 		// leaving blank for now cause i think i ahve to return as euler not quaternion
@@ -267,7 +267,7 @@ namespace SliceEngine
 			*out = go.GetComponent<ParticleSystem>().duration;
 			return;
 		}
-		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);		
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 	static void ParticleSystem_SetDuration(unsigned int entity, float* value)
 	{
@@ -852,7 +852,7 @@ namespace SliceEngine
 			go.GetComponent<ParticleSystem>().maxRandomRotation = *value;
 			return;
 		}
-	
+
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 	// 3D Rotation
@@ -1301,7 +1301,7 @@ namespace SliceEngine
 
 #pragma region CONSOLE LOGGING FUNCTIONS
 
-	static void Log(MonoString *string)
+	static void Log(MonoString* string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_DEBUG(cStrName);
@@ -1309,7 +1309,7 @@ namespace SliceEngine
 		//mono_free(cStr);
 	}
 
-	static void LogWarn(MonoString *string)
+	static void LogWarn(MonoString* string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_WARNING(cStrName);
@@ -1317,7 +1317,7 @@ namespace SliceEngine
 		//mono_free(cStr);
 	}
 
-	static void LogError(MonoString *string)
+	static void LogError(MonoString* string)
 	{
 		std::string cStrName = MonoToString(string);
 		SLICE_LOG_ERROR(cStrName);
@@ -1328,14 +1328,14 @@ namespace SliceEngine
 
 #pragma region RIGIDBODY FUNCTIONS
 
-	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3 *outPosition)
+	static void RigidBody_GetVelocity(unsigned int entity, glm::vec3* outPosition)
 	{
 		//SLICE_LOG("Getting velocity from C++ for entity: {}", entity);
 
 		*outPosition = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity((Entity)entity);
 	}
 
-	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3 *position)
+	static void RigidBody_SetVelocity(unsigned int entity, glm::vec3* position)
 	{
 		//SLICE_LOG("Setting velocity from C++ for entity: {}", entity);
 
@@ -1344,7 +1344,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<PhysicsSystem>().SetLinearVelocity((Entity)entity, vel);
 	}
 
-	static void RigidBody_AddForce(unsigned int entity, glm::vec3 *force, int mode)
+	static void RigidBody_AddForce(unsigned int entity, glm::vec3* force, int mode)
 	{
 		JPH::Vec3 f(force->x, force->y, force->z);
 
@@ -1369,7 +1369,7 @@ namespace SliceEngine
 	}
 
 	static float RigidBody_GetGravityFactor(unsigned int entity)
-	{	
+	{
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().GetGravityFactor((Entity)entity);
 	}
 
@@ -1391,7 +1391,7 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region COLLIDERSHAPE FUNCTIONS
-	
+
 	static bool ColliderShape_IsEnabled(unsigned int entity)
 	{
 		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
@@ -1424,7 +1424,7 @@ namespace SliceEngine
 		{
 			SLICE_LOG_ERROR("Lol skill issue", entity);
 		}
-				
+
 	}
 
 #pragma endregion
@@ -1440,7 +1440,7 @@ namespace SliceEngine
 
 	static MonoString* LayerMask_LayerToName(uint32_t layer)
 	{
-		if(layer >= MAX_LAYERS)
+		if (layer >= MAX_LAYERS)
 		{
 			SLICE_LOG_ERROR("Scripting: Layer {} is out of bounds.", layer);
 			std::string errorLayer = "If your layer is this very long string u did something wrong or I did(Please contact Aloysius for assistance)";
@@ -1456,7 +1456,7 @@ namespace SliceEngine
 		std::string name = MonoToString(string);
 		uint32_t layer = Core::GetInstance()->GetLayerManager()->GetLayer(name);
 
-		if(layer >= INVALID_LAYER)
+		if (layer >= INVALID_LAYER)
 		{
 			SLICE_LOG_ERROR("Scripting: Layer '{}' does not exist.", name);
 			return INVALID_LAYER;
@@ -1465,23 +1465,23 @@ namespace SliceEngine
 		return layer;
 	}
 
-	
+
 
 #pragma endregion
 
 #pragma region RAYCASTING FUCNTIONS
 
-	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t*  bodyHitID,glm::vec3* hitPos, glm::vec3* normal,bool triggerInteraction,  uint32_t mask)
+	static bool Physics_Raycast(glm::vec3* origin, glm::vec3* direction, uint32_t* bodyHitID, glm::vec3* hitPos, glm::vec3* normal, bool triggerInteraction, uint32_t mask)
 	{
-		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID,*hitPos,*normal, triggerInteraction, mask);
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
 	}
 
 	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
 	{
 		auto* eventManager = EventManager::GetInstance();
-		
+
 		DebugDrawRayEvent drawEvent{ *origin, *direction, magnitude };
-	
+
 		eventManager->Publish<DebugDrawRayEvent>(drawEvent);
 	}
 	static void Physics_RayUpdateMovement(uint32_t entityID, glm::vec3* d_m)
@@ -1496,7 +1496,7 @@ namespace SliceEngine
 		auto& collider = go.GetComponent<ColliderShape>();
 
 
-		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0,0,1);
+		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0, 0, 1);
 		uint32_t bodyHitID = 0;
 		glm::vec3 hitPos = glm::vec3(0.0f);
 		glm::vec3 normal = glm::vec3(0.0f);
@@ -1514,7 +1514,7 @@ namespace SliceEngine
 		}
 		else if (distanceToMove < distanceToHit)
 		{
-			glm::mix(transform.position,origin + (*d_m), 0.2f);
+			glm::mix(transform.position, origin + (*d_m), 0.2f);
 		}
 
 
@@ -1540,7 +1540,7 @@ namespace SliceEngine
 	{
 		//SLICE_LOG("Getting audio name from C++ for entity: {}", entity);
 
-		auto &audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
 
 		std::string test;
 
@@ -1566,10 +1566,10 @@ namespace SliceEngine
 	{
 		auto* audioComp = GetAudioComponent(entity);
 		auto* transformComp = GetTransformComponent(entity);
-		
+
 		if (audioComp && !Core::GetInstance()->GetAudioManager()->IsChannelPlaying(audioComp->channel))
 		{
-			
+
 			audioComp->channel = Core::GetInstance()->GetAudioManager()->PlaySound(*(audioComp), transformComp->position, glm::vec3(0.f));
 		}
 	}
@@ -1589,7 +1589,7 @@ namespace SliceEngine
 
 	static void Audio_Stop(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			if (audioComp->channel)
 			{
@@ -1601,7 +1601,7 @@ namespace SliceEngine
 
 	static bool Audio_IsPlaying(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			if (audioComp->channel)
 			{
@@ -1628,7 +1628,7 @@ namespace SliceEngine
 	{
 
 		std::string cStrName = MonoToString(categoryName);
-		float volValue = *volume; 
+		float volValue = *volume;
 		int categoryInt = 0;
 		if (cStrName == "BGM")
 		{
@@ -1641,6 +1641,8 @@ namespace SliceEngine
 	{
 		
 		
+
+
 		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
@@ -1652,7 +1654,7 @@ namespace SliceEngine
 
 	static void Audio_SetPaused(unsigned int entity, bool paused)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->isPaused = paused;
 			// SoundSystem::UpdateChannelFromComponent will sync this
@@ -1661,7 +1663,7 @@ namespace SliceEngine
 
 	static bool Audio_GetPaused(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			return audioComp->isPaused;
 		}
@@ -1670,7 +1672,7 @@ namespace SliceEngine
 
 	static void Audio_SetLoop(unsigned int entity, bool loop)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->isLoop = loop;
 		}
@@ -1678,7 +1680,7 @@ namespace SliceEngine
 
 	static bool Audio_GetLoop(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			return audioComp->isLoop;
 		}
@@ -1687,7 +1689,7 @@ namespace SliceEngine
 
 	static void Audio_SetVolume(unsigned int entity, float volume)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->currentVolume = volume;
 		}
@@ -1695,7 +1697,7 @@ namespace SliceEngine
 
 	static float Audio_GetVolume(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			return audioComp->currentVolume;
 		}
@@ -1704,7 +1706,7 @@ namespace SliceEngine
 
 	static void Audio_SetPitch(unsigned int entity, float pitch)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->pitch = pitch;
 		}
@@ -1712,7 +1714,7 @@ namespace SliceEngine
 
 	static float Audio_GetPitch(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			return audioComp->pitch;
 		}
@@ -1721,7 +1723,7 @@ namespace SliceEngine
 
 	static void Audio_SetSpatialBlend(unsigned int entity, float blend)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->spatialBlend = blend;
 		}
@@ -1729,7 +1731,7 @@ namespace SliceEngine
 
 	static float Audio_GetSpatialBlend(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity))
+		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			return audioComp->spatialBlend;
 		}
@@ -1738,29 +1740,29 @@ namespace SliceEngine
 
 	static void Audio_SetPan(unsigned int entity, float pan)
 	{
-		if (auto *audioComp = GetAudioComponent(entity)) audioComp->stereoPan = pan;
+		if (auto* audioComp = GetAudioComponent(entity)) audioComp->stereoPan = pan;
 	}
 
 	static float Audio_GetPan(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity)) return audioComp->stereoPan;
+		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->stereoPan;
 		return 0.0f;
 	}
 
 	static void Audio_SetMute(unsigned int entity, bool mute)
 	{
-		if (auto *audioComp = GetAudioComponent(entity)) audioComp->isMute = mute;
+		if (auto* audioComp = GetAudioComponent(entity)) audioComp->isMute = mute;
 	}
 
 	static bool Audio_GetMute(unsigned int entity)
 	{
-		if (auto *audioComp = GetAudioComponent(entity)) return audioComp->isMute;
+		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->isMute;
 		return false;
 	}
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
-		
+
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
 			SLICE_LOG_ERROR("Entity does not have script attached");
@@ -1778,7 +1780,7 @@ namespace SliceEngine
 		return nullptr;
 	}
 
-	static bool HasScriptInstance(unsigned int entityID, MonoString *baseName)
+	static bool HasScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1827,10 +1829,10 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region ENTITY FUNCTIONS
-	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType *componentType)
+	static bool Entity_HasComponent(unsigned int entityID, MonoReflectionType* componentType)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
-		MonoType *monoType = mono_reflection_type_get_type(componentType);
+		MonoType* monoType = mono_reflection_type_get_type(componentType);
 
 		if (mGameObjectHasComponentFuncs.count(monoType) <= 0)
 		{
@@ -1848,15 +1850,15 @@ namespace SliceEngine
 
 
 
-	static MonoArray *Entity_FindEntitiesWithTag(MonoString *tag)
+	static MonoArray* Entity_FindEntitiesWithTag(MonoString* tag)
 	{
 		std::string cStrName = MonoToString(tag);
 
 		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
 
 
-		MonoDomain *domain = mono_domain_get();
-		MonoArray *monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
 
 		for (size_t i = 0; i < entityIDs.size(); ++i)
 		{
@@ -1878,20 +1880,20 @@ namespace SliceEngine
 		return (unsigned int)entity;
 	}
 
-	static unsigned int CreateNewGameObject(MonoString *prefabName)
+	static unsigned int CreateNewGameObject(MonoString* prefabName)
 	{
 		std::string cStrName = MonoToString(prefabName);
 
-		auto &prefabSys = Core::GetInstance()->GetSystem<PrefabSystem>();
+		auto& prefabSys = Core::GetInstance()->GetSystem<PrefabSystem>();
 		auto rm = Core::GetInstance()->GetResourceManager();
 		auto it = rm->mFileNameToGUID.find(cStrName);
 		if (it != rm->mFileNameToGUID.end())
 		{
 			GameObject newGO = prefabSys.CreatePrefab((GUID)it->second);
-			if(cStrName == "EnemyTest")
+			if (cStrName == "EnemyTest")
 			{
 				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
-			//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
+				//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
@@ -1901,7 +1903,7 @@ namespace SliceEngine
 		return 0;
 	}
 
-	static unsigned int CloneGO(MonoString *GoName)
+	static unsigned int CloneGO(MonoString* GoName)
 	{
 		std::string cStrName = MonoToString(GoName);
 		auto GO = FactoryInstance.GetGOByName(cStrName);
@@ -1910,7 +1912,7 @@ namespace SliceEngine
 		return (unsigned int)newGO.GetEntity();
 	}
 
-	static uint32_t Entity_FindEntityWithName(MonoString *name)
+	static uint32_t Entity_FindEntityWithName(MonoString* name)
 	{
 		std::string cStrName = MonoToString(name);
 		auto go = FactoryInstance.GetGOByName(cStrName);
@@ -1925,7 +1927,7 @@ namespace SliceEngine
 		}
 	}
 
-	static MonoString *Entity_GetTag(unsigned int entityID)
+	static MonoString* Entity_GetTag(unsigned int entityID)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.HasComponent<SliceEntity>())
@@ -1934,7 +1936,7 @@ namespace SliceEngine
 		}
 	}
 
-	static void Entity_SetTag(unsigned int entityID, MonoString *tag)
+	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.HasComponent<SliceEntity>())
@@ -2009,14 +2011,14 @@ namespace SliceEngine
 		}
 	}
 
-	static void SetBool(unsigned int entityID, MonoString *string, bool val)
+	static void SetBool(unsigned int entityID, MonoString* string, bool val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
 		{
 			std::string cStrName = MonoToString(string);
 
-			if(GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName))
+			if (GO.GetComponent<Animator>().stateMachine.SafeToChange(cStrName))
 			{
 				GO.GetComponent<Animator>().stateMachine.SetBool(cStrName, val);
 			}
@@ -2024,7 +2026,7 @@ namespace SliceEngine
 
 	}
 
-	static void SetInt(unsigned int entityID, MonoString *string, int val)
+	static void SetInt(unsigned int entityID, MonoString* string, int val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
@@ -2035,7 +2037,7 @@ namespace SliceEngine
 		}
 	}
 
-	static void SetFloat(unsigned int entityID, MonoString *string, float val)
+	static void SetFloat(unsigned int entityID, MonoString* string, float val)
 	{
 		auto GO = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (GO.HasComponent<Animator>())
@@ -2057,7 +2059,7 @@ namespace SliceEngine
 				tmp = GO.GetComponent<Animator>().stateMachine.GetCurrAnimName();
 		}
 
-		if(tmp == "")
+		if (tmp == "")
 			return nullptr;
 
 		return mono_string_new(mono_domain_get(), tmp.c_str());
@@ -2109,7 +2111,7 @@ namespace SliceEngine
 	}
 
 #pragma endregion
-	
+
 #pragma region SCENE FUNCTIONS
 
 	static void Scene_LoadScene(MonoString* string)
@@ -2149,11 +2151,11 @@ namespace SliceEngine
 
 
 	// Helper to get the agent component
-	static NavAgent *GetNavAgent(uint32_t entityID)
+	static NavAgent* GetNavAgent(uint32_t entityID)
 	{
-		auto *core = SliceEngine::Core::GetInstance();
+		auto* core = SliceEngine::Core::GetInstance();
 
-		entt::registry &registry = core->GetRegistry();
+		entt::registry& registry = core->GetRegistry();
 
 		entt::entity e = (entt::entity)entityID;
 		if (!registry.valid(e))
@@ -2174,19 +2176,19 @@ namespace SliceEngine
 		}
 	}
 
-	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3 *target)
+	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3* target)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		if (agent)
 		{
 			agent->target = *target;
-			agent->hasNewTarget = true; 
+			agent->hasNewTarget = true;
 		}
 	}
 
 	static void NavAgent_Stop(uint32_t entityID)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		if (agent)
 		{
 			agent->currentPath.clear();
@@ -2197,31 +2199,31 @@ namespace SliceEngine
 
 	static float NavAgent_GetSpeed(uint32_t entityID)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		return agent ? agent->speed : 0.0f;
 	}
 
 	static void NavAgent_SetSpeed(uint32_t entityID, float speed)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		if (agent) agent->speed = speed;
 	}
 
 	static bool NavAgent_HasPath(uint32_t entityID)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		// Returns true if path is not empty
 		return agent && !agent->currentPath.empty();
 
 	}
 	static bool NavAgent_GetComponentEnabled(uint32_t entityID)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		return agent->componentEnabled;
 	}
 	static void NavAgent_SetComponentEnabled(uint32_t entityID, bool isEnabled)
 	{
-		NavAgent *agent = GetNavAgent(entityID);
+		NavAgent* agent = GetNavAgent(entityID);
 		if (agent) agent->componentEnabled = isEnabled;
 	}
 #pragma endregion
@@ -2349,7 +2351,7 @@ namespace SliceEngine
 		if (GO.HasComponent<FontRenderer>())
 		{
 			auto& font = GO.GetComponent<FontRenderer>();
-			*color_out =  font.rgba;
+			*color_out = font.rgba;
 		}
 	}
 

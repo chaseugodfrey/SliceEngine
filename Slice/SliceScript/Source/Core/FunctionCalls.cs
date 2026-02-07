@@ -99,8 +99,8 @@ namespace SliceEngine
 
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
-        
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal, bool triggerInteraction, uint mask);
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
 
@@ -544,10 +544,10 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetBool(uint entity, string parameter, bool val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetInt(uint entity, string parameter, int val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetFloat(uint entity, string parameter, float val);
 
