@@ -638,7 +638,6 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void FontRenderer_SetColor(uint entityID, ref Vector4 value);
 
-
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void FontRenderer_GetAlignment(uint entityID, out FontRenderer.FontAlignment shapeType);
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -646,6 +645,12 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void FontRenderer_SetEnabled(uint entityID, bool enabled);
+
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteRenderer_GetColor(uint entityID, out Vector4 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteRenderer_SetColor(uint entityID, ref Vector4 value);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);

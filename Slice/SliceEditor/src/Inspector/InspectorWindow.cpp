@@ -1222,11 +1222,21 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::ParticleSystem>(entity);
 
-			ImGui::Text("Play Preview");
-			ImGui::SameLine(150);
 			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
 			if (ImGui::Button(ps.playPreview ? "Stop Preview" : "Play Preview"))
+			{
 				ps.playPreview = !ps.playPreview;
+			}
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			if (ImGui::Button(ps.pausePreview ? "Unpause System" : "Pause System"))
+			{
+				ps.pausePreview = !ps.pausePreview;
+			}
+			ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+			if (ImGui::Button("Reset System"))
+			{
+				ps.resetPreview = true;
+			}			
 
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{

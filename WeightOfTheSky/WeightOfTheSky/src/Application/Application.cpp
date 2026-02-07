@@ -55,6 +55,7 @@ namespace SliceBuild
 	{
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 		
+		
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
@@ -68,19 +69,15 @@ namespace SliceBuild
 			{
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
 			}
-
-			if (inputSys->IsKeyPressed(GLFW_KEY_SPACE))
+			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName() == "17531386095546160316") 
 			{
-				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::PLAY_SCENE)
-				{
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::STOP_SCENE;
-				}
-				else
-				{
-					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
-				}
-
+				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			}
+			else
+			{
+				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+
 		}
 
 	}

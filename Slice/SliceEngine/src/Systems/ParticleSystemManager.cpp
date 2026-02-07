@@ -33,12 +33,26 @@ namespace SliceEngine
 	{		
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto& ps = reg.get<ParticleSystem>(entity);
+
+		if (ps.resetPreview)
+		{
+			ResetSystem(ps, dt);
+			InitializeSystem(ps);
+			ps.resetPreview = false;
+		}
+
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			ps.playPreview = false;
+			ps.pausePreview = false;
 		}
 		else if (sceneSystem->mCurrentState == SceneState::DEFAULT && !ps.playPreview)
-		{			
+		{
+			return;
+		}
+		else if (ps.pausePreview)
+		{
+			UpdateSystem(ps, 0.0f);
 			return;
 		}
 
@@ -62,18 +76,16 @@ namespace SliceEngine
 		auto& ps = reg.get<ParticleSystem>(entity);
 		ExitSystem(ps);
 	}
-
-	void ParticleSystemManager::ResetManager()
-	{
-	}
-
 #pragma endregion
 
 #pragma region System Stuff
 	void ParticleSystemManager::InitializeSystem(ParticleSystem& ps)
 	{
 		ps.systemTimer = 0.0f;
-		ps.particles.resize(ps.maxParticles);
+		ps.systemEnding = false;
+		ps.expired = false;
+		ps.particles.clear();
+		ps.particles.resize(ps.maxParticles);		
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
 
@@ -117,9 +129,9 @@ namespace SliceEngine
 		{
 			if (ps.isRepeating)
 			{
-				ResetSystem(ps, dt);
+				ResetSystem(ps, dt);				
 			}
-			else 
+			else if (!ps.playPreview)
 			{
 				ps.systemTimer = ps.duration;
 				ps.systemEnding = true;
@@ -189,7 +201,8 @@ namespace SliceEngine
 			}
 			ApplyVeloctiy(p, ps, dt);
 		}
-		if (!haveActiveParticle && ps.systemEnding)
+
+		if ((!haveActiveParticle && ps.systemEnding) && !ps.playPreview)
 		{
 			ps.expired = true;
 		}
@@ -284,40 +297,6 @@ namespace SliceEngine
 	// Validates properties to prevent UDB or exceptions
 	void ParticleSystemManager::ValidateParticleSystem(ParticleSystem& ps)
 	{
-		// Validate Scale
-		Utilities::FixMinMax(ps.minRandomScale.x, ps.maxRandomScale.x);
-		Utilities::FixMinMax(ps.minRandomScale.y, ps.maxRandomScale.y);
-		Utilities::FixMinMax(ps.minRandomScale.z, ps.maxRandomScale.z);
-
-		// Validate Lifetime
-		Utilities::FixMinMax(ps.minParticleLifetime, ps.maxParticleLifetime);
-
-		// Validate Rotation
-		if (ps.isRotation3D)
-		{
-			Utilities::FixMinMax(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
-			Utilities::FixMinMax(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
-			Utilities::FixMinMax(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
-		}
-		else 
-		{
-			Utilities::FixMinMax(ps.minRandomRotation, ps.maxRandomRotation);
-		}
-		
-		// Validate Start Position Offset
-		Utilities::FixMinMax(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
-		Utilities::FixMinMax(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y);
-		Utilities::FixMinMax(ps.minRandomSpawnPos.z, ps.maxRandomSpawnPos.z);
-
-		// Validate Colour
-		Utilities::FixMinMax(ps.minRandomColour.r, ps.maxRandomColour.r);
-		Utilities::FixMinMax(ps.minRandomColour.g, ps.maxRandomColour.g);
-		Utilities::FixMinMax(ps.minRandomColour.b, ps.maxRandomColour.b);
-		Utilities::FixMinMax(ps.minRandomColour.a, ps.maxRandomColour.a);
-
-		// Validate Speed
-		Utilities::FixMinMax(ps.minRandomSpeed, ps.maxRandomSpeed);
-
 		// Validate Particle Pool
 		if (ps.maxParticles != ps.particles.size())
 		{
@@ -369,7 +348,10 @@ namespace SliceEngine
 		p.age = 0.0f;
 		if (ps.initialLifetimeType == ParticleSystem::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> randAge(ps.minParticleLifetime, ps.maxParticleLifetime);
+			std::uniform_real_distribution<float> randAge(
+				std::min(ps.minParticleLifetime, ps.maxParticleLifetime),
+				std::max(ps.minParticleLifetime, ps.maxParticleLifetime)
+			);
 			p.maxAge = randAge(gen);
 		}
 		else 
@@ -383,9 +365,20 @@ namespace SliceEngine
 		if (ps.posValueType == ParticleSystem::TWO_CONSTANTS)
 		{
 			// Create a distribution for each axis (x, y, z)
-			std::uniform_real_distribution<float> distX(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x);
-			std::uniform_real_distribution<float> distY(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y);
-			std::uniform_real_distribution<float> distZ(ps.minRandomSpawnPos.z, ps.maxRandomSpawnPos.z);
+			std::uniform_real_distribution<float> distX(
+				std::min(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x),
+				std::max(ps.minRandomSpawnPos.x, ps.maxRandomSpawnPos.x)
+			);
+
+			std::uniform_real_distribution<float> distY(
+				std::min(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y),
+				std::max(ps.minRandomSpawnPos.y, ps.maxRandomSpawnPos.y)
+			);
+
+			std::uniform_real_distribution<float> distZ(
+				std::min(ps.minRandomSpawnPos.z, ps.maxRandomSpawnPos.z),
+				std::max(ps.minRandomSpawnPos.z, ps.maxRandomSpawnPos.z)
+			);
 
 			// Assign a random position within the range
 			p.position = glm::vec3(distX(gen), distY(gen), distZ(gen));
@@ -417,9 +410,18 @@ namespace SliceEngine
 		{
 			if (ps.isRotation3D)
 			{
-				std::uniform_real_distribution<float> distX(ps.minRotation3DHint.x, ps.maxRotation3DHint.x);
-				std::uniform_real_distribution<float> distY(ps.minRotation3DHint.y, ps.maxRotation3DHint.y);
-				std::uniform_real_distribution<float> distZ(ps.minRotation3DHint.z, ps.maxRotation3DHint.z);
+				std::uniform_real_distribution<float> distX(
+					std::min(ps.minRotation3DHint.x, ps.maxRotation3DHint.x),
+					std::max(ps.minRotation3DHint.x, ps.maxRotation3DHint.x)
+				);
+				std::uniform_real_distribution<float> distY(
+					std::min(ps.minRotation3DHint.y, ps.maxRotation3DHint.y),
+					std::max(ps.minRotation3DHint.y, ps.maxRotation3DHint.y)
+				);
+				std::uniform_real_distribution<float> distZ(
+					std::min(ps.minRotation3DHint.z, ps.maxRotation3DHint.z),
+					std::max(ps.minRotation3DHint.z, ps.maxRotation3DHint.z)
+				);
 
 				glm::vec3 eul{
 					distX(gen),
@@ -431,8 +433,8 @@ namespace SliceEngine
 			else 
 			{
 				std::uniform_real_distribution<float> dist(
-					ps.minRandomRotation,
-					ps.maxRandomRotation
+					std::min(ps.minRandomRotation, ps.maxRandomRotation),
+					std::max(ps.minRandomRotation, ps.maxRandomRotation)
 				);
 
 				p.rotation = dist(gen);
@@ -454,9 +456,19 @@ namespace SliceEngine
 	{
 		if (ps.scaleType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> distX(ps.minRandomScale.x, ps.maxRandomScale.x);
-			std::uniform_real_distribution<float> distY(ps.minRandomScale.y, ps.maxRandomScale.y);
-			std::uniform_real_distribution<float> distZ(ps.minRandomScale.z, ps.maxRandomScale.z);
+			std::uniform_real_distribution<float> distX(
+				std::min(ps.minRandomScale.x, ps.maxRandomScale.x),
+				std::max(ps.minRandomScale.x, ps.maxRandomScale.x)
+			);
+			std::uniform_real_distribution<float> distY(
+				std::min(ps.minRandomScale.y, ps.maxRandomScale.y),
+				std::max(ps.minRandomScale.y, ps.maxRandomScale.y)
+			);
+			std::uniform_real_distribution<float> distZ(
+				std::min(ps.minRandomScale.z, ps.maxRandomScale.z),
+				std::max(ps.minRandomScale.z, ps.maxRandomScale.z)
+			);
+
 			p.scale = glm::vec3(distX(gen), distY(gen), distZ(gen));
 		}
 		else 
@@ -470,8 +482,9 @@ namespace SliceEngine
 		if (ps.speedValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
 			std::uniform_real_distribution<float> dist(
-				ps.minRandomSpeed,
-				ps.maxRandomSpeed);
+				std::min(ps.minRandomSpeed, ps.maxRandomSpeed),
+				std::max(ps.minRandomSpeed, ps.maxRandomSpeed)
+			);
 
 			speed = dist(gen);
 		}
@@ -501,10 +514,25 @@ namespace SliceEngine
 	{
 		if (ps.colourValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
 		{
-			std::uniform_real_distribution<float> distR(ps.minRandomColour.r, ps.maxRandomColour.r);
-			std::uniform_real_distribution<float> distG(ps.minRandomColour.g, ps.maxRandomColour.g);
-			std::uniform_real_distribution<float> distB(ps.minRandomColour.b, ps.maxRandomColour.b);
-			std::uniform_real_distribution<float> distA(ps.minRandomColour.a, ps.maxRandomColour.a);
+			std::uniform_real_distribution<float> distR(
+				std::min(ps.minRandomColour.r, ps.maxRandomColour.r),
+				std::max(ps.minRandomColour.r, ps.maxRandomColour.r)
+			);
+
+			std::uniform_real_distribution<float> distG(
+				std::min(ps.minRandomColour.g, ps.maxRandomColour.g),
+				std::max(ps.minRandomColour.g, ps.maxRandomColour.g)
+			);
+
+			std::uniform_real_distribution<float> distB(
+				std::min(ps.minRandomColour.b, ps.maxRandomColour.b),
+				std::max(ps.minRandomColour.b, ps.maxRandomColour.b)
+			);
+
+			std::uniform_real_distribution<float> distA(
+				std::min(ps.minRandomColour.a, ps.maxRandomColour.a),
+				std::max(ps.minRandomColour.a, ps.maxRandomColour.a)
+			);
 
 			p.colour = glm::vec4(distR(gen), distG(gen), distB(gen), distA(gen));
 		}

@@ -2353,6 +2353,25 @@ namespace SliceEngine
 		}
 	}
 
+	static void SpriteRenderer_SetColor(uint32_t entityID, glm::vec4* color) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			spriteRenderer.rgba = *color;
+		}
+	}
+	static void SpriteRenderer_GetColor(uint32_t entityID, glm::vec4* color_out) {
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteRenderer>())
+		{
+			auto& spriteRenderer = GO.GetComponent<SpriteRenderer>();
+			*color_out = spriteRenderer.rgba;
+		}
+	}
+
 	static float Slider_GetValue(uint32_t entityID)
 	{
 		auto* core = SliceEngine::Core::GetInstance();
@@ -2719,6 +2738,9 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(FontRenderer_SetAlignment);
 		ADD_INTERNAL_CALL(FontRenderer_GetAlignment);
+
+		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
+		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);

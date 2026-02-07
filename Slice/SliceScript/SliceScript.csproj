@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -115,6 +113,8 @@
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
+    <Compile Include="Source\Core\UI\MainMenuButtons.cs" />
+    <Compile Include="Source\Core\UI\SceneTransition.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
@@ -129,9 +129,9 @@
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
+    <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
-    <Compile Include="Source\MainMenuButtons.cs" />
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Old_Test_Player.cs" />
     <Compile Include="Source\Old_Test_Spawner.cs" />

@@ -962,7 +962,6 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
-
 		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
@@ -1036,7 +1035,6 @@ namespace SliceEngine
 		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
-		sParticleSystemManager.ResetManager();
 		sAudio->StopAllSound();
 		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 		audioSettings->DeleteAM();

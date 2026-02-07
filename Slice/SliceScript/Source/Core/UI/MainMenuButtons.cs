@@ -14,6 +14,7 @@ namespace SliceEngine
         public bool isMaxVolumeSlider = false;
         public bool isSFXVolumeSlider = false;
         public bool isBGMVolumeSlider = false;
+        public string SceneToLoad = "";
 
         GameObject settingsPopup;
         GameObject MainMenuCanvas;
@@ -67,7 +68,7 @@ namespace SliceEngine
 
             if(isPlay)
             {
-                SceneManager.LoadScene("M4 Level 1");
+                SceneManager.LoadScene(SceneToLoad);
                 //Console.WriteLine("LOad");
             }else if(isSettings)
             {

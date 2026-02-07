@@ -473,7 +473,10 @@ namespace SliceEngine
 			TWO_CONSTANTS
 		};
 
+		// Editor
 		bool playPreview{ false };
+		bool resetPreview{ false };
+		bool pausePreview{ false };
 
 		Transform* parentTransform{ nullptr };
 
