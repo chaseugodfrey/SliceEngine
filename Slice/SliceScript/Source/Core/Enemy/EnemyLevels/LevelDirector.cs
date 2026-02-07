@@ -34,7 +34,7 @@ namespace SliceEngine
         public void Initialize()
         {
             //SliceLog.Log("Initialize Level Director");
-            isActive = true;
+
 
             //gameObject.FindGameObjectsWithTag("Level").Length;
             //foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
@@ -68,16 +68,30 @@ namespace SliceEngine
                 deathBox.As<GeneralHitbox>().TurnOn();
             }
 
+            isActive = true;
+
+
             //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
             //Console.WriteLine("Num of levels: " + levels.Count);
         }
 
-        public GameObject CreateEnemy(Prefab prefab)
+        public GameObject CreateGruntEnemy(/*Prefab prefab*/)
         {
             // instantiate the enemy
             GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
             SliceLog.Log("Creating enemy with: " + newEnemy.mID);
             newEnemy.As<EnemyGrunt>().SetUp();
+            enemies.Add(newEnemy);
+
+            return newEnemy;
+        }
+
+        public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
+        {
+            // instantiate the enemy
+            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
+            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
+            newEnemy.As<EnemySlime>().SetUp();
             enemies.Add(newEnemy);
 
             return newEnemy;

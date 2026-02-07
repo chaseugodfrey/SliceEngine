@@ -16,12 +16,18 @@ namespace SliceEngine
         /// <returns></returns>
         public override bool CheckObjective()
         {
+            SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
             return KillsRequired == 0;
         }
 
         public override void EnemyKilled(GameObject enemy)
         {
-            KillsRequired--;
+            base.EnemyKilled(enemy);
+
+            if (enemy.Has<EnemyGrunt>())
+            {
+                KillsRequired--;
+            }
         }
     }
 }

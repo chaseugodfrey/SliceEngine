@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SliceEngine
@@ -23,8 +24,10 @@ namespace SliceEngine
         // If it will constantlyy spawn once the total enemies drops below max
         public bool constantSpawning = false;
         // Keep spawning till it hits max;
-        public int maxEnemies = 0;
-        public int slimeCount = 0;
+        public int maxGrunts = 0;
+        public int currSlimes = 0;
+        public int maxSlimes = 0;
+        public float slimeSpawnRate = 0f;
         public bool toggleSpawning = true;
         // Maybe change to a list down the line to randomise
         public Prefab enemyPrefab = new Prefab("Prefabs/EnemyGrunt.prefab"); 
@@ -83,7 +86,7 @@ namespace SliceEngine
             else
             {
                 // if they can continue spawning
-                if (levelDirectorObject.As<LevelDirector>().EnemyCount() <= maxEnemies && constantSpawning)
+                if (levelDirectorObject.As<LevelDirector>().EnemyCount() <= maxGrunts && constantSpawning)
                 {
                     toggleSpawning = true;
                 }
@@ -126,23 +129,28 @@ namespace SliceEngine
                     return;
                 }
 
-                GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateEnemy(enemyPrefab);
+                GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateGruntEnemy();
                 //SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
                 enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
 
                 timer = 0.0f;
                 currPoint++;
 
-                if (maxEnemies <= levelDirectorObject.As<LevelDirector>().EnemyCount())
+                if (maxGrunts <= levelDirectorObject.As<LevelDirector>().EnemyCount())
                 {
-                    SliceLog.Log("Max enemies spanwed");
+                    SliceLog.Log("Max enemies spawned");
                     toggleSpawning = false;
                 }
                 else
                 {
                     toggleSpawning = true;
                 }
+            }
 
+            if (SliceRandom.ValueFloat() <= slimeSpawnRate && currSlimes < maxSlimes && timer > spawnInterval)
+            {
+                GameObject enemy = levelDirectorObject.As<LevelDirector>().CreateSlimeEnemy();
+                currSlimes++;
             }
 
             //SliceLog.Log("Base Level should be working");
@@ -151,9 +159,14 @@ namespace SliceEngine
 
         public virtual void EnemyKilled(GameObject enemy) 
         { 
-            if (constantSpawning && maxEnemies > levelDirectorObject.As<LevelDirector>().EnemyCount())
+            if (constantSpawning && maxGrunts > levelDirectorObject.As<LevelDirector>().EnemyCount())
             {
                 toggleSpawning = true;
+            }
+
+            if (enemy.Has<EnemySlime>())
+            {
+                currSlimes--;
             }
         }
 
