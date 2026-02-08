@@ -26,7 +26,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	RecastNavMesh::RecastNavMesh() {}
+	RecastNavMesh::RecastNavMesh() : m_agentHeight(), m_agentRadius(), m_agentMaxClimb(){}
 
 	RecastNavMesh::~RecastNavMesh()
 	{
@@ -359,13 +359,13 @@ namespace SliceEditor
 		//		}
 		//	}
 		//}
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
 		std::vector<glm::mat4> transformMtxs{};
 		std::vector<bool> isModelObstacle{};
 
-		auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		//auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 		for (auto entity : entities)
 		{
