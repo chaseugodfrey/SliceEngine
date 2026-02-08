@@ -58,14 +58,15 @@ namespace SliceEditor
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				if (!mCurrentAnimator && anim != mCurrentAnimator && mCurrentAnimator != NULL)
+				//if (!mCurrentAnimator && anim != mCurrentAnimator && mCurrentAnimator != NULL)
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
-				}
 
-				return true;
+					return true;
+				}
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data
