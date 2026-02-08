@@ -107,26 +107,26 @@ namespace SliceEditor
 
 			for (auto& [key, entry] : audioSettings->mSFXMap)
 			{
-				std::string name = key;
-				int int_buffer{};
-				bool bool_buffer{};
+				std::string sfxName = key;
+				//int int_buffer{};
+				//bool bool_buffer{};
 
 				float current_volume = entry.volume;
 				int current_max_instances = entry.maxInstances;
 				bool changeSpatial = false;
-				float current_interval = entry.minInterval; // Assuming 'Interval' corresponds to minInterval
+				//float current_interval = entry.minInterval; // Assuming 'Interval' corresponds to minInterval
 				if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed))
 				{
 					
-					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), name));
+					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), sfxName)) {}
 
 
 					if (ImGui::IsItemDeactivatedAfterEdit())
 					{
-						if (name != key)
+						if (sfxName != key)
 						{
 							// set new name
-							audioSettings->ReplaceExistingEntry(key, name);
+							audioSettings->ReplaceExistingEntry(key, sfxName);
 							hasChanged = true;
 
 						}
@@ -288,14 +288,14 @@ namespace SliceEditor
 		// Retrieve variables
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
 		auto& physicsSystem = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
-		auto& maskMap = layerManager->collisionMask;
+		//auto& maskMap = layerManager->collisionMask;
 		auto& layerMap = layerManager->indexToLayerName;
 		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
 		
 		std::vector<std::string> layerNames{};
 		layerNames.reserve(layerMap.size());
-		for (auto& [index, name] : layerMap)
-			layerNames.push_back(name);
+		for (auto& [index, layerName] : layerMap)
+			layerNames.push_back(layerName);
 
 		const int n = static_cast<int>(layerNames.size());
 
@@ -316,7 +316,7 @@ namespace SliceEditor
 				ImGui::TableSetupColumn("BP Layer",
 					ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed);
 
-				for (auto& [index, name] : layerMap)
+				for (auto& [index, layerName] : layerMap)
 				{
 					auto bp_layer = physicsSystem.GetBroadPhaseLayer(index);
 					auto bp_layer_index = bp_layer.GetValue();
@@ -324,17 +324,17 @@ namespace SliceEditor
 					ImGui::TableNextRow();
 					ImGui::TableSetColumnIndex(0);
 
-					ImGui::Text(name.c_str());
+					ImGui::Text(layerName.c_str());
 
 					ImGui::TableSetColumnIndex(1);
 
-					if (ImGui::BeginCombo(("##bp" + name).c_str(), bplayer_to_name_list[bp_layer_index].c_str(), ImGuiComboFlags_WidthFitPreview))
+					if (ImGui::BeginCombo(("##bp" + layerName).c_str(), bplayer_to_name_list[bp_layer_index].c_str(), ImGuiComboFlags_WidthFitPreview))
 					{
 						for (size_t i = 0; i < bplayer_to_name_list.size(); ++i)
 						{
 							if (ImGui::Selectable(bplayer_to_name_list[i].c_str()))
 							{
-								JPH::BroadPhaseLayer new_bp_layer(i);
+								JPH::BroadPhaseLayer new_bp_layer(static_cast<JPH::BroadPhaseLayer>(i));
 								physicsSystem.SetObjectBroadPhaseLayer(index, new_bp_layer);
 								physicsSettings.isDirty = true;
 							}
@@ -515,7 +515,8 @@ namespace SliceEditor
 			if (auto payload = ImGui::AcceptDragDropPayload("Scene"))
 			{
 				SliceEngine::GUID guid = *(static_cast<SliceEngine::GUID*>(payload->Data));
-				bool added = AddSceneToList(guid);
+				//bool added = 
+				AddSceneToList(guid);
 				ImGui::EndDragDropTarget();
 			}
 		}
@@ -534,7 +535,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Add Current Scene"))
 		{
-			auto sceneSystem = SliceEngine::Core::GetInstance()->GetSceneSystem();
+			auto sceneSystem = core->GetSceneSystem();
 			auto current_scene_path = sceneSystem->GetCurrentScenePath();
 
 			if (!current_scene_path.empty())
@@ -543,7 +544,8 @@ namespace SliceEditor
 				auto it = assetManager.mFilenameToGUID.find(current_scene_path.generic_string());
 				if (it != assetManager.mFilenameToGUID.end())
 				{
-					bool added = AddSceneToList(it->second);
+					//bool added = 
+					AddSceneToList(it->second);
 				}
 			}
 		}

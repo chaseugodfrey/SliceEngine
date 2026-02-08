@@ -336,7 +336,7 @@ namespace SliceEngine
 						size_t drawNum{ std::min(batch.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.data() + drawCounter);
 						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
-						drawCounter += drawNum;
+						drawCounter += static_cast<GLsizei>(drawNum);
 					}
 				}
 			}
@@ -374,7 +374,7 @@ namespace SliceEngine
 				auto thisShader = shaderList.at(temp);
 				if (thisShader != mShader)
 				{
-					mShader = thisShader;
+					mShader = static_cast<GLuint>(thisShader);
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
@@ -382,7 +382,7 @@ namespace SliceEngine
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-				auto& test = mdl.get()->meshes;
+				//auto& test = mdl.get()->meshes;
 				int meshOffset = mdlRef.meshOffset;
 				if (mdlRef.meshOffset >= mdl.get()->meshes.size())
 					meshOffset = 0;
@@ -392,7 +392,7 @@ namespace SliceEngine
 				for (auto& j : batch.base)
 					ShiftTransformMtx(j.mdlMtx, offsetDelta);
 
-				GLint uniformLoc;
+				//GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
 					for (size_t j{}; j < batch.base.size(); ++j)
@@ -412,7 +412,7 @@ namespace SliceEngine
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.base.data() + drawCounter);
 						glNamedBufferSubData(mEVBO, 0, sizeof(float) * drawNum * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * drawCounter);
 						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
-						drawCounter += drawNum;
+						drawCounter += static_cast<GLsizei>(drawNum);
 					}
 				}
 			}
@@ -610,7 +610,7 @@ namespace SliceEngine
 	{
 		if (cmd.empty())
 			cmd.push_back(glm::uvec4{});
-		auto numVar = mat->shader.get()->dataIn.size();
+		//auto numVar = mat->shader.get()->dataIn.size();
 
 		int mainID{}, subID{};
 
@@ -647,11 +647,11 @@ namespace SliceEngine
 
 		auto numVar = mat->shader.get()->dataIn.size();
 
-		int mainID = num * numVar / 4;
+		int mainID = static_cast<int>(num * numVar / 4);
 		int subID = num * numVar % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
-		size_t numFloats{}, numUints{}, numInts{}, numBools{};
+		//size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
