@@ -327,8 +327,8 @@ namespace SliceEngine
 				}
 				//else
 				{
-					for (auto& i : batch)
-						ShiftTransformMtx(i.mdlMtx, offsetDelta);
+					for (auto& j : batch)
+						ShiftTransformMtx(j.mdlMtx, offsetDelta);
 
 					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
 					for(size_t drawCounter{}; drawCounter < batch.size(); )
@@ -389,17 +389,17 @@ namespace SliceEngine
 				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
 
-				for (auto& i : batch.base)
-					ShiftTransformMtx(i.mdlMtx, offsetDelta);
+				for (auto& j : batch.base)
+					ShiftTransformMtx(j.mdlMtx, offsetDelta);
 
 				GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
-					for (size_t i{}; i < batch.base.size(); ++i)
+					for (size_t j{}; j < batch.base.size(); ++j)
 					{
-						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
-						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
-						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
+						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[j].entityID);
+						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[j]);
+						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * j);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
