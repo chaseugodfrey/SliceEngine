@@ -31,7 +31,7 @@ namespace SliceEngine
 	class FramerateManager;
 	class InputSystem;
 	class ProjectSettingsManager;
-	class AudioSettings;
+	struct AudioSettings;
 	class SceneSystem;
 	class PhysicsSystem;
 	class PrefabSystem;

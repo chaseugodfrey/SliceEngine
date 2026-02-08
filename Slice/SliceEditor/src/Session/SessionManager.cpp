@@ -44,7 +44,7 @@ namespace SliceEditor
 
 		if (mHighlightGOs)
 		{
-			mGOScriptTimer -= SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+			mGOScriptTimer -= static_cast<float>(SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime());
 
 			if (mGOScriptTimer <= FLT_EPSILON)
 			{
@@ -124,7 +124,7 @@ namespace SliceEditor
 
 	void SessionManager::UpdateEntityNodes()
 	{
-		auto selectionMan = registry.GetManager<SelectionManager>("Selection");
+		//auto selectionMan = registry.GetManager<SelectionManager>("Selection");
 		auto view = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::SliceEntity>();
 		auto isPrefabView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::Prefab>();
 		auto prefabEditorView = SliceEngine::Core::GetInstance()->GetRegistry().view<SliceEngine::PrefabEditingEntity>();
@@ -263,7 +263,7 @@ namespace SliceEditor
 		mPrefabInspected = event.prefabBeingInspected;
 
 		//SceneGraph Building
-		auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//Prefab  now being inspected
 		if (event.prefabBeingInspected)
 		{
@@ -297,8 +297,8 @@ namespace SliceEditor
 	void SessionManager::BuildPrefabTree(Entity entity)
 	{
 		//Get Entity's SceneGraph
-		auto& registry = SliceEngine::Core::GetInstance()->GetRegistry();
-		auto& sceneGraph = registry.get<SliceEngine::SceneGraph>(entity);
+		auto& engineRegistry = SliceEngine::Core::GetInstance()->GetRegistry();
+		auto& sceneGraph = engineRegistry.get<SliceEngine::SceneGraph>(entity);
 
 		//Add the parent to mPrefabNodes (just a lookup table)
 		//auto pair = mPrefabNodes.try_emplace(entity, std::make_unique<EntityNode>());

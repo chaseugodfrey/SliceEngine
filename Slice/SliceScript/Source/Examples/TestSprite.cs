@@ -9,7 +9,7 @@ namespace SliceEngine
     public class TestSprite : SliceBehaviour
     {
         SpriteRenderer sprite;
-        RectTransform rect;
+        //RectTransform rect;
         public override void OnCreate()
         {
             sprite = GetComponent<SpriteRenderer>();

@@ -29,7 +29,7 @@ namespace SliceEngine
         public void StopSpawning() { isSpawning = false; }
         #endregion
 
-        private RigidBody rb; 
+        //private RigidBody rb; 
         //private Renderer
 
         public void Initialize()
