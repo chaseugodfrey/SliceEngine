@@ -98,18 +98,17 @@ namespace SliceEngine
             {
                 if (inputS->lastMouseMode == GLFW_CURSOR_NORMAL)
                 {
-                    inputS->prevMouseInternalPos.x = xpos;
-                    inputS->prevMouseInternalPos.y = ypos;
+                    inputS->currMouseInternalPos.x = inputS->prevMouseInternalPos.x = worldSpaceMouse.x;
+                    inputS->currMouseInternalPos.y = inputS->prevMouseInternalPos.y = worldSpaceMouse.y;
                     inputS->lastMouseMode = GLFW_CURSOR_DISABLED;
-                    break;
+                    return;
                 }
-                glm::vec2 lastPos = inputS->GetMousePosition();
-                glm::vec2 delta{ inputS->prevMouseInternalPos.x - xpos, inputS->prevMouseInternalPos.y - ypos };
-                lastPos += delta;
-                inputS->SetMouseDeltaForced(delta);
-                inputS->prevMouseInternalPos.x = xpos;
-                inputS->prevMouseInternalPos.y = ypos;
+                inputS->currMouseInternalPos.x = worldSpaceMouse.x;
+                inputS->currMouseInternalPos.y = worldSpaceMouse.y;
 
+
+                glm::vec2 lastPos = inputS->GetMousePosition();
+                lastPos += inputS->prevMouseInternalPos - inputS->currMouseInternalPos;
                 xpos = std::clamp(static_cast<double>(lastPos.x), 0.0, tx);
                 ypos = std::clamp(static_cast<double>(lastPos.y), 0.0, ty);
                 break;
@@ -202,6 +201,11 @@ namespace SliceEngine
         if (lastMouseMode != GLFW_CURSOR_DISABLED)
         {
             mouseDelta = prevMousePos - currMousePos;
+        }
+        else
+        {
+            mouseDelta = prevMouseInternalPos - currMouseInternalPos;
+            prevMouseInternalPos = currMouseInternalPos;
         }
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
@@ -321,11 +325,6 @@ namespace SliceEngine
     double InputSystem::GetMouseY() const
     {
         return currMousePos.y;
-    }
-
-    void InputSystem::SetMouseDeltaForced(const glm::vec2& in)
-    {
-        mouseDelta = in;
     }
 
     void InputSystem::SetCursorState()
