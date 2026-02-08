@@ -24,7 +24,7 @@ namespace SliceEngine
         }
         public static bool RayCast(Vector3 origin, Vector3 direction,uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
-            uint bodyHitID = 0;
+            //uint bodyHitID = 0;
 
 
             //FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
