@@ -2639,6 +2639,17 @@ namespace SliceEngine
 	}
 #pragma endregion
 
+#pragma region Application
+
+	static MonoString* Application_GetFilePath()
+	{
+		std::string path = std::filesystem::path("Assets").generic_string();
+		return mono_string_new(mono_domain_get(), path.c_str());
+	}
+
+#pragma endregion Application
+
+
 #pragma region COMPONENT REGISTRATION
 	template <typename T>
 	static void RegisterComponent()
@@ -2992,6 +3003,9 @@ namespace SliceEngine
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+
+		// Application
+		ADD_INTERNAL_CALL(Application_GetFilePath);
 	}
 
 #pragma endregion
