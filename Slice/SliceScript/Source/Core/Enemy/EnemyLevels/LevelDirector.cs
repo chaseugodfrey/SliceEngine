@@ -181,11 +181,11 @@ namespace SliceEngine
             {
                 if (enemy == null) continue;
 
-                SliceLog.Log("Died in here 0");
+                ///SliceLog.Log("Died in here 0");
                 if (enemy.mID == 0) continue;
 
                 float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
-                SliceLog.Log("Died in here 1");
+                //SliceLog.Log("Died in here 1");
                 if (Dist < SafetyDistance)
                 {
                     return false;
@@ -218,6 +218,8 @@ namespace SliceEngine
             {
                 // note: this is assuming we start at lvl 0, then on the first trigger box
                 // we go to the next level
+                levels[currLevel].As<BaseLevel>().TriggerMovingNextLevelEvent();
+
 
                 // if we need to trigger a level box at the start then this might need a diff logic
                 levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
