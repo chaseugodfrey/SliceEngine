@@ -16,7 +16,7 @@ namespace SliceEngine
 		for (size_t i = 0; i < matrix.size(); i++)
 		{
 			std::string chunk = matrix.substr(i, 1);
-			JPH::BroadPhaseLayer::Type bpLayer = std::stoi(chunk);
+			JPH::BroadPhaseLayer::Type bpLayer = static_cast<JPH::BroadPhaseLayer::Type>(std::stoi(chunk));
 			physicsSystem->SetObjectBroadPhaseLayer(static_cast<uint32_t>(i), JPH::BroadPhaseLayer(bpLayer));
 		}
 
