@@ -1508,14 +1508,14 @@ namespace SliceEngine
 
 		float distanceToHit = glm::length(hitPos - origin);
 		float distanceToMove = glm::length(*d_m);
-		if (distanceToHit <= distanceToMove)
-		{
-			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
-		}
-		else if (distanceToMove < distanceToHit)
-		{
-			glm::mix(transform.position, origin + (*d_m), 0.2f);
-		}
+		//if (distanceToHit <= distanceToMove)
+		//{
+		//	glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
+		//}
+		//else if (distanceToMove < distanceToHit)
+		//{
+		//	glm::mix(transform.position, origin + (*d_m), 0.2f);
+		//}
 
 
 	}

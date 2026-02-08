@@ -327,8 +327,8 @@ namespace SliceEngine
 				}
 				//else
 				{
-					for (auto& i : batch)
-						ShiftTransformMtx(i.mdlMtx, offsetDelta);
+					for (auto& j : batch)
+						ShiftTransformMtx(j.mdlMtx, offsetDelta);
 
 					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
 					for(size_t drawCounter{}; drawCounter < batch.size(); )
