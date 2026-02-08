@@ -191,7 +191,7 @@ namespace SliceEngine
 		/// Set up all the internal function calls by getting the method and the number of params
 		/// </summary>
 		/// <param name="entity"></param>
-		void SetUpEntity(Entity entity);
+		//void SetUpEntity(Entity entity);
 
 
 		/// <summary>
@@ -539,7 +539,7 @@ namespace SliceEngine
 
 			if (field.mElementClass == nullptr)
 			{
-				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				//SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
 				return;
 			}
 
@@ -567,7 +567,7 @@ namespace SliceEngine
 
 			if (field.mElementClass == nullptr)
 			{
-				SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				//SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
 				return;
 			}
 
@@ -709,7 +709,7 @@ namespace SliceEngine
 
 			// TODO: add in exception handling like in my other invoke stuff
 			if (exception || !countObj) {
-				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				//SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
 				return result;
 			}
 
@@ -771,7 +771,7 @@ namespace SliceEngine
 
 			// TODO: add in exception handling like in my other invoke stuff
 			if (exception || !countObj) {
-				SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				//SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
 				return result;
 			}
 			int count = *(int*)mono_object_unbox(countObj);
@@ -1148,7 +1148,7 @@ namespace SliceEngine
 
 			for (size_t i = 0; i < val.size(); ++i)
 			{
-				SetListFieldValue(name, i, val[i]);
+				SetListFieldValue(name, static_cast<int>(i), val[i]);
 			}
 		}
 
@@ -1186,7 +1186,7 @@ namespace SliceEngine
 
 			for (size_t i = 0; i < val.size(); ++i)
 			{
-				SetListFieldValue<std::string>(name, i, val[i]);
+				SetListFieldValue<std::string>(name, static_cast<int>(i), val[i]);
 			}
 
 		}
@@ -1225,7 +1225,7 @@ namespace SliceEngine
 
 			for (size_t i = 0; i < val.size(); ++i)
 			{
-				SetListFieldValue<GameObject>(name, i, val[i]);
+				SetListFieldValue<GameObject>(name, static_cast<int>(i), val[i]);
 			}
 
 		}
@@ -1264,7 +1264,7 @@ namespace SliceEngine
 
 			for (size_t i = 0; i < val.size(); ++i)
 			{
-				SetListFieldValue<PrefabVar>(name, i, val[i]);
+				SetListFieldValue<PrefabVar>(name, static_cast<int>(i), val[i]);
 			}
 
 		}
