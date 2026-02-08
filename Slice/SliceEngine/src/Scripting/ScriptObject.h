@@ -539,7 +539,9 @@ namespace SliceEngine
 
 			if (field.mElementClass == nullptr)
 			{
-				//SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				std::stringstream ss;
+				ss << "No element info for this array: " << name << "\n";
+				SLICE_LOG_ERROR(ss.str().c_str());
 				return;
 			}
 
@@ -567,7 +569,9 @@ namespace SliceEngine
 
 			if (field.mElementClass == nullptr)
 			{
-				//SLICE_LOG_ERROR("No element info for this array: %s\n", name.c_str());
+				std::stringstream ss;
+				ss << "No element info for this array: " << name << "\n";
+				SLICE_LOG_ERROR(ss.str().c_str());
 				return;
 			}
 
@@ -709,7 +713,9 @@ namespace SliceEngine
 
 			// TODO: add in exception handling like in my other invoke stuff
 			if (exception || !countObj) {
-				//SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+				std::stringstream ss;
+				ss << "C# Exception or null returned while getting count for list: " << name << "\n";
+				SLICE_LOG_ERROR(ss.str().c_str());
 				return result;
 			}
 
@@ -771,7 +777,10 @@ namespace SliceEngine
 
 			// TODO: add in exception handling like in my other invoke stuff
 			if (exception || !countObj) {
-				//SLICE_LOG_ERROR("C# Exception or null returned while getting count for list: %s", name.c_str());
+
+				std::stringstream ss;
+				ss << "C# Exception or null returned while getting count for list: " << name << "\n";
+				SLICE_LOG_ERROR(ss.str().c_str());
 				return result;
 			}
 			int count = *(int*)mono_object_unbox(countObj);
