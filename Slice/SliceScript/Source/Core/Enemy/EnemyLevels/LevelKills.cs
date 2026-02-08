@@ -18,7 +18,7 @@ namespace SliceEngine
         {
             //SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
 
-            if (KillsRequired == 0)
+            if (KillsRequired <= 0)
             {
                 // Clear enemies
                 // Display objective done

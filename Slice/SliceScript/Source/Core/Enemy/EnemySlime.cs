@@ -19,6 +19,7 @@ namespace SliceEngine
         public float buildUpTiming = 1f;
         public float flickerTiming = 1f;
         public bool exploding { get; private set; } = false;
+        private bool exploded = false;
         //private float _explodingCounter = 0f;
 
         //public GameObject explodeParentObject;
@@ -81,6 +82,11 @@ namespace SliceEngine
             }
             */
             base.OnUpdate(dt);
+
+            if (exploding == false && exploded == true)
+            {
+                this.TakeDamage(10000, this.gameObject);
+            }
         }
 
         public void BasicExplode(GameObject hit)
@@ -92,12 +98,12 @@ namespace SliceEngine
                 //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
                 Bootstrap.Player.TakeDamage(damage, this.gameObject);
-                this.TakeDamage(10000, this.gameObject);
             }
             else
             {
                 //Console.Write("| Failed player check on damage, no damage done |");
             }
+
         }
 
         public void StartExplodeCoroutine()
@@ -137,22 +143,21 @@ namespace SliceEngine
             //Console.Write("Box On | ");
 
 
-            if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
-            {
-                //Console.Write("Hit Box successfully turned on -> ");
-                //SliceLog.Log("Hit Box successfully turned off");
-            }
-            else
-            {
-                ////Console.WriteLine("Hit Box still off -> ");
-                //SliceLog.Log("Hit Box still on");
-            }
+            //if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == true)
+            //{
+            //    //Console.Write("Hit Box successfully turned on -> ");
+            //    //SliceLog.Log("Hit Box successfully turned off");
+            //}
+            //else
+            //{
+            //    ////Console.WriteLine("Hit Box still off -> ");
+            //    //SliceLog.Log("Hit Box still on");
+            //}
 
 
             //Console.Write("Flicker waiting -> ");
             yield return new WaitForSeconds(flickerTiming);
             //Console.Write("Flicker returned -> ");
-
 
             //_basicHitBox.As<GeneralHitbox>().SetActive(false);
             //basicHitBox.GetComponent<ColliderShape>().ComponentEnabled = false;
@@ -161,18 +166,19 @@ namespace SliceEngine
             //Console.Write("Box Off | ");
 
 
-            if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
-            {
-                //Console.WriteLine("Hit Box successfully turned off -> ");
-                //SliceLog.Log("Hit Box successfully turned off");
-            }
-            else
-            {
-                //Console.WriteLine("Hit Box still on -> ");
-                //SliceLog.Log("Hit Box still on");
-            }
+            //if (explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
+            //{
+            //    //Console.WriteLine("Hit Box successfully turned off -> ");
+            //    //SliceLog.Log("Hit Box successfully turned off");
+            //}
+            //else
+            //{
+            //    //Console.WriteLine("Hit Box still on -> ");
+            //    //SliceLog.Log("Hit Box still on");
+            //}
 
             exploding = false;
+            exploded = true;
             //Console.WriteLine("exploding is Off");
 
             //ChangeState(new EnemySlimeChaseState(movementSpeed, attackTriggerRange));
@@ -213,6 +219,7 @@ namespace SliceEngine
         
         public override void OnDeath()
         {
+            base.OnDeath();
             CreateGameObject("Prefabs/GruntDeath.prefab").GetComponent<Transform>().Position = transform.Position;
             Bootstrap.LevelDirector.EnemyDeath(this.gameObject);
 
