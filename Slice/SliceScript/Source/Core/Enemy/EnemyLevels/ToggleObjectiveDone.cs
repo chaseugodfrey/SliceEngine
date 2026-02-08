@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class ToggleObjective : SliceBehaviour
+    public class ToggleObjectiveDone : SliceBehaviour
     {
         public FontRenderer textToDisplay;
 

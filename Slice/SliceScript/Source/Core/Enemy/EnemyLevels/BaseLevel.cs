@@ -15,6 +15,7 @@ namespace SliceEngine
         public GameObject levelDirectorObject;
 
         public delegate void levelCompleteObserver();
+        public event levelCompleteObserver MovingToNextLevelEvent;
         public event levelCompleteObserver LevelCompleteEvent;
 
         public GameObject respawnPoint;
@@ -45,16 +46,46 @@ namespace SliceEngine
 
         public virtual bool CheckObjective() { return false; }
 
-        //public void LevelCompleteDebug()
-        //{
-        //    SliceLog.Log("Level complete has been called");
-        //}
+        public void MoveToNextLevelDebug()
+        {
+            SliceLog.Log("Level complete has been called");
+        }
 
-        //public override void OnAwake()
-        //{
-        //    base.OnAwake();
-        //    this.LevelCompleteEvent += LevelCompleteDebug;
-        //}
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            //SliceLog.Log("Level on create called");
+            this.MovingToNextLevelEvent += MoveToNextLevelDebug;
+
+            //if (LevelCompleteEvent.GetInvocationList() != null )
+            //{
+            //    SliceLog.Log("EVent null chheck passed");
+            //}
+            //else
+            //{
+            //    SliceLog.Log("EVent null chheck failed");
+            //}
+                
+            // if (LevelCompleteEvent.GetInvocationList().Length != 0)
+            //{
+
+            //    SliceLog.Log("EVent zero count chheck passed");
+            //}
+            //else
+            //{
+            //    SliceLog.Log("EVent zero count chheck failed");
+            //}
+        }
+
+        public void TriggerMovingNextLevelEvent()
+        {
+            MovingToNextLevelEvent();
+        }
+
+        public void TriggerLevelCompleteEvent()
+        {
+            LevelCompleteEvent();
+        }
 
         public virtual void UpdateLevel(float dt)
         {
@@ -62,10 +93,8 @@ namespace SliceEngine
 
             if (CheckObjective())
             {
-                if (LevelCompleteEvent != null)
-                {
-                    LevelCompleteEvent();
-                }
+
+
                 toggleLevel = true;
             }
 
