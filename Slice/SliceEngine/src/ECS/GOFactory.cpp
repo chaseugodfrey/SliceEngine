@@ -806,6 +806,7 @@ namespace SliceEngine
 		ui_ele.AddComponent<RectTransform>();
 		auto& ui_rect = ui_ele.GetComponent<RectTransform>();
 		ui_rect.width = 200; ui_rect.height = 50; ui_rect.pos_x = 0; ui_rect.pos_y = 0;
+		ui_rect.final_width = 200.f;	//helps with init slider
 
 		ui_ele.AddComponent<SpriteRenderer>();
 		ui_ele.AddComponent<Slider>();
