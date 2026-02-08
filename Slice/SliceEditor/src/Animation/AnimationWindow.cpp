@@ -459,7 +459,7 @@ namespace SliceEditor
 											//Set the mCurrentEventIndex for the pop-up
 											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
 												{
-													return (x.frameNumber == key && x.animIdx == static_cast<unsigned int>(mCurrentClipIndex));
+													return (x.frameNumber == static_cast<unsigned int>(key) && x.animIdx == static_cast<unsigned int>(mCurrentClipIndex));
 												});
 
 											if (it != mCurrentAnimator->eventFrames.end())
