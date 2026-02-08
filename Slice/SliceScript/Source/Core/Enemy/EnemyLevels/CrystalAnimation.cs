@@ -32,7 +32,7 @@ namespace SliceEngine
 
             float calc = (float)(floatingAmp * Math.Sin( floatingFreq * cycle));
 
-            this.transform.Position =  storedTransform + new Vector3( 0, storedTransform.y + calc,0 );
+            transform.Position =  storedTransform + new Vector3( 0, calc, 0 );
         }
     }
 }

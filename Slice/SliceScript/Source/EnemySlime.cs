@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class EnemySlime : Entity
+    public class EnemySlimeOld : Entity
     {
         Transform enemyT;
         //GameObject player;
