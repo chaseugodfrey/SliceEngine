@@ -935,6 +935,7 @@ namespace SliceEngine
 		{
 			return ps.parentTransform->rotation * (dir * r);
 		}
+		return glm::vec3();
 	}
 
 	glm::vec3 ParticleSystemManager::RandomPointInCircle(float radius, ParticleSystem& ps) // optional parent rotation
@@ -963,6 +964,8 @@ namespace SliceEngine
 		{
 			return ps.parentTransform->rotation * localPoint;
 		}
+
+		return glm::vec3();
 	}
 }
 #pragma endregion
