@@ -37,12 +37,6 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 	int test1 = static_cast<int>(inBody1.GetUserData());
 	int test2 = static_cast<int>(inBody2.GetUserData());
 
-	if(!(test1 == 3 || test2 == 3))
-	{
-		int a = 0;
-	}
-
-
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 	//std::cout << inBody1.GetUserData() << " and " << inBody2.GetUserData() << std::endl;
