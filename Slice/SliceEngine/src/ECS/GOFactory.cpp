@@ -1141,11 +1141,11 @@ namespace SliceEngine
 			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::LEFT]);
 			auto it2 = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::RIGHT]);
 
-			if (it == mEntityToGO.end() || it2 == mEntityToGO.end()) //One of the neighbours have been deleted alr
-			{
+			//if (it == mEntityToGO.end() || it2 == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			//{
 
-			}
-			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			//}
+			if (it != mEntityToGO.end() && it2 != mEntityToGO.end() && (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>()))
 			{
 				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
 				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
@@ -1157,11 +1157,11 @@ namespace SliceEngine
 		else if (sceneGraph.neighbours[SceneGraph::LEFT] != entt::null)
 		{
 			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::LEFT]);
-			if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
-			{
-				//wait idk what to do here tho
-			}
-			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
+			//if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			//{
+			//	//wait idk what to do here tho
+			//}
+			if (it != mEntityToGO.end() && mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].HasComponent<SceneGraph>())
 			{
 				auto& leftSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::LEFT]].GetComponent<SceneGraph>();
 				leftSiblingGraph.neighbours[SceneGraph::RIGHT] = entt::null;
@@ -1170,11 +1170,11 @@ namespace SliceEngine
 		else if (sceneGraph.neighbours[SceneGraph::RIGHT] != entt::null)
 		{
 			auto it = mEntityToGO.find(sceneGraph.neighbours[SceneGraph::RIGHT]);
-			if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
-			{
-				//wait idk what to do here tho
-			}
-			else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
+			//if (it == mEntityToGO.end()) //One of the neighbours have been deleted alr
+			//{
+			//	//wait idk what to do here tho
+			//}
+			if (it != mEntityToGO.end() && mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].HasComponent<SceneGraph>())
 			{
 				auto& rightSiblingGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::RIGHT]].GetComponent<SceneGraph>();
 				rightSiblingGraph.neighbours[SceneGraph::LEFT] = entt::null;
