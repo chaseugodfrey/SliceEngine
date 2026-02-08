@@ -130,7 +130,7 @@ namespace SliceEditor
 		static std::string searchPrompt;
 		bool changed = false;
 		int idx = static_cast<int>(selected);
-
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
 		{
 			

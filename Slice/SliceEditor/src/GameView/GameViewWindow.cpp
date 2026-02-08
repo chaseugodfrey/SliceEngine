@@ -151,6 +151,11 @@ namespace SliceEditor
 	{
 		auto mouse_pos = ImGui::GetIO().MousePos;
 		
+		const float cReallyHugeNumber = 999'999'999'999'999'999'999'999'999.f;
+		if (mouse_pos.x < -cReallyHugeNumber || mouse_pos.y < -cReallyHugeNumber ||
+			mouse_pos.x > cReallyHugeNumber || mouse_pos.y > cReallyHugeNumber)
+			return;
+
 		auto relative_mouse_pos = mouse_pos - mGameScreen.topLeft;
 		auto percentage_x = relative_mouse_pos.x / mGameScreen.size.x;
 		auto percentage_y = relative_mouse_pos.y / mGameScreen.size.y;

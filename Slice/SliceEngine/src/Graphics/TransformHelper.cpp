@@ -48,4 +48,11 @@ namespace SliceEngine
         // Convert from radians to degrees
         return glm::degrees(result);
     }
+
+    void ShiftTransformMtx(glm::mat4& m, const glm::vec3 v)
+    {
+        m[3][0] += v.x;
+        m[3][1] += v.y;
+        m[3][2] += v.z;
+    }
 }
