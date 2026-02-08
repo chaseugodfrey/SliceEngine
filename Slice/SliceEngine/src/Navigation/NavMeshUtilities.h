@@ -26,7 +26,7 @@ namespace SliceEngine
         float distancePtLine2d(const float* pt, const float* p, const float* q);
         dtCrowd *InitCrowd(dtNavMesh *navMesh);
         std::optional<NavMeshObj> LoadNavMesh(const std::string &filePath);
-        NavMeshDebugObj CreateDebugMesh(NavMeshObj const& navMeshObj);
+        std::optional<NavMeshDebugObj> CreateDebugMesh(NavMeshObj const& navMeshObj);
 
         NavMeshDebugObj CreateDebugPathMesh(const std::vector<glm::vec3> &pathPoints);
 

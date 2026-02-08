@@ -1258,7 +1258,7 @@ namespace SliceEditor
 				}
 
 				//Manipulate to the filename
-				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[mapGUID];
 				std::string fileNameString = relativePath.filename().string();
 
 				mapNames.push_back(fileNameString);
