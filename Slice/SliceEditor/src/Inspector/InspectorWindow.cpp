@@ -433,7 +433,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayAudioListener(entt::entity entity)
 	{
-		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto& al = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioListener>(entity);
 
 
@@ -686,7 +686,7 @@ namespace SliceEditor
 	{
 		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
 		{
-			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+			//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
 			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
 			
 			
@@ -734,7 +734,7 @@ namespace SliceEditor
 			{
 				//script_name = "Empty";
 				scriptList.push_back("Empty");
-				selectedIndex = scriptList.size() - 1;
+				selectedIndex = (int)scriptList.size() - 1;
 			}
 			else
 			{
@@ -748,7 +748,7 @@ namespace SliceEditor
 				auto it = std::find(scriptList.begin(), scriptList.end(), searchName);
 				if (it != scriptList.end())
 				{
-					selectedIndex = std::distance(scriptList.begin(), it);
+					selectedIndex = (int)std::distance(scriptList.begin(), it);
 				}
 			}
 
@@ -861,15 +861,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -888,15 +888,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -915,15 +915,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<int>, int, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<int> list, int val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -942,15 +942,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<glm::vec3> list, glm::vec3 val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -969,15 +969,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -1831,7 +1831,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape boxData{};
 					boxData.shapeData = SliceEngine::ColliderShape::BoxData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
+					/*auto& col = */reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
 
 				}
 
@@ -1839,14 +1839,14 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape sphereData{};
 					sphereData.shapeData = SliceEngine::ColliderShape::SphereData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
 				}
 
 				if (ImGui::Selectable("Add Capsule Collider"))
 				{
 					SliceEngine::ColliderShape capsuleData{};
 					capsuleData.shapeData = SliceEngine::ColliderShape::CapsuleData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
 					
 				}
 
@@ -1854,7 +1854,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape meshData{};
 					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
 
 				}
 
@@ -1862,7 +1862,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape cylinderData{};
 					cylinderData.shapeData = SliceEngine::ColliderShape::CylinderData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
 
 				}
 			}
@@ -1919,7 +1919,7 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Sprite"))
 				{
-					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 					reg.emplace<SliceEngine::SpriteRenderer>(entity);
 					auto& ui_sprite = reg.get<SliceEngine::SpriteRenderer>(entity);
 					ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
@@ -1930,7 +1930,7 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Font"))
 				{
-					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 					reg.emplace<SliceEngine::FontRenderer>(entity);
 					auto& ui_font = reg.get<SliceEngine::FontRenderer>(entity);
 					ui_font.rgba = { 0.f,0.f,0.f,1.f };
@@ -2280,7 +2280,7 @@ namespace SliceEditor
 		if (!transitionOpt.has_value())
 			return;
 
-		auto& transition = transitionOpt.value().get();
+		//auto& transition = transitionOpt.value().get();
 
 		auto params = anim_data->GetParameters();
 
