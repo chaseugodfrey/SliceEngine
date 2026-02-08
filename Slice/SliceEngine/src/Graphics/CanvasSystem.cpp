@@ -71,7 +71,7 @@ namespace SliceEngine {
 					for (size_t ch = pos; ch < next; ++ch) {
 						token.size += font.glyph_datas.at(font_text[ch]).advance * relative_size;
 					}
-					token.char_cnt = next - pos;
+					token.char_cnt = (unsigned int)(next - pos);
 					pos += next - pos - 1;	//-1 because of loop increments
 					}
 					break;
@@ -201,8 +201,8 @@ namespace SliceEngine {
 		}
 
 		GLenum render_targets[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-		GLenum render_color[] = {GL_COLOR_ATTACHMENT0};
-		GLenum render_eid[] = {GL_COLOR_ATTACHMENT1};
+		//GLenum render_color[] = {GL_COLOR_ATTACHMENT0};
+		//GLenum render_eid[] = {GL_COLOR_ATTACHMENT1};
 
 		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
 
@@ -333,7 +333,7 @@ namespace SliceEngine {
 				unsigned int instance_count = 0;
 				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
 
-				unsigned int uniform_loc = glGetUniformLocation(shader, "rgba");
+				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
 
 				float relative_scale = font_render.font_size / font->font_size;
@@ -674,7 +674,7 @@ namespace SliceEngine {
 			//std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
 		}
 		else {
-			final_width = width;
+			final_width = (float)width;
 			switch (hori_pivot) {
 			case LEFT:
 				final_x = parent_left + pos_x;
@@ -700,7 +700,7 @@ namespace SliceEngine {
 			final_y = bot_ref + final_height / 2;
 		}
 		else {
-			final_height = height;
+			final_height = (float)height;
 			switch (vert_pivot) {
 			case TOP:
 				final_y = parent_top + pos_y;
