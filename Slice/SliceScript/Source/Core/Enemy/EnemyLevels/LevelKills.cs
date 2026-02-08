@@ -16,7 +16,7 @@ namespace SliceEngine
         /// <returns></returns>
         public override bool CheckObjective()
         {
-            SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
+            //SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
 
             if (KillsRequired == 0)
             {

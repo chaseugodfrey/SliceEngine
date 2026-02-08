@@ -43,7 +43,7 @@ namespace SliceEngine
 
 
         public void TurnOn()
-        { SliceLog.Log("Turn on objective called"); textToDisplay.SetEnabled(true); }
+        { /*SliceLog.Log("Turn on objective called");*/ textToDisplay.SetEnabled(true); }
 
         public void TurnOff() 
         { textToDisplay.SetEnabled(false); }

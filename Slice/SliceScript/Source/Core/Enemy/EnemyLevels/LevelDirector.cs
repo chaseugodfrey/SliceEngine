@@ -163,7 +163,7 @@ namespace SliceEngine
 
             // if the level is done, then dont continue updating
             // the trigger box will toggle the next level
-            if (levelDone)
+            if (levelDone && levels[currLevel].As<BaseLevel>().stopWhenCleared)
                 return;
            // SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
@@ -217,6 +217,13 @@ namespace SliceEngine
 
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
+                foreach (GameObject enemy in enemies)
+                {
+                    enemy.Destroy();
+                }
+
+                enemies.Clear();
+
                 // note: this is assuming we start at lvl 0, then on the first trigger box
                 // we go to the next level
                 levels[currLevel].As<BaseLevel>().TriggerMovingNextLevelEvent();
