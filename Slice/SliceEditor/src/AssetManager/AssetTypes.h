@@ -169,7 +169,7 @@ namespace SliceEditor
 			{
 				inFile >> metaData;
 			}
-			catch (nlohmann::json::parse_error& e)
+			catch (nlohmann::json::parse_error&)
 			{
 				return;
 			}
@@ -181,7 +181,7 @@ namespace SliceEditor
 				assetName = metaData["assetName"].get<std::string>();
 
 			if (metaData.contains("assetType"))
-				assetType == metaData["assetType"].get<std::string>();
+				assetType = metaData["assetType"].get<std::string>();
 
 			if (metaData.contains("assetPath"))
 				assetPath = metaData["assetPath"].get<std::string>();
@@ -1055,7 +1055,7 @@ namespace SliceEditor
 
 			else
 			{
-				SLICE_LOG_ERROR("Error in opening file for writing: " , assetPath.c_str());
+				SLICE_LOG_ERROR("Error in opening file for writing: " +  assetPath);
 			}
 		}
 

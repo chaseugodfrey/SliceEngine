@@ -312,7 +312,7 @@ namespace SliceEditor
 
 	void AnimatorWindow::SaveAnimatorData()
 	{
-		auto& sm = mAnimatorData->mStateMachineAsset;
+		//auto& sm = mAnimatorData->mStateMachineAsset;
 
 		//sm->entryPosition = ImNodes::GetNodeEditorSpacePos(0);
 		//sm->exitPosition = ImNodes::GetNodeEditorSpacePos(1);
@@ -384,7 +384,7 @@ namespace SliceEditor
 
 		if (ImNodes::IsNodeSelected(node->id))
 		{
-			SelectNode(node->id);
+			SelectNode(static_cast<uint16_t>(node->id));
 		}
 
 		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
@@ -453,7 +453,7 @@ namespace SliceEditor
 			return false;
 		}
 
-		auto& state_node = mAnimatorData->mStateNodes.at(transition_it->second.source_id);
+		auto& state_node = mAnimatorData->mStateNodes.at(static_cast<const unsigned short>(transition_it->second.source_id));
 		
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
 		auto state_it = stateMap.find(state_node.name);
