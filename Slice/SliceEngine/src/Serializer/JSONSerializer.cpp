@@ -454,7 +454,7 @@ namespace SliceEngine
 			
 
 
-    		return rootEntity;
+    return rootEntity;
 		}
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
 		{

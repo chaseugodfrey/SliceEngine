@@ -6,7 +6,6 @@ namespace SliceEngine
     {
         public uint mID;
 
-
         public GameObject(uint id)
         {
             mID = id;

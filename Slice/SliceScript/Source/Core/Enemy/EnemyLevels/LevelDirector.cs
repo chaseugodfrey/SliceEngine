@@ -10,8 +10,9 @@ namespace SliceEngine
     public class LevelDirector : SliceBehaviour, IInitializable
     {
         //public List<GameObject> levelsList = new List<GameObject>();
-        public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
+        //public Dictionary<int, GameObject> levels = new Dictionary<int, GameObject>();
         public List<GameObject> enemies = new List<GameObject>();
+        public List<GameObject> levels = new List<GameObject>();
         public List<GameObject> levelTriggers = new List<GameObject>();
         //public List<GameObject> respawnPoint = new List<GameObject>();
         //public Dictionary<int, GameObject> finishedTriggers = new Dictionary<int, GameObject>();
@@ -33,22 +34,22 @@ namespace SliceEngine
         public void Initialize()
         {
             //SliceLog.Log("Initialize Level Director");
-            isActive = true;
+
 
             //gameObject.FindGameObjectsWithTag("Level").Length;
-            foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
-            {
-                int index = levelObject.As<BaseLevel>().levelIndex;
+            //foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
+            //{
+            //    int index = levelObject.As<BaseLevel>().levelIndex;
 
-                if (!levels.ContainsKey(index))
-                {
-                    levels.Add(index, levelObject);
-                }
-                else
-                {
-                    //SliceLog.Log("Duplicate Level Detected, Not ");
-                }
-            }
+            //    if (!levels.ContainsKey(index))
+            //    {
+            //        levels.Add(index, levelObject);
+            //    }
+            //    else
+            //    {
+            //        //SliceLog.Log("Duplicate Level Detected, Not ");
+            //    }
+            //}
 
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
@@ -67,15 +68,30 @@ namespace SliceEngine
                 deathBox.As<GeneralHitbox>().TurnOn();
             }
 
+            isActive = true;
+
+
             //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
             //Console.WriteLine("Num of levels: " + levels.Count);
         }
 
-        public GameObject CreateEnemy(Prefab prefab)
+        public GameObject CreateGruntEnemy(/*Prefab prefab*/)
         {
             // instantiate the enemy
             GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
+            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
             newEnemy.As<EnemyGrunt>().SetUp();
+            enemies.Add(newEnemy);
+
+            return newEnemy;
+        }
+
+        public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
+        {
+            // instantiate the enemy
+            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
+            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
+            newEnemy.As<EnemySlime>().SetUp();
             enemies.Add(newEnemy);
 
             return newEnemy;
@@ -87,8 +103,16 @@ namespace SliceEngine
         {
             // update the level that an enemy died
             levels[currLevel].As<BaseLevel>().EnemyKilled(enemy);
+            SliceLog.Log("Killing enemy with: " + enemy.mID);
 
-            enemies.Remove(enemy);
+            if (enemies.Remove(enemy))
+            {
+                SliceLog.Log("Enemy removed");
+            }
+            else
+            {
+                SliceLog.Log("Enemy not removed");
+            }
         }
 
         public override void OnUpdate(float dt)
@@ -140,8 +164,8 @@ namespace SliceEngine
             // the trigger box will toggle the next level
             if (levelDone)
                 return;
-            //SliceLog.Log("Updating Level: " + currLevel);
-            levels[currLevel].As<BaseLevel>().OnUpdate(dt);
+           // SliceLog.Log("Updating Level: " + currLevel);
+            levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
         }
 
         /// <summary>
@@ -155,10 +179,13 @@ namespace SliceEngine
             // do simple dist check 
             foreach(GameObject enemy in enemies)
             {
-                //SliceLog.Log("Died in here 0");
+                if (enemy == null) continue;
+
+                SliceLog.Log("Died in here 0");
+                if (enemy.mID == 0) continue;
 
                 float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
-                //SliceLog.Log("Died in here 1");
+                SliceLog.Log("Died in here 1");
                 if (Dist < SafetyDistance)
                 {
                     return false;
@@ -202,13 +229,8 @@ namespace SliceEngine
                 SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
 
                 //SliceLog.Log("Triggering Next Level Part 3");
-
-                if (!levels.ContainsKey(currLevel))
-                {
-                    
-                    //SliceLog.Log("Level does not exist");
-                    TriggerNextLevel(input);
-                }
+                levels[currLevel].As<BaseLevel>().toggleLevel = false;
+                levels[currLevel].As<BaseLevel>().toggleSpawning = true;
 
             }
 

@@ -248,6 +248,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
+            SliceLog.Log("Ondamaged for grutns called");
+
             if (rb == null)
             {
                 //Console.WriteLine("RigidBody is null, cannot apply knockback");
@@ -264,9 +266,10 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
-            base.OnDeath();
             CreateGameObject("Prefabs/GruntDeath.prefab").GetComponent<Transform>().Position = transform.Position;
             Bootstrap.LevelDirector.EnemyDeath(this.gameObject);
+
+            base.OnDeath();
         }
         #endregion
     }
