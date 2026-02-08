@@ -447,7 +447,7 @@ struct move_wrapper
 
     move_wrapper(const move_wrapper& other) : m_value(std::move(other.m_value)) { }
 
-    move_wrapper(move_wrapper&& other) : m_value(std::move(other.m_value)) { }
+    move_wrapper(move_wrapper&& other) noexcept : m_value(std::move(other.m_value)) { }
 
     move_wrapper& operator=(const move_wrapper& other)
     {
