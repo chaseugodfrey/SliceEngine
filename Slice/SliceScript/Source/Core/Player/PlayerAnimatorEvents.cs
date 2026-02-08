@@ -49,5 +49,31 @@ namespace SliceEngine
                     break;
             }
         }
+
+        public static void PlayPlayerSFX(string type)
+        {
+            type = type.ToLower();
+            SliceLog.Log("wow");
+
+            switch (type)
+            {
+                case "land":
+                    AudioSettings.PlaySFX("Land");
+                    SliceLog.Log("wow2");
+                    break;
+                case "plunge":
+                    AudioSettings.PlaySFX("Plunge");
+                    break;
+                case "dash":
+                    AudioSettings.PlaySFX("Dash");
+                    break;
+                case "jump":
+                    AudioSettings.PlaySFX("Jump");
+                    break;
+                case "doublejump":
+                    AudioSettings.PlaySFX("DoubleJump");
+                    break;
+            }
+        }
     }
 }
