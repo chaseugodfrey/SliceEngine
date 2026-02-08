@@ -430,13 +430,13 @@ namespace SliceEngine
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
 			{
 				cmds = &prefabTranslucentCmds;
-				offsetDelta = lastRenderPrefabOffset - newOffset;
-				lastRenderPrefabOffset = newOffset;
+				offsetDelta = lastTranslucentPrefabOffset - newOffset;
+				lastTranslucentPrefabOffset = newOffset;
 			}
 			else
 			{
-				offsetDelta = lastRenderOffset - newOffset;
-				lastRenderOffset = newOffset;
+				offsetDelta = lastTranslucentOffset - newOffset;
+				lastTranslucentOffset = newOffset;
 			}
 
 			for (auto& i : *cmds)

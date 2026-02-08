@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class ToggleBoundingBox : SliceBehaviour
+    public class ToggleObjective : SliceBehaviour
     {
-        public GameObject actualBoundingObject;
+        public FontRenderer textToDisplay;
 
         public GameObject levelToTurnOn;
 
@@ -21,6 +21,8 @@ namespace SliceEngine
         public override void OnCreate()
         {
             base.OnCreate();
+
+            textToDisplay = GetComponent<FontRenderer>();
 
             if (levelToTurnOn != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
             { levelToTurnOn.As<BaseLevel>().MovingToNextLevelEvent += TurnOn; }//SliceLog.Log("Bounding Box Added Turn On Behaviour"); }
@@ -40,9 +42,9 @@ namespace SliceEngine
 
 
         public void TurnOn()
-        { actualBoundingObject.SetActive(true);}
+        { SliceLog.Log("Turn on objective called"); textToDisplay.SetEnabled(true); }
 
         public void TurnOff() 
-        { actualBoundingObject.SetActive(false);}
+        { textToDisplay.SetEnabled(false); }
     }
 }
