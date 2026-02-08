@@ -64,6 +64,7 @@ namespace SliceEngine
         auto inputS = Core::GetInstance()->GetInputSystem();
         if (inputS->mToCenterMousePosFromWindowDim)
         {
+            int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
             float ar = 1920.f / 1080.f;
             float myScreenAR = static_cast<float>(inputS->windowDim.x) / static_cast<float>(inputS->windowDim.y);
             double tx = 1920.0, ty = 1080.0, totalWinScreenDimX = static_cast<double>(inputS->windowDim.x), totalWinScreenDimY = static_cast<double>(inputS->windowDim.y);
@@ -83,10 +84,38 @@ namespace SliceEngine
 
             }
             glm::ivec2 worldSpaceMouse{ (xpos - winOffset.x) / winScreenDim.x * tx,
-                ty - ((ypos - winOffset.y) / winScreenDim.y * ty) };
+            (ypos - winOffset.y) / winScreenDim.y * ty };
 
-            xpos = worldSpaceMouse.x;
-            ypos = ty - worldSpaceMouse.y;
+            switch (cursorMode)
+            {
+            case GLFW_CURSOR_NORMAL:
+            {
+                xpos = worldSpaceMouse.x;
+                ypos = worldSpaceMouse.y;
+                break;
+            }
+            case GLFW_CURSOR_DISABLED:
+            {
+                if (inputS->lastMouseMode == GLFW_CURSOR_NORMAL)
+                {
+                    inputS->prevMouseInternalPos.x = xpos;
+                    inputS->prevMouseInternalPos.y = ypos;
+                    inputS->lastMouseMode = GLFW_CURSOR_DISABLED;
+                    break;
+                }
+                glm::vec2 lastPos = inputS->GetMousePosition();
+                glm::vec2 delta{ inputS->prevMouseInternalPos.x - xpos, inputS->prevMouseInternalPos.y - ypos };
+                lastPos += delta;
+                inputS->SetMouseDeltaForced(delta);
+                inputS->prevMouseInternalPos.x = xpos;
+                inputS->prevMouseInternalPos.y = ypos;
+
+                xpos = std::clamp(static_cast<double>(lastPos.x), 0.0, tx);
+                ypos = std::clamp(static_cast<double>(lastPos.y), 0.0, ty);
+                break;
+            }
+            }
+            inputS->lastMouseMode = cursorMode;
 
             inputS->SetMouseNDC(xpos / tx, ypos / ty);
         }
@@ -170,7 +199,10 @@ namespace SliceEngine
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
-        mouseDelta = prevMousePos - currMousePos;
+        if (lastMouseMode != GLFW_CURSOR_DISABLED)
+        {
+            mouseDelta = prevMousePos - currMousePos;
+        }
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
     }
@@ -289,6 +321,11 @@ namespace SliceEngine
     double InputSystem::GetMouseY() const
     {
         return currMousePos.y;
+    }
+
+    void InputSystem::SetMouseDeltaForced(const glm::vec2& in)
+    {
+        mouseDelta = in;
     }
 
     void InputSystem::SetCursorState()

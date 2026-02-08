@@ -6,6 +6,8 @@ namespace SliceEngine
 {
     public class HUD_Manager: SliceBehaviour, IInitializable
     {
+        public bool DialogueOnStart = false;
+        public int currLevel = 0; // to sync with level director
 
         Slider health;
         public GameObject healthSliderObject;
@@ -25,21 +27,34 @@ namespace SliceEngine
 
         private bool enterPressed = false;
         private bool inputOpen = false;
+        public bool dialogueDone = false;
+
+        public override void OnCreate()
+        {
+            if (DialogueOnStart)
+            {
+                PlayDialogueForLevel(currLevel);
+                Bootstrap.Player.canInput = false;
+            }
+        }
 
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
 
-            //if (Input.IsKeyDown(Keys.KEY_ENTER) && enterPressed == false)
-            //{
-            //    enterPressed = true;
-            //    PlayDialogueForLevel(0);
-            //}
+            if (inputOpen)
+            {
+                if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
+                {
+                    enterPressed = true;
+                    PlayDialogueForLevel(currLevel);
+                }
 
-            //if (Input.IsKeyReleased(Keys.KEY_ENTER) && enterPressed == true)
-            //{
-            //    enterPressed = false;
-            //}
+                if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
+                {
+                    enterPressed = false;
+                }
+            }
 
         }
 
@@ -78,8 +93,10 @@ namespace SliceEngine
         public void LoadDialogues()
         {
             //Load dialogues from a CSV
-
-            loader.Load("C:\\Users\\User\\Desktop\\Y3Tri1\\GAM 300\\SliceEngine\\Slice\\SliceEditor\\Assets\\[80]Streaming_Assets\\Dialogue.csv");
+            // SliceLog.Log("Streaming Assets filepath: " + Application.streamingAssetsPath);
+            string filePath = Application.GetFilePath("[80]Streaming_Assets/Dialogue.csv");
+            SliceLog.Log("App filepath: " + filePath);
+            loader.Load(filePath);
 
             if (loader == null)
             {
@@ -116,6 +133,10 @@ namespace SliceEngine
                 // end of dialogue stack
                 // clear stack
 
+                currLevel++; // increment curr level to prevent reloading same dialogue set
+                inputOpen = false;
+                dialogueDone = true;
+                Bootstrap.Player.canInput = true;
                 dialogueIndex = 0;
                 levelDialogues.Clear();
                 SetTextBox("");
@@ -129,14 +150,14 @@ namespace SliceEngine
                 // dialogues is not empty
                 //  tick up number
 
-                //SliceLog.Log("Dialogue is not empty");
+                SliceLog.Log("Dialogue is not empty");
                 dialogueIndex++;
 
             }
             else
             {
 
-                //SliceLog.Log("Dialogue is empty");
+                SliceLog.Log("Dialogue is empty");
                 dialogueIndex = 0;
                 for (int i = loader.FindRowIndex( "Level",level.ToString()); i > -1 ; i++)
                 {
@@ -146,8 +167,14 @@ namespace SliceEngine
                     {
                         break;
                     }
+                    else if (int.Parse(loader.GetValue(i, "Level")) < currLevel)
+                    {
+                        break;
+                    }
 
-                    levelDialogues.Add( new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                    dialogueDone = false;
+
+                     levelDialogues.Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
                 }
             }
 
@@ -156,8 +183,8 @@ namespace SliceEngine
             typing = true;
             StartCoroutine(TypeText(levelDialogues[dialogueIndex][1]));
             SetName(levelDialogues[dialogueIndex][0]);
-
-
+            inputOpen = true;
+            currLevel = level;
         }
 
         IEnumerator TypeText(string toType)
@@ -242,7 +269,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();      
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            //LoadDialogues();
+            LoadDialogues();
         }
     }
 }

@@ -71,7 +71,7 @@ namespace SliceBuild
 			}
 			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName() == "17531386095546160316") 
 			{
-				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			}
 			else
 			{
