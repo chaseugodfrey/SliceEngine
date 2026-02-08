@@ -960,7 +960,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format, int inc, int min, int max)
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format, float inc, int min, int max)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<int> oldList{};
@@ -1244,21 +1244,21 @@ namespace SliceEditor
 			int currentIndex = -1;
 			SliceEngine::GUID currentGUID = guid;
 
-			for (const auto& guid : *mapPtr)
+			for (const auto& mapGUID : *mapPtr)
 			{
-				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+				if (assetManager.mGUIDtoFilename.find(mapGUID) == assetManager.mGUIDtoFilename.end())
 				{
 					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
 					continue;
 				}
 
-				if (guid == currentGUID)
+				if (mapGUID == currentGUID)
 				{
 					currentIndex = (int)mapNames.size();
 				}
 
 				//Manipulate to the filename
-				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[mapGUID];
 				std::string fileNameString = relativePath.filename().string();
 
 				mapNames.push_back(fileNameString);
@@ -1275,7 +1275,7 @@ namespace SliceEditor
 				errorText = "GUID not found in AssetManager";
 				mapNames.push_back(guidString);
 				//Should be the last added unknown GUID
-				selectedIndex = mapNames.size() - 1;
+				selectedIndex = static_cast<int>(mapNames.size()) - 1;
 				ImGui::Text("%s :", property_label);
 				ImGui::SameLine(150.f);
 			}
@@ -1287,7 +1287,7 @@ namespace SliceEditor
 
 			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
 			{
-				const std::string& selectedName = mapNames[selectedIndex];
+				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
 				changed = (guid != newGUID);
 				if (changed)

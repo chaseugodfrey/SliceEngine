@@ -46,16 +46,16 @@ namespace SliceEngine
                 explosionHitBox.TurnOff();
                 explodeMeshObject.SetActive(false);
 
-                if(explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
-                {
-                    //Console.WriteLine("Hit Box successfully turned off");
-                    //SliceLog.Log("Hit Box successfully turned off");
-                }
-                else
-                {
-                    //Console.WriteLine("Hit Box still on");
-                    //SliceLog.Log("Hit Box still on");
-                }
+                //if(explosionHitBoxObject.GetComponent<ColliderShape>().ComponentEnabled == false)
+                //{
+                //    //Console.WriteLine("Hit Box successfully turned off");
+                //    //SliceLog.Log("Hit Box successfully turned off");
+                //}
+                //else
+                //{
+                //    //Console.WriteLine("Hit Box still on");
+                //    //SliceLog.Log("Hit Box still on");
+                //}
             }
             else
             {
@@ -92,7 +92,7 @@ namespace SliceEngine
                 //isPlayerInBasic = true;
                 //RE INSERT ONCE ENABLE IS WORKING
                 Bootstrap.Player.TakeDamage(damage, this.gameObject);
-                this.TakeDamage(1000, this.gameObject );
+                this.TakeDamage(1000, this.gameObject);
             }
             else
             {

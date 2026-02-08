@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -46,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\ButtonTest.cs" />
+    <Compile Include="Source\Core\Application.cs" />
     <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
@@ -71,14 +70,16 @@
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHitbox.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelKills.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTarget.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTutorial.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjectiveDone.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjective.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjectiveDone.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
     <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
