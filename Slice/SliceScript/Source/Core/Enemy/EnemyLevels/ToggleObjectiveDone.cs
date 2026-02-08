@@ -11,9 +11,9 @@ namespace SliceEngine
     {
         public FontRenderer textToDisplay;
 
-        public GameObject levelToTurnOn;
+        //public GameObject levelToTurnOn;
 
-        public GameObject levelToTurnOff;
+        //public GameObject levelToTurnOff;
 
         public bool startOn = false;
 
@@ -24,17 +24,18 @@ namespace SliceEngine
 
             textToDisplay = GetComponent<FontRenderer>();
 
-            if (levelToTurnOn != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
-            { levelToTurnOn.As<BaseLevel>().MovingToNextLevelEvent += TurnOn; }//SliceLog.Log("Bounding Box Added Turn On Behaviour"); }
-            //else if (levelToTurnOn == null)
-            //{ SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Reference is empty"); }
-            //else if (!levelToTurnOn.Has<BaseLevel>())
-            //{ SliceLog.Log("Bounding Box Failed To Add Turn On Behaviour, Cannot grab script"); }
+            foreach(GameObject level in Bootstrap.LevelDirector.levels)
+            {
+                level.As<BaseLevel>().LevelCompleteEvent += TurnOn;
+                level.As<BaseLevel>().MovingToNextLevelEvent += TurnOff;
+            }
+            
 
-            if (levelToTurnOff != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
-            { levelToTurnOff.As<BaseLevel>().MovingToNextLevelEvent += TurnOff; /*SliceLog.Log("Bounding Box Added Turn Off Behaviour");*/ }
-            //else
-            //{ SliceLog.Log("Bounding Box Failed To Add Turn Off Behaviour"); }
+            //if (levelToTurnOn != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
+            //{ levelToTurnOn.As<BaseLevel>().MovingToNextLevelEvent += TurnOn; }
+
+            //if (levelToTurnOff != null && (levelToTurnOn.Has<LevelKills>() || levelToTurnOn.Has<BaseLevel>()))
+            //{ levelToTurnOff.As<BaseLevel>().MovingToNextLevelEvent += TurnOff; }
 
             if (startOn) { TurnOn(); }
             else { TurnOff(); }

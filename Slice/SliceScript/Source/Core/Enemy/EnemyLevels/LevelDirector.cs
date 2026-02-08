@@ -89,6 +89,7 @@ namespace SliceEngine
         public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
         {
             // instantiate the enemy
+            SliceLog.Log("Creating Slime Enemy");
             GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
             SliceLog.Log("Creating enemy with: " + newEnemy.mID);
             newEnemy.As<EnemySlime>().SetUp();
