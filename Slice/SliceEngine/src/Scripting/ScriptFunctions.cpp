@@ -2655,11 +2655,11 @@ namespace SliceEngine
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Assets").generic_string();
+		std::string path = std::filesystem::path("Resources").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion Application
+#pragma endregion
 
 
 #pragma region COMPONENT REGISTRATION
