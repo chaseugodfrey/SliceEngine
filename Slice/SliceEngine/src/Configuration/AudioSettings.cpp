@@ -116,12 +116,12 @@ namespace SliceEngine
         if (outFile.is_open())
         {
             outFile << audioSettingsOutput.dump(4);
-            SLICE_LOG("AudioSettings saved to: " + filepath);
+            //SLICE_LOG("AudioSettings saved to: " + filepath);
         }
 
         else
         {
-            SLICE_LOG_ERROR("Failed to open file for writing: " + filepath);
+            //SLICE_LOG_ERROR("Failed to open file for writing: " + filepath);
         }
 
         outFile.close();
@@ -140,7 +140,7 @@ namespace SliceEngine
 
         if (soundGroupCreation != FMOD_OK)
         {
-            SLICE_LOG_ERROR("Sound Group creation failed");
+            //SLICE_LOG_ERROR("Sound Group creation failed");
             return;
         }
 
@@ -151,7 +151,7 @@ namespace SliceEngine
         entryData.soundGroup = soundGroup;
         mSFXMap.emplace(key, entryData);
 
-        SLICE_LOG("Sound Group has been created");
+        //SLICE_LOG("Sound Group has been created");
 
         //->createSoundGroup(key.c_str(), soundGroup);
 
@@ -179,7 +179,7 @@ namespace SliceEngine
 
         if (audioClip == nullptr)
         {
-            SLICE_LOG_WARNING("Could not load GUID");
+            //SLICE_LOG_WARNING("Could not load GUID");
             return;
         }
 
@@ -197,14 +197,14 @@ namespace SliceEngine
 
         if (oldSoundGUID == newSoundGUID)
         {
-            SLICE_LOG_WARNING("ChangeAudioClip: Old and new GUIDs are identical for key '%s'. No change made.", key.c_str());
+            //SLICE_LOG_WARNING(std::string("ChangeAudioClip: Old and new GUIDs are identical for key '%s'. No change made.")  + std::string(key.c_str()));
             return;
         }
 
         SFXEntry* entry = GetSFXEntry(key);
         if (!entry || !entry->soundGroup)
         {
-            SLICE_LOG_ERROR("ChangeAudioClip: SoundGroup for key '%s' not found.", key.c_str());
+            //SLICE_LOG_ERROR(std::string("ChangeAudioClip: SoundGroup for key '%s' not found.") +  std::string(key.c_str()));
             return;
         }
 
@@ -221,7 +221,7 @@ namespace SliceEngine
 
         if (!guidReplaced)
         {
-            SLICE_LOG_WARNING("ChangeAudioClip: Old GUID %llu not found in the audio clips list.", oldSoundGUID.GetGUID());
+            //SLICE_LOG_WARNING(std::string("ChangeAudioClip: Old GUID %llu not found in the audio clips list.") + oldSoundGUID.toString());
             return;
         }
 
@@ -230,7 +230,7 @@ namespace SliceEngine
 
         if (!newAudioHandle.IsValid())
         {
-            SLICE_LOG_ERROR("ChangeAudioClip: Failed to load new audio resource for GUID %llu.", newSoundGUID.GetGUID());
+            ////SLICE_LOG_ERROR(std::string("ChangeAudioClip: Failed to load new audio resource for GUID %llu.") + newSoundGUID.toString());
             return;
         }
 
@@ -238,7 +238,7 @@ namespace SliceEngine
 
         if (!newSound)
         {
-            SLICE_LOG_ERROR("ChangeAudioClip: FMOD::Sound is null for new GUID %llu.", newSoundGUID.GetGUID());
+            //SLICE_LOG_ERROR(std::string("ChangeAudioClip: FMOD::Sound is null for new GUID %llu.") + newSoundGUID.toString());
             return;
         }
 
@@ -254,7 +254,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-            SLICE_LOG("SoundGroup '" + oldKey + "' not found");
+        //    //SLICE_LOG("SoundGroup '" + oldKey + "' not found");
             return;
         }
 
@@ -273,7 +273,7 @@ namespace SliceEngine
         if (newGroupCreation != FMOD_OK)
         {
             
-            SLICE_LOG_ERROR("Failed to create sound group.");
+        //    //SLICE_LOG_ERROR("Failed to create sound group.");
             return;
 
         }
@@ -283,7 +283,7 @@ namespace SliceEngine
             auto audioSound = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(clip).get();
             if (!audioSound)
             {
-                SLICE_LOG_ERROR("Failed to get audio clip for GUID.");
+           //     //SLICE_LOG_ERROR("Failed to get audio clip for GUID.");
                 return;
             }
 
@@ -300,7 +300,7 @@ namespace SliceEngine
 
         mSFXMap.insert(std::move(keyToChange));
 
-        SLICE_LOG("Entry successfully renamed");
+      //  //SLICE_LOG("Entry successfully renamed");
     }
 
     void AudioSettings::RemoveAudioClip(std::vector<GUID>& audioClips)
@@ -358,7 +358,7 @@ namespace SliceEngine
         SFXEntry* entry = GetSFXEntry(key);
         if (!entry)
         {
-            SLICE_LOG("SoundGroup '" + key + "' not found");
+            ////SLICE_LOG(std::string("SoundGroup '") + std::string(key) + std::string("' not found"));
             return;
         }
 
@@ -367,7 +367,7 @@ namespace SliceEngine
         if (entry->soundGroup)
         {
             entry->soundGroup->setVolume(volume);
-            SLICE_LOG("Set Sound Group volume to %f",volume);
+            ////SLICE_LOG("Set Sound Group volume to %f",volume);
         }
     }
 
@@ -377,7 +377,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-            SLICE_LOG("SoundGroup '" + key + "' not found");
+           // //SLICE_LOG("SoundGroup '" + key + "' not found");
             return 0.0f;
         }
 
@@ -407,7 +407,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-            SLICE_LOG("SoundGroup '" + key + "' not found");
+            //SLICE_LOG("SoundGroup '" + key + "' not found");
             return;
         }
 
@@ -416,7 +416,7 @@ namespace SliceEngine
         if (entry->soundGroup)
         {
             entry->soundGroup->setMaxAudible(maxInstances);
-            SLICE_LOG("Set Sound Group max instance");
+            //SLICE_LOG("Set Sound Group max instance");
         }
     }
 
@@ -426,7 +426,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-            SLICE_LOG("SoundGroup '" + key + "' not found");
+            //SLICE_LOG("SoundGroup '" + key + "' not found");
             return 0;
         }
 
@@ -440,13 +440,13 @@ namespace SliceEngine
 
         if (!entry)
         {
-            SLICE_LOG_ERROR("PlaySFX: SoundGroup '%s' not found", key.c_str());
+            //SLICE_LOG_ERROR("PlaySFX: SoundGroup '%s' not found", key.c_str());
             return;
         }
 
         if (entry->AudioClips.empty())
         {
-            SLICE_LOG_WARNING("PlaySFX: SoundGroup '%s' has no audio clips defined.", key.c_str());
+            //SLICE_LOG_WARNING("PlaySFX: SoundGroup '%s' has no audio clips defined.", key.c_str());
             return;
         }
 
@@ -503,7 +503,7 @@ namespace SliceEngine
             }
             else
             {
-                SLICE_LOG_ERROR("No AudioManager object in scene");
+                //SLICE_LOG_ERROR("No AudioManager object in scene");
                 return;
             }
 
@@ -512,7 +512,7 @@ namespace SliceEngine
         {
             AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
 
-            auto& transform = audioObject.GetComponent<Transform>();
+            //auto& transform = audioObject.GetComponent<Transform>();
 
             audioComp.soundGUID = clipGUID;
 

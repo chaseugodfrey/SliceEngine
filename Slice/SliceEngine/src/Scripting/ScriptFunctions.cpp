@@ -31,6 +31,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
 
+#pragma warning(push)
+#pragma warning(disable : 4002)
 namespace SliceEngine
 {
 	std::string MonoToString(MonoString* monoStr)
@@ -1412,17 +1414,17 @@ namespace SliceEngine
 
 		if (go.HasComponent<ColliderShape>())
 		{
-			Entity entity = go.GetEntity();
+			Entity _entity = go.GetEntity();
 
 			//using patch so that the event system can pick up the change
-			reg.patch<SliceEngine::ColliderShape>(entity, [&](auto& collider)
+			reg.patch<SliceEngine::ColliderShape>(_entity, [&](auto& collider)
 				{
 					collider.componentEnabled = enabled;
 				});
 		}
 		else
 		{
-			SLICE_LOG_ERROR("Lol skill issue", entity);
+			SLICE_LOG_ERROR("Lol skill issue", _entity);
 		}
 
 	}
@@ -1493,7 +1495,7 @@ namespace SliceEngine
 		}
 
 		auto& transform = go.GetComponent<Transform>();
-		auto& collider = go.GetComponent<ColliderShape>();
+		//auto& collider = go.GetComponent<ColliderShape>();
 
 
 		glm::vec3 origin = transform.GetWorldPosition() + glm::vec3(0, 0, 1);
@@ -1506,16 +1508,16 @@ namespace SliceEngine
 			return;
 		}
 
-		float distanceToHit = glm::length(hitPos - origin);
-		float distanceToMove = glm::length(*d_m);
-		if (distanceToHit <= distanceToMove)
-		{
-			glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
-		}
-		else if (distanceToMove < distanceToHit)
-		{
-			glm::mix(transform.position, origin + (*d_m), 0.2f);
-		}
+		//float distanceToHit = glm::length(hitPos - origin);
+		//float distanceToMove = glm::length(*d_m);
+		//if (distanceToHit <= distanceToMove)
+		//{
+		//	glm::mix(transform.position, hitPos, 0.2f); // idk what collider will be used for this function lol so just gona do thsi for now
+		//}
+		//else if (distanceToMove < distanceToHit)
+		//{
+		//	glm::mix(transform.position, origin + (*d_m), 0.2f);
+		//}
 
 
 	}
@@ -1836,7 +1838,14 @@ namespace SliceEngine
 			const char* className = mono_class_get_name(typeClass);
 			const char* nameSpace = mono_class_get_namespace(typeClass);
 			// component not registered
-			SLICE_LOG_ERROR("Component Not Registered: {}.{}", nameSpace, className);
+
+			std::string msg = "Component Not Registered: ";
+			msg += nameSpace;
+			msg += ".";
+			msg += className;
+
+
+			SLICE_LOG_ERROR(msg.c_str());
 			assert("Component not registered");
 		}
 
@@ -1930,6 +1939,11 @@ namespace SliceEngine
 		{
 			return mono_string_new(mono_domain_get(), go.GetComponent<SliceEntity>().mTag.c_str());
 		}
+		std::string errorMsg("Entity_Get_Tag failed to get SliceEntity component for Entity: ");
+		errorMsg += std::to_string(entityID);
+		SLICE_LOG_ERROR(errorMsg);
+
+		return nullptr;
 	}
 
 	static void Entity_SetTag(unsigned int entityID, MonoString* tag)
@@ -3006,6 +3020,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Application_GetFilePath);
 	}
 
+#pragma warning(pop)
 #pragma endregion
 
 }

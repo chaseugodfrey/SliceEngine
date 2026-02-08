@@ -217,7 +217,7 @@ namespace SliceEngine
 		return true;
 	}
 
-	NavMeshDebugObj NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
+	std::optional<NavMeshDebugObj> NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
 	{
 		auto tNavMesh = const_cast<const dtNavMesh*>(navMeshObj.navMesh);
 
@@ -363,6 +363,7 @@ namespace SliceEngine
 
 			return dataObjArr;
 		}
+		return std::nullopt;
 	}
 
 	NavMeshDebugObj NavMeshUtilities::CreateDebugPathMesh(const std::vector<glm::vec3> &pathPoints)

@@ -67,7 +67,7 @@ namespace SliceEngine
 		return static_cast<size_t>(-1); // gpt says returning false is bad practice, so return max size_t value instead
 	}
 
-	static size_t findBinding(const ActionDefinition& actionDef, int keyCode)
+	size_t ActionMappingSystem::findBinding(const ActionDefinition& actionDef, int keyCode)
 	{
 		// loop through bindings to find keycode
 		for (size_t i{}; i < actionDef.bindings.size(); ++i)
@@ -271,7 +271,7 @@ namespace SliceEngine
 		{
 			auto& actionDef = map->definitions[i];
 			auto& actionState = map->states[i];
-			bool actionPerformed = false;
+			//bool actionPerformed = false;
 
 			if (actionDef.type != ActionType::Button)
 			{

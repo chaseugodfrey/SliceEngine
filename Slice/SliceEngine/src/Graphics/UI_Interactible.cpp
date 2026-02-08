@@ -130,11 +130,11 @@ namespace SliceEngine {
 
 		auto& rect = reg.get<RectTransform>(self);
 
-		auto& self_node = reg.get<SceneGraph>(self);
+		///auto& self_node = reg.get<SceneGraph>(self);
 	
-		float handle_pos{};
+		int handle_pos{};
 		if (axis == X_Axis) {
-			handle_pos = (rect.final_width * value);
+			handle_pos = (int)(rect.final_width * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -144,7 +144,7 @@ namespace SliceEngine {
 
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				handle_rect.vert_pivot = RectTransform::MIDDLE;
-				handle_rect.pos_y = 0.f;
+				handle_rect.pos_y = 0;
 
 				if (direction == Positive) {
 					handle_rect.hori_pivot = RectTransform::LEFT;
@@ -169,16 +169,16 @@ namespace SliceEngine {
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;
 				if (direction == Positive) {
 					fill_rect.left = 0;
-					fill_rect.right = rect.final_width - handle_pos;
+					fill_rect.right = (int)rect.final_width - handle_pos;
 				}
 				else {
 					fill_rect.right = 0;
-					fill_rect.left = rect.final_width - handle_pos;
+					fill_rect.left = (int)rect.final_width - handle_pos;
 				}
 			}
 		}
 		else {
-			handle_pos = (rect.final_height * value);
+			handle_pos = (int)(rect.final_height * value);
 
 			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
 				//ensure handle is direct child of self
@@ -189,7 +189,7 @@ namespace SliceEngine {
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				//ensure that handle's settings r fixed
 				handle_rect.hori_pivot = RectTransform::CENTER;
-				handle_rect.pos_x = 0.f;
+				handle_rect.pos_x = 0;
 
 				if (direction == Positive) {
 					handle_rect.vert_pivot = RectTransform::BOTTOM;
@@ -214,11 +214,11 @@ namespace SliceEngine {
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
 				if (direction == Positive) {
 					fill_rect.bot = 0;
-					fill_rect.top = rect.final_height - handle_pos;
+					fill_rect.top = (int)rect.final_height - handle_pos;
 				}
 				else {
 					fill_rect.top = 0;
-					fill_rect.bot = rect.final_height - handle_pos;
+					fill_rect.bot = (int)rect.final_height - handle_pos;
 				}
 			}
 		}
@@ -274,8 +274,8 @@ namespace SliceEngine {
 
 
 		//for now im just gona directly convert to game screen coord
-		int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
-		int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
+		int mouse_x = (int)(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
+		int mouse_y = (int)(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
 
 		//int mouse_x = (int)mouse_coord.x;
 		//int mouse_y = CanvasSystem::target_height - (int)mouse_coord.y;
@@ -312,7 +312,7 @@ namespace SliceEngine {
 	* release	- mouse clicked a button, and released inside of button
 	*/
 	void ButtonSystem::HandleMouse(InputSystem& input, Entity raycast_entity) {
-		ButtonSystem::Events mouse_event = Events::None;
+		//ButtonSystem::Events mouse_event = Events::None;
 
 		if (current_button == entt::null) {
 			if (raycast_entity == entt::null || !mRegistry->any_of<Button>(raycast_entity)) {
@@ -352,7 +352,7 @@ namespace SliceEngine {
 					else {
 						update_button(current_button, LeaveHighlight);
 						if (mRegistry->any_of<Button>(raycast_entity)) {
-							auto& t_button = mRegistry->get<Button>(raycast_entity);
+							//auto& t_button = mRegistry->get<Button>(raycast_entity);
 							update_button(raycast_entity, Click);	//click same frame u leave highlight
 							current_button = raycast_entity;
 						}
@@ -386,9 +386,9 @@ namespace SliceEngine {
 			break;
 		case Click: {
 			button.state = Button::Pressed;
-			OnButtonClickEvent event;
-			event.entity = button_entity;
-			EventManager::GetInstance()->Publish<OnButtonClickEvent>(event);
+			OnButtonClickEvent click_event;
+			click_event.entity = button_entity;
+			EventManager::GetInstance()->Publish<OnButtonClickEvent>(click_event);
 		}
 			break;
 		case LeaveHighlight:
@@ -397,9 +397,9 @@ namespace SliceEngine {
 		case Release: {
 			button.state = Button::Normal;
 
-			OnButtonReleaseEvent event;
-			event.entity = button_entity;
-			EventManager::GetInstance()->Publish<OnButtonReleaseEvent>(event);
+			OnButtonReleaseEvent release_event;
+			release_event.entity = button_entity;
+			EventManager::GetInstance()->Publish<OnButtonReleaseEvent>(release_event);
 		}
 			break;
 		case Cancel:

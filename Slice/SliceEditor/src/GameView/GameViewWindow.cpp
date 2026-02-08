@@ -245,9 +245,9 @@ namespace SliceEditor
 		ImGui::EndChild();
 	}
 
-	void GameViewWindow::Screen::CalculatePositions(ImVec2 start, ImVec2 size)
+	void GameViewWindow::Screen::CalculatePositions(ImVec2 start, ImVec2 newSize)
 	{
-		this->size = size;
+		this->size = newSize;
 		topLeft = start;
 		btmRight = { size.x + start.x, size.y + start.y };
 		center = { (btmRight.x - topLeft.x) / 2, (btmRight.y - topLeft.y) / 2 };

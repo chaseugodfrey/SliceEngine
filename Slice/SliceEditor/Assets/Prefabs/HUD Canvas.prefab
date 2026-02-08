@@ -27,12 +27,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048662,
+                "entity_id": 104,
                 "neighbours": [
                     0,
-                    1048663,
-                    1048657,
-                    1048655
+                    103,
+                    109,
+                    111
                 ]
             },
             "struct SliceEngine::Script": {
@@ -40,23 +40,23 @@
                 "scriptableFieldMap": {
                     "defeatObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048668
+                        "Value": 98
                     },
                     "healthSliderObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048666
+                        "Value": 100
                     },
                     "nameTextObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048676
+                        "Value": 90
                     },
                     "regularTextObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048675
+                        "Value": 91
                     },
                     "textBoxParentObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048674
+                        "Value": 92
                     },
                     "typeSpeed": {
                         "Type": "float",
@@ -64,7 +64,7 @@
                     },
                     "victoryObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048667
+                        "Value": 99
                     }
                 }
             },
@@ -121,12 +121,12 @@
                 "width": 2000
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048663,
+                "entity_id": 103,
                 "neighbours": [
-                    1048662,
+                    104,
                     4294967295,
                     4294967295,
-                    1048667
+                    99
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -193,12 +193,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048667,
+                "entity_id": 99,
                 "neighbours": [
-                    1048662,
+                    104,
                     4294967295,
-                    1048663,
-                    1048668
+                    103,
+                    98
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -265,12 +265,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048668,
+                "entity_id": 98,
                 "neighbours": [
-                    1048662,
+                    104,
                     4294967295,
-                    1048667,
-                    1048674
+                    99,
+                    92
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -340,12 +340,12 @@
                 "width": 2000
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048674,
+                "entity_id": 92,
                 "neighbours": [
-                    1048662,
-                    1048675,
-                    1048668,
-                    1048730
+                    104,
+                    91,
+                    98,
+                    36
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -426,12 +426,12 @@
                 "width": 1748
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048675,
+                "entity_id": 91,
                 "neighbours": [
-                    1048674,
+                    92,
                     4294967295,
                     4294967295,
-                    1048676
+                    90
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -501,11 +501,11 @@
                 "width": 1748
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048676,
+                "entity_id": 90,
                 "neighbours": [
-                    1048674,
+                    92,
                     4294967295,
-                    1048675,
+                    91,
                     4294967295
                 ]
             },
@@ -562,12 +562,12 @@
                 "width": 565
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048730,
+                "entity_id": 36,
                 "neighbours": [
-                    1048662,
-                    1048666,
-                    1048674,
-                    1048580
+                    104,
+                    100,
+                    92,
+                    186
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -634,10 +634,10 @@
                 "width": 446
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048666,
+                "entity_id": 100,
                 "neighbours": [
-                    1048730,
-                    1048665,
+                    36,
+                    101,
                     4294967295,
                     4294967295
                 ]
@@ -652,8 +652,8 @@
                 "Axis": "X_Axis",
                 "Direction": "Positive",
                 "enabled": true,
-                "fill": 1048665,
-                "handle": 1048664,
+                "fill": 101,
+                "handle": 102,
                 "value": 0.800000011920929
             },
             "struct SliceEngine::SpriteRenderer": {
@@ -714,12 +714,12 @@
                 "width": 100
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048665,
+                "entity_id": 101,
                 "neighbours": [
-                    1048666,
+                    100,
                     4294967295,
                     4294967295,
-                    1048664
+                    102
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -786,11 +786,11 @@
                 "width": 50
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048664,
+                "entity_id": 102,
                 "neighbours": [
-                    1048666,
+                    100,
                     4294967295,
-                    1048665,
+                    101,
                     4294967295
                 ]
             },
@@ -858,12 +858,12 @@
                 "width": 1920
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048580,
+                "entity_id": 186,
                 "neighbours": [
-                    1048662,
+                    104,
                     4294967295,
-                    1048730,
-                    1048757
+                    36,
+                    9
                 ]
             },
             "struct SliceEngine::Script": {
@@ -933,11 +933,11 @@
                 "width": 600
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048757,
+                "entity_id": 9,
                 "neighbours": [
-                    1048662,
-                    1048758,
-                    1048580,
+                    104,
+                    8,
+                    186,
                     4294967295
                 ]
             },
@@ -1019,13 +1019,30 @@
                 "width": 517
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048758,
+                "entity_id": 8,
                 "neighbours": [
-                    1048757,
+                    9,
                     4294967295,
                     4294967295,
-                    186
+                    188
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
@@ -1094,18 +1111,487 @@
                 "width": 517
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 186,
+                "entity_id": 188,
                 "neighbours": [
-                    1048757,
+                    9,
                     4294967295,
-                    1048758,
-                    4294967295
+                    8,
+                    196
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
                 "mName": "Objective 2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Objective 3": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Right",
+                "componentEnabled": true,
+                "font": "17198371508955884240",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Kill 10 Grunts"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 15
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Right",
+                "left": 0,
+                "pos_x": -346,
+                "pos_y": 31,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 517
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 196,
+                "neighbours": [
+                    9,
+                    4294967295,
+                    188,
+                    197
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Objective 3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Objective 4": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Right",
+                "componentEnabled": true,
+                "font": "17198371508955884240",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Kill Another 10 Grunts"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 16
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Right",
+                "left": 0,
+                "pos_x": -346,
+                "pos_y": 31,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 517
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 197,
+                "neighbours": [
+                    9,
+                    4294967295,
+                    196,
+                    198
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Objective 4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Objective 5": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Right",
+                "componentEnabled": true,
+                "font": "17198371508955884240",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Kill FInal 20 Grunts"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 17
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Right",
+                "left": 0,
+                "pos_x": -346,
+                "pos_y": 31,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 517
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 198,
+                "neighbours": [
+                    9,
+                    4294967295,
+                    197,
+                    199
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Objective 5",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Objective 6": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Right",
+                "componentEnabled": true,
+                "font": "17198371508955884240",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Destroy The Crystal"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 18
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Right",
+                "left": 0,
+                "pos_x": -346,
+                "pos_y": 31,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 517
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 199,
+                "neighbours": [
+                    9,
+                    4294967295,
+                    198,
+                    200
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjective",
+                "scriptableFieldMap": {
+                    "levelToTurnOff": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "levelToTurnOn": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Objective 6",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Objective Done": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Right",
+                "componentEnabled": true,
+                "font": "17198371508955884240",
+                "font_size": 40.0,
+                "line_spacing": 1.25,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Objective Complete"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 19
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Right",
+                "left": 0,
+                "pos_x": -346,
+                "pos_y": 31,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 517
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 200,
+                "neighbours": [
+                    9,
+                    4294967295,
+                    199,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ToggleObjectiveDone",
+                "scriptableFieldMap": {
+                    "startOn": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Objective Done",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
