@@ -1559,7 +1559,7 @@ namespace SliceEditor
 				SetTheme_Microsoft();
 				break;
 			case EditorThemeType::CLASSICSTEAM:
-				SetTheme_ClassicSteam;
+				SetTheme_ClassicSteam();
 				break;
 			case EditorThemeType::GREENLEAF:
 				SetTheme_GreenLeaf();

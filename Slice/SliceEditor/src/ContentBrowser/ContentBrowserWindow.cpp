@@ -173,8 +173,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayItems(DirectoryNode& node)
 	{
 		static DirectoryNode* selectedEntry = nullptr;
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{

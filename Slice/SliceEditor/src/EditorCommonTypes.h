@@ -248,8 +248,10 @@ namespace SliceEditor
 			for (auto& [nm, id] : mNameToStateID)
 			{
 				if (nm == name)
+				{
 					name += " copy";
-				break;
+					break;
+				}
 			}
 
 			node.name = name;
@@ -305,7 +307,7 @@ namespace SliceEditor
 			else
 			{
 				auto& state_map = mStateMachineAsset->stateMap;
-				auto it = mStateNodes.find(state_id);
+				auto it = mStateNodes.find(static_cast<const unsigned short>(state_id));
 				if (it != mStateNodes.end())
 				{
 					state_map.at(it->second.name).mNodePos = glm::vec2(pos.x, pos.y);
@@ -390,7 +392,7 @@ namespace SliceEditor
 
 		std::optional<std::reference_wrapper<StateNode>> GetStateNode(int state_id)
 		{
-			auto it1 = mStateNodes.find(state_id);
+			auto it1 = mStateNodes.find(static_cast<const unsigned short>(state_id));
 			if (it1 == mStateNodes.end())
 				return std::nullopt;
 
@@ -430,7 +432,7 @@ namespace SliceEditor
 
 		std::optional<std::reference_wrapper<TransitionLinkNode>> GetTransitionNode(int transition_id)
 		{
-			auto it1 = mTransitionNodes.find(transition_id);
+			auto it1 = mTransitionNodes.find(static_cast<const unsigned short>(transition_id));
 			if (it1 == mTransitionNodes.end())
 				return std::nullopt;
 

@@ -309,7 +309,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Stop"))
 		{
-			auto core = SliceEngine::Core::GetInstance();
+			//auto core = SliceEngine::Core::GetInstance();
 
 			mTimeline.isPlaying = false;
 			if(animationClips.size() > 0)
@@ -340,7 +340,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Add Event"))
 		{
-			auto core = SliceEngine::Core::GetInstance();
+			//auto core = SliceEngine::Core::GetInstance();
 			// pop up type script name and script func
 			std::string scriptName{};
 			std::string scriptFunc{};
@@ -351,7 +351,7 @@ namespace SliceEditor
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
-				if (event.animIdx == mCurrentClipIndex && event.frameNumber == currentFrame)
+				if (event.animIdx == mCurrentClipIndex && event.frameNumber == static_cast<unsigned int>(currentFrame))
 				{
 					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
 					frameHasEvent = true;
@@ -460,7 +460,7 @@ namespace SliceEditor
 											//Set the mCurrentEventIndex for the pop-up
 											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
 												{
-													return (x.frameNumber == key && x.animIdx == mCurrentClipIndex);
+													return (x.frameNumber == static_cast<unsigned int>(key) && x.animIdx == static_cast<unsigned int>(mCurrentClipIndex));
 												});
 
 											if (it != mCurrentAnimator->eventFrames.end())
@@ -523,7 +523,7 @@ namespace SliceEditor
 
 					if (mTimeline.isPlaying)
 					{
-						currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
+						currentFrame = static_cast<ImGui::FrameIndexType>(mCurrentTime * animationClips[mCurrentClipIndex]->fps);
 						if (currentFrame > endFrame)
 						{
 							currentFrame = startFrame;

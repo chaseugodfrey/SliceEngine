@@ -64,7 +64,7 @@ namespace SliceEngine
 						{
 							glm::mat4 local_tform{};
 							if (prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
-								local_tform = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[frameTime], curranim.boneKeyFrames[i].transforms[0], dt).ToMatrix();
+								local_tform = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[(int)frameTime], curranim.boneKeyFrames[i].transforms[0], dt).ToMatrix();
 
 							animator.final_tforms[i] = local_tform;
 						}
@@ -231,6 +231,6 @@ namespace SliceEngine
 
 			child_entity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
 		}
-		
+		return GUID(0);
 	}
 }

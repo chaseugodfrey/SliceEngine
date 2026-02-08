@@ -135,7 +135,7 @@ namespace SliceEngine
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto& audioComp = reg.get<AudioSource>(entity);
-		auto& transform = reg.get<Transform>(entity);
+		//auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f ,0.f,0.f };
 			
 		if (!audioComp.componentEnabled)

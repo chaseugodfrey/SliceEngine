@@ -92,7 +92,7 @@ namespace SliceEngine
 	{
 		ClearNavMesh();
 		navMeshInstance = std::make_optional<NavMeshObj>(newNavMesh);
-		navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh));
+		navMeshDebugInfo = NavMeshUtilities::CreateDebugMesh(newNavMesh);
 	}
 
 	void NavigationSystem::LoadNavMeshFromFile(const std::string& filePath)
@@ -119,7 +119,7 @@ namespace SliceEngine
 		{
 			ClearNavMesh();
 			navMeshInstance = std::make_optional<NavMeshObj>(newNavMesh.value());
-			navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh.value()));
+			navMeshDebugInfo = NavMeshUtilities::CreateDebugMesh(newNavMesh.value());
 		}
 	}
 
