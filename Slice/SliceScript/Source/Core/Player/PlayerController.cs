@@ -175,6 +175,8 @@ namespace SliceEngine
             {
                 //console.writeline("Camera Var in player is EMPTY");
             }
+
+            Bootstrap.HUDManager.SetHealth(currentHealth/maxHealth);
         }
         public override void OnCreate()
         {

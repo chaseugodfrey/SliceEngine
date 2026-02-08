@@ -166,7 +166,7 @@ namespace SliceEngine
 		void SetMasterVolume(float volume);
 		float GetMasterVolume();
 
-		float GetMasterVolume();
+		//float GetMasterVolume();
 
 		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
 		std::pair<float, float> GetMinMaxDistance(FMOD::Channel* channel);
