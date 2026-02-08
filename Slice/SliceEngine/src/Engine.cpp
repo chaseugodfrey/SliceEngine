@@ -108,16 +108,18 @@ namespace SliceEngine
 		.property("x", &glm::vec3::x)
 		.property("y", &glm::vec3::y)
 		.property("z", &glm::vec3::z);
-
+	
+#pragma warning(push)
+#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
-	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
-
+#pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -760,7 +762,7 @@ namespace SliceEngine
 		mCanvas.Init();
 
 		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
-		//sButton.Init();
+		sButton.InitSystem();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -814,8 +816,8 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-
-		
+		(void)projSettingsManager;
+		(void)sParticleSystemManager;		
 
 		//static bool isPlaying = false;
 
@@ -979,10 +981,8 @@ namespace SliceEngine
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
 			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
-
-			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
-			//std::cout << "MouseNDC * Target: " << mouse_y << " MouseCoord:" << mouse_coord.y << std::endl;
+			unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
+			unsigned int mouse_y = static_cast<unsigned int>(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
@@ -1029,7 +1029,7 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
-
+		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 		sInputs->SetMode(InputMode::Editor);
@@ -1050,7 +1050,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto frm = Core::GetInstance()->GetFramerateManager();
+		auto _frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -1058,9 +1058,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		frm->StartSystem("GLFW Swap Buffers");
+		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		frm->EndSystem("GLFW Swap Buffers");
+		_frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

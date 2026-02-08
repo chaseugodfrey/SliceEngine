@@ -334,7 +334,7 @@ namespace SliceEditor
 						{
 							if (ImGui::Selectable(bplayer_to_name_list[i].c_str()))
 							{
-								JPH::BroadPhaseLayer new_bp_layer(static_cast<JPH::BroadPhaseLayer>(i));
+								JPH::BroadPhaseLayer new_bp_layer(static_cast<JPH::BroadPhaseLayer::Type>(i));
 								physicsSystem.SetObjectBroadPhaseLayer(index, new_bp_layer);
 								physicsSettings.isDirty = true;
 							}

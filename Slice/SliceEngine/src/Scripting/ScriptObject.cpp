@@ -642,14 +642,14 @@ namespace SliceEngine
 			// Check for value type like vectors and stuff
 			if (typeName == "SliceEngine.Prefab")
 			{
-				MonoObject* valueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+				MonoObject* monoValueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
 				
-				if (valueObj == nullptr)
+				if (monoValueObj == nullptr)
 				{
 					return PrefabVar{ "" };
 				}
 				
-				void* unboxPtr = mono_object_unbox(valueObj);
+				void* monoUnboxPtr = mono_object_unbox(monoValueObj);
 
 				MonoClass* prefabClass = mono_type_get_class(type);
 
@@ -657,7 +657,7 @@ namespace SliceEngine
 				MonoClassField* nameField = mono_class_get_field_from_name(prefabClass, "prefabName");
 
 				MonoString* monoStr = nullptr;
-				mono_field_get_value((MonoObject*)unboxPtr, nameField, &monoStr);
+				mono_field_get_value((MonoObject*)monoUnboxPtr, nameField, &monoStr);
 
 				if (monoStr)
 				{
@@ -717,7 +717,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				uintptr_t elementSize = mono_class_array_element_size(elementClass);
+				int elementSize = mono_class_array_element_size(elementClass); // was uintptr_t
 				char* bufferStart = mono_array_addr_with_size(monoArray, elementSize, 0);
 
 				// for how many are in the array
