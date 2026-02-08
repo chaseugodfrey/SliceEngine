@@ -278,12 +278,12 @@ namespace SliceEditor
 
 	void WindowManager::DrawPlayState()
 	{
-		auto* window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto* cwindow = SliceEngine::Core::GetInstance()->GetWindow();
 		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 
 		int xPos{}, yPos{}, width{}, height{};
-		glfwGetWindowPos(window, &xPos, &yPos);
-		glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowPos(cwindow, &xPos, &yPos);
+		glfwGetWindowSize(cwindow, &width, &height);
 
 		ImGui::BeginViewportSideBar("PlayBar", ImGui::GetMainViewport(), ImGuiDir_Up, 50.0f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
@@ -493,7 +493,7 @@ namespace SliceEditor
 		if (ImGui::BeginPopup("action_map_popup"))
 		{
 			//using namespace SliceEngine; // this allows us to access slicenegine classes without prefixing
-			auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+			//auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 			auto& AM = SliceEngine::GetActionMappingSystem();
 			auto* core = SliceEngine::Core::GetInstance();
 			auto* window = core->GetWindow();
