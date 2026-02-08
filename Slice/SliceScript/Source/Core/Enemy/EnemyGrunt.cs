@@ -248,6 +248,8 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
+            SliceLog.Log("Ondamaged for grutns called");
+
             if (rb == null)
             {
                 //Console.WriteLine("RigidBody is null, cannot apply knockback");

@@ -36,7 +36,7 @@ namespace SliceEngine
             //Console.WriteLine("Enitity taking damage");
             //Debug.Log($"{name} taking {amount} damage");
             this.currentHealth -= amount;
-            if (this.currentHealth > 0) OnDamaged(source);
+            if (this.currentHealth > 0) { OnDamaged(source); }
             if (this.currentHealth <= 0)
             {
                 currentHealth = 0; // Ensure health doesn't go below zero
