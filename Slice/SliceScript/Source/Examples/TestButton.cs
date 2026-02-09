@@ -8,7 +8,7 @@ namespace SliceEngine
 {
     public class TestButtonSlider : SliceBehaviour
     {
-        int test = 0;
+        //int test = 0;
 
         Slider slider;
         public override void OnCreate()

@@ -104,11 +104,11 @@ namespace SliceEngine
 
 		RenderCmdManager();
 		~RenderCmdManager();
+		void HandlePlayEvent(const OnPlayEvent& event);
 		void GatherDrawCalls();
-		void SetVP(glm::mat4& V, glm::mat4& P);
 		void SortTranslucent(Entity camEntity);
-		void UseDrawCalls(GLuint mShader, DrawType drawType);
-		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType);
+		void UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 relPos);
+		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos);
 
 		const int mMaxInstance = 255;
 		GLuint mIVBO{};
@@ -128,8 +128,13 @@ namespace SliceEngine
 		const int mEVBOSafetyMult = 2;
 		GLuint mEVBO{};
 		GLuint mTextureVBO{};
-		glm::mat4 VP{};
-		Entity mLastKnownCam;
+		Entity mLastKnownCam{};
+
+		glm::vec3 lastShadowOffset{};
+		glm::vec3 lastRenderOffset{};
+		glm::vec3 lastRenderPrefabOffset{};
+		glm::vec3 lastTranslucentOffset{};
+		glm::vec3 lastTranslucentPrefabOffset{};
 
 		std::map<RCK_Size, RenderCmd> renderCmds;
 		std::vector<TranslucentCmd> translucentCmds; //single draw calls

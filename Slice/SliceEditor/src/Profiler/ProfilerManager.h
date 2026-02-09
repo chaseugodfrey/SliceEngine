@@ -51,6 +51,7 @@ namespace SliceEditor
 	public:
 
 		bool mAutoScroll = true;
+		bool mClearStatistics = false;
 
 		std::unordered_map<std::string, DebugStats> mDebugStats;
 
@@ -63,7 +64,7 @@ namespace SliceEditor
 		//SliceEngine::FramerateManager& framerateManager;
 
 		ProfilerManager(Registry& reg) : IBaseManager(reg) , mCurrFPS(0.0f), mDeltaTime(0.0f), mTotalFrameTime(0.0f), 
-			mUntrackedFrameTime(0.0f), mUntrackedFrameTimePercentage(0.0f)
+			mUntrackedFrameTime(0.0f), mUntrackedFrameTimePercentage(0.0f), mClearStatistics(false)
 		{
 		};
 		~ProfilerManager() = default;
@@ -76,6 +77,8 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void UpdateDebugStatistics();
+
+		void ClearDebugStatistics();
 
 		ImU32 GetSystemColor(const std::string& systemName);
 

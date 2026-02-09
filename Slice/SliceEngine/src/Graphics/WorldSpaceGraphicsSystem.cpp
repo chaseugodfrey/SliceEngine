@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 //#include "Resource/Texture.h"
 
 #include "WorldSpaceGraphicsSystem.h"
+#include "Systems/SceneSystem.h"
 //#define GLM_ENABLE_EXPERIMENTAL
 //#include "glm/gtx/euler_angles.hpp"
 //#include "glm/gtc/type_ptr.hpp"
@@ -60,6 +61,9 @@ namespace SliceEngine
 			// get material handle
 			renderer.materialHandle = rm->get<SliceEngineTypes::Material>(renderer.materialHandle.mGUID);
 		}
+		if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			renderer.materialInstance = *(renderer.materialHandle.get());
+
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnExit(entt::registry& reg, Entity entity)

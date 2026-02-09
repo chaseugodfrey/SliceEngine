@@ -55,9 +55,9 @@ namespace SliceEditor
         dtNavMesh *navMesh = nullptr;      
         dtNavMeshQuery *navQuery = nullptr;
 
-        float m_agentHeight;
-        float m_agentRadius;
-        float m_agentMaxClimb;
+        float m_agentHeight{};
+        float m_agentRadius{};
+        float m_agentMaxClimb{};
 	};
 }
 #endif

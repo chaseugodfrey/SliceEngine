@@ -42,6 +42,7 @@ namespace SliceEditor
 		Controller,
 		NavMesh,
 		NavMeshBin,
+		CSV,
 		Unsupported
 	};
 	enum CompressionFormat : std::uint8_t {
@@ -107,6 +108,7 @@ namespace SliceEditor
 		constexpr uint64_t CONTROLLER = SliceEngine::FNVHash::fnv1a("Controller");
 		constexpr uint64_t NAVMESH = SliceEngine::FNVHash::fnv1a("NavMesh");
 		constexpr uint64_t NAVMESHBIN = SliceEngine::FNVHash::fnv1a("NavMeshBin");
+		constexpr uint64_t CSV = SliceEngine::FNVHash::fnv1a("CSV");
 		constexpr uint64_t FONT = SliceEngine::FNVHash::fnv1a("Font");
 
 	}
@@ -167,7 +169,7 @@ namespace SliceEditor
 			{
 				inFile >> metaData;
 			}
-			catch (nlohmann::json::parse_error& e)
+			catch (nlohmann::json::parse_error&)
 			{
 				return;
 			}
@@ -179,7 +181,7 @@ namespace SliceEditor
 				assetName = metaData["assetName"].get<std::string>();
 
 			if (metaData.contains("assetType"))
-				assetType == metaData["assetType"].get<std::string>();
+				assetType = metaData["assetType"].get<std::string>();
 
 			if (metaData.contains("assetPath"))
 				assetPath = metaData["assetPath"].get<std::string>();
@@ -501,6 +503,38 @@ namespace SliceEditor
 			metaJson["assetPath"] = assetPath;
 			metaJson["resourcePath"] = resourcePath;
 			
+
+			// specific properties to scene goes here but we dh that yet
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+	};
+
+	struct CSVData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CSV;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			// technically this is done in compiling of asset
+			// but scene has no compiling so we just set it here
+
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			nlohmann::json metaJson;
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
 
 			// specific properties to scene goes here but we dh that yet
 			// now create the meta file
@@ -1021,7 +1055,7 @@ namespace SliceEditor
 
 			else
 			{
-				SLICE_LOG_ERROR("Error in opening file for writing: " , assetPath.c_str());
+				SLICE_LOG_ERROR("Error in opening file for writing: " +  assetPath);
 			}
 		}
 

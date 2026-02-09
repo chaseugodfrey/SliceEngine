@@ -108,16 +108,18 @@ namespace SliceEngine
 		.property("x", &glm::vec3::x)
 		.property("y", &glm::vec3::y)
 		.property("z", &glm::vec3::z);
-
+	
+#pragma warning(push)
+#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
-	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
-
+#pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -378,7 +380,28 @@ namespace SliceEngine
 		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
 		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
 
+	rttr::registration::class_<std::pair<float, glm::vec4>>("PairFloatVec4")
+		.constructor<>()
+		.property("first", &std::pair<float, glm::vec4>::first)
+		.property("second", &std::pair<float, glm::vec4>::second);
+
+	rttr::registration::class_<std::vector<std::pair<float, glm::vec4>>>("VectorPairFloatVec4");
+
 	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
+	rttr::registration::class_<std::map<float, glm::vec3>>("map_float_vec3")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec3>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec3>::iterator, bool>
+			(std::map<float, glm::vec3>::*)(const float&, const glm::vec3&)>(&std::map<float, glm::vec3>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec3>::clear);
+
+	rttr::registration::class_<std::map<float, glm::vec4>>("map_float_vec4")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec4>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec4>::iterator, bool>
+			(std::map<float, glm::vec4>::*)(const float&, const glm::vec4&)>(&std::map<float, glm::vec4>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec4>::clear);
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
@@ -468,20 +491,21 @@ namespace SliceEngine
 
 		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
 		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
-		.property("startScaleMultiplier", &ParticleSystem::startScaleMultiplier)
-		.property("endScaleMultiplier", &ParticleSystem::endScaleMultiplier)
+		.property("sizeMap", &ParticleSystem::sizeMap)
+		.property("sizeMapIntermediary", &ParticleSystem::sizeMapIntermediary)
 
 		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
 		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
 		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
 
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colourMap", &ParticleSystem::colourLifeTimeMap)		
-		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+		.property("colourLifetimeMap", &ParticleSystem::colourLifetimeMap)
+		.property("colourMapIntermediary", &ParticleSystem::colourMapIntermediary)
 
 		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
-		.property("startVelocityMultiplier", &ParticleSystem::startVelocityMultiplier)
-		.property("endVelocityMultiplier", &ParticleSystem::endVelocityMultiplier)
+		.property("velocitySeparateAxis", &ParticleSystem::velocitySeparateAxis)
+		.property("velocityMap", &ParticleSystem::velocityMap)
+		.property("velocityMapIntermediary", &ParticleSystem::velocityMapIntermediary)
 
 		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
 		.property("orbitAxis", &ParticleSystem::orbitAxis)
@@ -738,7 +762,7 @@ namespace SliceEngine
 		mCanvas.Init();
 
 		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
-		//sButton.Init();
+		sButton.InitSystem();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -767,8 +791,8 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-
-		
+		(void)projSettingsManager;
+		(void)sParticleSystemManager;		
 
 		//static bool isPlaying = false;
 
@@ -776,7 +800,6 @@ namespace SliceEngine
 
 		//frm->StartFrame();
 
-		frm->StartSystem("Scene Handling");
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -846,7 +869,6 @@ namespace SliceEngine
 			}
 		}
 
-		frm->EndSystem("Scene Handling");
 
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
@@ -871,7 +893,7 @@ namespace SliceEngine
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		gScriptSystem->Update((float)frm->getDeltaTime());
+		//gScriptSystem->Update((float)frm->getDeltaTime());
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
@@ -917,7 +939,6 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
-
 		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
@@ -935,8 +956,8 @@ namespace SliceEngine
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
 			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
-			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
+			unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
+			unsigned int mouse_y = static_cast<unsigned int>(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
@@ -956,10 +977,8 @@ namespace SliceEngine
 		}
 
 		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
@@ -985,13 +1004,12 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
-
+		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
-		sParticleSystemManager.ResetManager();
 		sAudio->StopAllSound();
 		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 		audioSettings->DeleteAM();
@@ -1007,7 +1025,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto frm = Core::GetInstance()->GetFramerateManager();
+		auto _frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -1015,9 +1033,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		frm->StartSystem("GLFW Swap Buffers");
+		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		frm->EndSystem("GLFW Swap Buffers");
+		_frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

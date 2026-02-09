@@ -21,7 +21,7 @@ namespace SliceEngine
 
 				for (unsigned int i = 0; i < anim_pkg.animations.size(); i++)
 				{
-					int pos = anim_pkg.animations[i].name.find("|");
+					int pos = (int)anim_pkg.animations[i].name.find("|");
 					std::string mapName = anim_pkg.animations[i].name.substr(pos + 1);
 					if (EFSM.stateMap.contains(mapName))
 					{
@@ -92,7 +92,7 @@ namespace SliceEngine
 				{
 					const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
 
-					bool check = currentParamValue.to_bool();
+					//bool check = currentParamValue.to_bool();
 
 					if (EvalCon(currentParamValue, condition.op, condition.value))
 					{
@@ -245,8 +245,8 @@ namespace SliceEngine
 		if (!EFSM.currState)
 			return false;
 
-		if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
-			bool ys = true;
+		//if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
+			//bool ys = true;
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
@@ -304,7 +304,7 @@ namespace SliceEngine
 		//if (EFSM.currState->stateName == name)
 			//return;
 
-		SLICE_LOG(name);
+		//SLICE_LOG(name);
 
 		EFSM.parameters[name] = value;
 

@@ -126,9 +126,10 @@ namespace SliceEditor
 		entt::entity entity = entt::null;
 		bool isPrefab = false;
 		bool seen = false; //For editor Hierarchy to check if it should be removed or not
+		bool isScriptSelected = false;
 
 		EntityNode()
-			: entity(entt::null), isPrefab(false), seen(false)
+			: entity(entt::null), isPrefab(false), seen(false), isScriptSelected(false)
 		{
 			type = SelectionType::ENTITY;
 			isSelected = false;
@@ -247,8 +248,10 @@ namespace SliceEditor
 			for (auto& [nm, id] : mNameToStateID)
 			{
 				if (nm == name)
+				{
 					name += " copy";
-				break;
+					break;
+				}
 			}
 
 			node.name = name;
@@ -304,7 +307,7 @@ namespace SliceEditor
 			else
 			{
 				auto& state_map = mStateMachineAsset->stateMap;
-				auto it = mStateNodes.find(state_id);
+				auto it = mStateNodes.find(static_cast<const unsigned short>(state_id));
 				if (it != mStateNodes.end())
 				{
 					state_map.at(it->second.name).mNodePos = glm::vec2(pos.x, pos.y);
@@ -389,7 +392,7 @@ namespace SliceEditor
 
 		std::optional<std::reference_wrapper<StateNode>> GetStateNode(int state_id)
 		{
-			auto it1 = mStateNodes.find(state_id);
+			auto it1 = mStateNodes.find(static_cast<const unsigned short>(state_id));
 			if (it1 == mStateNodes.end())
 				return std::nullopt;
 
@@ -429,7 +432,7 @@ namespace SliceEditor
 
 		std::optional<std::reference_wrapper<TransitionLinkNode>> GetTransitionNode(int transition_id)
 		{
-			auto it1 = mTransitionNodes.find(transition_id);
+			auto it1 = mTransitionNodes.find(static_cast<const unsigned short>(transition_id));
 			if (it1 == mTransitionNodes.end())
 				return std::nullopt;
 

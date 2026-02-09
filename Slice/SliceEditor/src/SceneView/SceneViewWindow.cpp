@@ -149,7 +149,7 @@ namespace SliceEditor
 			{
 				ImGui::OpenPopup("Debug Lines");
 			}
-			float height = ImGui::GetItemRectSize().y;
+			//float height = ImGui::GetItemRectSize().y;
 			DebugDrawTogglePopup();
 			ImGui::SameLine();
 		}
@@ -164,7 +164,7 @@ namespace SliceEditor
 
 #pragma region IO Calculation
 
-		auto size = ImGui::GetContentRegionAvail();
+		//auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
 		auto* cam_tr = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);

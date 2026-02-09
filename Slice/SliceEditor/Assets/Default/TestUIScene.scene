@@ -132,20 +132,7 @@
             }
         },
         {
-            "Text": {
-                "struct SliceEngine::FontRenderer": {
-                    "alignment": "Left",
-                    "componentEnabled": true,
-                    "font": "10853710783587271977",
-                    "font_size": 50.0,
-                    "line_spacing": 1.25,
-                    "rgba": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ]
-                },
+            "Image": {
                 "struct SliceEngine::RectTransform": {
                     "bot": 0,
                     "height": 100,
@@ -156,7 +143,7 @@
                     "right": 0,
                     "top": 0,
                     "vert_pivot": "Middle",
-                    "width": 273
+                    "width": 100
                 },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 3,
@@ -168,13 +155,24 @@
                     ]
                 },
                 "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.TestFontrenderer"
+                    "scriptName": "SliceEngine.TestRectTransform"
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
-                    "mName": "Text",
+                    "mName": "Image",
                     "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "texture": "11697903386653029786"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [

@@ -25,10 +25,10 @@ namespace SliceEngine
         static bool testingShit = false;
 #pragma warning restore 0414
 
-        float timeBuffer = 0.0f;
-        float attackBuffer = 0.0f;
-        bool startAttack = false;
-        bool startBuffer = false;
+        //float timeBuffer = 0.0f;
+        //float attackBuffer = 0.0f;
+        //bool startAttack = false;
+        //bool startBuffer = false;
         bool grounded = false;
         int jumpCounter = 0;
 
@@ -177,9 +177,9 @@ namespace SliceEngine
                     AudioSettings.PlaySFX("A1");
                 }
 
-                startBuffer = true;
-                startAttack = true;
-                timeBuffer = 0.0f;
+                //startBuffer = true;
+                //startAttack = true;
+                //timeBuffer = 0.0f;
             }
         }
 
