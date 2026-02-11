@@ -1385,19 +1385,28 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Shape"))
 			{
-				static std::vector<std::string> shapeTypes{ "Sphere", "Cone"};
+				static std::vector<std::string> shapeTypes{ "Sphere", "Cone", "Cube", "Circle", "Rect"};
 				// Shape Type Enum
 				ComboHeader<SliceEngine::ParticleSystem::ShapeType>(mRegistry, "Shape", "##shapeType", ps.shapeType, shapeTypes);
 
 				switch (ps.shapeType)
 				{
-				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
-					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;
 				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
-					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CONE:
+					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CUBE:
+					DragVec3InputHeader(mRegistry, "Scale", "##cubeScale", ps.shapeScale);
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CIRCLE:
+					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::RECT:					
+					DragVec2InputHeader(mRegistry, "Scale", "##rectScale", ps.rectScale);
 					break;
 				default:
 					break;
