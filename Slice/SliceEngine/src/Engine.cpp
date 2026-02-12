@@ -407,9 +407,9 @@ namespace SliceEngine
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
 			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
-			rttr::value("BOX", ParticleSystem::ShapeType::CUBE),
-			rttr::value("EDGE", ParticleSystem::ShapeType::CIRCLE),
-			rttr::value("CIRCLE", ParticleSystem::ShapeType::RECT)
+			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
+			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
+			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
 			);
 
 	rttr::registration::class_<Particle>(typeid(Particle).name());
