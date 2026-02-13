@@ -553,7 +553,7 @@ namespace SliceEngine
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			*out = go.GetComponent<ParticleSystem>().coneRadius;
+			*out = go.GetComponent<ParticleSystem>().shapeRadius;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -564,7 +564,7 @@ namespace SliceEngine
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			go.GetComponent<ParticleSystem>().coneRadius = *value;
+			go.GetComponent<ParticleSystem>().shapeRadius = *value;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -576,7 +576,7 @@ namespace SliceEngine
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			*out = go.GetComponent<ParticleSystem>().sphereRadius;
+			*out = go.GetComponent<ParticleSystem>().shapeRadius;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
@@ -587,7 +587,7 @@ namespace SliceEngine
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
 		if (go.IsValid() && go.HasComponent<ParticleSystem>())
 		{
-			go.GetComponent<ParticleSystem>().sphereRadius = *value;
+			go.GetComponent<ParticleSystem>().shapeRadius = *value;
 			return;
 		}
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
