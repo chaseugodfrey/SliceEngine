@@ -407,10 +407,9 @@ namespace SliceEngine
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
 			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
-			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
-			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
+			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
-			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
+			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
 			);
 
 	rttr::registration::class_<Particle>(typeid(Particle).name());
@@ -452,10 +451,13 @@ namespace SliceEngine
 		.property("shapeType", &ParticleSystem::shapeType)
 
 		.property("coneArc", &ParticleSystem::coneArc)
-		.property("coneRadius", &ParticleSystem::coneRadius)
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
-		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
+		.property("shapeRadius", &ParticleSystem::rectScale)
+
+		.property("shapeRadius", &ParticleSystem::shapeRadius)
+		.property("shapeRadius", &ParticleSystem::shapeScale)
 
 		.property("axis", &ParticleSystem::axis)
 
