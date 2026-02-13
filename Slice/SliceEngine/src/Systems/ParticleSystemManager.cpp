@@ -228,7 +228,7 @@ namespace SliceEngine
 
 			if (ps.isLocalSpace && ps.parentTransform)
 			{
-				transformMatrix = glm::translate(transformMatrix, p.position + ps.parentTransform->position);
+				transformMatrix = glm::translate(transformMatrix, p.position + ps.parentTransform->GetWorldPosition());
 			}
 			else
 			{
@@ -389,7 +389,7 @@ namespace SliceEngine
 		}
 
 		if (ps.parentTransform)
-		p.position += ps.parentTransform->position;
+		p.position += ps.parentTransform->GetWorldPosition();
 
 		switch (ps.shapeType)
 		{		
@@ -507,7 +507,7 @@ namespace SliceEngine
 		switch (ps.shapeType)
 		{
 		case ParticleSystem::ShapeType::SPHERE:
-			direction = ComputeSphereInitialVelocity(ps.parentTransform->position, p.position, ps.shapeRadius);
+			direction = ComputeSphereInitialVelocity(ps.parentTransform->GetWorldPosition(), p.position, ps.shapeRadius);
 			break;
 		case ParticleSystem::ShapeType::CONE:
 			direction = RandomDirectionInCone(ps);
@@ -840,9 +840,9 @@ namespace SliceEngine
 
 		glm::quat deltaQ = rotZ * rotY * rotX;
 
-		glm::vec3 offset = p.position - ps.parentTransform->position;
+		glm::vec3 offset = p.position - ps.parentTransform->GetWorldPosition();
 		offset = deltaQ * offset;
-		p.position = ps.parentTransform->position + offset;
+		p.position = ps.parentTransform->GetWorldPosition() + offset;
 	}
 #pragma endregion
 
