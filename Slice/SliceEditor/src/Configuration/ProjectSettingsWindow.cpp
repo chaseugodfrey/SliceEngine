@@ -226,15 +226,13 @@ namespace SliceEditor
 						ImGui::PopID();
 					}
 
-					ImGui::SameLine();
-
-					if (ImGui::Button("+"))
+					if (ImGui::Button("Add Audio Clip"))
 					{
 						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
-					if (ImGui::Button("-"))
+					if (ImGui::Button("Remove Audio Clip"))
 					{
 						if (!entry.AudioClips.empty())
 						{
@@ -334,7 +332,7 @@ namespace SliceEditor
 						{
 							if (ImGui::Selectable(bplayer_to_name_list[i].c_str()))
 							{
-								JPH::BroadPhaseLayer new_bp_layer(static_cast<JPH::BroadPhaseLayer>(i));
+								JPH::BroadPhaseLayer new_bp_layer(static_cast<JPH::BroadPhaseLayer::Type>(i));
 								physicsSystem.SetObjectBroadPhaseLayer(index, new_bp_layer);
 								physicsSettings.isDirty = true;
 							}

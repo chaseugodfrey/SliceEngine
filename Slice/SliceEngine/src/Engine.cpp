@@ -108,16 +108,18 @@ namespace SliceEngine
 		.property("x", &glm::vec3::x)
 		.property("y", &glm::vec3::y)
 		.property("z", &glm::vec3::z);
-
+	
+#pragma warning(push)
+#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
-	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
-
+#pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -405,10 +407,9 @@ namespace SliceEngine
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
 			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
-			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
-			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
+			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
-			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
+			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
 			);
 
 	rttr::registration::class_<Particle>(typeid(Particle).name());
@@ -450,10 +451,13 @@ namespace SliceEngine
 		.property("shapeType", &ParticleSystem::shapeType)
 
 		.property("coneArc", &ParticleSystem::coneArc)
-		.property("coneRadius", &ParticleSystem::coneRadius)
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
-		.property("shapeRadius", &ParticleSystem::sphereRadius)
+
+		.property("shapeRadius", &ParticleSystem::rectScale)
+
+		.property("shapeRadius", &ParticleSystem::shapeRadius)
+		.property("shapeRadius", &ParticleSystem::shapeScale)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -760,7 +764,7 @@ namespace SliceEngine
 		mCanvas.Init();
 
 		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
-		//sButton.Init();
+		sButton.InitSystem();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -814,8 +818,8 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-
-		
+		(void)projSettingsManager;
+		(void)sParticleSystemManager;		
 
 		//static bool isPlaying = false;
 
@@ -1029,7 +1033,7 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		sButton.InitSystem();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
-
+		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 		sInputs->SetMode(InputMode::Editor);
@@ -1050,7 +1054,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto frm = Core::GetInstance()->GetFramerateManager();
+		auto _frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -1058,9 +1062,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		frm->StartSystem("GLFW Swap Buffers");
+		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		frm->EndSystem("GLFW Swap Buffers");
+		_frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

@@ -66,9 +66,11 @@ namespace SliceEngine
 		void ApplyBurst(ParticleSystem& ps, float dt);
 
 		glm::vec3 ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias = 1.0f);
-		glm::vec3 RandomDirectionInCone(float arcDegrees, ParticleSystem& ps);
-		glm::vec3 RandomPointInSphere(float radius, float arcDegrees, ParticleSystem& ps);
-		glm::vec3 RandomPointInCircle(float radius, ParticleSystem& ps);
+		glm::vec3 RandomDirectionInCone(ParticleSystem& ps);
+		glm::vec3 RandomPointInSphere(ParticleSystem& ps);
+		glm::vec3 RandomPointInCircle(ParticleSystem& ps);
+		glm::vec3 RandomPointInCube(ParticleSystem& ps);
+		glm::vec3 RandomPointInRect(ParticleSystem& ps);
 	};
 }
 
