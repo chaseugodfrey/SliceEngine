@@ -54,6 +54,8 @@ namespace SliceEngine
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
 
+            Cursor.state = Cursor.STATE.DISABLED;
+
             foreach (GameObject trigger in levelTriggers)
             {
                 //Console.WriteLine("id of triggerbox: " + trigger.mID);

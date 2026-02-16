@@ -987,7 +987,6 @@ namespace SliceEngine
 			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
 			unsigned int mouse_x = mouse_NDC.x * CanvasSystem::target_width;//(unsigned int)mouse_coord.x;
-
 			unsigned int mouse_y = CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height;// (unsigned int)mouse_coord.y;
 			//std::cout << "MouseNDC * Target: " << mouse_y << " MouseCoord:" << mouse_coord.y << std::endl;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
