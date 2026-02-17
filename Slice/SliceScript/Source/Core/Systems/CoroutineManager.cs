@@ -102,20 +102,29 @@ namespace SliceEngine
                     if (!yi.IsDone()) continue; // still waiting
                 }
 
-                bool alive = c.Enumerator.MoveNext();
-
-                if (!alive)
+                try
                 {
-                    // Coroutine finished
+                    bool alive = c.Enumerator.MoveNext();
+
+                    if (!alive)
+                    {
+                        // Coroutine finished
+                        coroutines.RemoveAt(i);
+                        continue;
+                    }
+
+                    // Store current yield instruction
+                    if (c.Enumerator.Current is IYieldInstruction yieldInstr)
+                        c.CurrentYield = yieldInstr;
+                    else
+                        c.CurrentYield = c.Enumerator.Current;
+                }
+                catch (Exception e)
+                {
+                    SliceLog.Error("Faulty Coroutine Caught and Removed: " + e.ToString());
                     coroutines.RemoveAt(i);
                     continue;
-                }
-
-                // Store current yield instruction
-                if (c.Enumerator.Current is IYieldInstruction yieldInstr)
-                    c.CurrentYield = yieldInstr;
-                else
-                    c.CurrentYield = c.Enumerator.Current;
+                }                
             }
         }
 
@@ -134,7 +143,7 @@ namespace SliceEngine
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
                 var c = coroutines[i];
-                if (c.Owner != null && c.Owner.gameObject.mID == owner)
+                if (c.Owner?.gameObject != null && c.Owner.gameObject.mID == owner)
                 {
                     coroutines.RemoveAt(i);
                 }
@@ -205,6 +214,7 @@ namespace SliceEngine
 
         public bool IsDone()
         {
+            if (target == null) return true;
             return !CoroutineManager.IsRunning(target);
         }
     }
