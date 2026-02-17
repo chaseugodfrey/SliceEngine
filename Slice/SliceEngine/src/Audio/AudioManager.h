@@ -136,6 +136,9 @@ namespace SliceEngine
 
 		void SetChannelPriority(FMOD::Channel* channel, int priorityNumber);
 
+		void SetOcclusion(FMOD::Channel* channel, float direct, float reverb);
+		std::pair<float, float> GetOcclusion(FMOD::Channel* channel);
+
 		void SetSpread(FMOD::Channel* channel, float spread);
 		float GetSpread(FMOD::Channel* channel);
 
