@@ -397,6 +397,13 @@ namespace SliceEditor
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
 	{
 		ImNodes::Link(node->id, node->source_out_id, node->target_in_id);
+		if (ImNodes::IsLinkSelected(node->id))
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectLink(static_cast<uint16_t>(node->id));
+			}
+		}
 	}
 
 	void AnimatorWindow::LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity)
@@ -443,6 +450,12 @@ namespace SliceEditor
 	void AnimatorWindow::SelectNode(uint16_t id)
 	{
 		auto& node = mAnimatorData->mStateNodes.at(id);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+	}
+
+	void AnimatorWindow::SelectLink(uint16_t id)
+	{
+		auto& node = mAnimatorData->mTransitionNodes.at(id);
 		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
 	}
 

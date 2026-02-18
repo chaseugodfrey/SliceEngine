@@ -34,6 +34,7 @@ namespace SliceEditor
 		void CreateNode();
 		void DeleteNode(uint16_t id);
 		void SelectNode(uint16_t id);
+		void SelectLink(uint16_t id);
 
 		bool RemoveTransitionFromState(uint16_t id);
 

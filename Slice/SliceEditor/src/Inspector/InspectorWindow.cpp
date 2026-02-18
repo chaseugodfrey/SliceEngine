@@ -2264,6 +2264,20 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		ImGui::SeparatorText("Transitions");
+
+		for (auto& transition : state.transitions)
+		{
+			if (ImGui::TreeNodeEx(transition.targetState.c_str()))
+			{
+				BoolInputHeader(mRegistry, "Has Exit Time: ", "##hasExitTime", transition.hasExitTime);
+				DragFloatInputHeader(mRegistry, "Entry Time: ", "##entryTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+				DragFloatInputHeader(mRegistry, "Exit Time: ", "##exitTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+
+				ImGui::TreePop();
+			}
+		}
 	
 
 		//auto state = node->state;
@@ -2279,7 +2293,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
-		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
 
 		ImGui::SeparatorText("Transition");
 
@@ -2293,6 +2307,14 @@ namespace SliceEditor
 			return;
 
 		//auto& transition = transitionOpt.value().get();
+
+		ImGui::Text("Source State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().sourceState.c_str());
+
+		ImGui::Text("Target State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().targetState.c_str());
 
 		auto params = anim_data->GetParameters();
 
