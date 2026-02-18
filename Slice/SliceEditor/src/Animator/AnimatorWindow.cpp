@@ -384,7 +384,10 @@ namespace SliceEditor
 
 		if (ImNodes::IsNodeSelected(node->id))
 		{
-			SelectNode(static_cast<uint16_t>(node->id));
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(static_cast<uint16_t>(node->id));
+			}
 		}
 
 		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
