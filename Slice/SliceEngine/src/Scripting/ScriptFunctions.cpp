@@ -194,11 +194,29 @@ namespace SliceEngine
 
 	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
 	{
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.rotation = glm::normalize(*rotation);
+		//auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		//transform.rotation = glm::normalize(*rotation);
 
-		// update Euler hint only for inspector UI
-		transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		//// update Euler hint only for inspector UI
+		//transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (GO.HasComponent<TempTransform>())
+		{
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform.rotation = glm::normalize(*rotation);
+			tempTransform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		}
+		else
+		{
+			GO.AddComponent<TempTransform>();
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform = transform;
+			tempTransform.rotation = glm::normalize(*rotation);
+			tempTransform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		}
+
 	}
 
 
