@@ -185,11 +185,6 @@ namespace SliceEngine
 				ApplyGravity(p, ps, dt);
 			}
 
-			if (ps.hasCollision)
-			{
-				ApplyPhysics(p, ps, dt);
-			}
-
 			if (ps.colourOverLifetime)
 			{
 				ApplyColourOverLifetime(p, ps, dt);
@@ -199,6 +194,12 @@ namespace SliceEngine
 			{
 				ApplyOrbitOverLifetime(p, ps, dt);
 			}
+
+			if (ps.hasCollision)
+			{
+				ApplyPhysics(p, ps, dt);
+			}
+
 			ApplyVeloctiy(p, ps, dt);
 		}
 
