@@ -108,7 +108,21 @@ namespace SliceEngine
 
 		//SLICE_LOG("Setting position from C++ for entity: {}", entity);
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.position = *position;
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (GO.HasComponent<TempTransform>())
+		{
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform.position = *position;
+		}
+		else
+		{
+			GO.AddComponent<TempTransform>();
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform = transform;
+			tempTransform.position = *position;
+		}
+		
+		//transform.position = *position;
 	}
 
 	static void Transform_GetScale(unsigned int entity, glm::vec3* outScale)
@@ -120,7 +134,19 @@ namespace SliceEngine
 	static void Transform_SetScale(unsigned int entity, glm::vec3* scale)
 	{
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.scale = *scale;
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (GO.HasComponent<TempTransform>())
+		{
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform.scale = *scale;
+		}
+		else
+		{
+			GO.AddComponent<TempTransform>();
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform = transform;
+			tempTransform.scale = *scale;
+		}
 	}
 
 	static void Transform_GetRotation(unsigned int entity, glm::vec3* outRotation)
@@ -133,10 +159,25 @@ namespace SliceEngine
 
 	static void Transform_SetRotation(unsigned int entity, glm::vec3* rotation)
 	{
+		//auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		//transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+		//transform.eulerAnglesHint = *rotation;
 		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.rotation = SliceEngine::Vec3ToQuat(*rotation);
-		transform.eulerAnglesHint = *rotation;
-		// leaving blank for now cause i think i ahve to return as euler not quaternion
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (GO.HasComponent<TempTransform>())
+		{
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+			tempTransform.eulerAnglesHint = *rotation;
+		}
+		else
+		{
+			GO.AddComponent<TempTransform>();
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform = transform;
+			tempTransform.rotation = SliceEngine::Vec3ToQuat(*rotation);
+			tempTransform.eulerAnglesHint = *rotation;
+		}
 	}
 
 	static void Transform_GetRotationQuat(unsigned int entity, glm::quat* outRotation)
@@ -153,11 +194,29 @@ namespace SliceEngine
 
 	static void Transform_SetRotationQuat(unsigned int entity, const glm::quat* rotation)
 	{
-		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
-		transform.rotation = glm::normalize(*rotation);
+		//auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		//transform.rotation = glm::normalize(*rotation);
 
-		// update Euler hint only for inspector UI
-		transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		//// update Euler hint only for inspector UI
+		//transform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+
+		auto& transform = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<Transform>();
+		auto GO = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (GO.HasComponent<TempTransform>())
+		{
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform.rotation = glm::normalize(*rotation);
+			tempTransform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		}
+		else
+		{
+			GO.AddComponent<TempTransform>();
+			auto& tempTransform = GO.GetComponent<TempTransform>();
+			tempTransform = transform;
+			tempTransform.rotation = glm::normalize(*rotation);
+			tempTransform.eulerAnglesHint = SliceEngine::QuatToVec3(transform.rotation);
+		}
+
 	}
 
 

@@ -1091,8 +1091,10 @@ namespace SliceEngine
 		cameraPos = worldTr[3];
 
 		V = glm::lookAt(camPosition, forward, up);
+		camera.V = V;
 
 		P = glm::perspective(glm::radians(camera.pov), static_cast<float>(camera.width) / static_cast<float>(camera.height), camera.near, camera.far);
+		camera.P = P;
 	}
 	// Updates V P uniforms
 	void RenderManager::UpdateCamVP()
