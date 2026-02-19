@@ -923,10 +923,12 @@ namespace SliceEngine
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			frm->StartSystem("Physics");
+
+			core->GetSystem<PhysicsSystem>().ProcessTempMovements();
+
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
-
 
 				//Prestep: push dynamic poses to physics world
 				core->GetSystem<PhysicsSystem>().PreStepSync();
