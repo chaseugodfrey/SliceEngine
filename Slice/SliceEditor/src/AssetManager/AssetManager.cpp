@@ -205,6 +205,18 @@ namespace SliceEditor
 		//metaPath.replace_extension(".meta");
 		metaPath += ".meta";
 
+		// theres an existing meta data
+		if (std::filesystem::exists(metaPath))
+		{
+			// then we deseiralize instead to get the meta info
+			metaData->Deserialize(metaPath);
+		}
+		else
+		{
+			// if not then serialize to create a new meta data
+			metaData->Serialize(metaPath);
+		}
+
 		// check if a file already exist
 		if (std::filesystem::exists(metaData->resourcePath) && !recompile)
 		{
@@ -214,7 +226,7 @@ namespace SliceEditor
 			return std::filesystem::path("");
 		}
 
-		metaData->Serialize(metaPath);
+		
 
 		//mAssets[assetType].push_back(metaData->assetName);
 		// Update the descriptor map

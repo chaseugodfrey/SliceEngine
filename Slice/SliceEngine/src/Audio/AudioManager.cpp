@@ -403,6 +403,13 @@ namespace SliceEngine
 			SetSpread(channel, audioComp.spread);
 		}
 
+		//Handle Occlusion
+		std::pair<float, float> occlusion = GetOcclusion(channel);
+		if (std::abs(audioComp.directOcclusion - occlusion.first) > 0.001f || std::abs(audioComp.reverbOcclusion - occlusion.second) > 0.001f)
+		{
+			SetOcclusion(channel, audioComp.directOcclusion, audioComp.reverbOcclusion);
+		}
+
 		//Handle Volume Rolloff
 		FMOD_MODE currentMode;
 		channel->getMode(&currentMode);
@@ -449,6 +456,25 @@ namespace SliceEngine
 		{
 			channel->setPriority(priorityNumber);
 		}
+	}
+
+	void AudioManager::SetOcclusion(FMOD::Channel* channel, float direct, float reverb)
+	{
+		if (channel)
+		{
+			channel->set3DOcclusion(direct, reverb);
+		}
+	}
+
+	std::pair<float, float> AudioManager::GetOcclusion(FMOD::Channel* channel)
+	{
+		if (!channel)
+		{
+			return { 0.0f, 0.0f };
+		}
+		float direct, reverb;
+		channel->get3DOcclusion(&direct, &reverb);
+		return { direct, reverb };
 	}
 
 	void AudioManager::SetSpread(FMOD::Channel* channel, float spread)
