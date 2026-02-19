@@ -13,6 +13,7 @@ DigiPen Institute of Technology is prohibited.
 #include <random>
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h"
+#include "../Graphics/CameraSystem.h"
 #include "../Serializer/JSONSerializer.h"
 #include "../src/Physics/PhysicsSystem.h"
 #include "Systems/SceneSystem.h"
@@ -121,7 +122,10 @@ namespace SliceEngine
 		ValidateParticleSystem(ps);
 
 		// particle billboard from camera
-		glm::mat3 camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRenderManager()->GetViewMatrix()));
+		auto possibleCam = Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
+		glm::mat3 camRot{1.f};
+		if(possibleCam.has_value())
+			camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRegistry().get<Camera>(possibleCam.value()).V));
 		glm::quat billboardRot = glm::quat_cast(camRot);
 
 		// If system exceeded duration, flag as ending, if repeating, reset timer to dt
