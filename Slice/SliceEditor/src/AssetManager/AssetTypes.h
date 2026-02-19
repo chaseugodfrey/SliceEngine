@@ -684,11 +684,10 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::MATERIAL;
 
-		SliceEngine::GUID albedo = (SliceEngine::GUID)0;
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
-		std::map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
+		std::map<std::string, std::variant<bool, uint32_t, int32_t, float, SliceEngine::GUID>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -740,7 +739,6 @@ namespace SliceEditor
 
 			nlohmann::json metaJson = nlohmann::json::parse(inFile);
 			// properties
-			albedo = (SliceEngine::GUID)metaJson["albedo"].get<uint64_t>();
 			shader = (SliceEngine::GUID)metaJson["shader"].get<uint64_t>();
 			auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 			auto shdr = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(shader);
@@ -774,6 +772,12 @@ namespace SliceEditor
 						data[i.name] = b;
 						break;
 					}
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+					{
+						uint64_t b = metaJson["data"][i.name];
+						data[i.name] = (SliceEngine::GUID)b;
+						break;
+					}
 					}
 				}
 				else
@@ -792,6 +796,9 @@ namespace SliceEditor
 					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 						data[i.name] = std::get<float>(i.baseData);
 						break;
+					case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+						data[i.name] = (SliceEngine::GUID)std::get<uint64_t>(i.baseData);
+						break;
 					}
 				}
 			}
@@ -805,14 +812,16 @@ namespace SliceEditor
 		{
 			nlohmann::json metaJson;
 			// specific properties to shader goes here but we dh that yet
-			metaJson["albedo"] = albedo.GetGUID();
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
 			nlohmann::json dataJson = nlohmann::json::object();
 			for (const auto& [key, val] : data)
 			{
 				std::visit([&](auto&& arg) {
-					dataJson[key] = arg;
+					if (std::holds_alternative<SliceEngine::GUID>(val))
+						dataJson[key] = std::get<SliceEngine::GUID>(val).GetGUID();
+					else
+						dataJson[key] = arg;
 				}, val);
 			}
 			metaJson["data"] = dataJson;

@@ -1,25 +1,29 @@
 {
     "Main": {
         "END_COLOR": {
-            "Node19": [
-                "Node23"
+            "Node21": [
+                "Node29"
             ]
         },
-        "END_MET_ROUGH": {
-            "Node21": [
-                "Node27"
+        "END_METALLIC": {
+            "Node23": [
+                "metallic"
+            ]
+        },
+        "END_NORMAL": {
+            "Node25": [
+                "vNom"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "Node27": [
+                "roughness"
             ]
         },
         "Mul_Vec4": {
-            "Node23": [
+            "Node29": [
                 "texCol",
                 "color"
-            ]
-        },
-        "Vec2_f_f": {
-            "Node27": [
-                "roughness",
-                "metallic"
             ]
         }
     },
@@ -30,6 +34,10 @@
             "roughness": 0.0
         },
         "Ints": {},
+        "Textures": {
+            "NormalMap": 11697903386653029786,
+            "texCol": 17753361635269803423
+        },
         "Uints": {}
     }
 }

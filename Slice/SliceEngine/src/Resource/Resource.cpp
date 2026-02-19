@@ -203,24 +203,13 @@ namespace SliceEngine
 
 		try
 		{
-			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
 
 			glm::from_json(materialJson["color"], materialToReload->color);
 			materialToReload->data.clear();
 
-			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
 			GUID oldShaderGUID = materialToReload->shader.getGUID();
 
-			
-			if (oldAlbedoGUID != newAlbedoGUID)
-			{
-				materialToReload->albedo = mgr.get<SliceEngineTypes::Texture>(newAlbedoGUID);
-			}
-			else
-			{
-				// The texture is the same. DO NOTHING to the handle.
-			}
 			if (newShaderGUID != oldShaderGUID)
 			{
 				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
@@ -256,6 +245,12 @@ namespace SliceEngine
 						case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 						{
 							float b = materialJson["data"][i.name];
+							materialToReload->data.emplace(i.name, b);
+							break;
+						}
+						case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+						{
+							uint64_t b = materialJson["data"][i.name];
 							materialToReload->data.emplace(i.name, b);
 							break;
 						}

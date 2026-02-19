@@ -99,13 +99,14 @@ namespace SliceEngine
 				BOOL,
 				INT,
 				UINT,
-				FLOAT
+				FLOAT,
+				TEXTURE
 			};
 
 			struct ShaderParams
 			{
 				std::string name;
-				std::variant<bool, uint32_t, int32_t, float> baseData;
+				std::variant<bool, uint32_t, int32_t, float, uint64_t> baseData;
 				SP_TYPE dataType;
 			};
 

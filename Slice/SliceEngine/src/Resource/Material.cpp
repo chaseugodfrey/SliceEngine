@@ -25,8 +25,8 @@ namespace SliceEngine
 		Material Material::LoadMaterial(std::string const& filepath) {
 			Material temp;
 			// figure out default textures
-			temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
-			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
+			//temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			temp.color = glm::vec4(1.f);
 
@@ -52,8 +52,8 @@ namespace SliceEngine
 			}
 			file.close();
 			// shouldn't need a [0]. Need check how the material file is created
-			temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
-			temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
+			//temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
+			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.shader.mGUID = (GUID)materialJson["shader"].get<uint64_t>();
 			temp.shader = Core::GetInstance()->GetResourceManager()->get<CustomShader>(temp.shader.mGUID);
 
@@ -90,6 +90,12 @@ namespace SliceEngine
 						temp.data[i.name] = b;
 						break;
 					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+					{
+						uint64_t b = materialJson["data"][i.name];
+						temp.data[i.name] = b;
+						break;
+					}
 					}
 				}
 				else
@@ -100,8 +106,8 @@ namespace SliceEngine
 
 		void Material::LoadDefault()
 		 {
-			albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
-			albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
+			//albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+			//albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
 			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			for (auto& i : shader.get()->dataIn)
@@ -109,9 +115,7 @@ namespace SliceEngine
 		 }
 
 		void Material::DestroyMaterial() {
-			albedo.Release();
+			//albedo.Release();
 		}
-
-		
 	}
 }

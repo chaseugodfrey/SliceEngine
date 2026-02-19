@@ -351,7 +351,9 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 
 		std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates{
 			{"END_COLOR", {"finalCol = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
-			{"END_MET_ROUGH", {"roughMet = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC2}}},
+			{"END_ROUGHNESS", {"finalRoughness = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
+			{"END_METALLIC", {"finalMetallic = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
+			{"END_NORMAL", {"finalNormal = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
@@ -394,7 +396,6 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
 			{"vTex", CSHAD_T::VEC2},
-			{"texCol", CSHAD_T::VEC4},
 			{"color", CSHAD_T::VEC4},
 			// -- Defines? --
 			{"0.f", CSHAD_T::FLOAT},
@@ -467,11 +468,20 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 					dataI[name] = CSHAD_T::BOOL;
 					dataIn.push_back(inParam);
 				}
-
+			if (paramsJson.contains("Textures"))
+				for (auto& [name, components] : paramsJson["Textures"].items())
+				{
+					ShaderParams inParam{};
+					inParam.dataType = SP_TYPE::TEXTURE;
+					inParam.name = name;
+					inParam.baseData = components.get<uint64_t>();
+					dataI[name] = CSHAD_T::VEC4;
+					dataIn.push_back(inParam);
+				}
 			// Extract Functions
 			std::unordered_map<std::string, std::string> fragInclFunctions{};
 			std::string fragMainShaderSource{
-R"(void CustomCalc(in vec4 texCol, in vec4 color, inout vec4 finalCol, inout vec2 roughMet)
+R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic)
 {
 )"};
 			{
@@ -490,7 +500,10 @@ R"(void CustomCalc(in vec4 texCol, in vec4 color, inout vec4 finalCol, inout vec
 						ss << "int " << dataIn[i].name << " = int(ExtractUint(" << i << "));\n";
 						break;
 					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << "); \n";
+						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << ");\n";
+						break;
+					case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+						ss << "vec4 " << dataIn[i].name << " = texture(textures[ExtractUint(" << i << ")], vTex);\n";
 						break;
 					}
 				}
@@ -576,19 +589,18 @@ void main(void){
 	float(iDat[vInstance].col >> 8 & 0xFF),
 	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
-	vec4 texColor = texture(textures[iDat[vInstance].textureID], vTex);
-	if(texColor.a == 0.f)
+	fFragColor = vec4(0.f);
+	float roughness = 0.f;
+	float metallic = 0.f;
+	CustomCalc(color, fFragColor, fNormalData, roughness, metallic);
+ 
+	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
 		discard;
 
-	fFragColor = vec4(0.f);
-	vec2 roughMetal = vec2(0.f);
-	CustomCalc(texColor, color, fFragColor, roughMetal);
- 
-	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold)
-		discard;
+	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughData.xy = roughMetal;
+	fMetalRoughData.xy = vec2(roughness, metallic);
 })"};
 
 			// Combine all the texts
@@ -735,7 +747,7 @@ void main(void){
 				ret += dependenciesLockedLines[i].funcStr;
 			}
 			ret += "if(finalCol.a > 1.0) finalCol.a = 1.0;\n}\n";
-			//SLICE_LOG("\nCShaderCode: [" + ret + "]\n");
+			//SLICE_LOG("\nCShaderCode: [\n" + ret + "]\n");
 		}
 		void CustomShader::DestroyCShader()
 		{

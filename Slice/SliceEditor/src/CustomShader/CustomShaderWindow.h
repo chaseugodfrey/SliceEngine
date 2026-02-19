@@ -66,9 +66,6 @@ namespace SliceEditor
 			}
 		};
 
-		int colorExitNodeID{};
-		int roughMetExitNodeID{};
-
 		std::unordered_map<int, ShaderStateNode> mDefaultIns;
 		std::unordered_map<int, ShaderEditableNode> mEditableIns;
 		std::unordered_map<int, ShaderStateNode> mStateNodes;
@@ -76,6 +73,7 @@ namespace SliceEditor
 
 		std::unordered_map<int, int> attrIDToNodeID;
 		std::unordered_map<int, int> attrIDToLinkID; // Both Ways
+		std::set<int> specialOutIDs;
 
 		void create_default();
 		void DrawSideBar();

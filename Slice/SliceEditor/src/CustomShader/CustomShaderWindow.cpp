@@ -18,6 +18,15 @@ namespace SliceEditor
 		{CST::CSHAD_T::VEC3, "vec3"},
 		{CST::CSHAD_T::VEC4, "vec4"}
 	};
+
+	static std::unordered_map<std::string, int> cShaderOutputNames
+	{
+		{"END_COLOR", 0},
+		{"END_ROUGHNESS", 0},
+		{"END_METALLIC", 0},
+		{"END_NORMAL", 0}
+	};
+
 	CustomShaderWindow::~CustomShaderWindow()
 	{
 		ImNodes::EditorContextFree(*editor_context_this.get());
@@ -69,8 +78,9 @@ namespace SliceEditor
 			// -------------------------------------------------------------------
 			//uniqueIDCnt = 0;
 
-			colorExitNodeID = 0;
-			roughMetExitNodeID = 0;
+			for (auto& [name, outId] : cShaderOutputNames)
+				outId = 0;
+			specialOutIDs.clear();
 
 			mDefaultIns.clear();
 			mEditableIns.clear();
@@ -159,6 +169,20 @@ namespace SliceEditor
 					attrIDToNodeID[n.out_id] = n.id;
 					tempIDLinkGet[name].source_attr = n.out_id;
 				}
+			if (paramsJson.contains("Textures"))
+				for (auto& [name, components] : paramsJson["Textures"].items())
+				{
+					ShaderEditableNode n;
+					n.id = ++uniqueIDCnt;
+					n.out_id = ++uniqueIDCnt;
+					n.name = name;
+					n.baseData = components.get<uint64_t>();
+					n.baseDataType = CST::CSHAD_T::VEC4;
+
+					mEditableIns[n.id] = n;
+					attrIDToNodeID[n.out_id] = n.id;
+					tempIDLinkGet[name].source_attr = n.out_id;
+				}
 
 			nlohmann::json mainColorJson = cshaderJson["Main"];
 			for (auto& [funcName, components] : mainColorJson.items())
@@ -181,12 +205,10 @@ namespace SliceEditor
 						tempIDLinkGet[dep[i]].dest_attr.push(tID);
 					}
 					// Special Case (No Out)
-					if (funcName == "END_COLOR" || funcName == "END_MET_ROUGH")
+					if (cShaderOutputNames.find(funcName) != cShaderOutputNames.end())
 					{
-						if (funcName == "END_COLOR")
-							colorExitNodeID = n.id;
-						else
-							roughMetExitNodeID = n.id;
+						cShaderOutputNames[funcName] = n.id;
+						specialOutIDs.insert(n.id);
 					}
 					// Out
 					else
@@ -231,6 +253,7 @@ namespace SliceEditor
 			paramsJson["Ints"] = nlohmann::json::object();
 			paramsJson["Uints"] = nlohmann::json::object();
 			paramsJson["Bools"] = nlohmann::json::object();
+			paramsJson["Textures"] = nlohmann::json::object();
 
 			for (auto& [id, node] : mEditableIns)
 			{
@@ -245,6 +268,9 @@ namespace SliceEditor
 
 				else if (node.baseData.is_type<bool>())
 					paramsJson["Bools"][node.name] = node.baseData.get_value<bool>();
+
+				else if (node.baseData.is_type<uint64_t>())
+					paramsJson["Textures"][node.name] = node.baseData.get_value<uint64_t>();
 			}
 			shaderGraphJson["Params"] = paramsJson;
 
@@ -252,10 +278,9 @@ namespace SliceEditor
 			std::queue<ShaderStateNode> nodesLeftToCheck;
 
 			nlohmann::json colorMainJson;
-			if(colorExitNodeID != 0)
-				nodesLeftToCheck.push(mStateNodes.at(colorExitNodeID));
-			if(roughMetExitNodeID != 0)
-				nodesLeftToCheck.push(mStateNodes.at(roughMetExitNodeID));
+			for (auto& [outName, outID] : cShaderOutputNames)
+				nodesLeftToCheck.push(mStateNodes.at(outID));
+
 			while (!nodesLeftToCheck.empty())
 			{
 				ShaderStateNode node = nodesLeftToCheck.front();
@@ -337,7 +362,8 @@ namespace SliceEditor
 
 	void CustomShaderWindow::DrawSideBar()
 	{
-		ImGui::BeginChild("##left_ShaderGraph_region", ImVec2(0.2f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+		ImGui::SetNextItemWidth(150.f);
+		ImGui::BeginChild("##left_ShaderGraph_region", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 		ImGui::SeparatorText("Parameters");
 		int toDeleteID{};
 		for (auto& [id, data] : mEditableIns)
@@ -353,6 +379,7 @@ namespace SliceEditor
 			case CST::CSHAD_T::UINT:ImGui::Text("Uint"); break;
 			case CST::CSHAD_T::INT:ImGui::Text("Int"); break;
 			case CST::CSHAD_T::FLOAT:ImGui::Text("Float"); break;
+			case CST::CSHAD_T::VEC4:ImGui::Text("Texture"); break;
 			}
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(125.f);
@@ -490,8 +517,7 @@ namespace SliceEditor
 	{
 		ImNodes::BeginNode(node.id);
 
-		if ((node.id == colorExitNodeID) ||
-			(node.id == roughMetExitNodeID))
+		if (specialOutIDs.find(node.id) != specialOutIDs.end())
 			ImGui::TextUnformatted(node.name.c_str());
 		else
 		{
@@ -549,7 +575,7 @@ namespace SliceEditor
 		yPos = 0.f;
 		for (auto& i : mStateNodes)
 		{
-			if (i.first == colorExitNodeID || i.first == roughMetExitNodeID)
+			if (specialOutIDs.find(i.first) != specialOutIDs.end())
 				continue;
 			InitNodePos(i.first, xPos, yPos);
 			yPos += yBigProgress;
@@ -560,13 +586,14 @@ namespace SliceEditor
 			}
 		}
 		xPos += xProgress;
-		if (colorExitNodeID != 0)
+		for (auto& [outName, outID] : cShaderOutputNames)
 		{
-			InitNodePos(colorExitNodeID, xPos, yPos);
-			yPos += yProgress;
+			if (outID != 0)
+			{
+				InitNodePos(outID, xPos, yPos);
+				yPos += yProgress;
+			}
 		}
-		if (roughMetExitNodeID != 0)
-			InitNodePos(roughMetExitNodeID, xPos, yPos);
 		tempLoadPos = false;
 	}
 	// -ve is go up
@@ -649,6 +676,8 @@ namespace SliceEditor
 					newNodeID = CreateEditable(CST::CSHAD_T::UINT);
 				if (ImGui::Selectable("Make float"))
 					newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
+				if (ImGui::Selectable("Make Texture"))
+					newNodeID = CreateEditable(CST::CSHAD_T::VEC4);
 				ImGui::EndPopup();
 			}
 
@@ -894,6 +923,11 @@ namespace SliceEditor
 		case CST::CSHAD_T::FLOAT:
 		{
 			node.baseData = 0.f;
+			break;
+		}
+		case CST::CSHAD_T::VEC4:
+		{
+			node.baseData = SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			break;
 		}
 		}
