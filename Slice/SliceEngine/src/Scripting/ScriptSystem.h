@@ -148,6 +148,7 @@ namespace SliceEngine
 		void OnStart(); // Calls the Enter function of all game objects
 		void OnUpdate(float dt);
 		void OnFixedUpdate(float dt);
+		void OnLateUpdate(float dt);
 		void UpdateScripts();
 		void OnEnd();
 		//void ReceiveMessage(Message* msg) override;
@@ -206,13 +207,20 @@ namespace SliceEngine
 		// ill store new entities thats added in a vector
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
+		std::set<Entity> entityToInit;
 
 		// Keep track of the entities that were disabled
 		// so that when its re-enabled, it wont call onStay 
-		std::set<Entity> mEntitiesDisabled;
-		std::map<Entity, std::set<Entity>> mEntityCollisionMap;
+		// this is handled in JOLT now so I dont need this
+		//std::set<Entity> mEntitiesDisabled;
+		//std::map<Entity, std::set<Entity>> mEntityCollisionMap;
 
+		// for collision events
 		std::vector<QueuedCollisionEvent> mCollisionQueue;
+
+		// These maps are for keeping track of collision and trigger stay
+		std::map<Entity, std::set<Entity>> mCollideMap;
+		std::map<Entity, std::set<Entity>> mTriggerMap;
 		std::mutex mQueueLock;
 
 	};

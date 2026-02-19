@@ -131,6 +131,7 @@ namespace SliceEditor
 			{".controller",{AssetType::Controller, "Controller"}},
 			{".navmesh",{AssetType::NavMesh, "NavMesh"}},
 			{".bin", {AssetType::NavMeshBin, "NavMesh"}},
+			{".csv", {AssetType::CSV, "CSV"}},
 			{".skl", {AssetType::Skeleton, "Skeleton"}},
 			{".animpkg", {AssetType::Animation, "Animation"}}
 		};
@@ -152,6 +153,8 @@ namespace SliceEditor
 			{AssetType::Animation, ".animpkg"},
 			{AssetType::Controller, ".controller" },
 			{AssetType::NavMesh, ".navmesh" },
+			{AssetType::NavMeshBin, ".bin" },
+			{AssetType::CSV, ".csv"},
 			{AssetType::Font, ".fnt" }
 		};
 

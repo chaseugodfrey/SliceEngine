@@ -97,7 +97,6 @@ namespace SliceEditor
 		// before engine's resource manager scans it to prevent broken meta files/resource files
 
 		assetManager.Init();
-		editorFRM.Init();
 
 		// Engine Core
 		engine.Init();
@@ -116,39 +115,40 @@ namespace SliceEditor
 
 		inputSys->SetMode(SliceEngine::InputMode::Editor);
 		inputs->isActive = true;
-
-		//// Init starting scene
-		// who commented it out say now
-		// it broke play stop
-		engine.InitScene();
+		
 	}
 
 	void Editor::Run()
 	{
 		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto& editorFRM = registry.GetEditorFRM();
+		auto engineFRM = SliceEngine::Core().GetInstance()->GetFramerateManager();
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
-			editorFRM.StartFrame();
-			editorFRM.StartSystem("Editor Registry");
-			registry.Update();
-			editorFRM.EndSystem("Editor Registry");
-			editorFRM.StartSystem("Editor Inputs");
-			inputs->Update();
-			editorFRM.EndSystem("Editor Inputs");
 
-			editorFRM.StartSystem("Filewatcher");
+			engineFRM->StartFrame();
+
+
+			engineFRM->StartSystem("Editor");
+			registry.Update();
+			inputs->Update();
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
-			editorFRM.EndSystem("Filewatcher");
-			editorFRM.EndFrame();
-			editorFRM.CalculateSystemPercentages();
+			engineFRM->EndSystem("Editor");
+
+			//engineFRM->StartSystem("Engine");
 			engine.Update();
+			//engineFRM->EndSystem("Engine");
+			engineFRM->StartSystem("Editor");
 			Render();
 			engine.EndFrame();
+			engineFRM->EndSystem("Editor");
+
+			engineFRM->EndFrame();
+			engineFRM->CalculateSystemPercentages();
+
 		}
 	}
 
@@ -170,7 +170,7 @@ namespace SliceEditor
 
 	void Editor::Save()
 	{
-		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences();
+		registry.GetManager<PreferenceManager>("Preferences")->SavePreferences(false);
 	}
 
 	void Editor::Exit()
@@ -324,6 +324,12 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			file.metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::Font:
+			file.metaData = std::make_unique<FontMetaData>();
+			break;
+		default:
+			SLICE_LOG_WARNING("File Type not supported in HandleDrop function yet: " + fileExt +". Letting Filewatcher handle.");
+			return;
 		}
 		//Default Init the MetaData base class
 		file.metaData->InitMetaData(target, file.assetType, registry.GetAssetManager().mAssetExtensions[file.assetType]);

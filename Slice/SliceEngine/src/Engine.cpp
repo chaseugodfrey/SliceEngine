@@ -92,8 +92,10 @@ namespace SliceEngine
 		.method("push_back", static_cast<void (std::vector<uint32_t>::*)(uint32_t&&)>(&std::vector<uint32_t>::push_back));
 
 
-	register_std_array<uint32_t, 4>("Array4UInt32");
 	register_std_array<Entity, 4>("Array4Entity");
+	register_std_array<uint32_t, 4>("Array4UInt32");
+	//register_std_array<glm::vec4, Button::Total_States>("ArrayBtnStates");
+	//register_std_array<float, Button::Total_States>("ArrayTest");
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
@@ -106,16 +108,18 @@ namespace SliceEngine
 		.property("x", &glm::vec3::x)
 		.property("y", &glm::vec3::y)
 		.property("z", &glm::vec3::z);
-
+	
+#pragma warning(push)
+#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
-	rttr::registration::class_ <std::vector<std::string>>("std::vector<std::string>");
+	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
 	rttr::registration::class_<std::vector<int>>("std::vector<int>");
 	rttr::registration::class_<GameObject>("SliceEngine::GameObject");
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
-
+#pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
 		// Constructors
@@ -219,11 +223,22 @@ namespace SliceEngine
 		.property("radius", &ColliderShape::CapsuleData::radius)
 		.property("height", &ColliderShape::CapsuleData::height);
 
+	rttr::registration::class_<ColliderShape::MeshData>("MeshData")
+		.constructor<>()
+		.property("UwU", &ColliderShape::MeshData::temp);
+
+	rttr::registration::class_<ColliderShape::CylinderData>("CylinderData")
+		.constructor<>()
+		.property("radius", &ColliderShape::CapsuleData::radius)
+		.property("height", &ColliderShape::CapsuleData::height);
+
 	rttr::registration::class_<ColliderShape>(typeid(ColliderShape).name())
 		.constructor<>()
 		.property("boxData", &ColliderShape::GetBoxData, &ColliderShape::SetBoxData)
 		.property("sphereData", &ColliderShape::GetSphereData, &ColliderShape::SetSphereData)
 		.property("capsuleData", &ColliderShape::GetCapsuleData, &ColliderShape::SetCapsuleData)
+		.property("meshData", &ColliderShape::GetMeshData, &ColliderShape::SetMeshData)
+		.property("cylinderData", &ColliderShape::GetCylinderData, &ColliderShape::SetCylinderData)
 		.property("offSet", &ColliderShape::offSet)
 		.property("isTrigger", &ColliderShape::isTrigger)
 		.property("componentEnabled", &ColliderShape::componentEnabled);
@@ -255,6 +270,9 @@ namespace SliceEngine
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
 		.property("playPreview", &AudioSource::playPreview)
+		.property("enablePathfinding", &AudioSource::enablePathfinding)
+		.property("directOcclusion", &AudioSource::directOcclusion)
+		.property("reverbOcclusion", &AudioSource::reverbOcclusion)
 		.property("componentEnabled", &AudioSource::componentEnabled);
 
 	rttr::registration::class_<AudioListener>(typeid(AudioListener).name())
@@ -365,30 +383,39 @@ namespace SliceEngine
 		.property("animIdx", &SliceEngineTypes::AnimationKeyFrame::animIdx)
 		.property("frameNumber", &SliceEngineTypes::AnimationKeyFrame::frameNumber);
 
+	rttr::registration::class_<std::pair<float, glm::vec4>>("PairFloatVec4")
+		.constructor<>()
+		.property("first", &std::pair<float, glm::vec4>::first)
+		.property("second", &std::pair<float, glm::vec4>::second);
+
+	rttr::registration::class_<std::vector<std::pair<float, glm::vec4>>>("VectorPairFloatVec4");
+
 	rttr::registration::class_<std::vector<SliceEngineTypes::AnimationKeyFrame>>("std::vector<SliceEngineTypes::AnimationKeyFrame");
+
+	rttr::registration::class_<std::map<float, glm::vec3>>("map_float_vec3")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec3>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec3>::iterator, bool>
+			(std::map<float, glm::vec3>::*)(const float&, const glm::vec3&)>(&std::map<float, glm::vec3>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec3>::clear);
+
+	rttr::registration::class_<std::map<float, glm::vec4>>("map_float_vec4")
+		.constructor<>()
+		.method("size", [](std::map<float, glm::vec4>& m) { return m.size(); })
+		.method("insert_or_assign", static_cast<std::pair<std::map<float, glm::vec4>::iterator, bool>
+			(std::map<float, glm::vec4>::*)(const float&, const glm::vec4&)>(&std::map<float, glm::vec4>::insert_or_assign))
+		.method("clear", &std::map<float, glm::vec4>::clear);
 
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
 			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
-			rttr::value("BOX", ParticleSystem::ShapeType::BOX),
-			rttr::value("EDGE", ParticleSystem::ShapeType::EDGE),
+			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
-			rttr::value("RECTANGLE", ParticleSystem::ShapeType::RECTANGLE)
+			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
 			);
 
-	rttr::registration::class_<Particle>(typeid(Particle).name())
-		.constructor<>()
-		.property("active", &Particle::active)
-
-		.property("age", &Particle::age)
-		.property("rotation", &Particle::rotation)
-		.property("speed", &Particle::speed)
-
-		.property("position", &Particle::position)
-		.property("scale", &Particle::scale)
-		.property("velocity", &Particle::velocity)
-		.property("colour", &Particle::colour);
+	rttr::registration::class_<Particle>(typeid(Particle).name());
 
 	rttr::registration::enumeration<ParticleSystem::ValueType>("ValueType")
 		(
@@ -407,6 +434,7 @@ namespace SliceEngine
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
+		.property("followTransformRotation", &ParticleSystem::followTransformRotation)
 
 		.property("destroyOnExpire", &ParticleSystem::destroyOnExpire)
 		.property("maxParticles", &ParticleSystem::maxParticles)
@@ -426,9 +454,14 @@ namespace SliceEngine
 		.property("shapeType", &ParticleSystem::shapeType)
 
 		.property("coneArc", &ParticleSystem::coneArc)
-		.property("coneRadius", &ParticleSystem::coneRadius)
 
-		.property("shapeRadius", &ParticleSystem::sphereRadius)
+		.property("sphereArc", &ParticleSystem::sphereArc)
+
+		.property("shapeRadius", &ParticleSystem::rectScale)
+
+		.property("shapeRadius", &ParticleSystem::shapeRadius)
+		.property("shapeRadius", &ParticleSystem::shapeScale)
+
 		.property("axis", &ParticleSystem::axis)
 
 		.property("scaleType", &ParticleSystem::scaleType)
@@ -461,10 +494,28 @@ namespace SliceEngine
 		.property("minRandomSpeed", &ParticleSystem::minRandomSpeed)
 		.property("maxRandomSpeed", &ParticleSystem::maxRandomSpeed)
 
+		.property("sizeOverLifetime", &ParticleSystem::sizeOverLifetime)
+		.property("sizeSeparateAxis", &ParticleSystem::sizeSeparateAxis)
+		.property("sizeMap", &ParticleSystem::sizeMap)
+		.property("sizeMapIntermediary", &ParticleSystem::sizeMapIntermediary)
+
+		.property("rotateOverLifetime", &ParticleSystem::rotateOverLifetime)
+		.property("rotateSeparateAxis", &ParticleSystem::rotateSeparateAxis)
+		.property("rotateVelocity", &ParticleSystem::rotateVelocity)
+
 		.property("colourOverLifetime", &ParticleSystem::colourOverLifetime)
-		.property("colour", &ParticleSystem::colourLifeTimeMap)
-		
-		.property("colourOverLifetimeEnd", &ParticleSystem::colourOverLifetimeEnd)
+		.property("colourLifetimeMap", &ParticleSystem::colourLifetimeMap)
+		.property("colourMapIntermediary", &ParticleSystem::colourMapIntermediary)
+
+		.property("velocityOverLifetime", &ParticleSystem::velocityOverLifetime)
+		.property("velocitySeparateAxis", &ParticleSystem::velocitySeparateAxis)
+		.property("velocityMap", &ParticleSystem::velocityMap)
+		.property("velocityMapIntermediary", &ParticleSystem::velocityMapIntermediary)
+
+		.property("orbitOverLifetime", &ParticleSystem::orbitOverLifetime)
+		.property("orbitAxis", &ParticleSystem::orbitAxis)
+		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
+		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
@@ -525,6 +576,9 @@ namespace SliceEngine
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
 		.property("transition", &Button::transition)
+		.property("color_tints", &Button::color_transitions)
+		//.property("test_float", &Button::test)
+		//.property("test_float2", &Button::test2)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -565,6 +619,7 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("font_size", &FontRenderer::font_size)
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
+.property("text", &FontRenderer::text)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
 rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
@@ -583,6 +638,10 @@ rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 .property("bidirectional", &NavMeshLink::bidirectional)
 .property("currentPath", &NavMeshLink::radius);
 
+rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
+.constructor<>()
+.property("navobstacle", &NavObstacle::isObstacle);
+
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
 .property("prefabID", &Prefab::prefabID)
@@ -600,7 +659,10 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-
+	namespace 
+	{
+		static bool isPlaying = false;
+	}
 
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
@@ -679,6 +741,7 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
 		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
+		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
 		//audio->PlaySound("BGM_MainMenu_Mix1", SliceEngine::SoundCategory::BGM, SliceEngine::AudioManager::InternalSound::SOUND_BGM, false, false, 0.5f);
@@ -704,7 +767,7 @@ namespace SliceEngine
 		mCanvas.Init();
 
 		auto& sButton = Core::GetInstance()->GetSystem<ButtonSystem>();
-		//sButton.Init();
+		sButton.InitSystem();
 		//entt::entity newCam = Core::GetInstance()->GetRegistry().create();
 		//Core::GetInstance()->GetRegistry().emplace<Transform>(newCam);
 		//Core::GetInstance()->GetRegistry().emplace<Renderer>(newCam);
@@ -712,11 +775,7 @@ namespace SliceEngine
 		//mNetwork->Init();
 
 
-	}
-
-	void Engine::InitScene()
-	{
-		Core::GetInstance()->GetSceneSystem()->Init();
+		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
 	void Engine::Update()
@@ -737,7 +796,14 @@ namespace SliceEngine
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
-		static bool isPlaying = false;
+		(void)projSettingsManager;
+		(void)sParticleSystemManager;		
+
+		//static bool isPlaying = false;
+
+		//
+
+		//frm->StartFrame();
 
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -791,7 +857,7 @@ namespace SliceEngine
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
 
-				core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
 				sInputs->SetMode(InputMode::Editor);
 				sInputs->SetEnabled(false);
 				sInputs->ResetCursorState();
@@ -799,19 +865,19 @@ namespace SliceEngine
 				sAudio->StopAllSound();
 				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
 				audioSettings->DeleteAM();
-				
+
+				gScriptSystem->OnEnd();*/
+
 				sScene->ReloadScene();
-				isPlaying = false;
-
-				gScriptSystem->OnEnd();
-
-				sScene->mCurrentState = SceneState::DEFAULT;
-				sScene->mNextState = SceneState::DEFAULT;
+				sScene->mCurrentState = SceneState::RELOAD_SCENE;
+				sScene->mNextState = SceneState::RELOAD_SCENE;
 			}
 		}
 
+
+		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
-		frm->StartFrame();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("GLFW Poll Events");
 		glfwMakeContextCurrent(core->GetWindow());
@@ -832,10 +898,11 @@ namespace SliceEngine
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		gScriptSystem->Update((float)frm->getDeltaTime());
+		//gScriptSystem->Update((float)frm->getDeltaTime());
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
 		}
 		frm->EndSystem("Script");
 
@@ -846,11 +913,20 @@ namespace SliceEngine
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
 
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();		//updates the rect transforms
+		
+		//cant start pause and continue frm for time check
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas");
+
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
+			frm->StartSystem("Physics");
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
-				frm->StartSystem("Physics");
+				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+
 
 				//Prestep: push dynamic poses to physics world
 				core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -861,18 +937,18 @@ namespace SliceEngine
 				// Post-step: pull dynamic poses for rendering
 				core->GetSystem<PhysicsSystem>().PostStepSync();
 
-				frm->EndSystem("Physics");
 
 			}
+			frm->EndSystem("Physics");
+
 			frm->StartSystem("Transform");
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 			frm->EndSystem("Transform");
-
 		}
 
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
-			frm->StartSystem("Animation");
+			frm->StartSystem("Animation"); 
 			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 			{
 				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
@@ -883,9 +959,10 @@ namespace SliceEngine
 			//somehow convert to pixel coord
 			frm->StartSystem("Canvas");
 			glm::vec2 mouse_coord = sInputs->GetMousePosition();
+			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = (unsigned int)mouse_coord.x;
-			unsigned int mouse_y = CanvasSystem::target_height - (unsigned int)mouse_coord.y;
+			unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
+			unsigned int mouse_y = static_cast<unsigned int>(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
 			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
 			frm->EndSystem("Canvas");
 		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
@@ -899,24 +976,51 @@ namespace SliceEngine
 			frm->EndSystem("Navigation System");
 		}
 
-		frm->StartSystem("Graphics");
-		sRender->Render();
-		frm->EndSystem("Graphics");
-
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		sCanvas.DrawOverlay();
-		frm->EndSystem("Canvas");
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		}
 
 		frm->StartSystem("Particle System");
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{			
-			core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));			
-		}
+		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+
 		frm->EndSystem("Particle System");
 
-		frm->EndFrame();
-		frm->CalculateSystemPercentages();
+		frm->StartSystem("Graphics");
+		sRender->Render();
+
+		//frm->StartSystem("Canvas");
+		sCanvas.DrawOverlay();
+		//frm->EndSystem("Canvas");
+		frm->EndSystem("Graphics");
+
+
+		//frm->EndFrame();
+		//frm->CalculateSystemPercentages();
+	}
+
+	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
+	{
+		auto core = Core::GetInstance();
+		auto sAudio = core->GetAudioManager();
+		auto sInputs = core->GetInputSystem();
+		auto projSettingsManager = core->GetProjectSettingsManager();
+
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		sButton.InitSystem();
+		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
+		(void)sParticleSystemManager;
+
+		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sInputs->ResetCursorState();
+		sAudio->StopAllSound();
+		auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
+		audioSettings->DeleteAM();
+		isPlaying = false;
+		gScriptSystem->OnEnd();
+
 	}
 
 	void Engine::Draw()
@@ -926,6 +1030,7 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
+		auto _frm = Core::GetInstance()->GetFramerateManager();
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
 
@@ -933,7 +1038,9 @@ namespace SliceEngine
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
+		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
+		_frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

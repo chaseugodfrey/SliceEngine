@@ -47,7 +47,7 @@ namespace SliceEngine
 			}
 			catch (const nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Failed to parse asset manifest json file");
+				SLICE_LOG_ERROR(std::string("Failed to parse asset manifest json file") + e.what());
 			}
 
 			inFile.close();
@@ -57,6 +57,7 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::SPHERE_DEFAULT] = std::to_string(DefaultResourceIDs::SPHERE_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT] = std::to_string(DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::CAPSULE_DEFAULT] = std::to_string(DefaultResourceIDs::CAPSULE_DEFAULT);
+		mGUIDToResource[(GUID)DefaultResourceIDs::CYLINDER_DEFAULT] = std::to_string(DefaultResourceIDs::CYLINDER_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::QUAD_DEFAULT] = std::to_string(DefaultResourceIDs::QUAD_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT] = std::to_string(DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
@@ -239,7 +240,7 @@ namespace SliceEngine
 		}
 		catch (nlohmann::json::parse_error& e)
 		{
-			SLICE_LOG_ERROR("Invalid model meta file");
+			SLICE_LOG_ERROR(std::string("Invalid model meta file") + e.what());
 			return (GUID)0;
 		}
 
@@ -283,7 +284,7 @@ namespace SliceEngine
 		}
 		catch (nlohmann::json::parse_error& e)
 		{
-			SLICE_LOG_ERROR("Invalid model meta file");
+			SLICE_LOG_ERROR(std::string("Invalid model meta file") + e.what());
 			return (GUID)0;
 		}
 

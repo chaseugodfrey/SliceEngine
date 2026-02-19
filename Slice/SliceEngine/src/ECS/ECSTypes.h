@@ -190,6 +190,7 @@ namespace SliceEngine
 		DEBUG_GRID_TAG		= 0x04,
 		DEBUG_NAVMESH_TAG	= 0x08,
 		DEBUG_OUTLINE_SELECTED_TAG	= 0x10,
+		DEBUG_DRAW_RAY_TAG = 0x20,
 		DEBUG_ALL_DEBUG		= 0xFF,
 
 		RENDER_NONE			= 0x00,
@@ -208,6 +209,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
+		SliceEngineTypes::Material materialInstance;
 
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
@@ -234,6 +236,8 @@ namespace SliceEngine
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		glm::mat4 V{};
+		glm::mat4 P{};
 		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
@@ -315,8 +319,21 @@ namespace SliceEngine
 			float height{ 0.5f };
 		};
 
+		struct MeshData
+		{
+			//emtpy because the verticies are in the renderer component
+			//more for me to tell what shape it is
+			bool temp;
+		};
+
+		struct CylinderData
+		{
+			float radius{ 0.5f };
+			float height{ 0.5f };
+		};
+
 		JPH::BodyID bodyID;													  // Jolt body reference
-		std::variant<BoxData, SphereData, CapsuleData> shapeData = BoxData{}; // will add more if we have more shapes :D
+		std::variant<BoxData, SphereData, CapsuleData, MeshData, CylinderData> shapeData = BoxData{}; // will add more if we have more shapes :D
 		JPH::ShapeRefC shape{ nullptr };												  // Jolt shape ref
 		JPH::Vec3 offSet{ 0.f,0.f,0.f };									  // if we need to offset the collision shape relative to the transform :D
 		JPH::Vec3 prevOffSet{ 0.f,0.f,0.f };
@@ -327,11 +344,15 @@ namespace SliceEngine
 		ColliderShape(BoxData data) : shapeData(data) {};
 		ColliderShape(SphereData data) : shapeData(data) {};
 		ColliderShape(CapsuleData data) : shapeData(data) {};
+		ColliderShape(MeshData data) : shapeData(data) {};
+		ColliderShape(CylinderData data) : shapeData(data) {};
 
 	private:
 		inline static const BoxData defaultBoxData{};
 		inline static const SphereData defaultSphereData{};
-		inline static const CapsuleData defaultCapsuleData{};		
+		inline static const CapsuleData defaultCapsuleData{};	
+		inline static const MeshData defaultMeshData{};
+		inline static const CylinderData defaultCylinderData{};
 	public:
 		// Getters
 		const BoxData& GetBoxData() const {
@@ -348,11 +369,22 @@ namespace SliceEngine
 			return std::holds_alternative<CapsuleData>(shapeData) ?
 				std::get<CapsuleData>(shapeData) : defaultCapsuleData;
 		}
+		const MeshData& GetMeshData() const {
+			return std::holds_alternative<MeshData>(shapeData) ?
+				std::get<MeshData>(shapeData) : defaultMeshData;
+		}
+
+		const CylinderData& GetCylinderData() const {
+			return std::holds_alternative<CylinderData>(shapeData) ?
+				std::get<CylinderData>(shapeData) : defaultCylinderData;
+		}
 
 		// Setters
 		void SetBoxData(const BoxData& data) { shapeData = data; }
 		void SetSphereData(const SphereData& data) { shapeData = data; }
 		void SetCapsuleData(const CapsuleData& data) { shapeData = data; }
+		void SetMeshData(const MeshData& data) { shapeData = data; }
+		void SetCylinderData(const CylinderData& data) { shapeData = data; }
 
 		RTTR_ENABLE();
 	};
@@ -394,6 +426,9 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
+		bool enablePathfinding = false;
+		float directOcclusion = 0.0f;
+		float reverbOcclusion = 0.0f;
 
 		RTTR_ENABLE();
 	};
@@ -411,20 +446,15 @@ namespace SliceEngine
 		bool active{ false };
 
 		float maxAge{};
-		float age{};             // how long this particle has been alive
+		float age{};
 		float rotation{};
-		float speed{};		
 
-		inline float normalizedLifetime() const
-		{
-			return maxAge > 0.0f ? (age / maxAge) : 0.0f;
-		}
-		
-		glm::vec3 finalPosition{};	// including parent transform position if localspace
+		inline float normalizedAge() const { return age / maxAge; }	
+
 		glm::vec3 position{};
 		glm::vec3 scale{};
-		glm::vec3 velocity{};	  // derived from speed + direction
-		glm::vec4 colour{};       // if you want per-particle tint
+		glm::vec3 velocity{};
+		glm::vec4 colour{};
 		glm::quat rotation3D{};
 	};
 
@@ -448,12 +478,18 @@ namespace SliceEngine
 			TWO_CONSTANTS
 		};
 
+		// Editor
+		bool playPreview{ false };
+		bool resetPreview{ false };
+		bool pausePreview{ false };
+
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
+		bool followTransformRotation{ true };
 
 		inline float WrapAngle(float deg)
 		{
@@ -506,18 +542,28 @@ namespace SliceEngine
 		{
 			SPHERE,
 			CONE,
-			BOX,
-			EDGE,
+			CUBE,
 			CIRCLE,
-			RECTANGLE
+			RECT,
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{};
-		float coneRadius{};
+		float coneArc{90.0f};				
 
 		// Sphere
-		float sphereRadius{0.1f};
+		float sphereArc{180.0f};
+		
+		// Cube
+
+		// Circle
+
+		// Rect
+		glm::vec2 rectScale{ 1.0f };
+
+		// Shape-Shared params
+		float shapeRadius{ 0.1f };
+		glm::vec3 shapeScale{ 1.0f };
+
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -559,14 +605,37 @@ namespace SliceEngine
 
 		// Start Speed
 		ValueType speedValueType{ CONSTANT };
-		float speed{};
-		float minRandomSpeed{};
-		float maxRandomSpeed{};
+		float speed{1.0f};
+		float minRandomSpeed{ 1.0f };
+		float maxRandomSpeed{ 1.0f };
+
+		// Size over lifetime
+		bool sizeOverLifetime{ false };
+		bool sizeSeparateAxis{ false };
+		std::map<float, glm::vec3> sizeMap;
+		std::vector <std::pair<float, glm::vec3>> sizeMapIntermediary{};
+			
+		// Rotate over lifetime
+		bool rotateOverLifetime{ false };	
+		bool rotateSeparateAxis{ false };
+		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
-		std::map<float, glm::vec4> colourLifeTimeMap;
-		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
+		std::map<float, glm::vec4> colourLifetimeMap;
+		std::vector <std::pair<float, glm::vec4>> colourMapIntermediary{};
+
+		// Velocity over lifetime
+		bool velocityOverLifetime{ false };
+		bool velocitySeparateAxis{ false };
+		std::map<float, glm::vec3> velocityMap;
+		std::vector <std::pair<float, glm::vec3>> velocityMapIntermediary{};
+
+		// Orbit over lifetime
+		bool orbitOverLifetime{ false };
+		glm::vec3 orbitAxis{ glm::vec3(0,0,1) };
+		glm::vec3 startOrbitVelocity{1.0f};
+		glm::vec3 endOrbitVelocity{0.f};
 
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
@@ -714,7 +783,7 @@ namespace SliceEngine
 			BOTTOM,
 			STRETCH_V
 		};
-
+	
 		//Settings only for imgui's display and component function calls
 		//old pivot serves as a flag to know how to update intermediate values during the update call
 		HoriPivot hori_pivot{ CENTER };// , old_hori{ CENTER };
@@ -726,8 +795,8 @@ namespace SliceEngine
 		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
-		int final_x{}, final_y{};				//position with center of quad as position
-		int final_width{ 100 }, final_height{ 100 };
+		float final_x{}, final_y{};				//position with center of quad as position
+		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(Canvas const& ctx, RectTransform const& parent);
@@ -761,7 +830,7 @@ namespace SliceEngine
 		glm::vec4 rgba{ 1.f };
 
 		enum Alignment {
-			LEFT,
+			LEFT = 0,
 			CENTER,
 			RIGHT
 		} alignment{ LEFT };
@@ -799,11 +868,12 @@ namespace SliceEngine
 		} state;
 
 		bool componentEnabled{ true };
-		glm::vec4 color_transitions[Total_States]{
-			{1.f, 1.f, 1.f, 1.f},	//white
-			{0.75f, 0.75f, 0.75f, 1.f},//light grey
-			{0.5f, 0.5f, 0.5f, 1.f}//dark grey
+		std::array<glm::vec4, Total_States> color_transitions{
+			glm::vec4(1.f, 1.f, 1.f, 1.f),	//white
+			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
+			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
+
 		GUID sprite_transitions[Total_States]{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
@@ -884,6 +954,11 @@ namespace SliceEngine
 		glm::vec3 endLink;
 		bool bidirectional;
 		float radius;
+	};
+
+	struct NavObstacle
+	{
+		bool isObstacle = false;
 	};
 }
 

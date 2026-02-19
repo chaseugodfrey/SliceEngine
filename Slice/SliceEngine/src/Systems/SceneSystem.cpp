@@ -13,16 +13,14 @@ DigiPen Institute of Technology is prohibited.
 #include "Serializer/JSONSerializer.h"
 #include "Core/Core.h"
 #include "SceneSystem.h"
+#include "Configuration/ProjectSettingsManager.h"
+#include "Configuration/BuildSettings.h"
 
 namespace SliceEngine
 {
 	void SceneSystem::Init()
 	{
-		//if (!LoadScene(mCurrentScene))
-		//	LoadDefaultScene();
-
-		//mCurrentState = mNextState = SceneState::DEFAULT;
-
+		mCurrentState = mNextState = SceneState::DEFAULT;
 		EventManager::GetInstance()->Subscribe<OnPlayEvent, &SceneSystem::OnPlay>(this);
 	}
 
@@ -33,8 +31,7 @@ namespace SliceEngine
 
 	void SceneSystem::LoadDefaultScene()
 	{
-		//Core::GetInstance()->mFactory.BuildSceneGraph();
-		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
+		//EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(true);
 	}
 
 	bool SceneSystem::LoadSceneFromQueue()
@@ -61,12 +58,30 @@ namespace SliceEngine
 			return false;
 		}
 
+
+		if (mCurrentState == SceneState::PLAY_SCENE || mCurrentState == SceneState::RELOAD_SCENE)
+		{
+			// publish event to scene change
+			OnSceneChangeEvent ChangeEvent;
+			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
+
+			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			{
+				mCurrentState = SceneState::DEFAULT;
+			}
+		}
+
+
+
 		UnloadCurrentScene();
 
 		SLICE_LOG("Loading Scene: " + next_scene_filepath.string());
 
 		auto map = JSONSerializer::DeserializeScene(next_scene_filepath);
-		 
+
+		//Call DeserializeSceneNavMesh function, will return a guid
+		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
+
 		mCurrentScene = next_scene_filepath;
 		mCurrentSceneName = next_scene_filepath.stem().string();
 
@@ -75,23 +90,35 @@ namespace SliceEngine
 		Core::GetInstance()->mFactory.BuildSceneGraph(map);
 		Core::GetInstance()->mFactory.DebugPrint();
 
-		std::filesystem::path metaPath = next_scene_filepath;
+		/*std::filesystem::path metaPath = next_scene_filepath;
 
 		std::string navMesh = "";
 		metaPath += ".meta";
-		
-		navMesh = LoadNavMeshFromMeta(metaPath);
+
+		navMesh = LoadNavMeshFromMeta(metaPath);*/
+
+		std::string navMeshBinString = "Resources/";
+		navMeshBinString += navMeshBinGUID.toString();
 
 		OnSceneLoadedEvent event;
 		event.isSceneLoaded = true;
-		event.navMeshPath = navMesh;
+		event.navMeshBinPath = navMeshBinString;
 		EventManager::GetInstance()->Publish<OnSceneLoadedEvent>(event);
+
+
 
 		if (next_scene_filepath.extension() == ".temp")
 		{
 			//std::filesystem::remove(next_scene_filepath);
 			mCurrentScene.replace_extension(".scene");
 		}
+
+		if (mCurrentState == SceneState::RELOAD_SCENE && mNextState == SceneState::RELOAD_SCENE)
+		{
+			mNextState = mCurrentState = SceneState::DEFAULT;
+
+		}
+
 
 		return true;
 	}
@@ -124,6 +151,24 @@ namespace SliceEngine
 		}
 
 		return navMeshPath;
+	}
+
+	void SceneSystem::LoadSceneByIndex(size_t index)
+	{
+		auto handle = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<BuildSettings>()->GetSceneHandleByIndex(index);
+		if (!handle.IsValid())
+			return;
+
+		LoadSceneIntoQueue(handle->GetFilePath());
+	}
+
+	void SceneSystem::LoadSceneByName(std::string const& name)
+	{
+		auto handle = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<BuildSettings>()->GetSceneHandleByName(name);
+		if (!handle.IsValid())
+			return;
+
+		LoadSceneIntoQueue(handle->GetFilePath());
 	}
 
 	void SceneSystem::WriteTempFile()

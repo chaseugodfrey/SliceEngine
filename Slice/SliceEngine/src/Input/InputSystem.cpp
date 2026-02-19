@@ -243,6 +243,11 @@ namespace SliceEngine
         return mouseDelta;
     }
 
+    glm::vec2 InputSystem::GetMouseNDC() const
+    {
+        return currMouseNDC;
+    }
+
     double InputSystem::GetMouseX() const
     {
         return currMousePos.x;
@@ -256,18 +261,18 @@ namespace SliceEngine
     void InputSystem::SetCursorState()
     {
         auto window = Core::GetInstance()->GetWindow();
-        int mode{};
+        int newMode{};
         bool rawInput{};
         switch (cursorState)
         {
-        case CursorState::DEFAULT: mode = GLFW_CURSOR_NORMAL; break;
-        case CursorState::HIDDEN: mode = GLFW_CURSOR_HIDDEN; break;
-        case CursorState::CONFINED: mode = GLFW_CURSOR_CAPTURED; break;
-        case CursorState::DISABLED: mode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
-        default: mode = GLFW_CURSOR_NORMAL; break;
+        case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
+        case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
+        case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
+        case CursorState::DISABLED: newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+        default: newMode = GLFW_CURSOR_NORMAL; break;
         }
 
-        glfwSetInputMode(window, GLFW_CURSOR, mode);
+        glfwSetInputMode(window, GLFW_CURSOR, newMode);
         glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, rawInput);
     }
 
@@ -316,6 +321,11 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
+    }
+
+    void InputSystem::SetMouseNDC(double x, double y)
+    {
+        currMouseNDC = { x ,y };
     }
 
 #pragma endregion

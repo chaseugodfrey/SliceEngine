@@ -60,7 +60,25 @@ namespace SliceEngine
 
 	MonoMethod* ScriptClass::GetMethod(const std::string& name, int varCount)
 	{
-		return mono_class_get_method_from_name(mMonoClass, name.c_str(), varCount);
+		MonoClass* currentClass = mMonoClass;
+		MonoMethod* method = nullptr;
+
+		while (currentClass != nullptr && method == nullptr)
+		{
+			const char* className = mono_class_get_name(currentClass);
+			//std::cout << "Looking for : " << name << " in " << className << std::endl;
+			// dont get the very base slice behaviour
+			if (std::string(className) == "SliceBehaviour" && name != ".ctor")
+				break;
+
+			method = mono_class_get_method_from_name(currentClass, name.c_str(), varCount);
+
+			if (!method)
+			{
+				currentClass = mono_class_get_parent(currentClass);
+			}
+		}
+		return method;
 	}
 
 	MonoObject* ScriptClass::InvokeMethod(MonoObject* instance, MonoMethod* method, void** params)
@@ -161,7 +179,8 @@ namespace SliceEngine
 		mOnAwake = scClass->GetMethod("OnAwake", 0);
 		mOnCreate = scClass->GetMethod("OnCreate", 0);
 		mOnUpdate = scClass->GetMethod("OnUpdate", 1);
-		//mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnFixedUpdate = scClass->GetMethod("OnFixedUpdate", 1);
+		mOnLateUpdate = scClass->GetMethod("OnLateUpdate", 1);
 		mOnEntityDestroy = scClass->GetMethod("OnEntityDestroy", 1);
 		//mOnClick = scClass->GetMethod("OnClick", 0);
 		mOnEntityEnabled = scClass->GetMethod("OnEnabled", 0);
@@ -255,6 +274,15 @@ namespace SliceEngine
 		{
 			void* param = &dt;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnFixedUpdate, &param);
+		}
+	}
+
+	void ScriptObject::InvokeOnLateUpdate(float dt)
+	{
+		if (mOnLateUpdate)
+		{
+			void* param = &dt;
+			mScriptClass->InvokeMethod(mMonoInstance, mOnLateUpdate, &param);
 		}
 	}
 
@@ -614,14 +642,14 @@ namespace SliceEngine
 			// Check for value type like vectors and stuff
 			if (typeName == "SliceEngine.Prefab")
 			{
-				MonoObject* valueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
+				MonoObject* monoValueObj = mono_field_get_value_object(mono_domain_get(), field, scriptInstance);
 				
-				if (valueObj == nullptr)
+				if (monoValueObj == nullptr)
 				{
 					return PrefabVar{ "" };
 				}
 				
-				void* unboxPtr = mono_object_unbox(valueObj);
+				void* monoUnboxPtr = mono_object_unbox(monoValueObj);
 
 				MonoClass* prefabClass = mono_type_get_class(type);
 
@@ -629,7 +657,7 @@ namespace SliceEngine
 				MonoClassField* nameField = mono_class_get_field_from_name(prefabClass, "prefabName");
 
 				MonoString* monoStr = nullptr;
-				mono_field_get_value((MonoObject*)unboxPtr, nameField, &monoStr);
+				mono_field_get_value((MonoObject*)monoUnboxPtr, nameField, &monoStr);
 
 				if (monoStr)
 				{
@@ -689,7 +717,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				uintptr_t elementSize = mono_class_array_element_size(elementClass);
+				int elementSize = mono_class_array_element_size(elementClass); // was uintptr_t
 				char* bufferStart = mono_array_addr_with_size(monoArray, elementSize, 0);
 
 				// for how many are in the array

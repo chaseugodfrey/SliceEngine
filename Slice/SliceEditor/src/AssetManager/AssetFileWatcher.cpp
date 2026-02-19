@@ -73,7 +73,7 @@ namespace SliceEditor
                     {
                         if (!am.mFilenameToGUID.contains(eventType.filePath.stem().string()))
                         {
-                            HandleAssetAdded(manager, am,eventType);
+                            HandleAssetAdded(manager, am, eventType);
                             previousAction = eventType;
                         }
                     }
@@ -81,7 +81,7 @@ namespace SliceEditor
                     {
                         if (am.mFilenameToGUID.contains(eventType.filePath.stem().string()))
                         {
-                            HandleAssetRemoved(am,eventType);
+                            HandleAssetRemoved(am, eventType);
                             previousAction = eventType;
                         }
                     }
@@ -90,7 +90,7 @@ namespace SliceEditor
                         //if(previousAction.changeType == filewatch::Event::removed && previousAction.change)
                         if (am.mFilenameToGUID.contains(eventType.filePath.stem().string()))
                         {
-                            HandleAssetModified(am,eventType);
+                            HandleAssetModified(am, eventType);
                             previousAction = eventType;
                         }
                     }
@@ -136,7 +136,7 @@ namespace SliceEditor
     }
 
     void AssetFileWatcher::HandleAssetAdded(ContentBrowserManager& manager, AssetManager& am, RawFileEvent& addEvent)
-	{
+    {
         if (!manager.mPendingDrops.empty() && !manager.mActiveDrop)
         {
             manager.mActiveDrop = std::move(manager.mPendingDrops.front());
@@ -189,19 +189,23 @@ namespace SliceEditor
             std::string assetName = parentDirectory + "/" + originalFileName + originalExt;
 
             int nameCount = 0;
-            
-            if (am.mFilenameToGUID.contains(assetName))
+
+            if (originalExt != ".bin" && originalExt != ".navmesh")
             {
-
-                while (am.mFilenameToGUID.contains(assetName))
+                if (am.mFilenameToGUID.contains(assetName))
                 {
-                    nameCount++;
-                    assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+
+                    while (am.mFilenameToGUID.contains(assetName))
+                    {
+                        nameCount++;
+                        assetName = parentDirectory + "/" + originalFileName + "_" + std::to_string(nameCount) + originalExt;
+                    }
+
+                    std::filesystem::path newAssetFileName(assetName);
+
+                    addEvent.filePath.replace_filename(newAssetFileName);
+
                 }
-
-                std::filesystem::path newAssetFileName(assetName);
-
-                addEvent.filePath.replace_filename(newAssetFileName);
 
             }
 
@@ -214,22 +218,67 @@ namespace SliceEditor
 
             am.CreateResource(addEvent.filePath, nullptr, true);
 
-            if (addEvent.filePath.extension() == ".bin")
+            //if (addEvent.filePath.extension() == ".bin")
+            //{
+            //    auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
+            //    std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
+            //    sceneMetaFilePath += ".meta";
+            //    std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
+            //    tempSceneMetaFilePath.replace_extension(".temp.meta");
+
+            //    std::ifstream inFile(sceneMetaFilePath);
+            //    //std::ifstream tempInFile(tempSceneMetaFilePath);
+            //    nlohmann::json metaJson;
+            //    nlohmann::json tempMetaJson;
+            //    auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+            //    if (inFile >> metaJson) {
+            //        inFile.close();
+            //        auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+
+            //        if (navMeshPath.has_value()) {
+            //            metaJson["navMeshBinFile"] = navMeshPath.value();
+            //            metaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
+            //            std::ofstream outFile(sceneMetaFilePath);
+            //            outFile << metaJson.dump(4);
+            //            outFile.close();
+            //        }
+            //    }
+
+            //    if (std::filesystem::exists(tempSceneMetaFilePath))
+            //    {
+            //        std::ifstream tempInFile(tempSceneMetaFilePath);
+            //        if (tempInFile >> tempMetaJson) {
+            //            tempInFile.close();
+
+            //            auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+
+            //            if (tempNavMeshPath.has_value()) {
+            //                tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
+            //                tempMetaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+            //                std::ofstream tempOutFile(tempSceneMetaFilePath);
+            //                tempOutFile << tempMetaJson.dump(4);
+            //                tempOutFile.close();
+            //            }
+            //        }
+
+            //    }
+            //}
+
+            /*else if (addEvent.filePath.extension() == ".navmesh")
             {
                 auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::string sceneName = "Default/" + sScene->GetCurrentSceneName() + ".scene";
-                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-                std::filesystem::path sceneMetaFilePath = am.GetMetaDataFromFilename(sceneName);
-                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
+                std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
+                sceneMetaFilePath += ".meta";
+                std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
+                tempSceneMetaFilePath.replace_extension(".temp.meta");
 
                 std::ifstream inFile(sceneMetaFilePath);
-                std::ifstream tempInFile(tempSceneMetaFilePath);
                 nlohmann::json metaJson;
                 nlohmann::json tempMetaJson;
                 auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
                 if (inFile >> metaJson) {
                     inFile.close();
-                    auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" +addEvent.filePath.filename().string());
+                    auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
 
                     if (navMeshPath.has_value()) {
                         metaJson["navMeshFile"] = navMeshPath.value();
@@ -240,53 +289,34 @@ namespace SliceEditor
                     }
                 }
 
-                if (tempInFile >> tempMetaJson) {
-                    tempInFile.close();
-                    
-                    auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+                if (std::filesystem::exists(tempSceneMetaFilePath))
+                {
+                    std::ifstream tempInFile(tempSceneMetaFilePath);
+                    if (tempInFile >> tempMetaJson) {
+                        tempInFile.close();
 
-                    if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-                        std::ofstream tempOutFile(tempSceneMetaFilePath);
-                        tempOutFile << tempMetaJson.dump(4);
-                        tempOutFile.close();
+                        auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
+
+                        if (tempNavMeshPath.has_value()) {
+                            tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
+                            tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
+                            std::ofstream tempOutFile(tempSceneMetaFilePath);
+                            tempOutFile << tempMetaJson.dump(4);
+                            tempOutFile.close();
+                        }
                     }
+
                 }
-            }
-            else if (addEvent.filePath.extension() == ".temp")
-            {
-                auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-                std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
-
-                std::ifstream tempInFile(tempSceneMetaFilePath);
-                nlohmann::json tempMetaJson;
-                auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-
-                if (tempInFile >> tempMetaJson) {
-                    tempInFile.close();
-
-                    auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
-
-                    if (tempNavMeshPath.has_value()) {
-                        tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                        tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-                        std::ofstream tempOutFile(tempSceneMetaFilePath);
-                        tempOutFile << tempMetaJson.dump(4);
-                        tempOutFile.close();
-                    }
-                }
-            }
+            }*/
         }
         am.CreateAssetMaps();
         AssetFileChangedEvent processEvent = { true };
         EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
-    
-	}
 
-	void AssetFileWatcher::HandleAssetRemoved(AssetManager& am, RawFileEvent& removeEvent)
-	{
+    }
+
+    void AssetFileWatcher::HandleAssetRemoved(AssetManager& am, RawFileEvent& removeEvent)
+    {
         std::filesystem::path removedFilePath(removeEvent.filePath);
         //if (removedFilePath.extension() == ".temp")
         //{
@@ -294,21 +324,22 @@ namespace SliceEditor
         //}
 
         std::string parentDirectory = removedFilePath.parent_path().filename().string();
-        
+
 
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
         std::string assetPath = parentDirectory + "/" + removedFilePath.filename().string();
         auto path = resourceMgr->GetResourcePath(assetPath);
 
-        if (path.has_value()) 
+        if (path.has_value())
         {
-            try 
+            try
             {
                 std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(assetPath);
                 SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
                 resourceMgr->ReleaseResource(fileGUID);
                 am.mGUIDtoFilename.erase(fileGUID);
+                resourceMgr->mFileNameToGUID.erase(removedFilePath.stem().string());
                 am.mFilenameToGUID.erase(removedFilePath.stem().string());
 
                 std::filesystem::remove(metaFilePath);
@@ -317,17 +348,17 @@ namespace SliceEditor
                 AssetFileChangedEvent processEvent = { true };
                 EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
             }
-            catch (const std::exception& e) 
+            catch (const std::exception& e)
             {
                 SLICE_LOG_ERROR("Failed to remove resource: " + std::string(e.what()));
             }
         }
 
         am.CreateAssetMaps();
-	}
+    }
 
-	void AssetFileWatcher::HandleAssetRenamed(AssetManager& am, RawFileEvent& renamedOld, RawFileEvent& renamedNew)
-	{
+    void AssetFileWatcher::HandleAssetRenamed(AssetManager& am, RawFileEvent& renamedOld, RawFileEvent& renamedNew)
+    {
         std::filesystem::path oldFilePath(renamedOld.filePath);
         std::filesystem::path newFilePath(renamedNew.filePath);
 
@@ -353,7 +384,7 @@ namespace SliceEditor
 
             // Accessing the map from AssetManager
             auto it = am.mSupportedAssetTypes.find(extension);
-            if (it != am.mSupportedAssetTypes.end()) 
+            if (it != am.mSupportedAssetTypes.end())
             {
                 parentDirectory = it->second.second;
             }
@@ -362,12 +393,12 @@ namespace SliceEditor
             std::string oldAssetName = parentDirectory + "/" + oldFilePath.filename().string();
             auto path = resourceMgr->GetResourcePath(oldAssetName);
 
-            if (path.has_value()) 
+            if (path.has_value())
             {
 
                 std::filesystem::path metaFilePath = am.GetMetaDataFromFilename(oldAssetName);
 
-                try 
+                try
                 {
                     std::ifstream inFile(metaFilePath);
                     nlohmann::json metaJson;
@@ -394,7 +425,7 @@ namespace SliceEditor
                     am.mFilenameToGUID.erase(oldAssetName);
                     am.mFilenameToGUID.insert({ newAssetName,fileGUID });
                     resourceMgr->mFileNameToGUID.erase(oldAssetName);
-                    resourceMgr->mFileNameToGUID.insert({newAssetName ,fileGUID});
+                    resourceMgr->mFileNameToGUID.insert({ newAssetName ,fileGUID });
 
                     std::filesystem::path newMetaPath = metaFilePath;
                     newMetaPath.replace_filename(newFilePath.filename().string() + ".meta");
@@ -405,44 +436,20 @@ namespace SliceEditor
                     AssetFileChangedEvent processEvent = { true };
                     EventManager::GetInstance()->Publish<AssetFileChangedEvent>(processEvent);
                 }
-                catch (const std::exception& e) 
+                catch (const std::exception& e)
                 {
                     SLICE_LOG_ERROR("Failed to rename meta: " + std::string(e.what()));
                 }
             }
         }
 
-	}
-	void AssetFileWatcher::HandleAssetModified(AssetManager& am, RawFileEvent& event)
-	{
+    }
+    void AssetFileWatcher::HandleAssetModified(AssetManager& am, RawFileEvent& event)
+    {
         std::filesystem::path modifiedFilePath(event.filePath);
         auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 
-        if (modifiedFilePath.extension() == ".temp")
-        {
-            auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-            std::string tempSceneName = "Default/" + sScene->GetCurrentSceneName() + ".temp";
-            std::filesystem::path tempSceneMetaFilePath = am.GetMetaDataFromFilename(tempSceneName);
 
-            std::ifstream tempInFile(tempSceneMetaFilePath);
-
-            nlohmann::json tempMetaJson;
-            if (tempInFile >> tempMetaJson) {
-                tempInFile.close();
-                auto navMeshPath = resourceMgr->GetResourcePath("Default/" + modifiedFilePath.filename().string());
-
-                if (navMeshPath.has_value()) {
-                    tempMetaJson["navMeshFile"] = navMeshPath.value();
-                    tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
-                    std::ofstream outFile(tempSceneMetaFilePath);
-                    outFile << tempMetaJson.dump(4);
-                    outFile.close();
-                }
-            }
-
-
-            return;
-        }
 
         if (modifiedFilePath.extension() == ".resource")
         {
@@ -451,7 +458,7 @@ namespace SliceEditor
         }
 
         std::string parentDirectory = modifiedFilePath.parent_path().filename().string();
-        
+
 
         SliceEngine::GUID fileGUID;
 
@@ -488,12 +495,12 @@ namespace SliceEditor
                         {
                             metaData->Deserialize(metaFilePath);
 
-                            
+
                             am.CreateResource(modifiedFilePath, metaData.get(), true, true);
 
                             if (resourceMgr->CheckResource(fileGUID))
                             {
-                            
+
                                 resourceMgr->ReloadResourceInPlace(fileGUID);
 
                             }
@@ -522,9 +529,9 @@ namespace SliceEditor
                 SLICE_LOG_ERROR("Could not read hash files");
             }
         }
-	}
-	void AssetFileWatcher::HandleAssetMoved(AssetManager& am, std::vector<RawFileEvent>& events)
-	{
+    }
+    void AssetFileWatcher::HandleAssetMoved(AssetManager& am, std::vector<RawFileEvent>& events)
+    {
         std::string fileName = events.begin()->filePath.stem().string();
 
 
@@ -533,7 +540,7 @@ namespace SliceEditor
             std::string oldParentDirectory = events.begin()->filePath.parent_path().filename().string();
 
             // Accessing the map from AssetManager
-            
+
 
             auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
             std::string oldAssetName = oldParentDirectory + "/" + events.begin()->filePath.filename().string();
@@ -561,11 +568,11 @@ namespace SliceEditor
                         if (newAssetPath.empty()) return;
 
                         std::string newParentDirectory = newAssetPath.parent_path().filename().string();
-                        
+
                         std::filesystem::path newMetaPath = newAssetPath;
                         newMetaPath += ".meta";
 
-                        
+
                         std::filesystem::rename(oldMetaPath, newMetaPath);
 
                         std::ifstream inFile(newMetaPath);
@@ -610,7 +617,7 @@ namespace SliceEditor
 
 
         }
-	}
+    }
 
     std::optional<uint64_t> AssetFileWatcher::HashFile(const std::filesystem::path& filePath)
     {

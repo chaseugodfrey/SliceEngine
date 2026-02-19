@@ -296,6 +296,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::CAPSULE_DEFAULT:
 				m->LoadDefaultCapsuleModel();
 				break;
+			case DefaultResourceIDs::CYLINDER_DEFAULT:
+				m->LoadDefaultCylinderModel();
+				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
 				break;

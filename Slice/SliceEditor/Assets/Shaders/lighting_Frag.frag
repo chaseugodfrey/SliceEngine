@@ -22,7 +22,6 @@ const int isSpot 		= 2;
 uniform mat4 V;
 uniform Light uLight;
 uniform float uFarPlane;
-uniform vec3 uCamPos;
 
 layout (std140, binding = 0) uniform lightSpaceBlock
 {
@@ -59,7 +58,7 @@ void main(void){
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
 		nom = normalize(nom);
-		vec3 v = normalize(uCamPos - wPos);
+		vec3 v = normalize(-wPos);
 
 		if(uLight.type == isDirectional)
 		{
@@ -68,7 +67,7 @@ void main(void){
 			int layer = -1;
 			for(int i = 0; i < cascadeCnt; ++i)
 			{
-				if(depthVal < cascadePlaneDist[i])
+				if(depthVal <= cascadePlaneDist[i])
 				{
 					layer = i;
 					break;
@@ -79,16 +78,17 @@ void main(void){
 				layer = cascadeCnt - 1;
 			}
 
-			vec4 vLightPos = lightSpaceMtx[layer] * vec4(wPos, 1.0f);
+			vec3 offsetPos = wPos + nom * 0.05;
+			vec4 vLightPos = lightSpaceMtx[layer] * vec4(offsetPos, 1.0f);
 			vec3 projCoords = vLightPos.xyz / vLightPos.w;
 			projCoords = projCoords * 0.5f + 0.5f;
 
-			vec3 ambient = dif.rgb * ambient; // if blocked by shadow
+			vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
 
 			vec3 l = normalize(-uLight.direction);// Surface to Light
 			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
-			ambient += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
-			fFragColor = vec4(ambient, 1.0f);
+			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
+			fFragColor = vec4(finalLighting, 1.0f);
 		}
 		else if(uLight.type == isPoint)
 		{
@@ -97,7 +97,7 @@ void main(void){
 			vec4 lightCol = uLight.color;
 			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
-			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(uCamPos - wPos), dist);
+			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(wPos), dist);
 			l = l / dist;
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
@@ -158,16 +158,23 @@ float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
 {
 	if(projCoords.z > 1.0)
         return 0.0;
+	
+ 	// Because I forced the minZ & maxZ to be huge
+	float bias = max(0.001 * (1.0 - dot(n, l)), 0.0001);
 
-	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
-	if(layer == cascadeCnt - 1)
-	{
-		bias *= 1 / (uFarPlane * biasModifier);
-	}
-	else
-	{
-		bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
-	}
+	//float bias = max(0.05 * (1.0 - dot(n, l)), 0.005); 
+	////bias *= (cascadePlaneDist[layer] / uFarPlane);
+
+	//if(layer == cascadeCnt)
+	//{
+	//	bias *= 1 / (uFarPlane * biasModifier);
+	//}
+	//else
+	//{
+	//	bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
+	//}
+
+	// PCF
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / vec2(textureSize(uShadowTex, 0));
 	for(int x = -1; x <= 1; ++x)

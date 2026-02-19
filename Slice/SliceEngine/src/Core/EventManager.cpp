@@ -29,6 +29,7 @@ void EventManager::SetupEventManager()
 	RegisterEvent<RigidBodyModifiedEvent>();
 	RegisterEvent<OnSceneLoadedEvent>();
 	RegisterEvent<OnSceneStopEvent>();
+	RegisterEvent<OnSceneChangeEvent>();
 
 	//Collision Events
 	RegisterEvent<OnCollisionEnterEvent>();
@@ -44,6 +45,8 @@ void EventManager::SetupEventManager()
 	RegisterEvent<OnButtonClickEvent>();
 	RegisterEvent<OnButtonReleaseEvent>();
 	RegisterEvent<OnSliderValueEvent>();
+
+	RegisterEvent<DebugDrawRayEvent>();
 }
 
 void EventManager::Publish(const std::string& eventName, const std::unordered_map<std::string, rttr::variant>& properties)

@@ -11,8 +11,7 @@ namespace SliceEditor
 
 	void NavigationWindow::Draw()
 	{
-		std::vector<glm::mat4> transformMtxs{};
-		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
+		std::vector<Entity *> entity{};
 
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
@@ -21,28 +20,35 @@ namespace SliceEditor
 		if (selectionManager->mSelectionType == SelectionType::ENTITY)
 		{
 			auto &nodes = selectionManager->GetSelectedNodes();
-			if (!nodes.empty())
-			{
-				auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-				for (auto &node : nodes)
-				{
-					EntityNode *entity_node = static_cast<EntityNode *>(node);
-					auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
-					if (renderer)
-					{
-						if (renderer->modelHandle.IsValid())
-						{
-							const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
-							glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-								* glm::mat4_cast(transform.rotation)
-								* glm::scale(glm::mat4(1.0f), transform.scale);
 
-							transformMtxs.push_back(transformMatrix);
-							models.push_back(renderer->modelHandle.get());
-						}
-					}
-				}
+			// if entities present
+			for (auto &node : nodes)
+			{
+				EntityNode *entityNode = static_cast<EntityNode *>(node);
+				entity.push_back(&entityNode->entity);
 			}
+			//if (!nodes.empty())
+			//{
+			//	auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			//	for (auto &node : nodes)
+			//	{
+			//		EntityNode *entity_node = static_cast<EntityNode *>(node);
+			//		auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
+			//		if (renderer)
+			//		{
+			//			if (renderer->modelHandle.IsValid())
+			//			{
+			//				const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
+			//				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+			//					* glm::mat4_cast(transform.rotation)
+			//					* glm::scale(glm::mat4(1.0f), transform.scale);
+
+			//				transformMtxs.push_back(transformMatrix);
+			//				models.push_back(renderer->modelHandle.get());
+			//			}
+			//		}
+			//	}
+			//}
 		}
 
 		ImGui::BeginGroup();
@@ -116,10 +122,10 @@ namespace SliceEditor
 
 		ImGui::EndGroup();
 
-		std::string obj_handle = std::to_string(models.size()) + " objects selected.";
+		std::string obj_handle = std::to_string(entity.size()) + " objects selected.";
 		ImGui::Text(obj_handle.c_str());
 
-		if (models.empty())
+		if (entity.empty())
 			ImGui::BeginDisabled();
 
 		if (ImGui::Button("Bake"))
@@ -143,7 +149,7 @@ namespace SliceEditor
 					std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
 					links.push_back(data);
 				});
-			mCompiler.BuildFromModel(models, transformMtxs, links);
+			mCompiler.BuildFromModel(entity, links);
 		}
 
 		ImGui::SameLine();
@@ -152,7 +158,7 @@ namespace SliceEditor
 			mCompiler.Clear();
 		}
 
-		if (models.empty())
+		if (entity.empty())
 			ImGui::EndDisabled();
 
 		ImGui::End();

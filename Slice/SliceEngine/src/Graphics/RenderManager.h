@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include <memory>
 #include "../ECS/ECSTypes.h"
 #include "../ECS/GameObject.h"
+#include "Core/Events.h"
 
 #include "Resource/ResourceManager.h"
 #include "Resource/Resource.h"
@@ -50,6 +51,7 @@ namespace SliceEngine
 		// Rendering functions
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
+		void ForceCamNormalVP(Entity cam);
 		void BindCameraDepth(Entity cam);
 		// Rendering calls
 		void Render();
@@ -82,13 +84,15 @@ namespace SliceEngine
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
+		const float mZBufferShadow = 175.f;
+		const float mMinShadowSize = 20.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
 		const float mPointLightFar = 20.f;
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
-		const int mNumCascadeShadow = 5;
+		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
 		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
 		struct ShadowCamDir
 		{
@@ -199,7 +203,7 @@ namespace SliceEngine
 			GPS_PARTICLES			= 0b1100'0110,
 			GPS_SKYBOX				= 0b0000'0001,
 			GPS_SKYBOX_AMBIENT		= 0b0101'0011,
-			GPS_SHADOW				= 0b1001'0101,
+			GPS_SHADOW				= 0b1001'0100,
 			GPS_SPE_ADDITION		= 0b0010'0011,
 			GPS_ADDITION			= 0b0011'0011,
 			GPS_DEBUG				= 0b1100'0110,
@@ -235,6 +239,9 @@ namespace SliceEngine
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };
 		glm::mat4 V, P;// Camera's
+		glm::vec3 cameraPos;
+
+		std::vector<glm::mat4> mDebugDrawRays;
 
 		void LinkFrameBufferSettings(FBOType fbo, int numColAttachments, ...);
 		void LoadSettings(GPUSetting setting);
@@ -244,6 +251,8 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+
+		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 
 		void IDPick();
 	};

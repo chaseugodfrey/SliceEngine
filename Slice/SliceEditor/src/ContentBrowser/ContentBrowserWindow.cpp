@@ -50,7 +50,7 @@ namespace SliceEditor
 
 			if (left_region.x > 0 && left_region.y > 0)
 			{
-				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX))
+				if (ImGui::BeginChild("##dir", left_region, ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX, ImGuiWindowFlags_AlwaysVerticalScrollbar))
 				{
 					DisplayFolders(*mManager.rootNode);
 					//ImGui::Text("Directory Here!");
@@ -173,8 +173,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayItems(DirectoryNode& node)
 	{
 		static DirectoryNode* selectedEntry = nullptr;
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{

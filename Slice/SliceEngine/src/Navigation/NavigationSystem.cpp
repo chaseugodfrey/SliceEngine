@@ -84,7 +84,7 @@ namespace SliceEngine
 	{
 		if (e.isSceneLoaded)
 		{
-			LoadNavMeshFromFile(e.navMeshPath);
+			LoadNavMeshFromFile(e.navMeshBinPath);
 		}
 	}
 
@@ -92,20 +92,20 @@ namespace SliceEngine
 	{
 		ClearNavMesh();
 		navMeshInstance = std::make_optional<NavMeshObj>(newNavMesh);
-		navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh));
+		navMeshDebugInfo = NavMeshUtilities::CreateDebugMesh(newNavMesh);
 	}
 
 	void NavigationSystem::LoadNavMeshFromFile(const std::string& filePath)
 	{
-		std::string path_to_load = filePath;
+		std::string path_to_load = filePath + ".bin";
 
 		//path_to_load += ".scene";
 
-		if (path_to_load.empty())
+		if (path_to_load.empty() || path_to_load == "Resources/0.bin")
 		{
 			//path_to_load = "Resources/output_navmesh.bin";
 			ClearNavMesh();
-			SLICE_LOG("NavSystem: No specific navmesh found in meta" );
+			SLICE_LOG("NavSystem: No specific navmesh found in meta");
 
 			return;
 		}
@@ -114,12 +114,12 @@ namespace SliceEngine
 			SLICE_LOG("NavSystem: Loading specific navmesh from meta: " + path_to_load);
 		}
 
-		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
+		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
 			navMeshInstance = std::make_optional<NavMeshObj>(newNavMesh.value());
-			navMeshDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugMesh(newNavMesh.value()));
+			navMeshDebugInfo = NavMeshUtilities::CreateDebugMesh(newNavMesh.value());
 		}
 	}
 
@@ -195,7 +195,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
+				//SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
 			}
 		}
 		if (agent.crowdAgentID != -1)
@@ -224,7 +224,7 @@ namespace SliceEngine
 
 						if (isNextOffMesh)
 						{
-							SLICE_LOG("Approaching OffMesh Link! Distance: {}", glm::distance(transform.position, glm::vec3(ag->cornerVerts[0], ag->cornerVerts[1], ag->cornerVerts[2])));
+							SLICE_LOG(std::string("Approaching OffMesh Link! Distance: {}") + std::to_string(glm::distance(transform.position, glm::vec3(ag->cornerVerts[0], ag->cornerVerts[1], ag->cornerVerts[2]))));
 						}
 					}
 					// Check if the next corner is an off-mesh connection
@@ -283,8 +283,8 @@ namespace SliceEngine
 
 						// Sync Physics pos back to Crowd Agent
 						float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
-						dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
-						if (editableAg) memcpy(editableAg->npos, pos, sizeof(float) * 3);
+						dtCrowdAgent *editableAg2 = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+						if (editableAg2) memcpy(editableAg2->npos, pos, sizeof(float) * 3);
 					}
 					else
 					{
@@ -293,8 +293,8 @@ namespace SliceEngine
 
 						// Sync immediately to complete the jump
 						float pos[3] = { targetPos.x, targetPos.y, targetPos.z };
-						dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
-						if (editableAg) memcpy(editableAg->npos, pos, sizeof(float) * 3);
+						dtCrowdAgent *editableAg3 = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+						if (editableAg3) memcpy(editableAg3->npos, pos, sizeof(float) * 3);
 					}
 					return; // Skip standard walking update below
 				}

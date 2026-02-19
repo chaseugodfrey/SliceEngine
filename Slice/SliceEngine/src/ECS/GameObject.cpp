@@ -86,7 +86,11 @@ namespace SliceEngine
 	void GameObject::Destroy()
 	{
 		std::cout << "Destryoing entity in gameobject cpp: " << (uint32_t)mEntity << std::endl;
-
+		if (mEntity == entt::null)
+		{
+			SLICE_LOG("entity is null???");
+			return;
+		}
 		mRegistry.destroy(mEntity);
 
 		//mRegistry.eac

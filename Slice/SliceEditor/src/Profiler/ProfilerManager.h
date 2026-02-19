@@ -38,20 +38,35 @@ namespace SliceEditor
 			float loadPercentage;
 		};
 
+		struct SystemHistory
+		{
+			std::deque<float> samples;
+			float totalSum;
+		};
 
-		//std::queue<std::string> textStack;
+
+		std::unordered_map<std::string, SystemHistory> mSystemMap;
+		const size_t MAX_SAMPLES = 120;
 
 	public:
 
 		bool mAutoScroll = true;
+		bool mClearStatistics = false;
 
 		std::unordered_map<std::string, DebugStats> mDebugStats;
 
 		float mCurrFPS;
+		float mDeltaTime;
+		float mTotalFrameTime;
+		float mUntrackedFrameTime;
+		float mUntrackedFrameTimePercentage;
 
 		//SliceEngine::FramerateManager& framerateManager;
 
-		ProfilerManager(Registry& reg) : IBaseManager(reg) {};
+		ProfilerManager(Registry& reg) : IBaseManager(reg) , mCurrFPS(0.0f), mDeltaTime(0.0f), mTotalFrameTime(0.0f), 
+			mUntrackedFrameTime(0.0f), mUntrackedFrameTimePercentage(0.0f), mClearStatistics(false)
+		{
+		};
 		~ProfilerManager() = default;
 
 		void Init();
@@ -62,6 +77,8 @@ namespace SliceEditor
 		std::unique_ptr<EditorWindow> CreateEditorWindow() override;
 
 		void UpdateDebugStatistics();
+
+		void ClearDebugStatistics();
 
 		ImU32 GetSystemColor(const std::string& systemName);
 

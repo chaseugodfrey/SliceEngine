@@ -95,5 +95,14 @@ namespace SliceEngine
             FunctionCalls.AM_GetValue2D(map, action, out value);
         }
 
+        public static void SetCursorState(Cursor.STATE state)
+        {
+            FunctionCalls.Input_SetCursorState((int)state);
+        }
+
+        public static Cursor.STATE GetCursor()
+        {
+           return (Cursor.STATE)FunctionCalls.Input_GetCursorState();
+        }
     }
 }

@@ -82,6 +82,7 @@ namespace SliceEngine
 			void LoadDefaultCubeModel();
 			void LoadDefaultSphereModel(int stackCount = 20, int sectorCount = 30);// stack = Horizontal slices (latitude), sector = Vertical slices (longitude)
 			void LoadDefaultCapsuleModel();
+			void LoadDefaultCylinderModel();
 			void LoadDefaultLineModel();
 			void LoadDefaultFrustrumModel();
 			void LoadDefaultQuadModel();

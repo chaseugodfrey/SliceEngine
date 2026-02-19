@@ -108,6 +108,27 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateCylinder(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Cylinder();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
@@ -453,6 +474,11 @@ namespace SliceEditor
 				if (ImGui::MenuItem("Capsule"))
 				{
 					EditorUtilities::GameObject_CreateCapsule(parent, history, isPrefabInspected);
+				}
+
+				if (ImGui::MenuItem("Cylinder"))
+				{
+					EditorUtilities::GameObject_CreateCylinder(parent, history, isPrefabInspected);
 				}
 
 				if (ImGui::MenuItem("Quad"))
@@ -1533,7 +1559,7 @@ namespace SliceEditor
 				SetTheme_Microsoft();
 				break;
 			case EditorThemeType::CLASSICSTEAM:
-				SetTheme_ClassicSteam;
+				SetTheme_ClassicSteam();
 				break;
 			case EditorThemeType::GREENLEAF:
 				SetTheme_GreenLeaf();

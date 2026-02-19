@@ -58,7 +58,7 @@ namespace SliceEditor
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				if (!mCurrentAnimator && anim != mCurrentAnimator && mCurrentAnimator != NULL)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
@@ -88,6 +88,11 @@ namespace SliceEditor
 	{
 		mCurrentAnimator = component;
 
+		if (mCurrentAnimator->curr_anim_pkg.animations.size() == 0)
+		{
+			animationClips.clear();
+			return;
+		}
 		
 		animationClips.reserve(mCurrentAnimator->curr_anim_pkg.animations.size());
 		animationClips.clear();
@@ -281,7 +286,7 @@ namespace SliceEditor
 		ImGui::Begin("Animation");
 
 		// disable if no selection
-		if (!hasAnimator)
+		if (!hasAnimator || animationClips.size() == 0)
 			ImGui::BeginDisabled();
 
 #pragma region Animation Toolbar
@@ -303,12 +308,15 @@ namespace SliceEditor
 
 		if (ImGui::Button("Stop"))
 		{
-			auto core = SliceEngine::Core::GetInstance();
+			//auto core = SliceEngine::Core::GetInstance();
 
 			mTimeline.isPlaying = false;
-			LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex],mCurrentClipIndex);
+			if(animationClips.size() > 0)
+			{
+				LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex], mCurrentClipIndex);
 
-			UpdateTransform(animationClips[mCurrentClipIndex], 0);
+				UpdateTransform(animationClips[mCurrentClipIndex], 0);
+			}
 			//UpdateBoneScene(tmpEnt);
 			//UpdateBones();
 		}
@@ -331,7 +339,7 @@ namespace SliceEditor
 
 		if (ImGui::Button("Add Event"))
 		{
-			auto core = SliceEngine::Core::GetInstance();
+			//auto core = SliceEngine::Core::GetInstance();
 			// pop up type script name and script func
 			std::string scriptName{};
 			std::string scriptFunc{};
@@ -342,7 +350,7 @@ namespace SliceEditor
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
-				if (event.animIdx == mCurrentClipIndex && event.frameNumber == currentFrame)
+				if (event.animIdx == mCurrentClipIndex && event.frameNumber == static_cast<unsigned int>(currentFrame))
 				{
 					SLICE_LOG_WARNING("Trying to Create an Event on a frame that already has an event!");
 					frameHasEvent = true;
@@ -350,9 +358,12 @@ namespace SliceEditor
 			}
 			if(!frameHasEvent)
 			{
-				mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
+				if(animationClips.size() > 0)
+				{
+					mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
 
-				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+					LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+				}
 			}
 		}
 
@@ -399,13 +410,19 @@ namespace SliceEditor
 			}
 			else
 			{
-				animationClipNames.push_back("");
+				animationClipNames.push_back("No Animations");
 			}
 		}
 
 		else
 		{
 			animationClipNames.push_back("No Animations");
+		}
+
+
+		if (animationClipNames.size() == 1 && std::strcmp(animationClipNames[0].c_str(), "No Animations") == 0)
+		{
+			mCurrentClipIndex = 0;
 		}
 
 		if (ComboHeader(mRegistry, animationName.c_str(), "##animSelected", mCurrentClipIndex, animationClipNames, true))
@@ -440,9 +457,9 @@ namespace SliceEditor
 											mCurrentKeyIndex = key;
 											//ImGui::OpenPopup("Keyframe Context");
 											//Set the mCurrentEventIndex for the pop-up
-											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&key](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
+											auto it = std::find_if(mCurrentAnimator->eventFrames.begin(), mCurrentAnimator->eventFrames.end(), [&](const SliceEngine::SliceEngineTypes::AnimationKeyFrame& x)
 												{
-													return x.frameNumber == key;
+													return (x.frameNumber == static_cast<unsigned int>(key) && x.animIdx == static_cast<unsigned int>(mCurrentClipIndex));
 												});
 
 											if (it != mCurrentAnimator->eventFrames.end())
@@ -497,81 +514,84 @@ namespace SliceEditor
 		// only update when on window
 		if(ImGui::IsWindowFocused())
 		{
-			auto core = SliceEngine::Core::GetInstance();
-			if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
+			if(animationClips.size() > 0)
 			{
-				
-				if (mTimeline.isPlaying)
+				auto core = SliceEngine::Core::GetInstance();
+				if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
-					currentFrame = mCurrentTime * animationClips[mCurrentClipIndex]->fps;
-					if (currentFrame > endFrame)
-					{
-						currentFrame = startFrame;
-					}
-					for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
-					{
-						float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-						mCurrentTime += dt;
-					}
-				}
 
-				else
-				{
-					mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
-				}
-				
-
-				//Bone animation
-				if (mCurrentAnimator->is_bone)
-				{
-					auto& anim = animationClips[mCurrentClipIndex];
-					if (anim->duration <= 0.0f)
+					if (mTimeline.isPlaying)
 					{
-						mCurrentTime = 0.0f;
-					}
-					else
-					{
-						if (mCurrentTime > anim->duration)
+						currentFrame = static_cast<ImGui::FrameIndexType>(mCurrentTime * animationClips[mCurrentClipIndex]->fps);
+						if (currentFrame > endFrame)
 						{
-
-							if (!mTimeline.isLoop)
-							{
-								mTimeline.isPlaying = false;
-								currentFrame = startFrame;
-								mCurrentTime = 0.0f;
-								ret = true;
-							}
-							else
-							{
-								mTimeline.isPlaying = true;
-								mCurrentTime = std::fmod(mCurrentTime, anim->duration);
-
-							}
+							currentFrame = startFrame;
+						}
+						for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
+						{
+							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
+							mCurrentTime += dt;
 						}
 					}
 
-					if (!ret)
+					else
 					{
-						float safe_time = std::min(mCurrentTime, anim->duration);
-						//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
-						UpdateTransform(anim, safe_time);
-						//UpdateBoneScene(tmpEnt);
-						//UpdateBones();
+						mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+					}
+
+
+					//Bone animation
+					if (mCurrentAnimator->is_bone)
+					{
+						auto& anim = animationClips[mCurrentClipIndex];
+						if (anim->duration <= 0.0f)
+						{
+							mCurrentTime = 0.0f;
+						}
+						else
+						{
+							if (mCurrentTime > anim->duration)
+							{
+
+								if (!mTimeline.isLoop)
+								{
+									mTimeline.isPlaying = false;
+									currentFrame = startFrame;
+									mCurrentTime = 0.0f;
+									ret = true;
+								}
+								else
+								{
+									mTimeline.isPlaying = true;
+									mCurrentTime = std::fmod(mCurrentTime, anim->duration);
+
+								}
+							}
+						}
+
+						if (!ret)
+						{
+							float safe_time = std::min(mCurrentTime, anim->duration);
+							//anim->UpdateTransforms(mCurrentAnimator->final_tforms, safe_time, *mCurrentAnimator->Handle_skeleton.get());
+							UpdateTransform(anim, safe_time);
+							//UpdateBoneScene(tmpEnt);
+							//UpdateBones();
+						}
 					}
 				}
 			}
 		}
-
-#pragma endregion
-
-		if (!hasAnimator)
-			ImGui::EndDisabled();
 
 		if (mOpenEventPopup)
 		{
 			ImGui::OpenPopup("AnimationEventPopup");
 			AnimatorEventPopup(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
 		}
+
+#pragma endregion
+
+		if (!hasAnimator || animationClips.size() == 0)
+			ImGui::EndDisabled();
 
 		ImGui::End();
 	}

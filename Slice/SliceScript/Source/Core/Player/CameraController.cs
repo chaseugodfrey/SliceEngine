@@ -10,7 +10,7 @@ namespace SliceEngine
         public Vector3 yClamp = new Vector3(-40f, 60f, 0f);
         public float resolutionX = 1920, resolutionY = 1080;
         private float pitch = 0f;
-        private Vector2 lastMousePos;
+        //private Vector2 lastMousePos;
 
         public override void OnCreate()
         {

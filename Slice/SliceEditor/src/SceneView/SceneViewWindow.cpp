@@ -149,7 +149,7 @@ namespace SliceEditor
 			{
 				ImGui::OpenPopup("Debug Lines");
 			}
-			float height = ImGui::GetItemRectSize().y;
+			//float height = ImGui::GetItemRectSize().y;
 			DebugDrawTogglePopup();
 			ImGui::SameLine();
 		}
@@ -164,7 +164,7 @@ namespace SliceEditor
 
 #pragma region IO Calculation
 
-		auto size = ImGui::GetContentRegionAvail();
+		//auto size = ImGui::GetContentRegionAvail();
 		ImVec2 pos = ImGui::GetCursorScreenPos();
 
 		auto* cam_tr = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(camObj->entity);
@@ -652,6 +652,7 @@ namespace SliceEditor
 			MenuToggleBit("Grid", tag, SliceEngine::RENDER_TAG::DEBUG_GRID_TAG);
 			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
+			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
 			ImGui::EndPopup();
 		}

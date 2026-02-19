@@ -38,6 +38,7 @@ namespace SliceEngine
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
 
+        public virtual void OnLateUpdate(float dt) { }
         public virtual void OnCollideEnter(uint other) {  }
 
         public virtual void OnCollideStay(uint other) { }
@@ -141,10 +142,13 @@ namespace SliceEngine
             FunctionCalls.Destroy(gameObject.mID);
         }
 
-         public void StartCoroutine(IEnumerator routine)
+        public Coroutine StartCoroutine(IEnumerator routine)
         {
             if (routine != null)
-                CoroutineManager.StartCoroutine(routine, this);
+            {
+                return CoroutineManager.StartCoroutine(routine, this);
+            }
+            return null;
         }
 
         public void StopAllCoroutines()

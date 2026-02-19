@@ -19,6 +19,13 @@ DigiPen Institute of Technology is prohibited.
 	Define any events here
 */
 
+struct DebugDrawRayEvent
+{
+	glm::vec3 Origin;
+	glm::vec3 Dir;
+	float magnitude;
+};
+
 struct EntityCollide
 {
 	Entity firstEntity;
@@ -80,7 +87,12 @@ struct OnSceneLoadedEvent
 {
 	std::filesystem::path scenePath;
 	bool isSceneLoaded;
-	std::string navMeshPath;
+	std::string navMeshBinPath;
+};
+
+struct OnSceneChangeEvent
+{
+
 };
 
 struct OnSceneStopEvent
@@ -186,6 +198,11 @@ struct OnPlayEvent
 
 };
 
+struct OnStopEvent
+{
+	
+};
+
 struct OnGameStopEvent
 {
 
@@ -204,9 +221,9 @@ RTTR_REGISTRATION
 	.constructor<>()
 	.property("entity", &ColliderShapeAddedEvent::entity);
 
-	rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
-	.constructor<>()
-	.property("entity", &ColliderShapeRemovedEvent::entity);
+	//rttr::registration::class_<ColliderShapeRemovedEvent>("ColliderShapeRemoved")
+	//.constructor<>()
+	//.property("entity", &ColliderShapeRemovedEvent::entity);
 
 	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
 	.constructor<>()

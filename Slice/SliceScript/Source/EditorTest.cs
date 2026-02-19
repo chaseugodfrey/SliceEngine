@@ -8,24 +8,26 @@ namespace SliceEngine
 {
     public class EditorTest : SliceBehaviour
     {
-        public bool boolTest = false;
+        //public bool boolTest = false;
         public GameObject GOtest;
-        private float t = 0.0f;
-        public Prefab prefabObj = new Prefab();
+        //private float t = 0.0f;
+        //public Prefab prefabObj = new Prefab();
 
         //public List<int> intList = new List<int>();
-        //public List<GameObject> goListTest = new List<GameObject>();
+        public List<GameObject> goListTest = new List<GameObject>();
         //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
-            t += dt;
-            Console.WriteLine(t);
-            if(t >= 3.0f)
+            if(Input.IsKeyPressed(Keys.KEY_O))
             {
-                SliceLog.Log("Create Prefab!");
-                CreateGameObject(prefabObj.prefabName);
-                t = 0.0f;
+                Input.SetCursorState(Cursor.STATE.DEFAULT); 
             }
+        }
+
+        public override void OnButtonClick()
+        {
+            SliceLog.Console("BUTTS");
+            Input.SetCursorState(Cursor.STATE.DISABLED);
         }
 
         public override void OnEnabled()

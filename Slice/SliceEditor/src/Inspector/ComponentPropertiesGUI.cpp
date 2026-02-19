@@ -444,19 +444,30 @@ namespace SliceEditor
 		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
 
-		ImGui::BeginDisabled();
+		if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+		{
+			Entity entity = val.GetEntity();
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			{
+				GameObjectScriptSelected event;
+				event.entities.push_back(entity);
+				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+			}
+		}
+
+		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
 		{
 			std::string empty = " ";
-			ImGui::InputText(id, &empty);
+			ImGui::InputText(id, &empty,ImGuiInputTextFlags_ReadOnly);
 		}
 		else
 		{
 			//wtf is this bs
 			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
-			ImGui::InputText(id, &goName);
+			ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
 		}
-		ImGui::EndDisabled();
+		//ImGui::EndDisabled();
 
 		if (ImGui::BeginDragDropTarget())
 		{
@@ -542,26 +553,6 @@ namespace SliceEditor
 
 		return changed;
 	}
-	//	val.GetName();
-
-	//	ImGui::BeginDisabled();
-	//	bool changed = ImGui::InputText(id, &val.GetName(),ImGuiInputTextFlags_ReadOnly);
-	//	ImGui::EndDisabled();
-
-	//	if (ImGui::IsItemActivated())
-	//		oldVal = val;
-
-	//	if (ImGui::IsItemDeactivatedAfterEdit())
-	//	{
-	//		if (oldVal != val)
-	//		{
-	//			std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
-	//			reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
-	//		}
-	//	}
-
-	//	return changed;
-	//}
 
 #pragma endregion
 
@@ -743,7 +734,7 @@ namespace SliceEditor
 	}
 
 #pragma endregion
-
+	 
 #pragma region List Script Functions
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector< std::string>& list)
 	{
@@ -812,10 +803,22 @@ namespace SliceEditor
 		static std::vector<SliceEngine::GameObject > oldList{};
 		int idx = 0;
 		bool changed = false;
+		bool publishEvent = false;
+		GameObjectScriptSelected event; //not sure if this is a good idea
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
 		{
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			{
+				publishEvent = true;
+			}
 			for (auto& entry : list)
 			{
+				if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+				{
+					Entity entity = entry.GetEntity();
+					event.entities.push_back(entity);
+				}
+
 				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
@@ -887,6 +890,11 @@ namespace SliceEditor
 				changed = true;
 			}
 
+			if (publishEvent)
+			{
+				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+			}
+
 			ImGui::TreePop();
 		}
 
@@ -952,7 +960,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format, int inc, int min, int max)
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format, float inc, int min, int max)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<int> oldList{};
@@ -1236,21 +1244,21 @@ namespace SliceEditor
 			int currentIndex = -1;
 			SliceEngine::GUID currentGUID = guid;
 
-			for (const auto& guid : *mapPtr)
+			for (const auto& mapGUID : *mapPtr)
 			{
-				if (assetManager.mGUIDtoFilename.find(guid) == assetManager.mGUIDtoFilename.end())
+				if (assetManager.mGUIDtoFilename.find(mapGUID) == assetManager.mGUIDtoFilename.end())
 				{
 					SLICE_LOG_ERROR("This is not supposed to happen, DragDrop map de-sync!");
 					continue;
 				}
 
-				if (guid == currentGUID)
+				if (mapGUID == currentGUID)
 				{
 					currentIndex = (int)mapNames.size();
 				}
 
 				//Manipulate to the filename
-				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[guid];
+				std::filesystem::path relativePath = assetManager.mGUIDtoFilename[mapGUID];
 				std::string fileNameString = relativePath.filename().string();
 
 				mapNames.push_back(fileNameString);
@@ -1267,7 +1275,7 @@ namespace SliceEditor
 				errorText = "GUID not found in AssetManager";
 				mapNames.push_back(guidString);
 				//Should be the last added unknown GUID
-				selectedIndex = mapNames.size() - 1;
+				selectedIndex = static_cast<int>(mapNames.size()) - 1;
 				ImGui::Text("%s :", property_label);
 				ImGui::SameLine(150.f);
 			}
@@ -1279,7 +1287,7 @@ namespace SliceEditor
 
 			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
 			{
-				const std::string& selectedName = mapNames[selectedIndex];
+				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
 				changed = (guid != newGUID);
 				if (changed)

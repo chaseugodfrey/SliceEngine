@@ -217,7 +217,7 @@ namespace SliceEngine
 		return true;
 	}
 
-	NavMeshDebugObj NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
+	std::optional<NavMeshDebugObj> NavMeshUtilities::CreateDebugMesh(NavMeshObj const& navMeshObj)
 	{
 		auto tNavMesh = const_cast<const dtNavMesh*>(navMeshObj.navMesh);
 
@@ -235,6 +235,10 @@ namespace SliceEngine
 				for (int i{}; i < tile->header->polyCount; ++i)
 				{
 					const dtPoly* p = &tile->polys[i];
+
+					// skip offmesh polygons as they dont contain valid detail meshes
+					if (p->getType() == DT_POLYTYPE_OFFMESH_CONNECTION)
+						continue;
 
 					const dtPolyDetail* pd = &tile->detailMeshes[i];
 
@@ -359,6 +363,7 @@ namespace SliceEngine
 
 			return dataObjArr;
 		}
+		return std::nullopt;
 	}
 
 	NavMeshDebugObj NavMeshUtilities::CreateDebugPathMesh(const std::vector<glm::vec3> &pathPoints)

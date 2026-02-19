@@ -197,6 +197,23 @@ namespace SliceEngine
 			output[name][typeName][propName]["height"] = data.height;
 		}
 
+		// For ColliderShape::MeshData
+		template<>
+		inline void Serialize<ColliderShape::MeshData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::MeshData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["UwU"] = data.temp;
+		}
+
+		// For ColliderShape::CylinderData
+		template<>
+		inline void Serialize<ColliderShape::CylinderData>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const ColliderShape::CylinderData& data, const Entity& entity)
+		{
+			output[name][typeName][propName]["radius"] = data.radius;
+			output[name][typeName][propName]["height"] = data.height;
+		}
+
 		// For Freeze Options
 		template<>
 		inline void Serialize<RigidBody::FreezeOptions>(json& output, const std::string& name, const std::string_view& typeName,
@@ -266,6 +283,68 @@ namespace SliceEngine
 			for (const auto& [k, v] : value)
 			{
 				output[name][typeName][propName][k] = VariantToJson(v);
+			}
+		}
+
+		template<>
+		inline void Serialize<std::map<float, glm::vec3>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::map<float, glm::vec3>& value, const Entity& entity)
+		{
+			for (const auto& [k, v] : value)
+			{
+				output[name][typeName][propName][std::to_string(k)] =
+				{
+					v.x, v.y, v.z
+				};
+			}
+		}
+
+		template<>
+		inline void Serialize<std::map<float, glm::vec4>>(json& output, const std::string& name, const std::string_view& typeName,
+			const std::string& propName, const std::map<float, glm::vec4>& value, const Entity& entity)
+		{
+			for (const auto& [k, v] : value)
+			{
+				output[name][typeName][propName][std::to_string(k)] =
+				{
+					v.x, v.y, v.z, v.w
+				};
+			}
+		}
+
+		template<>
+		inline void Serialize<std::vector<std::pair<float, glm::vec3>>>(
+			json& output,
+			const std::string& name,
+			const std::string_view& typeName,
+			const std::string& propName,
+			const std::vector<std::pair<float, glm::vec3>>& value,
+			const Entity& entity)
+		{
+			json& arr = output[name][typeName][propName]; // JSON array for the pairs
+			arr = json::array();
+
+			for (const auto& [k, v] : value)
+			{
+				arr.push_back({ k, { v.x, v.y, v.z } }); // pair as [float, vec3 array]
+			}
+		}
+
+		template<>
+		inline void Serialize<std::vector<std::pair<float, glm::vec4>>>(
+			json& output,
+			const std::string& name,
+			const std::string_view& typeName,
+			const std::string& propName,
+			const std::vector<std::pair<float, glm::vec4>>& value,
+			const Entity& entity)
+		{
+			json& arr = output[name][typeName][propName]; // JSON array for the pairs
+			arr = json::array();
+
+			for (const auto& [k, v] : value)
+			{
+				arr.push_back({ k, { v.x, v.y, v.z, v.w } }); // pair as [float, vec4 array]
 			}
 		}
 
@@ -358,13 +437,14 @@ namespace SliceEngine
 				}
 				else
 				{
-					// Base case � just add the element
+					// Base case, just add the element
 					result.push_back(elem);
 				}
 			}
 
 			prop.set_value(componentInstance, result);
 		}
+
 
 		// For generic strings + special exceptions
 		template <>
@@ -512,6 +592,41 @@ namespace SliceEngine
 			return false;
 		}
 
+		// Similar for MeshData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::MeshData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::MeshData>()) {
+				ColliderShape::MeshData data;
+				if (value.contains("UwU")) {
+					data.temp = value["UwU"];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
+		// Similar for CylinderData
+		template<>
+		inline bool TryDeserializeType<ColliderShape::CylinderData>(rttr::variant& componentInstance, rttr::property& prop,
+			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
+		{
+			if (prop.get_type() == rttr::type::get<ColliderShape::CylinderData>()) {
+				ColliderShape::CylinderData data;
+				if (value.contains("radius")) {
+					data.radius = value["radius"];
+				}
+				if (value.contains("height")) {
+					data.height = value["height"];
+				}
+				prop.set_value(componentInstance, data);
+				return true;
+			}
+			return false;
+		}
+
 		template<>
 		inline bool TryDeserializeType<RigidBody::FreezeOptions>(rttr::variant& componentInstance, rttr::property& prop,
 			const json& value, const std::string& propName, const std::string& componentName, const Entity& entity)
@@ -636,14 +751,11 @@ namespace nlohmann
 		{
 			throw std::runtime_error("Invalid JSON type for unsigned char: " + j.dump());
 		}
-	}
+	}	
 }
-
-
 
 namespace SliceEngine
 {
-
 	// Deserialize GUID
 	inline void from_json(const json& j, GUID& guid)
 	{
@@ -681,8 +793,8 @@ namespace SliceEngine
 		// Get the "GUID" key from the object, which is a string (or null).
 		// Then, deserialize that string value into the handle's mGUID member.
 		j.at("GUID").get_to(handle.mGUID);
-		std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
-		SLICE_LOG_DEBUG(msg);
+		//std::string msg = "Deserialized Handle with GUID: " + std::to_string(handle.mGUID.GetGUID());
+		//SLICE_LOG_DEBUG(msg);
 
 	}
 
@@ -738,7 +850,42 @@ namespace SliceEngine
 		}
 	}
 
-	//GameObject
+	inline void from_json(const json& j, std::map<float, glm::vec3>& map)
+	{
+		map.clear();
+
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			const json& v = it.value();
+
+			glm::vec3 vec{};
+			vec.x = v.at(0).get<float>();
+			vec.y = v.at(1).get<float>();
+			vec.z = v.at(2).get<float>();
+
+			map.emplace(std::stof(it.key()), vec);
+		}
+	}
+
+	inline void from_json(const json& j, std::map<float, glm::vec4>& map)
+	{
+		map.clear();
+
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			const json& v = it.value();
+
+			glm::vec4 vec{};
+			vec.x = v.at(0).get<float>();
+			vec.y = v.at(1).get<float>();
+			vec.z = v.at(2).get<float>();
+			vec.w = v.at(3).get<float>();
+
+			map.emplace(std::stof(it.key()), vec);
+		}
+	}
+
+	// GameObject
 	// From Json doesnt work because mRegistry should not be accessible in this file
 	inline void from_json(const json& j, GameObject& go)
 	{
@@ -804,6 +951,57 @@ namespace glm
 	inline void to_json(json& j, const glm::quat& q)
 	{
 		j = json::array({ q.w, q.x, q.y, q.z });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec3>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key()); // JSON object keys are strings
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 3)
+				throw std::runtime_error("Invalid JSON array for vec3");
+
+			glm::vec3 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec3>& p)
+	{
+		j = json::array({ p.first, p.second });
+	}
+
+	inline void from_json(const nlohmann::json& j, std::map<float, glm::vec4>& map)
+	{
+		map.clear();
+		for (auto it = j.begin(); it != j.end(); ++it)
+		{
+			float key = std::stof(it.key());
+			const auto& arr = it.value();
+
+			if (!arr.is_array() || arr.size() != 4)
+				throw std::runtime_error("Invalid JSON array for vec4");
+
+			glm::vec4 value;
+			value.x = arr[0].get<float>();
+			value.y = arr[1].get<float>();
+			value.z = arr[2].get<float>();
+			value.w = arr[3].get<float>();
+
+			map[key] = value;
+		}
+	}
+
+	inline void to_json(json& j, const std::pair<float, glm::vec4>& p)
+	{
+		j = json::array({ p.first, p.second });
 	}
 }
 
@@ -919,7 +1117,6 @@ namespace rttr
 			if (typeName == "SliceEngine::PrefabVar")
 			{
 				return rttr::variant(SliceEngine::PrefabVar{ valueJson.get<std::string>() });
-
 			}
 
 			return rttr::variant(valueJson.get<std::string>());

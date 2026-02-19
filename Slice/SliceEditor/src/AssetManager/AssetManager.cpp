@@ -205,6 +205,18 @@ namespace SliceEditor
 		//metaPath.replace_extension(".meta");
 		metaPath += ".meta";
 
+		// theres an existing meta data
+		if (std::filesystem::exists(metaPath))
+		{
+			// then we deseiralize instead to get the meta info
+			metaData->Deserialize(metaPath);
+		}
+		else
+		{
+			// if not then serialize to create a new meta data
+			metaData->Serialize(metaPath);
+		}
+
 		// check if a file already exist
 		if (std::filesystem::exists(metaData->resourcePath) && !recompile)
 		{
@@ -214,7 +226,7 @@ namespace SliceEditor
 			return std::filesystem::path("");
 		}
 
-		metaData->Serialize(metaPath);
+		
 
 		//mAssets[assetType].push_back(metaData->assetName);
 		// Update the descriptor map
@@ -388,6 +400,9 @@ namespace SliceEditor
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
 			break;
+		case AssetType::CSV:
+			metaData = std::make_unique<CSVData>();
+			break;
 		case AssetType::Font:
 			metaData = std::make_unique<FontMetaData>();
 			break;
@@ -420,6 +435,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT] = "Sphere";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT] = "Low Poly Sphere";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT] = "Capsule";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT] = "Cylinder";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
@@ -448,6 +464,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
@@ -1100,6 +1117,11 @@ namespace SliceEditor
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT;
 		assetEntry["name"] = "Capsule";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT;
+		assetEntry["name"] = "Cylinder";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 

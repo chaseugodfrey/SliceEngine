@@ -91,7 +91,7 @@ namespace SliceEditor
 
 	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
 
-	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", int inc = 1, int min = 0, int max = 0);
+	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", float inc = 1.f, int min = 0, int max = 0);
 
 	bool DragVec3ListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> editFunc, const char* property_label, const char* id, std::vector<glm::vec3>& list, const char* format ="%.3f", float inc =.1f, float min =0.f, float max =0.f);
 
@@ -130,7 +130,7 @@ namespace SliceEditor
 		static std::string searchPrompt;
 		bool changed = false;
 		int idx = static_cast<int>(selected);
-
+		ImGui::SetNextItemWidth(-FLT_MIN);
 		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
 		{
 			
@@ -245,7 +245,7 @@ namespace SliceEditor
 				errorText = "GUID not found in AssetManager";
 				mapNames.push_back(guidString);
 				//Should be the last added unknown GUID
-				selectedIndex = mapNames.size() - 1;
+				selectedIndex = static_cast<int>(mapNames.size()) - 1;
 				ImGui::Text("%s GUID:", property_label);
 				ImGui::SameLine(150.f);
 			}
@@ -257,7 +257,7 @@ namespace SliceEditor
 				std::string fileNameString = relativePath.filename().string();
 				mapNames.push_back(fileNameString);
 				//Should be the last added unknown GUID
-				selectedIndex = mapNames.size() - 1;
+				selectedIndex = static_cast<int>(mapNames.size()) - 1;
 				ImGui::Text("%s GUID:", property_label);
 				ImGui::SameLine(150.f);
 			}
@@ -269,7 +269,7 @@ namespace SliceEditor
 
 			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
 			{
-				const std::string& selectedName = mapNames[selectedIndex];
+				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
 				changed = (handle.getGUID() != newGUID);
 				if (changed)

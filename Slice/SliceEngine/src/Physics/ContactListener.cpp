@@ -34,14 +34,8 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 	GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
 	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
 
-	int test1 = static_cast<int>(inBody1.GetUserData());
-	int test2 = static_cast<int>(inBody2.GetUserData());
-
-	if(!(test1 == 3 || test2 == 3))
-	{
-		int a = 0;
-	}
-
+	//int test1 = static_cast<int>(inBody1.GetUserData());
+	//int test2 = static_cast<int>(inBody2.GetUserData());
 
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
@@ -83,19 +77,19 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 
 void SliceEngine::MyContactListener::OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings)
 {
-	GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
-	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
+	//GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
+	//GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
 
-	timer = collisionPairs.size() == 0 ? 0.0f : timer + Core::GetInstance()->GetFramerateManager()->getFixedDeltaTime();
+	//timer = collisionPairs.size() == 0 ? 0.0f : timer + Core::GetInstance()->GetFramerateManager()->getFixedDeltaTime();
 
-	std::pair<GameObject, GameObject> orderedPair = MakeOrderedPair(checkEntity1, checkEntity2);
-	collisionPairs.insert(orderedPair);
+	//std::pair<GameObject, GameObject> orderedPair = MakeOrderedPair(checkEntity1, checkEntity2);
+	//collisionPairs.insert(orderedPair);
 
-	if(timer >= timeBetweenEvents)
-	{
-		PublishCollisionPersistEvents();
-		timer = 0.0f;
-	}
+	//if(timer >= timeBetweenEvents)
+	//{
+	//	PublishCollisionPersistEvents();
+	//	timer = 0.0f;
+	//}
 
 }
 
@@ -143,8 +137,8 @@ void SliceEngine::MyContactListener::OnContactPersisted(const JPH::Body& inBody1
 				triggerEvent2.entity = pair.second.GetEntity();
 				triggerEvent2.other = pair.first.GetEntity();
 
-				EventManager::GetInstance()->Publish<OnTriggerStayEvent>(triggerEvent1);
-				EventManager::GetInstance()->Publish<OnTriggerStayEvent>(triggerEvent2);
+				//EventManager::GetInstance()->Publish<OnTriggerStayEvent>(triggerEvent1);
+				//EventManager::GetInstance()->Publish<OnTriggerStayEvent>(triggerEvent2);
 			}
 			else
 			{
@@ -157,8 +151,8 @@ void SliceEngine::MyContactListener::OnContactPersisted(const JPH::Body& inBody1
 				collisionEvent2.entity = pair.second.GetEntity();
 				collisionEvent2.other = pair.first.GetEntity();
 
-				EventManager::GetInstance()->Publish<OnCollisionStayEvent>(collisionEvent1);
-				EventManager::GetInstance()->Publish<OnCollisionStayEvent>(collisionEvent2);
+				//EventManager::GetInstance()->Publish<OnCollisionStayEvent>(collisionEvent1);
+				//EventManager::GetInstance()->Publish<OnCollisionStayEvent>(collisionEvent2);
 
 			}
 		}

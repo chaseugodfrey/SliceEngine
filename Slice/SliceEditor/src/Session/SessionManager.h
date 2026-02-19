@@ -15,17 +15,20 @@ namespace SliceEditor
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mEntityNodes;
 		std::unordered_map<entt::entity, std::unique_ptr<EntityNode>> mPrefabNodes; //For Hierarchy
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
+		std::vector<Entity> mHighlightedGameObjects; //The Most-parented entity in the prefab
 		SliceEngine::GUID mInspectedPrefabGUID;
 		SliceEngine::GUID mInspectedShaderGraphGUID{};
 
 		bool mPrefabInspected;
 		bool mShowHierarchyEntityIDs;
+		bool mHighlightGOs;
 
 		std::unique_ptr<AnimatorData> mAnimatorData;
 
 		std::atomic<bool> isSavingScene{ false };
 		std::atomic<bool> isSavingDone{ false };
 		double duration = 0.0f;
+		float mGOScriptTimer = 0.0f;
 
 	public:
 		SessionManager(Registry& reg);
@@ -43,6 +46,7 @@ namespace SliceEditor
 		void UpdateEntityNodes();
 		void AddEntityNode(entt::entity entity);
 		void RemoveEntityNode(entt::entity entity);
+		void HighlightGameObjects(const GameObjectScriptSelected& event);
 
 		//Scene Functions
 		void OnSceneSave(OnSceneSaveEvent);

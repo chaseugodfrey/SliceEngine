@@ -15,7 +15,7 @@ namespace SliceEngine
         //public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
         //public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
         //static bool testingShit = false;
-
+        
         public GameObject playerModel;
 
         // =============== Movement variables =============== 
