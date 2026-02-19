@@ -102,6 +102,82 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	struct Transform;
+
+	struct TempTransform
+	{
+
+		glm::vec3 position{ 0.0f, 0.0f, 0.0f };
+		glm::quat rotation{ 1.0f, 0.0f, 0.0f, 0.0f };
+		glm::vec3 scale{ 1.0f, 1.0f, 1.0f };
+		glm::mat4 transform_local{ 1.0f };
+		glm::mat4 transform{ 1.0f };
+
+		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
+
+		glm::vec3 GetWorldPosition()
+		{
+			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
+		}
+
+		glm::quat GetWorldRotation()
+		{
+			glm::mat4 rotMat = transform;
+
+			// Extract and normalize the basis vectors to remove scale
+			glm::vec3 col0 = glm::normalize(glm::vec3(rotMat[0]));
+			glm::vec3 col1 = glm::normalize(glm::vec3(rotMat[1]));
+			glm::vec3 col2 = glm::normalize(glm::vec3(rotMat[2]));
+
+			// Reconstruct a pure rotation matrix
+			rotMat[0] = glm::vec4(col0, 0.0f);
+			rotMat[1] = glm::vec4(col1, 0.0f);
+			rotMat[2] = glm::vec4(col2, 0.0f);
+			rotMat[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
+			return glm::quat_cast(rotMat);
+		}
+
+		glm::vec3 GetWorldScale()
+		{
+			glm::vec3 _scale{};
+			_scale.x = glm::length(glm::vec3(transform[0]));
+			_scale.y = glm::length(glm::vec3(transform[1]));
+			_scale.z = glm::length(glm::vec3(transform[2]));
+			return _scale;
+		}
+
+		void SetWorldPosition(const glm::vec3& newPos)
+		{
+			transform[3] = glm::vec4(newPos, 1.0f);
+		}
+
+		void SetWorldRotation(const glm::quat& newRot)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+			glm::vec3 currentPos = GetWorldPosition();
+
+			glm::mat4 rotMat = glm::mat4_cast(newRot);
+			transform = glm::scale(rotMat, currentScale);
+			transform[3] = glm::vec4(currentPos, 1.0f);
+		}
+
+		void SetWorldScale(const glm::vec3& newScale)
+		{
+			glm::vec3 currentScale = GetWorldScale();
+
+			// Scale each basis vector
+			transform[0] *= (newScale.x / currentScale.x);
+			transform[1] *= (newScale.y / currentScale.y);
+			transform[2] *= (newScale.z / currentScale.z);
+		}
+
+		void operator=(const Transform& other);
+		
+
+	};
+
+
     struct Transform
     {
 
@@ -170,8 +246,20 @@ namespace SliceEngine
 			transform[2] *= (newScale.z / currentScale.z);
 		}
 
+		void operator=(const TempTransform& other)
+		{
+			position = other.position;
+			rotation = other.rotation;
+			scale = other.scale;
+			transform_local = other.transform_local;
+			transform = other.transform;
+			eulerAnglesHint = other.eulerAnglesHint;
+		}
+
 		RTTR_ENABLE();
     };
+
+
 
 	struct UITransform
 	{

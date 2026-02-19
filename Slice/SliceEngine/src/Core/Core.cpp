@@ -70,6 +70,7 @@ namespace SliceEngine
 		mFactory.RegisterComponent<AudioSource>();
 		mFactory.RegisterComponent<AudioListener>();
 		mFactory.RegisterComponent<Light>();
+		mFactory.RegisterComponent<TempTransform>();
 		mFactory.RegisterComponent<ParticleSystem>();
 		mFactory.RegisterComponent<Prefab>();
 		mFactory.RegisterComponent<Animator>();
