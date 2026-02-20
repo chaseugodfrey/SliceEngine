@@ -706,6 +706,7 @@ namespace SliceEngine
 			Destroy(entity);
 		}
 
+		mRegistry.get<SceneGraph>(mRootEntity).neighbours[SceneGraph::DOWN] = entt::null;
 		//
 		//mNameToEntity.clear();
 		//mEntityToGO.clear();
@@ -961,6 +962,11 @@ namespace SliceEngine
 
 	void GOFactory::DebugPrint()
 	{
+		// map size
+		std::cout << "Total GameObjects: " << mEntityToGO.size() << std::endl;
+		// name map size
+		std::cout << "Total Names: " << mNameToEntity.size() << std::endl;
+
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
@@ -1186,19 +1192,17 @@ namespace SliceEngine
 		//Re-set parent down if needed
 		if (sceneGraph.neighbours[SceneGraph::UP] != entt::null)
 		{
-			if (mEntityToGO.find(sceneGraph.neighbours[SceneGraph::UP]) != mEntityToGO.end())
+			if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity)
 			{
-				if (sceneGraph.neighbours[SceneGraph::UP] == mRootEntity) //Shouldnt matter for deletion
+				auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
+				if (parentGraph.neighbours[SceneGraph::DOWN] == entity)
 				{
-					auto& parentGraph = mRegistry.get<SceneGraph>(mRootEntity);
-					if (parentGraph.neighbours[SceneGraph::DOWN] == entity)
-					{
-						parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
-					}
-					//parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
+					parentGraph.neighbours[SceneGraph::DOWN] = sceneGraph.neighbours[SceneGraph::RIGHT];
 				}
-
-				else if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
+			}
+			else if (mEntityToGO.find(sceneGraph.neighbours[SceneGraph::UP]) != mEntityToGO.end())
+			{
+				if (mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].HasComponent<SceneGraph>())
 				{
 					auto& parentGraph = mEntityToGO[sceneGraph.neighbours[SceneGraph::UP]].GetComponent<SceneGraph>();
 

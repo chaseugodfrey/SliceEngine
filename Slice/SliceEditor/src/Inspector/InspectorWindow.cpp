@@ -115,25 +115,20 @@ namespace SliceEditor
 
 		ImGui::Text("Entity ID: %d", entity);
 
-		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
 			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
-			ImGui::Text("Is Prefab");
-			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			auto& assetManager = mRegistry.GetAssetManager();
+			ImGui::Text("Prefab: ");
+			ImGui::SameLine(150.f);
+			if (assetManager.mGUIDtoFilename.find(prefabComponent.prefabGUID) != assetManager.mGUIDtoFilename.end())
 			{
-				if(ImGui::BeginTooltip())
-				{
-					ImGui::Text("Prefab GUID: ");
-					ImGui::SameLine(150.f);
-					std::string prefabGUID = prefabComponent.prefabGUID.toString();
-					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
-					ImGui::Text(prefabGUID.c_str());
-					ImGui::Text("Prefab Handle GUID: ");
-					ImGui::SameLine(150.f);
-					ImGui::Text(prefabHandle.c_str());
-					ImGui::EndTooltip();
-				}
+				ImGui::Text(assetManager.mGUIDtoFilename[prefabComponent.prefabGUID].c_str());
+			}
+			else
+			{
+				std::string prefabGUID = prefabComponent.prefabGUID.toString();
+				ImGui::Text(prefabGUID.c_str());
 			}
 		}
 
@@ -405,6 +400,9 @@ namespace SliceEditor
 					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
 					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					BoolInputHeader(mRegistry, "Enable Pathfinding", "##enablePathfinding", as.enablePathfinding);
+					SliderFloatInputHeader(mRegistry, "Direct Occlusion", "##directOcclusion", as.directOcclusion, "%.1f", 0.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Reverb Occlusion", "##reverbOcclusion", as.reverbOcclusion, "%.1f", 0.0, 1.0);
 					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
 					{
 						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);

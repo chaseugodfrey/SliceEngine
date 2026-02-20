@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Navigation/NavigationSystem.h"
 
 
 namespace SliceEngine
@@ -103,6 +104,68 @@ namespace SliceEngine
 			if (audioComp.channel && audioComp.spatialBlend > 0.0f)
 			{
 				audioManager->SetSound3DPosition(audioComp.channel, audioComp.spatialBlend, transform.position, entityVel);
+
+				if (audioComp.enablePathfinding)
+				{
+					glm::vec3 listenerPos(0.f);
+					bool listenerFound = false;
+					auto listenerView = reg.view<AudioListener, Transform>();
+					for (auto listenerEntity : listenerView)
+					{
+						auto& listenerComp = reg.get<AudioListener>(listenerEntity);
+						if (listenerComp.componentEnabled)
+						{
+							listenerPos = reg.get<Transform>(listenerEntity).position;
+							listenerFound = true;
+							break;
+						}
+					}
+
+					if (listenerFound)
+					{
+						auto& navSystem = Core::GetInstance()->GetSystem<NavigationSystem>();
+						auto& navMeshOpt = navSystem.GetNavMeshObj();
+						if (navMeshOpt)
+						{
+							std::vector<glm::vec3> path;
+							if (NavMeshUtilities::FindPath(*navMeshOpt, &transform.position.x, &listenerPos.x, path))
+							{
+								float pathLength = 0.f;
+								if (!path.empty())
+								{
+									pathLength += glm::distance(transform.position, path[0]);
+									for (size_t i = 0; i < path.size() - 1; ++i)
+									{
+										pathLength += glm::distance(path[i], path[i + 1]);
+									}
+									pathLength += glm::distance(path.back(), listenerPos);
+								}
+								else
+								{
+									pathLength = glm::distance(transform.position, listenerPos);
+								}
+
+								float directDist = glm::distance(transform.position, listenerPos);
+								float occlusion = 0.0f;
+								if (pathLength > directDist + 0.1f && directDist > 0.1f)
+								{
+									// More aggressive muffle: reach full occlusion when path is 1.5x direct distance
+									occlusion = glm::clamp((pathLength - directDist) / (directDist * 0.5f), 0.0f, 1.0f);
+								}
+								audioComp.directOcclusion = occlusion;
+								audioComp.reverbOcclusion = occlusion * 0.5f;
+								audioManager->SetOcclusion(audioComp.channel, occlusion, occlusion * 0.5f);
+							}
+							else
+							{
+								// No path found: fully occluded
+								audioComp.directOcclusion = 1.0f;
+								audioComp.reverbOcclusion = 0.5f;
+								audioManager->SetOcclusion(audioComp.channel, 1.0f, 0.5f);
+							}
+						}
+					}
+				}
 			}
 		}
 
@@ -121,6 +184,67 @@ namespace SliceEngine
 			if (audioComp.previewChannel && audioComp.spatialBlend > 0.0f)
 			{
 				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, entityVel);
+
+				if (audioComp.enablePathfinding)
+				{
+					glm::vec3 listenerPos(0.f);
+					bool listenerFound = false;
+					auto listenerView = reg.view<AudioListener, Transform>();
+					for (auto listenerEntity : listenerView)
+					{
+						auto& listenerComp = reg.get<AudioListener>(listenerEntity);
+						if (listenerComp.componentEnabled)
+						{
+							listenerPos = reg.get<Transform>(listenerEntity).position;
+							listenerFound = true;
+							break;
+						}
+					}
+
+					if (listenerFound)
+					{
+						auto& navSystem = Core::GetInstance()->GetSystem<NavigationSystem>();
+						auto& navMeshOpt = navSystem.GetNavMeshObj();
+						if (navMeshOpt)
+						{
+							std::vector<glm::vec3> path;
+							if (NavMeshUtilities::FindPath(*navMeshOpt, &transform.position.x, &listenerPos.x, path))
+							{
+								float pathLength = 0.f;
+								if (!path.empty())
+								{
+									pathLength += glm::distance(transform.position, path[0]);
+									for (size_t i = 0; i < path.size() - 1; ++i)
+									{
+										pathLength += glm::distance(path[i], path[i + 1]);
+									}
+									pathLength += glm::distance(path.back(), listenerPos);
+								}
+								else
+								{
+									pathLength = glm::distance(transform.position, listenerPos);
+								}
+
+								float directDist = glm::distance(transform.position, listenerPos);
+								float occlusion = 0.0f;
+								if (pathLength > directDist + 0.1f && directDist > 0.1f)
+								{
+									// More aggressive muffle: reach full occlusion when path is 1.5x direct distance
+									occlusion = glm::clamp((pathLength - directDist) / (directDist * 0.5f), 0.0f, 1.0f);
+								}
+								audioComp.directOcclusion = occlusion;
+								audioComp.reverbOcclusion = occlusion * 0.5f;
+								audioManager->SetOcclusion(audioComp.previewChannel, occlusion, occlusion * 0.5f);
+							}
+							else
+							{
+								audioComp.directOcclusion = 1.0f;
+								audioComp.reverbOcclusion = 0.5f;
+								audioManager->SetOcclusion(audioComp.previewChannel, 1.0f, 0.5f);
+							}
+						}
+					}
+				}
 			}
 
 			if (audioComp.channel && !audioManager->IsChannelPlaying(audioComp.channel))

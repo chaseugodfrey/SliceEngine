@@ -226,15 +226,13 @@ namespace SliceEditor
 						ImGui::PopID();
 					}
 
-					ImGui::SameLine();
-
-					if (ImGui::Button("+"))
+					if (ImGui::Button("Add Audio Clip"))
 					{
 						audioSettings->AddAudioClip(entry.soundGroup, mRegistry.GetAssetManager().mAssetTypeToGUIDs[AssetType::Audio][0], entry.AudioClips);
 						hasChanged = true;
 					}
 					ImGui::SameLine();
-					if (ImGui::Button("-"))
+					if (ImGui::Button("Remove Audio Clip"))
 					{
 						if (!entry.AudioClips.empty())
 						{

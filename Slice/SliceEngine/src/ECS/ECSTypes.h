@@ -236,6 +236,8 @@ namespace SliceEngine
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		glm::mat4 V{};
+		glm::mat4 P{};
 		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
@@ -424,6 +426,9 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
+		bool enablePathfinding = false;
+		float directOcclusion = 0.0f;
+		float reverbOcclusion = 0.0f;
 
 		RTTR_ENABLE();
 	};
