@@ -115,25 +115,20 @@ namespace SliceEditor
 
 		ImGui::Text("Entity ID: %d", entity);
 
-		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
 			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
-			ImGui::Text("Is Prefab");
-			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			auto& assetManager = mRegistry.GetAssetManager();
+			ImGui::Text("Prefab: ");
+			ImGui::SameLine(150.f);
+			if (assetManager.mGUIDtoFilename.find(prefabComponent.prefabGUID) != assetManager.mGUIDtoFilename.end())
 			{
-				if(ImGui::BeginTooltip())
-				{
-					ImGui::Text("Prefab GUID: ");
-					ImGui::SameLine(150.f);
-					std::string prefabGUID = prefabComponent.prefabGUID.toString();
-					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
-					ImGui::Text(prefabGUID.c_str());
-					ImGui::Text("Prefab Handle GUID: ");
-					ImGui::SameLine(150.f);
-					ImGui::Text(prefabHandle.c_str());
-					ImGui::EndTooltip();
-				}
+				ImGui::Text(assetManager.mGUIDtoFilename[prefabComponent.prefabGUID].c_str());
+			}
+			else
+			{
+				std::string prefabGUID = prefabComponent.prefabGUID.toString();
+				ImGui::Text(prefabGUID.c_str());
 			}
 		}
 
