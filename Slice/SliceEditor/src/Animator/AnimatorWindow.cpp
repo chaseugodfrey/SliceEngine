@@ -52,6 +52,49 @@ namespace SliceEditor
 
 			mAnimatorData->mStateMachineAsset->SerializeAsset();
 		}
+
+		ImGui::SameLine();
+
+		if (ImGui::Button("Save As"))
+		{
+			if (!mAnimatorData)
+				return;
+
+			if (std::filesystem::current_path().filename() != "Controllers")
+			{
+				std::filesystem::path target = std::filesystem::current_path() / "Assets" / "Controllers";
+				std::filesystem::current_path(target);
+			}
+
+			//std::cout << "CUrent path" << std::filesystem::current_path();
+
+			ImGui::OpenPopup("SaveAs_Popup");
+
+
+			//mAnimatorData->mStateMachineAsset->SerializeAsset();
+		}
+		
+		if (ImGui::BeginPopupModal("SaveAs_Popup", nullptr))
+		{
+			static std::string newFileName = "";
+			if (StringInputHeader(mRegistry, "New File Name: ", "##newFileController", newFileName))
+			{
+
+			}
+
+			if (ImGui::Button("Save Changes"))
+			{
+				if (std::filesystem::current_path().extension() != ".controller")
+				{
+					std::filesystem::current_path() += ".controller";
+				}
+				mAnimatorData->mStateMachineAsset->SerializeAsset(std::filesystem::current_path() / newFileName);
+				newFileName = "";
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
 	}
 
 	void AnimatorWindow::CheckForAnimator()
@@ -243,6 +286,12 @@ namespace SliceEditor
 			ImNodes::MiniMap();
 
 		ImNodes::EndNodeEditor();
+
+		CheckStateNode();
+
+		CheckTransitionLinkNode();
+
+
 		ImGui::EndChild();
 	}
 
@@ -287,7 +336,7 @@ namespace SliceEditor
 					ImGui::EndPopup();
 				}
 
-				if (ImGui::BeginPopup("Link_Popup"))
+				/*if (ImGui::BeginPopup("Link_Popup"))
 				{
 					if (ImGui::Selectable("Delete"))
 					{
@@ -295,7 +344,7 @@ namespace SliceEditor
 					}
 
 					ImGui::EndPopup();
-				}
+				}*/
 
 				if (ImGui::BeginPopup("NodeEditor_Popup"))
 				{
@@ -394,6 +443,61 @@ namespace SliceEditor
 		mAnimatorData->set_position(node->id, pos);
 	}
 
+	void AnimatorWindow::CheckStateNode()
+	{
+		int hoveredNodeId = -1;
+		static int nodeToDelete = -1;
+
+		if (ImNodes::IsNodeHovered(&hoveredNodeId))
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				nodeToDelete = hoveredNodeId;
+				ImGui::OpenPopup("EditNode_Popup");
+			}
+		}
+
+		if (ImGui::BeginPopup("EditNode_Popup"))
+		{
+			if (ImGui::Selectable("Add Link"))
+			{
+				if (nodeToDelete != -1)
+				{
+					ImGui::OpenPopup("SaveAs_Popup");
+					if(ImGui::BeginPopupModal("NewLink_Popup", nullptr))
+					{
+						static std::string targetNode = "";
+						if (StringInputHeader(mRegistry, "Target State: ", "##newLinkAdd", targetNode))
+						{
+
+						}
+
+						if (ImGui::Button("Add"))
+						{
+							
+							AddLink(hoveredNodeId,targetNode);
+
+							targetNode = "";
+							ImGui::CloseCurrentPopup();
+						}
+
+						ImGui::EndPopup();
+					}
+					nodeToDelete = -1;
+				}
+			}
+			if (ImGui::Selectable("Delete State"))
+			{
+				if (nodeToDelete != -1)
+				{
+					DeleteNode(static_cast<uint16_t>(nodeToDelete));
+					nodeToDelete = -1;
+				}
+			}
+			ImGui::EndPopup();
+		}
+	}
+
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
 	{
 		ImNodes::Link(node->id, node->source_out_id, node->target_in_id);
@@ -402,7 +506,35 @@ namespace SliceEditor
 			if (ImGui::IsWindowFocused())
 			{
 				SelectLink(static_cast<uint16_t>(node->id));
+			
 			}
+		}
+	}
+
+	void AnimatorWindow::CheckTransitionLinkNode()
+	{
+		int hoveredLinkId = -1;
+		static int linkToDelete = -1;
+
+		if (ImNodes::IsLinkHovered(&hoveredLinkId))
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				linkToDelete = hoveredLinkId;
+				ImGui::OpenPopup("Link_Popup");
+			}
+		}
+		if (ImGui::BeginPopup("Link_Popup"))
+		{
+			if (ImGui::Selectable("Delete Link"))
+			{
+				if (linkToDelete != -1)
+				{
+					RemoveTransitionFromState(static_cast<uint16_t>(linkToDelete));
+					linkToDelete = -1;
+				}
+			}
+			ImGui::EndPopup();
 		}
 	}
 
@@ -439,12 +571,34 @@ namespace SliceEditor
 	void AnimatorWindow::CreateNode()
 	{
 		mAnimatorData->create_state();
-
+		CheckForAnimator();
 	}
 
 	void AnimatorWindow::DeleteNode(uint16_t id)
 	{
+		auto node_it = mAnimatorData->mStateNodes.find(id);
 
+		if (node_it == mAnimatorData->mStateNodes.end())
+		{
+			SLICE_LOG_ERROR("Node ID not found.");
+			return;
+		}
+
+		auto& stateName = mAnimatorData->mStateNodes.at(id).name;
+		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
+		auto state_it = stateMap.find(stateName);
+
+		if (state_it == stateMap.end())
+		{
+			SLICE_LOG_ERROR("State not found in State Map.");
+			return;
+		}
+
+		stateMap.erase(state_it);
+		
+		mAnimatorData->mStateNodes.erase(node_it);
+		
+		CheckForAnimator();
 	}
 
 	void AnimatorWindow::SelectNode(uint16_t id)
@@ -458,6 +612,58 @@ namespace SliceEditor
 		auto& node = mAnimatorData->mTransitionNodes.at(id);
 		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
 	}
+
+	void AnimatorWindow::AddLink(uint16_t sourceId,std::string targetState)
+	{
+		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
+		auto state_it = stateMap.find(targetState);
+		if (state_it == stateMap.end())
+		{
+			SLICE_LOG_ERROR("State not found in State Map.");
+			return;
+		}
+		StateNode sourceNode = mAnimatorData->mStateNodes.at(sourceId);
+		state_it = stateMap.find(sourceNode.name);
+		if (state_it == stateMap.end())
+		{
+			SLICE_LOG_ERROR("State not found in State Map.");
+			return;
+		}
+
+		auto node_it = mAnimatorData->mNameToStateID.find(targetState);
+		if (node_it == mAnimatorData->mNameToStateID.end())
+		{
+			SLICE_LOG_ERROR("State not found in animator data.");
+			return;
+		}
+
+		int targetId = mAnimatorData->mNameToStateID.at(targetState);
+		StateNode targetNode = mAnimatorData->mStateNodes.at(targetId);
+		mAnimatorData->create_link(sourceNode, targetNode);
+
+		SliceEngine::SliceEngineTypes::State sourceState = stateMap.at(sourceNode.name);
+		SliceEngine::SliceEngineTypes::Transition tmpTransition{};
+		SliceEngine::SliceEngineTypes::Condition tmpCondition{};
+
+		tmpCondition.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+		tmpCondition.paramName = targetState;
+
+		tmpTransition.conditions.push_back(tmpCondition);
+		tmpTransition.entryTime = 0.0f;
+		tmpTransition.hasExitTime = false;
+		tmpTransition.exitTime = 1.0f;
+		tmpTransition.sourceState = sourceNode.name;
+		tmpTransition.targetState = targetState;
+		sourceState.transitions.push_back(tmpTransition);
+
+		std::pair<std::string, rttr::variant> tmpParam{};
+		tmpParam.first = targetState;
+		tmpParam.second = false;
+
+		mAnimatorData->mStateMachineAsset->parameters.emplace(tmpParam);
+		CheckForAnimator();
+	}
+
 
 	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
 	{
