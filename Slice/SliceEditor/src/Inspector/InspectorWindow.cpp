@@ -680,22 +680,22 @@ namespace SliceEditor
 
 	}
 
-	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	{
-		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		{
-			//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-			
-			
-			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-			ImGui::TreePop();
-		}
+	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	//{
+	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+	//	{
+	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+	//		
+	//		
+	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
+	//		ImGui::TreePop();
+	//	}
 
 
-			//ImGui::TreePop();
-		}
+	//		//ImGui::TreePop();
+	//	}
 
 	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
 	{
@@ -1816,13 +1816,13 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
-			{
-				if (ImGui::Selectable("Add Nav Mesh Link"))
-				{
-					reg.emplace<SliceEngine::NavMeshLink>(entity);
-				}
-			}
+			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			//{
+			//	if (ImGui::Selectable("Add Nav Mesh Link"))
+			//	{
+			//		reg.emplace<SliceEngine::NavMeshLink>(entity);
+			//	}
+			//}
 
 			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
 			{
@@ -2073,11 +2073,11 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			{
-				DisplayNavMeshLink(node->entity);
-				ImGui::Separator();
-			}
+			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			//{
+			//	DisplayNavMeshLink(node->entity);
+			//	ImGui::Separator();
+			//}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
 			{

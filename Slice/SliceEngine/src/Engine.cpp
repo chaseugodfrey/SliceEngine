@@ -631,12 +631,12 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("currentPathIndex", &NavAgent::currentPathIndex)
 	.property("componentEnabled", &NavAgent::componentEnabled);
 
-rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
-.constructor<>()
-.property("startLink", &NavMeshLink::startLink)
-.property("endLink", &NavMeshLink::endLink)
-.property("bidirectional", &NavMeshLink::bidirectional)
-.property("currentPath", &NavMeshLink::radius);
+//rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
+//.constructor<>()
+//.property("startLink", &NavMeshLink::startLink)
+//.property("endLink", &NavMeshLink::endLink)
+//.property("bidirectional", &NavMeshLink::bidirectional)
+//.property("currentPath", &NavMeshLink::radius);
 
 rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
 .constructor<>()
