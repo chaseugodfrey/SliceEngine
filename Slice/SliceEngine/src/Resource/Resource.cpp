@@ -117,6 +117,10 @@ namespace SliceEngine
 						mgr.ReloadResourceInPlace(id);
 				}
 			}
+
+			// safety check for default resource ID for material
+			mgr.ReloadResourceInPlace((GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID);
+			
 		//}
 	}
 
@@ -178,6 +182,7 @@ namespace SliceEngine
 			{
 			case Type<SliceEngineTypes::Material>::defaultResourceGUID:
 				t->LoadDefault();
+				
 				break;
 			default:
 				return nullptr;
@@ -197,84 +202,72 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Material>::Reload(SliceEngineTypes::Material* materialToReload, ResourceManager& mgr, const std::string& path)
 	{
+		// the path passed in is just the defualt GUID 10819322238111217941
+		// so itll fail to open
+		// so i'm gonna add some check if its default
+		// and change to use LoadMaterial and LoadDefault in material so taht I can reuse the code below w/o copy pasting it all
+		SliceEngineTypes::Material matFromJson;
+
 		std::ifstream file(path);
 		if (!file.is_open())
 		{
 			SLICE_LOG_ERROR("Could not open material file for reload: " + path);
-			return;
-		}
-
-		nlohmann::json materialJson;
-		try
-		{
-			materialJson = nlohmann::json::parse(file);
-		}
-		catch (nlohmann::json::parse_error& e)
-		{
-			SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path + e.what());
-			return;
-		}
-
-		try
-		{
-			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
-
-			glm::from_json(materialJson["color"], materialToReload->color);
-			auto dataCpy = materialToReload->data;
-			materialToReload->data.clear();
-
-			if (newShaderGUID != materialToReload->shader.getGUID())
-				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
-
-			for (auto& i : materialToReload->shader.get()->dataIn)
+			// if path doesnt exist check if its a default resource
+			if (path == std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID))
 			{
-				if (materialJson["data"].contains(i.name))
-				{
-					switch (i.dataType)
-					{
-					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-					{
-						bool b = materialJson["data"][i.name];
-						materialToReload->data.emplace(i.name, b);
-						break;
-					}
-					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-					{
-						uint32_t b = materialJson["data"][i.name];
-						materialToReload->data.emplace(i.name, b);
-						break;
-					}
-					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-					{
-						int32_t b = materialJson["data"][i.name];
-						materialToReload->data.emplace(i.name, b);
-						break;
-					}
-					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-					{
-						float b = materialJson["data"][i.name];
-						materialToReload->data.emplace(i.name, b);
-						break;
-					}
-					case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
-					{
-						uint64_t b = materialJson["data"][i.name];
-						materialToReload->data.emplace(i.name, b);
-						break;
-					}
-					}
-				}
-				else if (dataCpy.find(i.name) != dataCpy.end())
-					materialToReload->data.emplace(i.name, dataCpy.find(i.name)->second);
-				else
-					materialToReload->data.emplace(i.name, i.baseData);
+				SLICE_LOG_ERROR("Loading default material for reload: " + path);
+				matFromJson.LoadDefault();
 			}
+		}
+		else
+		{
+			// if file can open then its a valid material so load material from json
+			matFromJson = SliceEngineTypes::Material::LoadMaterial(path);
+			file.close();
+		}
+
+
+		//nlohmann::json materialJson;
+		//try
+		//{
+		//	materialJson = nlohmann::json::parse(file);
+		//}
+		//catch (nlohmann::json::parse_error& e)
+		//{
+		//	SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path + e.what());
+		//	return;
+		//}
+
+		GUID newShaderGUID = matFromJson.shader.getGUID();//(GUID)materialJson["shader"].get<uint64_t>();
+
+		materialToReload->color = matFromJson.color;
+		//glm::from_json(materialJson["color"], materialToReload->color);
+		auto dataCpy = materialToReload->data;
+		materialToReload->data.clear();
+
+		if (newShaderGUID != materialToReload->shader.getGUID())
+			materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
+
+		for (auto& i : materialToReload->shader.get()->dataIn)
+		{
+			if (matFromJson.data.contains(i.name))
+			{
+				materialToReload->data[i.name] = matFromJson.data[i.name];
+			}
+			else if (dataCpy.find(i.name) != dataCpy.end())
+				materialToReload->data.emplace(i.name, dataCpy.find(i.name)->second);
+			else
+				materialToReload->data.emplace(i.name, i.baseData);
+		}
+		/*try
+		{
+			
 			
 		}
 		catch (nlohmann::json::exception& e)
 		{
 			SLICE_LOG_ERROR("Error parsing reloaded material properties from file: " + path + ". " + e.what());
-		}
+		}*/
 	}
 
 	//Model
