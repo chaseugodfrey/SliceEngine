@@ -302,13 +302,13 @@ namespace SliceEditor
 			if (!mAnimatorData->empty())
 			{
 				//// Check for inputs for popups
-				//for (auto& [id, node] : mAnimatorData->mStateNodes)
-				//{
-				//	if (CheckStateInput(&node))
-				//	{
-				//		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
-				//	}
-				//}
+				/*for (auto& [id, node] : mAnimatorData->mStateNodes)
+				{
+					if (CheckStateInput(&node))
+					{
+						mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+					}
+				}*/
 
 				//for (auto& [id, link] : mAnimatorData->mTransitionNodes)
 				//{
@@ -379,13 +379,13 @@ namespace SliceEditor
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
 	{
 		int id = node->id;
-		//if (ImNodes::IsNodeHovered(&id))
-		//{
-		//	if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
-		//	{
-		//		ImGui::OpenPopup("Node_Popup");
-		//	}
-		//}
+		/*if (ImNodes::IsNodeHovered(&id))
+		{
+			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+			{
+				ImGui::OpenPopup("Node_Popup");
+			}
+		}*/
 		return ImNodes::IsNodeSelected(id);
 	}
 
@@ -439,6 +439,8 @@ namespace SliceEditor
 			}
 		}
 
+		
+
 		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
 		mAnimatorData->set_position(node->id, pos);
 	}
@@ -447,12 +449,14 @@ namespace SliceEditor
 	{
 		int hoveredNodeId = -1;
 		static int nodeToDelete = -1;
+		bool openLinkPopup = false;
 
-		if (ImNodes::IsNodeHovered(&hoveredNodeId))
+		if(ImNodes::IsNodeHovered(&hoveredNodeId))
 		{
 			if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 			{
 				nodeToDelete = hoveredNodeId;
+				
 				ImGui::OpenPopup("EditNode_Popup");
 			}
 		}
@@ -463,27 +467,8 @@ namespace SliceEditor
 			{
 				if (nodeToDelete != -1)
 				{
-					ImGui::OpenPopup("SaveAs_Popup");
-					if(ImGui::BeginPopupModal("NewLink_Popup", nullptr))
-					{
-						static std::string targetNode = "";
-						if (StringInputHeader(mRegistry, "Target State: ", "##newLinkAdd", targetNode))
-						{
-
-						}
-
-						if (ImGui::Button("Add"))
-						{
-							
-							AddLink(hoveredNodeId,targetNode);
-
-							targetNode = "";
-							ImGui::CloseCurrentPopup();
-						}
-
-						ImGui::EndPopup();
-					}
-					nodeToDelete = -1;
+					//ImGui::OpenPopup("NewLink_Popup");
+					openLinkPopup = true;
 				}
 			}
 			if (ImGui::Selectable("Delete State"))
@@ -494,6 +479,32 @@ namespace SliceEditor
 					nodeToDelete = -1;
 				}
 			}
+			ImGui::EndPopup();
+		}
+
+		if (openLinkPopup)
+		{
+			ImGui::OpenPopup("NewLink_Popup");
+		}
+
+		if (ImGui::BeginPopupModal("NewLink_Popup", nullptr))
+		{
+			static std::string targetNode = "";
+			if (StringInputHeader(mRegistry, "Target State: ", "##newLinkAdd", targetNode))
+			{
+
+			}
+
+			if (ImGui::Button("Add"))
+			{
+
+				AddLink(nodeToDelete, targetNode);
+
+				targetNode = "";
+				nodeToDelete = -1;
+				ImGui::CloseCurrentPopup();
+			}
+
 			ImGui::EndPopup();
 		}
 	}
@@ -584,7 +595,7 @@ namespace SliceEditor
 			return;
 		}
 
-		auto& stateName = mAnimatorData->mStateNodes.at(id).name;
+		auto stateName = mAnimatorData->mStateNodes.at(id).name;
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
 		auto state_it = stateMap.find(stateName);
 
@@ -594,11 +605,35 @@ namespace SliceEditor
 			return;
 		}
 
+		for (auto transistion : stateMap[stateName].transitions)
+		{
+			RemoveTransitionFromState(transistion.id);
+		}
+
+		for (auto state : stateMap)
+		{
+			for (auto transition : state.second.transitions)
+			{
+				if (std::strcmp(transition.targetState.c_str(), stateName.c_str()) == 0)
+				{
+					RemoveTransitionFromState(transition.id);
+				}
+			}
+		}
+
 		stateMap.erase(state_it);
 		
 		mAnimatorData->mStateNodes.erase(node_it);
-		
-		CheckForAnimator();
+
+		auto param_it = mAnimatorData->mStateMachineAsset->parameters.find(stateName);
+
+		if (param_it == mAnimatorData->mStateMachineAsset->parameters.end())
+		{
+			SLICE_LOG_ERROR("State not found in Parameters.");
+			return;
+		}
+
+		mAnimatorData->mStateMachineAsset->parameters.erase(stateName);
 	}
 
 	void AnimatorWindow::SelectNode(uint16_t id)
@@ -641,7 +676,7 @@ namespace SliceEditor
 		StateNode targetNode = mAnimatorData->mStateNodes.at(targetId);
 		mAnimatorData->create_link(sourceNode, targetNode);
 
-		SliceEngine::SliceEngineTypes::State sourceState = stateMap.at(sourceNode.name);
+		SliceEngine::SliceEngineTypes::State& sourceState = stateMap.at(sourceNode.name);
 		SliceEngine::SliceEngineTypes::Transition tmpTransition{};
 		SliceEngine::SliceEngineTypes::Condition tmpCondition{};
 
@@ -654,6 +689,7 @@ namespace SliceEditor
 		tmpTransition.exitTime = 1.0f;
 		tmpTransition.sourceState = sourceNode.name;
 		tmpTransition.targetState = targetState;
+		tmpTransition.id = static_cast<int>(mAnimatorData->mTransitionNodes.size()-1);
 		sourceState.transitions.push_back(tmpTransition);
 
 		std::pair<std::string, rttr::variant> tmpParam{};
@@ -661,9 +697,8 @@ namespace SliceEditor
 		tmpParam.second = false;
 
 		mAnimatorData->mStateMachineAsset->parameters.emplace(tmpParam);
-		CheckForAnimator();
+	
 	}
-
 
 	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
 	{

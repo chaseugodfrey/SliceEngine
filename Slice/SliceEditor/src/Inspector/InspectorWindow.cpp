@@ -2296,6 +2296,9 @@ namespace SliceEditor
 			return;
 		
 		auto stateOpt = anim_data->GetState(node->source_id);
+
+		if (!stateOpt.has_value())
+			return;
 		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
 
 		if (!transitionOpt.has_value())

@@ -2804,11 +2804,11 @@ bool IsNodeHovered(int* const node_id)
     IM_ASSERT(node_id != NULL);
 
     const bool is_hovered = GImNodes->HoveredNodeIdx.HasValue();
-    //if (is_hovered)
-    //{
-    //    const ImNodesEditorContext& editor = EditorContextGet();
-    //    *node_id = editor.Nodes.Pool[GImNodes->HoveredNodeIdx.Value()].Id;
-    //}
+    if (is_hovered)
+    {
+        const ImNodesEditorContext& editor = EditorContextGet();
+        *node_id = editor.Nodes.Pool[GImNodes->HoveredNodeIdx.Value()].Id;
+    }
     return is_hovered;
 }
 
