@@ -104,6 +104,20 @@ namespace SliceEngine
 		auto newResource = resource->LoadCShader(path);
 		resource->s = newResource.s;
 		resource->dataIn = newResource.dataIn;
+
+		//auto maybeShader = mgr.mFileNameToGUID.find(path);
+		//if (maybeShader != mgr.mFileNameToGUID.end())
+		//{
+			for (auto& [name, id] : mgr.mFileNameToGUID)
+			{
+				if (name.find(".mat") != std::string::npos)
+				{
+					auto mat = mgr.get<SliceEngineTypes::Material>(id);
+					//if (mat.get()->shader.getGUID().GetGUID() == maybeShader->second.GetGUID())
+						mgr.ReloadResourceInPlace(id);
+				}
+			}
+		//}
 	}
 
 	// Vertex Shader
@@ -206,60 +220,56 @@ namespace SliceEngine
 			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
 
 			glm::from_json(materialJson["color"], materialToReload->color);
+			auto dataCpy = materialToReload->data;
 			materialToReload->data.clear();
 
-			GUID oldShaderGUID = materialToReload->shader.getGUID();
-
-			if (newShaderGUID != oldShaderGUID)
-			{
+			if (newShaderGUID != materialToReload->shader.getGUID())
 				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
-				for (auto& i : materialToReload->shader.get()->dataIn)
+
+			for (auto& i : materialToReload->shader.get()->dataIn)
+			{
+				if (materialJson["data"].contains(i.name))
+				{
+					switch (i.dataType)
+					{
+					case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
+					{
+						bool b = materialJson["data"][i.name];
+						materialToReload->data.emplace(i.name, b);
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
+					{
+						uint32_t b = materialJson["data"][i.name];
+						materialToReload->data.emplace(i.name, b);
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::INT:
+					{
+						int32_t b = materialJson["data"][i.name];
+						materialToReload->data.emplace(i.name, b);
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
+					{
+						float b = materialJson["data"][i.name];
+						materialToReload->data.emplace(i.name, b);
+						break;
+					}
+					case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+					{
+						uint64_t b = materialJson["data"][i.name];
+						materialToReload->data.emplace(i.name, b);
+						break;
+					}
+					}
+				}
+				else if (dataCpy.find(i.name) != dataCpy.end())
+					materialToReload->data.emplace(i.name, dataCpy.find(i.name)->second);
+				else
 					materialToReload->data.emplace(i.name, i.baseData);
 			}
-			else
-			{
-				for (auto& i : materialToReload->shader.get()->dataIn)
-				{
-					if (materialJson["data"].contains(i.name))
-					{
-						switch (i.dataType)
-						{
-						case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						{
-							bool b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						{
-							uint32_t b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						{
-							int32_t b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						{
-							float b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
-						{
-							uint64_t b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						}
-					}
-					else
-						materialToReload->data.emplace(i.name, i.baseData);
-				}
-			}
+			
 		}
 		catch (nlohmann::json::exception& e)
 		{
