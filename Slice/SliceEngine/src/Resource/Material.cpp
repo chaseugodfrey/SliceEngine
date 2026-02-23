@@ -54,8 +54,8 @@ namespace SliceEngine
 			// shouldn't need a [0]. Need check how the material file is created
 			//temp.albedo.mGUID = (GUID)materialJson["albedo"].get<uint64_t>();
 			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.shader.mGUID = (GUID)materialJson["shader"].get<uint64_t>();
-			temp.shader = Core::GetInstance()->GetResourceManager()->get<CustomShader>(temp.shader.mGUID);
+			auto newShadrGUID = (GUID)materialJson["shader"].get<uint64_t>();
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<CustomShader>(newShadrGUID);
 
 			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);

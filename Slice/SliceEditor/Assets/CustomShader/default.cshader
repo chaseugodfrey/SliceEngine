@@ -7,7 +7,7 @@
         },
         "END_METALLIC": {
             "Node23": [
-                "metallic"
+                "Node43"
             ]
         },
         "END_NORMAL": {
@@ -17,7 +17,15 @@
         },
         "END_ROUGHNESS": {
             "Node27": [
-                "roughness"
+                "Node46"
+            ]
+        },
+        "GetX_Vec4": {
+            "Node43": [
+                "MetallicMap"
+            ],
+            "Node46": [
+                "RoughnessMap"
             ]
         },
         "Mul_Vec4": {
@@ -29,13 +37,12 @@
     },
     "Params": {
         "Bools": {},
-        "Floats": {
-            "metallic": 0.0,
-            "roughness": 0.0
-        },
+        "Floats": {},
         "Ints": {},
         "Textures": {
+            "MetallicMap": 11697903386653029786,
             "NormalMap": 11697903386653029786,
+            "RoughnessMap": 11697903386653029786,
             "texCol": 17753361635269803423
         },
         "Uints": {}

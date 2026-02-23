@@ -105,23 +105,20 @@ namespace SliceEngine
 		resource->s = newResource.s;
 		resource->dataIn = newResource.dataIn;
 
-		//auto maybeShader = mgr.mFileNameToGUID.find(path);
-		//if (maybeShader != mgr.mFileNameToGUID.end())
-		//{
-			for (auto& [name, id] : mgr.mFileNameToGUID)
-			{
-				if (name.find(".mat") != std::string::npos)
-				{
-					auto mat = mgr.get<SliceEngineTypes::Material>(id);
-					//if (mat.get()->shader.getGUID().GetGUID() == maybeShader->second.GetGUID())
-						mgr.ReloadResourceInPlace(id);
-				}
-			}
+		std::string shdrGUID = path.substr(path.find_first_of('/') + 1);
+		shdrGUID = shdrGUID.substr(0, shdrGUID.find_first_of('.'));
 
-			// safety check for default resource ID for material
-			mgr.ReloadResourceInPlace((GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID);
-			
-		//}
+		for (auto& [name, id] : mgr.mFileNameToGUID)
+		{
+			if (name.find(".mat") != std::string::npos)
+			{
+				auto mat = mgr.get<SliceEngineTypes::Material>(id);
+				if (mat.get()->shader.getGUID().GetGUID() == std::stoull(shdrGUID))
+					mgr.ReloadResourceInPlace(id);
+			}
+		}
+		// safety check for default resource ID for material
+		mgr.ReloadResourceInPlace((GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID);
 	}
 
 	// Vertex Shader
@@ -206,68 +203,43 @@ namespace SliceEngine
 		// so itll fail to open
 		// so i'm gonna add some check if its default
 		// and change to use LoadMaterial and LoadDefault in material so taht I can reuse the code below w/o copy pasting it all
-		SliceEngineTypes::Material matFromJson;
+		SliceEngineTypes::Material loadedMaterialData;
 
 		std::ifstream file(path);
 		if (!file.is_open())
 		{
-			SLICE_LOG_ERROR("Could not open material file for reload: " + path);
 			// if path doesnt exist check if its a default resource
 			if (path == std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID))
 			{
-				SLICE_LOG_ERROR("Loading default material for reload: " + path);
-				matFromJson.LoadDefault();
+				SLICE_LOG("Loading default material for reload: " + path);
+				loadedMaterialData.LoadDefault();
 			}
+			else
+				SLICE_LOG_ERROR("Could not open material file for reload: " + path);
 		}
 		else
 		{
 			// if file can open then its a valid material so load material from json
-			matFromJson = SliceEngineTypes::Material::LoadMaterial(path);
+			loadedMaterialData = SliceEngineTypes::Material::LoadMaterial(path);
 			file.close();
 		}
 
+		GUID newShaderGUID = loadedMaterialData.shader.getGUID();//(GUID)materialJson["shader"].get<uint64_t>();
 
-		//nlohmann::json materialJson;
-		//try
-		//{
-		//	materialJson = nlohmann::json::parse(file);
-		//}
-		//catch (nlohmann::json::parse_error& e)
-		//{
-		//	SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path + e.what());
-		//	return;
-		//}
-
-		GUID newShaderGUID = matFromJson.shader.getGUID();//(GUID)materialJson["shader"].get<uint64_t>();
-
-		materialToReload->color = matFromJson.color;
-		//glm::from_json(materialJson["color"], materialToReload->color);
-		auto dataCpy = materialToReload->data;
+		materialToReload->color = loadedMaterialData.color;
+		//auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
 		materialToReload->data.clear();
 
 		if (newShaderGUID != materialToReload->shader.getGUID())
 			materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
 
-		for (auto& i : materialToReload->shader.get()->dataIn)
+		for (auto& [name, data] : loadedMaterialData.data)
 		{
-			if (matFromJson.data.contains(i.name))
-			{
-				materialToReload->data[i.name] = matFromJson.data[i.name];
-			}
-			else if (dataCpy.find(i.name) != dataCpy.end())
-				materialToReload->data.emplace(i.name, dataCpy.find(i.name)->second);
-			else
-				materialToReload->data.emplace(i.name, i.baseData);
+			//if (oldData.contains(name))
+			//	materialToReload->data[name] = oldData[name];
+			//else
+				materialToReload->data[name] = data;
 		}
-		/*try
-		{
-			
-			
-		}
-		catch (nlohmann::json::exception& e)
-		{
-			SLICE_LOG_ERROR("Error parsing reloaded material properties from file: " + path + ". " + e.what());
-		}*/
 	}
 
 	//Model

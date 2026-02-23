@@ -112,8 +112,8 @@ namespace SliceEngine
 
 			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
 
-			if (material->data.size() != material->shader.get()->dataIn.size())
-				SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
+			//if (material->data.size() != material->shader.get()->dataIn.size()) // Weak error checking, removed
+			//	SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
