@@ -484,7 +484,7 @@ namespace SliceEngine
             else
             {
                 // Airborne → apply gravity
-                velocity.y += gravity * Time.deltaTime;
+                //velocity.y += gravity * Time.deltaTime;
             }
 
 
