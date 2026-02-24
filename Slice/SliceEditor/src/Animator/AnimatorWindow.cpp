@@ -55,15 +55,17 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 
+		static std::filesystem::path targetControllerPath = std::filesystem::current_path();
+
 		if (ImGui::Button("Save As"))
 		{
 			if (!mAnimatorData)
 				return;
 
-			if (std::filesystem::current_path().filename() != "Controllers")
+			if (targetControllerPath.filename() != "Controllers")
 			{
-				std::filesystem::path target = std::filesystem::current_path() / "Assets" / "Controllers";
-				std::filesystem::current_path(target);
+				targetControllerPath = targetControllerPath / "Assets" / "Controllers";
+				//std::filesystem::current_path(target);
 			}
 
 			//std::cout << "CUrent path" << std::filesystem::current_path();
@@ -84,12 +86,14 @@ namespace SliceEditor
 
 			if (ImGui::Button("Save Changes"))
 			{
-				if (std::filesystem::current_path().extension() != ".controller")
+				targetControllerPath = targetControllerPath / newFileName;
+				if (targetControllerPath.extension() != ".controller")
 				{
-					std::filesystem::current_path() += ".controller";
+					targetControllerPath += ".controller";
 				}
-				mAnimatorData->mStateMachineAsset->SerializeAsset(std::filesystem::current_path() / newFileName);
+				mAnimatorData->mStateMachineAsset->SerializeAsset(targetControllerPath);
 				newFileName = "";
+				targetControllerPath = std::filesystem::current_path();
 				ImGui::CloseCurrentPopup();
 			}
 
