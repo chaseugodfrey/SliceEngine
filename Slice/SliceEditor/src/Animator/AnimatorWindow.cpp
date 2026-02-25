@@ -68,12 +68,8 @@ namespace SliceEditor
 				//std::filesystem::current_path(target);
 			}
 
-			//std::cout << "CUrent path" << std::filesystem::current_path();
-
 			ImGui::OpenPopup("SaveAs_Popup");
 
-
-			//mAnimatorData->mStateMachineAsset->SerializeAsset();
 		}
 		
 		if (ImGui::BeginPopupModal("SaveAs_Popup", nullptr))
