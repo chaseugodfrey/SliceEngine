@@ -34,13 +34,17 @@ namespace SliceEditor
 		void CreateNode();
 		void DeleteNode(uint16_t id);
 		void SelectNode(uint16_t id);
+		void SelectLink(uint16_t id);
+		void AddLink(uint16_t id,std::string targetState);
 
 		bool RemoveTransitionFromState(uint16_t id);
 
 		bool CheckStateInput(StateNode* node);
 		bool CheckLinkInput(TransitionLinkNode* node);
 		void DrawStateNode(StateNode* node);
+		void CheckStateNode();
 		void DrawTransitionLinkNode(TransitionLinkNode* node);
+		void CheckTransitionLinkNode();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 
 	public:
