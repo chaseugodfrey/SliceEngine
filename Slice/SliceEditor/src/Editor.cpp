@@ -47,11 +47,11 @@ namespace SliceEditor
 			if (action == GLFW_PRESS)
 			{
 				// update that particular key to pressed state
-				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESS);
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESSED);
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASE);
+				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASED);
 			}
 		}
 	}
@@ -69,12 +69,12 @@ namespace SliceEditor
 
 			if (action == GLFW_PRESS)
 			{
-				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESSED);
 				std::cout << "Mouse Button Pressed: " << std::endl;
 			}
 			else if (action == GLFW_RELEASE)
 			{
-				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
+				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASED);
 			}
 		}
 
