@@ -1,22 +1,84 @@
 {
+    "entryNodePosition": [
+        297.0,
+        234.0
+    ],
     "entryState": "Idle",
+    "exitNodePosition": [
+        297.0,
+        234.0
+    ],
     "parameters": {
-	"Idle" : false,
-        "Attack1": false,
         "AirDashStart": false,
+        "Attack1": false,
         "Fall": false,
+        "Idle": false,
         "JumpLoop": false,
         "Plunge": false,
         "Walk": false
     },
     "stateMap": {
-	"AnyState": {
+        "AirDashStart": {
             "currAnimIdx": 0,
             "fps": 0,
             "isLoop": false,
             "mNodePos": [
-                0.0,
-                0.0
+                297.0,
+                234.0
+            ],
+            "stateName": "AirDashStart",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Plunge",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Plunge"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Idle"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "AirDashStart",
+                    "targetState": "Walk"
+                }
+            ]
+        },
+        "AnyState": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                297.0,
+                234.0
             ],
             "stateName": "AnyState",
             "transitions": [
@@ -55,8 +117,8 @@
             "fps": 0,
             "isLoop": false,
             "mNodePos": [
-                0.0,
-                0.0
+                297.0,
+                234.0
             ],
             "stateName": "Attack1",
             "transitions": [
@@ -74,7 +136,7 @@
                     "sourceState": "Attack1",
                     "targetState": "Idle"
                 },
-		{
+                {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -95,8 +157,8 @@
             "fps": 0,
             "isLoop": true,
             "mNodePos": [
-                0.0,
-                0.0
+                297.0,
+                234.0
             ],
             "stateName": "Idle",
             "transitions": [
@@ -135,8 +197,8 @@
             "fps": 0,
             "isLoop": false,
             "mNodePos": [
-                0.0,
-                0.0
+                297.0,
+                234.0
             ],
             "stateName": "JumpLoop",
             "transitions": [
@@ -163,12 +225,12 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 0.7,
+                    "exitTime": 0.699999988079071,
                     "hasExitTime": true,
                     "sourceState": "JumpLoop",
                     "targetState": "AirDashStart"
                 },
-		{
+                {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -184,67 +246,13 @@
                 }
             ]
         },
-	"AirDashStart": {
-            "currAnimIdx": 0,
-            "fps": 0,
-            "isLoop": false,
-            "mNodePos": [
-                0.0,
-                0.0
-            ],
-            "stateName": "AirDashStart",
-            "transitions": [
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Plunge",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
-                    "sourceState": "AirDashStart",
-                    "targetState": "Plunge"
-                },
-		{
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Idle",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
-                    "sourceState": "AirDashStart",
-                    "targetState": "Idle"
-                },
-		{
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Walk",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
-                    "sourceState": "AirDashStart",
-                    "targetState": "Walk"
-                }
-            ]
-        },
         "Plunge": {
             "currAnimIdx": 0,
             "fps": 0,
             "isLoop": true,
             "mNodePos": [
-                0.0,
-                0.0
+                297.0,
+                234.0
             ],
             "stateName": "Plunge",
             "transitions": [
@@ -262,7 +270,7 @@
                     "sourceState": "Plunge",
                     "targetState": "Idle"
                 },
-		{
+                {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -276,7 +284,6 @@
                     "sourceState": "Plunge",
                     "targetState": "AirDashStart"
                 }
-
             ]
         },
         "Walk": {
@@ -284,8 +291,8 @@
             "fps": 0,
             "isLoop": true,
             "mNodePos": [
-                0.0,
-                0.0
+                223.0,
+                46.0
             ],
             "stateName": "Walk",
             "transitions": [
