@@ -79,50 +79,51 @@ namespace SliceEngine
 		{
 			//Bone animation
 			if (animator.is_bone) {
-				auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
-				if (anim.duration <= 0.0f)
+				if(animator.curr_anim_pkg.animations.size() > 0)
 				{
-					// This is a static pose. Don't advance time, just hold frame 0.
-					animator.current_time = 0.0f;
-				}
-				else
-				{
-					animator.current_time += dt;
-
-					// publish animation key frame event
-					unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
-					for (auto eventFrame : animator.eventFrames)
+					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					if (anim.duration <= 0.0f)
 					{
-						//SLICE_LOG_VALUES("Event Frame:", eventFrame.frameNumber, "Current Frame:", currentFrame, "Anim Idx:", eventFrame.animIdx, "Curr Anim Idx:", animator.stateMachine.EFSM.currState->curr_anim_idx);
-						if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
-						{
-							// publish event
-							AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity};
-							EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
-						}
+						// This is a static pose. Don't advance time, just hold frame 0.
+						animator.current_time = 0.0f;
 					}
-
-					if (animator.current_time > anim.duration)
+					else
 					{
+						animator.current_time += dt;
 
-						if (!animator.stateMachine.EFSM.currState->isLoop)
+						// publish animation key frame event
+						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
+						for (auto eventFrame : animator.eventFrames)
 						{
-							animator.timeline.isPlaying = false;
-							// fsm set time
-							return;
+							//SLICE_LOG_VALUES("Event Frame:", eventFrame.frameNumber, "Current Frame:", currentFrame, "Anim Idx:", eventFrame.animIdx, "Curr Anim Idx:", animator.stateMachine.EFSM.currState->curr_anim_idx);
+							if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
+							{
+								// publish event
+								AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity };
+								EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
+							}
 						}
-						else
+
+						if (animator.current_time > anim.duration)
 						{
-							animator.timeline.isPlaying = true;
-							animator.current_time = std::fmod(animator.current_time, anim.duration);
+
+							if (!animator.stateMachine.EFSM.currState->isLoop)
+							{
+								animator.timeline.isPlaying = false;
+								// fsm set time
+								return;
+							}
+							else
+							{
+								animator.timeline.isPlaying = true;
+								animator.current_time = std::fmod(animator.current_time, anim.duration);
+							}
 						}
+
 					}
-
+					float safe_time = std::min(animator.current_time, anim.duration);
+					anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
 				}
-				float safe_time = std::min(animator.current_time, anim.duration);
-				anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());
-				//animator.inverse_flags.reset();
-				//animator.inverse_map.clear();
 			}
 			//non bone animation
 			else 
