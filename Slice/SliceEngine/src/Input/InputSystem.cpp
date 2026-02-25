@@ -35,11 +35,11 @@ namespace SliceEngine
         if (action == GLFW_PRESS)
         {
             // update that particular key to pressed state
-            input->UpdateKeyMap(key, KeyStates::PRESS);
+            input->UpdateKeyMap(key, KeyStates::PRESSED);
         }
         else if (action == GLFW_RELEASE)
         {
-            input->UpdateKeyMap(key, KeyStates::RELEASE);
+            input->UpdateKeyMap(key, KeyStates::RELEASED);
         }
     }
 
@@ -50,11 +50,11 @@ namespace SliceEngine
 
         if (action == GLFW_PRESS)
         {
-            input->UpdateMouseMap(button, KeyStates::PRESS);
+            input->UpdateMouseMap(button, KeyStates::PRESSED);
         }
         else if (action == GLFW_RELEASE)
         {
-            input->UpdateMouseMap(button, KeyStates::RELEASE);
+            input->UpdateMouseMap(button, KeyStates::RELEASED);
         }
     }
 
@@ -62,72 +62,13 @@ namespace SliceEngine
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
         auto inputS = Core::GetInstance()->GetInputSystem();
-        if (inputS->mToCenterMousePosFromWindowDim)
-        {
-            int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
-            float ar = 1920.f / 1080.f;
-            float myScreenAR = static_cast<float>(inputS->windowDim.x) / static_cast<float>(inputS->windowDim.y);
-            double tx = 1920.0, ty = 1080.0, totalWinScreenDimX = static_cast<double>(inputS->windowDim.x), totalWinScreenDimY = static_cast<double>(inputS->windowDim.y);
 
-            glm::vec2 winScreenDim{ totalWinScreenDimX , totalWinScreenDimY };
-            glm::vec2 winOffset{};
-
-            if (myScreenAR > ar)// if actual screen width is much wider
-            {
-                winScreenDim.x = totalWinScreenDimY * ar;
-                winOffset.x = (totalWinScreenDimX - winScreenDim.x) / 2.f;
-            }
-            else
-            {
-                winScreenDim.y = totalWinScreenDimX / ar;
-                winOffset.y = (totalWinScreenDimY - winScreenDim.y) / 2.f;
-
-            }
-            glm::ivec2 worldSpaceMouse{ (xpos - winOffset.x) / winScreenDim.x * tx,
-            (ypos - winOffset.y) / winScreenDim.y * ty };
-
-            switch (cursorMode)
-            {
-            case GLFW_CURSOR_NORMAL:
-            {
-                xpos = worldSpaceMouse.x;
-                ypos = worldSpaceMouse.y;
-                break;
-            }
-            case GLFW_CURSOR_DISABLED:
-            {
-                if (inputS->lastMouseMode == GLFW_CURSOR_NORMAL)
-                {
-                    inputS->currMouseInternalPos.x = inputS->prevMouseInternalPos.x = worldSpaceMouse.x;
-                    inputS->currMouseInternalPos.y = inputS->prevMouseInternalPos.y = worldSpaceMouse.y;
-                    inputS->lastMouseMode = GLFW_CURSOR_DISABLED;
-                    return;
-                }
-                inputS->currMouseInternalPos.x = worldSpaceMouse.x;
-                inputS->currMouseInternalPos.y = worldSpaceMouse.y;
-
-
-                glm::vec2 lastPos = inputS->GetMousePosition();
-                lastPos += inputS->prevMouseInternalPos - inputS->currMouseInternalPos;
-                xpos = std::clamp(static_cast<double>(lastPos.x), 0.0, tx);
-                ypos = std::clamp(static_cast<double>(lastPos.y), 0.0, ty);
-                break;
-            }
-            }
-            inputS->lastMouseMode = cursorMode;
-
-            inputS->SetMouseNDC(xpos / tx, ypos / ty);
-        }
         inputS->SetMousePosition(xpos, ypos);
     }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         Core::GetInstance()->GetInputSystem()->SetScrollOffset(yoffset);
-    }
-    static void WindowResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        Core::GetInstance()->GetInputSystem()->SetWindowDim(width, height);
     }
 #pragma endregion
 
@@ -160,53 +101,71 @@ namespace SliceEngine
     {
         // create queue to hold frame edges [pressed/released only]
         std::queue<InputEvent> nextFrameEdges;
+        //if there is a change in the next frame, does not matter since it will just be pushed into the queue, thus be after the persist
 
         while (!changedQueue.empty())
         {
             InputEvent event = changedQueue.front();
-            changedQueue.pop(); // pop front in order to process it
+            changedQueue.pop();
 
-            KeyStates newState = KeyStates::NONE;
-            switch (event.state) // check which state the frame edge event is in
-            {
-            case KeyStates::PRESS:
-                newState = KeyStates::PRESSED;
-                break;
+            KeyStates newState = KeyStates::RELEASE;
+
+            switch (event.state) {
+                //event change
             case KeyStates::PRESSED:
-                newState = KeyStates::HOLD;
-                break;
-            case KeyStates::RELEASE:
-                newState = KeyStates::RELEASED;
+                newState = PRESSED;
+                nextFrameEdges.push({ event.isKey, event.code, KeyStates::HOLD });
                 break;
             case KeyStates::RELEASED:
-                newState = KeyStates::NONE;
+                newState = RELEASED;
+                nextFrameEdges.push({ event.isKey, event.code, KeyStates::RELEASE });
                 break;
-            default:
-                newState = KeyStates::NONE;
+
+                //persist from prev frame
+            case KeyStates::RELEASE:
+                newState = RELEASE;
+                break;
+            case KeyStates::HOLD:
+                newState = HOLD;
                 break;
             }
-            // update the key/mouse map with the new state
+
+
+
             if (event.isKey)
                 keyMap[event.code] = newState;
             else
                 mouseMap[event.code] = newState;
 
-            // keep only one frame edges so we can see them next frame
-            if (newState == KeyStates::PRESSED || newState == KeyStates::RELEASED)
-                nextFrameEdges.push({ event.isKey, event.code, newState });
+            //switch (event.state) // check which state the frame edge event is in
+            //{
+            //case KeyStates::HOLD:
+            //    newState = KeyStates::PRESSED;
+            //    break;
+            //case KeyStates::PRESSED:
+            //    newState = KeyStates::HOLD;
+            //    break;
+            //case KeyStates::RELEASE:
+            //    newState = KeyStates::RELEASED;
+            //    break;
+            //case KeyStates::RELEASED:
+            //    newState = KeyStates::NONE;
+            //    break;
+            //default:
+            //    newState = KeyStates::NONE;
+            //    break;
+            //}
+            //// update the key/mouse map with the new state
+            //if (event.isKey)
+            //    keyMap[event.code] = newState;
+            //else
+            //    mouseMap[event.code] = newState;
         }
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
-        if (lastMouseMode != GLFW_CURSOR_DISABLED)
-        {
-            mouseDelta = prevMousePos - currMousePos;
-        }
-        else
-        {
-            mouseDelta = prevMouseInternalPos - currMouseInternalPos;
-            prevMouseInternalPos = currMouseInternalPos;
-        }
+        //std::cout << changedQueue.size() << std::endl;
+        mouseDelta = prevMousePos - currMousePos;
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
     }
@@ -220,7 +179,6 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, MouseButtonCallback);
         glfwSetCursorPosCallback(windowRef, CursorPosCallback);
         glfwSetScrollCallback(windowRef, ScrollCallback);
-        glfwSetWindowSizeCallback(windowRef, WindowResizeCallback);
         callbacksBound = true;
     }
 
@@ -233,7 +191,6 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, nullptr);
         glfwSetCursorPosCallback(windowRef, nullptr);
         glfwSetScrollCallback(windowRef, nullptr);
-        glfwSetWindowSizeCallback(windowRef, nullptr);
         callbacksBound = false;
     }
 
@@ -271,35 +228,55 @@ namespace SliceEngine
 
     bool InputSystem::IsKeyPressed(int key)
     {
-        return keyMap[key] == PRESS || keyMap[key] == PRESSED;
+        return keyMap[key] == PRESSED;
     }
 
     bool InputSystem::IsKeyReleased(int key)
     {
-        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
+        return keyMap[key] == RELEASED;
     }
 
     bool InputSystem::IsKeyDown(int key)
     {
-        return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
+        return keyMap[key] == HOLD || keyMap[key] == PRESSED;
+    }
+    bool InputSystem::IsKeyHold(int key)
+    {
+        return keyMap[key] == HOLD;
+    }
+    bool InputSystem::IsKeyUp(int key)
+    {
+        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
     bool InputSystem::IsMousePressed(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
+        return mouseMap[key] == PRESSED;
     }
 
     bool InputSystem::IsMouseReleased(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
+        return  mouseMap[key] == RELEASED;
     }
 
     bool InputSystem::IsMouseDown(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
+        return mouseMap[key] == HOLD || mouseMap[key] == PRESSED;
+    }
+
+    bool InputSystem::IsMouseHold(MouseButtons b)
+    {
+        int key = (int)b;
+        return mouseMap[key] == HOLD;
+    }
+
+    bool InputSystem::IsMouseUp(MouseButtons b)
+    {
+        int key = (int)b;
+        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
     glm::vec2 InputSystem::GetMousePosition() const
@@ -367,13 +344,13 @@ namespace SliceEngine
 #pragma region callback updates
     void InputSystem::UpdateKeyMap(int key, KeyStates state)
     {
-        keyMap[key] = state; // update to immediate key state in map
+        //keyMap[key] = state; // update to immediate key state in map
         changedQueue.push({ true, key, state }); // record down the changed event in the queue
     }
 
     void InputSystem::UpdateMouseMap(int button, KeyStates state)
     {
-        mouseMap[button] = state;
+        //mouseMap[button] = state;
         changedQueue.push({ false, button, state });
     }
 
@@ -390,12 +367,6 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
-    }
-
-    void InputSystem::SetWindowDim(int width, int height)
-    {
-        windowDim.x = width;
-        windowDim.y = height;
     }
 
     void InputSystem::SetMouseNDC(double x, double y)

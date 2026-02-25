@@ -186,6 +186,16 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
+	static bool Input_IsKeyUp(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyUp(keyCode);
+	}
+
+	static bool Input_IsKeyHold(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyHold(keyCode);
+	}
+
 	static bool Input_IsKeyReleased(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
@@ -199,6 +209,16 @@ namespace SliceEngine
 	static bool Input_IsMouseDown(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
+	}
+
+	static bool Input_IsMouseUp(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseUp(button);
+	}
+
+	static bool Input_IsMouseHold(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseHold(button);
 	}
 
 	static bool Input_IsMouseReleased(MouseButtons button)
@@ -2751,9 +2771,13 @@ namespace SliceEngine
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
 		ADD_INTERNAL_CALL(Input_IsKeyPressed);
 		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(Input_IsKeyHold);
+		ADD_INTERNAL_CALL(Input_IsKeyUp);
 		ADD_INTERNAL_CALL(Input_IsKeyReleased);
 		ADD_INTERNAL_CALL(Input_IsMousePressed);
 		ADD_INTERNAL_CALL(Input_IsMouseDown);
+		ADD_INTERNAL_CALL(Input_IsMouseHold);
+		ADD_INTERNAL_CALL(Input_IsMouseUp);
 		ADD_INTERNAL_CALL(Input_IsMouseReleased);
 		ADD_INTERNAL_CALL(Input_GetCursorState);
 		ADD_INTERNAL_CALL(Input_SetCursorState);
