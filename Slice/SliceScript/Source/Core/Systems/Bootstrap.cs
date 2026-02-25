@@ -32,14 +32,14 @@ namespace SliceEngine
             //if (Player != null) SliceLog.Log("Player found");
             //else SliceLog.Log("Player not found");
 
-            arr = gameObject.FindGameObjectsWithTag("Level Director");
-            LevelDirector = arr[0].As<LevelDirector>();
+            //arr = gameObject.FindGameObjectsWithTag("Level Director");
+            //LevelDirector = arr[0].As<LevelDirector>();
             //if (LevelDirector != null) SliceLog.Log("Level Director found");
             //else SliceLog.Log("Level Director not found");
 
 
-            arr = gameObject.FindGameObjectsWithTag("HUD");
-            HUDManager = arr[0].As<HUD_Manager>();
+            //arr = gameObject.FindGameObjectsWithTag("HUD");
+            //HUDManager = arr[0].As<HUD_Manager>();
             //if (HUDManager != null) SliceLog.Log("HUD Manager found");
             //else SliceLog.Log("HUD Manager not found");
 

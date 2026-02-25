@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SliceEngine
 {
-    public class Platform : SliceBehaviour
+    public class MovingPlatform : SliceBehaviour
     {
         public Transform go;
 
