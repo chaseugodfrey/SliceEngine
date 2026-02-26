@@ -21,6 +21,7 @@ namespace SliceEngine
         public void Initialize()
         {
             //Console.WriteLine("CameraCont Ini called");
+            Cursor.state = Cursor.STATE.DISABLED;
         }
         public override void OnUpdate(float dt)
         {

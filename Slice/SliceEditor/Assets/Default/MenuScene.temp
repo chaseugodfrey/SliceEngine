@@ -1395,7 +1395,9 @@
                 "struct SliceEngine::AudioSource": {
                     "componentEnabled": true,
                     "currentVolume": 0.6000000238418579,
+                    "directOcclusion": 0.0,
                     "dopplerLevel": 1.0,
+                    "enablePathfinding": false,
                     "isLoop": false,
                     "isMute": false,
                     "isPaused": false,
@@ -1405,6 +1407,7 @@
                     "playOnAwake": false,
                     "playPreview": false,
                     "priority": 128,
+                    "reverbOcclusion": 0.0,
                     "soundGUID": "16032732054234455058",
                     "spatialBlend": 1.0,
                     "spread": 1.0,
@@ -1589,7 +1592,9 @@
                 "struct SliceEngine::AudioSource": {
                     "componentEnabled": true,
                     "currentVolume": 0.6000000238418579,
+                    "directOcclusion": 0.0,
                     "dopplerLevel": 1.0,
+                    "enablePathfinding": false,
                     "isLoop": false,
                     "isMute": false,
                     "isPaused": false,
@@ -1599,6 +1604,7 @@
                     "playOnAwake": true,
                     "playPreview": false,
                     "priority": 128,
+                    "reverbOcclusion": 0.0,
                     "soundGUID": "18152500388378077030",
                     "spatialBlend": 1.0,
                     "spread": 1.0,
@@ -2383,7 +2389,6 @@
                     "colourMapIntermediary": [],
                     "colourOverLifetime": true,
                     "coneArc": 0.0,
-                    "coneRadius": 0.0,
                     "destroyOnExpire": false,
                     "duration": 2.0,
                     "emissionRate": 100.0,
@@ -2468,7 +2473,10 @@
                         1.0
                     ],
                     "scaleType": 1,
-                    "shapeRadius": 34.599998474121094,
+                    "shapeRadius": [
+                        1.0,
+                        1.0
+                    ],
                     "shapeType": "SPHERE",
                     "sizeMapIntermediary": [],
                     "sizeOverLifetime": true,
