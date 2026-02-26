@@ -526,14 +526,28 @@ namespace SliceEditor
 								data->animationGUID = animData->guid;
 
 						*/
-						//Create the skeleton and animation first
+					//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
+						// if the resource already exist, keep teh same GUID and resource path
+						if (std::filesystem::exists(data->skeleMetaPath))
+						{
+							skeleData->resourcePath = data->skeleMetaPath;
+							skeleData->guid = data->skeletonGUID;
+						}
+
 						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
 						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
+						// if the resource already exist, keep teh same GUID and resource path
+						if (std::filesystem::exists(data->animMetaPath))
+						{
+							animData->resourcePath = data->animMetaPath;
+							animData->guid = data->animationGUID;
+						}
+						
 						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
 						data->animationGUID = animData->guid;
 
