@@ -374,6 +374,8 @@ namespace SliceEditor
 				//Default Init the MetaData base class
 				file.metaData->Deserialize(metaPath);
 
+				file.toRecompile = false;
+
 				mManager.mPendingDrops.push(std::move(file));
 			}
 
@@ -536,7 +538,7 @@ namespace SliceEditor
 							skeleData->guid = data->skeletonGUID;
 						}
 
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get(),file.toRecompile).string();
 						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
@@ -548,12 +550,12 @@ namespace SliceEditor
 							animData->guid = data->animationGUID;
 						}
 						
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get(),file.toRecompile).string();
 						data->animationGUID = animData->guid;
 
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, file.toRecompile);
 				mRegistry.GetAssetManager().CreateAssetMaps();
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
