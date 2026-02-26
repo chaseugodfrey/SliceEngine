@@ -18,6 +18,10 @@ namespace SliceEngine
         public float middlePauseDuration = 1f;
         public float endPauseDuration = 1f;
 
+        public bool isMoving = true;
+        public bool isLoop = true;
+        public bool isMoveOnContactWithPlayer = true;
+
         private Vector3 basePosition;
         private float timer = 0f;
 
@@ -29,15 +33,36 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            timer += dt;
+            if (!isMoving)
+            {
+                return;
+            }
 
+            timer += dt;
+            
             float cycleLength =
                 moveDuration + startPauseDuration +
                 moveDuration + middlePauseDuration +
                 moveDuration + endPauseDuration +
                 moveDuration + middlePauseDuration;
 
-            float cycleTime = timer % cycleLength;
+            if (!isLoop && timer >= cycleLength)
+            {
+                go.Position = basePosition; // final resting position
+                isMoving = false;
+                return;
+            }
+
+            float cycleTime;
+
+            if (isLoop)
+            {
+                cycleTime = timer % cycleLength;
+            }
+            else
+            {
+                cycleTime = Math.Min(timer, cycleLength);
+            }
 
             float t;
             Vector3 from;
@@ -45,7 +70,6 @@ namespace SliceEngine
 
             float timeCursor = 0f;
 
-            // -------- INIT → START --------
             if (cycleTime < timeCursor + moveDuration)
             {
                 from = basePosition;
@@ -64,7 +88,7 @@ namespace SliceEngine
                 }
                 timeCursor += startPauseDuration;
 
-                // -------- START → INIT --------
+                // -------- START INIT --------
                 if (cycleTime < timeCursor + moveDuration)
                 {
                     from = basePosition + startOffset;
@@ -83,7 +107,7 @@ namespace SliceEngine
                     }
                     timeCursor += middlePauseDuration;
 
-                    // -------- INIT → END --------
+                    // -------- INIT END --------
                     if (cycleTime < timeCursor + moveDuration)
                     {
                         from = basePosition;
@@ -102,7 +126,7 @@ namespace SliceEngine
                         }
                         timeCursor += endPauseDuration;
 
-                        // -------- END → INIT --------
+                        // -------- END INIT --------
                         if (cycleTime < timeCursor + moveDuration)
                         {
                             from = basePosition + endOffset;
@@ -121,6 +145,17 @@ namespace SliceEngine
 
             t = Utilities.SmoothStep(0f, 1f, t);
             go.Position = Utilities.Lerp(from, to, t);
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            if (isMoveOnContactWithPlayer)
+            {
+                if (other == Bootstrap.Player.gameObject.mID)
+                {
+                    isMoving = true;
+                }
+            }            
         }
     }
 }
