@@ -36,7 +36,9 @@ namespace SliceEditor
 
 		Screen mWindowScreen;
 		Screen mGameScreen;
-
+		
+		ImVec2 mRelativeCenter;
+		ImVec2 mInternalMousePosition;
 		ImVec2 mGameMousePosition;
 		ImVec2 mGameMouseNDC;
 		ImVec2 mGameMouseDelta;
@@ -44,6 +46,7 @@ namespace SliceEditor
 		SliceEngine::CursorState mLastCursorState{};
 
 		bool mIsPlayMode{};
+		bool mIsFocused{};
 		bool mIsDebuggingEnabled{};
 		bool mIsHoveringGameScreen{};
 		bool mRequestToFocus{};
