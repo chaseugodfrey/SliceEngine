@@ -353,7 +353,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_COLOR", {"finalCol = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
 			{"END_ROUGHNESS", {"finalRoughness = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_NORMAL", {"finalNormal = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
@@ -368,6 +368,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"GetY_Vec4", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
 			{"GetZ_Vec4", {"float %s = %s.z;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
 			{"GetA_Vec4", {"float %s = %s.a;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetRGB_Vec4", {"vec3 %s = %s.rgb;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
 
 			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
@@ -527,6 +528,7 @@ layout (location=0) in vec3 vPos; // In M Space
 layout (location=1) in vec3 vNom; // In MV Space
 layout (location=2) in vec2 vTex;
 layout (location=3) in flat uint vInstance;
+layout (location=4) in mat3 TBN;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 layout (location=1) out uint fGID;
