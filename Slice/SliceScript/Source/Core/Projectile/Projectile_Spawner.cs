@@ -17,6 +17,8 @@ namespace SliceEngine
 
         public float bulletScale = 1f;
 
+        public int bulletDamage = 1;
+
         public int spawnStyle = 0;
 
         public float spiralRate = 1f; // seconds for a rotation
@@ -27,7 +29,7 @@ namespace SliceEngine
 
         public int limit = 100;
 
-        private enum SpawnStyle { Straight, Spiral, Fan };
+        private enum SpawnStyle { Straight, Spiral, Aim };
 
         private SpawnStyle currentStyle = SpawnStyle.Straight;
 
@@ -35,17 +37,20 @@ namespace SliceEngine
         {
             GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
 
-            newBullet.GetComponent<Transform>().Position = startPos;
+            Transform tempT = newBullet.GetComponent<Transform>();
 
-            newBullet.GetComponent<Transform>().Rotation = angle;
+            tempT.Position = startPos;
+            tempT.Rotation = angle;
+            tempT.Scale = new Vector3(scale);
 
-            newBullet.GetComponent<Transform>().Scale = new Vector3(scale);
+            Projectile tempP = newBullet.As<Projectile>();
 
-            newBullet.As<Projectile>().speed = speed;
+            tempP.SetUp();
+            tempP.speed = speed;
+            tempP.owner = this;
+            tempP.damage = bulletDamage;
 
-            newBullet.As<Projectile>().owner = this;
-
-            allProjectiles.Add(newBullet.As<Projectile>());
+            allProjectiles.Add(tempP);
 
             if (allProjectiles.Count > limit)
             {
@@ -114,7 +119,20 @@ namespace SliceEngine
 
 
                     break;
-                case SpawnStyle.Fan:
+                case SpawnStyle.Aim:
+
+                    this.transform.LookAt(Bootstrap.Player.transform.Position, new Vector3(0,1,0));
+
+                    if (count >= 1f / projPerSecond)
+                    {
+                        count -= 1f / projPerSecond;
+
+                        Transform T = this.GetComponent<Transform>();
+
+                        CreateBullet(T.Position, T.Rotation, bulletScale, bulletSpeed);
+                    }
+
+                    break;
                 case SpawnStyle.Straight:
 
                     if (count >= 1 /projPerSecond)

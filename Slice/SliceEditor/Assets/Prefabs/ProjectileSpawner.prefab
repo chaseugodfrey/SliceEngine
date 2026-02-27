@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388638,
+                "entity_id": 6291687,
                 "neighbours": [
                     0,
                     4294967295,
-                    4294967295,
+                    4194428,
                     4294967295
                 ]
             },
@@ -24,6 +24,10 @@
                         "Type": "bool",
                         "Value": true
                     },
+                    "bulletDamage": {
+                        "Type": "int",
+                        "Value": 1
+                    },
                     "bulletScale": {
                         "Type": "float",
                         "Value": 0.5
@@ -32,9 +36,13 @@
                         "Type": "float",
                         "Value": 10.0
                     },
+                    "limit": {
+                        "Type": "int",
+                        "Value": 80
+                    },
                     "projPerSecond": {
                         "Type": "float",
-                        "Value": 20.0
+                        "Value": 10.0
                     },
                     "spawnStyle": {
                         "Type": "int",
@@ -68,8 +76,8 @@
                 ],
                 "position": [
                     0.0,
-                    0.0,
-                    0.0
+                    -8.848859786987305,
+                    250.26544189453125
                 ],
                 "rotation": [
                     1.0,
