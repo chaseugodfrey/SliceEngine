@@ -731,12 +731,12 @@ namespace SliceEngine
 			glEnableVertexArrayAttrib(vao, 0);
 			glEnableVertexArrayAttrib(vao, 1);
 			glEnableVertexArrayAttrib(vao, 2);
-			glEnableVertexArrayAttrib(vao, 3);
+			glEnableVertexArrayAttrib(vao, 5);
 
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
-			glVertexArrayAttribFormat(vao, 3, 3, GL_FLOAT, false, offsetof(Vertex, tangent));
+			glVertexArrayAttribFormat(vao, 5, 3, GL_FLOAT, false, offsetof(Vertex, tangent));
 
 			glVertexArrayElementBuffer(vao, ebo);
 
@@ -746,6 +746,7 @@ namespace SliceEngine
 			glVertexArrayAttribBinding(vao, 0, 0);
 			glVertexArrayAttribBinding(vao, 1, 0);
 			glVertexArrayAttribBinding(vao, 2, 0);
+			glVertexArrayAttribBinding(vao, 5, 0);
 
 			if (!static_model) {
 
