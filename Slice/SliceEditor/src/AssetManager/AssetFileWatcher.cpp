@@ -216,98 +216,28 @@ namespace SliceEditor
                 return;
             }
 
-            am.CreateResource(addEvent.filePath, nullptr, true);
+            // check if the resource already exist if a new resource is added.
+            // mostly for prefabs cause creating a prefab calls create resource
+            // i rlly hope this doesnt break something else liike before
+            // if it does then god bless
+            std::string metaPath = assetName + ".meta";
+            bool resourceExist = true;
+            // if the meta file exist
+            // then check if the resource exist
+    //        if (std::filesystem::exists(metaPath))
+    //        {
+    //            std::unique_ptr<MetaData> metaData = am.CreateDefaultMeta(assetName);
+				//metaData->Deserialize(metaPath);
+				//if (std::filesystem::exists(metaData->resourcePath))
+    //            {
+    //                AssetExistEvent assetEvent(assetName);
+    //                EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
+    //                resourceExist = true;
+    //            }
+    //        }
 
-            //if (addEvent.filePath.extension() == ".bin")
-            //{
-            //    auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-            //    std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
-            //    sceneMetaFilePath += ".meta";
-            //    std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
-            //    tempSceneMetaFilePath.replace_extension(".temp.meta");
-
-            //    std::ifstream inFile(sceneMetaFilePath);
-            //    //std::ifstream tempInFile(tempSceneMetaFilePath);
-            //    nlohmann::json metaJson;
-            //    nlohmann::json tempMetaJson;
-            //    auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-            //    if (inFile >> metaJson) {
-            //        inFile.close();
-            //        auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
-
-            //        if (navMeshPath.has_value()) {
-            //            metaJson["navMeshBinFile"] = navMeshPath.value();
-            //            metaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
-            //            std::ofstream outFile(sceneMetaFilePath);
-            //            outFile << metaJson.dump(4);
-            //            outFile.close();
-            //        }
-            //    }
-
-            //    if (std::filesystem::exists(tempSceneMetaFilePath))
-            //    {
-            //        std::ifstream tempInFile(tempSceneMetaFilePath);
-            //        if (tempInFile >> tempMetaJson) {
-            //            tempInFile.close();
-
-            //            auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
-
-            //            if (tempNavMeshPath.has_value()) {
-            //                tempMetaJson["navMeshBinFile"] = tempNavMeshPath.value();
-            //                tempMetaJson["navMeshBinGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-            //                std::ofstream tempOutFile(tempSceneMetaFilePath);
-            //                tempOutFile << tempMetaJson.dump(4);
-            //                tempOutFile.close();
-            //            }
-            //        }
-
-            //    }
-            //}
-
-            /*else if (addEvent.filePath.extension() == ".navmesh")
-            {
-                auto sScene = SliceEngine::Core::GetInstance()->GetSceneSystem();
-                std::filesystem::path sceneMetaFilePath = sScene->GetCurrentScenePath();
-                sceneMetaFilePath += ".meta";
-                std::filesystem::path tempSceneMetaFilePath = sScene->GetCurrentScenePath();
-                tempSceneMetaFilePath.replace_extension(".temp.meta");
-
-                std::ifstream inFile(sceneMetaFilePath);
-                nlohmann::json metaJson;
-                nlohmann::json tempMetaJson;
-                auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-                if (inFile >> metaJson) {
-                    inFile.close();
-                    auto navMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
-
-                    if (navMeshPath.has_value()) {
-                        metaJson["navMeshFile"] = navMeshPath.value();
-                        metaJson["navMeshGUID"] = SliceEngine::GUID::FromString(navMeshPath.value().stem().string());
-                        std::ofstream outFile(sceneMetaFilePath);
-                        outFile << metaJson.dump(4);
-                        outFile.close();
-                    }
-                }
-
-                if (std::filesystem::exists(tempSceneMetaFilePath))
-                {
-                    std::ifstream tempInFile(tempSceneMetaFilePath);
-                    if (tempInFile >> tempMetaJson) {
-                        tempInFile.close();
-
-                        auto tempNavMeshPath = resourceMgr->GetResourcePath(parentDirectory + "/" + addEvent.filePath.filename().string());
-
-                        if (tempNavMeshPath.has_value()) {
-                            tempMetaJson["navMeshFile"] = tempNavMeshPath.value();
-                            tempMetaJson["navMeshGUID"] = SliceEngine::GUID::FromString(tempNavMeshPath.value().stem().string());
-                            std::ofstream tempOutFile(tempSceneMetaFilePath);
-                            tempOutFile << tempMetaJson.dump(4);
-                            tempOutFile.close();
-                        }
-                    }
-
-                }
-            }*/
+            if (!resourceExist)
+                am.CreateResource(addEvent.filePath, nullptr, true);
         }
         am.CreateAssetMaps();
         AssetFileChangedEvent processEvent = { true };
