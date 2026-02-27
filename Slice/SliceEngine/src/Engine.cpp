@@ -778,30 +778,6 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
-	void Engine::WindowSizeSwitch()
-	{
-		auto sInputs = SliceEngine::Core::GetInstance()->GetInputSystem();
-		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
-
-		if (sInputs->IsKeyDown(GLFW_KEY_RIGHT_ALT))
-		{
-			if (sInputs->IsKeyPressed(GLFW_KEY_ENTER))
-			{
-				if (windowManager->isFullScreen)
-				{
-					windowManager->NonFullScreenWindow();
-				}
-				else
-				{
-					windowManager->FullScreenWindow();
-				}
-			}
-
-		}
-	}
-
-	
-
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
