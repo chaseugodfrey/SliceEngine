@@ -207,7 +207,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             Vector3 rbVel = rb.Velocity;
-            Console.WriteLine($"Velocity is {rbVel.x}, {rbVel.y}, {rbVel.z}");
+            //Console.WriteLine($"Velocity is {rbVel.x}, {rbVel.y}, {rbVel.z}");
 
             if (debugMode || canTeleport)
             {
@@ -395,8 +395,12 @@ namespace SliceEngine
         // -------------------- Jump ------------------------------------------------------------------------------------------
         void HandleJump()
         {
-            if (grounded) lastGroundedTime = Time.time;
+            if (grounded)
+            {
 
+                lastGroundedTime = Time.time;
+                Console.WriteLine(lastGroundedTime);
+            }
             if (wasGrounded && !grounded)
             {
                 lastAirTime = Time.time; // mark when airborne
@@ -446,10 +450,16 @@ namespace SliceEngine
 
             // Jump input disabled during attacks
             if (!isAttacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            {
                 lastJumpPressedTime = Time.time;
+                Console.WriteLine("PRESSED SPACEBAR0");
+            }
 
             bool canCoyote = (Time.time - lastGroundedTime) <= coyoteTime;
             bool bufferedJump = (Time.time - lastJumpPressedTime) <= jumpBuffer;
+
+            if (bufferedJump) Console.WriteLine("BufferedJump is true");
+            if (canCoyote) Console.WriteLine("Coyote is true");
 
             if (!grounded && !canCoyote)
             {

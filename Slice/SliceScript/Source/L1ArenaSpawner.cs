@@ -33,7 +33,7 @@ namespace SliceEngine
         {
             if (begun && (remainingEnemies.Count == 0))
             {
-                progressionBarrier.Destroy();
+                //progressionBarrier.Destroy();
             }
         }
 

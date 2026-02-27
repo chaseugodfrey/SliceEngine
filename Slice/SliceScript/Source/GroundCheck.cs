@@ -10,7 +10,7 @@ namespace SliceEngine
     {
         public string groundName = "Ground";
         private GameObject[] groundObject;
-        private bool grounded;
+        public bool grounded;
         public bool Grounded { get { return grounded; } }
 
         private int TriggerBoxCount = 0;
@@ -27,7 +27,7 @@ namespace SliceEngine
         {
             if (IsGround(other))
             {
-                //Console.WriteLine("Player grounded");
+                Console.WriteLine("Player grounded");
                 Bootstrap.Player.OnGrounded();
                 grounded = true;
 
