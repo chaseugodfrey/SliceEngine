@@ -18,19 +18,45 @@ namespace SliceEngine
 
         //public static QueryTriggerInteraction globalInteraction = QueryTriggerInteraction.Collide;
 
+        public static void UpdateQueriesHitTriggers(bool isHitTrigger)
+        {
+            queriesHitTriggers = isHitTrigger;
+        }
+
         public static void RayUpdateMovement(uint entityID, Vector3 d_m)
         {
             FunctionCalls.Physics_RayUpdateMovement(entityID, out d_m);
         }
         public static bool RayCast(Vector3 origin, Vector3 direction,uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
-            //uint bodyHitID = 0;
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+            Vector3 normal = new Vector3();
+            Vector3 point = new Vector3();
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, ref point, ref normal, triggerInteraction, layerMask);
 
 
-            //FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, layerMask);
-
-
-            return true;
+            return isRayHit;
         }
 
         public static bool Raycast(Vector3 origin, Vector3 direction, out RayCastHit hitInfo, uint layerMask, QueryTriggerInteraction queryTriggerInteraction)
@@ -58,23 +84,77 @@ namespace SliceEngine
             {
                 triggerInteraction = true;
             }  
-            bool test = FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
+            bool isRayHit = FunctionCalls.Physics_Raycast(out origin, out direction, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
             hitInfo.distance = (hitInfo.point - origin).Magnitude();
             GameObject obj = new GameObject(bodyHitID);
             hitInfo.transform =  obj.GetComponent<Transform>();
 
-            return test;
+            return isRayHit;
         }
 
         public static bool Raycast(Ray ray, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
-            return true;
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+            Vector3 normal = new Vector3();
+            Vector3 point = new Vector3();
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Raycast(out ray.origin, out ray.direction, ref bodyHitID, ref point, ref normal, triggerInteraction, layerMask);
+
+
+            return isRayHit;
         }
 
         public static bool Raycast(Ray ray, out RayCastHit hitInfo, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
             hitInfo = new RayCastHit();
-            return true;
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Raycast(out ray.origin, out ray.direction, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
+            hitInfo.distance = (hitInfo.point - ray.origin).Magnitude();
+            GameObject obj = new GameObject(bodyHitID);
+            hitInfo.transform = obj.GetComponent<Transform>();
+
+            return isRayHit;
         }
 
         public static void DebugDrawRay(Vector3 origin, Vector3 direction, float magnitute)

@@ -484,6 +484,7 @@ namespace SliceEditor
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;
 		std::filesystem::path filePath;
+		bool toRecompile = true;
 	};
 
 	// ANIMATIONS

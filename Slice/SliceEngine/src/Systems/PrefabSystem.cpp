@@ -798,58 +798,73 @@ namespace SliceEngine
 	void PrefabSystem::UpdatePrefabComponent(Entity entity, GUID guid, bool toRemove)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
+		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		GO.GetComponent<Prefab>().prefabGUID = guid;
 
-		//Prefab just being added
-		if(!toRemove)
+		// only the root entity should be in the mPrefabMap
+		if (!toRemove)
 		{
-			Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
-			GO.GetComponent<Prefab>().prefabHandle = prefab;
-			GO.GetComponent<Prefab>().prefabGUID = guid;
 			mPrefabMap[guid].insert(entity);
-			//mPrefabIDs[guid].push_back(GO.GetComponent<Prefab>().prefabID);
-			// add the children as well
-			if (GO.HasComponent<SceneGraph>())
-			{
-				auto& sceneGraph = GO.GetComponent<SceneGraph>();
-				Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-				while (childEntity != entt::null)
-				{
-					GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-					UpdatePrefabComponent(childEntity, guid);
-
-					auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
-					childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
-				}
-			}
 		}
-		//Removing Prefab Component
-		if (toRemove)
+		else if (toRemove)
 		{
-			//Prefab GUID
-			GUID prefabGUID = GO.GetComponent<Prefab>().prefabGUID;
-			//Remove entity from the set
 			if (mPrefabMap[guid].contains(entity))
 				mPrefabMap[guid].erase(entity);
+		}
 
-			//Remove Recursively
-			if (GO.HasComponent<SceneGraph>())
+		// add the children as well
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
 			{
-				auto& sceneGraph = GO.GetComponent<SceneGraph>();
-				Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
-				while (childEntity != entt::null)
-				{
-					GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-					UpdatePrefabComponent(childEntity, guid, true);
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				UpdatePrefabComponentChild(childEntity, guid);
 
-					auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
-					childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
-				}
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
 			}
+		}
 
+		if (toRemove)
+		{
 			//Remove Component should be the last thing
 			GO.RemoveComponent<Prefab>();
 		}
+	}
 
+	void PrefabSystem::UpdatePrefabComponentChild(Entity entity, GUID guid, bool toRemove)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity(entity);
+		Handle<SliceEngineTypes::Prefab> prefab = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Prefab>(guid);
+		GO.GetComponent<Prefab>().prefabHandle = prefab;
+		GO.GetComponent<Prefab>().prefabGUID = guid;
+		//mPrefabMap[guid].insert(entity);
+		//mPrefabIDs[guid].push_back(GO.GetComponent<Prefab>().prefabID);
+		// add the children as well
+		if (GO.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = GO.GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				UpdatePrefabComponent(childEntity, guid);
+
+				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
+
+		// if is to remove prefab then call this last
+		if (toRemove)
+		{
+			//Remove Component should be the last thing
+			GO.RemoveComponent<Prefab>();
+
+		}
 	}
 
 	void PrefabSystem::AddToPrefab(Entity entity, Entity rootNode)

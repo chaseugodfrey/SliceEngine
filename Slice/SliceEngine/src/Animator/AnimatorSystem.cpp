@@ -54,19 +54,21 @@ namespace SliceEngine
 			{
 				if (animator.is_bone)
 				{ 
-					
-					auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
-					auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
-					float frameTime = animator.current_time * prevanim.fps;
-					if (!animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].isFinish)
+					if (animator.curr_anim_pkg.animations.size() > 0)
 					{
-						for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
+						auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
+						auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+						float frameTime = animator.current_time * prevanim.fps;
+						if (!animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].isFinish)
 						{
-							glm::mat4 local_tform{};
-							if (prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
-								local_tform = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[(int)frameTime], curranim.boneKeyFrames[i].transforms[0], dt).ToMatrix();
+							for (int i = 0; i < prevanim.boneKeyFrames.size(); i++)
+							{
+								glm::mat4 local_tform{};
+								if (prevanim.boneKeyFrames[i].animated && curranim.boneKeyFrames[i].animated)
+									local_tform = SliceEngineTypes::Frame::Blend(prevanim.boneKeyFrames[i].transforms[(int)frameTime], curranim.boneKeyFrames[i].transforms[0], dt).ToMatrix();
 
-							animator.final_tforms[i] = local_tform;
+								animator.final_tforms[i] = local_tform;
+							}
 						}
 					}
 				}
@@ -147,11 +149,14 @@ namespace SliceEngine
 				
 				if (animator.is_bone)
 				{
-					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					if (animator.curr_anim_pkg.animations.size() > 0)
+					{
+						auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 
-					anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
-					animator.SetInverseRoots();
-					anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+						anim.ApplyParentTransforms(animator.final_tforms, *animator.Handle_skeleton.get(), transform.transform);
+						animator.SetInverseRoots();
+						anim.ApplyInverseBind(animator.final_tforms, *animator.Handle_skeleton.get());
+					}
 				}
 				
 			}
