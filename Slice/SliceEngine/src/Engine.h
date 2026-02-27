@@ -52,6 +52,7 @@ namespace SliceEngine
 		void OnPlayStart();
 		void OnStopStart();
 		void OnPauseStart();
+		void OnPlayStarted();
 		void Draw();
 		void EndFrame();
 		void Exit();
