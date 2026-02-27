@@ -34,6 +34,8 @@ namespace SliceEngine
             if (begun && (remainingEnemies.Count == 0))
             {
                 progressionBarrier.Destroy();
+                begun = false;
+                SliceLog.Log("All enemies defeated. Progression barrier destroyed.");
             }
         }
 
