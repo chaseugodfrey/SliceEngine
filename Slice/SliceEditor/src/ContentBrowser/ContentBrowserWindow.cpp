@@ -374,6 +374,8 @@ namespace SliceEditor
 				//Default Init the MetaData base class
 				file.metaData->Deserialize(metaPath);
 
+				/*file.toRecompile = false;*/
+
 				mManager.mPendingDrops.push(std::move(file));
 			}
 
@@ -511,7 +513,7 @@ namespace SliceEditor
 			{
 				if (assetType == AssetType::Model)
 				{
-					auto* data = static_cast<ModelData*>(file.metaData.get());
+						auto* data = static_cast<ModelData*>(file.metaData.get());
 					if (data->is_static == false) //It has skele and anim
 					{
 						/*
@@ -534,9 +536,10 @@ namespace SliceEditor
 						{
 							skeleData->resourcePath = data->skeleMetaPath;
 							skeleData->guid = data->skeletonGUID;
+							file.toRecompile = false;
 						}
 
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get(),true, file.toRecompile).string();
 						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
@@ -546,15 +549,19 @@ namespace SliceEditor
 						{
 							animData->resourcePath = data->animMetaPath;
 							animData->guid = data->animationGUID;
+							file.toRecompile = false;
 						}
-						
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get(),true, file.toRecompile).string();
 						data->animationGUID = animData->guid;
 
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				file.toRecompile = true;
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, file.toRecompile);
 				mRegistry.GetAssetManager().CreateAssetMaps();
+				AssetRecompiledEvent event;
+				event.fileGUID = file.metaData.get()->guid;
+				EventManager::GetInstance()->Publish<AssetRecompiledEvent>(event);
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
