@@ -559,6 +559,9 @@ namespace SliceEditor
 				file.toRecompile = true;
 				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, file.toRecompile);
 				mRegistry.GetAssetManager().CreateAssetMaps();
+				AssetRecompiledEvent event;
+				event.fileGUID = file.metaData.get()->guid;
+				EventManager::GetInstance()->Publish<AssetRecompiledEvent>(event);
 				ImGui::CloseCurrentPopup();
 				willOpen = false;
 			}
