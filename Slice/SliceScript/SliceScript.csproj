@@ -104,6 +104,8 @@
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
     <Compile Include="Source\Core\Player\TestFixedBall.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />

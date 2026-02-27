@@ -19,8 +19,15 @@ namespace SliceEngine
         
         public static HUD_Manager HUDManager { get; private set; }
 
+        public bool debug;
+
         public override void OnAwake()
         {
+            if (debug)
+            {
+                return;
+            }
+
             // Finding references to each script
             GameObject[] arr = gameObject.FindGameObjectsWithTag("Camera");
             if (arr != null) CameraController = arr[0].As<CameraController>();
