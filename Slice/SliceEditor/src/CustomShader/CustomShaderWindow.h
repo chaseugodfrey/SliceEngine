@@ -64,7 +64,7 @@ namespace SliceEditor
 
 		std::unordered_map<int, int> attrIDToNodeID;
 		std::unordered_map<int, int> attrIDToLinkID; // Both Ways
-		ShaderStateNode mFinalNode;
+		ShaderStateNode mFinalNode; // 1 Node here, but treated as 4 nodes in saving & Loading
 		std::vector<std::string> mFinalNodeOutputNames;
 
 		void create_default();

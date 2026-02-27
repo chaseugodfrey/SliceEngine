@@ -193,7 +193,7 @@ namespace SliceEditor
 			for (auto& [funcName, components] : mainColorJson.items())
 			{
 				const auto& funcDets = CST::cShaderFuncsTemplates.find(funcName)->second;
-				// Finals
+				// Finals (If have, good. Load it in)
 				if (funcDets.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
 				{
 					for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
@@ -204,7 +204,8 @@ namespace SliceEditor
 							{
 								std::vector<std::string> dep;
 								dependencies.get_to(dep);
-								tempIDLinkGet[dep[0]].dest_attr.push(mFinalNode.in_ids[i]);
+								if(dep[0] != "0")
+									tempIDLinkGet[dep[0]].dest_attr.push(mFinalNode.in_ids[i]);
 							}
 							break;
 						}
@@ -226,7 +227,8 @@ namespace SliceEditor
 						n.in_ids.push_back(tID);
 
 						attrIDToNodeID[tID] = n.id;
-						tempIDLinkGet[dep[i]].dest_attr.push(tID);
+						if (dep[i] != "0")
+							tempIDLinkGet[dep[i]].dest_attr.push(tID);
 					}
 					// Out
 					{
@@ -297,7 +299,47 @@ namespace SliceEditor
 			std::queue<ShaderStateNode> nodesLeftToCheck;
 
 			nlohmann::json colorMainJson;
-			nodesLeftToCheck.push(mFinalNode);
+			// Special Behaviour for Final Node (the 1 Internal Node, but handling 4 nodes actually
+			// if mFinalNodeOutputNames.size != mFinalNode.in_ids.size CRY ;w;
+			for(size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
+			{
+				auto& nodeInAddr = mFinalNode.in_ids[i];
+				std::vector<std::string> dependName{"0"};
+
+				auto linkID = attrIDToLinkID.find(nodeInAddr);
+				if (linkID != attrIDToLinkID.end())
+				{
+					auto linkNode = mTransitionNodes.find(linkID->second);
+					if (linkNode != mTransitionNodes.end())
+					{
+						auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+						if (sourceNodeID != attrIDToNodeID.end())
+						{
+							auto sourceNode = mStateNodes.find(sourceNodeID->second);
+							// The Node Connected to i "in parameter"
+							if (sourceNode != mStateNodes.end())
+							{
+								dependName[0] = "Node" + std::to_string(sourceNode->second.id);
+								nodesLeftToCheck.push(sourceNode->second);
+							}
+							else // Cannot Find any Node (function) connected
+							{
+								auto editableNode = mEditableIns.find(sourceNodeID->second);
+								if (editableNode != mEditableIns.end())
+									dependName[0] = editableNode->second.name;
+								else
+								{
+									auto defaultNode = mDefaultIns.find(sourceNodeID->second);
+									if (defaultNode != mDefaultIns.end())
+										dependName[0] = defaultNode->second.name;
+								}
+							}
+						}
+					}
+				}
+				colorMainJson[mFinalNodeOutputNames[i]]["FinalNode" + std::to_string(i)] = dependName;
+			}
+			
 
 			while (!nodesLeftToCheck.empty())
 			{
@@ -306,6 +348,7 @@ namespace SliceEditor
 				std::vector<std::string> dependenciesName;
 				for (auto& i : node.in_ids)
 				{
+					bool foundContinuation = false;
 					auto linkID = attrIDToLinkID.find(i);
 					if (linkID != attrIDToLinkID.end())
 					{
@@ -316,17 +359,20 @@ namespace SliceEditor
 							if (sourceNodeID != attrIDToNodeID.end())
 							{
 								auto sourceNode = mStateNodes.find(sourceNodeID->second);
+								// The Node Connected to i "in parameter"
 								if (sourceNode != mStateNodes.end())
 								{
 									dependenciesName.push_back("Node" + std::to_string(sourceNode->second.id));
 									nodesLeftToCheck.push(sourceNode->second);
+									foundContinuation = true;
 								}
-								else
+								else // Cannot Find any Node (function) connected
 								{
 									auto editableNode = mEditableIns.find(sourceNodeID->second);
 									if (editableNode != mEditableIns.end())
 									{
 										dependenciesName.push_back(editableNode->second.name);
+										foundContinuation = true;
 									}
 									else
 									{
@@ -334,12 +380,15 @@ namespace SliceEditor
 										if (defaultNode != mDefaultIns.end())
 										{
 											dependenciesName.push_back(defaultNode->second.name);
+											foundContinuation = true;
 										}
 									}
 								}
 							}
 						}
 					}
+					if(!foundContinuation) // Fails all the prev checks
+						dependenciesName.push_back("0");
 				}
 				colorMainJson[node.name]["Node" + std::to_string(node.id)] = dependenciesName;
 			}
@@ -790,26 +839,55 @@ namespace SliceEditor
 				if (mStateNodes.find(endNodeID) != mStateNodes.end())
 				{
 					auto endStateNode = mStateNodes.find(endNodeID)->second;
-					auto endFuncDets = CST::cShaderFuncsTemplates.find(endStateNode.name)->second;
 
-					// Loop through possible in's to find the correct IN attr
-					for (size_t i{}; i < endStateNode.in_ids.size(); ++i)
+					// Special Case for Final Node
+					if (endNodeID == mFinalNode.id)
 					{
-						if (endStateNode.in_ids[i] == end_attr)
+						for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
 						{
-							// If type match then Link
-							if (startAttrType == endFuncDets.inIDs[i])
+							if (mFinalNode.in_ids[i] == end_attr)
 							{
-								ShaderLinkNode n;
-								n.sourceAttr = start_attr;
-								n.destAttr = end_attr;
-								n.id = ++uniqueIDCnt;
-								DeleteLinkFromAttr(end_attr);
-								mTransitionNodes.insert(std::make_pair(n.id, n));
-								attrIDToLinkID[start_attr] = n.id;
-								attrIDToLinkID[end_attr] = n.id;
+								auto& endFuncDets = CST::cShaderFuncsTemplates.find(mFinalNodeOutputNames[i])->second;
+
+								// If type match then Link
+								if (startAttrType == endFuncDets.inIDs[0])
+								{
+									ShaderLinkNode n;
+									n.sourceAttr = start_attr;
+									n.destAttr = end_attr;
+									n.id = ++uniqueIDCnt;
+									DeleteLinkFromAttr(end_attr);
+									mTransitionNodes.insert(std::make_pair(n.id, n));
+									attrIDToLinkID[start_attr] = n.id;
+									attrIDToLinkID[end_attr] = n.id;
+								}
+								break;
 							}
-							break;
+						}
+					}
+					else
+					{
+						auto& endFuncDets = CST::cShaderFuncsTemplates.find(endStateNode.name)->second;
+
+						// Loop through possible in's to find the correct IN attr
+						for (size_t i{}; i < endStateNode.in_ids.size(); ++i)
+						{
+							if (endStateNode.in_ids[i] == end_attr)
+							{
+								// If type match then Link
+								if (startAttrType == endFuncDets.inIDs[i])
+								{
+									ShaderLinkNode n;
+									n.sourceAttr = start_attr;
+									n.destAttr = end_attr;
+									n.id = ++uniqueIDCnt;
+									DeleteLinkFromAttr(end_attr);
+									mTransitionNodes.insert(std::make_pair(n.id, n));
+									attrIDToLinkID[start_attr] = n.id;
+									attrIDToLinkID[end_attr] = n.id;
+								}
+								break;
+							}
 						}
 					}
 				}

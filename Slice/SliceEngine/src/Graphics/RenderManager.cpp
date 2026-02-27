@@ -1163,7 +1163,6 @@ namespace SliceEngine
 		for (int i{}; i < numColAttachments; ++i)
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, va_arg(args, GLuint), 0);
 		va_end(args);
-		CheckGLError();
 	}
 	// Does all the glEnable and Disables etc.
 	void RenderManager::LoadSettings(GPUSetting setting)
@@ -1210,7 +1209,6 @@ namespace SliceEngine
 
 			mCurrGPUSetting = setting;
 		}
-		CheckGLError();
 	}
 	void RenderManager::QuickSetSettings(GPUSetting setting, bool toggleOn)
 	{
@@ -1268,7 +1266,6 @@ namespace SliceEngine
 			if (mCurrGPUSetting & setting)
 				mCurrGPUSetting = static_cast<GPUSetting>(mCurrGPUSetting ^ setting);
 		}
-		CheckGLError();
 	}
 	void RenderManager::ForceResetDefaultSettings()
 	{

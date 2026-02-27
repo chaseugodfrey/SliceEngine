@@ -1,35 +1,35 @@
 {
     "Main": {
         "END_COLOR": {
-            "Node21": [
-                "Node29"
+            "FinalNode1": [
+                "Node28"
             ]
         },
         "END_METALLIC": {
-            "Node23": [
-                "Node43"
+            "FinalNode0": [
+                "Node22"
             ]
         },
         "END_NORMAL": {
-            "Node25": [
-                "vNom"
+            "FinalNode3": [
+                "0"
             ]
         },
         "END_ROUGHNESS": {
-            "Node27": [
-                "Node46"
+            "FinalNode2": [
+                "Node25"
             ]
         },
         "GetX_Vec4": {
-            "Node43": [
+            "Node22": [
                 "MetallicMap"
             ],
-            "Node46": [
+            "Node25": [
                 "RoughnessMap"
             ]
         },
         "Mul_Vec4": {
-            "Node29": [
+            "Node28": [
                 "texCol",
                 "color"
             ]

@@ -396,10 +396,17 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
 			{"vTex", CSHAD_T::VEC2},
-			{"color", CSHAD_T::VEC4},
-			// -- Defines? --
-			{"0.f", CSHAD_T::FLOAT},
-			{"vec2(0.f)", CSHAD_T::VEC2}
+			{"color", CSHAD_T::VEC4}
+		};
+		static std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
+		{
+			{CSHAD_T::BOOL, "false"},
+			{CSHAD_T::INT, "0"},
+			{CSHAD_T::UINT, "0"},
+			{CSHAD_T::FLOAT, "0.0f"},
+			{CSHAD_T::VEC2, "vec2(0.0f)"},
+			{CSHAD_T::VEC3, "vec3(0.0f)"},
+			{CSHAD_T::VEC4, "vec4(0.0f)"}
 		};
 		// -----------------------------------------------------------------
 		CustomShader CustomShader::LoadCShader(std::string const& filepath)
@@ -672,15 +679,15 @@ void main(void){
 			std::map<std::string, CShadDependencies> dependenciesLockedLines;
 			std::queue<std::string> toClearLines;
 
-			for (auto& [funcName, components] : in.items())
+			for (auto& [funcName, funcInstance] : in.items())
 			{
 				auto funcDetails = cShaderFuncsTemplates.find(funcName)->second;
-				// Predefines check
+				// Predefines check for all functions used
 				if (funcDetails.opPredefine != "" &&
 					cShaderPredefines.find(funcDetails.opPredefine) != cShaderPredefines.end())
 					funcsPre[funcDetails.opPredefine] = cShaderPredefines.find(funcDetails.opPredefine)->second;
 				// Loop through
-				for (auto& [id, dependicies] : components.items())
+				for (auto& [id, dependicies] : funcInstance.items())
 				{
 					// id - the return id of that line
 					std::vector<std::string> dep;
@@ -697,29 +704,37 @@ void main(void){
 					{
 						auto p = newID.funcStr.find("%s");
 						if (p != std::string::npos)
-						{
 							newID.funcStr.replace(p, 2, id);
-						}
 					}
-					for (auto i : dep)
+					else if (dep[0] == "0") // Std out has No Dependicies / Is meant to do nothing / Just DONT Call
+						continue;
+					for (size_t i{}; i < dep.size(); ++i)
 					{
-						if (defaulParmas.find(i) == defaulParmas.end())
+						std::string& depName = dep[i];
+						if (depName != "0")
 						{
-							if (dependenciesLockedLines.find(i) != dependenciesLockedLines.end())
-								dependenciesLockedLines[i].freesList.push_back(id);
-							else
+							if (defaulParmas.find(depName) == defaulParmas.end())
 							{
-								CShadDependencies othID{};
-								othID.freesList.push_back(id);
-								dependenciesLockedLines[i] = othID;
+								if (dependenciesLockedLines.find(depName) != dependenciesLockedLines.end())
+									dependenciesLockedLines[depName].freesList.push_back(id);
+								else
+								{
+									CShadDependencies othID{};
+									othID.freesList.push_back(id);
+									dependenciesLockedLines[depName] = othID;
+								}
+								++newID.dependenciesRemaining;
 							}
-							++newID.dependenciesRemaining;
+
+							auto p = newID.funcStr.find("%s");
+							if (p != std::string::npos)
+								newID.funcStr.replace(p, 2, depName);
 						}
-						
-						auto p = newID.funcStr.find("%s");
-						if (p != std::string::npos)
+						else
 						{
-							newID.funcStr.replace(p, 2, i);
+							auto p = newID.funcStr.find("%s");
+							if (p != std::string::npos)
+								newID.funcStr.replace(p, 2, cDefaultEmptyVals[funcDetails.inIDs[i]]);
 						}
 					}
 					dependenciesLockedLines[id] = newID;
@@ -728,11 +743,13 @@ void main(void){
 				}
 			}
 			// Extract Functions
+			// Uses toClearLines & dependenciesLockedLines
 			while (!toClearLines.empty())
 			{
 				auto i = toClearLines.front();
 				toClearLines.pop();
 
+				// Unlock all functions being blocked by this ID
 				for (auto cl : dependenciesLockedLines[i].freesList)
 				{
 					auto fl = dependenciesLockedLines.find(cl);
