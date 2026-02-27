@@ -26,17 +26,17 @@ namespace SliceEngine
         {
             base.OnCreate();
 
-            //generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+            generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
         }
 
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
 
-            //if (owner == null)
-            //{
-            //    this.gameObject.Destroy();
-            //}
+            if (owner == null)
+            {
+                this.gameObject.Destroy();
+            }
 
             //push it forward based on speed
 

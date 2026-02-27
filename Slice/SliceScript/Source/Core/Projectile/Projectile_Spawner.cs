@@ -25,6 +25,8 @@ namespace SliceEngine
 
         public bool active = false;
 
+        public int limit = 100;
+
         private enum SpawnStyle { Straight, Spiral, Fan };
 
         private SpawnStyle currentStyle = SpawnStyle.Straight;
@@ -45,14 +47,20 @@ namespace SliceEngine
 
             allProjectiles.Add(newBullet.As<Projectile>());
 
+            if (allProjectiles.Count > limit)
+            {
+                for (int i = 0; i < (allProjectiles.Count - limit); i++)
+                {
+                    DestroyBullet(allProjectiles[0]);
+                }
+            }
+
             return newBullet;
         }
 
         public void DestroyBullet(Projectile toDestroy)
         {
             int index = allProjectiles.IndexOf(toDestroy);
-
-
 
             if (index != -1)
             {
