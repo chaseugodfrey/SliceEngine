@@ -18,7 +18,7 @@ namespace SliceEditor
 		RecastNavMesh();
 		~RecastNavMesh();
 
-        bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform);
+        bool BuildFromModel(Entity* entity);
 
         //bool BuildFromModel(
         //    const std::vector<Entity *> entities,

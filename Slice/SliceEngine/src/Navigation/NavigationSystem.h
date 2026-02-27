@@ -36,6 +36,10 @@ namespace SliceEngine
         void EntityOnExit(entt::registry &reg, entt::entity entity) override;
         void EntityOnUpdate(entt::registry &reg, entt::entity entity, float dt) override;
 
+    private:
+        void InitializeAgent(NavAgent &agent, const Transform &transform, NavMeshObj &navMeshObj);
+        void UpdateAgentTarget(NavAgent &agent, NavMeshObj &navMeshObj);
+        void ApplyAgentPhysics(entt::registry &reg, entt::entity entity, NavAgent &agent, Transform &transform, NavMeshObj &navMeshObj);
     };
 }
 
