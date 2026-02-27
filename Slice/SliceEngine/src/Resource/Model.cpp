@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace {
 	//some consts to help typing
-	constexpr uint16_t version_number = 4;	//i think having a vers number could be useful, maybe
+	constexpr uint16_t version_number = 5;	//i think having a vers number could be useful, maybe
 	constexpr uint64_t i_size = sizeof(unsigned int);
 	constexpr uint64_t f_size = sizeof(float);
 	const float PIF = 3.14159265359f;
@@ -731,10 +731,12 @@ namespace SliceEngine
 			glEnableVertexArrayAttrib(vao, 0);
 			glEnableVertexArrayAttrib(vao, 1);
 			glEnableVertexArrayAttrib(vao, 2);
+			glEnableVertexArrayAttrib(vao, 5);
 
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
+			glVertexArrayAttribFormat(vao, 5, 3, GL_FLOAT, false, offsetof(Vertex, tangent));
 
 			glVertexArrayElementBuffer(vao, ebo);
 
@@ -744,6 +746,7 @@ namespace SliceEngine
 			glVertexArrayAttribBinding(vao, 0, 0);
 			glVertexArrayAttribBinding(vao, 1, 0);
 			glVertexArrayAttribBinding(vao, 2, 0);
+			glVertexArrayAttribBinding(vao, 5, 0);
 
 			if (!static_model) {
 

@@ -254,7 +254,7 @@ namespace SliceEditor
 	{
 		if (event.assetChangeSuccess == true)
 		{
-			EditorUtilities::ContentBrowser_Refresh(*registry.GetManager<ContentBrowserManager>("ContentBrowser"));
+			//EditorUtilities::ContentBrowser_Refresh(*registry.GetManager<ContentBrowserManager>("ContentBrowser"));
 		}
 	}
 

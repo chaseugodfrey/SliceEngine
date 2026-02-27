@@ -115,25 +115,20 @@ namespace SliceEditor
 
 		ImGui::Text("Entity ID: %d", entity);
 
-		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
 			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
-			ImGui::Text("Is Prefab");
-			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			auto& assetManager = mRegistry.GetAssetManager();
+			ImGui::Text("Prefab: ");
+			ImGui::SameLine(150.f);
+			if (assetManager.mGUIDtoFilename.find(prefabComponent.prefabGUID) != assetManager.mGUIDtoFilename.end())
 			{
-				if(ImGui::BeginTooltip())
-				{
-					ImGui::Text("Prefab GUID: ");
-					ImGui::SameLine(150.f);
-					std::string prefabGUID = prefabComponent.prefabGUID.toString();
-					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
-					ImGui::Text(prefabGUID.c_str());
-					ImGui::Text("Prefab Handle GUID: ");
-					ImGui::SameLine(150.f);
-					ImGui::Text(prefabHandle.c_str());
-					ImGui::EndTooltip();
-				}
+				ImGui::Text(assetManager.mGUIDtoFilename[prefabComponent.prefabGUID].c_str());
+			}
+			else
+			{
+				std::string prefabGUID = prefabComponent.prefabGUID.toString();
+				ImGui::Text(prefabGUID.c_str());
 			}
 		}
 
@@ -685,22 +680,22 @@ namespace SliceEditor
 
 	}
 
-	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	{
-		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		{
-			//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-			
-			
-			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-			ImGui::TreePop();
-		}
+	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	//{
+	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+	//	{
+	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+	//		
+	//		
+	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
+	//		ImGui::TreePop();
+	//	}
 
 
-			//ImGui::TreePop();
-		}
+	//		//ImGui::TreePop();
+	//	}
 
 	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
 	{
@@ -1821,13 +1816,13 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
-			{
-				if (ImGui::Selectable("Add Nav Mesh Link"))
-				{
-					reg.emplace<SliceEngine::NavMeshLink>(entity);
-				}
-			}
+			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			//{
+			//	if (ImGui::Selectable("Add Nav Mesh Link"))
+			//	{
+			//		reg.emplace<SliceEngine::NavMeshLink>(entity);
+			//	}
+			//}
 
 			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
 			{
@@ -2078,11 +2073,11 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			{
-				DisplayNavMeshLink(node->entity);
-				ImGui::Separator();
-			}
+			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			//{
+			//	DisplayNavMeshLink(node->entity);
+			//	ImGui::Separator();
+			//}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
 			{
@@ -2266,6 +2261,20 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		ImGui::SeparatorText("Transitions");
+
+		for (auto& transition : state.transitions)
+		{
+			if (ImGui::TreeNodeEx(transition.targetState.c_str()))
+			{
+				BoolInputHeader(mRegistry, "Has Exit Time: ", "##hasExitTime", transition.hasExitTime);
+				DragFloatInputHeader(mRegistry, "Entry Time: ", "##entryTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+				DragFloatInputHeader(mRegistry, "Exit Time: ", "##exitTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+
+				ImGui::TreePop();
+			}
+		}
 	
 
 		//auto state = node->state;
@@ -2281,7 +2290,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
-		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
 
 		ImGui::SeparatorText("Transition");
 
@@ -2289,12 +2298,23 @@ namespace SliceEditor
 			return;
 		
 		auto stateOpt = anim_data->GetState(node->source_id);
+
+		if (!stateOpt.has_value())
+			return;
 		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
 
 		if (!transitionOpt.has_value())
 			return;
 
 		//auto& transition = transitionOpt.value().get();
+
+		ImGui::Text("Source State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().sourceState.c_str());
+
+		ImGui::Text("Target State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().targetState.c_str());
 
 		auto params = anim_data->GetParameters();
 

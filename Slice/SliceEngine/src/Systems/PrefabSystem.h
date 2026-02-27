@@ -56,7 +56,7 @@ namespace SliceEngine
 		void MakePrefabChild(Entity entity, unsigned int& prefabID, std::set<Entity>& entitySet);
 
 		void UpdatePrefabComponent(Entity entity, GUID guid, bool toRemove = false);
-
+		void UpdatePrefabComponentChild(Entity entity, GUID guid, bool toRemove = false);
 		
 		/// When creating an object while inspecting a prefab, this function will add it to the prefab "base entity"
 		void AddToPrefab(Entity entity, Entity rootNode);

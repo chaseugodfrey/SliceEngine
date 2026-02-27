@@ -164,6 +164,10 @@ namespace SliceEditor
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
 	{
 		auto session = registry.GetManager<SessionManager>("Session");
+		if(entity == entt::null)
+		{
+			return;
+		}
 		auto& node = session->GetEntityNodes().at(entity);
 		SelectSingleAdd(node.get(), suppressHistory);
 

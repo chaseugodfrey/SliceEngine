@@ -347,7 +347,7 @@ namespace SliceEditor
 			data.InitMetaData(filepath, AssetType::Controller, "Controller");
 			mStateMachineAsset = std::make_unique<StateMachineData>(data);
 
-			auto& stateMap = data.stateMap;
+			auto& stateMap = mStateMachineAsset->stateMap;
 
 			create_default();
 
@@ -490,6 +490,7 @@ namespace SliceEditor
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;
 		std::filesystem::path filePath;
+		bool toRecompile = true;
 	};
 
 	// ANIMATIONS
