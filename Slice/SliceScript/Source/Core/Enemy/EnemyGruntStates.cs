@@ -33,6 +33,7 @@ namespace SliceEngine
             owner.UpdateNavAgentSpeed(owner.movementSpeed);
             owner.ResetDestinationToActiveTarget();
             owner.StartNav();
+            owner._LookingAtPlayer = true;
         }
 
         public override void DoEnemyAction(float dt)
@@ -41,7 +42,12 @@ namespace SliceEngine
 
             Vector3 direction_diff = enemyOwner.playerT.GetComponent<Transform>().Position - enemyOwner.enemyT.Position;
 
-            enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
+            //enemyOwner.transform.LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
+
+            //enemyOwner.meshObject.GetComponent<Transform>().LookAt(enemyOwner.playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
+
+            //i need a way to rotate without Y axis
+            //Then i make the mesh look at the player
 
             //enemyOwner.enemyT.Position += direction_diff.Normalize() * enemyOwner.movementSpeed * dt;
 
@@ -112,11 +118,6 @@ namespace SliceEngine
                     enemyOwner.ChangeState(new EnemyGruntWindUpState(enemyOwner));
                 }
             }
-
-
-
-
-
         }
     }
 
