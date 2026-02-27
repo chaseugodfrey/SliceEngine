@@ -778,6 +778,30 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
+	void Engine::WindowSizeSwitch()
+	{
+		auto sInputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
+
+		if (sInputs->IsKeyDown(GLFW_KEY_RIGHT_ALT))
+		{
+			if (sInputs->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				if (windowManager->isFullScreen)
+				{
+					windowManager->NonFullScreenWindow();
+				}
+				else
+				{
+					windowManager->FullScreenWindow();
+				}
+			}
+
+		}
+	}
+
+	
+
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
@@ -786,6 +810,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
+		
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -850,16 +875,16 @@ namespace SliceEngine
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(core->GetWindow());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwPollEvents();
-		frm->EndSystem("GLFW Poll Events");
+		//frm->StartSystem("GLFW Poll Events");
+		//glfwMakeContextCurrent(core->GetWindow());
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glfwPollEvents();
+		//frm->EndSystem("GLFW Poll Events");
 
-		frm->StartSystem("Input");
-		sInputs->UpdatePrevInput();
-		GetActionMappingSystem().processAllInput();
-		frm->EndSystem("Input");
+		//frm->StartSystem("Input");
+		//sInputs->UpdatePrevInput();
+		//GetActionMappingSystem().processAllInput();
+		//frm->EndSystem("Input");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
