@@ -19,13 +19,18 @@ namespace SliceEditor
 		{CST::CSHAD_T::VEC4, "vec4"}
 	};
 
-	static std::unordered_map<std::string, int> cShaderOutputNames
+	CustomShaderWindow::CustomShaderWindow(Registry& reg) : EditorWindow(reg) 
 	{
-		{"END_COLOR", 0},
-		{"END_ROUGHNESS", 0},
-		{"END_METALLIC", 0},
-		{"END_NORMAL", 0}
-	};
+		mFinalNode.id = ++uniqueIDCnt;
+		for (auto& [name, funcDets] : CST::cShaderFuncsTemplates)
+		{
+			if (funcDets.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+			{
+				mFinalNodeOutputNames.push_back(name);
+				mFinalNode.in_ids.push_back(++uniqueIDCnt);
+			}
+		}
+	}
 
 	CustomShaderWindow::~CustomShaderWindow()
 	{
@@ -77,11 +82,6 @@ namespace SliceEditor
 			fs.close();
 			// -------------------------------------------------------------------
 			//uniqueIDCnt = 0;
-
-			for (auto& [name, outId] : cShaderOutputNames)
-				outId = 0;
-			specialOutIDs.clear();
-
 			mDefaultIns.clear();
 			mEditableIns.clear();
 			mStateNodes.clear();
@@ -96,6 +96,9 @@ namespace SliceEditor
 				std::queue<int> dest_attr; // many ins
 			};
 			std::unordered_map<std::string, tempLinkIDContainer> tempIDLinkGet;// Func Name
+
+			for (auto tID : mFinalNode.in_ids)
+				attrIDToNodeID[tID] = mFinalNode.id;
 
 			// Defaults
 			auto copy = CST::dataIDS;
@@ -184,10 +187,31 @@ namespace SliceEditor
 					tempIDLinkGet[name].source_attr = n.out_id;
 				}
 
+			// Load Functions
 			nlohmann::json mainColorJson = cshaderJson["Main"];
+			mStateNodes[mFinalNode.id] = mFinalNode;
 			for (auto& [funcName, components] : mainColorJson.items())
 			{
 				const auto& funcDets = CST::cShaderFuncsTemplates.find(funcName)->second;
+				// Finals
+				if (funcDets.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+				{
+					for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
+					{
+						if (funcName == mFinalNodeOutputNames[i])
+						{
+							for (auto& [id, dependencies] : components.items())
+							{
+								std::vector<std::string> dep;
+								dependencies.get_to(dep);
+								tempIDLinkGet[dep[0]].dest_attr.push(mFinalNode.in_ids[i]);
+							}
+							break;
+						}
+					}
+					continue;
+				}
+				// Normal functions
 				for (auto& [id, dependencies] : components.items())
 				{
 					std::vector<std::string> dep;
@@ -204,14 +228,7 @@ namespace SliceEditor
 						attrIDToNodeID[tID] = n.id;
 						tempIDLinkGet[dep[i]].dest_attr.push(tID);
 					}
-					// Special Case (No Out)
-					if (cShaderOutputNames.find(funcName) != cShaderOutputNames.end())
-					{
-						cShaderOutputNames[funcName] = n.id;
-						specialOutIDs.insert(n.id);
-					}
 					// Out
-					else
 					{
 						int tID = ++uniqueIDCnt;
 						n.out_id = tID;
@@ -222,6 +239,8 @@ namespace SliceEditor
 					mStateNodes[n.id] = n;
 				}
 			}
+
+
 			// After all functions have been loaded
 			for (auto& [oldFuncID, linkNodes] : tempIDLinkGet)
 			{
@@ -278,8 +297,7 @@ namespace SliceEditor
 			std::queue<ShaderStateNode> nodesLeftToCheck;
 
 			nlohmann::json colorMainJson;
-			for (auto& [outName, outID] : cShaderOutputNames)
-				nodesLeftToCheck.push(mStateNodes.at(outID));
+			nodesLeftToCheck.push(mFinalNode);
 
 			while (!nodesLeftToCheck.empty())
 			{
@@ -420,7 +438,11 @@ namespace SliceEditor
 			DrawEditableInNode(i.second);
 		// Mids
 		for (auto& i : mStateNodes)
-			DrawStateNode(i.second);
+		{
+			if(i.second.id != mFinalNode.id)
+				DrawStateNode(i.second);
+		}
+		DrawFinalNode();
 		// Transitions
 		for (auto& i : mTransitionNodes)
 			DrawTransitionNodes(i.second);
@@ -516,16 +538,11 @@ namespace SliceEditor
 	void CustomShaderWindow::DrawStateNode(ShaderStateNode& node)
 	{
 		ImNodes::BeginNode(node.id);
-
-		if (specialOutIDs.find(node.id) != specialOutIDs.end())
-			ImGui::TextUnformatted(node.name.c_str());
-		else
-		{
-			ImNodes::BeginNodeTitleBar();
-			ImGui::TextUnformatted(node.name.c_str());
-			ImNodes::EndNodeTitleBar();
-		}
-
+		
+		ImNodes::BeginNodeTitleBar();
+		ImGui::TextUnformatted(node.name.c_str());
+		ImNodes::EndNodeTitleBar();
+		
 		const auto& funcDets = CST::cShaderFuncsTemplates.find(node.name)->second;
 		for (size_t i{}; i < funcDets.inIDs.size(); ++i)
 		{
@@ -534,15 +551,31 @@ namespace SliceEditor
 			ImNodes::EndInputAttribute();
 		}
 
-		if (node.out_id != 0)
-		{
-			ImGui::SameLine();
-			ImNodes::BeginOutputAttribute(node.out_id);
-			ImGui::Text(cShaderTypeName[funcDets.outType].c_str());
-			ImNodes::EndOutputAttribute();
-		}
+	
+		ImGui::SameLine();
+		ImNodes::BeginOutputAttribute(node.out_id);
+		ImGui::Text(cShaderTypeName[funcDets.outType].c_str());
+		ImNodes::EndOutputAttribute();
+		
 		if (ImNodes::IsNodeSelected(node.id))
 			SelectNode(&node);
+
+		ImNodes::EndNode();
+	}
+
+	void CustomShaderWindow::DrawFinalNode()
+	{
+		ImNodes::BeginNode(mFinalNode.id);
+
+		for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
+		{
+			ImNodes::BeginInputAttribute(mFinalNode.in_ids[i]);
+			ImGui::Text(mFinalNodeOutputNames[i].substr(4).c_str());
+			ImNodes::EndInputAttribute();
+		}
+
+		if (ImNodes::IsNodeSelected(mFinalNode.id))
+			SelectNode(&mFinalNode);
 
 		ImNodes::EndNode();
 	}
@@ -575,8 +608,6 @@ namespace SliceEditor
 		yPos = 0.f;
 		for (auto& i : mStateNodes)
 		{
-			if (specialOutIDs.find(i.first) != specialOutIDs.end())
-				continue;
 			InitNodePos(i.first, xPos, yPos);
 			yPos += yBigProgress;
 			if (yPos > 3 * yBigProgress)
@@ -586,14 +617,9 @@ namespace SliceEditor
 			}
 		}
 		xPos += xProgress;
-		for (auto& [outName, outID] : cShaderOutputNames)
-		{
-			if (outID != 0)
-			{
-				InitNodePos(outID, xPos, yPos);
-				yPos += yProgress;
-			}
-		}
+
+		InitNodePos(mFinalNode.id, xPos, yPos);
+
 		tempLoadPos = false;
 	}
 	// -ve is go up

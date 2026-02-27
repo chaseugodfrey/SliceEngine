@@ -31,6 +31,10 @@
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom
 
+extern void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
+
 
 namespace SliceEngine
 {
@@ -51,6 +55,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mEVBO);
 		glNamedBufferStorage(mEVBO, sizeof(glm::uvec4) * mMaxInstance * mEVBOSafetyMult, nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mEVBO);
+		CheckGLError();
 	}
 	RenderCmdManager::~RenderCmdManager()
 	{
@@ -495,6 +500,7 @@ namespace SliceEngine
 			break;
 		}
 		}
+		CheckGLError();
 	}
 
 	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)
@@ -551,6 +557,7 @@ namespace SliceEngine
 		}
 		}
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+		CheckGLError();
 	}
 
 	void RenderCmdManager::SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID)

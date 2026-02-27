@@ -35,10 +35,7 @@ namespace SliceEditor
 			std::string name;
 			rttr::variant baseData;
 			SliceEngine::SliceEngineTypes::CSHAD_T baseDataType = SliceEngine::SliceEngineTypes::CSHAD_T::NIL;
-			ShaderEditableNode()
-			{
-				type = SelectionType::SHADER_STATE;
-			}
+			ShaderEditableNode() : SelectionNode(SelectionType::SHADER_STATE) {}
 		};
 		struct ShaderStateNode : SelectionNode
 		{
@@ -48,10 +45,7 @@ namespace SliceEditor
 			std::vector<int> in_ids;
 
 			std::string name{};
-			ShaderStateNode()
-			{
-				type = SelectionType::SHADER_FUNCTION_STATE;
-			}
+			ShaderStateNode() :SelectionNode(SelectionType::SHADER_FUNCTION_STATE) {}
 		};
 		struct ShaderLinkNode : SelectionNode
 		{
@@ -60,10 +54,7 @@ namespace SliceEditor
 			int sourceAttr{};
 			int destAttr{};
 
-			ShaderLinkNode()
-			{
-				type = SelectionType::SHADER_LINK_STATE;
-			}
+			ShaderLinkNode() : SelectionNode(SelectionType::SHADER_LINK_STATE) {}
 		};
 
 		std::unordered_map<int, ShaderStateNode> mDefaultIns;
@@ -73,12 +64,14 @@ namespace SliceEditor
 
 		std::unordered_map<int, int> attrIDToNodeID;
 		std::unordered_map<int, int> attrIDToLinkID; // Both Ways
-		std::set<int> specialOutIDs;
+		ShaderStateNode mFinalNode;
+		std::vector<std::string> mFinalNodeOutputNames;
 
 		void create_default();
 		void DrawSideBar();
 		void DrawNodeEditor();
 		void DrawStateNode(ShaderStateNode&);
+		void DrawFinalNode();
 		void DrawDefaultInNode(ShaderStateNode&);
 		void DrawEditableInNode(ShaderEditableNode&);
 		void DrawTransitionNodes(ShaderLinkNode&);
@@ -94,7 +87,7 @@ namespace SliceEditor
 		int CreateEditable(SliceEngine::SliceEngineTypes::CSHAD_T);
 	public:
 
-		CustomShaderWindow(Registry& reg) : EditorWindow(reg) {};
+		CustomShaderWindow(Registry& reg);
 		~CustomShaderWindow();
 
 		void CheckFileData();
