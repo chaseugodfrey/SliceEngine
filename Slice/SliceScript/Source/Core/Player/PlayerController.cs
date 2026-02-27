@@ -176,10 +176,14 @@ namespace SliceEngine
                 //console.writeline("Camera Var in player is EMPTY");
             }
 
-            Bootstrap.HUDManager.SetHealth(currentHealth/maxHealth);
+            Bootstrap.HUDManager.SetHealth(currentHealth / maxHealth);
         }
         public override void OnCreate()
         {
+            // NOTE: This shouldn't be true on create
+            // cause if we implement tutorial they shouldnt be able to move on start
+            canInput = true;
+            canMove = true;
             if (debugMode)
             {
                 return;
@@ -316,7 +320,7 @@ namespace SliceEngine
                     if (isGroundDashing)
                     {
                         animator.SetBool("DashStart", true);
-                    } 
+                    }
                     else if (isAirDashing)
                     {
                         animator.SetBool("AirDashStart", true);
@@ -405,7 +409,7 @@ namespace SliceEngine
                     //AudioManager.instance.PlaySFX("Land");
                     lastLandTime = Time.time;
 
-                        
+
                     //if (animator)
                     //{
                     //    animator.ResetTrigger("Land");
@@ -484,7 +488,7 @@ namespace SliceEngine
             else
             {
                 // Airborne → apply gravity
-                //velocity.y += gravity * Time.deltaTime;
+                velocity.y += gravity * Time.deltaTime;
             }
 
 
@@ -530,8 +534,8 @@ namespace SliceEngine
 
             if (grounded)
             {
-                if (groundDashReady) 
-                { 
+                if (groundDashReady)
+                {
                     BeginGroundDash();
                     StartCoroutine(DashCooldown());
                 }
@@ -624,7 +628,7 @@ namespace SliceEngine
             allowedDashDistance = dashDistance;
 
             //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
-            if (Physics.Raycast(transform.Position + new Vector3 (0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
             {
                 if (allowedDashDistance >= dashHitInfo.distance)
                 {
@@ -731,7 +735,7 @@ namespace SliceEngine
             atk3HorizVel = Vector3.Zero;
         }
         #endregion
-       
+
         private void GroundCheck()
         {
             if (groundCheckLocked)
@@ -754,7 +758,7 @@ namespace SliceEngine
                 }
             }
         }
-       
+
         #region Attacks
         private void InitializeAttackHitboxes()
         {
@@ -870,7 +874,7 @@ namespace SliceEngine
                 attackAutoRecover = false;
                 attackResetTimer = 0f;
                 attackCounter = 0;
-                
+
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
                     if (animator.SafeToChange("AttackToIdle1"))

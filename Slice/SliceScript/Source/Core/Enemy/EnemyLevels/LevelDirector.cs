@@ -73,8 +73,8 @@ namespace SliceEngine
             isActive = true;
 
 
-            //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
-            //Console.WriteLine("Num of levels: " + levels.Count);
+            Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
+            Console.WriteLine("Num of levels: " + levels.Count);
         }
 
         public GameObject CreateGruntEnemy(/*Prefab prefab*/)

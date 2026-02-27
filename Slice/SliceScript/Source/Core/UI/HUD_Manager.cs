@@ -31,11 +31,11 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            if (DialogueOnStart)
-            {
-                PlayDialogueForLevel(currLevel);
-                Bootstrap.Player.canInput = false;
-            }
+            //if (DialogueOnStart)
+            //{
+            //    PlayDialogueForLevel(currLevel);
+            //    Bootstrap.Player.canInput = false;
+            //}
         }
 
         public override void OnUpdate(float dt)
@@ -269,7 +269,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();      
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            LoadDialogues();
+            //LoadDialogues();
         }
     }
 }
