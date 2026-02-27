@@ -10,42 +10,77 @@ namespace SliceEngine
 
     public class PlayerController : Entity, IInitializable
     {
-        //public float rotationSpeed = 50.0f;
-        //public string[] test3 = { "Test", "Test2" };
-        //public Vector3[] TestVectors = { new Vector3(1, 1, 1),  new Vector3(2, 2, 2) };
-        //public Vector3 direction = new Vector3(0.0f, 0.0f, 1.0f);
-        //public Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
-        //static bool testingShit = false;
-
         // =========== Debug Mode =========
         public bool debugMode = false;
 
         // =========== Debug Mod ==========
-
-
         public GameObject playerModel;
+
+        // =============== Player States ===============
+        public enum MovementState
+        {
+            Idle,
+            Walking,
+            Jumping,
+            Falling,
+            Landing,
+            GroundDash,
+            AirDash,
+            Plunge,
+            PlungeLand
+        }
+
+        public enum CombatState
+        {
+            None,
+            Attacking,
+            Recovery,
+            Hitstun
+        }
+
+        public enum CurrentAttack
+        {
+            None,
+            Attack1,
+            Attack2,
+            Attack3
+        }
+
+        public enum ControlState
+        {
+            Gameplay,
+            Disabled,
+            Teleporting,
+            Dead,
+            Cutscene
+        }
+
+        public MovementState playerMovementState = MovementState.Idle;
+        public CombatState playerCombatState = CombatState.None;
+        public CurrentAttack playerCurrentAttack = CurrentAttack.None;
+        public ControlState playerControlState = ControlState.Gameplay;
 
         // =============== Movement variables =============== 
         public float moveSpeed = 2.5f;
         public float rotationSpeed = 12f;
         public float dashMultiplier = 5f;
         public float dashDuration = 0.2f;
-        private bool isDashing = false;
-        public float jumpForce = 5f;
-        public float fallForce = 5f;
-        public float fallVelocityThreshold = 20f;
+
+        public float jumpForce = 10.0f;
         public int maxJumps = 2;
+        private int jumpCounter = 0;
+
         public float groundCheckDelay = 0.05f;
         private float groundCheckTimer = 0f;
-        private bool grounded, groundCheckLocked;
-        private int jumpCounter = 0;
+        private bool grounded;
+        private bool groundCheckLocked;
+        
         private Vector3 input;
-        private float verticalVelocity = 0f;
+        private Vector3 finalInput;
         public float terminalVelocity = -50f;
         private Vector3 finalMove;
 
         private Vector3 velocity;
-        private bool wasGrounded;
         private float lastGroundedTime;
         private float lastJumpPressedTime;
         private bool jumpRequested;
@@ -56,7 +91,6 @@ namespace SliceEngine
         // Jump and Gravity
         public float jumpHeight = 1.4f;
         public float gravity = -9.81f;
-        public float groundedGravity = -2f;
         public float coyoteTime = 0.08f;
         public float jumpBuffer = 0.10f;
         private float jumpDelay = 0.00f;
@@ -70,8 +104,9 @@ namespace SliceEngine
         private bool resetYOnDoubleJump = true;
 
         // Dash Variables
-        private bool isGroundDashing = false, groundDashReady = true;
-        private bool isAirDashing = false, airDashReady = true;
+        private bool groundDashReady;
+        private bool airDashReady;
+
         private float dashTimer = 0f;
         private float groundDashCooldownUntil = 0f;
         private float airDashCooldownUntil = 0f;
@@ -98,7 +133,6 @@ namespace SliceEngine
         public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
         private int attackCounter = 0;
-        public bool isAttacking = false;
         public float attackRecoveryDuration = 0.5f;
         private bool attackQueued = false;
         private bool attackAutoRecover = false;
@@ -149,8 +183,7 @@ namespace SliceEngine
         private Vector3 atk3HorizVel = Vector3.Zero;
         private float atk3UpwardEndTime = 0f;
 
-        // Plunge runtime 
-        private bool isPlunging = false;
+        // Plunge runtime
         private float plungeTimer = 0f;
         private Vector3 plungeDir = Vector3.Zero;
         private bool plungeImpulseStarted = false;
@@ -212,24 +245,20 @@ namespace SliceEngine
             }
 
             GroundCheck();
-
-            //if (canInput)
-            {
-                HandleInput();
-                HandleDashInput();
-            }
-            if (attackQueued && !isAttacking)
+            HandleInput();
+            HandleDashInput();
+            if (attackQueued && playerCombatState != CombatState.Attacking)
             {
                 ExecuteAttack();
-                attackQueued = false;
-                //console.writeline("AttackQueued set to false");
+            }
+            else
+            {
+                playerCombatState = CombatState.None;a
             }
             UpdateDash();
-            if (canMove && !isAttacking && !attackAutoRecover) HandleMovement();
+            HandleMovement();
             HandleJump();
             AttackResetTimer();
-            //Console.WriteLine($"Velocity is {velocity.x}, {velocity.y}, {velocity.z}");
-            //Console.WriteLine($"Input is {input.x}, {input.y}, {input.z}");
         }
         private void HandleInput()
         {
@@ -268,7 +297,7 @@ namespace SliceEngine
         }
         #region New Movement
         private void HandleMovement()
-        {
+        { 
             Vector3 camForward = new Vector3();
             finalMove = Vector3.Zero;
             if (camera != null)
@@ -280,13 +309,16 @@ namespace SliceEngine
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
-
             float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
-            bool walkingNow = !isAttacking && !isGroundDashing && !isAirDashing && grounded && rawPlanarSpeed > 0.1f;
+
+            bool walkingNow = playerCombatState != CombatState.Attacking &&
+                  (playerMovementState != MovementState.GroundDash &&
+                   playerMovementState != MovementState.AirDash) &&
+                  grounded && rawPlanarSpeed > 0.1f;
             //SliceLog.Log("GroundDashing: " + isGroundDashing.ToString() + " AirDashing: " + isAirDashing.ToString() + " isAttacking: " + isAttacking.ToString() + " isPlunging: " + isPlunging.ToString());
-            if (isGroundDashing || isAirDashing)
+            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
-                float dashSpeed = isGroundDashing ? dashDistance / Math.Max(0.0001f, dashStartDuration)
+                float dashSpeed = playerMovementState == MovementState.GroundDash ? dashDistance / Math.Max(0.0001f, dashStartDuration)
                                                   : airDashDistance / Math.Max(0.0001f, airDashDuration);
                 float distanceThisFrame = dashSpeed * Time.deltaTime;
                 float moveAmount = Math.Min(allowedDashDistance, distanceThisFrame);
@@ -297,12 +329,12 @@ namespace SliceEngine
                 }
                 else
                 {
-                    if (isGroundDashing) EndGroundDash();
-                    else if (isAirDashing) EndAirDash();
+                    if (playerMovementState == MovementState.GroundDash) EndGroundDash();
+                    else if (playerMovementState == MovementState.AirDash) EndAirDash();
                 }
 
                 Vector3 dashVel = dashDir * moveAmount;
-                finalMove = isGroundDashing
+                finalMove = playerMovementState == MovementState.GroundDash
                     ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
                     : dashVel;
 
@@ -317,19 +349,19 @@ namespace SliceEngine
 
                 if (animator != null)
                 {
-                    if (isGroundDashing)
+                    if (playerMovementState == MovementState.GroundDash)
                     {
                         animator.SetBool("DashStart", true);
                     }
-                    else if (isAirDashing)
+                    else if (playerMovementState == MovementState.AirDash)
                     {
                         animator.SetBool("AirDashStart", true);
                     }
                 }
             }
-            else if (isAttacking || isPlunging)
+            else if (playerCombatState == CombatState.Attacking || playerMovementState == MovementState.Plunge)
             {
-                if (isPlunging && !plungeImpulseStarted)
+                if (playerMovementState == MovementState.Plunge && !plungeImpulseStarted)
                 {
                     // apply impulse
                     plungeImpulseStarted = true;
@@ -338,9 +370,9 @@ namespace SliceEngine
                     velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
                 }
                 // if it grounds when plunging
-                if (isPlunging && grounded)
+                if (playerMovementState == MovementState.Plunge && grounded)
                 {
-                    isPlunging = false;
+                    playerMovementState = MovementState.PlungeLand;
                     plungeImpulseStarted = false;
                     // transition to plunge land
                     if (animator != null)
@@ -386,9 +418,11 @@ namespace SliceEngine
         // -------------------- Jump ------------------------------------------------------------------------------------------
         void HandleJump()
         {
+            RigidBody rb = GetComponent<RigidBody>();
+
             if (grounded) lastGroundedTime = Time.time;
 
-            if (wasGrounded && !grounded)
+            if (!grounded)
             {
                 lastAirTime = Time.time; // mark when airborne
                 if (animator != null)
@@ -398,7 +432,7 @@ namespace SliceEngine
                 }
             }
 
-            if (!wasGrounded && grounded)
+            if (grounded)
             {
                 // Only trigger landing if we were in the air at least minAirTimeForLanding
                 bool longEnoughAir = (Time.time - lastAirTime) >= minAirTimeForLanding;
@@ -408,7 +442,6 @@ namespace SliceEngine
                 {
                     //AudioManager.instance.PlaySFX("Land");
                     lastLandTime = Time.time;
-
 
                     //if (animator)
                     //{
@@ -436,7 +469,7 @@ namespace SliceEngine
             }
 
             // Jump input disabled during attacks
-            if (!isAttacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            if (playerCombatState != CombatState.Attacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
                 lastJumpPressedTime = Time.time;
 
             bool canCoyote = (Time.time - lastGroundedTime) <= coyoteTime;
@@ -444,14 +477,14 @@ namespace SliceEngine
 
             if (!grounded && !canCoyote)
             {
-                if (!isAttacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                if (playerCombatState != CombatState.Attacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
                 {
                     DoDoubleJump();
                 }
             }
             else
             {
-                if (!isAttacking && !jumpRequested && bufferedJump && canCoyote)
+                if (playerCombatState != CombatState.Attacking && !jumpRequested && bufferedJump && canCoyote)
                 {
                     jumpRequested = true;
                     jumpImpulseApplied = false;
@@ -463,7 +496,7 @@ namespace SliceEngine
             }
 
             // Apply jump impulse (delayed if any)
-            if (!isGroundDashing && !isAirDashing && !isAttacking && jumpRequested && !jumpImpulseApplied && Time.time >= jumpApplyAtTime)
+            if (playerMovementState != MovementState.GroundDash && playerMovementState != MovementState.AirDash && playerCombatState != CombatState.Attacking && jumpRequested && !jumpImpulseApplied && Time.time >= jumpApplyAtTime)
             {
                 float jumpSpeed = (float)Math.Sqrt(jumpHeight * -2f * gravity);
                 velocity.y = jumpSpeed;
@@ -471,12 +504,12 @@ namespace SliceEngine
                 //AudioManager.instance.PlaySFX("Jump");
             }
 
-            // Gravity
-            if (isAirDashing)
+            // Disable Gravity When Air Dashing
+            if (playerMovementState == MovementState.AirDash)
             {
                 velocity.y = 0f;
             }
-            else if (isPlunging && !plungeImpulseStarted)
+            else if (playerMovementState != MovementState.Plunge && !plungeImpulseStarted)
             {
                 velocity.y = 0f;
             }
@@ -485,14 +518,6 @@ namespace SliceEngine
                 // Hard lock to ground
                 velocity.y = 0f;
             }
-            else
-            {
-                // Airborne → apply gravity
-                velocity.y += gravity * Time.deltaTime;
-            }
-
-
-            wasGrounded = grounded;
         }
 
         void DoDoubleJump()
@@ -527,7 +552,7 @@ namespace SliceEngine
             if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
 
             // Dashes cancel the attack
-            if (isAttacking)
+            if (playerCombatState == CombatState.Attacking)
             {
                 EndAttackState();
             }
@@ -613,8 +638,7 @@ namespace SliceEngine
 
         void BeginGroundDash()
         {
-            isGroundDashing = true;
-            isAirDashing = false;
+            playerMovementState = MovementState.GroundDash;
 
             Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
             //dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
@@ -657,8 +681,7 @@ namespace SliceEngine
 
         void BeginAirDash()
         {
-            isAirDashing = true;
-            isGroundDashing = false;
+            playerMovementState = MovementState.AirDash;
 
             Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
             dashDir = AddUpwardAngle(flat, airDashUpAngleDeg);
@@ -690,12 +713,12 @@ namespace SliceEngine
         }
         void UpdateDash()
         {
-            if (isGroundDashing || isAirDashing)
+            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
                 dashTimer -= Time.deltaTime;
                 if (dashTimer <= 0f)
                 {
-                    if (isGroundDashing) EndGroundDash();
+                    if (playerMovementState == MovementState.GroundDash) EndGroundDash();
                     else EndAirDash();
                 }
             }
@@ -703,14 +726,14 @@ namespace SliceEngine
 
         void EndGroundDash()
         {
-            isGroundDashing = false;
+            playerMovementState = MovementState.Idle;
             groundDashCooldownUntil = Time.time + dashCooldown;
 
         }
 
         void EndAirDash()
         {
-            isAirDashing = false;
+            playerMovementState = MovementState.Idle;
             airDashCooldownUntil = Time.time + airDashCooldown;
         }
         void EndAttackState()
@@ -719,7 +742,7 @@ namespace SliceEngine
             attackTimer = 0f;
             attackCounter = 0;
             attackQueued = false;
-            isAttacking = false;
+            playerCombatState = CombatState.None;
             attackResetTimer = 0f;
             TurnOffHitboxes();
 
@@ -786,7 +809,7 @@ namespace SliceEngine
         private void TryAttack()
         {
             // transition to plunge if in air
-            if (!grounded && isPlunging == false)
+            if (!grounded && playerMovementState != MovementState.Plunge)
             {
                 StartCoroutine(Plunge(plungeDuration));
                 return;
@@ -796,11 +819,11 @@ namespace SliceEngine
         }
         private void ExecuteAttack()
         {
-            if (!isAttacking && !isPlunging)
+            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunge)
             {
                 attackAutoRecover = false;
                 attackCounter++;
-                isAttacking = true;
+                playerCombatState = CombatState.Attacking;
 
                 if (attackCounter > 3) attackCounter = 1;
                 switch (attackCounter)
@@ -858,14 +881,14 @@ namespace SliceEngine
         public void StartAttackRecovery()
         {
             attackResetTimer = 0f;
-            isAttacking = false;
+            playerCombatState = CombatState.None;
             attackAutoRecover = true;
 
             TurnOffHitboxes();
         }
         private void AttackResetTimer()
         {
-            if (!isAttacking)
+            if (playerCombatState != CombatState.Attacking)
             {
                 attackResetTimer += Time.deltaTime;
             }
@@ -895,7 +918,7 @@ namespace SliceEngine
         private IEnumerator Plunge(float duration)
         {
             //console.writeline("Plunging");
-            isPlunging = true;
+            playerMovementState = MovementState.Plunge;
             if (animator != null)
             {
                 animator.SetBool("Plunge", true);
@@ -945,7 +968,7 @@ namespace SliceEngine
         }
         private bool AttackAnimationState()
         {
-            if (!isAttacking)
+            if (playerCombatState != CombatState.Attacking)
             {
                 if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                     String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 ||
@@ -972,7 +995,7 @@ namespace SliceEngine
                 animator.SetBool("Attack3ToLoco", true);
             }
 
-            if (isAttacking)
+            if (playerCombatState == CombatState.Attacking)
             {
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
@@ -983,7 +1006,7 @@ namespace SliceEngine
                     animator.SetBool("Attack3", false);
                 }
             }
-            if (!isAttacking)
+            if (playerCombatState != CombatState.Attacking)
             {
                 if (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") == 0 ||
                 String.Compare(animator.GetCurrAnimName(), "AttackToIdle2") == 0 ||
@@ -1016,15 +1039,6 @@ namespace SliceEngine
         }
 
         #region On Overrides
-        public override void OnCollideEnter(uint other)
-        {
-            // SliceLog.Log("OADMOSMODASM");
-            // gameObject.Destroy();
-        }
-        public void OnGrounded()
-        {
-
-        }
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
@@ -1045,6 +1059,18 @@ namespace SliceEngine
                 //this.gameObject.Destroy();
             }
         }
+        #endregion
+
+        #region Helpers
+        bool IsGrounded()
+        {
+            return playerMovementState == MovementState.Idle
+                || playerMovementState == MovementState.Walking
+                || playerMovementState == MovementState.Landing
+                || playerMovementState == MovementState.GroundDash
+                || playerMovementState == MovementState.PlungeLand;
+        }
+
         #endregion
     }
 }

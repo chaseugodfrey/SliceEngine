@@ -28,7 +28,7 @@ namespace SliceEngine
             if (IsGround(other))
             {
                 //Console.WriteLine("Player grounded");
-                Bootstrap.Player.OnGrounded();
+                //Bootstrap.Player.OnGrounded();
                 grounded = true;
 
                 TriggerBoxCount += 1;
