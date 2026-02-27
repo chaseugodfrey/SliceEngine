@@ -818,39 +818,12 @@ namespace SliceEngine
 			//Line to load resources
 			if (sScene->mNextState == SceneState::PLAY_SCENE)
 			{
-				sInputs->SetMode(InputMode::Game);
-				sInputs->SetEnabled(true);
-				if (sScene->mCurrentState == SceneState::DEFAULT)
-				{
-					sScene->WriteTempFile();
-				}
-
-				if (!isPlaying)
-				{
-					SliceEngine::gScriptSystem->OnStart();
-					sAnimator.InitSystem();
-					sButton.InitSystem();
-					FactoryInstance.CreateGO("AudioManager");
-					isPlaying = true;
-				}
-
-				if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
-				{
-					sAudio->SetCategoryPause(0, false);
-					sAudio->SetCategoryPause(1, false);
-				}
-
-				sScene->mCurrentState = SceneState::PLAY_SCENE;
+				OnPlayStart();
 			}
 
 			if (sScene->mNextState == SceneState::PAUSE_SCENE)
 			{
-				sInputs->SetMode(InputMode::Editor);
-				sInputs->SetEnabled(false);
-				sAudio->SetCategoryPause(0, true);
-				sAudio->SetCategoryPause(1, true);
-				//isPlaying = false;
-				sScene->mCurrentState = SceneState::PAUSE_SCENE;
+				OnPauseStart();
 			}
 
 			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
@@ -868,9 +841,7 @@ namespace SliceEngine
 
 				gScriptSystem->OnEnd();*/
 
-				sScene->ReloadScene();
-				sScene->mCurrentState = SceneState::RELOAD_SCENE;
-				sScene->mNextState = SceneState::RELOAD_SCENE;
+				OnStopStart();
 			}
 		}
 
@@ -1021,6 +992,65 @@ namespace SliceEngine
 		isPlaying = false;
 		gScriptSystem->OnEnd();
 
+	}
+
+	void Engine::OnPlayStart()
+	{
+		auto core = Core::GetInstance();
+		auto sInputs = core->GetInputSystem();
+		auto sScene = core->GetSceneSystem();
+		auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto sAudio = core->GetAudioManager();
+
+		sInputs->SetMode(InputMode::Game);
+		sInputs->SetEnabled(true);
+		if (sScene->mCurrentState == SceneState::DEFAULT)
+		{
+			sScene->WriteTempFile();
+		}
+
+		if (!isPlaying)
+		{
+			SliceEngine::gScriptSystem->OnStart();
+			sAnimator.InitSystem();
+			sButton.InitSystem();
+			FactoryInstance.CreateGO("AudioManager");
+			isPlaying = true;
+		}
+
+		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			sAudio->SetCategoryPause(0, false);
+			sAudio->SetCategoryPause(1, false);
+		}
+
+		sScene->mCurrentState = SceneState::PLAY_SCENE;
+	}
+
+	void Engine::OnStopStart()
+	{
+		auto core = Core::GetInstance();
+		auto sScene = core->GetSceneSystem();
+
+		sScene->ReloadScene();
+		sScene->mCurrentState = SceneState::RELOAD_SCENE;
+		sScene->mNextState = SceneState::RELOAD_SCENE;
+	}
+
+	void Engine::OnPauseStart()
+	{
+		auto core = Core::GetInstance();
+		auto sInputs = core->GetInputSystem();
+		auto sAudio = core->GetAudioManager();
+		auto sScene = core->GetSceneSystem();
+
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sAudio->SetCategoryPause(0, true);
+		sAudio->SetCategoryPause(1, true);
+		//isPlaying = false;
+		sScene->mCurrentState = SceneState::PAUSE_SCENE;
 	}
 
 	void Engine::Draw()

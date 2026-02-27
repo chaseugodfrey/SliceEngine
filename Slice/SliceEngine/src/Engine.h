@@ -49,6 +49,9 @@ namespace SliceEngine
 
 		void Update();
 		void SceneChangeEvent(const OnSceneChangeEvent& event);
+		void OnPlayStart();
+		void OnStopStart();
+		void OnPauseStart();
 		void Draw();
 		void EndFrame();
 		void Exit();
