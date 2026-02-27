@@ -66,7 +66,6 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
-    <Compile Include="Source\Core\Enemy\Projectile_Spawning.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
@@ -88,6 +87,8 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
