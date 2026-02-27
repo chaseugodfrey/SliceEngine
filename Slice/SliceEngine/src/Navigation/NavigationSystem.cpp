@@ -1,3 +1,20 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        NavigationSystem.cpp
+
+ author:	  Crystal Koh Qiao Wei
+
+ email:       k.crystalqiaowei@digipen.edu
+
+ brief:       Defines the NavigationSystem class and related structures for handling pathfinding
+			  and AI movement within the engine. This system manages the loading, rendering,
+			  and updating of Navigation Meshes (NavMesh), calculates paths, and updates
+			  NavAgent entities to navigate the environment.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include "pch.h"
 #include "NavigationSystem.h"
 #include "../Core/Core.h"
