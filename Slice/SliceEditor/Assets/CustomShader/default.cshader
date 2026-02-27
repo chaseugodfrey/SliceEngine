@@ -12,12 +12,17 @@
         },
         "END_NORMAL": {
             "FinalNode3": [
-                "0"
+                "Node39"
             ]
         },
         "END_ROUGHNESS": {
             "FinalNode2": [
                 "Node25"
+            ]
+        },
+        "GetRGB_Vec4": {
+            "Node39": [
+                "NormalMap"
             ]
         },
         "GetX_Vec4": {
