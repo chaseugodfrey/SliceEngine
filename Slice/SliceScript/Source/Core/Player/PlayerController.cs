@@ -44,7 +44,7 @@ namespace SliceEngine
         public float terminalVelocity = -50f;
         private Vector3 finalMove;
 
-        private Vector3 velocity;
+        //private Vector3 velocity;
         private bool wasGrounded;
         private float lastGroundedTime;
         private float lastJumpPressedTime;
@@ -206,6 +206,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            Vector3 rbVel = rb.Velocity;
+            Console.WriteLine($"Velocity is {rbVel.x}, {rbVel.y}, {rbVel.z}");
+
             if (debugMode || canTeleport)
             {
                 return;
@@ -303,7 +306,7 @@ namespace SliceEngine
 
                 Vector3 dashVel = dashDir * moveAmount;
                 finalMove = isGroundDashing
-                    ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
+                    ? new Vector3(dashVel.x, dashVel.y + rb.Velocity.y, dashVel.z)
                     : dashVel;
 
                 transform.Position += finalMove;
@@ -335,7 +338,13 @@ namespace SliceEngine
                     plungeImpulseStarted = true;
                     // ill jus copy the jump but apply it downwards
                     float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * gravity);
-                    velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
+                    
+                    Vector3 vel = rb.Velocity;
+                    vel.y -= 1.0f;
+                    rb.Velocity = vel;
+
+                    // TODO: Add support for this later
+                    //rb.Velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
                 }
                 // if it grounds when plunging
                 if (isPlunging && grounded)
@@ -361,7 +370,7 @@ namespace SliceEngine
                 else
                 {
                     // existing behavior for attacks / active plunge impulse
-                    finalMove = new Vector3(0f, velocity.y, 0f);
+                    finalMove = new Vector3(0f, rb.Velocity.y, 0f);
                     transform.Position += finalMove * Time.deltaTime;
                 }
             }
@@ -376,7 +385,7 @@ namespace SliceEngine
                 }
 
                 Vector3 horizontal = moveDirInput * movementSpeed;
-                finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
+                finalMove = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
                 transform.Position += finalMove * Time.deltaTime;
             }
 
@@ -466,7 +475,12 @@ namespace SliceEngine
             if (!isGroundDashing && !isAirDashing && !isAttacking && jumpRequested && !jumpImpulseApplied && Time.time >= jumpApplyAtTime)
             {
                 float jumpSpeed = (float)Math.Sqrt(jumpHeight * -2f * gravity);
-                velocity.y = jumpSpeed;
+                Console.WriteLine("JUMPING");
+                // TODO: CHange this to rb.Velocity.y = jumpSpeed once its supported
+                Vector3 vel = rb.Velocity;
+                vel.y = jumpSpeed;
+                rb.Velocity = vel;
+
                 jumpImpulseApplied = true;
                 //AudioManager.instance.PlaySFX("Jump");
             }
@@ -474,21 +488,36 @@ namespace SliceEngine
             // Gravity
             if (isAirDashing)
             {
-                velocity.y = 0f;
+                // velocity.y = 0f;
+                Vector3 vel = rb.Velocity;
+                vel.y = 0.0f;
+                rb.Velocity = vel;
+
             }
             else if (isPlunging && !plungeImpulseStarted)
             {
-                velocity.y = 0f;
+                Vector3 vel = rb.Velocity;
+                vel.y = 0.0f;
+                rb.Velocity = vel;
+                //velocity.y = 0f;
             }
-            else if (grounded && velocity.y <= 0)
+            else if (grounded && rb.Velocity.y <= 0)
             {
                 // Hard lock to ground
-                velocity.y = 0f;
+                Vector3 vel = rb.Velocity;
+                vel.y = 0f;
+                rb.Velocity = vel;
+
+                //velocity.y = 0f;
             }
             else
             {
                 // Airborne → apply gravity
-                velocity.y += gravity * Time.deltaTime;
+                // velocity.y += gravity * Time.deltaTime;
+                //Vector3 vel = rb.Velocity;
+                //vel.y = jumpSpeed;
+                //rb.Velocity = vel;
+
             }
 
 
@@ -501,10 +530,19 @@ namespace SliceEngine
             jumpRequested = false;
             jumpImpulseApplied = true;
 
-            if (resetYOnDoubleJump && velocity.y < 0f) velocity.y = 0f;
-
+            if (resetYOnDoubleJump && rb.Velocity.y < 0f)
+            {
+                Vector3 velTemp = rb.Velocity;
+                velTemp.y = 0.0f;
+                rb.Velocity = velTemp;
+            }
+            Console.WriteLine("Double Jumping");
             float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * -2f * gravity);
-            velocity.y = jumpSpeed;
+            //velocity.y = jumpSpeed;
+            Vector3 vel = rb.Velocity;
+            vel.y = jumpSpeed;
+            rb.Velocity = vel;
+
 
             if (animator != null)
             {
@@ -664,7 +702,10 @@ namespace SliceEngine
             dashDir = AddUpwardAngle(flat, airDashUpAngleDeg);
 
             dashTimer = Math.Max(0.0001f, airDashDuration);
-            velocity.y = 0f;
+            //velocity.y = 0f;
+            Vector3 velTemp = rb.Velocity;
+            velTemp.y = 0.0f;
+            rb.Velocity = velTemp;
 
             //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
             //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
@@ -903,7 +944,10 @@ namespace SliceEngine
             float timer = 0f;
             while (timer < duration)
             {
-                velocity.y = 0f;
+                Vector3 velTemp = rb.Velocity;
+                velTemp.y = 0.0f;
+                rb.Velocity = velTemp;
+                //velocity.y = 0f;
                 timer += Time.deltaTime;
                 yield return null;
             }
