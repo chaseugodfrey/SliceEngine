@@ -10,6 +10,7 @@ namespace SliceEngine
         public IEnumerator Enumerator;
         public SliceBehaviour Owner;
         public object CurrentYield = null;
+        public bool isActive = true;
     }
 
     public class CoroutineManager
@@ -17,61 +18,84 @@ namespace SliceEngine
         private static readonly List<Coroutine> coroutines = new List<Coroutine>();
         private static readonly List<Coroutine> newCoroutines = new List<Coroutine>();
 
-        public static void StartCoroutine(Coroutine coroutine)
+        public static Coroutine StartCoroutine(Coroutine coroutine)
         {
-            if (coroutine.Enumerator == null || coroutine.Owner == null)
-                return;
+            if (coroutine == null || coroutine.Enumerator == null || coroutine.Owner == null)
+                return null;
 
             newCoroutines.Add(coroutine);
+            return coroutine;
         }
 
-        public static void StartCoroutine(IEnumerator routine, SliceBehaviour owner)
+        public static Coroutine StartCoroutine(IEnumerator routine, SliceBehaviour owner)
         {
             if (routine == null || owner == null)
-                return;
+                return null;
 
-            newCoroutines.Add(new Coroutine
+            Coroutine c = new Coroutine
             {
                 Enumerator = routine,
                 Owner = owner,
                 CurrentYield = null
-            });
+            };
+
+            newCoroutines.Add(c);
+            return c;
         }
 
         public static void StopCoroutine(Coroutine coroutine)
         {
-            coroutines.RemoveAll(c => c == coroutine);
-            newCoroutines.RemoveAll(c => c == coroutine);
+            if (coroutine == null) return;
+            coroutine.isActive = false;
         }
 
         public static void StopCoroutine(IEnumerator routine, SliceBehaviour owner)
         {
-            coroutines.RemoveAll(c => c.Enumerator == routine && c.Owner == owner);
-            newCoroutines.RemoveAll(c => c.Enumerator == routine && c.Owner == owner);
+            foreach (var c in coroutines)
+            {
+                if (c.Enumerator == routine && c.Owner == owner)
+                    c.isActive = false;
+            }
+
+            foreach (var c in newCoroutines)
+            {
+                if (c.Enumerator == routine && c.Owner == owner)
+                    c.isActive = false;
+            }
         }
 
         public static void StopAllCoroutines(SliceBehaviour owner = null)
         {
             if (owner == null)
             {
-                coroutines.Clear();
-                newCoroutines.Clear();
+                foreach (var c in coroutines)
+                    c.isActive = false;
+
+                foreach (var c in newCoroutines)
+                    c.isActive = false;
+
                 return;
             }
 
-            // Remove only coroutines belonging to this owner
-            coroutines.RemoveAll(c => c.Owner == owner);
-            newCoroutines.RemoveAll(c => c.Owner == owner);
+            foreach (var c in coroutines)
+                if (c.Owner == owner)
+                    c.isActive = false;
+
+            foreach (var c in newCoroutines)
+                if (c.Owner == owner)
+                    c.isActive = false;
         }
 
-        public void OnCreate()
+        public static void OnCreate()
         {
             coroutines.Clear();
             newCoroutines.Clear();
         }
 
-        public void OnUpdate(float dt)
+        public static void OnUpdate(float dt)
         {
+            newCoroutines.RemoveAll(c => !c.isActive);
+
             // Register new coroutines
             if (newCoroutines.Count > 0)
             {
@@ -82,11 +106,14 @@ namespace SliceEngine
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
                 var c = coroutines[i];
+               
+                if (!c.isActive)
+                    continue;
 
                 // Owner destroyed? Stop coroutine
                 if (c.Owner == null)
                 {
-                    coroutines.RemoveAt(i);
+                    c.isActive = false;
                     continue;
                 }
 
@@ -102,21 +129,30 @@ namespace SliceEngine
                     if (!yi.IsDone()) continue; // still waiting
                 }
 
-                bool alive = c.Enumerator.MoveNext();
-
-                if (!alive)
+                try
                 {
-                    // Coroutine finished
-                    coroutines.RemoveAt(i);
-                    continue;
-                }
+                    bool alive = c.Enumerator.MoveNext();
 
-                // Store current yield instruction
-                if (c.Enumerator.Current is IYieldInstruction yieldInstr)
-                    c.CurrentYield = yieldInstr;
-                else
-                    c.CurrentYield = c.Enumerator.Current;
+                    if (!alive)
+                    {
+                        // Coroutine finished
+                        c.isActive = false;
+                        continue;
+                    }
+
+                    // Store current yield instruction
+                    if (c.Enumerator.Current is IYieldInstruction yieldInstr)
+                        c.CurrentYield = yieldInstr;
+                    else
+                        c.CurrentYield = c.Enumerator.Current;
+                }
+                catch (Exception e)
+                {
+                    SliceLog.Error("Faulty Coroutine Caught and Removed: " + e.ToString());
+                    c.isActive = false;
+                }
             }
+            coroutines.RemoveAll(c => !c.isActive);
         }
 
         public static void OnEntityDestroy(uint owner)
@@ -134,7 +170,7 @@ namespace SliceEngine
             for (int i = coroutines.Count - 1; i >= 0; i--)
             {
                 var c = coroutines[i];
-                if (c.Owner != null && c.Owner.gameObject.mID == owner)
+                if (c.Owner?.gameObject != null && c.Owner.gameObject.mID == owner)
                 {
                     coroutines.RemoveAt(i);
                 }
@@ -205,6 +241,7 @@ namespace SliceEngine
 
         public bool IsDone()
         {
+            if (target == null) return true;
             return !CoroutineManager.IsRunning(target);
         }
     }

@@ -20,9 +20,13 @@ namespace SliceEditor
 
         bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform);
 
+        //bool BuildFromModel(
+        //    const std::vector<Entity *> entities,
+        //    const std::vector<SliceEngine::NavMeshLink> &links 
+        //);
+
         bool BuildFromModel(
-            const std::vector<Entity *> entities,
-            const std::vector<SliceEngine::NavMeshLink> &links 
+            const std::vector<Entity *> entities
         );
         // helper to look for child nodes
         void CollectMeshDataFromNode(
@@ -55,9 +59,9 @@ namespace SliceEditor
         dtNavMesh *navMesh = nullptr;      
         dtNavMeshQuery *navQuery = nullptr;
 
-        float m_agentHeight;
-        float m_agentRadius;
-        float m_agentMaxClimb;
+        float m_agentHeight{};
+        float m_agentRadius{};
+        float m_agentMaxClimb{};
 	};
 }
 #endif

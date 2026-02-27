@@ -236,6 +236,8 @@ namespace SliceEngine
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		glm::mat4 V{};
+		glm::mat4 P{};
 		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
@@ -424,6 +426,9 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
+		bool enablePathfinding = false;
+		float directOcclusion = 0.0f;
+		float reverbOcclusion = 0.0f;
 
 		RTTR_ENABLE();
 	};
@@ -537,19 +542,28 @@ namespace SliceEngine
 		{
 			SPHERE,
 			CONE,
-			BOX,
-			EDGE,
+			CUBE,
 			CIRCLE,
-			RECTANGLE
+			RECT,
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{90.0f};
-		float coneRadius{0.1f};
+		float coneArc{90.0f};				
 
 		// Sphere
-		float sphereArc{360.0f};
-		float sphereRadius{0.1f};
+		float sphereArc{180.0f};
+		
+		// Cube
+
+		// Circle
+
+		// Rect
+		glm::vec2 rectScale{ 1.0f };
+
+		// Shape-Shared params
+		float shapeRadius{ 0.1f };
+		glm::vec3 shapeScale{ 1.0f };
+
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -934,13 +948,13 @@ namespace SliceEngine
 		int crowdAgentID = -1;
 	};
 
-	struct NavMeshLink
-	{
-		glm::vec3 startLink;
-		glm::vec3 endLink;
-		bool bidirectional;
-		float radius;
-	};
+	//struct NavMeshLink
+	//{
+	//	glm::vec3 startLink;
+	//	glm::vec3 endLink;
+	//	bool bidirectional;
+	//	float radius;
+	//};
 
 	struct NavObstacle
 	{

@@ -22,7 +22,6 @@ const int isSpot 		= 2;
 uniform mat4 V;
 uniform Light uLight;
 uniform float uFarPlane;
-uniform vec3 uCamPos;
 
 layout (std140, binding = 0) uniform lightSpaceBlock
 {
@@ -59,7 +58,7 @@ void main(void){
 	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
 	{
 		nom = normalize(nom);
-		vec3 v = normalize(uCamPos - wPos);
+		vec3 v = normalize(-wPos);
 
 		if(uLight.type == isDirectional)
 		{
@@ -98,7 +97,7 @@ void main(void){
 			vec4 lightCol = uLight.color;
 			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
-			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(uCamPos - wPos), dist);
+			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(wPos), dist);
 			l = l / dist;
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
@@ -159,24 +158,23 @@ float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
 {
 	if(projCoords.z > 1.0)
         return 0.0;
+	
+ 	// Because I forced the minZ & maxZ to be huge
+	float bias = max(0.001 * (1.0 - dot(n, l)), 0.0001);
 
-	float bias = max(0.05 * (1.0 - dot(n, l)), 0.005); 
-	// Scale bias by the ratio of the current cascade distance to the total far plane
-	bias *= (cascadePlaneDist[layer] / uFarPlane);
+	//float bias = max(0.05 * (1.0 - dot(n, l)), 0.005); 
+	////bias *= (cascadePlaneDist[layer] / uFarPlane);
 
-	//float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
-	//if(layer == cascadeCnt - 1)
+	//if(layer == cascadeCnt)
 	//{
-	//	//bias *= 1 / (uFarPlane * biasModifier);
-	//	bias *= (uFarPlane / 200.f) * biasModifier;
+	//	bias *= 1 / (uFarPlane * biasModifier);
 	//}
 	//else
 	//{
-	//	//bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
-	//	bias *= (cascadePlaneDist[layer] / 200.f) * biasModifier;
+	//	bias *= 1 / (cascadePlaneDist[layer] * biasModifier);
 	//}
 
-
+	// PCF
 	float shadow = 0.0;
 	vec2 texelSize = 1.0 / vec2(textureSize(uShadowTex, 0));
 	for(int x = -1; x <= 1; ++x)

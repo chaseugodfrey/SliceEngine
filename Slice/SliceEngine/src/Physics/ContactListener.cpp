@@ -34,6 +34,8 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 	GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody1.GetUserData()));
 	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
 
+	//int test1 = static_cast<int>(inBody1.GetUserData());
+	//int test2 = static_cast<int>(inBody2.GetUserData());
 
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();

@@ -14,6 +14,9 @@ namespace SliceEngine
         internal extern static void Camera_SetMainCamera(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string Application_GetFilePath();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Debug_Console(string[] callStack, string msg, int level);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -99,8 +102,8 @@ namespace SliceEngine
 
         //Raycasting
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal,bool triggerInteraction, uint mask);
-        
+        internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal, bool triggerInteraction, uint mask);
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
 
@@ -181,6 +184,12 @@ namespace SliceEngine
         internal extern static bool Input_IsKeyDown(Keys key);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsKeyHold(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsKeyUp(Keys key);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyReleased(Keys keyCode);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -188,6 +197,12 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsMouseDown(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMouseHold(MouseButtons button);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Input_IsMouseUp(MouseButtons button);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsMouseReleased(MouseButtons button);
@@ -544,10 +559,10 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetBool(uint entity, string parameter, bool val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetInt(uint entity, string parameter, int val);
-        
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SetFloat(uint entity, string parameter, float val);
 
@@ -611,6 +626,42 @@ namespace SliceEngine
         internal extern static void RectTransform_GetVertAlign(uint entityID, out RectTransform.VertPivot vert);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_SetVertAlign(uint entityID, ref RectTransform.VertPivot vert);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetPosX(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetPosX(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetPosY(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetPosY(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetWidth(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetWidth(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetHeight(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetHeight(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetTop(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetTop(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetBot(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetBot(uint entityID, int value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetLeft(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetLeft(uint entityID, int value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int RectTransform_GetRight(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void RectTransform_SetRight(uint entityID, int value);
         //*************************
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

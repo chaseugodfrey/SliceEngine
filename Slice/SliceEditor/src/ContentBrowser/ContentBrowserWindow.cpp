@@ -173,8 +173,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::DisplayItems(DirectoryNode& node)
 	{
 		static DirectoryNode* selectedEntry = nullptr;
-		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		//auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
@@ -374,6 +374,8 @@ namespace SliceEditor
 				//Default Init the MetaData base class
 				file.metaData->Deserialize(metaPath);
 
+				file.toRecompile = false;
+
 				mManager.mPendingDrops.push(std::move(file));
 			}
 
@@ -526,20 +528,34 @@ namespace SliceEditor
 								data->animationGUID = animData->guid;
 
 						*/
-						//Create the skeleton and animation first
+					//Create the skeleton and animation first
 						std::unique_ptr<MetaData> skeleData = std::make_unique<SkeletonData>();
 						skeleData->InitMetaData(file.filePath, AssetType::Skeleton, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Skeleton]);
-						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get()).string();
+						// if the resource already exist, keep teh same GUID and resource path
+						if (std::filesystem::exists(data->skeleMetaPath))
+						{
+							skeleData->resourcePath = data->skeleMetaPath;
+							skeleData->guid = data->skeletonGUID;
+						}
+
+						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get(),file.toRecompile).string();
 						data->skeletonGUID = skeleData->guid;
 
 						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
-						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get()).string();
+						// if the resource already exist, keep teh same GUID and resource path
+						if (std::filesystem::exists(data->animMetaPath))
+						{
+							animData->resourcePath = data->animMetaPath;
+							animData->guid = data->animationGUID;
+						}
+						
+						data->animMetaPath = mRegistry.GetAssetManager().CreateResource(animData->resourcePath, animData.get(),file.toRecompile).string();
 						data->animationGUID = animData->guid;
 
 					}
 				}
-				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, true);
+				mRegistry.GetAssetManager().CreateResource(file.filePath, file.metaData.get(), true, file.toRecompile);
 				mRegistry.GetAssetManager().CreateAssetMaps();
 				ImGui::CloseCurrentPopup();
 				willOpen = false;

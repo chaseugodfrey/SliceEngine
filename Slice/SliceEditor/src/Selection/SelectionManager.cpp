@@ -67,7 +67,7 @@ namespace SliceEditor
 			//Get the PrefabGUID for the event of changing Hierarchy and Inspector to Prefab Inspecting
 			DirectoryNode* dirNode = static_cast<DirectoryNode*>(node);
 			auto& assetManager = registry.GetAssetManager();
-			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			SliceEngine::GUID prefabGUID;
 			std::string fileName = std::filesystem::relative(dirNode->fullPath.lexically_normal(), registry.GetAssetManager().mAssetDirectory.lexically_normal()).generic_string();
 			//Search for the GUID in the map:
@@ -144,6 +144,10 @@ namespace SliceEditor
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
 	{
 		auto session = registry.GetManager<SessionManager>("Session");
+		if(entity == entt::null)
+		{
+			return;
+		}
 		auto& node = session->GetEntityNodes().at(entity);
 		SelectSingleAdd(node.get(), suppressHistory);
 

@@ -451,17 +451,16 @@ namespace SliceEngine
 					slider.handle = (Entity)sceneGraphMap[(uint32_t)slider.handle];
 				}
 			}
+			
 
 
-
-			return rootEntity;
+    return rootEntity;
 		}
 		std::unordered_map<unsigned int, std::vector<rttr::variant>> DeserializePrefabComponents(std::filesystem::path const& filePath)
 		{
 			std::unordered_map<unsigned int, std::vector<rttr::variant>> componentInstances;
 
 			json prefab = DeserializeFile(filePath);
-			auto& factory = Core::GetInstance()->mFactory;
 
 			for (auto& [name, components] : prefab.items())
 			{
@@ -1226,8 +1225,7 @@ namespace SliceEngine
 			if (t == rttr::type::get<short>()) { return v.get_value<short>(); }
 			if (t == rttr::type::get<std::string>()) { return v.get_value<std::string>(); }
 			if (t == rttr::type::get<GameObject>()) 
-			{ 
-				Entity testVal = v.get_value<GameObject>().GetEntity();
+			{
 				return v.get_value<GameObject>().GetEntity();
 			}
 			if (t == rttr::type::get<PrefabVar>())

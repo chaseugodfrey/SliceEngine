@@ -47,7 +47,7 @@ namespace SliceEngine
 			}
 			catch (const nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Failed to parse asset manifest json file");
+				SLICE_LOG_ERROR(std::string("Failed to parse asset manifest json file") + e.what());
 			}
 
 			inFile.close();
@@ -240,7 +240,7 @@ namespace SliceEngine
 		}
 		catch (nlohmann::json::parse_error& e)
 		{
-			SLICE_LOG_ERROR("Invalid model meta file");
+			SLICE_LOG_ERROR(std::string("Invalid model meta file") + e.what());
 			return (GUID)0;
 		}
 
@@ -284,7 +284,7 @@ namespace SliceEngine
 		}
 		catch (nlohmann::json::parse_error& e)
 		{
-			SLICE_LOG_ERROR("Invalid model meta file");
+			SLICE_LOG_ERROR(std::string("Invalid model meta file") + e.what());
 			return (GUID)0;
 		}
 

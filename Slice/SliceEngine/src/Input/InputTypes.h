@@ -177,13 +177,13 @@ namespace SliceEngine
 
     enum KeyStates
     {
-        NONE = -1,
+    //    NONE = -1,
         RELEASE,
         RELEASED,
-        PRESS,
+     //   PRESS,
         PRESSED,
-        HOLD,
-        DRAGGING
+        HOLD
+       // DRAGGING
     };
 
     enum class CursorState : int

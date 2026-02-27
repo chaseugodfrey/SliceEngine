@@ -130,26 +130,27 @@ namespace SliceEditor
 
 		if (ImGui::Button("Bake"))
 		{
-			std::vector<SliceEngine::NavMeshLink> links;
+			//std::vector<SliceEngine::NavMeshLink> links;
 
 			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 			// 2. Iterate using .each() to avoid iterator errors
-			reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
-				{
-					SliceEngine::NavMeshLink data;
+			//reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
+			//	{
+			//		SliceEngine::NavMeshLink data;
 
-					// Assuming startLink/endLink in the component are World Space positions 
-					// derived from the editor handles/transforms.
-					data.startLink = linkComp.startLink;
-					data.endLink = linkComp.endLink;
+			//		// Assuming startLink/endLink in the component are World Space positions 
+			//		// derived from the editor handles/transforms.
+			//		data.startLink = linkComp.startLink;
+			//		data.endLink = linkComp.endLink;
 
-					data.bidirectional = true;
-					data.radius = 5.0f;
-					std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
-					links.push_back(data);
-				});
-			mCompiler.BuildFromModel(entity, links);
+			//		data.bidirectional = true;
+			//		data.radius = 5.0f;
+			//		std::cout << "Baking Link: " << data.startLink.x << ", " << data.startLink.y << " -> " <<  data.endLink.x << ", " << data.endLink.y  << std::endl;
+			//		links.push_back(data);
+			//	});
+			//mCompiler.BuildFromModel(entity, links);
+			mCompiler.BuildFromModel(entity);
 		}
 
 		ImGui::SameLine();

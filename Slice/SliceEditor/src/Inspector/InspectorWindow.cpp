@@ -115,25 +115,20 @@ namespace SliceEditor
 
 		ImGui::Text("Entity ID: %d", entity);
 
-		//Temp solution
 		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Prefab>(entity))
 		{
 			auto& prefabComponent = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetComponent<SliceEngine::Prefab>();
-			ImGui::Text("Is Prefab");
-			if(ImGui::IsItemHovered(ImGuiHoveredFlags_DelayShort))
+			auto& assetManager = mRegistry.GetAssetManager();
+			ImGui::Text("Prefab: ");
+			ImGui::SameLine(150.f);
+			if (assetManager.mGUIDtoFilename.find(prefabComponent.prefabGUID) != assetManager.mGUIDtoFilename.end())
 			{
-				if(ImGui::BeginTooltip())
-				{
-					ImGui::Text("Prefab GUID: ");
-					ImGui::SameLine(150.f);
-					std::string prefabGUID = prefabComponent.prefabGUID.toString();
-					std::string prefabHandle = prefabComponent.prefabHandle.getGUID().toString();
-					ImGui::Text(prefabGUID.c_str());
-					ImGui::Text("Prefab Handle GUID: ");
-					ImGui::SameLine(150.f);
-					ImGui::Text(prefabHandle.c_str());
-					ImGui::EndTooltip();
-				}
+				ImGui::Text(assetManager.mGUIDtoFilename[prefabComponent.prefabGUID].c_str());
+			}
+			else
+			{
+				std::string prefabGUID = prefabComponent.prefabGUID.toString();
+				ImGui::Text(prefabGUID.c_str());
 			}
 		}
 
@@ -405,6 +400,9 @@ namespace SliceEditor
 					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
 					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					BoolInputHeader(mRegistry, "Enable Pathfinding", "##enablePathfinding", as.enablePathfinding);
+					SliderFloatInputHeader(mRegistry, "Direct Occlusion", "##directOcclusion", as.directOcclusion, "%.1f", 0.0, 1.0);
+					SliderFloatInputHeader(mRegistry, "Reverb Occlusion", "##reverbOcclusion", as.reverbOcclusion, "%.1f", 0.0, 1.0);
 					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
 					{
 						SliderFloatInputHeader(mRegistry, "Doppler Level", "##dopplerLevel", as.dopplerLevel, "%.1f", 0.0, 5.0);
@@ -433,7 +431,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayAudioListener(entt::entity entity)
 	{
-		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto& al = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::AudioListener>(entity);
 
 
@@ -682,22 +680,22 @@ namespace SliceEditor
 
 	}
 
-	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	{
-		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		{
-			auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-			
-			
-			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-			ImGui::TreePop();
-		}
+	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	//{
+	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+	//	{
+	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+	//		
+	//		
+	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
+	//		ImGui::TreePop();
+	//	}
 
 
-			//ImGui::TreePop();
-		}
+	//		//ImGui::TreePop();
+	//	}
 
 	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
 	{
@@ -734,7 +732,7 @@ namespace SliceEditor
 			{
 				//script_name = "Empty";
 				scriptList.push_back("Empty");
-				selectedIndex = scriptList.size() - 1;
+				selectedIndex = (int)scriptList.size() - 1;
 			}
 			else
 			{
@@ -748,7 +746,7 @@ namespace SliceEditor
 				auto it = std::find(scriptList.begin(), scriptList.end(), searchName);
 				if (it != scriptList.end())
 				{
-					selectedIndex = std::distance(scriptList.begin(), it);
+					selectedIndex = (int)std::distance(scriptList.begin(), it);
 				}
 			}
 
@@ -861,15 +859,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -888,15 +886,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<std::string> list, std::string val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -915,15 +913,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<int>, int, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<int> list, int val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -942,15 +940,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<glm::vec3>, glm::vec3, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<glm::vec3> list, glm::vec3 val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -969,15 +967,15 @@ namespace SliceEditor
 
 								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
 									{
-										if (funcToExec == "Edit")
+										if (std::strcmp(funcToExec, "Edit") == 0)
 										{
 											sp->SetListField(name, list);
 										}
-										else if (funcToExec == "Add")
+										else if (std::strcmp(funcToExec, "Add") == 0)
 										{
 											sp->AddListFieldValue(name, val);
 										}
-										else if (funcToExec == "Remove")
+										else if (std::strcmp(funcToExec, "Remove") == 0)
 										{
 											sp->RemoveListField(name, index);
 										}
@@ -1081,11 +1079,6 @@ namespace SliceEditor
 									scriptRef->SetFieldValue(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
-								/*if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
-								{
-									scriptRef->SetFieldValue(it.second.mName, data);
-									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
-								}*/
 							}
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Prefab)
 							{
@@ -1390,19 +1383,28 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Shape"))
 			{
-				static std::vector<std::string> shapeTypes{ "Sphere", "Cone"};
+				static std::vector<std::string> shapeTypes{ "Sphere", "Cone", "Cube", "Circle", "Rect"};
 				// Shape Type Enum
 				ComboHeader<SliceEngine::ParticleSystem::ShapeType>(mRegistry, "Shape", "##shapeType", ps.shapeType, shapeTypes);
 
 				switch (ps.shapeType)
 				{
-				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Cone Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
-					DragFloatInputHeader(mRegistry, "Cone Radius", "##coneRadius", ps.coneRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
-					break;
 				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Sphere Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
-					DragFloatInputHeader(mRegistry, "Sphere Radius", "##sphereRadius", ps.sphereRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CONE:
+					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CUBE:
+					DragVec3InputHeader(mRegistry, "Scale", "##cubeScale", ps.shapeScale);
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::CIRCLE:
+					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					break;
+				case SliceEngine::ParticleSystem::ShapeType::RECT:					
+					DragVec2InputHeader(mRegistry, "Scale", "##rectScale", ps.rectScale);
 					break;
 				default:
 					break;
@@ -1814,13 +1816,13 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
-			{
-				if (ImGui::Selectable("Add Nav Mesh Link"))
-				{
-					reg.emplace<SliceEngine::NavMeshLink>(entity);
-				}
-			}
+			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			//{
+			//	if (ImGui::Selectable("Add Nav Mesh Link"))
+			//	{
+			//		reg.emplace<SliceEngine::NavMeshLink>(entity);
+			//	}
+			//}
 
 			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
 			{
@@ -1836,7 +1838,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape boxData{};
 					boxData.shapeData = SliceEngine::ColliderShape::BoxData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
+					/*auto& col = */reg.emplace<SliceEngine::ColliderShape>(entity,boxData);
 
 				}
 
@@ -1844,14 +1846,14 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape sphereData{};
 					sphereData.shapeData = SliceEngine::ColliderShape::SphereData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, sphereData);
 				}
 
 				if (ImGui::Selectable("Add Capsule Collider"))
 				{
 					SliceEngine::ColliderShape capsuleData{};
 					capsuleData.shapeData = SliceEngine::ColliderShape::CapsuleData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity,capsuleData);
 					
 				}
 
@@ -1859,7 +1861,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape meshData{};
 					meshData.shapeData = SliceEngine::ColliderShape::MeshData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, meshData);
 
 				}
 
@@ -1867,7 +1869,7 @@ namespace SliceEditor
 				{
 					SliceEngine::ColliderShape cylinderData{};
 					cylinderData.shapeData = SliceEngine::ColliderShape::CylinderData{};
-					auto& col = reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
+					/*auto& col =*/ reg.emplace<SliceEngine::ColliderShape>(entity, cylinderData);
 
 				}
 			}
@@ -1924,7 +1926,7 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Sprite"))
 				{
-					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 					reg.emplace<SliceEngine::SpriteRenderer>(entity);
 					auto& ui_sprite = reg.get<SliceEngine::SpriteRenderer>(entity);
 					ui_sprite.rgba = { 1.f,1.f,1.f,1.f };
@@ -1935,7 +1937,7 @@ namespace SliceEditor
 			{
 				if (ImGui::Selectable("Add Font"))
 				{
-					auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+					//auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 					reg.emplace<SliceEngine::FontRenderer>(entity);
 					auto& ui_font = reg.get<SliceEngine::FontRenderer>(entity);
 					ui_font.rgba = { 0.f,0.f,0.f,1.f };
@@ -2071,11 +2073,11 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			{
-				DisplayNavMeshLink(node->entity);
-				ImGui::Separator();
-			}
+			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			//{
+			//	DisplayNavMeshLink(node->entity);
+			//	ImGui::Separator();
+			//}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
 			{
@@ -2257,6 +2259,20 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		ImGui::SeparatorText("Transitions");
+
+		for (auto& transition : state.transitions)
+		{
+			if (ImGui::TreeNodeEx(transition.targetState.c_str()))
+			{
+				BoolInputHeader(mRegistry, "Has Exit Time: ", "##hasExitTime", transition.hasExitTime);
+				DragFloatInputHeader(mRegistry, "Entry Time: ", "##entryTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+				DragFloatInputHeader(mRegistry, "Exit Time: ", "##exitTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+
+				ImGui::TreePop();
+			}
+		}
 	
 
 		//auto state = node->state;
@@ -2272,7 +2288,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
-		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
 
 		ImGui::SeparatorText("Transition");
 
@@ -2280,12 +2296,23 @@ namespace SliceEditor
 			return;
 		
 		auto stateOpt = anim_data->GetState(node->source_id);
+
+		if (!stateOpt.has_value())
+			return;
 		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
 
 		if (!transitionOpt.has_value())
 			return;
 
-		auto& transition = transitionOpt.value().get();
+		//auto& transition = transitionOpt.value().get();
+
+		ImGui::Text("Source State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().sourceState.c_str());
+
+		ImGui::Text("Target State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().targetState.c_str());
 
 		auto params = anim_data->GetParameters();
 
@@ -2363,9 +2390,9 @@ namespace SliceEditor
 		DisplayEntity(node);
 	}
 
-	void InspectorWindow::DisplaySceneGraph(entt::entity entity)
+	/*void InspectorWindow::DisplaySceneGraph(entt::entity entity)
 	{
-		/*auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
+		auto& sg = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(entity);
 
 		entt::entity ent_display{};
 		ImGui::Text("Parent:");
@@ -2386,7 +2413,7 @@ namespace SliceEditor
 		ImGui::Text("Next Sibling:");
 		ImGui::SameLine(150.0f);
 		ent_display = sg.neighbours[SliceEngine::SceneGraph::RIGHT];
-		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());*/
+		ImGui::Text(std::to_string((uint64_t)ent_display).c_str());
 
 		if (entity == SliceEngine::FactoryInstance.GetRootEntity())
 		{
@@ -2506,5 +2533,5 @@ namespace SliceEditor
 				ImGui::Text("First Child: --");
 			}
 		}
-	}
+	}*/
 }

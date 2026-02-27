@@ -47,5 +47,94 @@ namespace SliceEngine
             }
         }
 
+        public int Pos_X
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetPosX(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetPosX(gameObject.mID, value);
+            }
+        }
+        public int Pos_Y
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetPosY(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetPosY(gameObject.mID, value);
+            }
+        }
+        public int Width
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetWidth(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetWidth(gameObject.mID, value);
+            }
+        }
+        public int Height
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetHeight(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetHeight(gameObject.mID, value);
+            }
+        }
+
+        public int Top
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetTop(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetTop(gameObject.mID, value);
+            }
+        }
+        public int Bot
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetBot(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetBot(gameObject.mID, value);
+            }
+        }
+        public int Left
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetLeft(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetLeft(gameObject.mID, value);
+            }
+        }
+        public int Right
+        {
+            get
+            {
+                return FunctionCalls.RectTransform_GetRight(gameObject.mID);
+            }
+            set
+            {
+                FunctionCalls.RectTransform_SetRight(gameObject.mID, value);
+            }
+        }
     }
 }
