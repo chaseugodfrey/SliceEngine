@@ -211,7 +211,8 @@ namespace SliceEditor
 			AssetExistEvent assetEvent(metaData->assetName);
 			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
 			SLICE_LOG_ERROR("Trying to import asset that already exist :" + metaData->assetName);
-			return std::filesystem::path("");
+			return metaData->resourcePath;
+			//return std::filesystem::path("");
 		}
 
 		metaData->Serialize(metaPath);

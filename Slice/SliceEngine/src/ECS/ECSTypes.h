@@ -948,13 +948,13 @@ namespace SliceEngine
 		int crowdAgentID = -1;
 	};
 
-	struct NavMeshLink
-	{
-		glm::vec3 startLink;
-		glm::vec3 endLink;
-		bool bidirectional;
-		float radius;
-	};
+	//struct NavMeshLink
+	//{
+	//	glm::vec3 startLink;
+	//	glm::vec3 endLink;
+	//	bool bidirectional;
+	//	float radius;
+	//};
 
 	struct NavObstacle
 	{
