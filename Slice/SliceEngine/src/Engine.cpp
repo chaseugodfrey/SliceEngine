@@ -875,16 +875,16 @@ namespace SliceEngine
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(core->GetWindow());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwPollEvents();
-		frm->EndSystem("GLFW Poll Events");
+		//frm->StartSystem("GLFW Poll Events");
+		//glfwMakeContextCurrent(core->GetWindow());
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glfwPollEvents();
+		//frm->EndSystem("GLFW Poll Events");
 
-		frm->StartSystem("Input");
-		sInputs->UpdatePrevInput();
-		GetActionMappingSystem().processAllInput();
-		frm->EndSystem("Input");
+		//frm->StartSystem("Input");
+		//sInputs->UpdatePrevInput();
+		//GetActionMappingSystem().processAllInput();
+		//frm->EndSystem("Input");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
