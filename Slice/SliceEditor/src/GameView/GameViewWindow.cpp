@@ -38,6 +38,7 @@ namespace SliceEditor
 	{
 		mIsPlayMode = false;
 		mLastCursorState = {};
+		SliceEngine::Core::GetInstance()->GetInputSystem()->ResetCursorState();
 	}
 
 	void GameViewWindow::Draw()
@@ -160,7 +161,40 @@ namespace SliceEditor
 		auto percentage_x = relative_mouse_pos.x / mGameScreen.size.x;
 		auto percentage_y = relative_mouse_pos.y / mGameScreen.size.y;
 
-		ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
+		if (cursor_state == SliceEngine::CursorState::DISABLED)
+		{
+			int window_size_x, window_size_y;
+			auto window = SliceEngine::Core::GetInstance()->GetWindow();
+
+			glfwGetWindowSize(window, &window_size_x, &window_size_y);
+
+			auto delta = mouse_pos - center;
+			ImVec2 ratio = { window_size_x / mGameScreen.size.x,  window_size_y / mGameScreen.size.y };
+
+			mGameMouseDelta = { delta.x * ratio.x, delta.y * ratio.y };
+			mGameMousePosition = mGameScreen.center;
+			mGameMouseNDC = { 0.5f, 0.5f };
+			mInternalMousePosition += mGameMouseDelta;
+
+			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+			ImGui::GetIO().MousePos = center;
+
+			int x, y;
+			float x_scale, y_scale;
+			glfwGetWindowContentScale(window, &x_scale, &y_scale);
+			glfwGetWindowPos(window, &x, &y);
+			//glfwSetCursorPos(window, (center.x - x) / x_scale, (center.y - y) / y_scale);
+			glfwSetCursorPos(window, center.x - x, center.y - y);
+		}
+
+		else
+		{
+			ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
+
+			mGameMouseDelta = new_mouse_pos - mGameMousePosition;
+			mGameMousePosition = new_mouse_pos;
+			mGameMouseNDC = { percentage_x, percentage_y };
+		}
 		
 		mGameMouseDelta = new_mouse_pos - mGameMousePosition;
 		mGameMousePosition = new_mouse_pos;
