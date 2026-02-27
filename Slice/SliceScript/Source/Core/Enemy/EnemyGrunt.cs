@@ -39,8 +39,12 @@ namespace SliceEngine
         public GameObject attackHitBoxObject;
         private GeneralHitbox attackHitBox;
 
+        public GameObject meshObject;
+
         public GameObject windupSignalObject;
         public GameObject damagedSignal;
+
+        public bool _LookingAtPlayer = false;
 
         public override void OnCreate()
         {
@@ -101,7 +105,20 @@ namespace SliceEngine
                 Console.WriteLine("PPPPressed"); SetUp();
             }
             */
+
+
             base.OnUpdate(dt);
+
+            if (_LookingAtPlayer)
+            {
+                //Look at player
+
+                this.transform.LookAt(playerT.GetComponent<Transform>().Position, new Vector3(0,1,0));
+                this.transform.Rotation = new Vector3(0, this.transform.Rotation.y, 0);
+
+                meshObject.GetComponent<Transform>().LookAt(this.playerT.GetComponent<Transform>().Position, new Vector3(0, 1, 0));
+            }
+
         }
 
 
@@ -237,9 +254,6 @@ namespace SliceEngine
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
-            // This override is just to insert a debug
-            //Console.WriteLine("Enemy is taking damage");
-            //SliceLog.Console("Enemy is taking damage");
             base.TakeDamage(amount, source);
         }
 
@@ -260,7 +274,7 @@ namespace SliceEngine
             CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
             SliceLog.Console("ENEMY IS BEING HIT");
 
-            StartCoroutine(DamageFlicker());
+            //StartCoroutine(DamageFlicker());
         }
 
 
