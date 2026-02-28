@@ -270,6 +270,7 @@ namespace SliceEngine
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
             LoadDialogues();
+            Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }
 }
