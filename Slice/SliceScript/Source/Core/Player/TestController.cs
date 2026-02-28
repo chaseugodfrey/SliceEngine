@@ -25,9 +25,11 @@ namespace SliceEngine
         public float dashDuration = 0.75f;
         public float dashCooldown = 0.6f;
         public float dashSpeed = 10.0f;
+        public float fallTransitionTime = 0.25f;
 
         private float dashCooldownTimer = 0.0f;
         private float dashTimer = 0.0f;
+        private float fallTimer = 0.0f;
         private Vector3 finalMove;
         private Vector3 input;
         private Vector3 dashInputDir;
@@ -38,6 +40,9 @@ namespace SliceEngine
         private string groundName = "Ground";
         private bool jumpRequest = false;
         private bool dashRequest = false;
+
+        // Just to debug shit
+        int count = 0;
 
         #region Entity Overrides
         public void Initialize()
@@ -159,8 +164,10 @@ namespace SliceEngine
                 animator.SetBool("Idle", false);
 
                 // Transition to Falling if vertical velocity is downward
-                if (rb != null && rb.Velocity.y < -0.1f)
+                //if (rb != null && rb.Velocity.y < -0.1f)
+                if (fallTimer > fallTransitionTime)
                 {
+                    //Console.WriteLine($"Transitioning to fall {count++}");
                     if (animator.SafeToChange("Fall"))
                         animator.SetBool("Fall", true);
                     
@@ -193,6 +200,7 @@ namespace SliceEngine
         {
             if (isGroundDashing || isAirDashing) return;
 
+            // Safer than zero vector check since floating point error sometimes
             if (input.SquareMagnitude() > 0.0001f)
             {
                 Vector3 camForward = Vector3.Zero;
@@ -227,6 +235,17 @@ namespace SliceEngine
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
 
+            if (!isGrounded && rb != null && rb.Velocity.y < -0.1f)
+            {
+                fallTimer += dt;
+                Console.WriteLine($"fall timer: {fallTimer}");
+            }
+            // If its not falling then reset fall timer
+            else
+            {
+                fallTimer = 0.0f;
+            }
+
             if (isGroundDashing || isAirDashing)
             {
                 Vector3 dashVel = dashInputDir * dashSpeed;
@@ -243,6 +262,8 @@ namespace SliceEngine
                 }
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+                //Console.WriteLine($"rb.Velocity is x: {rb.Velocity.x}, y: {rb.Velocity.y}, z: {rb.Velocity.z}");
+
             }
         }
 
