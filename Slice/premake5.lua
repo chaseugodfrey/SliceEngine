@@ -57,3 +57,4 @@ ThirdParty.DETOUR_TILE_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Deto
 include "SliceEngine/premake5.lua"
 include "SliceScript/premake5.lua"
 include "SliceEditor/premake5.lua"
+include "SliceTests/premake5.lua"
