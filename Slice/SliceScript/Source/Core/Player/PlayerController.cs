@@ -3,6 +3,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
+using static SliceEngine.GeneralHitbox;
 
 
 namespace SliceEngine
@@ -10,13 +12,9 @@ namespace SliceEngine
 
     public class PlayerController : Entity, IInitializable
     {
-        // =========== Debug Mode =========
+        // Debug Mode
         public bool debugMode = false;
 
-        // =========== Debug Mod ==========
-        public GameObject playerModel;
-
-        // =============== Player States ===============
         public enum MovementState
         {
             Idle,
@@ -26,8 +24,9 @@ namespace SliceEngine
             Landing,
             GroundDash,
             AirDash,
-            Plunge,
-            PlungeLand
+            Lunging,
+            Plunging,
+            Dead
         }
 
         public enum CombatState
@@ -39,11 +38,12 @@ namespace SliceEngine
         }
 
         public enum CurrentAttack
-        {
-            None,
+        {            
             Attack1,
             Attack2,
-            Attack3
+            Attack3,
+            PlungeLand,
+            None
         }
 
         public enum ControlState
@@ -51,7 +51,6 @@ namespace SliceEngine
             Gameplay,
             Disabled,
             Teleporting,
-            Dead,
             Cutscene
         }
 
@@ -60,906 +59,409 @@ namespace SliceEngine
         public CurrentAttack playerCurrentAttack = CurrentAttack.None;
         public ControlState playerControlState = ControlState.Gameplay;
 
-        // =============== Movement variables =============== 
-        public float moveSpeed = 2.5f;
-        public float rotationSpeed = 12f;
-        public float dashMultiplier = 5f;
-        public float dashDuration = 0.2f;
+        // Internal References
+        private CameraController camera;
+        public GameObject playerModel;
+        RigidBody rigidBody;
+        Animator animator;
+        AudioSource audio;
 
-        public float jumpForce = 10.0f;
-        public int maxJumps = 2;
-        private int jumpCounter = 0;
+        // Attacks
+        List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
+        public List<String> attackHitboxNames = new List<String>();
+        public List<int> attackDamageValues = new List<int>();
+        public List<float> attackDuration = new List<float>();
+        public List<Vector3> attackWindows = new List<Vector3>();
+        float attackTimer = 0.0f;
+        bool attackQueued;
+        Coroutine attackCoroutine;
 
-        public float groundCheckDelay = 0.05f;
-        private float groundCheckTimer = 0f;
-        private bool grounded;
-        private bool groundCheckLocked;
-        
-        private Vector3 input;
-        private Vector3 finalInput;
-        public float terminalVelocity = -50f;
-        private Vector3 finalMove;
-
-        private Vector3 velocity;
-        private float lastGroundedTime;
-        private float lastJumpPressedTime;
-        private bool jumpRequested;
-        private bool jumpImpulseApplied;
-        private float jumpApplyAtTime;
-        private bool doubleJumpAvailable;
-
-        // Jump and Gravity
-        public float jumpHeight = 1.4f;
-        public float gravity = -9.81f;
-        public float coyoteTime = 0.08f;
-        public float jumpBuffer = 0.10f;
-        private float jumpDelay = 0.00f;
-        private float lastAirTime = float.NegativeInfinity;
-        private float lastLandTime = float.NegativeInfinity;
-        public float minAirTimeForLanding = 0.06f;
-        public float landCooldown = 0.08f;           // prevents immediate retriggering
-
-        private bool enableDoubleJump = true;
-        public float doubleJumpHeight = 1.2f;
-        private bool resetYOnDoubleJump = true;
-
-        // Dash Variables
-        private bool groundDashReady;
-        private bool airDashReady;
-
-        private float dashTimer = 0f;
-        private float groundDashCooldownUntil = 0f;
-        private float airDashCooldownUntil = 0f;
-        private Vector3 dashDir = Vector3.Zero;
-        private float allowedDashDistance;
-
-        public float dashDistance = 6f;
-        public float dashStartDuration = 0.25f;
-        public float dashCooldown = 0.6f;
-        public bool dashUsesMoveDirection = true;
-        public float groundDashUpAngleDeg = 0f;
-
-        private bool useBackdashAnimation = true;
-        public float backDashDotThreshold = 0f;
-        private bool dashDefaultBackwards = true;
-        private bool rotateToDashDirection = false;
-
-        public float airDashDistance = 5f;
-        public float airDashDuration = 0.25f;
-        public float airDashCooldown = 0.8f;
-        public float airDashUpAngleDeg = 15f;
-
-        // =============== Attack variables =============== 
-        public float attackResetTime = 1f;
-        private float attackResetTimer = 0f;
-        private int attackCounter = 0;
-        public float attackRecoveryDuration = 0.5f;
-        private bool attackQueued = false;
-        private bool attackAutoRecover = false;
-        public float attack1Delay, attack2Delay, attack3Delay;
-
-        public string attack1HBName;
-        public int attack1Damage;
-        public Vector3 attack1Window;
-        public float attack1Duration;
-        private GeneralHitbox attack1HB;
-
-        public string attack2HBName;
-        public int attack2Damage;
-        public Vector3 attack2Window;
-        public float attack2Duration;
-        private GeneralHitbox attack2HB;
-
-        public string attack3HBName;
-        public int attack3Damage;
-        public Vector3 attack3Window;
-        public float attack3Duration;
-        private GeneralHitbox attack3HB;
-
-        private int attackIndex = 0;
-        private float attackTimer = 0f;
-        private bool queuedNext = false;
-
-        private Coroutine attackCoroutine = null;
-
-        // Chain-window facing override
-        private bool queuedFacingOverride = false;
-        private Vector3 queuedFacing = Vector3.Zero;
-
-        // Lunge runtime (Atk1 / Atk2)
-        private bool isLunging = false;
-        private float lungeTimer = 0f;
+        // Lunging (moving when attacking)
+        bool isLunging = false;
+        float lungeTimer = 0f;
         public float lungeDuration = 0f;
-        private float lungeDelay = 0f;
-        private bool lungeStarted = false;
-        private Vector3 lungeDir = Vector3.Zero;
+        float lungeDelay = 0f;
+        Vector3 lungeDir = Vector3.Zero;
         public float lungeSpeed = 0f;
 
         // Attack 3 Arc runtime
-        private bool atk3ArcActive = false;
-        private float atk3ArcTimer = 0f;
-        private bool atk3ImpulseFired = false;
-        private Vector3 atk3ArcDir = Vector3.Zero;
-        private Vector3 atk3HorizVel = Vector3.Zero;
-        private float atk3UpwardEndTime = 0f;
+        bool atk3ArcActive = false;
+        float atk3ArcTimer = 0f;
+        bool atk3ImpulseFired = false;
+        Vector3 atk3ArcDir = Vector3.Zero;
+        Vector3 atk3HorizVel = Vector3.Zero;
+        float atk3UpwardEndTime = 0f;
 
-        // Plunge runtime
-        private float plungeTimer = 0f;
-        private Vector3 plungeDir = Vector3.Zero;
-        private bool plungeImpulseStarted = false;
-        public float plungeDuration = 0.5f;
+        // Ground Check
+        public float groundCheckDelay = 0.1f;
+        float groundCheckTimer = 0f;
+        public bool grounded;
+        private bool groundedTemp;
+        public bool groundCheckLocked;
+        public int groundContactCount;
 
-        // =============== Internal variables =============== 
-        public bool canInput = false;
-        public bool canMove = false;
-        private RigidBody rb;
-        private GroundCheck groundCheck;
-        private Animator animator;
-        private CameraController camera;
-        private AudioSource audio;
-        private bool canIncrement = true;
+        // Jumps
+        int jumpCounter = 0;
+        public int jumpMax = 2;
+        public float jumpVerticalForce = 10.0f;
+        public float jumpHorizontalForce = 7.5f;
+        public float jumpDuration = 0.25f;
+        public float jumpCooldown = 0.25f;
+        public float jumpLandDuration = 0.25f;
+        float jumpDurationTimer = 0.0f;
+        float jumpCooldownTimer = 0.0f;
+        float jumpLandTimer = 0.0f;
 
-        public bool canTeleport = false;
+        // Movement
+        private Vector3 input;
+        private Vector3 finalMove;
+        private Vector3 velocity;
+        public float moveSpeed = 2.5f;
+        public float moveAcceleration = 100.0f;
+        public float moveDeceleration = 100.0f;
+        public float rotationSpeed = 45.0f;
 
+        // Dash
+        public float dashSpeed = 24.0f;
+        public float dashDuration = 0.25f;
+        public float dashCooldown = 0.75f;
+        float dashDurationTimer = 0.0f;
+        float dashCooldownTimer = 0.0f;       
         public void Initialize()
         {
-            camera = Bootstrap.CameraController;
-            if (camera == null)
-            {
-                //console.writeline("Camera Var in player is EMPTY");
-            }
+            camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
 
             Bootstrap.HUDManager.SetHealth(currentHealth / maxHealth);
         }
+
         public override void OnCreate()
-        {
-            // NOTE: This shouldn't be true on create
-            // cause if we implement tutorial they shouldnt be able to move on start
-            canInput = true;
-            canMove = true;
-            if (debugMode)
-            {
-                return;
-            }
-
-            //console.writeline("Test");
-            playerModel = gameObject.FindGameObjectWithName("RootNode");
-            animator = playerModel?.GetComponent<Animator>();
-            //if (animator == null) Console.WriteLine("No animator found");
-            //else Console.WriteLine("Animator found");
-            audio = gameObject.GetComponent<AudioSource>();
-            rb = GetComponent<RigidBody>();
-            //if (rb == null) Console.WriteLine("No rb found");
-            //else Console.WriteLine("RB found");
-            groundCheck = gameObject.FindGameObjectWithName("Ground Check")?.As<GroundCheck>();
-            //if (groundCheck == null) Console.WriteLine("No ground check found");
-
-            InitializeAttackHitboxes();
+        {            
+            InitializeInternalReferences();
+            //InitializeAttacks();
         }
 
         public override void OnUpdate(float dt)
         {
-            if (debugMode || canTeleport)
-            {
-                return;
-            }
-
             GroundCheck();
-            HandleInput();
-            HandleDashInput();
-            if (attackQueued && playerCombatState != CombatState.Attacking)
-            {
-                ExecuteAttack();
-            }
-            else
-            {
-                playerCombatState = CombatState.None;a
-            }
-            UpdateDash();
-            HandleMovement();
-            HandleJump();
-            AttackResetTimer();
+
+            UpdateTimers(dt);
+            UpdateMovements(dt);
+            UpdateAttacks(dt);
+            UpdateStates();
+            UpdateAnimator();
+
+            HandleInputs();
         }
-        private void HandleInput()
+        private void HandleInputs()
         {
             input = Vector3.Zero;
-            // Forward/backward movement
-            if (canInput)
-            {
-                if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
-                else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
 
-                // Sideways movement 
-                if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
-                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
-            }
+            HandleMovementInputs();
 
+            HandleAttackInputs();
 
-            if (input.SquareMagnitude() > 1f) input = input.Normalize();
+            HandleDashInputs();
 
-            if (input != Vector3.Zero)
-            {
-                if (animator.SafeToChange("Walk"))
-                    animator.SetBool("Walk", true);
-            }
-            else
-            {
-                if (animator.SafeToChange("Idle"))
-                    animator.SetBool("Idle", true);
-            }
-
-            //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
-            if (canInput)
-            {
-                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
-            }
-
-        }
-        #region New Movement
-        private void HandleMovement()
-        { 
-            Vector3 camForward = new Vector3();
-            finalMove = Vector3.Zero;
-            if (camera != null)
-            {
-                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
-            }
-
-            Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
-            Vector3 moveDirInput = camForward * input.z + camRight * input.x;
-            float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
-
-            bool walkingNow = playerCombatState != CombatState.Attacking &&
-                  (playerMovementState != MovementState.GroundDash &&
-                   playerMovementState != MovementState.AirDash) &&
-                  grounded && rawPlanarSpeed > 0.1f;
-            //SliceLog.Log("GroundDashing: " + isGroundDashing.ToString() + " AirDashing: " + isAirDashing.ToString() + " isAttacking: " + isAttacking.ToString() + " isPlunging: " + isPlunging.ToString());
-            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
-            {
-                float dashSpeed = playerMovementState == MovementState.GroundDash ? dashDistance / Math.Max(0.0001f, dashStartDuration)
-                                                  : airDashDistance / Math.Max(0.0001f, airDashDuration);
-                float distanceThisFrame = dashSpeed * Time.deltaTime;
-                float moveAmount = Math.Min(allowedDashDistance, distanceThisFrame);
-
-                if (allowedDashDistance >= 0f)
-                {
-                    allowedDashDistance -= moveAmount;
-                }
-                else
-                {
-                    if (playerMovementState == MovementState.GroundDash) EndGroundDash();
-                    else if (playerMovementState == MovementState.AirDash) EndAirDash();
-                }
-
-                Vector3 dashVel = dashDir * moveAmount;
-                finalMove = playerMovementState == MovementState.GroundDash
-                    ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
-                    : dashVel;
-
-                transform.Position += finalMove;
-
-                if (rotateToDashDirection)
-                {
-                    Vector3 face = dashDir; face.y = 0f;
-                    if (face.SquareMagnitude() > 0.0001f)
-                        transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, Quaternion.LookRotation(face.Normalize(), Vector3.Up), 20f * Time.deltaTime);
-                }
-
-                if (animator != null)
-                {
-                    if (playerMovementState == MovementState.GroundDash)
-                    {
-                        animator.SetBool("DashStart", true);
-                    }
-                    else if (playerMovementState == MovementState.AirDash)
-                    {
-                        animator.SetBool("AirDashStart", true);
-                    }
-                }
-            }
-            else if (playerCombatState == CombatState.Attacking || playerMovementState == MovementState.Plunge)
-            {
-                if (playerMovementState == MovementState.Plunge && !plungeImpulseStarted)
-                {
-                    // apply impulse
-                    plungeImpulseStarted = true;
-                    // ill jus copy the jump but apply it downwards
-                    float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * gravity);
-                    velocity.y = -1.0f; // physics crashes when I try to do any number thats too big for some reason
-                }
-                // if it grounds when plunging
-                if (playerMovementState == MovementState.Plunge && grounded)
-                {
-                    playerMovementState = MovementState.PlungeLand;
-                    plungeImpulseStarted = false;
-                    // transition to plunge land
-                    if (animator != null)
-                    {
-                        animator.SetBool("PlungeLand", true);
-
-                        // check if there is input
-                        if (input != Vector3.Zero)
-                            animator.SetBool("PlungeToWalk", true);
-                        else
-                            animator.SetBool("PlungeToIdle", true);
-
-
-                        // if there is then transition to plunge walk
-                        // else transition to plunge idle?
-                    }
-                }
-                else
-                {
-                    // existing behavior for attacks / active plunge impulse
-                    finalMove = new Vector3(0f, velocity.y, 0f);
-                    transform.Position += finalMove * Time.deltaTime;
-                }
-            }
-            else
-            {
-                // Normal locomotion
-                if (moveDirInput.SquareMagnitude() > 0.0001f)
-                {
-                    Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
-                    float scaledRotSpeed = rotationSpeed;
-                    transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
-                }
-
-                Vector3 horizontal = moveDirInput * movementSpeed;
-                finalMove = new Vector3(horizontal.x, velocity.y, horizontal.z);
-                transform.Position += finalMove * Time.deltaTime;
-            }
-
-            //Console.WriteLine($"Final move is x: {finalMove.x}, y: {finalMove.y}, z: {finalMove.z}");
+            HandleJumpInputs();
         }
 
-        // -------------------- Jump ------------------------------------------------------------------------------------------
-        void HandleJump()
-        {
-            RigidBody rb = GetComponent<RigidBody>();
-
-            if (grounded) lastGroundedTime = Time.time;
-
-            if (!grounded)
-            {
-                lastAirTime = Time.time; // mark when airborne
-                if (animator != null)
-                {
-                    if (animator.SafeToChange("JumpLoop"))
-                        animator.SetBool("JumpLoop", true);
-                }
-            }
-
-            if (grounded)
-            {
-                // Only trigger landing if we were in the air at least minAirTimeForLanding
-                bool longEnoughAir = (Time.time - lastAirTime) >= minAirTimeForLanding;
-                bool cooldownOK = (Time.time - lastLandTime) >= landCooldown;
-
-                if (longEnoughAir && cooldownOK)
-                {
-                    //AudioManager.instance.PlaySFX("Land");
-                    lastLandTime = Time.time;
-
-                    //if (animator)
-                    //{
-                    //    animator.ResetTrigger("Land");
-                    //    animator.SetTrigger("Land");
-                    //    animator.SetBool("Grounded", true);
-                    //}
-                }
-                else
-                {
-                    // still update animator grounded bool so we don't get stuck in 'air' state
-                    //if (animator) animator.SetBool("Grounded", true);
-                }
-
-
-                if (animator != null)
-                {
-                    if (animator.SafeToChange("Land"))
-                        animator.SetBool("Land", true);
-                }
-
-                doubleJumpAvailable = enableDoubleJump;
-                jumpRequested = false;
-                jumpImpulseApplied = false;
-            }
-
-            // Jump input disabled during attacks
-            if (playerCombatState != CombatState.Attacking && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
-                lastJumpPressedTime = Time.time;
-
-            bool canCoyote = (Time.time - lastGroundedTime) <= coyoteTime;
-            bool bufferedJump = (Time.time - lastJumpPressedTime) <= jumpBuffer;
-
-            if (!grounded && !canCoyote)
-            {
-                if (playerCombatState != CombatState.Attacking && enableDoubleJump && doubleJumpAvailable && Input.IsKeyPressed(Keys.KEY_SPACEBAR))
-                {
-                    DoDoubleJump();
-                }
-            }
-            else
-            {
-                if (playerCombatState != CombatState.Attacking && !jumpRequested && bufferedJump && canCoyote)
-                {
-                    jumpRequested = true;
-                    jumpImpulseApplied = false;
-                    jumpApplyAtTime = Time.time + Math.Max(0f, jumpDelay);
-
-                    lastJumpPressedTime = -999f;
-                    lastGroundedTime = -999f;
-                }
-            }
-
-            // Apply jump impulse (delayed if any)
-            if (playerMovementState != MovementState.GroundDash && playerMovementState != MovementState.AirDash && playerCombatState != CombatState.Attacking && jumpRequested && !jumpImpulseApplied && Time.time >= jumpApplyAtTime)
-            {
-                float jumpSpeed = (float)Math.Sqrt(jumpHeight * -2f * gravity);
-                velocity.y = jumpSpeed;
-                jumpImpulseApplied = true;
-                //AudioManager.instance.PlaySFX("Jump");
-            }
-
-            // Disable Gravity When Air Dashing
-            if (playerMovementState == MovementState.AirDash)
-            {
-                velocity.y = 0f;
-            }
-            else if (playerMovementState != MovementState.Plunge && !plungeImpulseStarted)
-            {
-                velocity.y = 0f;
-            }
-            else if (grounded && velocity.y <= 0)
-            {
-                // Hard lock to ground
-                velocity.y = 0f;
-            }
-        }
-
-        void DoDoubleJump()
-        {
-            doubleJumpAvailable = false;
-            jumpRequested = false;
-            jumpImpulseApplied = true;
-
-            if (resetYOnDoubleJump && velocity.y < 0f) velocity.y = 0f;
-
-            float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * -2f * gravity);
-            velocity.y = jumpSpeed;
-
-            if (animator != null)
-            {
-                animator.SetBool("AirDashStart", true);
-            }
-        }
-        public void TeleportPlayer(Vector3 pos)
-        {
-            EndAttackState();
-            transform.Position = pos;
-        }
-        #endregion
-
-        // -------------------- Dash ------------------------------------------------------------------------------------------
-        #region Dash
-        void HandleDashInput()
-        {
-            if (!canInput) return;
-
-            if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
-
-            // Dashes cancel the attack
-            if (playerCombatState == CombatState.Attacking)
-            {
-                EndAttackState();
-            }
-
-            if (grounded)
-            {
-                if (groundDashReady)
-                {
-                    BeginGroundDash();
-                    StartCoroutine(DashCooldown());
-                }
-            }
-            else
-            {
-                if (airDashReady)
-                {
-                    BeginAirDash();
-                    StartCoroutine(AirDashCooldown());
-                }
-            }
-        }
-        private IEnumerator DashCooldown()
-        {
-            groundDashReady = false;
-            yield return new WaitForSeconds(dashCooldown);
-            groundDashReady = true;
-        }
-        private IEnumerator AirDashCooldown()
-        {
-            airDashReady = false;
-            yield return new WaitForSeconds(airDashCooldown);
-            airDashReady = true;
-        }
-        Vector3 ComputeFlatDashDir(bool useMoveDir)
-        {
-            bool hasInput = input.SquareMagnitude() > 0.0001f;
-            if (hasInput)
-                input = input.Normalize();
-
-            // --- NO INPUT OR FORCED FORWARD ---
-            if (!useMoveDir || !hasInput)
-            {
-                Vector3 forward = transform.Forward;
-                forward.y = 0f;
-                return (dashDefaultBackwards ? -forward : forward).Normalize();
-            }
-
-            // --- CAMERA-RELATIVE DASH ---
-            if (camera != null)
-            {
-                Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
-                camForward.y = 0f;
-                camForward = camForward.Normalize();
-
-                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward);
-
-                Vector3 dashDir =
-                    camForward * input.z +
-                    camRight * input.x;
-
-                dashDir.y = 0f;
-                return dashDir.Normalize();
-            }
-
-            // --- TRANSFORM-RELATIVE FALLBACK ---
-            Vector3 moveDir =
-                transform.Forward * input.z +
-                transform.Right * input.x;
-
-            moveDir.y = 0f;
-            return moveDir.Normalize();
-        }
-
-        Vector3 AddUpwardAngle(Vector3 flatDir, float angleDeg)
-        {
-            flatDir.y = 0f;
-            if (flatDir.SquareMagnitude() < 0.0001f) flatDir = transform.Forward;
-            flatDir.Normalize();
-            float rad = (float)(angleDeg * ((Math.PI * 2) / 360));
-            Vector3 tilted = (flatDir * Math.Cos(rad)) + (Vector3.Up * Math.Sin(rad));
-            return tilted.Normalize();
-        }
-
-        void BeginGroundDash()
-        {
-            playerMovementState = MovementState.GroundDash;
-
-            Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
-            //dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
-
-            Ray ray = new Ray(transform.Position, transform.Down);
-            if (Physics.Raycast(ray, out RayCastHit hitInfo))
-            {
-                dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
-            }
-
-            allowedDashDistance = dashDistance;
-
-            //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
-            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
-            {
-                if (allowedDashDistance >= dashHitInfo.distance)
-                {
-                    allowedDashDistance = dashHitInfo.distance * 0.98f;
-                }
-                //console.writeline($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
-            }
-            dashTimer = Math.Max(0.0001f, dashStartDuration);
-
-            //Vector3 flatFacing = transform.Forward;
-            //flatFacing.y = 0f;
-            //flatFacing.Normalize();
-            //Vector3 flatDash = transform.Forward;
-            //flatDash.y = 0f;
-            //flatDash.Normalize();
-            //float dot = Vector3.Dot(flatDash, flatFacing);
-            //bool isBackDash = dot < backDashDotThreshold;
-
-
-            if (animator != null)
-            {
-                //SliceLog.Log("Dash???");
-                animator.SetBool("DashStart", true);
-            }
-        }
-
-        void BeginAirDash()
-        {
-            playerMovementState = MovementState.AirDash;
-
-            Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
-            dashDir = AddUpwardAngle(flat, airDashUpAngleDeg);
-
-            dashTimer = Math.Max(0.0001f, airDashDuration);
-            velocity.y = 0f;
-
-            //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
-            //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
-            //float dot = Vector3.Dot(flatDash, flatFacing);
-            //bool isBackDash = dot < backDashDotThreshold;
-
-            allowedDashDistance = airDashDistance;
-
-            //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
-            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
-            {
-                if (allowedDashDistance >= dashHitInfo.distance)
-                {
-                    allowedDashDistance = dashHitInfo.distance * 0.98f;
-                }
-                //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
-            }
-
-            if (animator != null)
-            {
-                animator.SetBool("AirDashStart", true);
-            }
-        }
-        void UpdateDash()
-        {
-            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
-            {
-                dashTimer -= Time.deltaTime;
-                if (dashTimer <= 0f)
-                {
-                    if (playerMovementState == MovementState.GroundDash) EndGroundDash();
-                    else EndAirDash();
-                }
-            }
-        }
-
-        void EndGroundDash()
-        {
-            playerMovementState = MovementState.Idle;
-            groundDashCooldownUntil = Time.time + dashCooldown;
-
-        }
-
-        void EndAirDash()
-        {
-            playerMovementState = MovementState.Idle;
-            airDashCooldownUntil = Time.time + airDashCooldown;
-        }
-        void EndAttackState()
-        {
-            attackIndex = 0;
-            attackTimer = 0f;
-            attackCounter = 0;
-            attackQueued = false;
-            playerCombatState = CombatState.None;
-            attackResetTimer = 0f;
-            TurnOffHitboxes();
-
-            queuedNext = false;
-            queuedFacingOverride = false;
-
-            // Clear movement bursts
-            isLunging = false;
-            lungeStarted = false;
-
-            atk3ArcActive = false;
-            atk3ImpulseFired = false;
-            atk3HorizVel = Vector3.Zero;
-        }
-        #endregion
-
-        private void GroundCheck()
-        {
-            if (groundCheckLocked)
-            {
-                groundCheckTimer += Time.deltaTime;
-                if (groundCheckTimer >= groundCheckDelay)
-                {
-                    groundCheckLocked = false;
-                    groundCheckTimer = 0f;
-                }
-            }
-
-            // Can only be grounded if initial delay is over
-            if (!groundCheckLocked)
-            {
-                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
-                if (grounded)
-                {
-                    jumpCounter = 0;
-                }
-            }
-        }
-
-        #region Attacks
-        private void InitializeAttackHitboxes()
-        {
-            attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<GeneralHitbox>();
-            attack1HB.HitBoxListeners += Attack1;
-            //if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
-            //else Console.WriteLine("Attack 1 hitbox found");
-
-            attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<GeneralHitbox>();
-            attack2HB.HitBoxListeners += Attack2;
-            //if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
-            //else Console.WriteLine("Attack 2 hitbox found");
-
-            attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<GeneralHitbox>();
-            attack3HB.HitBoxListeners += Attack3;
-            //if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
-            //else Console.WriteLine("Attack 3 hitbox found");
-
-            if (attack1HB != null && attack2HB != null && attack3HB != null)
-            {
-                //Console.WriteLine("All attack hitboxes found, turning them off");
-                TurnOffHitboxes();
-            }
-        }
-        private void TryAttack()
-        {
-            // transition to plunge if in air
-            if (!grounded && playerMovementState != MovementState.Plunge)
-            {
-                StartCoroutine(Plunge(plungeDuration));
-                return;
-            }
-            attackQueued = true;
-            //console.writeline("AttackQueued set to true");
-        }
-        private void ExecuteAttack()
-        {
-            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunge)
-            {
-                attackAutoRecover = false;
-                attackCounter++;
-                playerCombatState = CombatState.Attacking;
-
-                if (attackCounter > 3) attackCounter = 1;
-                switch (attackCounter)
-                {
-                    case 1:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
-
-                        animator.SetBool("Attack1", true);
-                        AudioSettings.PlaySFX("A1");
-
-                        StartCoroutine(Lunge());
-                        break;
-                    case 2:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
-
-                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-                        {
-                            animator.SetBool("Attack2", true);
-                            AudioSettings.PlaySFX("A2");
-                        }
-
-                        StartCoroutine(Lunge());
-                        break;
-                    case 3:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
-
-                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                        {
-                            animator.SetBool("Attack3", true);
-                            AudioSettings.PlaySFX("A3");
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                //console.writeline("Attack Counter: " + attackCounter);
-            }
-        }
-        private IEnumerator Lunge()
-        {
-            float timer = 0f;
-            while (timer < lungeDuration)
-            {
-                transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
-                timer += Time.deltaTime;
-                yield return null;
-            }
-        }
-        private void TurnOffHitboxes()
-        {
-            attack1HB.TurnOff();
-            attack2HB.TurnOff();
-            attack3HB.TurnOff();
-        }
-        public void StartAttackRecovery()
-        {
-            attackResetTimer = 0f;
-            playerCombatState = CombatState.None;
-            attackAutoRecover = true;
-
-            TurnOffHitboxes();
-        }
-        private void AttackResetTimer()
-        {
-            if (playerCombatState != CombatState.Attacking)
-            {
-                attackResetTimer += Time.deltaTime;
-            }
-            if (attackResetTimer >= attackRecoveryDuration)
-            {
-                attackAutoRecover = false;
-                attackResetTimer = 0f;
-                attackCounter = 0;
-
-                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-                {
-                    if (animator.SafeToChange("AttackToIdle1"))
-                        animator.SetBool("AttackToIdle1", true);
-                }
-                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                {
-                    if (animator.SafeToChange("AttackToIdle2"))
-                        animator.SetBool("AttackToIdle2", true);
-                }
-                if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
-                {
-                    if (animator.SafeToChange("Attack3ToLoco"))
-                        animator.SetBool("Attack3ToLoco", true);
-                }
-            }
-        }
-        private IEnumerator Plunge(float duration)
-        {
-            //console.writeline("Plunging");
-            playerMovementState = MovementState.Plunge;
-            if (animator != null)
-            {
-                animator.SetBool("Plunge", true);
-            }
-            float timer = 0f;
-            while (timer < duration)
-            {
-                velocity.y = 0f;
-                timer += Time.deltaTime;
-                yield return null;
-            }
-        }
+        //void DoDoubleJump()
+        //{
+        //    doubleJumpAvailable = false;
+        //    jumpRequested = false;
+        //    jumpImpulseApplied = true;
+
+        //    if (resetYOnDoubleJump && velocity.y < 0f) velocity.y = 0f;
+
+        //    float jumpSpeed = (float)Math.Sqrt(doubleJumpHeight * -2f * gravity);
+        //    velocity.y = jumpSpeed;
+
+        //    if (animator != null)
+        //    {
+        //        animator.SetBool("AirDashStart", true);
+        //    }
+        //}
+
+        //Vector3 ComputeFlatDashDir(bool useMoveDir)
+        //{
+        //    bool hasInput = input.SquareMagnitude() > 0.0001f;
+        //    if (hasInput)
+        //        input = input.Normalize();
+
+        //    // --- NO INPUT OR FORCED FORWARD ---
+        //    if (!useMoveDir || !hasInput)
+        //    {
+        //        Vector3 forward = transform.Forward;
+        //        forward.y = 0f;
+        //        return (dashDefaultBackwards ? -forward : forward).Normalize();
+        //    }
+
+        //    // --- CAMERA-RELATIVE DASH ---
+        //    if (camera != null)
+        //    {
+        //        Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
+        //        camForward.y = 0f;
+        //        camForward = camForward.Normalize();
+
+        //        Vector3 camRight = Vector3.Cross(Vector3.Up, camForward);
+
+        //        Vector3 dashDir =
+        //            camForward * input.z +
+        //            camRight * input.x;
+
+        //        dashDir.y = 0f;
+        //        return dashDir.Normalize();
+        //    }
+
+        //    // --- TRANSFORM-RELATIVE FALLBACK ---
+        //    Vector3 moveDir =
+        //        transform.Forward * input.z +
+        //        transform.Right * input.x;
+
+        //    moveDir.y = 0f;
+        //    return moveDir.Normalize();
+        //}
+
+        //Vector3 AddUpwardAngle(Vector3 flatDir, float angleDeg)
+        //{
+        //    flatDir.y = 0f;
+        //    if (flatDir.SquareMagnitude() < 0.0001f) flatDir = transform.Forward;
+        //    flatDir.Normalize();
+        //    float rad = (float)(angleDeg * ((Math.PI * 2) / 360));
+        //    Vector3 tilted = (flatDir * Math.Cos(rad)) + (Vector3.Up * Math.Sin(rad));
+        //    return tilted.Normalize();
+        //}
+
+        //void BeginGroundDash()
+        //{
+        //    playerMovementState = MovementState.GroundDash;
+
+        //    Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
+        //    //dashDir = AddUpwardAngle(flat, groundDashUpAngleDeg);
+
+        //    Ray ray = new Ray(transform.Position, transform.Down);
+        //    if (Physics.Raycast(ray, out RayCastHit hitInfo))
+        //    {
+        //        dashDir = Vector3.ProjectOnPlane(flat, hitInfo.normal);
+        //    }
+
+        //    allowedDashDistance = dashDistance;
+
+        //    //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
+        //    if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+        //    {
+        //        if (allowedDashDistance >= dashHitInfo.distance)
+        //        {
+        //            allowedDashDistance = dashHitInfo.distance * 0.98f;
+        //        }
+        //        //console.writeline($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+        //    }
+        //    dashTimer = Math.Max(0.0001f, dashStartDuration);
+
+        //    //Vector3 flatFacing = transform.Forward;
+        //    //flatFacing.y = 0f;
+        //    //flatFacing.Normalize();
+        //    //Vector3 flatDash = transform.Forward;
+        //    //flatDash.y = 0f;
+        //    //flatDash.Normalize();
+        //    //float dot = Vector3.Dot(flatDash, flatFacing);
+        //    //bool isBackDash = dot < backDashDotThreshold;
+
+
+        //    if (animator != null)
+        //    {
+        //        //SliceLog.Log("Dash???");
+        //        animator.SetBool("DashStart", true);
+        //    }
+        //}
+
+        //void BeginAirDash()
+        //{
+        //    playerMovementState = MovementState.AirDash;
+
+        //    Vector3 flat = ComputeFlatDashDir(dashUsesMoveDirection);
+        //    dashDir = AddUpwardAngle(flat, airDashUpAngleDeg);
+
+        //    dashTimer = Math.Max(0.0001f, airDashDuration);
+        //    velocity.y = 0f;
+
+        //    //Vector3 flatFacing = transform.Forward; flatFacing.y = 0f; flatFacing.Normalize();
+        //    //Vector3 flatDash = dashDir; flatDash.y = 0f; flatDash.Normalize();
+        //    //float dot = Vector3.Dot(flatDash, flatFacing);
+        //    //bool isBackDash = dot < backDashDotThreshold;
+
+        //    allowedDashDistance = airDashDistance;
+
+        //    //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
+        //    if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+        //    {
+        //        if (allowedDashDistance >= dashHitInfo.distance)
+        //        {
+        //            allowedDashDistance = dashHitInfo.distance * 0.98f;
+        //        }
+        //        //Console.WriteLine($"Hit point at {dashHitInfo.point.x},{dashHitInfo.point.y},{dashHitInfo.point.z}");
+        //    }
+
+        //    if (animator != null)
+        //    {
+        //        animator.SetBool("AirDashStart", true);
+        //    }
+        //}
+        //void UpdateDash()
+        //{
+        //    if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+        //    {
+        //        dashTimer -= Time.deltaTime;
+        //        if (dashTimer <= 0f)
+        //        {
+        //            if (playerMovementState == MovementState.GroundDash) EndGroundDash();
+        //            else EndAirDash();
+        //        }
+        //    }
+        //}
+        //void EndAttackState()
+        //{
+        //    attackIndex = 0;
+        //    attackTimer = 0f;
+        //    attackCounter = 0;
+        //    attackQueued = false;
+        //    playerCombatState = CombatState.None;
+        //    attackResetTimer = 0f;
+        //    TurnOffHitboxes();
+
+        //    queuedNext = false;
+        //    queuedFacingOverride = false;
+
+        //    // Clear movement bursts
+        //    isLunging = false;
+        //    lungeStarted = false;
+
+        //    atk3ArcActive = false;
+        //    atk3ImpulseFired = false;
+        //    atk3HorizVel = Vector3.Zero;
+        //}
+        
+        //private void ExecuteAttack()
+        //{
+        //    if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunge)
+        //    {
+        //        attackCounter++;
+        //        playerCombatState = CombatState.Attacking;
+
+        //        if (attackCounter > 3) attackCounter = 1;
+        //        switch (attackCounter)
+        //        {
+        //            case 1:
+        //                StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
+
+        //                animator.SetBool("Attack1", true);
+        //                AudioSettings.PlaySFX("A1");
+
+        //                StartCoroutine(Lunge());
+        //                break;
+        //            case 2:
+        //                StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
+
+        //                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+        //                {
+        //                    animator.SetBool("Attack2", true);
+        //                    AudioSettings.PlaySFX("A2");
+        //                }
+
+        //                StartCoroutine(Lunge());
+        //                break;
+        //            case 3:
+        //                StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
+
+        //                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+        //                {
+        //                    animator.SetBool("Attack3", true);
+        //                    AudioSettings.PlaySFX("A3");
+        //                }
+        //                break;
+        //            default:
+        //                break;
+        //        }
+        //        //console.writeline("Attack Counter: " + attackCounter);
+        //    }
+        //}
+        //private IEnumerator Lunge()
+        //{
+        //    float timer = 0f;
+        //    while (timer < lungeDuration)
+        //    {
+        //        transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
+        //        timer += Time.deltaTime;
+        //        yield return null;
+        //    }
+        //}
+        //private void TurnOffHitboxes()
+        //{
+        //    foreach (GeneralHitbox hb in attackHitboxes)
+        //    {
+        //        hb.TurnOff();
+        //    }
+        //}
+        //public void StartAttackRecovery()
+        //{
+        //    attackResetTimer = 0f;
+        //    playerCombatState = CombatState.Recovery;
+        //    attackAutoRecover = true;
+
+        //    TurnOffHitboxes();
+        //}
+        //private void AttackResetTimer()
+        //{
+        //    if (playerCombatState != CombatState.Attacking)
+        //    {
+        //        attackResetTimer += Time.deltaTime;
+        //    }
+        //    if (attackResetTimer >= attackRecoveryDuration)
+        //    {
+        //        attackAutoRecover = false;
+        //        attackResetTimer = 0f;
+        //        attackCounter = 0;
+
+        //        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+        //        {
+        //            if (animator.SafeToChange("AttackToIdle1"))
+        //                animator.SetBool("AttackToIdle1", true);
+        //        }
+        //        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+        //        {
+        //            if (animator.SafeToChange("AttackToIdle2"))
+        //                animator.SetBool("AttackToIdle2", true);
+        //        }
+        //        if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+        //        {
+        //            if (animator.SafeToChange("Attack3ToLoco"))
+        //                animator.SetBool("Attack3ToLoco", true);
+        //        }
+        //    }
+        //}
+
         private void Attack1(GameObject target)
         {
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack1Damage);
-                //console.writeline("Hit enemy");
+                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack1]);
             }
-            //console.writeline("Attack 1 executed");
         }
         private void Attack2(GameObject target)
         {
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack2Damage);
-                //console.writeline("Hit enemy");
+                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack2]);
             }
-            //console.writeline("Attack 2 executed");
         }
-        private void Attack3(GameObject target)
-        {
+        private void Attack3(GameObject target){
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack3Damage);
-                //console.writeline("Hit enemy");
+                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack3]);
             }
-            //console.writeline("Attack 3 executed");
         }
         private IEnumerator AttackDelay(float delay, Action action)
         {
@@ -1019,24 +521,6 @@ namespace SliceEngine
             yield return new WaitForSeconds(duration);
             endAction?.Invoke();
         }
-        public void CanAttackFlag(bool flag)
-        {
-            canIncrement = flag;
-        }
-
-        #endregion
-
-
-        // ----------- Teleport --------------------
-
-        public void Teleport(Vector3 toTeleport)
-        {
-            canTeleport = true;
-
-            transform.Position = toTeleport;
-
-            canTeleport = false;
-        }
 
         #region On Overrides
         protected override void OnHeal() { }
@@ -1062,15 +546,442 @@ namespace SliceEngine
         #endregion
 
         #region Helpers
-        bool IsGrounded()
+        private void UpdateTimers(float dt)
         {
-            return playerMovementState == MovementState.Idle
-                || playerMovementState == MovementState.Walking
-                || playerMovementState == MovementState.Landing
-                || playerMovementState == MovementState.GroundDash
-                || playerMovementState == MovementState.PlungeLand;
+            lungeTimer = (lungeTimer > 0.0f) ? lungeTimer - dt : 0.0f;
+            jumpCooldownTimer = (jumpCooldownTimer > 0.0f) ? jumpCooldownTimer - dt : 0.0f;
+            dashCooldownTimer = (dashCooldownTimer > 0.0f) ? dashCooldownTimer - dt : 0.0f;
+            attackTimer = (attackTimer > 0.0f) ? attackTimer - dt : 0.0f;
+            jumpDurationTimer = (jumpDurationTimer > 0.0f) ? jumpDurationTimer - dt : 0.0f;
+            jumpLandTimer = (jumpLandTimer > 0.0f) ? jumpLandTimer - dt : 0.0f;
+        }
+        private void UpdateMovements(float dt)
+        {
+            Vector3 camForward = new Vector3();
+            finalMove = Vector3.Zero;
+            if (camera != null)
+            {
+                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
+                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+            }
+
+            Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+            Vector3 moveDirInput = camForward * input.z + camRight * input.x;
+            float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
+
+            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+            {
+                dashDurationTimer -= dt;
+
+                if (dashDurationTimer < 0.0f)
+                {
+                    dashDurationTimer = 0.0f;
+                    playerMovementState = MovementState.Idle;
+                }
+                finalMove = moveDirInput * dashSpeed;
+
+                rigidBody.AddForce(finalMove*dt);
+            }
+            else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
+            {
+                // Let pure physics do this part
+            }
+            else if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking)
+            {
+                // Normal locomotion
+                if (moveDirInput.SquareMagnitude() > 0.0001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
+                    float scaledRotSpeed = rotationSpeed;
+                    transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
+                }
+
+                finalMove = moveDirInput * movementSpeed;
+                transform.Position += finalMove * dt;
+            }
         }
 
+        void UpdateAttacks(float dt)
+        {
+            if (attackQueued)
+            {
+                if (!grounded && playerMovementState != MovementState.Plunging)
+                {
+                    playerMovementState = MovementState.Plunging;
+                    attackQueued = false;
+                }
+
+                if (grounded)
+                {
+                    playerMovementState = MovementState.Idle;
+                    playerCombatState = CombatState.Attacking;
+                    //ExecuteAttack();
+                    attackQueued = false;
+                }
+            }
+        }
+
+        void UpdateStates()
+        {
+            MovementState remember = playerMovementState;
+            switch (playerMovementState)
+            {
+                case MovementState.Idle:
+                    if (input != Vector3.Zero)
+                    {
+                        playerMovementState = MovementState.Walking;
+                    }
+                    if (!grounded)
+                    {
+                        playerMovementState = MovementState.Falling;
+                    }
+                    break;
+                case MovementState.Walking:
+                    if (input == Vector3.Zero)
+                    {
+                        playerMovementState = MovementState.Idle;
+                    }
+                    if (!grounded)
+                    {
+                        playerMovementState = MovementState.Falling;
+                    }
+                    break;
+                case MovementState.Jumping:
+                    if (jumpDuration == 0.0f && !grounded)
+                    {
+                        playerMovementState = MovementState.Falling;
+                    }
+                    else if (grounded)
+                    {
+                        playerMovementState = MovementState.Idle;
+                    }
+                    break;
+                case MovementState.Falling:
+                    if (grounded)
+                    {
+                        jumpLandTimer = jumpLandDuration;
+                        playerMovementState = MovementState.Landing;
+                    }
+                    break;
+                case MovementState.Landing:
+                    if (jumpLandTimer <= 0.0f)
+                    {
+                        playerMovementState =
+                            input == Vector3.Zero ? MovementState.Idle : MovementState.Walking;
+                    }
+                    break;
+                case MovementState.GroundDash:
+                    rigidBody.OffGravity(true);
+                    if (dashDurationTimer == 0.0f)
+                    {
+                        rigidBody.OffGravity(false);
+                        playerMovementState = MovementState.Idle;
+                    }
+                    break;
+
+                case MovementState.AirDash:
+                    rigidBody.OffGravity(true);
+                    if (dashDurationTimer == 0.0f)
+                    {
+                        rigidBody.OffGravity(false);
+                        playerMovementState = MovementState.Idle;
+                    }
+                    break;
+
+                case MovementState.Lunging:
+                    if (lungeDuration == 0.0f)
+                    {
+                        playerMovementState = MovementState.Idle;
+                    }
+                    break;
+
+                case MovementState.Plunging:
+                    if (grounded)
+                    {
+                        playerMovementState = MovementState.Landing;
+                        playerCurrentAttack = CurrentAttack.PlungeLand;
+                        jumpLandTimer = jumpLandDuration;
+                    }
+                    break;
+
+                case MovementState.Dead:
+                    break;
+
+                default:
+                    break;
+            }
+            if (remember != playerMovementState)
+            {
+                SliceLog.Log(playerMovementState.ToString());
+            }
+
+            switch (playerCombatState)
+            {
+                case CombatState.None:
+                    break;
+                case CombatState.Attacking:
+                    break;
+                case CombatState.Recovery:    
+                    break;
+                case CombatState.Hitstun:
+                    break;
+                default:
+                    break;
+            }
+
+
+        }
+
+
+        void UpdateAnimator()
+        {
+            if (animator == null)
+                return;
+
+            switch (playerMovementState)
+            {
+                case MovementState.Idle:
+                    if (animator.SafeToChange("Idle"))
+                        animator.SetBool("Idle", true);
+                    break;
+                case MovementState.Walking:
+                    if (animator.SafeToChange("Walk"))
+                        animator.SetBool("Walk", true);
+                    break;
+                case MovementState.Jumping:
+                    if (animator.SafeToChange("JumpLoop"))
+                        animator.SetBool("JumpLoop", true);
+                    break;
+                case MovementState.Falling:
+                    if (animator.SafeToChange("JumpLoop"))
+                        animator.SetBool("JumpLoop", true);
+                    break;
+                case MovementState.Landing:
+                    if (animator.SafeToChange("Land"))
+                        animator.SetBool("Land", true);
+                    break;
+                case MovementState.GroundDash:
+                    animator.SetBool("DashStart", true);
+                    break;
+
+                case MovementState.AirDash:
+                    animator.SetBool("AirDashStart", true);
+                    break;
+
+                case MovementState.Lunging:
+                    break;
+
+                case MovementState.Plunging:
+                    if (input != Vector3.Zero)
+                        animator.SetBool("PlungeToWalk", true);
+                    else
+                        animator.SetBool("PlungeToIdle", true);
+                    break;
+
+                case MovementState.Dead:
+                    break;
+
+                default:
+                    break;
+            }
+            switch (playerCombatState)
+            {
+                case CombatState.None:
+                    break;
+                case CombatState.Attacking:
+                    animator.SetBool(playerCurrentAttack.ToString(), true);
+                    break;
+                case CombatState.Recovery:
+                    break;
+                case CombatState.Hitstun:
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void HandleMovementInputs()
+        {
+            if (IsTakingInputs())
+            {
+                if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
+                else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
+
+                // Sideways movement 
+                if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
+                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
+            }
+
+            if (input.SquareMagnitude() > 1f) input = input.Normalize();            
+        }
+
+        private void HandleAttackInputs()
+        {
+            if (IsTakingInputs())
+            {
+                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            }
+        }
+
+        private void HandleJumpInputs()
+        {
+            if (IsTakingInputs())
+            {
+                if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) TryJump();
+            }
+        }
+
+        private void HandleDashInputs()
+        {
+            //if (IsTakingInputs())
+            //{
+            //    if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
+
+            //    // Dashes cancel the attack
+            //    if (playerCombatState == CombatState.Attacking)
+            //    {
+            //        EndAttackState();
+            //    }
+
+            //    if (dashCooldownTimer == 0.0f)
+            //    {
+            //        if (grounded)
+            //        {
+            //            BeginGroundDash();
+            //        }
+            //        else
+            //        {
+            //            BeginAirDash();
+            //        }
+            //    }
+            //}
+        }
+
+        private void TryJump()
+        {
+            if (jumpCooldownTimer == 0.0f && (jumpCounter < jumpMax))
+            {
+                jumpCooldownTimer = jumpCooldown;
+                jumpCounter++;
+                Jump();
+            }
+        }
+
+        void Jump()
+        {
+            Vector3 camForward = new Vector3();
+            if (camera != null)
+            {
+                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
+                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
+                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+            }
+            Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+            Vector3 moveDir = (camForward * input.z + camRight * input.x).Normalize();
+            Vector3 jumpDir = moveDir * jumpHorizontalForce;
+            rigidBody.Velocity = new Vector3(jumpDir.x, jumpVerticalForce, jumpDir.z);
+        }
+
+        private void TryAttack()
+        {            
+            attackQueued = true;
+        }
+
+        private void InitializeAttacks()
+        {
+            attackHitboxes.Clear();
+            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[0])[0]?.As<GeneralHitbox>());
+            attackHitboxes[0].HitBoxListeners += Attack1;
+
+            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[1])[0]?.As<GeneralHitbox>());
+            attackHitboxes[1].HitBoxListeners += Attack1;
+
+            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[2])[0]?.As<GeneralHitbox>());
+            attackHitboxes[2].HitBoxListeners += Attack1;
+
+            //TurnOffHitboxes();
+        }
+        private void InitializeInternalReferences()
+        {
+            playerModel = gameObject.FindGameObjectWithName("RootNode"); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RootNode");
+            animator = playerModel?.GetComponent<Animator>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find Animator");
+            audio = gameObject.GetComponent<AudioSource>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find AudioSource");
+            rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");            
+        }
+
+        private void GroundCheck()
+        {
+            if (groundCheckLocked)
+            {
+                groundCheckTimer += Time.deltaTime;
+                if (groundCheckTimer >= groundCheckDelay)
+                {
+                    groundCheckLocked = false;
+                    groundCheckTimer = 0f;
+                }
+            }
+
+            // Can only be grounded if initial delay is over
+            if (!groundCheckLocked)
+            {
+                grounded = (groundContactCount > 0); ;
+                if (grounded)
+                {
+                    jumpCounter = 0;
+                }
+            }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            if (IsGround(other) && !groundCheckLocked)
+            {
+                groundContactCount++;
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (IsGround(other) && !groundCheckLocked)
+            {
+                groundContactCount--;
+                if (groundContactCount < 0)
+                    groundContactCount = 0;
+            }
+        }
+        private bool IsGround(uint id)
+        {
+            if (gameObject.FindGameObjectWithID(id).tag == "Ground")
+            {
+                return true;
+            }
+            return false;
+        }
+
+        bool IsTakingInputs()
+        {
+            if (playerControlState != ControlState.Gameplay)
+            {
+                return false;
+            }
+
+            if (playerCombatState != CombatState.None)
+            {
+                return false;
+            }
+
+            bool inputtable;
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
+            {
+                inputtable = true;
+            }
+            else
+            {
+                inputtable = false;
+            }
+            return inputtable;
+        }
         #endregion
     }
 }

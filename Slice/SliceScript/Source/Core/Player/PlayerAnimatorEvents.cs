@@ -19,13 +19,13 @@ namespace SliceEngine
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            Bootstrap.Player.StartAttackRecovery();
+            //Bootstrap.Player.StartAttackRecovery();
         }
         public void CanAttack(string str)
         {
             if(player.Has<PlayerController>())
             {
-                player.As<PlayerController>().CanAttackFlag(true);
+                //player.As<PlayerController>().CanAttackFlag(true);
             }
         }
         public void SetAttacking(string state)
@@ -35,12 +35,12 @@ namespace SliceEngine
             switch (state)
             {
                 case "true":
-                    Bootstrap.Player.canMove = false;
+                    //Bootstrap.Player.canMove = false;
                     Bootstrap.Player.playerCombatState = PlayerController.CombatState.Attacking;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
-                    Bootstrap.Player.canMove = true;
+                    //Bootstrap.Player.canMove = true;
                     Bootstrap.Player.playerCombatState = PlayerController.CombatState.None;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;

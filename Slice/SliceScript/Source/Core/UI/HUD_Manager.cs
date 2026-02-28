@@ -136,7 +136,7 @@ namespace SliceEngine
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
-                Bootstrap.Player.canInput = true;
+                //Bootstrap.Player.canInput = true;
                 dialogueIndex = 0;
                 levelDialogues.Clear();
                 SetTextBox("");
