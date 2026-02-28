@@ -16,19 +16,28 @@ namespace SliceEngine
         public bool isGrounded = false;
         public bool isJumping = false;
         public bool isDoubleJumping = false;
+        public bool isGroundDashing = false;
+        public bool isAirDashing = false;
         public bool canInput = true;
         public bool isAttacking = false;
         public GameObject playerModel;
         public GameObject cameraObject;
+        public float dashDuration = 0.5f;
+        public float dashCooldown = 0.6f;
+        public float dashSpeed = 15.0f;
 
+        private float dashCooldownTimer = 0.0f;
+        private float dashTimer = 0.0f;
         private Vector3 finalMove;
         private Vector3 input;
+        private Vector3 dashInputDir;
         private RigidBody rb;
         private Animator animator;
         private CameraController camera;
         private int groundTriggerCount = 0;
         private string groundName = "Ground";
         private bool jumpRequest = false;
+        private bool dashRequest = false;
 
         #region Entity Overrides
         public void Initialize()
@@ -63,6 +72,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (dashCooldownTimer > 0.0f) dashCooldownTimer -= dt;
+
             if (canInput)
             {
                 HandleInput();
@@ -75,12 +86,24 @@ namespace SliceEngine
                 }
             }
 
+            if (isGroundDashing || isAirDashing)
+            {
+                dashTimer -= dt;
+                if (dashTimer <= 0.0f)
+                {
+                    dashCooldownTimer = dashCooldown;
+                    isGroundDashing = false;
+                    isAirDashing = false;
+                }
+            }
+
             UpdateRotation(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
-            HandleMovement();
+            ApplyDash();
+            HandleMovement(dt);
             ApplyJump();
         }
 
@@ -95,9 +118,13 @@ namespace SliceEngine
 
                 // Sideways movement 
                 if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
-                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
-            }
+                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, -0f);
 
+                if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT))
+                {
+                    dashRequest = true;
+                }
+            }
 
             if (input.SquareMagnitude() > 1f) input = input.Normalize();
 
@@ -120,6 +147,9 @@ namespace SliceEngine
 
         void UpdateRotation(float dt)
         {
+            // Don't manually rotate if we are dashing - dash direction should be preserved or handled by Slerp
+            if (isGroundDashing || isAirDashing) return;
+
             if (input.SquareMagnitude() > 0.0001f)
             {
                 Vector3 camForward = Vector3.Zero;
@@ -141,7 +171,7 @@ namespace SliceEngine
             }
         }
 
-        void HandleMovement()
+        void HandleMovement(float dt)
         {
             Vector3 camForward = Vector3.Zero;
             if (camera != null)
@@ -154,9 +184,66 @@ namespace SliceEngine
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
 
-            // Apply movement via Velocity instead of transform.Position to avoid stuttering
-            Vector3 horizontal = moveDirInput * movementSpeed;
-            rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+            if (isGroundDashing || isAirDashing)
+            {
+                // Dash Movement: Override horizontal velocity
+                Vector3 dashVel = dashInputDir * dashSpeed;
+                float yVel = isGroundDashing ? 0 : rb.Velocity.y;
+                rb.Velocity = new Vector3(dashVel.x, yVel, dashVel.z);
+            }
+            else
+            {
+                // Normal Movement
+                if (!isGrounded)
+                {
+                    Vector3 vel = rb.Velocity;
+                    vel.y -= 10.0f * dt;
+                    rb.Velocity = vel;
+                }
+                Vector3 horizontal = moveDirInput * movementSpeed;
+                rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+            }
+        }
+
+        void ApplyDash()
+        {
+            if (dashRequest)
+            {
+                dashRequest = false;
+                
+                if (dashCooldownTimer > 0.0f) return;
+
+                if (isGrounded)
+                {
+                    // Only backwards relative to facing (Backstep)
+                    Vector3 backDir = -transform.Forward;
+                    backDir.y = 0f;
+                    dashInputDir = backDir.Normalize();
+
+                    isGroundDashing = true;
+                    dashTimer = dashDuration;
+                                        
+                    if (animator != null && animator.SafeToChange("DashStart"))
+                        animator.SetBool("DashStart", true);
+                }
+                else
+                {
+                    //Any direction based on input
+                    dashInputDir = ComputeFlatDashDir(true);
+
+                    // Rotate immediately to dash direction for air dash
+                    if (dashInputDir.SquareMagnitude() > 0.0001f)
+                    {
+                        transform.RotationQuat = Quaternion.LookRotation(dashInputDir, Vector3.Up);
+                    }
+
+                    isAirDashing = true;
+                    dashTimer = dashDuration;
+                    
+                    if (animator != null && animator.SafeToChange("AirDashStart"))
+                        animator.SetBool("AirDashStart", true);
+                }
+            }
         }
 
         void ApplyJump()
@@ -168,16 +255,48 @@ namespace SliceEngine
                 {
                     isJumping = true;
                     rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
-                    animator.SetBool("JumpLoop", true);
-
+                    animator?.SetBool("JumpLoop", true);
                 }
                 else if (isJumping && !isDoubleJumping)
                 {
                     isDoubleJumping = true;
                     rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
-                    animator.SetBool("AirDashStart", true);
+                    animator?.SetBool("AirDashStart", true);
                 }
             }
+        }
+
+        Vector3 ComputeFlatDashDir(bool useMoveDir)
+        {
+            bool hasInput = input.SquareMagnitude() > 0.0001f;
+            Vector3 normInput = hasInput ? input.Normalize() : Vector3.Zero;
+
+            // --- NO INPUT OR FORCED FORWARD ---
+            if (!useMoveDir || !hasInput)
+            {
+                Vector3 forward = transform.Forward;
+                forward.y = 0f;
+                return forward.Normalize(); 
+            }
+
+            // --- CAMERA-RELATIVE DASH ---
+            if (camera != null)
+            {
+                Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
+                camForward.y = 0f;
+                camForward = camForward.Normalize();
+
+                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+
+                Vector3 dashDir = camForward * normInput.z + camRight * normInput.x;
+                dashDir.y = 0f;
+                return dashDir.Normalize();
+            }
+
+            // --- TRANSFORM-RELATIVE FALLBACK ---
+            Vector3 moveDir = transform.Forward * normInput.z + transform.Right * normInput.x;
+            moveDir.y = 0f;
+            return moveDir.Normalize();
         }
 
         void TryAttack()
@@ -193,11 +312,10 @@ namespace SliceEngine
                 groundTriggerCount += 1;
 
                 if (isJumping || isDoubleJumping)
-                    animator.SetBool("Land", true);
+                    animator?.SetBool("Land", true);
 
                 if (isJumping) isJumping = false;
                 if (isDoubleJumping) isDoubleJumping = false;
-
             }
         }
 
