@@ -2262,6 +2262,8 @@ namespace SliceEditor
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 
+		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
 		ImGui::SeparatorText("Transitions");
 
 		for (auto& transition : state.transitions)

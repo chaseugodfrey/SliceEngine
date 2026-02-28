@@ -300,6 +300,51 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Model>::Reload(SliceEngineTypes::Model* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyModel();
+
+		std::filesystem::path file(path);
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case DefaultResourceIDs::CUBE_DEFAULT:
+				resource->LoadDefaultCubeModel();
+				break;
+			case DefaultResourceIDs::SPHERE_DEFAULT:
+				resource->LoadDefaultSphereModel();
+				break;
+			case DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT:
+				resource->LoadDefaultSphereModel(5, 7);
+				break;
+			case DefaultResourceIDs::CAPSULE_DEFAULT:
+				resource->LoadDefaultCapsuleModel();
+				break;
+			case DefaultResourceIDs::CYLINDER_DEFAULT:
+				resource->LoadDefaultCylinderModel();
+				break;
+			case DefaultResourceIDs::QUAD_DEFAULT:
+				resource->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::LINE_DEFAULT:
+				resource->LoadDefaultLineModel();
+				break;
+			case DefaultResourceIDs::FRUSTRUM_DEFAULT:
+				resource->LoadDefaultFrustrumModel();
+				break;
+			default:
+				delete resource;
+				break;
+			}
+		}
+		if (file.extension() == ".mdl") {
+			if (!resource->LoadModelResource(path)) {
+				//delete m;
+				delete resource;
+			}
+		}
 	}
 
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
