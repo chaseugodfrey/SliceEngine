@@ -8785,7 +8785,7 @@
                                 148,
                                 149,
                                 4,
-                                3
+                                1048579
                             ]
                         },
                         "levelDirectorObject": {
@@ -9163,7 +9163,13 @@
                     ]
                 },
                 "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.Bootstrap"
+                    "scriptName": "SliceEngine.Bootstrap",
+                    "scriptableFieldMap": {
+                        "debug": {
+                            "Type": "bool",
+                            "Value": false
+                        }
+                    }
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
@@ -15192,7 +15198,7 @@
                         99,
                         4294967295,
                         149,
-                        3
+                        1048579
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15229,7 +15235,7 @@
         {
             "Point_2_3_4": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3,
+                    "entity_id": 1048579,
                     "neighbours": [
                         99,
                         4294967295,
