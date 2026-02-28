@@ -248,8 +248,9 @@ namespace SliceEngine
 		// 4 : 1, color						Frees[1]		Dependencies Remaining(1)
 		// 5 : 2, 3							Frees[]			Dependencies Remaining(2)
 		// 
-		std::unordered_map<std::string, std::string> cShaderPredefines
+		static std::unordered_map<std::string, std::string> cShaderPredefines
 		{
+			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
 			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
 			{"sat_Vec3", "vec3 sat_Vec3(vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}"},
@@ -350,56 +351,58 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 		};
 
 		std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates{
-			{"END_COLOR", {"finalCol = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
-			{"END_ROUGHNESS", {"finalRoughness = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_METALLIC", {"finalMetallic = %s;\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));\n", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_COLOR", {"finalCol = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
+			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
+			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
+			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
-			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			
-			{"GetX_Vec2", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetY_Vec2", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetX_Vec3", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetY_Vec3", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetZ_Vec3", {"float %s = %s.z;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetX_Vec4", {"float %s = %s.x;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetY_Vec4", {"float %s = %s.y;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetZ_Vec4", {"float %s = %s.z;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetA_Vec4", {"float %s = %s.a;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetRGB_Vec4", {"vec3 %s = %s.rgb;\n", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
+			{"GetX_Vec2", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"GetY_Vec2", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"GetX_Vec3", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetY_Vec3", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetZ_Vec3", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
+			{"GetX_Vec4", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetY_Vec4", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetZ_Vec4", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetA_Vec4", {"float %s = %s.a;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetRGB_Vec4", {"vec3 %s = %s.rgb;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
 
-			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);\n", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
-			{"sat_f", {"float %s = sat_f(%s);\n", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
-			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);\n", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
-			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);\n", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
+			{"sat_f", {"float %s = sat_f(%s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
+			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
-			{"Mul_f", {"float %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Mul_Vec2", {"vec2 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
-			{"Mul_Vec3", {"vec3 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
-			{"Mul_Vec4", {"vec4 %s = %s * %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
-			{"One_Minus_f", {"float %s = 1.f - %s;\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
+			{"Mul_f", {"float %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Mul_Vec2", {"vec2 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
+			{"Mul_Vec3", {"vec3 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
+			{"Mul_Vec4", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"One_Minus_f", {"float %s = 1.f - %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
+			{"Flip_Y_Vec2", {"vec2 %s = flipY(%s);","flipY", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2}}},
 			
-			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);\n", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
+			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
-			{"fRand_Vec2", {"float %s = frand_vec2(%s);\n", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"Tiling_And_Offset_Vec2", {"vec2 %s = %s * %s + %s;\n", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
-			{"Gradient_Noise_f", {"float %s = GradientNoise_Deterministic(%s, %s);\n", "GradientNoise_Deterministic", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2, CSHAD_T::VEC3}}}
+			{"sampleTexture", {"vec4 %s = texture(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::VEC2}}},
+			{"fRand_Vec2", {"float %s = frand_vec2(%s);", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
+			{"Tiling_And_Offset_Vec2", {"vec2 %s = %s * %s + %s;", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
+			{"Gradient_Noise_f", {"float %s = GradientNoise_Deterministic(%s, %s);", "GradientNoise_Deterministic", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2, CSHAD_T::VEC3}}}
 		};
 		// ----- Inside LoadCShader Func =====
 		std::unordered_map<std::string, CSHAD_T> dataIDS
 		{
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
-			{"vTex", CSHAD_T::VEC2},
+			{"vUV", CSHAD_T::VEC2},
 			{"color", CSHAD_T::VEC4}
 		};
-		static std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
+		std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
 		{
 			{CSHAD_T::BOOL, "false"},
 			{CSHAD_T::INT, "0"},
@@ -407,7 +410,47 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{CSHAD_T::FLOAT, "0.0f"},
 			{CSHAD_T::VEC2, "vec2(0.0f)"},
 			{CSHAD_T::VEC3, "vec3(0.0f)"},
-			{CSHAD_T::VEC4, "vec4(0.0f)"}
+			{CSHAD_T::VEC4, "vec4(0.0f, 0.0f, 0.0f, 1.0f)"},
+			{CSHAD_T::SAMPLER, "textures[0]"}
+		};
+		uint16_t PairCshad(CSHAD_T f, CSHAD_T s)
+		{
+			return (static_cast<uint16_t>(f) << 8) | static_cast<uint16_t>(s);
+		}
+		std::unordered_map<uint16_t, std::string> cTypecast // In(Actual), Out(Wants)
+		{
+			// 1-1 match
+			{PairCshad(CSHAD_T::BOOL,CSHAD_T::BOOL),"%s"},
+			{PairCshad(CSHAD_T::INT,CSHAD_T::INT),"%s"},
+			{PairCshad(CSHAD_T::UINT,CSHAD_T::UINT),"%s"},
+			{PairCshad(CSHAD_T::FLOAT,CSHAD_T::FLOAT),"%s"},
+			{PairCshad(CSHAD_T::VEC2,CSHAD_T::VEC2),"%s"},
+			{PairCshad(CSHAD_T::VEC3,CSHAD_T::VEC3),"%s"},
+			{PairCshad(CSHAD_T::VEC4,CSHAD_T::VEC4),"%s"},
+			{PairCshad(CSHAD_T::SAMPLER,CSHAD_T::SAMPLER),"%s"},
+			// Promotions
+			{PairCshad(CSHAD_T::FLOAT,CSHAD_T::VEC2),"vec2(%s)"},
+			{PairCshad(CSHAD_T::FLOAT,CSHAD_T::VEC3),"vec3(%s)"},
+			{PairCshad(CSHAD_T::FLOAT,CSHAD_T::VEC4),"vec4(%s)"},
+
+			{PairCshad(CSHAD_T::VEC2,CSHAD_T::VEC3),"vec3(%s, 0.0f)"},
+			{PairCshad(CSHAD_T::VEC2,CSHAD_T::VEC4),"vec4(%s, 0.0f, 1.0f)"},
+
+			{PairCshad(CSHAD_T::VEC3,CSHAD_T::VEC4),"vec4(%s, 1.0f)"},
+			// Demotion
+			{PairCshad(CSHAD_T::VEC4,CSHAD_T::FLOAT),"%s.x"},
+			{PairCshad(CSHAD_T::VEC3,CSHAD_T::FLOAT),"%s.x"},
+			{PairCshad(CSHAD_T::VEC2,CSHAD_T::FLOAT),"%s.x"},
+
+			{PairCshad(CSHAD_T::VEC4,CSHAD_T::VEC2),"%s.xy"},
+			{PairCshad(CSHAD_T::VEC3,CSHAD_T::VEC2),"%s.xy"},
+
+			{PairCshad(CSHAD_T::VEC4,CSHAD_T::VEC3),"%s.rgb"},
+
+			{PairCshad(CSHAD_T::SAMPLER,CSHAD_T::VEC4), "texture(%s, vUV)"},
+			{PairCshad(CSHAD_T::SAMPLER,CSHAD_T::VEC3), "texture(%s, vUV).rgb"},
+			{PairCshad(CSHAD_T::SAMPLER,CSHAD_T::VEC2), "texture(%s, vUV).xy"},
+			{PairCshad(CSHAD_T::SAMPLER,CSHAD_T::FLOAT),"texture(%s, vUV).x"}
 		};
 		// -----------------------------------------------------------------
 		CustomShader CustomShader::LoadCShader(std::string const& filepath)
@@ -483,7 +526,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 					inParam.dataType = SP_TYPE::TEXTURE;
 					inParam.name = name;
 					inParam.baseData = components.get<uint64_t>();
-					dataI[name] = CSHAD_T::VEC4;
+					dataI[name] = CSHAD_T::SAMPLER;
 					dataIn.push_back(inParam);
 				}
 			// Extract Functions
@@ -511,7 +554,7 @@ R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, i
 						ss << "float " << dataIn[i].name << " = ExtractFloat(" << i << ");\n";
 						break;
 					case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
-						ss << "vec4 " << dataIn[i].name << " = texture(textures[ExtractUint(" << i << ")], vTex);\n";
+						ss << "sampler2D " << dataIn[i].name << " = textures[ExtractUint(" << i << ")];\n";
 						break;
 					}
 				}
@@ -526,7 +569,7 @@ R"(#version 460 core
 
 layout (location=0) in vec3 vPos; // In M Space
 layout (location=1) in vec3 vNom; // In MV Space
-layout (location=2) in vec2 vTex;
+layout (location=2) in vec2 vUV;
 layout (location=3) in flat uint vInstance;
 layout (location=4) in mat3 TBN;
 
@@ -670,10 +713,56 @@ void main(void){
 		{
 			struct CShadDependencies
 			{
-				std::vector<std::string> freesList;
+				std::vector<std::string> freesList; // What "I" can free
 				std::string funcStr{};
-				uint8_t dependenciesRemaining{};
+				CSHAD_T type;
+				std::list<std::pair<CSHAD_T, std::string>> dependenciesRemaining; // Waiting for the actual type
 			};
+
+			bool ReplaceNameFuncString(CShadDependencies& newID, const std::string& name, size_t pos, CSHAD_T in, CSHAD_T actl)
+			{
+				auto p = newID.funcStr.find("%s");
+				if (pos != 0)
+				{
+					size_t accumulated{ p };
+					std::string tempFunction{ newID.funcStr };
+
+					for (size_t i{}; i < pos; ++i)
+					{
+						tempFunction = tempFunction.substr(p + 1);
+						p = tempFunction.find("%s");
+						if (p != std::string::npos)
+							accumulated += p + 1;
+					}
+					p = accumulated;
+				}
+				
+				if (p != std::string::npos)
+				{
+					if (in == actl)
+					{
+						newID.funcStr.replace(p, 2, name);
+						return true;
+					}
+					else
+					{
+						auto tc = cTypecast.find(PairCshad(actl, in));
+						if (tc != cTypecast.end())
+						{
+							std::string newName = tc->second;
+							auto newNameP = newName.find("%s");
+							if (newNameP != std::string::npos)
+							{
+								newName.replace(newNameP, 2, name);
+								newID.funcStr.replace(p, 2, newName);
+								return true;
+							}
+						}
+					}
+
+				}
+				return false;
+			}
 		}
 
 		void CustomShader::LoadCShaderFunctions(std::string& ret, std::unordered_map<std::string, std::string>& funcsPre, const std::unordered_map<std::string, CSHAD_T>& defaulParmas, nlohmann::json& in)
@@ -697,50 +786,48 @@ void main(void){
 
 					CShadDependencies newID{};
 					if (dependenciesLockedLines.find(id) != dependenciesLockedLines.end())
-					{
 						newID = dependenciesLockedLines[id];
-					}
-					newID.funcStr = funcDetails.code;
+					newID.funcStr = funcDetails.code + "\n";
+					newID.type = funcDetails.outType;
 
+					// Name of Variable
 					if (funcDetails.outType != CSHAD_T::NIL)
-					{
-						auto p = newID.funcStr.find("%s");
-						if (p != std::string::npos)
-							newID.funcStr.replace(p, 2, id);
-					}
-					else if (dep[0] == "0") // Std out has No Dependicies / Is meant to do nothing / Just DONT Call
+						ReplaceNameFuncString(newID, id, 0, CSHAD_T::NIL, CSHAD_T::NIL);
+					else if (dep[0] == "0") // Std out has No Dependencies / Is meant to do nothing / Just DONT Call
 						continue;
+					// type name = %s;
+					size_t numEmpty{};
 					for (size_t i{}; i < dep.size(); ++i)
 					{
 						std::string& depName = dep[i];
-						if (depName != "0")
+						// Dependency Non-existant
+						if (depName == "0")
 						{
-							if (defaulParmas.find(depName) == defaulParmas.end())
-							{
-								if (dependenciesLockedLines.find(depName) != dependenciesLockedLines.end())
-									dependenciesLockedLines[depName].freesList.push_back(id);
-								else
-								{
-									CShadDependencies othID{};
-									othID.freesList.push_back(id);
-									dependenciesLockedLines[depName] = othID;
-								}
-								++newID.dependenciesRemaining;
-							}
-
-							auto p = newID.funcStr.find("%s");
-							if (p != std::string::npos)
-								newID.funcStr.replace(p, 2, depName);
+							ReplaceNameFuncString(newID, cDefaultEmptyVals[funcDetails.inIDs[i]], i - numEmpty, CSHAD_T::NIL, CSHAD_T::NIL);
+							++numEmpty;
 						}
+						// Dependency is a default value (all)
+						else if (defaulParmas.find(depName) != defaulParmas.end())
+						{
+							ReplaceNameFuncString(newID, depName, i-numEmpty, funcDetails.inIDs[i], defaulParmas.find(depName)->second);
+							++numEmpty;
+						}
+						// Idk what is the type of the dependency yet
 						else
 						{
-							auto p = newID.funcStr.find("%s");
-							if (p != std::string::npos)
-								newID.funcStr.replace(p, 2, cDefaultEmptyVals[funcDetails.inIDs[i]]);
+							if (dependenciesLockedLines.find(depName) != dependenciesLockedLines.end())
+								dependenciesLockedLines[depName].freesList.push_back(id);
+							else
+							{
+								CShadDependencies othID{};
+								othID.freesList.push_back(id);
+								dependenciesLockedLines[depName] = othID;
+							}
+							newID.dependenciesRemaining.push_back({ funcDetails.inIDs[i], depName });
 						}
 					}
 					dependenciesLockedLines[id] = newID;
-					if (newID.dependenciesRemaining == 0)
+					if (newID.dependenciesRemaining.empty())
 						toClearLines.push(id);
 				}
 			}
@@ -750,20 +837,32 @@ void main(void){
 			{
 				auto i = toClearLines.front();
 				toClearLines.pop();
+				auto extractDets = dependenciesLockedLines[i];
 
 				// Unlock all functions being blocked by this ID
-				for (auto cl : dependenciesLockedLines[i].freesList)
+				for (auto cl : extractDets.freesList)
 				{
 					auto fl = dependenciesLockedLines.find(cl);
 					if (fl != dependenciesLockedLines.end())
 					{
-						if (--fl->second.dependenciesRemaining == 0)
+						size_t replaceWhichS = 0;
+						for (auto node = fl->second.dependenciesRemaining.begin(); node != fl->second.dependenciesRemaining.end(); node = std::next(node))
 						{
-							toClearLines.push(fl->first);
+							if (node->second == i)
+							{
+								ReplaceNameFuncString(fl->second, i, replaceWhichS, node->first, extractDets.type);
+
+								fl->second.dependenciesRemaining.erase(node);
+								if (fl->second.dependenciesRemaining.empty())
+									toClearLines.push(fl->first);
+
+								break;
+							}
+							++replaceWhichS;
 						}
 					}
 				}
-				ret += dependenciesLockedLines[i].funcStr;
+				ret += extractDets.funcStr;
 			}
 			ret += "if(finalCol.a > 1.0) finalCol.a = 1.0;\n}\n";
 			//SLICE_LOG("\nCShaderCode: [\n" + ret + "]\n");

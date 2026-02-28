@@ -1,50 +1,48 @@
 {
     "Main": {
         "END_COLOR": {
-            "Node155": [
-                "Node195"
+            "FinalNode1": [
+                "Node33"
             ]
         },
-        "END_METALLIC":{
-            "NIL1234":["0"]
+        "END_METALLIC": {
+            "FinalNode0": [
+                "0"
+            ]
         },
-        "END_ROUGHNESS":{
-            "NIL3454":["0"]
+        "END_NORMAL": {
+            "FinalNode3": [
+                "0"
+            ]
         },
-        "END_NORMAL":{
-            "NIL7654":["0"]
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "0"
+            ]
         },
         "GetX_Vec2": {
-            "Node165": [
-                "vTex"
+            "Node18": [
+                "vUV"
             ]
         },
         "Mul_Vec4": {
-            "Node171": [
-                "Node191",
-                "Node204"
+            "Node21": [
+                "Node29",
+                "Node18"
             ],
-            "Node175": [
+            "Node25": [
                 "texCol",
                 "color"
             ]
         },
         "SetA_Vec4": {
-            "Node191": [
-                "Node175",
-                "0.f"
+            "Node29": [
+                "Node25",
+                "0"
             ],
-            "Node195": [
-                "Node171",
+            "Node33": [
+                "Node21",
                 "noiseScale"
-            ]
-        },
-        "Vec4_f_f_f_f": {
-            "Node204": [
-                "Node165",
-                "Node165",
-                "Node165",
-                "Node165"
             ]
         }
     },
@@ -54,9 +52,9 @@
             "noiseScale": 0.0
         },
         "Ints": {},
-        "Uints": {},
         "Textures": {
             "texCol": 17753361635269803423
-        }
+        },
+        "Uints": {}
     }
 }

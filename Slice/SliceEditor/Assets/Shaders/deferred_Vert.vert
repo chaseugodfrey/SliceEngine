@@ -10,7 +10,7 @@ layout (location=5) in vec3 aTan;
 
 layout (location=0) out vec3 vPos; // World Space
 layout (location=1) out vec3 vNom;
-layout (location=2) out vec2 vTex;
+layout (location=2) out vec2 vUV;
 layout (location=3) out flat uint vInstance;
 layout (location=4) out mat3 vTBN;
 
@@ -75,7 +75,7 @@ void main(void){
 	vec3 bitangent = cross(normal, tangent);
 	vTBN = mat3(tangent, bitangent, normal);
 
-	vTex = aTex;
+	vUV = aTex;
 	vInstance = gl_InstanceID;
 	gl_Position	= P * V * posInWorld;
 }

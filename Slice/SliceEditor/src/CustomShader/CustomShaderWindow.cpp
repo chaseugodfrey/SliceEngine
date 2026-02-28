@@ -16,7 +16,8 @@ namespace SliceEditor
 		{CST::CSHAD_T::FLOAT, "float"},
 		{CST::CSHAD_T::VEC2, "vec2"},
 		{CST::CSHAD_T::VEC3, "vec3"},
-		{CST::CSHAD_T::VEC4, "vec4"}
+		{CST::CSHAD_T::VEC4, "vec4"},
+		{CST::CSHAD_T::SAMPLER, "sampler2D"}
 	};
 
 	CustomShaderWindow::CustomShaderWindow(Registry& reg) : EditorWindow(reg) 
@@ -38,6 +39,7 @@ namespace SliceEditor
 		ImNodes::EditorContextFree(*editor_context_other.get());
 	}
 
+#pragma region ReadWrite
 	void CustomShaderWindow::CheckFileData()
 	{
 		//if ( != SelectionType::SHADERGRAPH)
@@ -180,7 +182,7 @@ namespace SliceEditor
 					n.out_id = ++uniqueIDCnt;
 					n.name = name;
 					n.baseData = components.get<uint64_t>();
-					n.baseDataType = CST::CSHAD_T::VEC4;
+					n.baseDataType = CST::CSHAD_T::SAMPLER;
 
 					mEditableIns[n.id] = n;
 					attrIDToNodeID[n.out_id] = n.id;
@@ -260,6 +262,7 @@ namespace SliceEditor
 				}
 			}
 			tempLoadPos = true;
+			isSaved = true;
 		}
 	}
 
@@ -411,8 +414,10 @@ namespace SliceEditor
 			}
 			ofs << shaderGraphJson.dump(4);
 			ofs.close();
+			isSaved = true;
 		}
 	}
+#pragma endregion
 
 	void CustomShaderWindow::Init()
 	{
@@ -430,7 +435,7 @@ namespace SliceEditor
 	void CustomShaderWindow::DrawSideBar()
 	{
 		ImGui::SetNextItemWidth(150.f);
-		ImGui::BeginChild("##left_ShaderGraph_region", ImVec2(0.0f, 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+		ImGui::BeginChild("##left_ShaderGraph_region", ImVec2(150.0f, 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 		ImGui::SeparatorText("Parameters");
 		int toDeleteID{};
 		for (auto& [id, data] : mEditableIns)
@@ -446,7 +451,7 @@ namespace SliceEditor
 			case CST::CSHAD_T::UINT:ImGui::Text("Uint"); break;
 			case CST::CSHAD_T::INT:ImGui::Text("Int"); break;
 			case CST::CSHAD_T::FLOAT:ImGui::Text("Float"); break;
-			case CST::CSHAD_T::VEC4:ImGui::Text("Texture"); break;
+			case CST::CSHAD_T::SAMPLER:ImGui::Text("Texture"); break;
 			}
 			ImGui::SameLine();
 			ImGui::SetNextItemWidth(125.f);
@@ -516,6 +521,11 @@ namespace SliceEditor
 			//SliceEngine::Handle<SliceEngine::SliceEngineTypes::Texture> handle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Texture>("Textures/Gideon.png");
 			//auto texture = handle.get();
 			//ImGui::Image(static_cast<ImU64>(texture->texture_id), ImGui::GetWindowSize());
+		}
+		if (!isSaved)
+		{
+			ImGui::SameLine();
+			ImGui::Text("Unsaved Data");
 		}
 		DrawSideBar();
 		ImGui::SameLine();
@@ -752,7 +762,7 @@ namespace SliceEditor
 				if (ImGui::Selectable("Make float"))
 					newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
 				if (ImGui::Selectable("Make Texture"))
-					newNodeID = CreateEditable(CST::CSHAD_T::VEC4);
+					newNodeID = CreateEditable(CST::CSHAD_T::SAMPLER);
 				ImGui::EndPopup();
 			}
 
@@ -848,9 +858,10 @@ namespace SliceEditor
 							if (mFinalNode.in_ids[i] == end_attr)
 							{
 								auto& endFuncDets = CST::cShaderFuncsTemplates.find(mFinalNodeOutputNames[i])->second;
+								auto& endAttrType = endFuncDets.inIDs[0];
 
 								// If type match then Link
-								if (startAttrType == endFuncDets.inIDs[0])
+								if (CST::cTypecast.find(PairCshad(startAttrType,endAttrType)) != CST::cTypecast.end())
 								{
 									ShaderLinkNode n;
 									n.sourceAttr = start_attr;
@@ -860,6 +871,8 @@ namespace SliceEditor
 									mTransitionNodes.insert(std::make_pair(n.id, n));
 									attrIDToLinkID[start_attr] = n.id;
 									attrIDToLinkID[end_attr] = n.id;
+
+									isSaved = false;
 								}
 								break;
 							}
@@ -874,8 +887,9 @@ namespace SliceEditor
 						{
 							if (endStateNode.in_ids[i] == end_attr)
 							{
+								auto& endAttrType = endFuncDets.inIDs[i];
 								// If type match then Link
-								if (startAttrType == endFuncDets.inIDs[i])
+								if (CST::cTypecast.find(PairCshad(startAttrType,endAttrType)) != CST::cTypecast.end())
 								{
 									ShaderLinkNode n;
 									n.sourceAttr = start_attr;
@@ -885,6 +899,8 @@ namespace SliceEditor
 									mTransitionNodes.insert(std::make_pair(n.id, n));
 									attrIDToLinkID[start_attr] = n.id;
 									attrIDToLinkID[end_attr] = n.id;
+
+									isSaved = false;
 								}
 								break;
 							}
@@ -908,6 +924,7 @@ namespace SliceEditor
 					{
 						auto linkNode = static_cast<ShaderLinkNode*>(node);
 						DeleteLink(linkNode->id);
+						isSaved = false;
 						break;
 					}
 					case SelectionType::SHADER_FUNCTION_STATE:
@@ -932,6 +949,7 @@ namespace SliceEditor
 							}
 							// Delete Node
 							mStateNodes.erase(stateNode->id);
+							isSaved = false;
 						}
 						break;
 					}
@@ -946,7 +964,7 @@ namespace SliceEditor
 			TempLoadPosAll();
 		if (newNodeID != 0)
 		{
-			ImNodes::SetNodeEditorSpacePos(newNodeID, mouseSelectPos);
+			ImNodes::SetNodeScreenSpacePos(newNodeID, mouseSelectPos);
 			ImNodes::SnapNodeToGrid(newNodeID);
 			newNodeID = 0;
 		}
@@ -1029,13 +1047,14 @@ namespace SliceEditor
 			node.baseData = 0.f;
 			break;
 		}
-		case CST::CSHAD_T::VEC4:
+		case CST::CSHAD_T::SAMPLER:
 		{
 			node.baseData = SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			break;
 		}
 		}
 		mEditableIns[node.id] = node;
+		isSaved = false;
 		return node.id;
 	}
 }

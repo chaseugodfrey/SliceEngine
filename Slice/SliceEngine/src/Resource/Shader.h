@@ -67,8 +67,10 @@ namespace SliceEngine
 			FLOAT,
 			VEC2,
 			VEC3,
-			VEC4
+			VEC4,
+			SAMPLER
 		};
+		uint16_t PairCshad(CSHAD_T f, CSHAD_T s);
 
 		enum class ShaderGraphFunc_T : unsigned char
 		{
@@ -86,9 +88,12 @@ namespace SliceEngine
 			CSHAD_T outType;
 			std::vector<CSHAD_T> inIDs;
 		};
+
 		extern std::unordered_map<std::string, std::string> cShaderPredefines;
 		extern std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates;
 		extern std::unordered_map<std::string, CSHAD_T> dataIDS;
+		extern std::unordered_map<uint16_t, std::string> cTypecast;
+		static std::unordered_map<CSHAD_T, std::string> cShaderTypeName;
 
 		class CustomShader {
 		public:

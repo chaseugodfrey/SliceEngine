@@ -26,6 +26,7 @@ namespace SliceEditor
 		int newNodeID{ 0 };
 
 		bool tempLoadPos = false;
+		bool isSaved = true;
 
 		struct ShaderEditableNode : SelectionNode
 		{
