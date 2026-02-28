@@ -180,7 +180,7 @@ namespace SliceEditor
 
 		ImGui::SetNextItemWidth(width);
 
-		bool changed = ImGui::InputText(id, &val);
+		bool changed = ImGui::InputText(id, &val,ImGuiInputTextFlags_EnterReturnsTrue);
 
 		if (ImGui::IsItemActivated())
 		{
