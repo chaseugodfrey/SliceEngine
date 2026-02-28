@@ -1,8 +1,9 @@
-﻿using SliceEngine;
+using SliceEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 
 
 namespace SliceEngine
@@ -16,6 +17,7 @@ namespace SliceEngine
         public bool isJumping = false;
         public bool isDoubleJumping = false;
         public bool canInput = true;
+        public bool isAttacking = false;
         public GameObject playerModel;
         public GameObject cameraObject;
 
@@ -24,7 +26,10 @@ namespace SliceEngine
         private RigidBody rb;
         private Animator animator;
         private CameraController camera;
-        
+        private int groundTriggerCount = 0;
+        private string groundName = "Ground";
+        private bool jumpRequest = false;
+
         #region Entity Overrides
         public void Initialize()
         {
@@ -32,7 +37,7 @@ namespace SliceEngine
         }
         public override void OnDeath()
         {
-            
+
         }
         protected override void OnHeal()
         {
@@ -46,7 +51,7 @@ namespace SliceEngine
 
         public override void OnAwake()
         {
-            
+
         }
 
         public override void OnCreate()
@@ -61,14 +66,22 @@ namespace SliceEngine
             if (canInput)
             {
                 HandleInput();
+                
+                // Capture jump input in OnUpdate to ensure we don't miss a key press
+                if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+                {
+                    if (isGrounded && !isAttacking) jumpRequest = true;
+                    else if (isJumping && !isDoubleJumping) jumpRequest = true;
+                }
             }
 
-            //HandleMovement(dt);
+            UpdateRotation(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
-            HandleMovement(dt);
+            HandleMovement();
+            ApplyJump();
         }
 
         void HandleInput()
@@ -90,55 +103,115 @@ namespace SliceEngine
 
             if (input != Vector3.Zero)
             {
-                if (animator.SafeToChange("Walk"))
+                if (animator != null && animator.SafeToChange("Walk"))
                     animator.SetBool("Walk", true);
             }
             else
             {
-                if (animator.SafeToChange("Idle"))
+                if (animator != null && animator.SafeToChange("Idle"))
                     animator.SetBool("Idle", true);
             }
 
-            //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
             if (canInput)
             {
                 if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
             }
         }
 
-        void HandleMovement(float dt)
+        void UpdateRotation(float dt)
         {
-            Vector3 camForward = new Vector3();
-            finalMove = Vector3.Zero;
+            if (input.SquareMagnitude() > 0.0001f)
+            {
+                Vector3 camForward = Vector3.Zero;
+                if (camera != null)
+                {
+                    camForward = camera.transform.RotationQuat * Vector3.Forward;
+                    camForward.y = 0f;
+                    camForward = camForward.Normalize();
+                }
+
+                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+                Vector3 moveDirInput = camForward * input.z + camRight * input.x;
+
+                if (moveDirInput.SquareMagnitude() > 0.0001f)
+                {
+                    Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
+                    transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, rotSpeed * dt);
+                }
+            }
+        }
+
+        void HandleMovement()
+        {
+            Vector3 camForward = Vector3.Zero;
             if (camera != null)
             {
-                camForward = camera.transform.RotationQuat * Vector3.Forward; // Get camera forward direction
-                camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
-                camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
+                camForward = camera.transform.RotationQuat * Vector3.Forward;
+                camForward.y = 0f;
+                camForward = camForward.Normalize();
             }
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
-            float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
 
-            if (moveDirInput.SquareMagnitude() > 0.0001f)
-            {
-                Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
-                float scaledRotSpeed = rotSpeed;
-                transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
-            }
-
+            // Apply movement via Velocity instead of transform.Position to avoid stuttering
             Vector3 horizontal = moveDirInput * movementSpeed;
-            finalMove = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
-            Console.WriteLine(finalMove.ToString());
-            transform.Position += finalMove * dt;
-            Console.WriteLine($"Final move is x: {transform.Position.x}, y: {transform.Position.y}, z: {transform.Position.z}");
-            //rb.Velocity = finalMove;
+            rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+        }
+
+        void ApplyJump()
+        {
+            if (jumpRequest)
+            {
+                jumpRequest = false;
+                if (isGrounded)
+                {
+                    isJumping = true;
+                    rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
+                    animator.SetBool("JumpLoop", true);
+
+                }
+                else if (isJumping && !isDoubleJumping)
+                {
+                    isDoubleJumping = true;
+                    rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
+                    animator.SetBool("AirDashStart", true);
+                }
+            }
         }
 
         void TryAttack()
         {
 
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            if (gameObject.FindGameObjectWithID(other).tag == groundName)
+            {
+                isGrounded = true;
+                groundTriggerCount += 1;
+
+                if (isJumping || isDoubleJumping)
+                    animator.SetBool("Land", true);
+
+                if (isJumping) isJumping = false;
+                if (isDoubleJumping) isDoubleJumping = false;
+
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (gameObject.FindGameObjectWithID(other).tag == groundName)
+            {
+                groundTriggerCount -= 1;
+                groundTriggerCount = Utilities.Clamp<int>(groundTriggerCount, 0, 999);
+                if (groundTriggerCount <= 0)
+                {
+                    isGrounded = false;
+                }
+            }
         }
     }
 }
