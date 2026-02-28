@@ -15,7 +15,7 @@ namespace SliceEngine
 
         public float bulletSpeed = 1f;
 
-        public float bulletScale = 1f;
+        public Vector3 bulletScale = new Vector3(1);
 
         public int bulletDamage = 1;
 
@@ -29,11 +29,13 @@ namespace SliceEngine
 
         public int limit = 100;
 
+        public float RangeLimit = 10f;
+
         private enum SpawnStyle { Straight, Spiral, Aim };
 
         private SpawnStyle currentStyle = SpawnStyle.Straight;
 
-        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, float scale, float speed)
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed)
         {
             GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
 
@@ -41,7 +43,7 @@ namespace SliceEngine
 
             tempT.Position = startPos;
             tempT.Rotation = angle;
-            tempT.Scale = new Vector3(scale);
+            tempT.Scale = scale;
 
             Projectile tempP = newBullet.As<Projectile>();
 
@@ -114,12 +116,16 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.Position, T.Rotation, bulletScale, bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
                     }
 
 
                     break;
                 case SpawnStyle.Aim:
+
+                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > RangeLimit)
+                    break;
+
 
                     this.transform.LookAt(Bootstrap.Player.transform.Position, new Vector3(0,1,0));
 
@@ -129,7 +135,7 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.Position, T.Rotation, bulletScale, bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
                     }
 
                     break;
@@ -141,7 +147,7 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.Position, T.Rotation, bulletScale ,bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
                     }
 
                     break;
