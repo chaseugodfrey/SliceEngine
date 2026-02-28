@@ -880,7 +880,7 @@ namespace SliceEngine
 
 
 		frm->StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
@@ -1016,6 +1016,8 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
+			sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sTransform.UpdateTransforms();
 
 			//Prestep: push dynamic poses to physics world
 			core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -1026,12 +1028,12 @@ namespace SliceEngine
 			// Post-step: pull dynamic poses for rendering
 			core->GetSystem<PhysicsSystem>().PostStepSync();
 
-
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		}
 		frm->EndSystem("Physics");
 
 		frm->StartSystem("Transform");
-		sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		//sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		frm->EndSystem("Transform");
 
 		//Starting Animation
