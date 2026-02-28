@@ -29,6 +29,7 @@ namespace SliceEditor
 	void AssetManager::Init()
 	{
 		SLICE_LOG("Initializing Asset Manager.");
+		EventManager::GetInstance()->Subscribe<AssetRecompiledEvent, &AssetManager::ReloadResource>(this);
 
 		//Sanity Checks for the Directories
 		if (!std::filesystem::exists(mAssetDirectory))
@@ -165,6 +166,12 @@ namespace SliceEditor
 	//	CreateDefaultAsset(mAssetDirectory, AssetType::Material);
 
 		SLICE_LOG("Asset Manager Initialized");
+	}
+
+	void AssetManager::ReloadResource(AssetRecompiledEvent event)
+	{
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->ReloadResourceInPlace(event.fileGUID);
 	}
 
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)

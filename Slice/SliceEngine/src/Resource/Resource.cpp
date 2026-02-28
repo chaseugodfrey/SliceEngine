@@ -373,7 +373,6 @@ namespace SliceEngine
 				delete resource;
 			}
 		}
-		
 	}
 
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)

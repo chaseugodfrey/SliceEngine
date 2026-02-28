@@ -786,6 +786,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
+		
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -850,16 +851,16 @@ namespace SliceEngine
 		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(core->GetWindow());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwPollEvents();
-		frm->EndSystem("GLFW Poll Events");
+		//frm->StartSystem("GLFW Poll Events");
+		//glfwMakeContextCurrent(core->GetWindow());
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glfwPollEvents();
+		//frm->EndSystem("GLFW Poll Events");
 
-		frm->StartSystem("Input");
-		sInputs->UpdatePrevInput();
-		GetActionMappingSystem().processAllInput();
-		frm->EndSystem("Input");
+		//frm->StartSystem("Input");
+		//sInputs->UpdatePrevInput();
+		//GetActionMappingSystem().processAllInput();
+		//frm->EndSystem("Input");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -879,7 +880,7 @@ namespace SliceEngine
 
 
 		frm->StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
 		frm->EndSystem("Transform");
@@ -1015,6 +1016,8 @@ namespace SliceEngine
 		{
 			gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
 
+			sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sTransform.UpdateTransforms();
 
 			//Prestep: push dynamic poses to physics world
 			core->GetSystem<PhysicsSystem>().PreStepSync();
@@ -1025,12 +1028,12 @@ namespace SliceEngine
 			// Post-step: pull dynamic poses for rendering
 			core->GetSystem<PhysicsSystem>().PostStepSync();
 
-
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		}
 		frm->EndSystem("Physics");
 
 		frm->StartSystem("Transform");
-		sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		//sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
 		frm->EndSystem("Transform");
 
 		//Starting Animation
