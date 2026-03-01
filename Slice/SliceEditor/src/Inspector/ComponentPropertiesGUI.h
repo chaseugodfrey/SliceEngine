@@ -124,14 +124,19 @@ namespace SliceEditor
 	//
 
 	template<typename Enum>
-	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false)
 	{
 		static char buffer[256];
 		static std::string searchPrompt;
 		bool changed = false;
 		int idx = static_cast<int>(selected);
+
+		if (selectionDifferent)
+		{
+			idx = container.size() - 1;
+		}
 		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
+		if (ImGui::BeginCombo(id, container[idx].c_str()))
 		{
 			
 			if (searchBar)
@@ -180,19 +185,24 @@ namespace SliceEditor
 	}
 
 	template <typename Enum>
-	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false)
 	{
 		bool changed = false;
-
+		std::vector<std::string> containerCopy = container;
 		if (!property_label.empty())
 		{
 			ImGui::Text(property_label.c_str());
 			ImGui::SameLine(150.f);
 		}
+		if (selectionDifferent)
+		{
+			containerCopy.push_back("---");
+		}
 
 		ImGui::SetNextItemWidth(150.0f);
 
-		changed = ComboInput(reg , id, selected, container,searchBar);
+		changed = ComboInput(reg , id, selected, containerCopy, searchBar, selectionDifferent);
+
 		return changed;
 	}
 
