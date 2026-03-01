@@ -254,11 +254,13 @@ namespace SliceEngine
         public void  OpenTextBox()
         {
             textBoxParentObject.SetActive(true);
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void CloseTextBox()
         {
             textBoxParentObject.SetActive(false);
+            Cursor.state = Cursor.STATE.DEFAULT;
         }
 
         #endregion
@@ -269,7 +271,8 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();      
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            //LoadDialogues();
+            LoadDialogues();
+            //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }
 }
