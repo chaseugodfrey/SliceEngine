@@ -19,13 +19,13 @@ namespace SliceEngine
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            player.As<TestController>().StartAttackRecovery();
+            player.As<PlayerController>().StartAttackRecovery();
         }
         public void CanAttack(string str)
         {
-            if(player.Has<TestController>())
+            if(player.Has<PlayerController>())
             {
-                player.As<TestController>().CanAttackFlag(true);
+                player.As<PlayerController>().CanAttackFlag(true);
             }
         }
         public void SetAttacking(string state)
@@ -36,18 +36,23 @@ namespace SliceEngine
             {
                 case "true":
                     //player.As<TestController>().canMove = false;
-                    player.As<TestController>().isAttacking = true;
+                    player.As<PlayerController>().isAttacking = true;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
                     //player.As<TestController>().canMove = true;
-                    player.As<TestController>().isAttacking = false;
+                    player.As<PlayerController>().isAttacking = false;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
                     //Console.WriteLine("Invalid state for SetAttacking: " + state);
                     break;
             }
+        }
+
+        public void FlickerModel()
+        {
+
         }
 
         public static void PlayPlayerSFX(string type)

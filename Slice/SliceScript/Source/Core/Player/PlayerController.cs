@@ -19,6 +19,7 @@ namespace SliceEngine
         public bool isAirDashing = false;
         public bool canInput = true;
         public bool canMove = true;
+        public bool iFrames = false;
         public GameObject playerModel;
         public GameObject cameraObject;
         public float dashDuration = 0.75f;
@@ -29,6 +30,9 @@ namespace SliceEngine
         public float fallTransitionTime = 0.25f;
         public float lungeDuration = 0.5f;
         public float lungeSpeed = 5.0f;
+        public float iFrameDuration = 0.2f;
+        public float flickerDuration = 0.05f;
+
         //public bool attackAutoRecover = false;
         private float dashCooldownTimer = 0.0f;
         private float dashTimer = 0.0f;
@@ -105,6 +109,19 @@ namespace SliceEngine
         {
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
+            if (!iFrames)
+            {
+                iFrames = true;
+                StartCoroutine(iFrameAnimation(iFrameDuration));
+            }
+        }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            // If its iFrames, dont take damage
+            if (iFrames)
+                return;
+            base.TakeDamage(amount, source);
         }
         #endregion
 
@@ -585,6 +602,43 @@ namespace SliceEngine
                 yield return null;
             }
         }
+
+        private IEnumerator iFrameAnimation(float duration)
+        {
+            float timer = 0.0f;
+            float flickerTimer = 0.0f;
+            while (timer < duration)
+            {
+               //Vector4 col = playerModel.GetComponent<Renderer>().GetColor();
+                
+                if (flickerTimer >= flickerDuration)
+                {
+                    playerModel.As<PlayerAnimatorEvents>().FlickerModel();
+
+                    //if (col.z == 0.0f)
+                    //{
+                    //    col.z = 1.0f;
+
+                    //}
+                    //else if (col.z == 1.0f)
+                    //{
+                    //    col.z = 0.0f;
+                    //}
+
+                    flickerTimer = 0.0f;
+                }
+
+               // playerModel.GetComponent<Renderer>().SetColor(col);
+
+
+                timer += Time.deltaTime;
+                flickerTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            iFrames = false;
+        }
+
         private void Attack1(GameObject target)
         {
             EnemyBase enemy = target.As<EnemyBase>();
