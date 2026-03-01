@@ -191,7 +191,7 @@ namespace SliceEngine
 
             if (canInput)
             {
-                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+                if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
             }
         }
 
