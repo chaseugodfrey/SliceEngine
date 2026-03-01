@@ -2761,6 +2761,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_GetAllChildren);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
