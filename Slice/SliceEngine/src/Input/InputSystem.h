@@ -84,6 +84,7 @@ namespace SliceEngine
         void Init(GLFWwindow* window);
         void Update();
         void UpdatePrevInput();
+        void UpdateCursorData(); // editor doesn't call this
 
         // queue 
         size_t EventsThisFrame() const 
