@@ -28,9 +28,6 @@ namespace SliceEngine
         public float lungeDuration = 0.5f;
         public float lungeSpeed = 5.0f;
         //public bool attackAutoRecover = false;
-
-        public List<GameObject> hitBoxes = new List<GameObject>();    
-
         private float dashCooldownTimer = 0.0f;
         private float dashTimer = 0.0f;
         private float fallTimer = 0.0f;
@@ -74,6 +71,9 @@ namespace SliceEngine
         private float attackTimer = 0f;
         private bool queuedNext = false;
 
+        private bool isLunging = false;
+        private float lungeTimer = 0.0f;
+        private bool canIncrement = true;
 
         // Just to debug shit
         int count = 0;
@@ -107,6 +107,8 @@ namespace SliceEngine
             animator = playerModel?.GetComponent<Animator>();
             rb = GetComponent<RigidBody>();
             camera = cameraObject.As<CameraController>();
+
+           // InitializeAttackHitboxes();
         }
 
         public override void OnUpdate(float dt)
@@ -141,8 +143,24 @@ namespace SliceEngine
                 }
             }
 
+            if (isLunging)
+            {
+                lungeTimer -= dt;
+                if (lungeTimer <= 0.0f)
+                {
+                    isLunging = false;
+                }
+            }
+
+            if (attackQueued && !isAttacking)
+            {
+                ExecuteAttack();
+                attackQueued = false;
+            }
+
             UpdateRotation(dt);
             UpdateAnimation(); // Centralized animation control
+            AttackResetTimer();
         }
 
         public override void OnFixedUpdate(float dt)
@@ -281,7 +299,15 @@ namespace SliceEngine
                 fallTimer = 0.0f;
             }
 
-            if (isGroundDashing || isAirDashing)
+            if (isLunging)
+            {
+                Vector3 lungeDir = transform.Forward;
+                lungeDir.y = 0f;
+                lungeDir = lungeDir.Normalize();
+                Vector3 lungeVel = lungeDir * lungeSpeed;
+                rb.Velocity = new Vector3(lungeVel.x, rb.Velocity.y, lungeVel.z);
+            }
+            else if (isGroundDashing || isAirDashing)
             {
                 Vector3 dashVel = dashInputDir * dashSpeed;
                 float yVel = isGroundDashing ? 0 : rb.Velocity.y;
@@ -399,6 +425,29 @@ namespace SliceEngine
         // attacking should be hte same as last time I dont think I have to redo anything 
         // only the lunge
 
+        private void InitializeAttackHitboxes()
+        {
+            attack1HB = gameObject.FindGameObjectWithName(attack1HBName)?.As<GeneralHitbox>();
+            attack1HB.HitBoxListeners += Attack1;
+            //if (attack1HB == null) Console.WriteLine("Attack 1 hitbox not found");
+            //else Console.WriteLine("Attack 1 hitbox found");
+
+            attack2HB = gameObject.FindGameObjectWithName(attack2HBName)?.As<GeneralHitbox>();
+            attack2HB.HitBoxListeners += Attack2;
+            //if (attack2HB == null) Console.WriteLine("Attack 2 hitbox not found");
+            //else Console.WriteLine("Attack 2 hitbox found");
+
+            attack3HB = gameObject.FindGameObjectWithName(attack3HBName)?.As<GeneralHitbox>();
+            attack3HB.HitBoxListeners += Attack3;
+            //if (attack3HB == null) Console.WriteLine("Attack 3 hitbox not found");
+            //else Console.WriteLine("Attack 3 hitbox found");
+
+            if (attack1HB != null && attack2HB != null && attack3HB != null)
+            {
+                //Console.WriteLine("All attack hitboxes found, turning them off");
+                TurnOffHitboxes();
+            }
+        }
         private void TryAttack()
         {
             // transition to plunge if in air
@@ -422,15 +471,16 @@ namespace SliceEngine
                 switch (attackCounter)
                 {
                     case 1:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
 
                         animator.SetBool("Attack1", true);
                         AudioSettings.PlaySFX("A1");
 
-                        StartCoroutine(Lunge());
+                        isLunging = true;
+                        lungeTimer = lungeDuration;
                         break;
                     case 2:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
@@ -438,10 +488,11 @@ namespace SliceEngine
                             AudioSettings.PlaySFX("A2");
                         }
 
-                        StartCoroutine(Lunge());
+                        isLunging = true;
+                        lungeTimer = lungeDuration;
                         break;
                     case 3:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
@@ -455,21 +506,11 @@ namespace SliceEngine
                 //console.writeline("Attack Counter: " + attackCounter);
             }
         }
-        private IEnumerator Lunge()
-        {
-            float timer = 0f;
-            while (timer < lungeDuration)
-            {
-                transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
-                timer += Time.deltaTime;
-                yield return null;
-            }
-        }
         private void TurnOffHitboxes()
         {
-            attack1HB.TurnOff();
-            attack2HB.TurnOff();
-            attack3HB.TurnOff();
+            //attack1HB.TurnOff();
+            //attack2HB.TurnOff();
+            //attack3HB.TurnOff();
         }
         public void StartAttackRecovery()
         {
@@ -562,7 +603,10 @@ namespace SliceEngine
             yield return new WaitForSeconds(delay);
             action.Invoke();
         }
-
+        public void CanAttackFlag(bool flag)
+        {
+            canIncrement = flag;
+        }
         #endregion
 
 
