@@ -2150,11 +2150,6 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 			return;
 		}
-
-		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}		
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
@@ -2194,6 +2189,13 @@ namespace SliceEditor
 			{
 				std::string s = "##Material_Float_" + i.name;
 				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+					mat.SerializeAsset(node->fullPath);
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+			{
+				std::string s = "##Material_Texture_" + i.name;
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
@@ -2259,6 +2261,8 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
 
 		ImGui::SeparatorText("Transitions");
 

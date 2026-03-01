@@ -1,13 +1,65 @@
-#IN
-float roughness = 0;
-float metallic = 0;
-
-#CODE
-vec4 TexColorC(vec4 texCol, vec4 color)
 {
-    return texCol * color;
-}
-vec2 RoughMet()
-{
-    return vec2(roughness, metallic);
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node30"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node42"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode3": [
+                "Node34"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "Node46"
+            ]
+        },
+        "Flip_Y_Vec2": {
+            "Node26": [
+                "vUV"
+            ]
+        },
+        "Mul_Vec4": {
+            "Node30": [
+                "color",
+                "Node38"
+            ]
+        },
+        "sampleTexture": {
+            "Node34": [
+                "NormalMap",
+                "Node26"
+            ],
+            "Node38": [
+                "albedo",
+                "Node26"
+            ],
+            "Node42": [
+                "MetallicMap",
+                "Node26"
+            ],
+            "Node46": [
+                "NormalMap",
+                "Node26"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {},
+        "Ints": {},
+        "Textures": {
+            "MetallicMap": 11697903386653029786,
+            "NormalMap": 11697903386653029786,
+            "RoughnessMap": 11697903386653029786,
+            "albedo": 17753361635269803423
+        },
+        "Uints": {}
+    }
 }

@@ -381,7 +381,7 @@ namespace SliceEngine
 							}
 						}
 
-						cloner(*mRegistry, entity, instancePrefabIDToEntityMap[prefabID]);
+						cloner(*mRegistry, e, instancePrefabIDToEntityMap[prefabID]);
 					}
 
 					// restore the gameobject variables
