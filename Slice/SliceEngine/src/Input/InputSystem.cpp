@@ -160,6 +160,13 @@ namespace SliceEngine
         scrollDelta = 0.0f;
     }
 
+    void InputSystem::UpdateCursorData()
+    {
+        mouseDelta = prevMousePos - currMousePos;
+        prevMousePos = currMousePos;
+        scrollDelta = 0.0f;
+    }
+
     // bind callbacks to window (if not already bound)
     void InputSystem::BindCallbacksToWindow(GLFWwindow* window)
     {
