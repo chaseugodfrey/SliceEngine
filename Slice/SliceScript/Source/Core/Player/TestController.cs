@@ -19,13 +19,17 @@ namespace SliceEngine
         public bool isGroundDashing = false;
         public bool isAirDashing = false;
         public bool canInput = true;
-        public bool isAttacking = false;
         public GameObject playerModel;
         public GameObject cameraObject;
         public float dashDuration = 0.75f;
         public float dashCooldown = 0.6f;
         public float dashSpeed = 10.0f;
         public float fallTransitionTime = 0.25f;
+        public float lungeDuration = 0.5f;
+        public float lungeSpeed = 5.0f;
+        //public bool attackAutoRecover = false;
+
+        public List<GameObject> hitBoxes = new List<GameObject>();    
 
         private float dashCooldownTimer = 0.0f;
         private float dashTimer = 0.0f;
@@ -40,6 +44,36 @@ namespace SliceEngine
         private string groundName = "Ground";
         private bool jumpRequest = false;
         private bool dashRequest = false;
+
+        // Attacking Variables
+        public float attackResetTime = 1f;
+        private float attackResetTimer = 0f;
+        public bool isAttacking = false;
+        private int attackCounter = 0;
+        public float attackRecoveryDuration = 0.5f;
+        private bool attackQueued = false;
+        private bool attackAutoRecover = false;
+        public float attack1Delay, attack2Delay, attack3Delay;
+
+        // no plunging for now
+        private bool isPlunging = false;
+
+        public string attack1HBName;
+        public int attack1Damage;
+        private GeneralHitbox attack1HB;
+
+        public string attack2HBName;
+        public int attack2Damage;
+        private GeneralHitbox attack2HB;
+
+        public string attack3HBName;
+        public int attack3Damage;
+        private GeneralHitbox attack3HB;
+
+        private int attackIndex = 0;
+        private float attackTimer = 0f;
+        private bool queuedNext = false;
+
 
         // Just to debug shit
         int count = 0;
@@ -196,6 +230,7 @@ namespace SliceEngine
             animator.SetBool("Fall", false);
         }
 
+        #region Movement
         void UpdateRotation(float dt)
         {
             if (isGroundDashing || isAirDashing) return;
@@ -312,7 +347,7 @@ namespace SliceEngine
             if (jumpRequest)
             {
                 jumpRequest = false;
-                
+
                 animator?.SetBool("Walk", false);
                 animator?.SetBool("Idle", false);
 
@@ -340,7 +375,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return forward.Normalize(); 
+                return forward.Normalize();
             }
 
             if (camera != null)
@@ -359,10 +394,177 @@ namespace SliceEngine
             return moveDir.Normalize();
         }
 
-        void TryAttack()
-        {
+        #endregion
+        #region Attacking 
+        // attacking should be hte same as last time I dont think I have to redo anything 
+        // only the lunge
 
+        private void TryAttack()
+        {
+            // transition to plunge if in air
+            //if (!grounded && isPlunging == false)
+            //{
+            //    StartCoroutine(Plunge(plungeDuration));
+            //    return;
+            //}
+            attackQueued = true;
+            //console.writeline("AttackQueued set to true");
         }
+        private void ExecuteAttack()
+        {
+            if (!isAttacking && !isPlunging)
+            {
+                attackAutoRecover = false;
+                attackCounter++;
+                isAttacking = true;
+
+                if (attackCounter > 3) attackCounter = 1;
+                switch (attackCounter)
+                {
+                    case 1:
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
+
+                        animator.SetBool("Attack1", true);
+                        AudioSettings.PlaySFX("A1");
+
+                        StartCoroutine(Lunge());
+                        break;
+                    case 2:
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                        {
+                            animator.SetBool("Attack2", true);
+                            AudioSettings.PlaySFX("A2");
+                        }
+
+                        StartCoroutine(Lunge());
+                        break;
+                    case 3:
+                        StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                        {
+                            animator.SetBool("Attack3", true);
+                            AudioSettings.PlaySFX("A3");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                //console.writeline("Attack Counter: " + attackCounter);
+            }
+        }
+        private IEnumerator Lunge()
+        {
+            float timer = 0f;
+            while (timer < lungeDuration)
+            {
+                transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+        private void TurnOffHitboxes()
+        {
+            attack1HB.TurnOff();
+            attack2HB.TurnOff();
+            attack3HB.TurnOff();
+        }
+        public void StartAttackRecovery()
+        {
+            attackResetTimer = 0f;
+            isAttacking = false;
+            attackAutoRecover = true;
+
+            TurnOffHitboxes();
+        }
+        private void AttackResetTimer()
+        {
+            if (!isAttacking)
+            {
+                attackResetTimer += Time.deltaTime;
+            }
+            if (attackResetTimer >= attackRecoveryDuration)
+            {
+                attackAutoRecover = false;
+                attackResetTimer = 0f;
+                attackCounter = 0;
+
+                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                {
+                    if (animator.SafeToChange("AttackToIdle1"))
+                        animator.SetBool("AttackToIdle1", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                {
+                    if (animator.SafeToChange("AttackToIdle2"))
+                        animator.SetBool("AttackToIdle2", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+                {
+                    if (animator.SafeToChange("Attack3ToLoco"))
+                        animator.SetBool("Attack3ToLoco", true);
+                }
+            }
+        }
+        private IEnumerator Plunge(float duration)
+        {
+            //console.writeline("Plunging");
+            //isPlunging = true;
+            //if (animator != null)
+            //{
+            //    animator.SetBool("Plunge", true);
+            //}
+            float timer = 0f;
+            while (timer < duration)
+            {
+                Vector3 velTemp = rb.Velocity;
+                velTemp.y = 0.0f;
+                rb.Velocity = velTemp;
+                //velocity.y = 0f;
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+        private void Attack1(GameObject target)
+        {
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack1Damage);
+                //console.writeline("Hit enemy");
+            }
+            //console.writeline("Attack 1 executed");
+        }
+        private void Attack2(GameObject target)
+        {
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack2Damage);
+                //console.writeline("Hit enemy");
+            }
+            //console.writeline("Attack 2 executed");
+        }
+        private void Attack3(GameObject target)
+        {
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attack3Damage);
+                //console.writeline("Hit enemy");
+            }
+            //console.writeline("Attack 3 executed");
+        }
+        private IEnumerator AttackDelay(float delay, Action action)
+        {
+            yield return new WaitForSeconds(delay);
+            action.Invoke();
+        }
+
+        #endregion
+
 
         public override void OnCollideEnter(uint other)
         {
