@@ -252,8 +252,7 @@ namespace SliceEngine
 		{
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
-			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
-			{"sat_Vec3", "vec3 sat_Vec3(vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}"},
+			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
 			{"SetV4F", R"(vec4 SetV4F(vec4 inv, float val, int n){
 switch(n){
 	case 0: return vec4(val, inv.gba);
@@ -356,34 +355,23 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
-			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			
-			{"GetX_Vec2", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetY_Vec2", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetX_Vec3", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetY_Vec3", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetZ_Vec3", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetX_Vec4", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetY_Vec4", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetZ_Vec4", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetA_Vec4", {"float %s = %s.a;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetRGB_Vec4", {"vec3 %s = %s.rgb;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
+			{"GetR", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetG", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetB", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetA", {"float %s = %s.a;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetRGB", {"vec3 %s = %s.rgb;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
 
-			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetR", {"vec4 %s = SetV4F(%s, %s, 0);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetG", {"vec4 %s = SetV4F(%s, %s, 1);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetB", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetA", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
-			{"sat_f", {"float %s = sat_f(%s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
-			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
+			{"Sat", {"vec3 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
 			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
-			{"Mul_f", {"float %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Mul_Vec2", {"vec2 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
-			{"Mul_Vec3", {"vec3 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
-			{"Mul_Vec4", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"Multiply", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			{"One_Minus_f", {"float %s = 1.f - %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
 			{"Flip_Y_Vec2", {"vec2 %s = flipY(%s);","flipY", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2}}},
 			
