@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 
 
 namespace SliceEngine
@@ -20,14 +19,20 @@ namespace SliceEngine
         public bool isAirDashing = false;
         public bool canInput = true;
         public bool canMove = true;
+        public bool iFrames = false;
         public GameObject playerModel;
         public GameObject cameraObject;
         public float dashDuration = 0.75f;
         public float dashCooldown = 0.6f;
         public float dashSpeed = 10.0f;
+        public float jumpSpeed = 15.0f;
+        public float fallSpeed = 25.0f;
         public float fallTransitionTime = 0.25f;
         public float lungeDuration = 0.5f;
         public float lungeSpeed = 5.0f;
+        public float iFrameDuration = 0.2f;
+        public float flickerDuration = 0.05f;
+
         //public bool attackAutoRecover = false;
         private float dashCooldownTimer = 0.0f;
         private float dashTimer = 0.0f;
@@ -83,7 +88,7 @@ namespace SliceEngine
         #region Entity Overrides
         public void Initialize()
         {
-
+            Bootstrap.HUDManager.SetHealth(currentHealth / maxHealth);
         }
         public override void OnDeath()
         {
@@ -104,6 +109,19 @@ namespace SliceEngine
         {
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
+            if (!iFrames)
+            {
+                iFrames = true;
+                StartCoroutine(iFrameAnimation(iFrameDuration));
+            }
+        }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            // If its iFrames, dont take damage
+            if (iFrames)
+                return;
+            base.TakeDamage(amount, source);
         }
         #endregion
 
@@ -118,7 +136,7 @@ namespace SliceEngine
             rb = GetComponent<RigidBody>();
             camera = cameraObject.As<CameraController>();
 
-           // InitializeAttackHitboxes();
+            // InitializeAttackHitboxes();
         }
 
         public override void OnUpdate(float dt)
@@ -128,7 +146,7 @@ namespace SliceEngine
             if (canInput)
             {
                 HandleInput();
-                
+
                 // Capture jump input in OnUpdate
                 if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
                 {
@@ -145,7 +163,7 @@ namespace SliceEngine
                     dashCooldownTimer = dashCooldown;
                     isGroundDashing = false;
                     isAirDashing = false;
-                    
+
                     // Clear Dash bools when finished
                     animator?.SetBool("BackDashStart", false);
                     animator?.SetBool("DashStart", false);
@@ -217,7 +235,7 @@ namespace SliceEngine
                 animator.SetBool("Idle", false);
                 animator.SetBool("JumpLoop", false);
                 animator.SetBool("Fall", false);
-                return; 
+                return;
             }
 
             if (!isGrounded)
@@ -232,13 +250,13 @@ namespace SliceEngine
                     //Console.WriteLine($"Transitioning to fall {count++}");
                     if (animator.SafeToChange("Fall"))
                         animator.SetBool("Fall", true);
-                    
+
                     animator.SetBool("JumpLoop", false);
                 }
                 return;
             }
 
-            
+
             if (input.SquareMagnitude() > 0.01f)
             {
                 if (animator.SafeToChange("Walk"))
@@ -328,7 +346,7 @@ namespace SliceEngine
                 if (!isGrounded)
                 {
                     Vector3 vel = rb.Velocity;
-                    vel.y -= 10.0f * dt;
+                    vel.y -= fallSpeed * dt;
                     rb.Velocity = vel;
                 }
 
@@ -362,7 +380,7 @@ namespace SliceEngine
 
                     isGroundDashing = true;
                     dashTimer = dashDuration;
-                                        
+
                     if (animator != null && animator.SafeToChange("BackDashStart"))
                         animator.SetBool("BackDashStart", true);
                 }
@@ -377,7 +395,7 @@ namespace SliceEngine
 
                     isAirDashing = true;
                     dashTimer = dashDuration;
-                    
+
                     if (animator != null && animator.SafeToChange("AirDashStart"))
                         animator.SetBool("AirDashStart", true);
                 }
@@ -396,13 +414,13 @@ namespace SliceEngine
                 if (isGrounded)
                 {
                     isJumping = true;
-                    rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
+                    rb.Velocity = new Vector3(rb.Velocity.x, jumpSpeed, rb.Velocity.z);
                     animator?.SetBool("JumpLoop", true);
                 }
                 else if (isJumping && !isDoubleJumping)
                 {
                     isDoubleJumping = true;
-                    rb.Velocity = new Vector3(rb.Velocity.x, 8.5f, rb.Velocity.z);
+                    rb.Velocity = new Vector3(rb.Velocity.x, jumpSpeed, rb.Velocity.z);
                     animator?.SetBool("AirDashStart", true);
                 }
             }
@@ -567,12 +585,6 @@ namespace SliceEngine
         }
         private IEnumerator Plunge(float duration)
         {
-            //console.writeline("Plunging");
-            //isPlunging = true;
-            //if (animator != null)
-            //{
-            //    animator.SetBool("Plunge", true);
-            //}
             float timer = 0f;
             while (timer < duration)
             {
@@ -584,6 +596,34 @@ namespace SliceEngine
                 yield return null;
             }
         }
+
+        private IEnumerator iFrameAnimation(float duration)
+        {
+            float timer = 0.0f;
+            float flickerTimer = 0.0f;
+            bool flicker = false;
+            while (timer < duration)
+            {
+                if (flickerTimer >= flickerDuration)
+                {
+                    playerModel.As<PlayerAnimatorEvents>().SetModelVisible(flicker);
+                    flicker = !flicker;
+                    //Console.WriteLine($"Flicker timer {flickerTimer}");
+                    flickerTimer = 0.0f;
+                }
+
+                //Console.WriteLine($"total timer {timer}");
+
+                timer += Time.deltaTime;
+                flickerTimer += Time.deltaTime;
+                yield return null;
+            }
+
+            // Set visible at the end
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+            iFrames = false;
+        }
+
         private void Attack1(GameObject target)
         {
             EnemyBase enemy = target.As<EnemyBase>();
