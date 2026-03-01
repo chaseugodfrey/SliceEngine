@@ -50,9 +50,20 @@ namespace SliceEngine
             }
         }
 
-        public void FlickerModel()
+        public void SetModelVisible(bool visible)
         {
+            GameObject[] children = gameObject.GetAllChildren();
+            float alpha = visible ? 1.0f : 0.0f;
 
+            foreach (GameObject child in children)
+            {
+                if (child.HasComponent<Renderer>())
+                {
+                    Vector4 col = child.GetComponent<Renderer>().GetColor();
+                    col.w = alpha;
+                    child.GetComponent<Renderer>().SetColor(col);
+                }
+            }
         }
 
         public static void PlayPlayerSFX(string type)
