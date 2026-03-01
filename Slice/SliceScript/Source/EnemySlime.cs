@@ -24,7 +24,7 @@ namespace SliceEngine
         public float attackWindUpTiming = 1f;
         //public float flickerTiming = 1f;
         private bool attacking = false;
-        private float _attackCounter = 0f;
+        //private float _attackCounter = 0f;
 
         private enum state 
         {Chase,  Attack, Stunned};

@@ -51,7 +51,7 @@ namespace SliceEngine
 		std::ofstream file(filepath);
 		nlohmann::json json;
 
-		auto resourceManager = Core::GetInstance()->GetResourceManager();
+		//auto resourceManager = Core::GetInstance()->GetResourceManager();
 
 		auto& scenes = json["Build"]["Scenes"];
 

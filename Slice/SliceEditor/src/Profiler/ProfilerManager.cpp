@@ -62,12 +62,16 @@ namespace SliceEditor
 	void ProfilerManager::UpdateDebugStatistics()
 	{
 		auto engineFRM = SliceEngine::Core::GetInstance()->GetFramerateManager();
-		float dt = engineFRM->getDeltaTime();
-		float currFPS = engineFRM->GetCurrFPS();
+		float dt = static_cast<float>(engineFRM->getDeltaTime());
+		//float currFPS = engineFRM->GetCurrFPS();
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
 		const auto& currentDurations = engineFRM->GetSysDurations();
 		for (const auto& [system, time] : currentDurations)
 		{
+			if (time <= FLT_EPSILON)
+			{
+				continue;
+			}
 			SystemHistory& history = mSystemMap[system];
 
 			//Add new entry
@@ -85,7 +89,6 @@ namespace SliceEditor
 		const float updateInterval = 1.0f;
 
 		updateTimer += dt;
-		float totalFrameTime = engineFRM->GetFrameTime();
 		float trackedTime = 0.0f;
 		if(updateTimer >= updateInterval)
 		{
@@ -110,7 +113,7 @@ namespace SliceEditor
 				trackedTime += averageTime;
 			}
 			mCurrFPS = engineFRM->GetCurrFPS();
-			mDeltaTime = engineFRM->getDeltaTime();
+			mDeltaTime = static_cast<float>(engineFRM->getDeltaTime());
 			mTotalFrameTime = engineFRM->GetFrameTime();
 			mUntrackedFrameTime = aggregateTime - trackedTime;
 			if(mUntrackedFrameTime > 0)
@@ -122,6 +125,18 @@ namespace SliceEditor
 				mUntrackedFrameTimePercentage = 0.0f;
 			}
 		}
+	}
+
+	void ProfilerManager::ClearDebugStatistics()
+	{
+		mSystemMap.clear();
+		mDebugStats.clear();
+		mCurrFPS = 0.0f;
+		mDeltaTime = 0.0f;
+		mTotalFrameTime = 0.0f;
+		mUntrackedFrameTime = 0.0f;
+		mUntrackedFrameTimePercentage = 0.0f;
+		mClearStatistics = false;
 	}
 
 	ImU32 ProfilerManager::GetSystemColor(const std::string& systemName)

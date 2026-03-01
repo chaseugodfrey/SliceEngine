@@ -518,27 +518,8 @@ namespace SliceEngine
             else
             {
                 scriptRef->InvokeOnUpdate(dt);
-                
+                UpdateScriptComponent(id);
             }
-        }
-
-        for (const auto& [id, scriptRef] : mEntityInstances)
-        {
-            auto& scriptComponent = mRegistry->get<Script>(id);
-
-            //if disabled should not update
-            if (!scriptComponent.componentEnabled)
-            {
-                continue;
-            }
-
-            if (scriptRef == nullptr)
-            {
-                SLICE_LOG_ERROR("Error in initializing script reference");
-                continue;
-            }
-
-            UpdateScriptComponent(id);
         }
     
         for (const auto& [id, entitySet] : mCollideMap)
@@ -555,30 +536,6 @@ namespace SliceEngine
 
             for (const auto& ent : entitySet)
             {
-                //if (mEntitiesDisabled.contains(id))
-                //{
-                //    // if it was, check if the entity currently colliding with
-                //    // had already been collided with before
-                //    if (mEntityCollisionMap[id].contains(ent))
-                //    {
-                //        // if it has then we want to trigger on enter instead of on stay
-                //        // then erase that entity
-                //        mEntityCollisionMap[id].erase(ent);
-                //        scriptInstance->InvokeOnCollideEnter((unsigned int)ent);
-                //    }
-
-                //    // if no more entities that it has collided with previously exist
-                //    // then erase it from the recently disabled as it has cleared all existing collisions
-                //    if (mEntityCollisionMap[id].empty())
-                //    {
-                //        // mEntityCollisionMap.erase(event.entity);
-                //        mEntitiesDisabled.erase(id);
-                //    }
-                //}
-                //else
-                //{
-                //}
-
                  scriptInstance->InvokeOnCollideStay((unsigned int)ent);
             }
         }
@@ -597,30 +554,6 @@ namespace SliceEngine
 
             for (const auto& ent : entitySet)
             {
-                //if (mEntitiesDisabled.contains(id))
-                //{
-                //    // if it was, check if the entity currently colliding with
-                //    // had already been collided with before
-                //    if (mEntityCollisionMap[id].contains(ent))
-                //    {
-                //        // if it has then we want to trigger on enter instead of on stay
-                //        // then erase that entity
-                //        mEntityCollisionMap[id].erase(ent);
-                //        scriptInstance->InvokeOnTriggerEnter((unsigned int)ent);
-                //    }
-
-                //    // if no more entities that it has collided with previously exist
-                //    // then erase it from the recently disabled as it has cleared all existing collisions
-                //    if (mEntityCollisionMap[id].empty())
-                //    {
-                //        // mEntityCollisionMap.erase(event.entity);
-                //        mEntitiesDisabled.erase(id);
-                //    }
-                //}
-                //else
-                //{
-                //}
-
                  scriptInstance->InvokeOnTriggerStay((unsigned int)ent);
             }
         }
@@ -643,21 +576,22 @@ namespace SliceEngine
             }
 
             scriptRef->InvokeOnFixedUpdate(dt);
-        }
-
-        // Loop through all entity instances
-        for (const auto& [id, scriptRef] : mEntityInstances)
-        {
-            auto& scriptComponent = mRegistry->get<Script>(id);
-
-            //if disabled should not update
-            if (!scriptComponent.componentEnabled)
-            {
-                continue;
-            }
-
             UpdateScriptComponent(id);
+
         }
+
+        //// Loop through all entity instances
+        //for (const auto& [id, scriptRef] : mEntityInstances)
+        //{
+        //    auto& scriptComponent = mRegistry->get<Script>(id);
+
+        //    //if disabled should not update
+        //    if (!scriptComponent.componentEnabled)
+        //    {
+        //        continue;
+        //    }
+
+        //}
 
 
     }
@@ -678,21 +612,21 @@ namespace SliceEngine
             }
 
             scriptRef->InvokeOnLateUpdate(dt);
+            UpdateScriptComponent(id);
         }
 
         // Loop through all entity instances
-        for (const auto& [id, scriptRef] : mEntityInstances)
-        {
-            auto& scriptComponent = mRegistry->get<Script>(id);
+        //for (const auto& [id, scriptRef] : mEntityInstances)
+        //{
+        //    auto& scriptComponent = mRegistry->get<Script>(id);
 
-            //if disabled should not update
-            if (!scriptComponent.componentEnabled)
-            {
-                continue;
-            }
+        //    //if disabled should not update
+        //    if (!scriptComponent.componentEnabled)
+        //    {
+        //        continue;
+        //    }
 
-            UpdateScriptComponent(id);
-        }
+        //}
 
 
     }
@@ -727,7 +661,7 @@ namespace SliceEngine
             }
         }
 
-        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+       /* if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
         {
             for (auto entity : entityToInit)
             {
@@ -741,7 +675,7 @@ namespace SliceEngine
             }
 
             entityToInit.clear();
-        }
+        }*/
 
 
     }
@@ -1156,11 +1090,11 @@ namespace SliceEngine
             mManagedGameObjectHandles.erase(it);
         }
 
-        for (auto it = entityAdded.begin(); it != entityAdded.end(); ++it)
+        for (auto it2 = entityAdded.begin(); it2 != entityAdded.end(); ++it2)
         {
-            if (*it == entity)
+            if (*it2 == entity)
             {
-                entityAdded.erase(it);
+                entityAdded.erase(it2);
                 break;
             }
         }
@@ -1318,23 +1252,23 @@ namespace SliceEngine
                             // with list interacting
                             if (containerType == ScriptFieldType::List)
                             {
-                                ScriptField& field = script->mFields[fieldName];
+                                ScriptField& field2 = script->mFields[fieldName];
 
                                 // store the List class so we can get its methods
-                                field.mCollectionClass = mono_class_from_mono_type(type);
+                                field2.mCollectionClass = mono_class_from_mono_type(type);
 
-                                field.mListCtor = mono_class_get_method_from_name(field.mCollectionClass, ".ctor", 0);
+                                field2.mListCtor = mono_class_get_method_from_name(field2.mCollectionClass, ".ctor", 0);
 
-                                MonoProperty* propCount = mono_class_get_property_from_name(field.mCollectionClass, "Count");
+                                MonoProperty* propCount = mono_class_get_property_from_name(field2.mCollectionClass, "Count");
                                 if (propCount)
-                                    field.mListGetCount = mono_property_get_get_method(propCount);
+                                    field2.mListGetCount = mono_property_get_get_method(propCount);
 
-                                field.mListGetItem = mono_class_get_method_from_name(field.mCollectionClass, "get_Item", 1);
-                                field.mListSetItem = mono_class_get_method_from_name(field.mCollectionClass, "set_Item", 2);
+                                field2.mListGetItem = mono_class_get_method_from_name(field2.mCollectionClass, "get_Item", 1);
+                                field2.mListSetItem = mono_class_get_method_from_name(field2.mCollectionClass, "set_Item", 2);
 
-                                field.mListAdd = mono_class_get_method_from_name(field.mCollectionClass, "Add", 1);
-                                field.mListClear = mono_class_get_method_from_name(field.mCollectionClass, "Clear", 0);
-                                field.mListRemoveAt = mono_class_get_method_from_name(field.mCollectionClass, "RemoveAt", 1);
+                                field2.mListAdd = mono_class_get_method_from_name(field2.mCollectionClass, "Add", 1);
+                                field2.mListClear = mono_class_get_method_from_name(field2.mCollectionClass, "Clear", 0);
+                                field2.mListRemoveAt = mono_class_get_method_from_name(field2.mCollectionClass, "RemoveAt", 1);
                             }
                         }
                     }
@@ -1847,7 +1781,14 @@ namespace SliceEngine
         MonoMethod* eventMethod = scriptClass->GetMethod(event.funcName, 1);
         if (!eventMethod)
         {
-            SLICE_LOG_ERROR("Animation event: Function '{}' not found in script '{}'", event.funcName, scriptClass->mClassName);
+            //SLICE_LOG_ERROR("Animation event: Function '{}' not found in script '{}'", event.funcName, scriptClass->mClassName);
+            std::string err = "Animation event: Function {";
+            err += event.funcName;
+            err += "}' not found in script '{";
+            err += scriptClass->mClassName;
+            err += "}'";
+
+            SLICE_LOG_ERROR(err);
             return;
         }
 

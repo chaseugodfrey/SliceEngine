@@ -221,6 +221,11 @@ namespace SliceEditor
 				AddWindow<AnimatorWindow>();
 			}
 
+			if (ImGui::MenuItem("Shader Graph"))
+			{
+				AddWindow<CustomShaderWindow>();
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -278,12 +283,12 @@ namespace SliceEditor
 
 	void WindowManager::DrawPlayState()
 	{
-		auto* window = SliceEngine::Core::GetInstance()->GetWindow();
+		auto* cwindow = SliceEngine::Core::GetInstance()->GetWindow();
 		auto scene = SliceEngine::Core::GetInstance()->GetSceneSystem();
 
 		int xPos{}, yPos{}, width{}, height{};
-		glfwGetWindowPos(window, &xPos, &yPos);
-		glfwGetWindowSize(window, &width, &height);
+		glfwGetWindowPos(cwindow, &xPos, &yPos);
+		glfwGetWindowSize(cwindow, &width, &height);
 
 		ImGui::BeginViewportSideBar("PlayBar", ImGui::GetMainViewport(), ImGuiDir_Up, 50.0f, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
 			ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse |
@@ -318,9 +323,11 @@ namespace SliceEditor
 				{
 					isPaused = false;
 					scene->Stop();
+					registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 					ClearSelectionEvent clearedEvent;
 					clearedEvent.suppressHistory = true;
 					EventManager::GetInstance()->Publish<ClearSelectionEvent>(clearedEvent);
+					EventManager::GetInstance()->Publish<OnGameStopEvent>();
 				}
 			}
 		}
@@ -331,7 +338,7 @@ namespace SliceEditor
 			if (ImGui::Button("Pause", ImVec2{ 60, 35 }))
 			{
 				isPaused = !isPaused;
-
+				registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 				if (isPaused)
 				{
 					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PLAY_SCENE)
@@ -348,6 +355,7 @@ namespace SliceEditor
 			{
 				isPaused = !isPaused;
 
+				registry.GetManager<ProfilerManager>("Profiler")->mClearStatistics = true;
 				if (!isPaused)
 				{
 					if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::PAUSE_SCENE)
@@ -491,7 +499,7 @@ namespace SliceEditor
 		if (ImGui::BeginPopup("action_map_popup"))
 		{
 			//using namespace SliceEngine; // this allows us to access slicenegine classes without prefixing
-			auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
+			//auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
 			auto& AM = SliceEngine::GetActionMappingSystem();
 			auto* core = SliceEngine::Core::GetInstance();
 			auto* window = core->GetWindow();
@@ -850,7 +858,7 @@ namespace SliceEditor
 
 		static std::string sceneName = "";
 
-		bool isOpen;
+		bool isOpen = true;
 		if (ImGui::Begin("Save Scene as..", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::InputText("New Scene Name", &sceneName))
@@ -895,7 +903,7 @@ namespace SliceEditor
 
 		static std::string sceneName = "NewScene";
 
-		bool isOpen;
+		bool isOpen = true;
 		if (ImGui::Begin("new scene window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			if (ImGui::InputText("New Scene Name", &sceneName))

@@ -10,7 +10,7 @@ namespace SliceEngine
         NavAgent enemyAgent;
         RigidBody enemyRb;
 
-        bool grounded = true;
+        public bool grounded = true;
         bool isEnemyKnockedBack = false;
         float knockbackTimer = 0.0f;
 

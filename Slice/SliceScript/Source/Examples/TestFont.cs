@@ -9,7 +9,7 @@ namespace SliceEngine
     public class TestFontrenderer : SliceBehaviour
     {
         FontRenderer text;
-        RectTransform rect;
+        //RectTransform rect;
         public override void OnCreate()
         {
             text = GetComponent<FontRenderer>();

@@ -136,6 +136,9 @@ namespace SliceEngine
 
 		void SetChannelPriority(FMOD::Channel* channel, int priorityNumber);
 
+		void SetOcclusion(FMOD::Channel* channel, float direct, float reverb);
+		std::pair<float, float> GetOcclusion(FMOD::Channel* channel);
+
 		void SetSpread(FMOD::Channel* channel, float spread);
 		float GetSpread(FMOD::Channel* channel);
 
@@ -164,6 +167,8 @@ namespace SliceEngine
 
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
+
+		float GetMasterVolume();
 
 		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
 		std::pair<float, float> GetMinMaxDistance(FMOD::Channel* channel);

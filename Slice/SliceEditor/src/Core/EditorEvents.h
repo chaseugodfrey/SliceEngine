@@ -32,6 +32,11 @@ namespace SliceEditor
 		bool assetChangeSuccess;
 	};
 
+	struct AssetRecompiledEvent
+	{
+		SliceEngine::GUID fileGUID;
+	};
+
 	struct UndoEvent
 	{
 
@@ -86,6 +91,16 @@ namespace SliceEditor
 	{
 		SliceEngine::GUID prefabGUID;
 		bool prefabBeingInspected;
+	};
+
+	struct ShaderGraphInspectedEvent
+	{
+		SliceEngine::GUID shaderGraphGUID;
+	};
+	
+	struct GameObjectScriptSelected
+	{
+		std::vector<Entity> entities;
 	};
 }
 

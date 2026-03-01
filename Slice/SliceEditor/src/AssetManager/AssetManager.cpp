@@ -29,6 +29,7 @@ namespace SliceEditor
 	void AssetManager::Init()
 	{
 		SLICE_LOG("Initializing Asset Manager.");
+		EventManager::GetInstance()->Subscribe<AssetRecompiledEvent, &AssetManager::ReloadResource>(this);
 
 		//Sanity Checks for the Directories
 		if (!std::filesystem::exists(mAssetDirectory))
@@ -167,6 +168,12 @@ namespace SliceEditor
 		SLICE_LOG("Asset Manager Initialized");
 	}
 
+	void AssetManager::ReloadResource(AssetRecompiledEvent event)
+	{
+		auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
+		resourceMgr->ReloadResourceInPlace(event.fileGUID);
+	}
+
 	SliceEngine::GUID AssetManager::ReadGUIDFromDescriptor(std::filesystem::path path)
 	{
 		auto guid = path.stem();
@@ -211,7 +218,8 @@ namespace SliceEditor
 			AssetExistEvent assetEvent(metaData->assetName);
 			EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
 			SLICE_LOG_ERROR("Trying to import asset that already exist :" + metaData->assetName);
-			return std::filesystem::path("");
+			return metaData->resourcePath;
+			//return std::filesystem::path("");
 		}
 
 		metaData->Serialize(metaPath);
@@ -387,6 +395,9 @@ namespace SliceEditor
 			break;
 		case AssetType::Prefab:
 			metaData = std::make_unique<PrefabData>();
+			break;
+		case AssetType::CSV:
+			metaData = std::make_unique<CSVData>();
 			break;
 		case AssetType::Font:
 			metaData = std::make_unique<FontMetaData>();

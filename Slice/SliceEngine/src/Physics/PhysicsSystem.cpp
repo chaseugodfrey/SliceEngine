@@ -141,13 +141,16 @@ namespace SliceEngine
 		if (!colliderShape.componentEnabled || reg.any_of<InactiveEntity>(entity) || colliderShape.bodyID.IsInvalid())
 			return;
 
-		// Remove body form physics world
-		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
+		if (physicsSystem->GetBodyInterface().IsAdded(colliderShape.bodyID))
+		{
+			// Remove body form physics world
+			physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
 
-		// Destroy the body from the physics world
-		physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
+			// Destroy the body from the physics world
+			physicsSystem->GetBodyInterface().DestroyBody(colliderShape.bodyID);
 
-		isBroadPhaseDirty = true;
+			isBroadPhaseDirty = true;
+		}
 	}
 
 	void PhysicsSystem::OnRigidBodyAdd(const RigidBodyAddedEvent& event)
@@ -245,7 +248,7 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
 		auto& transform = mRegistry->get<Transform>(event.entity);
-		auto& slice = mRegistry->get<SliceEntity>(event.entity);
+		//auto& slice = mRegistry->get<SliceEntity>(event.entity);
 
 		if(colliderShape.shape == nullptr)
 			return;
@@ -614,7 +617,7 @@ namespace SliceEngine
 		}
 
 		auto& colliderShape = reg.get<ColliderShape>(entity);
-		auto& slice = reg.get<SliceEntity>(entity);
+		//auto& slice = reg.get<SliceEntity>(entity);
 
 
 		if (colliderShape.componentEnabled)
@@ -633,7 +636,7 @@ namespace SliceEngine
 		{
 			return;
 		}
-		auto& slice = reg.get<SliceEntity>(entity);
+		//auto& slice = reg.get<SliceEntity>(entity);
 		auto& colliderShape = reg.get<ColliderShape>(entity);
 
 		if (colliderShape.componentEnabled)
@@ -1025,7 +1028,7 @@ namespace SliceEngine
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
 				std::pair<GameObject, GameObject> collisionPair = contactListener->MakeOrderedPair(checkEntity1, checkEntity2);
-				contactListener->RemoveContactPair(collisionPair);
+				//contactListener->RemoveContactPair(collisionPair);
 
 				if (colliderShape1.isTrigger || colliderShape2.isTrigger)
 				{
@@ -1341,13 +1344,13 @@ namespace SliceEngine
 			auto& rigidBody = mRegistry->get<RigidBody>(entity);
 			if (rigidBody.isKinematic)
 			{
-				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+				JPH::ObjectLayer layer = static_cast<JPH::ObjectLayer>(colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF);
 
 				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Kinematic, layer);
 			}
 			else
 			{
-				JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+				JPH::ObjectLayer layer = static_cast<JPH::ObjectLayer>(colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF);
 
 				bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Dynamic, layer);
 			}
@@ -1379,7 +1382,7 @@ namespace SliceEngine
 		}
 		else if (!isRigibody)
 		{
-			JPH::ObjectLayer layer = colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF;
+			JPH::ObjectLayer layer = static_cast<JPH::ObjectLayer>(colliderShape.componentEnabled ? slice.mLayer : Layers::COLLISION_OFF);
 
 			bodySettings = JPH::BodyCreationSettings(shape, position, rotation, JPH::EMotionType::Static, layer);
 			//bodySettings.mFriction = 0.6f;
@@ -1514,7 +1517,7 @@ namespace SliceEngine
 		if (layer == Layers::COLLISION_OFF) // cannot set collision mask for COLLISION_OFF layer
 			return;
 
-		objectLayerPairFilter->SetCollisionMask(layer, mask);
+		objectLayerPairFilter->SetCollisionMask(static_cast<JPH::ObjectLayer>(layer), mask);
 	}
 
 	void PhysicsSystem::SetBodyLayer(Entity entity, uint32_t layer)
@@ -1534,13 +1537,13 @@ namespace SliceEngine
 
 		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
 		{
-			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, static_cast<JPH::ObjectLayer>(slice.mLayer));
 		}
 	}
 
 	void PhysicsSystem::SetObjectBroadPhaseLayer(uint32_t layer, JPH::BroadPhaseLayer bpLayer)
 	{
-		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(layer, bpLayer);
+		broadphaseLayerInterface->SetObjectToBroadPhaseLayer(static_cast<JPH::ObjectLayer>(layer), bpLayer);
 	}
 
 	JPH::uint PhysicsSystem::GetNumBroadPhaseLayers()
@@ -1601,6 +1604,7 @@ namespace SliceEngine
 			float height = capsuleShape->GetHalfHeightOfCylinder() * 2.0f;
 			return glm::vec3(radius * 2.0f, height, radius * 2.0f); // Assuming Y-axis is the height
 		}
+		return glm::vec3();
 	}
 
 	int PhysicsSystem::GetCollisionSteps() const

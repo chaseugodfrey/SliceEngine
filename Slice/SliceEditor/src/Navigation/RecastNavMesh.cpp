@@ -26,7 +26,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	RecastNavMesh::RecastNavMesh() {}
+	RecastNavMesh::RecastNavMesh() : m_agentHeight(), m_agentRadius(), m_agentMaxClimb(){}
 
 	RecastNavMesh::~RecastNavMesh()
 	{
@@ -333,8 +333,7 @@ namespace SliceEditor
 
 	// its 256b 
 	// maybe i adjust this to be model*
-	bool RecastNavMesh::BuildFromModel(const std::vector<Entity *> entities,
-		const std::vector<SliceEngine::NavMeshLink> &links)
+	bool RecastNavMesh::BuildFromModel(const std::vector<Entity *> entities)
 	{
 
 		//if (!nodes.empty())
@@ -359,13 +358,13 @@ namespace SliceEditor
 		//		}
 		//	}
 		//}
-		auto core = SliceEngine::Core::GetInstance();
+		//auto core = SliceEngine::Core::GetInstance();
 
 		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
 		std::vector<glm::mat4> transformMtxs{};
 		std::vector<bool> isModelObstacle{};
 
-		auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		//auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 		for (auto entity : entities)
 		{
@@ -653,38 +652,38 @@ namespace SliceEditor
 			//}
 		}
 
-		std::vector<float> offMeshVerts;
-		std::vector<float> offMeshRad;
-		std::vector<unsigned char> offMeshDir;
-		std::vector<unsigned char> offMeshAreas;
-		std::vector<unsigned short> offMeshFlags;
-		std::vector<unsigned int> offMeshUserID;
+		//std::vector<float> offMeshVerts;
+		//std::vector<float> offMeshRad;
+		//std::vector<unsigned char> offMeshDir;
+		//std::vector<unsigned char> offMeshAreas;
+		//std::vector<unsigned short> offMeshFlags;
+		//std::vector<unsigned int> offMeshUserID;
 
-		for (size_t i = 0; i < links.size(); ++i)
-		{
-			const auto &link = links[i];
+		//for (size_t i = 0; i < links.size(); ++i)
+		//{
+		//	const auto &link = links[i];
 
-			// Start
-			offMeshVerts.push_back(link.startLink.x);
-			offMeshVerts.push_back(link.startLink.y);
-			offMeshVerts.push_back(link.startLink.z);
+		//	// Start
+		//	offMeshVerts.push_back(link.startLink.x);
+		//	offMeshVerts.push_back(link.startLink.y);
+		//	offMeshVerts.push_back(link.startLink.z);
 
-			// End
-			offMeshVerts.push_back(link.endLink.x);
-			offMeshVerts.push_back(link.endLink.y);
-			offMeshVerts.push_back(link.endLink.z);
+		//	// End
+		//	offMeshVerts.push_back(link.endLink.x);
+		//	offMeshVerts.push_back(link.endLink.y);
+		//	offMeshVerts.push_back(link.endLink.z);
 
-			offMeshRad.push_back(link.radius);
-			offMeshDir.push_back(link.bidirectional ? 1 : 0);
-			offMeshAreas.push_back(RC_WALKABLE_AREA); // Standard walkable area
-			offMeshFlags.push_back(1);                // Standard walkable flag
-			offMeshUserID.push_back((unsigned int)i + 1); // Simple ID
+		//	offMeshRad.push_back(link.radius);
+		//	offMeshDir.push_back(link.bidirectional ? 1 : 0);
+		//	offMeshAreas.push_back(RC_WALKABLE_AREA); // Standard walkable area
+		//	offMeshFlags.push_back(1);                // Standard walkable flag
+		//	offMeshUserID.push_back((unsigned int)i + 1); // Simple ID
 
-			// In RecastNavMesh.cpp loop
-			std::cout << "[Recast] Baking Link " << i << ": Start("
-				<< link.startLink.x << "," << link.startLink.y << "," << link.startLink.z << ") -> End("
-				<< link.endLink.x << "," << link.endLink.y << "," << link.endLink.z << ")" << std::endl;
-		}
+		//	// In RecastNavMesh.cpp loop
+		//	std::cout << "[Recast] Baking Link " << i << ": Start("
+		//		<< link.startLink.x << "," << link.startLink.y << "," << link.startLink.z << ") -> End("
+		//		<< link.endLink.x << "," << link.endLink.y << "," << link.endLink.z << ")" << std::endl;
+		//}
 
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
@@ -701,13 +700,13 @@ namespace SliceEditor
 		params.detailTris = detailMesh->tris;
 		params.detailTriCount = detailMesh->ntris;
 
-		params.offMeshConVerts = offMeshVerts.data();
-		params.offMeshConRad = offMeshRad.data();
-		params.offMeshConDir = offMeshDir.data();
-		params.offMeshConAreas = offMeshAreas.data();
-		params.offMeshConFlags = offMeshFlags.data();
-		params.offMeshConUserID = offMeshUserID.data();
-		params.offMeshConCount = (int)offMeshRad.size();
+		//params.offMeshConVerts = offMeshVerts.data();
+		//params.offMeshConRad = offMeshRad.data();
+		//params.offMeshConDir = offMeshDir.data();
+		//params.offMeshConAreas = offMeshAreas.data();
+		//params.offMeshConFlags = offMeshFlags.data();
+		//params.offMeshConUserID = offMeshUserID.data();
+		//params.offMeshConCount = (int)offMeshRad.size();
 
 		params.walkableHeight = m_agentHeight;
 		params.walkableRadius = m_agentRadius;

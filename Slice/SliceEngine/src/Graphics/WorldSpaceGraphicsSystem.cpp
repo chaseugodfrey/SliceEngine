@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 //#include "Resource/Texture.h"
 
 #include "WorldSpaceGraphicsSystem.h"
+#include "Systems/SceneSystem.h"
 //#define GLM_ENABLE_EXPERIMENTAL
 //#include "glm/gtx/euler_angles.hpp"
 //#include "glm/gtc/type_ptr.hpp"
@@ -60,6 +61,9 @@ namespace SliceEngine
 			// get material handle
 			renderer.materialHandle = rm->get<SliceEngineTypes::Material>(renderer.materialHandle.mGUID);
 		}
+		if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			renderer.materialInstance = *(renderer.materialHandle.get());
+
 	}
 
 	void WorldSpaceGraphicsSystem::EntityOnExit(entt::registry& reg, Entity entity)
@@ -117,7 +121,7 @@ namespace SliceEngine
 	// 	auto model = rc.modelHandle;		
 	// 	if (!model.IsValid()) return;
 	//
-	// 	// --TODO-- Cursed model Error Checking loading
+	// 	// --MAYDO(Depreciated)-- Cursed model Error Checking loading
 	// 	auto& mesh = model.get()->meshes[std::min(rc.meshOffset, static_cast<unsigned char>(model.get()->meshes.size() - 1))];
 	//
 	// 	/*model.meshes[rc.meshOffset];*/
@@ -147,7 +151,7 @@ namespace SliceEngine
 	//
 	// 		//auto roughTex = rm->get<SliceEngineTypes::Texture>(matHandle->roughness);
 	//
-	// 		// --TODO-- Cursed Texture exist check, Fix Resource Manager
+	// 		// --MAYDO(Depreciated)-- Cursed Texture exist check, Fix Resource Manager
 	// 		if (reinterpret_cast<void*>(albedoTex.get()) != (void*)0xdddddddddddddddd)
 	// 			glBindTextureUnit(0, albedoTex.get()->texture_id);
 	// 		else

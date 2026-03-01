@@ -8,6 +8,7 @@
 
 #include "Core/Core.h"
 
+#include "TransformHelper.h"
 #include "WorldSpaceGraphicsSystem.h"
 #include "CameraSystem.h"
 #include "LightingSystem.h"
@@ -15,9 +16,11 @@
 #include "Systems/ParticleSystemManager.h"
 #include "../Graphics/RenderManager.h" // --TODO-- Sus
 #include "Systems/PrefabSystem.h"
+#include "Systems/SceneSystem.h"
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
+#include "Resource/Texture.h"
 
 // SSBOs
 // Textures			  0 - Custom Shaders (Deferred.frag)
@@ -28,11 +31,18 @@
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom
 
+extern void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
+
 
 namespace SliceEngine
 {
 	RenderCmdManager::RenderCmdManager()
 	{
+		auto* eventManager = EventManager::GetInstance();
+		eventManager->Subscribe<OnPlayEvent, &RenderCmdManager::HandlePlayEvent>(this);
+
 		glCreateBuffers(1, &mTextureVBO);
 		glNamedBufferStorage(mTextureVBO, mMaxInstance * sizeof(GLuint64), NULL, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, mTextureVBO);
@@ -45,6 +55,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mEVBO);
 		glNamedBufferStorage(mEVBO, sizeof(glm::uvec4) * mMaxInstance * mEVBOSafetyMult, nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mEVBO);
+		CheckGLError();
 	}
 	RenderCmdManager::~RenderCmdManager()
 	{
@@ -52,6 +63,19 @@ namespace SliceEngine
 		glDeleteBuffers(1, &mIVBO);
 		glDeleteBuffers(1, &mEVBO);
 	}
+
+	void RenderCmdManager::HandlePlayEvent(const OnPlayEvent& event)
+	{
+		// Particles don't have instanced Materials
+		// Copy all materials
+		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>();
+		for (auto entity : view)
+		{
+			auto& rend = Core::GetInstance()->GetRegistry().get<Renderer>(entity);
+			rend.materialInstance = *(rend.materialHandle.get());
+		}
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -59,30 +83,42 @@ namespace SliceEngine
 		translucentCmds.clear();
 		prefabRenderCmds.clear();
 		prefabTranslucentCmds.clear();
+		lastShadowOffset = lastRenderOffset = lastRenderPrefabOffset = lastTranslucentOffset = lastTranslucentPrefabOffset = glm::vec3(0, 0, 0);
 
 		auto core = Core::GetInstance();
-		auto view = Core::GetInstance()->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
+		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
 		
+		//sScene->mCurrentState;
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
-			const auto material = rend.materialHandle.get();
+			const SliceEngine::SliceEngineTypes::Material* material;
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
+			{
+				if (!rend.materialInstance.shader.IsValid())
+					rend.materialInstance = *(rend.materialHandle.get());
+				material = &rend.materialInstance;
+			}
+			else
+				material = rend.materialHandle.get();
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
-			if (Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity))
+			bool isPrefab = core->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity);
+			if (isPrefab)
 			{
 				rcmds = &prefabRenderCmds;
 				rtcmds = &prefabTranslucentCmds;
 			}
 
-			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
 			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
 
+			//if (material->data.size() != material->shader.get()->dataIn.size()) // Weak error checking, removed
+			//	SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
@@ -98,10 +134,10 @@ namespace SliceEngine
 			}
 			
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
-			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 
-			if (rend.castShadow)
+			if (rend.castShadow && !isPrefab)
 				shadowRenderCmds[mdlDet].push_back(data);
 
 			if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
@@ -117,15 +153,16 @@ namespace SliceEngine
 			}
 		}
 	
-		// Gather Particles --TODO-- Gather shader for particles too
+		// Gather Particles
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
+			// --TODO-- IMPT: NOT MESH PARTILES WILL BREAK, Change particle Textures to rely fully on material for this
 			if (!ptx.isMeshParticle)
 			{
 				auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-				// --TODO-- Currently hard set particles shader
+				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
 				uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
 				RCK_Size key =
 					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
@@ -138,7 +175,7 @@ namespace SliceEngine
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
-				data.texID = GetTextureDetails(ptx.textureID);
+				//data.blank = GetTextureDetails(ptx.textureID);
 				data.entityID = 0;
 
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
@@ -176,6 +213,9 @@ namespace SliceEngine
 				if (!model || !material)
 					continue;
 
+				if (material->data.size() != material->shader.get()->dataIn.size())
+					SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(materialGUID);
+
 				RCK_ModelT mdlDet = GetModelDetails(
 					modelGUID.GetGUID(),
 					0,
@@ -190,7 +230,7 @@ namespace SliceEngine
 
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
-				data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
@@ -216,23 +256,20 @@ namespace SliceEngine
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
 	}
-	void RenderCmdManager::SetVP(glm::mat4& V, glm::mat4& P)
-	{
-		VP = P * V;
-	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
 		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
-		glm::vec3 camFront, camRight, camUp;
+		glm::vec3 camFront, camRight, camUp, camPos;
 		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
 		Core::GetInstance()->GetRenderManager()->GetCameraAxis(camRot, camFront, camRight, camUp);
+		camPos = camT.GetWorldPosition() - lastTranslucentOffset;
 
 		// Calcluate depth
 		assert(sizeof(float) == 4);
 		for (auto& i : translucentCmds)
 		{
-			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camT.GetWorldPosition();
+			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camPos;
 			float d = glm::dot(dir, camFront);
 			i.id = (i.id & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
 		}
@@ -245,7 +282,7 @@ namespace SliceEngine
 		// Prefabs sorting too
 		for (auto& i : prefabTranslucentCmds)
 		{
-			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camT.GetWorldPosition();
+			glm::vec3 dir = glm::vec3(i.base.mdlMtx[3]) - camPos;
 			float d = glm::dot(dir, camFront);
 			i.id = (i.id & ~MRCK_DEPTH_SORT) | std::bit_cast<RCK_DepthT>(d); // clear depth first, then set val
 		}
@@ -254,7 +291,7 @@ namespace SliceEngine
 			});
 
 	}
-	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType)
+	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset)
 	{
 		// Tags I need
 			// Cast Shadows
@@ -277,6 +314,8 @@ namespace SliceEngine
 		// Only used for shadows, so dun need change shader
 		case DrawType::DRAW_MODELS:
 		{
+			glm::vec3 offsetDelta = lastShadowOffset - newOffset;
+			lastShadowOffset = newOffset;
 			for (auto& i : shadowRenderCmds)
 			{
 				const auto& id = i.first;
@@ -300,12 +339,15 @@ namespace SliceEngine
 				}
 				//else
 				{
+					for (auto& j : batch)
+						ShiftTransformMtx(j.mdlMtx, offsetDelta);
+
 					//SetModelSkinUniform(mShader, mdlRef.isSkin, i.entityID);
 					for(size_t drawCounter{}; drawCounter < batch.size(); )
 					{
 						size_t drawNum{ std::min(batch.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.data() + drawCounter);
-						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum));
 						drawCounter += drawNum;
 					}
 				}
@@ -317,8 +359,19 @@ namespace SliceEngine
 		case DrawType::DRAW_PREFAB_OPAQUE:
 		{
 			auto* cmds = &renderCmds;
+			glm::vec3 offsetDelta{};
 			if (drawType == DrawType::DRAW_PREFAB_OPAQUE)
+			{
 				cmds = &prefabRenderCmds;
+				offsetDelta = lastRenderPrefabOffset - newOffset;
+				lastRenderPrefabOffset = newOffset;
+			}
+			else
+			{
+				offsetDelta = lastRenderOffset - newOffset;
+				lastRenderOffset = newOffset;
+			}
+
 
 			for (auto& i : *cmds)
 			{
@@ -333,7 +386,7 @@ namespace SliceEngine
 				auto thisShader = shaderList.at(temp);
 				if (thisShader != mShader)
 				{
-					mShader = thisShader;
+					mShader = static_cast<GLuint>(thisShader);
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
@@ -341,33 +394,38 @@ namespace SliceEngine
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-				auto& test = mdl.get()->meshes;
+				//auto& test = mdl.get()->meshes;
 				int meshOffset = mdlRef.meshOffset;
 				if (mdlRef.meshOffset >= mdl.get()->meshes.size())
 					meshOffset = 0;
 				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
 
-				GLint uniformLoc;
+				for (auto& j : batch.base)
+					ShiftTransformMtx(j.mdlMtx, offsetDelta);
+
+				//GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
+					// Single Draws based on entity id for animations stuffs, so dun need worry abt ext data
 					for (size_t i{}; i < batch.base.size(); ++i)
 					{
 						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
-						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
+						glNamedBufferSubData(mEVBO, 0, sizeof(float) * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
 				else
 				{
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
+					size_t maxExtCount = static_cast<size_t>(mMaxInstance * mEVBOSafetyMult * 4 / (batch.numVar == 0 ? 1 : batch.numVar));
 					for (size_t drawCounter{}; drawCounter < batch.base.size(); )
 					{
-						size_t drawNum{ std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
+						size_t drawNum{ std::min(std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)), maxExtCount) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.base.data() + drawCounter);
 						glNamedBufferSubData(mEVBO, 0, sizeof(float) * drawNum * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * drawCounter);
-						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, drawNum);
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum));
 						drawCounter += drawNum;
 					}
 				}
@@ -380,10 +438,20 @@ namespace SliceEngine
 		case DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY:
 		{
 			RCK_ModelT currMdlID = 0xFFFF;
+			glm::vec3 offsetDelta{};
 
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
+			{
 				cmds = &prefabTranslucentCmds;
+				offsetDelta = lastTranslucentPrefabOffset - newOffset;
+				lastTranslucentPrefabOffset = newOffset;
+			}
+			else
+			{
+				offsetDelta = lastTranslucentOffset - newOffset;
+				lastTranslucentOffset = newOffset;
+			}
 
 			for (auto& i : *cmds)
 			{
@@ -408,6 +476,8 @@ namespace SliceEngine
 					}
 				}
 
+				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
+
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
 				{
@@ -423,21 +493,26 @@ namespace SliceEngine
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &dat);
-					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &i.ext);
+					glNamedBufferSubData(mEVBO, 0, sizeof(float) * i.ext.size() * 4, reinterpret_cast<const float*>(i.ext.data()));
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
 			break;
 		}
 		}
+		CheckGLError();
 	}
 
-	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType)
+	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)
 	{
 		auto core = Core::GetInstance();
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 		auto& rend = core->GetRegistry().get<Renderer>(entity);
 		if (!rend.modelHandle.IsValid()) return;
+
+		if (rend.materialHandle->data.size() != rend.materialHandle->shader.get()->dataIn.size())
+			SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
+
 		auto meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(rend.modelHandle.get()->meshes.size() - 1));
 
 		auto& mesh = rend.modelHandle.get()->meshes[meshOffset];
@@ -451,27 +526,38 @@ namespace SliceEngine
 			BasicIDat i;
 			i.entityID = static_cast<unsigned int>(entity);
 			i.mdlMtx = transform.transform;
+			ShiftTransformMtx(i.mdlMtx, -relPos);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &i);
 			break;
 		}
 		case DrawType::DRAW_OPAQUE:
 		{
-			const auto& material = rend.materialHandle.get();
+			const SliceEngine::SliceEngineTypes::Material* material;
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			{
+				if (!rend.materialInstance.shader.IsValid()) // --TODO-- Again, this shouldn't happen
+					rend.materialInstance = *(rend.materialHandle.get());
+				material = &rend.materialInstance;
+			}
+			else
+				material = rend.materialHandle.get();
 
 			BasicIDat data{};
 			data.mdlMtx = transform.transform;
+			ShiftTransformMtx(data.mdlMtx, -relPos);
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
 
-			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
-			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &ext);
+			glNamedBufferSubData(mEVBO, 0, sizeof(float) * material->data.size(), &ext);
 			break;
 		}
 		}
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+		CheckGLError();
 	}
 
 	void RenderCmdManager::SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID)
@@ -544,7 +630,7 @@ namespace SliceEngine
 	{
 		if (cmd.empty())
 			cmd.push_back(glm::uvec4{});
-		auto numVar = mat->shader.get()->dataIn.size();
+		//auto numVar = mat->shader.get()->dataIn.size();
 
 		int mainID{}, subID{};
 
@@ -564,9 +650,17 @@ namespace SliceEngine
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 				cmd[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+				auto textureGUID = (GUID)std::get<uint64_t>(mat->data.find(i.name)->second);
+				auto texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>(textureGUID);
+				if (!texture.IsValid())
+					texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+				
+				cmd[mainID][subID] = GetTextureDetails(texture.get()->bindless_id);
+				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				cmd.push_back(glm::uvec4{});
 				subID = 0;
@@ -581,11 +675,10 @@ namespace SliceEngine
 
 		auto numVar = mat->shader.get()->dataIn.size();
 
-		int mainID = num * numVar / 4;
-		int subID = num * numVar % 4;
+		int mainID = (num * numVar) / 4;
+		int subID = (num * numVar) % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
-		size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
@@ -603,9 +696,17 @@ namespace SliceEngine
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+				auto textureGUID = (GUID)std::get<uint64_t>(mat->data.find(i.name)->second);
+				auto texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>(textureGUID);
+				if (!texture.IsValid())
+					texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+
+				rc.ext[mainID][subID] = GetTextureDetails(texture.get()->bindless_id);
+				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				rc.ext.push_back(glm::uvec4{});
 				subID = 0;

@@ -48,7 +48,7 @@ namespace SliceEditor
 	void ContentBrowserManager::LoadDefaultIcons()
 	{
 		auto resouceManager = SliceEngine::Core::GetInstance()->GetResourceManager();
-		auto& assetManager = registry.GetAssetManager();
+		//auto& assetManager = registry.GetAssetManager();
 		for (int i = 1; i < iconNames.size(); i++)
 		{
 			if (iconNames[i].empty())
@@ -289,6 +289,10 @@ namespace SliceEditor
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
 		else if (entry.fullPath.extension() == ".mat")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+		else if (entry.fullPath.extension() == ".cshader")
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}

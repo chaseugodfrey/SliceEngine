@@ -8,7 +8,7 @@ namespace SliceEngine
 {
     public class PlayerHitBox : SliceBehaviour
     {
-        GameObject swordHitBox;
+        //GameObject swordHitBox;
 
         public void EnableBox(string str)
         {

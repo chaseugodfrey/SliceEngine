@@ -24,6 +24,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../thirdparty/filewatch/FileWatcher.h"
 #include "json.hpp"
 #include "AssetTypes.h"
+#include "Core/EditorEvents.h"
 
 namespace SliceEditor
 {
@@ -43,6 +44,8 @@ namespace SliceEditor
 
 		void Init();
 
+		void ReloadResource(AssetRecompiledEvent event);
+
 		SliceEngine::GUID ReadGUIDFromDescriptor(std::filesystem::path path);
 
 		/// <summary>
@@ -52,7 +55,7 @@ namespace SliceEditor
 		/// if not then delete the meta file so that it can be recompiled
 		/// </summary>
 		/// <param name="path">Resource Folder Path</param>
-		void ScanResourceFolder();
+		//void ScanResourceFolder();
 		//::string CreateDescriptorFile(const std::filesystem::path filePath, bool AddToRM = false);
 		std::unique_ptr<MetaData> CreateDefaultMeta(const std::filesystem::path filePath);
 		void AddDefaultModelsToMap();
@@ -131,6 +134,7 @@ namespace SliceEditor
 			{".controller",{AssetType::Controller, "Controller"}},
 			{".navmesh",{AssetType::NavMesh, "NavMesh"}},
 			{".bin", {AssetType::NavMeshBin, "NavMesh"}},
+			{".csv", {AssetType::CSV, "CSV"}},
 			{".skl", {AssetType::Skeleton, "Skeleton"}},
 			{".animpkg", {AssetType::Animation, "Animation"}}
 		};
@@ -153,6 +157,7 @@ namespace SliceEditor
 			{AssetType::Controller, ".controller" },
 			{AssetType::NavMesh, ".navmesh" },
 			{AssetType::NavMeshBin, ".bin" },
+			{AssetType::CSV, ".csv"},
 			{AssetType::Font, ".fnt" }
 		};
 

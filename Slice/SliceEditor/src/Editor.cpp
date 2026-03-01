@@ -42,40 +42,29 @@ namespace SliceEditor
 		ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 
 		auto inputSys = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (inputSys->GetMode() == SliceEngine::InputMode::Game)
+		if (action == GLFW_PRESS)
 		{
-			if (action == GLFW_PRESS)
-			{
-				// update that particular key to pressed state
-				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESS);
-			}
-			else if (action == GLFW_RELEASE)
-			{
-				inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASE);
-			}
+			// update that particular key to pressed state
+			inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::PRESSED);
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			inputSys->UpdateKeyMap(key, SliceEngine::KeyStates::RELEASED);
 		}
 	}
 	void Editor::MasterMouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
 	{
 		ImGui_ImplGlfw_MouseButtonCallback(window, button, action, mods);
 		auto input = SliceEngine::Core::GetInstance()->GetInputSystem();
-		if (input->GetMode() == SliceEngine::InputMode::Game)
-		{
-			//ImGuiIO& io = ImGui::GetIO();
-			//if (io.WantCaptureMouse)
-			//{
-			//	return;
-			//}
 
-			if (action == GLFW_PRESS)
-			{
-				input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESS);
-				std::cout << "Mouse Button Pressed: " << std::endl;
-			}
-			else if (action == GLFW_RELEASE)
-			{
-				input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASE);
-			}
+		if (action == GLFW_PRESS)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESSED);
+			std::cout << "Mouse Button Pressed: " << std::endl;
+		}
+		else if (action == GLFW_RELEASE)
+		{
+			input->UpdateMouseMap(button, SliceEngine::KeyStates::RELEASED);
 		}
 
 		// 2. Check if ImGui wants to capture the mouse
@@ -121,14 +110,17 @@ namespace SliceEditor
 	void Editor::Run()
 	{
 		auto contentBrowser = registry.GetManager<ContentBrowserManager>("ContentBrowser");
-		auto engineFRM = SliceEngine::Core().GetInstance()->GetFramerateManager();
+		auto core = SliceEngine::Core::GetInstance();
+		auto engineFRM = core->GetFramerateManager();
 
-		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
+		while (!glfwWindowShouldClose(core->GetWindow()))
 		{
+			glfwMakeContextCurrent(core->GetWindow());
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glfwPollEvents();
+			core->GetInputSystem()->UpdatePrevInput();
 
 			engineFRM->StartFrame();
-
-
 			engineFRM->StartSystem("Editor");
 			registry.Update();
 			inputs->Update();
@@ -203,7 +195,7 @@ namespace SliceEditor
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
-		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 22.0f);
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 14.);
 		if (font) io.FontDefault = font;
 
 		

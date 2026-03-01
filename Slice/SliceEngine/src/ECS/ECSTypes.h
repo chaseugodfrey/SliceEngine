@@ -209,6 +209,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::Model> modelHandle;
 		Handle<SliceEngineTypes::Material> materialHandle;
+		SliceEngineTypes::Material materialInstance;
 
 		unsigned char meshOffset{ 0 };
 		unsigned char renderTag{};
@@ -235,6 +236,8 @@ namespace SliceEngine
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
+		glm::mat4 V{};
+		glm::mat4 P{};
 		bool componentEnabled{ true };
 		RTTR_ENABLE();
 	};
@@ -423,6 +426,9 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
+		bool enablePathfinding = false;
+		float directOcclusion = 0.0f;
+		float reverbOcclusion = 0.0f;
 
 		RTTR_ENABLE();
 	};
@@ -443,7 +449,7 @@ namespace SliceEngine
 		float age{};
 		float rotation{};
 
-		inline float normalizedAge() const { return age / maxAge; }
+		inline float normalizedAge() const { return age / maxAge; }	
 
 		glm::vec3 position{};
 		glm::vec3 scale{};
@@ -472,8 +478,12 @@ namespace SliceEngine
 			TWO_CONSTANTS
 		};
 
+		// Editor
+		bool playPreview{ false };
+		bool resetPreview{ false };
+		bool pausePreview{ false };
+
 		Transform* parentTransform{ nullptr };
-		Transform* referenceTransform{ nullptr };
 
 		// System Settings
 		float duration{};                       // how long the system should last, 0.0f = forever					
@@ -532,19 +542,28 @@ namespace SliceEngine
 		{
 			SPHERE,
 			CONE,
-			BOX,
-			EDGE,
+			CUBE,
 			CIRCLE,
-			RECTANGLE
+			RECT,
 		} shapeType{ SPHERE };
 
 		// Cone
-		float coneArc{90.0f};
-		float coneRadius{0.1f};
+		float coneArc{90.0f};				
 
 		// Sphere
-		float sphereArc{360.0f};
-		float sphereRadius{0.1f};
+		float sphereArc{180.0f};
+		
+		// Cube
+
+		// Circle
+
+		// Rect
+		glm::vec2 rectScale{ 1.0f };
+
+		// Shape-Shared params
+		float shapeRadius{ 0.1f };
+		glm::vec3 shapeScale{ 1.0f };
+
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -593,23 +612,24 @@ namespace SliceEngine
 		// Size over lifetime
 		bool sizeOverLifetime{ false };
 		bool sizeSeparateAxis{ false };
-		glm::vec3 startScaleMultiplier{0.0f};
-		glm::vec3 endScaleMultiplier{1.0f};
+		std::map<float, glm::vec3> sizeMap;
+		std::vector <std::pair<float, glm::vec3>> sizeMapIntermediary{};
 			
 		// Rotate over lifetime
-		bool rotateOverLifetime{ false };
+		bool rotateOverLifetime{ false };	
 		bool rotateSeparateAxis{ false };
 		glm::vec3 rotateVelocity{0.f, 0.f, 45.0f};
 
 		// Colour over lifetime
 		bool colourOverLifetime{ false };
-		std::map<float, glm::vec4> colourLifeTimeMap;
-		glm::vec4 colourOverLifetimeEnd{ 0.0f, 0.0f, 0.0f, 1.0f };	// Temp
+		std::map<float, glm::vec4> colourLifetimeMap;
+		std::vector <std::pair<float, glm::vec4>> colourMapIntermediary{};
 
 		// Velocity over lifetime
 		bool velocityOverLifetime{ false };
-		glm::vec3 startVelocityMultiplier{ 1.0f };
-		glm::vec3 endVelocityMultiplier{ 0.0f };
+		bool velocitySeparateAxis{ false };
+		std::map<float, glm::vec3> velocityMap;
+		std::vector <std::pair<float, glm::vec3>> velocityMapIntermediary{};
 
 		// Orbit over lifetime
 		bool orbitOverLifetime{ false };
@@ -928,13 +948,13 @@ namespace SliceEngine
 		int crowdAgentID = -1;
 	};
 
-	struct NavMeshLink
-	{
-		glm::vec3 startLink;
-		glm::vec3 endLink;
-		bool bidirectional;
-		float radius;
-	};
+	//struct NavMeshLink
+	//{
+	//	glm::vec3 startLink;
+	//	glm::vec3 endLink;
+	//	bool bidirectional;
+	//	float radius;
+	//};
 
 	struct NavObstacle
 	{
