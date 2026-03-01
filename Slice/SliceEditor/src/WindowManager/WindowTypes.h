@@ -28,6 +28,8 @@ DigiPen Institute of Technology is prohibited.
 #include <Configuration/ProjectSettingsWindow.h>
 #include <Console/ConsoleWindow.h>
 #include <History/HistoryWindow.h>
+#include <CustomShader/CustomShaderWindow.h>
+
 
 namespace SliceEditor
 {

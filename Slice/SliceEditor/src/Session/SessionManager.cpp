@@ -27,6 +27,7 @@ namespace SliceEditor
 		eventManager->Subscribe<OnSceneSaveEvent, &SessionManager::OnSceneSave>(this);
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
+		eventManager->Subscribe<ShaderGraphInspectedEvent, &SessionManager::ShaderGraphInspected>(this);
 		eventManager->Subscribe<GameObjectScriptSelected, &SessionManager::HighlightGameObjects>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
@@ -338,6 +339,16 @@ namespace SliceEditor
 	SliceEngine::GUID SessionManager::GetPrefabGUIDInspected()
 	{
 		return mInspectedPrefabGUID;
+	}
+
+	SliceEngine::GUID SessionManager::GetShaderGraphInspected()
+	{
+		return mInspectedShaderGraphGUID;
+	}
+
+	void SessionManager::ShaderGraphInspected(const ShaderGraphInspectedEvent& event)
+	{
+		mInspectedShaderGraphGUID = event.shaderGraphGUID;
 	}
 
 	void SessionManager::ToggleHierarchyEntityIDs()

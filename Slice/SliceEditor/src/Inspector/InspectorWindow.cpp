@@ -83,6 +83,9 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -137,7 +140,40 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
 			};
 
-		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		if (isMultipleSelection)
+		{
+			//Do the difference check (this one is for tags)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					std::string currentTag = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).GetTag();
+
+					if (currentTag != editable_tag)
+					{
+						isSelectionDifferent = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag,isSelectionDifferent))
+		{
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).SetTag(editable_tag);
+					}
+				}
+			}
+
+		}
 		//Game Object Tags:
 		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
 		{
@@ -2150,11 +2186,6 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 			return;
 		}
-
-		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
-		{
-			mat.SerializeAsset(node->fullPath);
-		}		
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
@@ -2194,6 +2225,13 @@ namespace SliceEditor
 			{
 				std::string s = "##Material_Float_" + i.name;
 				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+					mat.SerializeAsset(node->fullPath);
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+			{
+				std::string s = "##Material_Texture_" + i.name;
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}

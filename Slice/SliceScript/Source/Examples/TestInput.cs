@@ -10,44 +10,23 @@ namespace SliceEngine
     {
         public override void OnUpdate(float dt)
         {
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT))
+            if (Input.IsKeyPressed(Keys.KEY_P))
             {
-                //SliceLog.Log("LMB CLICKED");
-            }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
-            {
-                //SliceLog.Log("LMB PRESSED");
-            }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_LEFT))
-            {
-                //SliceLog.Log("LMB RELEASED");
+                Cursor.state = Cursor.STATE.DISABLED;
             }
 
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+            if (Input.IsKeyPressed(Keys.KEY_O))
             {
-                //SliceLog.Log("RMB CLICKED");
-            }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                //SliceLog.Log("RMB PRESSED");
-            }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                //SliceLog.Log("RMB RELEASED");
+                Cursor.state = Cursor.STATE.DEFAULT;
             }
 
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_WHEEL))
-            {
-                //SliceLog.Log("WHEEL CLICKED");
-            }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_WHEEL))
-            {
-                //SliceLog.Log("WHEEL PRESSED");
-            }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_WHEEL))
-            {
-                //SliceLog.Log("WHEEL RELEASED");
-            }
+            var mouseDelta = Input.GetMouseDelta();
+
+            transform.Position += new Vector3(mouseDelta.x, mouseDelta.y, 0) * Time.deltaTime;
+            transform.Position = new Vector3(
+                Utilities.Clamp(transform.Position.x, -20.0f, 20.0f),
+                Utilities.Clamp(transform.Position.y, -20.0f, 20.0f),
+                0);
         }
     }
 }

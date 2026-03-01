@@ -86,15 +86,7 @@ namespace SliceEngine
     // update function to transition key states and reset scroll delta
     void InputSystem::Update()
     {
-        // transition states only if enabled
-        if (!enabled)
-        {
-            scrollDelta = 0.0f;
-            return;
-        }
 
-        mouseDelta = { 0.0f, 0.0f };
-        scrollDelta = 0.0f; // reset each frame
     }
 
     void InputSystem::UpdatePrevInput()
@@ -130,8 +122,6 @@ namespace SliceEngine
                 break;
             }
 
-
-
             if (event.isKey)
                 keyMap[event.code] = newState;
             else
@@ -164,15 +154,15 @@ namespace SliceEngine
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
-        if (lastMouseMode != GLFW_CURSOR_DISABLED)
-        {
-            mouseDelta = prevMousePos - currMousePos;
-        }
-        else
-        {
-            mouseDelta = prevMouseInternalPos - currMouseInternalPos;
-            prevMouseInternalPos = currMouseInternalPos;
-        }
+        //std::cout << changedQueue.size() << std::endl;
+        //mouseDelta = prevMousePos - currMousePos;
+        prevMousePos = currMousePos;
+        scrollDelta = 0.0f;
+    }
+
+    void InputSystem::UpdateCursorData()
+    {
+        mouseDelta = prevMousePos - currMousePos;
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
     }
@@ -340,17 +330,17 @@ namespace SliceEngine
         case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
         case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
         case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
-        case CursorState::DISABLED:
+        case CursorState::DISABLED: 
             if (mode == InputMode::Game)
             {
-                newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+                newMode = GLFW_CURSOR_DISABLED;
+                rawInput = GLFW_TRUE; break;
             }
-
             else
             {
-                newMode = GLFW_CURSOR_HIDDEN; break;
+                newMode = GLFW_CURSOR_HIDDEN;
+                break;
             }
-
         default: newMode = GLFW_CURSOR_NORMAL; break;
         }
 
