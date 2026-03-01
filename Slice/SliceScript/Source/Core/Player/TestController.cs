@@ -24,7 +24,7 @@ namespace SliceEngine
         public GameObject cameraObject;
         public float dashDuration = 0.75f;
         public float dashCooldown = 0.6f;
-        public float dashSpeed = 10.0f;
+        public float dashSpeed = 20.0f;
         public float fallTransitionTime = 0.25f;
 
         private float dashCooldownTimer = 0.0f;

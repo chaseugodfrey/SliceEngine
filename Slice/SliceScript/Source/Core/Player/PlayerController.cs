@@ -113,6 +113,9 @@ namespace SliceEngine
         float jumpCooldownTimer = 0.0f;
         float jumpLandTimer = 0.0f;
 
+        public float fallTimeThreshold = 0.25f;
+        float fallTimeTimer = 0.0f;
+
         // Movement
         private Vector3 input;
         private Vector3 finalMove;
@@ -128,12 +131,8 @@ namespace SliceEngine
         float dashDurationTimer = 0.0f;
         float dashCooldownTimer = 0.0f;
 
-        float allowedDashDistance;
-        public float dashDistance = 6f;
+        public float dashSpeed = 20.0f;
         public float dashStartDuration = 0.25f;
-        bool rotateToDashDirection = false;
-        bool dashDefaultBackwards = true;
-        public bool dashUsesMoveDirection = true;
         Vector3 dashDir = Vector3.Zero;
         public void Initialize()
         {
@@ -170,6 +169,11 @@ namespace SliceEngine
         {
             input = Vector3.Zero;
 
+            if (!IsTakingInputs())
+            {
+                return;
+            }
+
             HandleMovementInputs();
 
             HandleAttackInputs();
@@ -177,6 +181,8 @@ namespace SliceEngine
             HandleDashInputs();
 
             HandleJumpInputs();
+
+            if (input.SquareMagnitude() > 1f) input = input.Normalize();
         }
 
         //void EndAttackState()
@@ -433,7 +439,11 @@ namespace SliceEngine
 
             if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
-                Dash(dashDir, dt);
+                Vector3 dashVel = dashDir * dashSpeed;
+                float yVel = playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
+                rigidBody.Velocity = new Vector3(dashVel.x, yVel, dashVel.z);
+
+                Dash();
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
@@ -460,14 +470,11 @@ namespace SliceEngine
             {
                 if (!grounded && playerMovementState != MovementState.Plunging)
                 {
-                    playerMovementState = MovementState.Plunging;
                     attackQueued = false;
                 }
 
                 if (grounded)
                 {
-                    playerMovementState = MovementState.Idle;
-                    playerCombatState = CombatState.Attacking;
                     //ExecuteAttack();
                     attackQueued = false;
                 }
@@ -521,9 +528,14 @@ namespace SliceEngine
                     }
                     break;
                 case MovementState.Falling:
+                    fallTimeTimer += Time.deltaTime;
                     if (grounded)
                     {
-                        jumpLandTimer = jumpLandDuration;
+                        if (fallTimeTimer > fallTimeThreshold)
+                        {
+                            jumpLandTimer = jumpLandDuration;
+                        }
+                        fallTimeTimer = 0.0f;
                         playerMovementState = MovementState.Landing;
                     }
                     break;
@@ -594,8 +606,7 @@ namespace SliceEngine
             switch (playerMovementState)
             {
                 case MovementState.Idle:
-                    if (animator.SafeToChange("Idle"))
-                        animator.SetBool("Idle", true);
+                    animator.SetBool("Idle", true);
                     break;
                 case MovementState.Walking:
                     if (animator.SafeToChange("Walk"))
@@ -606,8 +617,8 @@ namespace SliceEngine
                         animator.SetBool("JumpLoop", true);
                     break;
                 case MovementState.DoubleJumping:
-                    if (animator.SafeToChange("BackDashStart"))
-                        animator.SetBool("BackDashStart", true);
+                    if (animator.SafeToChange("AirDashStart"))
+                        animator.SetBool("AirDashStart", true);
                     break;
                 case MovementState.Falling:
                     if (animator.SafeToChange("Fall"))
@@ -618,11 +629,13 @@ namespace SliceEngine
                         animator.SetBool("Land", true);
                     break;
                 case MovementState.GroundDash:
-                    animator.SetBool("DashStart", true);
+                    if (animator.SafeToChange("BackDashStart"))
+                        animator.SetBool("BackDashStart", true);
                     break;
 
                 case MovementState.AirDash:
-                    animator.SetBool("AirDashStart", true);
+                    if (animator.SafeToChange("AirDashStart"))
+                        animator.SetBool("AirDashStart", true);
                     break;
 
                 case MovementState.Lunging:
@@ -659,41 +672,27 @@ namespace SliceEngine
 
         private void HandleMovementInputs()
         {
-            if (IsTakingInputs())
-            {
-                if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
-                else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
+            if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
+            else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
 
-                // Sideways movement 
-                if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
-                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
-            }
-
-            if (input.SquareMagnitude() > 1f) input = input.Normalize();            
+            // Sideways movement 
+            if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
+            else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
         }
 
         private void HandleAttackInputs()
         {
-            if (IsTakingInputs())
-            {
-                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
-            }
+            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
 
         private void HandleJumpInputs()
         {
-            if (IsTakingInputs())
-            {
-                if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) TryJump();
-            }
+            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) TryJump();
         }
 
         private void HandleDashInputs()
         {
-            if (IsTakingInputs())
-            {
-                if (Input.IsKeyDown(Keys.KEY_V)) TryDash();
-            }
+            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) TryDash();
         }
 
         private void TryJump()
@@ -743,108 +742,16 @@ namespace SliceEngine
                     playerMovementState = MovementState.GroundDash;
                 else
                     playerMovementState = MovementState.AirDash;
-
-                BeginGroundDash();
             }
         }
 
-        Vector3 ComputeFlatDashDir()
+        void Dash()
         {
-            Vector3 forward = transform.Forward;
-            forward.y = 0f; // flatten to horizontal plane
-            return forward.Normalize();
-            //bool hasInput = input.SquareMagnitude() > 0.0001f;
-            //if (hasInput)
-            //    input = input.Normalize();
+            dashDir = ComputeFlatDashDir(true);
 
-            //// --- NO INPUT OR FORCED FORWARD ---
-            //if (!useMoveDir || !hasInput)
-            //{
-            //    Vector3 forward = transform.Forward;
-            //    forward.y = 0f;
-            //    return (dashDefaultBackwards ? -forward : forward).Normalize();
-            //}
-
-            //// --- CAMERA-RELATIVE DASH ---
-            //if (camera != null)
-            //{
-            //    Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
-            //    camForward.y = 0f;
-            //    camForward = camForward.Normalize();
-
-            //    Vector3 camRight = Vector3.Cross(Vector3.Up, camForward);
-
-            //    Vector3 dashDir =
-            //        camForward * input.z +
-            //        camRight * input.x;
-
-            //    dashDir.y = 0f;
-            //    return dashDir.Normalize();
-            //}
-
-            //// --- TRANSFORM-RELATIVE FALLBACK ---
-            //Vector3 moveDir =
-            //    transform.Forward * input.z +
-            //    transform.Right * input.x;
-
-            //moveDir.y = 0f;
-            //return moveDir.Normalize();
-        }
-
-        void BeginGroundDash()
-        {
-            playerMovementState = MovementState.GroundDash;
-
-            // Use player’s facing direction
-            dashDir = ComputeFlatDashDir();
-
-            // Rotate the player to face the dash direction instantly
-            Vector3 faceDir = dashDir;
-            faceDir.y = 0f; // flatten to horizontal
-            if (faceDir.SquareMagnitude() > 0.0001f)
+            if (dashDir.SquareMagnitude() > 0.0001f)
             {
-                transform.RotationQuat = Quaternion.LookRotation(faceDir.Normalize(), Vector3.Up);
-            }
-
-            allowedDashDistance = dashDistance;
-
-
-            // Optional: prevent dashing into walls
-            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
-            {
-                if (allowedDashDistance >= dashHitInfo.distance)
-                {
-                    allowedDashDistance = dashHitInfo.distance * 0.98f;
-                }
-            }
-
-            dashDurationTimer = Math.Max(0.0001f, dashStartDuration);
-        }
-
-        void Dash(Vector3 moveDir, float dt)
-        {
-            float dashSpeed = dashDistance / Math.Max(0.0001f, dashStartDuration);
-            float distanceThisFrame = dashSpeed * dt;
-            float moveAmount = Math.Min(allowedDashDistance, distanceThisFrame);
-
-            if (allowedDashDistance >= 0f)
-                allowedDashDistance -= moveAmount;
-            else
-                dashCooldownTimer = dashCooldown;
-
-            Vector3 dashVel = moveDir * moveAmount;
-            finalMove = playerMovementState == MovementState.GroundDash
-                ? new Vector3(dashVel.x, dashVel.y + velocity.y, dashVel.z)
-                : dashVel;
-
-            transform.Position += finalMove;
-
-            // Smoothly rotate towards dash direction
-            Vector3 face = dashDir;
-            face.y = 0f;
-            if (face.SquareMagnitude() > 0.0001f)
-            {
-                transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, Quaternion.LookRotation(face.Normalize(), Vector3.Up), 20f * dt);
+                transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
             }
         }
 
@@ -946,6 +853,34 @@ namespace SliceEngine
                 inputtable = false;
             }
             return inputtable;
+        }
+
+        Vector3 ComputeFlatDashDir(bool useMoveDir)
+        {
+            bool hasInput = input.SquareMagnitude() > 0.0001f;
+            Vector3 normInput = hasInput ? input.Normalize() : Vector3.Zero;
+
+            if (!useMoveDir || !hasInput)
+            {
+                Vector3 forward = transform.Forward;
+                forward.y = 0f;
+                return forward.Normalize();
+            }
+
+            if (camera != null)
+            {
+                Vector3 camForward = camera.transform.RotationQuat * Vector3.Forward;
+                camForward.y = 0f;
+                camForward = camForward.Normalize();
+                Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
+                Vector3 dashDir = camForward * normInput.z + camRight * normInput.x;
+                dashDir.y = 0f;
+                return dashDir.Normalize();
+            }
+
+            Vector3 moveDir = transform.Forward * normInput.z + transform.Right * normInput.x;
+            moveDir.y = 0f;
+            return moveDir.Normalize();
         }
         #endregion
     }
