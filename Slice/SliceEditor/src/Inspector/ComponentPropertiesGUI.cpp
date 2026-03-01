@@ -171,16 +171,21 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		static std::string oldVal{};
+		std::string inputVal = val;
+		if (selectionDifferent)
+		{
+			inputVal = "---";
+		}
 
 		if (width == 0.0f)
 			width = 150.0f;
 
 		ImGui::SetNextItemWidth(width);
 
-		bool changed = ImGui::InputText(id, &val,ImGuiInputTextFlags_EnterReturnsTrue);
+		bool changed = ImGui::InputText(id, &inputVal,ImGuiInputTextFlags_EnterReturnsTrue);
 
 		if (ImGui::IsItemActivated())
 		{
@@ -193,7 +198,7 @@ namespace SliceEditor
 			{
 				if(func != nullptr)
 				{
-					func(val);
+					func(inputVal);
 					std::unique_ptr<FunctionSetsValueCommand<std::string>> command = std::make_unique<FunctionSetsValueCommand<std::string>>(val, oldVal, func);
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}
@@ -202,6 +207,7 @@ namespace SliceEditor
 					std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}
+				val = inputVal;
 			}
 		}
 
@@ -273,12 +279,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val, width, func) || changed;
+		changed = StringInput(reg, id, val, width, func,selectionDifferent) || changed;
 
 		return changed;
 	}
