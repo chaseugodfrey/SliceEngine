@@ -585,12 +585,6 @@ namespace SliceEngine
         }
         private IEnumerator Plunge(float duration)
         {
-            //console.writeline("Plunging");
-            //isPlunging = true;
-            //if (animator != null)
-            //{
-            //    animator.SetBool("Plunge", true);
-            //}
             float timer = 0f;
             while (timer < duration)
             {
@@ -607,35 +601,26 @@ namespace SliceEngine
         {
             float timer = 0.0f;
             float flickerTimer = 0.0f;
+            bool flicker = false;
             while (timer < duration)
             {
-               //Vector4 col = playerModel.GetComponent<Renderer>().GetColor();
-                
                 if (flickerTimer >= flickerDuration)
                 {
-                    playerModel.As<PlayerAnimatorEvents>().FlickerModel();
-
-                    //if (col.z == 0.0f)
-                    //{
-                    //    col.z = 1.0f;
-
-                    //}
-                    //else if (col.z == 1.0f)
-                    //{
-                    //    col.z = 0.0f;
-                    //}
-
+                    playerModel.As<PlayerAnimatorEvents>().SetModelVisible(flicker);
+                    flicker = !flicker;
+                    //Console.WriteLine($"Flicker timer {flickerTimer}");
                     flickerTimer = 0.0f;
                 }
 
-               // playerModel.GetComponent<Renderer>().SetColor(col);
-
+                //Console.WriteLine($"total timer {timer}");
 
                 timer += Time.deltaTime;
                 flickerTimer += Time.deltaTime;
                 yield return null;
             }
 
+            // Set visible at the end
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
             iFrames = false;
         }
 
