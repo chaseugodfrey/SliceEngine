@@ -19,6 +19,7 @@ namespace SliceEngine
         public bool isGroundDashing = false;
         public bool isAirDashing = false;
         public bool canInput = true;
+        public bool canMove = true;
         public GameObject playerModel;
         public GameObject cameraObject;
         public float dashDuration = 0.75f;
@@ -251,7 +252,7 @@ namespace SliceEngine
         #region Movement
         void UpdateRotation(float dt)
         {
-            if (isGroundDashing || isAirDashing) return;
+            if (isGroundDashing || isAirDashing || !canMove || isAttacking || isLunging || attackAutoRecover || isPlunging) return;
 
             // Safer than zero vector check since floating point error sometimes
             if (input.SquareMagnitude() > 0.0001f)
@@ -321,10 +322,16 @@ namespace SliceEngine
                     vel.y -= 10.0f * dt;
                     rb.Velocity = vel;
                 }
-                Vector3 horizontal = moveDirInput * movementSpeed;
-                rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
-                //Console.WriteLine($"rb.Velocity is x: {rb.Velocity.x}, y: {rb.Velocity.y}, z: {rb.Velocity.z}");
 
+                if (canMove && !isAttacking && !attackAutoRecover)
+                {
+                    Vector3 horizontal = moveDirInput * movementSpeed;
+                    rb.Velocity = new Vector3(horizontal.x, rb.Velocity.y, horizontal.z);
+                }
+                else
+                {
+                    rb.Velocity = new Vector3(0, rb.Velocity.y, 0);
+                }
             }
         }
 
@@ -606,6 +613,10 @@ namespace SliceEngine
         public void CanAttackFlag(bool flag)
         {
             canIncrement = flag;
+        }
+        public void CanMoveFlag(bool flag)
+        {
+            canMove = flag;
         }
         #endregion
 
