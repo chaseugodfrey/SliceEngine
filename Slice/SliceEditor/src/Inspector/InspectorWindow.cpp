@@ -2150,6 +2150,11 @@ namespace SliceEditor
 			mat.SerializeAsset(node->fullPath);
 			return;
 		}
+
+		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{

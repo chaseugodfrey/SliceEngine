@@ -122,17 +122,12 @@ namespace SliceEngine
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
-			if (material->color.a > 0.999f)
-			{
-				key = key | MRCK_OPAQUE;
-				SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
-			}
-			else
-			{
+			if (material->isTranslucent)
 				key = key | MRCK_TRANSCLUCENT;
-				SetColor(data, material->color);
-			}
-			
+			else
+				key = key | MRCK_OPAQUE;
+			SetColor(data, material->color);
+
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
 			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
