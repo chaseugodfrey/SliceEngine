@@ -17,26 +17,40 @@ namespace SliceEngine
 
         public void DamagePlayer(GameObject hit)
         {
+
+            SliceLog.Log("Damage player called for projectiles");
+
             if (hit.Has<PlayerController>() && hit.As<PlayerController>() == Bootstrap.Player)
             {
+                SliceLog.Log("Player is hit");
                 Bootstrap.Player.TakeDamage(damage);
             }
+
+            Destroy();
         }
+        /*
         public override void OnCreate()
         {
             base.OnCreate();
 
-            //generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+            
+        }
+        */
+
+        public void SetUp()
+        {
+            generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+            generalHitbox.As<GeneralHitbox>().TurnOn();
         }
 
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
 
-            //if (owner == null)
-            //{
-            //    this.gameObject.Destroy();
-            //}
+            if (owner == null)
+            {
+                this.gameObject.Destroy();
+            }
 
             //push it forward based on speed
 

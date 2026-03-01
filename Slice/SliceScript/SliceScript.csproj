@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -87,8 +85,6 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
-    <Compile Include="Source\Core\Projectile\Projectile.cs" />
-    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -108,6 +104,8 @@
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
     <Compile Include="Source\Core\Player\TestFixedBall.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
