@@ -75,6 +75,7 @@ namespace SliceEngine
         private bool isLunging = false;
         private float lungeTimer = 0.0f;
         private bool canIncrement = true;
+        private bool isDead = false;
 
         // Just to debug shit
         int count = 0;
@@ -86,6 +87,13 @@ namespace SliceEngine
         }
         public override void OnDeath()
         {
+            if (!isDead)
+            {
+                isDead = true;
+
+                Bootstrap.LevelDirector.Lose();
+                //this.gameObject.Destroy();
+            }
 
         }
         protected override void OnHeal()
@@ -94,6 +102,7 @@ namespace SliceEngine
         }
         protected override void OnDamaged(GameObject source)
         {
+            Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
         }
         #endregion
@@ -618,8 +627,28 @@ namespace SliceEngine
         {
             canMove = flag;
         }
+        void EndAttackState()
+        {
+            attackIndex = 0;
+            attackTimer = 0f;
+            attackCounter = 0;
+            attackQueued = false;
+            isAttacking = false;
+            attackResetTimer = 0f;
+            TurnOffHitboxes();
+
+            queuedNext = false;
+
+            // Clear movement bursts
+            isLunging = false;
+        }
         #endregion
 
+        public void TeleportPlayer(Vector3 pos)
+        {
+            EndAttackState();
+            transform.Position = pos;
+        }
 
         public override void OnCollideEnter(uint other)
         {
