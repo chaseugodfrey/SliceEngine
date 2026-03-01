@@ -534,6 +534,9 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint[] Entity_GetAllChildren(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
