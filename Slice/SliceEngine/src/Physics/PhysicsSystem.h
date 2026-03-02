@@ -13,6 +13,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include <iostream>
+
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -127,6 +128,10 @@ namespace SliceEngine
 		void PostStepSync();
 
 		void PreStepSync();
+
+		bool WouldCollideAt(Entity entity);
+
+		void ProcessTempMovements();
 
 		void ClearCollisionPairs();
 
