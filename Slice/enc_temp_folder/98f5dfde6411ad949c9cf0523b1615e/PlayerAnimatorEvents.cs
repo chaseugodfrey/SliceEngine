@@ -28,7 +28,7 @@ namespace SliceEngine
         {
             if(player.Has<PlayerController>())
             {
-               // player.As<PlayerController>().CanAttackFlag(true);
+                player.As<PlayerController>().CanAttackFlag(true);
             }
         }
         public void SetAttacking(string state)

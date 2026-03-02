@@ -41,7 +41,9 @@ namespace SliceEngine
 
         public enum CurrentAttack
         {            
-            GroundAttack,
+            Attack1,
+            Attack2,
+            Attack3,
             PlungeLand,
             None
         }
@@ -55,8 +57,6 @@ namespace SliceEngine
         }        
 
         public MovementState playerMovementState = MovementState.Idle;
-        public CombatState playerCombatState = CombatState.None;
-        public CurrentAttack playerCurrentAttack = CurrentAttack.None;
         public ControlState playerControlState = ControlState.Gameplay;
 
         // Internal References
@@ -72,18 +72,19 @@ namespace SliceEngine
         public List<int> attackDamageValues = new List<int>();
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
-        float attackTimer = 0.0f;
-        bool attackQueued;
         Coroutine attackCoroutine;
 
         public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
+        public bool isAttacking = false;
+        private int attackCounter = 0;
         public float attackRecoveryDuration = 0.5f;
+        private bool attackQueued = false;
         private bool attackAutoRecover = false;
         public float attack1Delay, attack2Delay, attack3Delay;
-        private bool canIncrement = true; // isnt actually being used i just copied it over
-        private int attackCounter = 0;
-
+        //private bool canIncrement = true; // isnt actually being used i just copied it over
+        // no plunging for now
+        private bool isPlunging = false;
         // Lunging (moving when attacking)
         float lungeTimer = 0f;
         public float lungeDuration = 0.5f;
@@ -119,7 +120,7 @@ namespace SliceEngine
 
         public float fallTimeThreshold = 0.25f;
         float fallTimeTimer = 0.0f;
-
+        public bool iFrames = false;
         // Movement
         Vector3 input;
         Vector3 finalMove;
@@ -156,7 +157,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             MovementState prevMoveState = playerMovementState;
-            CombatState prevCombatState = playerCombatState;
+            //CombatState prevCombatState = playerCombatState;
 
             GroundCheck();
             HandleInputs();
@@ -173,11 +174,11 @@ namespace SliceEngine
                 OnMovementStateChange();
             }
 
-            if (prevCombatState != playerCombatState)
-            {
-                SliceLog.Log(playerCombatState.ToString());
-                OnCombatStateChange();
-            }
+            //if (prevCombatState != playerCombatState)
+            //{
+            //    SliceLog.Log(playerCombatState.ToString());
+            //    OnCombatStateChange();
+            //}
         }
 
         void OnMovementStateChange()
@@ -211,24 +212,22 @@ namespace SliceEngine
         }
         private void ExecuteAttack()
         {
-            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
+            if (!isAttacking && !isPlunging)
             {
-                playerCombatState = CombatState.Attacking;
-                // Ground attacking
-                playerCurrentAttack = CurrentAttack.GroundAttack;
                 attackAutoRecover = false;
-                attackCounter++;       
-                if (attackCounter > 3) attackCounter = 1;
-                attackTimer = attackDuration[(int)playerCurrentAttack];
+                attackCounter++;
+                isAttacking = true;
 
+                if (attackCounter > 3) attackCounter = 1;
                 switch (attackCounter)
                 {
                     case 1:
                         //StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
 
+                        animator.SetBool("Attack1", true);
                         AudioSettings.PlaySFX("A1");
 
-                        playerMovementState = MovementState.Lunging;
+                        //isLunging = true;
                         lungeTimer = lungeDuration;
                         break;
                     case 2:
@@ -236,10 +235,11 @@ namespace SliceEngine
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
+                            animator.SetBool("Attack2", true);
                             AudioSettings.PlaySFX("A2");
                         }
 
-                        playerMovementState = MovementState.Lunging;
+                        //isLunging = true;
                         lungeTimer = lungeDuration;
                         break;
                     case 3:
@@ -247,6 +247,7 @@ namespace SliceEngine
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
+                            animator.SetBool("Attack3", true);
                             AudioSettings.PlaySFX("A3");
                         }
                         break;
@@ -266,23 +267,24 @@ namespace SliceEngine
 
         public void StartAttackRecovery()
         {
-            playerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
+            isAttacking = false;
             attackAutoRecover = true;
 
             TurnOffHitboxes();
         }
-        public void CanAttackFlag(bool flag)
-        {
-            canIncrement = flag;
-        }
+
         private void AttackResetTimer()
         {
+            if (!isAttacking)
+            {
+                attackResetTimer += Time.deltaTime;
+            }
             if (attackResetTimer >= attackRecoveryDuration)
             {
-                Console.WriteLine("Resetting attack");
-                attackAutoRecover = false;                
-                playerCurrentAttack = CurrentAttack.None;
+                attackAutoRecover = false;
+                attackResetTimer = 0f;
+                attackCounter = 0;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
@@ -315,39 +317,39 @@ namespace SliceEngine
             }
         }
 
-        //private IEnumerator iFrameAnimation(float duration)
-        //{
-        //    float timer = 0.0f;
-        //    float flickerTimer = 0.0f;
-        //    bool flicker = false;
-        //    while (timer < duration)
-        //    {
-        //        if (flickerTimer >= flickerDuration)
-        //        {
-        //            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(flicker);
-        //            flicker = !flicker;
-        //            Console.WriteLine($"Flicker timer {flickerTimer}");
-        //            flickerTimer = 0.0f;
-        //        }
+        private IEnumerator iFrameAnimation(float duration)
+        {
+            float timer = 0.0f;
+            float flickerTimer = 0.0f;
+            bool flicker = false;
+            while (timer < duration)
+            {
+                if (flickerTimer >= flickerDuration)
+                {
+                    playerModel.As<PlayerAnimatorEvents>().SetModelVisible(flicker);
+                    flicker = !flicker;
+                    //Console.WriteLine($"Flicker timer {flickerTimer}");
+                    flickerTimer = 0.0f;
+                }
 
-        //        Console.WriteLine($"total timer {timer}");
+                //Console.WriteLine($"total timer {timer}");
 
-        //        timer += Time.deltaTime;
-        //        flickerTimer += Time.deltaTime;
-        //        yield return null;
-        //    }
+                timer += Time.deltaTime;
+                flickerTimer += Time.deltaTime;
+                yield return null;
+            }
 
-        //     Set visible at the end
-        //    playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
-        //    iFrames = false;
-        //}
+            // Set visible at the end
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+            iFrames = false;
+        }
 
         private void Attack1(GameObject target)
         {
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter - 1]);
             }
         }
         private void Attack2(GameObject target)
@@ -355,14 +357,14 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter - 1]);
             }
         }
         private void Attack3(GameObject target){
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter - 1]);
             }
         }
         private IEnumerator AttackDelay(float delay, Action action)
@@ -372,17 +374,20 @@ namespace SliceEngine
         }
         void EndAttackState()
         {
+            attackIndex = 0;
             attackTimer = 0f;
-            playerCurrentAttack = CurrentAttack.None;
+            attackCounter = 0;
             attackQueued = false;
-            playerCombatState = CombatState.None;
-            attackResetTimer = 0.0f;
+            isAttacking = false;
+            attackResetTimer = 0f;
             TurnOffHitboxes();
 
-            // Clear movement bursts
-            playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
+            queuedNext = false;
 
+            // Clear movement bursts
+            isLunging = false;
         }
+
 
         #region On Overrides
         protected override void OnHeal() { }
@@ -417,9 +422,6 @@ namespace SliceEngine
             attackTimer = (attackTimer > 0.0f) ? attackTimer - dt : 0.0f;
             jumpDurationTimer = (jumpDurationTimer > 0.0f) ? jumpDurationTimer - dt : 0.0f;
             jumpLandTimer = (jumpLandTimer > 0.0f) ? jumpLandTimer - dt : 0.0f;
-
-            if (playerCombatState != CombatState.Attacking)
-            attackResetTimer = (attackResetTimer > 0.0f) ? attackResetTimer - dt : 0.0f;
 
             if (!grounded && rigidBody.Velocity.y < -2f) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
@@ -480,7 +482,7 @@ namespace SliceEngine
             if (attackQueued)
             {
                 ExecuteAttack();
-                attackQueued = false;
+                //attackQueued = false;
             }
             AttackResetTimer();
         }
@@ -686,43 +688,7 @@ namespace SliceEngine
                 case CombatState.Attacking:
                     {
                         Console.WriteLine($"Attacking : {playerCurrentAttack.ToString()}");
-
-                        if (playerCurrentAttack == CurrentAttack.GroundAttack)
-                        {
-                            Console.WriteLine("Ground Attacking");
-                            switch (attackCounter)
-                            {
-                                case 1:
-                                    {
-                                        Console.WriteLine("Attack 1 anim playing");
-                                        animator.SetBool("Attack1", true);
-                                        break;
-                                    }
-                                case 2:
-                                    {
-                                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-                                        {
-                                            Console.WriteLine("Attack 2 anim playing");
-
-                                            animator.SetBool("Attack2", true);
-                                        }
-
-                                        break;
-                                    }
-                                case 3:
-                                    {
-                                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                                        {
-                                            Console.WriteLine("Attack 3 anim playing");
-
-                                            animator.SetBool("Attack3", true);
-                                        }
-
-                                        break;
-                                    }
-                            }
-
-                        }
+                        animator.SetBool(playerCurrentAttack.ToString(), true);
                     }
                     break;
                 case CombatState.Recovery:
@@ -832,7 +798,7 @@ namespace SliceEngine
             attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
             attackHitboxes[1].HitBoxListeners += Attack2;
 
-            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[3])?.As<GeneralHitbox>());
+            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[2])?.As<GeneralHitbox>());
             attackHitboxes[2].HitBoxListeners += Attack3;
 
             //TurnOffHitboxes();
