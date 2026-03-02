@@ -83,6 +83,9 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -137,7 +140,40 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
 			};
 
-		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		if (isMultipleSelection)
+		{
+			//Do the difference check (this one is for tags)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					std::string currentTag = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).GetTag();
+
+					if (currentTag != editable_tag)
+					{
+						isSelectionDifferent = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag,isSelectionDifferent))
+		{
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).SetTag(editable_tag);
+					}
+				}
+			}
+
+		}
 		//Game Object Tags:
 		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
 		{

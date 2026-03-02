@@ -196,6 +196,8 @@ namespace SliceEditor
 			mGameMousePosition = new_mouse_pos;
 			mGameMouseNDC = { percentage_x, percentage_y };
 		}
+
+		mGameMouseDelta *= -1; // flip y delta so that up is positive
 		
 		inputSystem->SetMousePosition(mGameMousePosition.x, mGameMousePosition.y);
 		inputSystem->SetMouseDelta(mGameMouseDelta.x, mGameMouseDelta.y);
