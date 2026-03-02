@@ -30,6 +30,8 @@ namespace SliceEditor
 		Skeleton,
 		Font,
 		Animation,
+		Anims,
+		Anim,
 		Audio,
 		Scene,
 		Shader,
@@ -102,6 +104,8 @@ namespace SliceEditor
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SKELETON = SliceEngine::FNVHash::fnv1a("Skeleton");
 		constexpr uint64_t ANIMATION = SliceEngine::FNVHash::fnv1a("Animation");
+		constexpr uint64_t ANIMS = SliceEngine::FNVHash::fnv1a("Anims");
+		constexpr uint64_t ANIM = SliceEngine::FNVHash::fnv1a("Anim");
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
@@ -388,7 +392,7 @@ namespace SliceEditor
 		}
 	};
 
-	struct AnimData : public MetaData
+	struct AnimationData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIMATION;
 
@@ -417,6 +421,174 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path);
+		}
+	};
+
+	struct AnimsData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIMS;
+
+		std::vector<std::string> animations;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+
+			nlohmann::json metaJson;
+
+			//uint64_t g = guid.GetGUID();
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to model goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path) 
+		{
+			nlohmann::json metaJson;
+	
+			metaJson["Animations"] = animations;
+
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+		}
+
+		bool DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return false;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			animations = assetJson["Animations"].get<std::vector<std::string>>();
+
+			return true;
+		}
+
+		void LoadAnimsData(const SliceEngine::SliceEngineTypes::Anims& newAnim)
+		{
+			for (const auto& anim : newAnim.animations)
+			{
+				animations.push_back(anim.name);
+			}
+		}
+	};
+
+	struct AnimData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIM;
+
+		std::vector<glm::vec3> transforms{};
+		std::string name{};
+		unsigned int fps{};
+		float duration{};
+		unsigned int num_frames{};
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+
+			nlohmann::json metaJson;
+
+			//uint64_t g = guid.GetGUID();
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to model goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+
+			nlohmann::json metaJson;
+
+			metaJson["Name"] = name;
+			metaJson["FPS"] = fps;
+			metaJson["Duration"] = duration;
+			metaJson["Number of Frames"] = num_frames;
+			metaJson["Transforms"] = transforms;
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+		}
+
+		bool DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return false;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			name = assetJson["Name"];
+			fps = assetJson["FPS"];
+			duration = assetJson["Duration"];
+			num_frames = assetJson["Number of Frames"];
+			transforms = assetJson["Transforms"].get<std::vector<glm::vec3>>();
+
+			return true;
+		}
+
+		void LoadAnimData(const SliceEngine::SliceEngineTypes::Anim& newAnim)
+		{
+			name = newAnim.name;
+			fps = newAnim.fps;
+			duration = newAnim.duration;
+			num_frames = newAnim.num_frames;
+
+			transforms = newAnim.transform;
+		}
+
+		void UnLoadAnimData(SliceEngine::SliceEngineTypes::Anim& newAnim)
+		{
+			newAnim.name = name;
+			newAnim.fps = fps;
+			newAnim.duration = duration;
+			newAnim.num_frames = num_frames;
+
+			newAnim.transform = transforms;
 		}
 	};
 
@@ -889,11 +1061,7 @@ namespace SliceEditor
 			for (const auto& it : t.conditions)
 			{
 				nlohmann::json tempTransJson;
-
-				// 4. Call your "working" Style 2 to_json to populate it
 				to_json(tempTransJson, it);
-
-				// 5. Add the populated object to the array
 				j["conditions"].push_back(tempTransJson);
 
 			}
