@@ -114,7 +114,10 @@ namespace SliceEngine
 			{
 				auto mat = mgr.get<SliceEngineTypes::Material>(id);
 				if (mat.get()->shader.getGUID().GetGUID() == std::stoull(shdrGUID))
+				{
+					mat->isShaderUpdated = true;
 					mgr.ReloadResourceInPlace(id);
+				}
 			}
 		}
 		// safety check for default resource ID for material
@@ -228,7 +231,7 @@ namespace SliceEngine
 
 		materialToReload->color = loadedMaterialData.color;
 		materialToReload->isTranslucent = loadedMaterialData.isTranslucent;
-		//auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
+		auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
 		materialToReload->data.clear();
 
 		if (newShaderGUID != materialToReload->shader.getGUID())
@@ -236,11 +239,12 @@ namespace SliceEngine
 
 		for (auto& [name, data] : loadedMaterialData.data)
 		{
-			//if (oldData.contains(name))
-			//	materialToReload->data[name] = oldData[name];
-			//else
+			if (materialToReload->isShaderUpdated && oldData.contains(name))
+				materialToReload->data[name] = oldData[name];
+			else
 				materialToReload->data[name] = data;
 		}
+		materialToReload->isShaderUpdated = false;
 	}
 
 	//Model
