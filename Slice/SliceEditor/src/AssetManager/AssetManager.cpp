@@ -240,6 +240,12 @@ namespace SliceEditor
 		case AssetType::Animation:
 			CompileFBXAsset(metaPath);
 			break;
+		case AssetType::Anims:
+			CompileAnimsAsset(static_cast<AnimsData*>(metaData));
+			break;
+		case AssetType::Anim:
+			CompileAnimAsset(static_cast<AnimData*>(metaData));
+			break;
 		case AssetType::Model:
 		{
 			auto* data = static_cast<ModelData*>(metaData);
@@ -263,7 +269,7 @@ namespace SliceEditor
 
 				if (!std::filesystem::exists(data->animMetaPath))
 				{
-					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimationData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
 					if (data->animationGUID.IsValid())
 					{
@@ -365,6 +371,12 @@ namespace SliceEditor
 			break;
 		case AssetType::Controller:
 			metaData = std::make_unique<StateMachineData>();
+			break;
+		case AssetType::Anims:
+			metaData = std::make_unique<AnimsData>();
+			break;
+		case AssetType::Anim:
+			metaData = std::make_unique<AnimData>();
 			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
@@ -831,7 +843,46 @@ namespace SliceEditor
 			//return;
 		}
 	}
+
 	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}	
+
+	void AssetManager::CompileAnimsAsset(AnimsData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}	
+
+	void AssetManager::CompileAnimAsset(AnimData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 
