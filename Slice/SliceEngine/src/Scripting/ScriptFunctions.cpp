@@ -1893,6 +1893,22 @@ namespace SliceEngine
 		return monoArray;
 	}
 
+	static MonoArray* Entity_GetAllChildren(unsigned int entityID)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::vector<Entity> entityIDs = go.GetAllChildren();
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
+
 	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
 	{
 		std::string cStrName = MonoToString(tag);
@@ -2763,6 +2779,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_GetAllChildren);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);

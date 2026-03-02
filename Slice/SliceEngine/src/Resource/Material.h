@@ -30,6 +30,8 @@ namespace SliceEngine
 			Handle<CustomShader> shader;
 
 			glm::vec4 color;
+			bool isTranslucent;
+			bool isShaderUpdated;
 			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float, uint64_t>> data;
 
 			//takes in a shader resource file that links to shader files

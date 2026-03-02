@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
+#include "ComponentMultipleSelection.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -83,6 +84,9 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -137,7 +141,24 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
 			};
 
-		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Multi-select for Tags
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
+		{
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).SetTag(editable_tag);
+					}
+				}
+			}
+
+		}
 		//Game Object Tags:
 		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
 		{
@@ -148,12 +169,44 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 
-		//ImGui::BeginDisabled();
-		//ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
-		//ImGui::EndDisabled();
-		//ImGui::SameLine();
+		//Multi-select for Layer
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		//if (isMultipleSelection)
+		//{
+		//	//Do the difference check (this one is for tags)
+		//	for (auto selectedNode : selectionManager->GetSelectedNodes())
+		//	{
+		//		if (selectedNode->type == SelectionType::ENTITY)
+		//		{
+		//			Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+		//			
+		//			uint32_t currentLayer = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity).mLayer;
 
-		ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list);
+		//			if (currentLayer != slice.mLayer)
+		//			{
+		//				isSelectionDifferent = true;
+		//				break;
+		//			}
+		//		}
+		//	}
+		//}
+
+		if (ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slice.mLayer, isMultipleSelection)))
+		{
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;	
+						auto& currentSlice = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity);
+						currentSlice.mLayer = slice.mLayer;
+					}
+				}
+			}
+		}
 		ImGui::Separator();
 
 	}
@@ -1155,7 +1208,15 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 						}
 
-						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						std::string currStateName{ animator.stateMachine.EFSM.currState->stateName };
+						size_t charPos = currStateName.find('|');
+
+						if (charPos != std::string::npos)
+						{
+							currStateName = currStateName.substr(charPos);
+						}
+
+						ImGui::Text("Current Animation: %s , ID: %d", currStateName.c_str(), animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 						ImGui::Text("Prev: ");
 						ImGui::SameLine(150.f);
@@ -2149,6 +2210,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->fullPath);
 			return;
+		}
+
+		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
+		{
+			mat.SerializeAsset(node->fullPath);
 		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
