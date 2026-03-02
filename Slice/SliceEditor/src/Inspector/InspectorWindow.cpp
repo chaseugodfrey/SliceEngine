@@ -1208,7 +1208,15 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 						}
 
-						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						std::string currStateName{ animator.stateMachine.EFSM.currState->stateName };
+						size_t charPos = currStateName.find('|');
+
+						if (charPos != std::string::npos)
+						{
+							currStateName = currStateName.substr(charPos);
+						}
+
+						ImGui::Text("Current Animation: %s , ID: %d", currStateName.c_str(), animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 						ImGui::Text("Prev: ");
 						ImGui::SameLine(150.f);
@@ -2202,6 +2210,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->fullPath);
 			return;
+		}
+
+		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
+		{
+			mat.SerializeAsset(node->fullPath);
 		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))

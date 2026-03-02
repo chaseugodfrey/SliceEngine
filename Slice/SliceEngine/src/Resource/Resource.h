@@ -229,6 +229,28 @@ namespace SliceEngine
 	};
 
 	template <>
+	struct Type<SliceEngineTypes::Anims>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::Anims> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Anims& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Anims* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
+	struct Type<SliceEngineTypes::Anim>
+	{
+		constexpr static inline uint64_t defaultResourceGUID = 0;
+
+		static std::unique_ptr<SliceEngineTypes::Anim> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Anim& resource, ResourceManager& resourceMgr);
+
+		static void Reload(SliceEngineTypes::Anim* resource, ResourceManager& mgr, const std::string& path);
+	};
+
+	template <>
 	struct Type<SliceEngineTypes::Font_Data>
 	{
 		constexpr static inline uint64_t defaultResourceGUID = DefaultResourceIDs::FONT_BLANK_DEFAULT;

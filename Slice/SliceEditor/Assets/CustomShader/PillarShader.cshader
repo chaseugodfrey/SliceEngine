@@ -2,7 +2,7 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node33"
+                "Node30"
             ]
         },
         "END_METALLIC": {
@@ -20,29 +20,30 @@
                 "0"
             ]
         },
-        "GetX_Vec2": {
+        "Multiply": {
             "Node18": [
-                "vUV"
-            ]
-        },
-        "Mul_Vec4": {
-            "Node21": [
-                "Node29",
-                "Node18"
+                "Node26",
+                "Node34"
             ],
-            "Node25": [
+            "Node22": [
                 "texCol",
                 "color"
             ]
         },
-        "SetA_Vec4": {
-            "Node29": [
-                "Node25",
+        "SetA": {
+            "Node26": [
+                "Node22",
                 "0"
             ],
-            "Node33": [
-                "Node21",
+            "Node30": [
+                "Node18",
                 "noiseScale"
+            ]
+        },
+        "SetR": {
+            "Node34": [
+                "vUV",
+                "0"
             ]
         }
     },
