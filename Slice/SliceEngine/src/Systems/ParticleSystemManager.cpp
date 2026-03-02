@@ -277,7 +277,7 @@ namespace SliceEngine
 			}
 			else 
 			{
-				prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
+				prp.textureID = ps.textureGUID.GetGUID();
 			}
 
 			ps.renderData.push_back(prp);
