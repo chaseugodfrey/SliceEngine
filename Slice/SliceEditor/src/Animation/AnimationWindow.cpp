@@ -483,6 +483,10 @@ namespace SliceEditor
 				if (ImGui::BeginPopupModal("SaveAnims_Popup", nullptr))
 				{
 					static std::string newAnimsName = "";
+
+					// so what changed? why no update string name
+
+
 					if (StringInputHeader(mRegistry, "New File Name: ", "##newFileAnims", newAnimsName))
 					{
 
@@ -490,25 +494,28 @@ namespace SliceEditor
 
 					if (ImGui::Button("Save Changes"))
 					{
-						targetAnimsPath = targetAnimsPath / newAnimsName;
-						if (targetAnimsPath.extension() != ".anims")
+						if(!newAnimsName.empty())
 						{
-							targetAnimsPath += ".anims";
+							targetAnimsPath = targetAnimsPath / newAnimsName;
+							if (targetAnimsPath.extension() != ".anims")
+							{
+								targetAnimsPath += ".anims";
+							}
+
+							// like this to save new resource?
+
+							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".anims";
+
+							AnimsData Anims{};
+							Anims.SerializeAsset(targetAnimsPath);
+
+							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
+							mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath];
+							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
+
+							newAnimsName = "";
+							targetAnimsPath = std::filesystem::current_path();
 						}
-
-						// like this to save new resource?
-
-						std::string relativeAnimsPath = "Animations/" + newAnimsName + ".anims";
-
-						AnimsData Anims{};
-						Anims.SerializeAsset(targetAnimsPath);
-
-						mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
-						mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath];
-						UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
-
-						newAnimsName = "";
-						targetAnimsPath = std::filesystem::current_path();
 						ImGui::CloseCurrentPopup();
 					}
 
@@ -547,39 +554,42 @@ namespace SliceEditor
 
 					if (ImGui::Button("Save Changes"))
 					{
-						targetAnimPath = targetAnimPath / newAnimName;
-						if (targetAnimPath.extension() != ".anim")
+						if(!newAnimName.empty())
 						{
-							targetAnimPath += ".anim";
+							targetAnimPath = targetAnimPath / newAnimName;
+							if (targetAnimPath.extension() != ".anim")
+							{
+								targetAnimPath += ".anim";
+							}
+
+							SliceEngine::SliceEngineTypes::Anim newAnim{};
+							newAnim.name = newAnimName;
+
+							std::string relativeAnimPath = "Animations/" + newAnimName + ".anim";
+
+							AnimData animData{};
+							animData.LoadAnimData(newAnim);
+							animData.SerializeAsset(targetAnimPath);
+
+							mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
+							//mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath];
+
+							mCurrentAnimator->curr_anims.animations.push_back(newAnim);
+							customAnimClips.push_back(newAnim);
+
+							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+							if (parentName)
+							{
+								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
+								AnimsData parentPkg{};
+								parentPkg.DeserializeAsset(parentPath);
+								parentPkg.animations.push_back(newAnim.name);
+								parentPkg.SerializeAsset(parentPath);
+							}
+
+							newAnimName = "";
+							targetAnimPath = std::filesystem::current_path();
 						}
-
-						SliceEngine::SliceEngineTypes::Anim newAnim{};
-						newAnim.name = newAnimName;
-
-						std::string relativeAnimPath = "Animations/" + newAnimName + ".anim";
-
-						AnimData animData{};
-						animData.LoadAnimData(newAnim);
-						animData.SerializeAsset(targetAnimPath);
-
-						mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
-						//mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath];
-
-						mCurrentAnimator->curr_anims.animations.push_back(newAnim);
-						customAnimClips.push_back(newAnim);
-
-						std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
-						if (parentName)
-						{
-							std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
-							AnimsData parentPkg{};
-							parentPkg.DeserializeAsset(parentPath);
-							parentPkg.animations.push_back(newAnim.name);
-							parentPkg.SerializeAsset(parentPath);
-						}
-
-						newAnimName = "";
-						targetAnimPath = std::filesystem::current_path();
 						ImGui::CloseCurrentPopup();
 					}
 
