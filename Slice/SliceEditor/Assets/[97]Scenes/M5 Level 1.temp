@@ -3258,123 +3258,15 @@
                     ]
                 },
                 "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.PlayerController",
+                    "scriptName": "SliceEngine.TestController",
                     "scriptableFieldMap": {
-                        "airDashCooldown": {
-                            "Type": "float",
-                            "Value": 0.800000011920929
-                        },
-                        "airDashDistance": {
-                            "Type": "float",
-                            "Value": 14.0
-                        },
-                        "airDashDuration": {
-                            "Type": "float",
-                            "Value": 0.25
-                        },
-                        "airDashUpAngleDeg": {
-                            "Type": "float",
-                            "Value": 15.0
-                        },
-                        "attack1Damage": {
-                            "Type": "int",
-                            "Value": 20
-                        },
-                        "attack1Delay": {
-                            "Type": "float",
-                            "Value": 0.1599999964237213
-                        },
-                        "attack1Duration": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "attack1HBName": {
-                            "Type": "std::string",
-                            "Value": "AttackHB1"
-                        },
-                        "attack1Window": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
-                        },
-                        "attack2Damage": {
-                            "Type": "int",
-                            "Value": 30
-                        },
-                        "attack2Delay": {
-                            "Type": "float",
-                            "Value": 0.33000001311302185
-                        },
-                        "attack2Duration": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "attack2HBName": {
-                            "Type": "std::string",
-                            "Value": "AttackHB2"
-                        },
-                        "attack2Window": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
-                        },
-                        "attack3Damage": {
-                            "Type": "int",
-                            "Value": 50
-                        },
-                        "attack3Delay": {
-                            "Type": "float",
-                            "Value": 1.5199999809265137
-                        },
-                        "attack3Duration": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "attack3HBName": {
-                            "Type": "std::string",
-                            "Value": "AttackHB3"
-                        },
-                        "attack3Window": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
-                        },
-                        "attackRecoveryDuration": {
-                            "Type": "float",
-                            "Value": 0.5
-                        },
-                        "attackResetTime": {
-                            "Type": "float",
-                            "Value": 1.0
-                        },
-                        "backDashDotThreshold": {
-                            "Type": "float",
-                            "Value": 0.0
+                        "cameraObject": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 32
                         },
                         "canInput": {
                             "Type": "bool",
                             "Value": true
-                        },
-                        "canMove": {
-                            "Type": "bool",
-                            "Value": true
-                        },
-                        "canTeleport": {
-                            "Type": "bool",
-                            "Value": false
-                        },
-                        "coyoteTime": {
-                            "Type": "float",
-                            "Value": 0.07999999821186066
                         },
                         "currentHealth": {
                             "Type": "int",
@@ -3384,101 +3276,21 @@
                             "Type": "int",
                             "Value": 100
                         },
-                        "dashCooldown": {
-                            "Type": "float",
-                            "Value": 0.6000000238418579
-                        },
-                        "dashDistance": {
-                            "Type": "float",
-                            "Value": 20.0
-                        },
-                        "dashDuration": {
-                            "Type": "float",
-                            "Value": 0.20000000298023224
-                        },
-                        "dashMultiplier": {
-                            "Type": "float",
-                            "Value": 5.0
-                        },
-                        "dashStartDuration": {
-                            "Type": "float",
-                            "Value": 0.25
-                        },
-                        "dashUsesMoveDirection": {
-                            "Type": "bool",
-                            "Value": true
-                        },
-                        "debugMode": {
+                        "isDoubleJumping": {
                             "Type": "bool",
                             "Value": false
                         },
-                        "doubleJumpHeight": {
-                            "Type": "float",
-                            "Value": 3.5
-                        },
-                        "fallForce": {
-                            "Type": "float",
-                            "Value": 5.0
-                        },
-                        "fallVelocityThreshold": {
-                            "Type": "float",
-                            "Value": 20.0
-                        },
-                        "gravity": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "groundCheckDelay": {
-                            "Type": "float",
-                            "Value": 0.05000000074505806
-                        },
-                        "groundDashUpAngleDeg": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "groundedGravity": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "isAttacking": {
+                        "isGrounded": {
                             "Type": "bool",
                             "Value": false
                         },
-                        "jumpBuffer": {
-                            "Type": "float",
-                            "Value": 0.10000000149011612
-                        },
-                        "jumpForce": {
-                            "Type": "float",
-                            "Value": 5.0
-                        },
-                        "jumpHeight": {
-                            "Type": "float",
-                            "Value": 3.5
-                        },
-                        "landCooldown": {
-                            "Type": "float",
-                            "Value": 0.11999999731779099
-                        },
-                        "lungeDuration": {
-                            "Type": "float",
-                            "Value": 0.5
-                        },
-                        "lungeSpeed": {
-                            "Type": "float",
-                            "Value": 5.0
+                        "isJumping": {
+                            "Type": "bool",
+                            "Value": false
                         },
                         "maxHealth": {
                             "Type": "int",
                             "Value": 100
-                        },
-                        "maxJumps": {
-                            "Type": "int",
-                            "Value": 2
-                        },
-                        "minAirTimeForLanding": {
-                            "Type": "float",
-                            "Value": 0.11999999731779099
                         },
                         "moveSpeed": {
                             "Type": "float",
@@ -3490,19 +3302,11 @@
                         },
                         "playerModel": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 4294967295
+                            "Value": 41
                         },
-                        "plungeDuration": {
-                            "Type": "float",
-                            "Value": 0.5
-                        },
-                        "rotationSpeed": {
+                        "rotSpeed": {
                             "Type": "float",
                             "Value": 12.0
-                        },
-                        "terminalVelocity": {
-                            "Type": "float",
-                            "Value": -50.0
                         }
                     }
                 },
@@ -3748,6 +3552,10 @@
                             "Type": "std::vector<SliceEngine::GameObject>",
                             "Value": []
                         },
+                        "isActive": {
+                            "Type": "bool",
+                            "Value": false
+                        },
                         "levelDone": {
                             "Type": "bool",
                             "Value": false
@@ -3796,11 +3604,15 @@
         {
             "Spawn_Platform": {
                 "struct SliceEngine::ColliderShape": {
+                    "boxData": {
+                        "scale": [
+                            11.800000190734863,
+                            3.799999952316284,
+                            10.699999809265137
+                        ]
+                    },
                     "componentEnabled": true,
                     "isTrigger": false,
-                    "meshData": {
-                        "UwU": false
-                    },
                     "offSet": [
                         0.0,
                         0.0,
@@ -3880,6 +3692,10 @@
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.CameraController",
                     "scriptableFieldMap": {
+                        "playerObject": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 37
+                        },
                         "resolutionX": {
                             "Type": "float",
                             "Value": 1920.0
@@ -4451,7 +4267,13 @@
                     ]
                 },
                 "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.Bootstrap"
+                    "scriptName": "SliceEngine.Bootstrap",
+                    "scriptableFieldMap": {
+                        "debug": {
+                            "Type": "bool",
+                            "Value": false
+                        }
+                    }
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
@@ -5617,26 +5439,6 @@
                     },
                     "prefabID": 59
                 },
-                "struct SliceEngine::RigidBody": {
-                    "CollisionDetection": "",
-                    "angularDamping": 0.05000000074505806,
-                    "freezePosition": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "freezeRotation": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "friction": 0.5,
-                    "gravityFactor": 1.0,
-                    "isKinematic": false,
-                    "linearDamping": 0.05000000074505806,
-                    "mass": 1.0,
-                    "restituition": 0.0
-                },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 6,
                     "neighbours": [
@@ -5652,12 +5454,16 @@
                         "groundName": {
                             "Type": "std::string",
                             "Value": "Ground"
+                        },
+                        "grounded": {
+                            "Type": "bool",
+                            "Value": false
                         }
                     }
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 1,
+                    "mLayer": 0,
                     "mName": "Ground Check",
                     "mTag": "default"
                 },

@@ -58,8 +58,7 @@ namespace SliceEditor
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				//if (!mCurrentAnimator && anim != mCurrentAnimator && mCurrentAnimator != NULL)
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				if (!mCurrentAnimator && anim != mCurrentAnimator)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
@@ -368,6 +367,12 @@ namespace SliceEditor
 			}
 		}
 
+		ImGui::SameLine();
+
+		if (ImGui::Button("Create Animation")) 
+		{
+
+		}
 
 		// run timeline here temporarily
 

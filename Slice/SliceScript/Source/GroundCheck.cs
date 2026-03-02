@@ -10,7 +10,7 @@ namespace SliceEngine
     {
         public string groundName = "Ground";
         private GameObject[] groundObject;
-        private bool grounded;
+        public bool grounded;
         public bool Grounded { get { return grounded; } }
 
         private int TriggerBoxCount = 0;
@@ -25,29 +25,29 @@ namespace SliceEngine
         }
         public override void OnTriggerEnter(uint other)
         {
-            if (IsGround(other))
-            {
-                //Console.WriteLine("Player grounded");
-                Bootstrap.Player.OnGrounded();
-                grounded = true;
+            //if (IsGround(other))
+            //{
+            //    Console.WriteLine("Player grounded");
+            //    //Bootstrap.Player.OnGrounded();
+            //    grounded = true;
 
-                TriggerBoxCount += 1;
-                //Console.WriteLine("Grounded set to true");
-            }
+            //    TriggerBoxCount += 1;
+            //    //Console.WriteLine("Grounded set to true");
+            //}
         }
         public override void OnTriggerExit(uint other)
         {
-            if (IsGround(other))
-            {
-                TriggerBoxCount -= 1;
-                TriggerBoxCount = Utilities.Clamp<int>(TriggerBoxCount, 0, 999);
-                //Console.WriteLine("Player off ground");
-                if (TriggerBoxCount <= 0)
-                {
-                    grounded = false;
-                }
-                //Console.WriteLine("Grounded set to false");
-            }
+            //if (IsGround(other))
+            //{
+            //    TriggerBoxCount -= 1;
+            //    TriggerBoxCount = Utilities.Clamp<int>(TriggerBoxCount, 0, 999);
+            //    //Console.WriteLine("Player off ground");
+            //    if (TriggerBoxCount <= 0)
+            //    {
+            //        grounded = false;
+            //    }
+            //    //Console.WriteLine("Grounded set to false");
+            //}
         }
         private bool IsGround(uint id)
         {

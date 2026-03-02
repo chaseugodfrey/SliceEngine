@@ -26,7 +26,7 @@ namespace SliceEngine
         public Prefab enemyGruntPrefab = new Prefab("Prefabs/EnemyGrunt.prefab");
         public Prefab enemySlimePrefab = new Prefab("Prefabs/EnemySlime.prefab");
 
-        private bool isActive = false;
+        public bool isActive = false;
 
         /// <summary>
         /// Initialize the levels and stuff
@@ -54,7 +54,7 @@ namespace SliceEngine
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
 
-            Cursor.state = Cursor.STATE.DISABLED;
+            //Cursor.state = Cursor.STATE.DISABLED;
 
             foreach (GameObject trigger in levelTriggers)
             {
@@ -70,7 +70,7 @@ namespace SliceEngine
                 deathBox.As<GeneralHitbox>().TurnOn();
             }
 
-            isActive = true;
+            //isActive = true;
 
 
             Console.WriteLine("Num of level triggers: " + levelTriggers.Count);

@@ -19,7 +19,7 @@ namespace SliceEngine
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            Bootstrap.Player.StartAttackRecovery();
+            player.As<PlayerController>().StartAttackRecovery();
         }
         public void CanAttack(string str)
         {
@@ -35,18 +35,34 @@ namespace SliceEngine
             switch (state)
             {
                 case "true":
-                    Bootstrap.Player.canMove = false;
-                    Bootstrap.Player.isAttacking = true;
+                    //player.As<TestController>().canMove = false;
+                    player.As<PlayerController>().isAttacking = true;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
-                    Bootstrap.Player.canMove = true;
-                    Bootstrap.Player.isAttacking = false;
+                    //player.As<TestController>().canMove = true;
+                    player.As<PlayerController>().isAttacking = false;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
                     //Console.WriteLine("Invalid state for SetAttacking: " + state);
                     break;
+            }
+        }
+
+        public void SetModelVisible(bool visible)
+        {
+            GameObject[] children = gameObject.GetAllChildren();
+            float alpha = visible ? 1.0f : 0.0f;
+
+            foreach (GameObject child in children)
+            {
+                if (child.HasComponent<Renderer>())
+                {
+                    Vector4 col = child.GetComponent<Renderer>().GetColor();
+                    col.w = alpha;
+                    child.GetComponent<Renderer>().SetColor(col);
+                }
             }
         }
 

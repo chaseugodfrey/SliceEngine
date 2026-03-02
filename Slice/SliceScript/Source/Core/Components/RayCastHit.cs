@@ -17,8 +17,8 @@ namespace SliceEngine
 
     public struct Ray
     {
-        Vector3 direction;
-        Vector3 origin;
+        public Vector3 direction;
+        public Vector3 origin;
 
         public Ray(Vector3 dir, Vector3 ori)
         {
