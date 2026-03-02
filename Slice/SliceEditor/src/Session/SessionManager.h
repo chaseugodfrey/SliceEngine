@@ -17,6 +17,7 @@ namespace SliceEditor
 		Entity mPrefabRootEntity; //The Most-parented entity in the prefab
 		std::vector<Entity> mHighlightedGameObjects; //The Most-parented entity in the prefab
 		SliceEngine::GUID mInspectedPrefabGUID;
+		SliceEngine::GUID mInspectedShaderGraphGUID{};
 
 		bool mPrefabInspected;
 		bool mShowHierarchyEntityIDs;
@@ -61,6 +62,11 @@ namespace SliceEditor
 		bool IsPrefabInspected();
 		Entity GetPrefabEntityInspected();
 		SliceEngine::GUID GetPrefabGUIDInspected();
+
+		SliceEngine::GUID GetShaderGraphInspected();
+
+		//Custom Shader Inspector Functions
+		void ShaderGraphInspected(const ShaderGraphInspectedEvent& event);
 
 		//Debug Settings
 		void ToggleHierarchyEntityIDs();

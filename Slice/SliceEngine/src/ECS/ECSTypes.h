@@ -695,7 +695,10 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
 
+		GUID Handle_Anims;
+
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+		SliceEngineTypes::Anims curr_anims;
 		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 
@@ -948,13 +951,13 @@ namespace SliceEngine
 		int crowdAgentID = -1;
 	};
 
-	struct NavMeshLink
-	{
-		glm::vec3 startLink;
-		glm::vec3 endLink;
-		bool bidirectional;
-		float radius;
-	};
+	//struct NavMeshLink
+	//{
+	//	glm::vec3 startLink;
+	//	glm::vec3 endLink;
+	//	bool bidirectional;
+	//	float radius;
+	//};
 
 	struct NavObstacle
 	{

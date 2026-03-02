@@ -186,6 +186,16 @@ namespace SliceEngine
 		return Core::GetInstance()->GetInputSystem()->IsKeyDown(keyCode);
 	}
 
+	static bool Input_IsKeyUp(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyUp(keyCode);
+	}
+
+	static bool Input_IsKeyHold(Keys keyCode)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsKeyHold(keyCode);
+	}
+
 	static bool Input_IsKeyReleased(Keys keyCode)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsKeyReleased(keyCode);
@@ -199,6 +209,16 @@ namespace SliceEngine
 	static bool Input_IsMouseDown(MouseButtons button)
 	{
 		return Core::GetInstance()->GetInputSystem()->IsMouseDown(button);
+	}
+
+	static bool Input_IsMouseUp(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseUp(button);
+	}
+
+	static bool Input_IsMouseHold(MouseButtons button)
+	{
+		return Core::GetInstance()->GetInputSystem()->IsMouseHold(button);
 	}
 
 	static bool Input_IsMouseReleased(MouseButtons button)
@@ -1875,6 +1895,22 @@ namespace SliceEngine
 		return monoArray;
 	}
 
+	static MonoArray* Entity_GetAllChildren(unsigned int entityID)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::vector<Entity> entityIDs = go.GetAllChildren();
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
+
 	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
 	{
 		std::string cStrName = MonoToString(tag);
@@ -2727,6 +2763,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_GetAllChildren);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
@@ -2753,9 +2790,13 @@ namespace SliceEngine
 		// Key input & action mapping functions, idrk whhat exact functions the designers want so i'll just put down whateva
 		ADD_INTERNAL_CALL(Input_IsKeyPressed);
 		ADD_INTERNAL_CALL(Input_IsKeyDown);
+		ADD_INTERNAL_CALL(Input_IsKeyHold);
+		ADD_INTERNAL_CALL(Input_IsKeyUp);
 		ADD_INTERNAL_CALL(Input_IsKeyReleased);
 		ADD_INTERNAL_CALL(Input_IsMousePressed);
 		ADD_INTERNAL_CALL(Input_IsMouseDown);
+		ADD_INTERNAL_CALL(Input_IsMouseHold);
+		ADD_INTERNAL_CALL(Input_IsMouseUp);
 		ADD_INTERNAL_CALL(Input_IsMouseReleased);
 		ADD_INTERNAL_CALL(Input_GetCursorState);
 		ADD_INTERNAL_CALL(Input_SetCursorState);

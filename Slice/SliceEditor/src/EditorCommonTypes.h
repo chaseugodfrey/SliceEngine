@@ -70,8 +70,12 @@ namespace SliceEditor
 		STATE = 12,
 		TRANSITION = 13,
 		TEXTFILE = 14,
-		MIXED = 15,
-		UNSUPPORTED = 16
+		SHADERGRAPH = 15,
+		SHADER_STATE = 16,
+		SHADER_FUNCTION_STATE = 17,
+		SHADER_LINK_STATE = 18,
+		MIXED = 19,
+		UNSUPPORTED = 20
 	};
 
 	struct SelectionNode
@@ -96,6 +100,7 @@ namespace SliceEditor
 			{".ogg", SelectionType::AUDIO},
 			{".scene", SelectionType::SCENE},
 			{".shader", SelectionType::SHADER},
+			{".cshader", SelectionType::SHADERGRAPH},
 			{".mat", SelectionType::MATERIAL},
 			{".txt", SelectionType::TEXTFILE},
 			{".prefab", SelectionType::PREFAB},
@@ -114,6 +119,7 @@ namespace SliceEditor
 			{ SelectionType::TEXTFILE, "File"},
 			{ SelectionType::SCENE, "Scene"},
 			{ SelectionType::SHADER, "Shader"},
+			{ SelectionType::SHADERGRAPH, "CShader"},
 			{ SelectionType::AUDIO, "Audio"},
 			{ SelectionType::MIXED, "Mixed"},
 			{ SelectionType::NONE, "None"},
@@ -341,7 +347,7 @@ namespace SliceEditor
 			data.InitMetaData(filepath, AssetType::Controller, "Controller");
 			mStateMachineAsset = std::make_unique<StateMachineData>(data);
 
-			auto& stateMap = data.stateMap;
+			auto& stateMap = mStateMachineAsset->stateMap;
 
 			create_default();
 
@@ -484,6 +490,7 @@ namespace SliceEditor
 		AssetType assetType;
 		std::unique_ptr<MetaData> metaData;
 		std::filesystem::path filePath;
+		bool toRecompile = true;
 	};
 
 	// ANIMATIONS

@@ -55,6 +55,46 @@ namespace SliceEngine
 			static FragShader LoadFragShader(std::string const&);
 			void DestroyFragShader();
 		};
+
+		// Custom Shader predefines statics
+		enum class CSHAD_T : unsigned char
+		{
+			NIL,
+			ANY,
+			BOOL,
+			INT,
+			UINT,
+			FLOAT,
+			VEC2,
+			VEC3,
+			VEC4,
+			SAMPLER
+		};
+		uint16_t PairCshad(CSHAD_T f, CSHAD_T s);
+
+		enum class ShaderGraphFunc_T : unsigned char
+		{
+			IMMUTABLE,
+			MATH,
+			UTILITIES,
+			VECTOR_MANIP
+		};
+
+		struct cShaderFunc
+		{
+			std::string code;
+			std::string opPredefine;
+			ShaderGraphFunc_T FuncType;
+			CSHAD_T outType;
+			std::vector<CSHAD_T> inIDs;
+		};
+
+		extern std::unordered_map<std::string, std::string> cShaderPredefines;
+		extern std::unordered_map<std::string, cShaderFunc> cShaderFuncsTemplates;
+		extern std::unordered_map<std::string, CSHAD_T> dataIDS;
+		extern std::unordered_map<uint16_t, std::string> cTypecast;
+		static std::unordered_map<CSHAD_T, std::string> cShaderTypeName;
+
 		class CustomShader {
 		public:
 			unsigned int s;
@@ -64,19 +104,21 @@ namespace SliceEngine
 				BOOL,
 				INT,
 				UINT,
-				FLOAT
+				FLOAT,
+				TEXTURE
 			};
 
 			struct ShaderParams
 			{
 				std::string name;
-				std::variant<bool, uint32_t, int32_t, float> baseData;
+				std::variant<bool, uint32_t, int32_t, float, uint64_t> baseData;
 				SP_TYPE dataType;
 			};
 
 			std::vector<ShaderParams> dataIn;
 
 			static CustomShader LoadCShader(std::string const&);
+			static void LoadCShaderFunctions(std::string&, std::unordered_map<std::string, std::string>&, const std::unordered_map<std::string, CSHAD_T>&, nlohmann::json&);
 			void DestroyCShader();
 		};
 	}

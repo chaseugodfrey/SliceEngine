@@ -631,12 +631,12 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 	.property("currentPathIndex", &NavAgent::currentPathIndex)
 	.property("componentEnabled", &NavAgent::componentEnabled);
 
-rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
-.constructor<>()
-.property("startLink", &NavMeshLink::startLink)
-.property("endLink", &NavMeshLink::endLink)
-.property("bidirectional", &NavMeshLink::bidirectional)
-.property("currentPath", &NavMeshLink::radius);
+//rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
+//.constructor<>()
+//.property("startLink", &NavMeshLink::startLink)
+//.property("endLink", &NavMeshLink::endLink)
+//.property("bidirectional", &NavMeshLink::bidirectional)
+//.property("currentPath", &NavMeshLink::radius);
 
 rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
 .constructor<>()
@@ -786,6 +786,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
+		
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -799,12 +800,6 @@ namespace SliceEngine
 		(void)projSettingsManager;
 		(void)sParticleSystemManager;		
 
-		//static bool isPlaying = false;
-
-		//
-
-		//frm->StartFrame();
-
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -815,80 +810,25 @@ namespace SliceEngine
 
 		while (sScene->mCurrentState != sScene->mNextState)
 		{
-			//Line to load resources
 			if (sScene->mNextState == SceneState::PLAY_SCENE)
 			{
-				sInputs->SetMode(InputMode::Game);
-				sInputs->SetEnabled(true);
-				if (sScene->mCurrentState == SceneState::DEFAULT)
-				{
-					sScene->WriteTempFile();
-				}
-
-				if (!isPlaying)
-				{
-					SliceEngine::gScriptSystem->OnStart();
-					sAnimator.InitSystem();
-					sButton.InitSystem();
-					FactoryInstance.CreateGO("AudioManager");
-					isPlaying = true;
-				}
-
-				if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
-				{
-					sAudio->SetCategoryPause(0, false);
-					sAudio->SetCategoryPause(1, false);
-				}
-
-				sScene->mCurrentState = SceneState::PLAY_SCENE;
+				OnPlayStart();
 			}
 
 			if (sScene->mNextState == SceneState::PAUSE_SCENE)
 			{
-				sInputs->SetMode(InputMode::Editor);
-				sInputs->SetEnabled(false);
-				sAudio->SetCategoryPause(0, true);
-				sAudio->SetCategoryPause(1, true);
-				//isPlaying = false;
-				sScene->mCurrentState = SceneState::PAUSE_SCENE;
+				OnPauseStart();
 			}
 
-			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
-
-				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-				sInputs->SetMode(InputMode::Editor);
-				sInputs->SetEnabled(false);
-				sInputs->ResetCursorState();
-				sParticleSystemManager.ResetManager();
-				sAudio->StopAllSound();
-				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
-				audioSettings->DeleteAM();
-
-				gScriptSystem->OnEnd();*/
-
-				sScene->ReloadScene();
-				sScene->mCurrentState = SceneState::RELOAD_SCENE;
-				sScene->mNextState = SceneState::RELOAD_SCENE;
+				OnStopStart();
 			}
 		}
 
-
 		frm->StartSystem("Update Delta Time");
-		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm->updateDeltaTime(); 
 		frm->EndSystem("Update Delta Time");
-
-		frm->StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(core->GetWindow());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwPollEvents();
-		frm->EndSystem("GLFW Poll Events");
-
-		frm->StartSystem("Input");
-		sInputs->UpdatePrevInput();
-		GetActionMappingSystem().processAllInput();
-		frm->EndSystem("Input");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -898,105 +838,36 @@ namespace SliceEngine
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		//gScriptSystem->Update((float)frm->getDeltaTime());
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
-			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
-		}
 		frm->EndSystem("Script");
 
+		// Run Simulation (Physics, Animations, FixedUpdate Scripts)
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			OnPlayStarted();
+		}
 
+		// regular transform update
 		frm->StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
 		sTransform.UpdateTransforms();
-		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
+		prefabSys.UpdateBasePrefabs(); 
 		frm->EndSystem("Transform");
 
+		// i shifted this to the end cause UI usually updates last(?) i think
 		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();		//updates the rect transforms
-		
-		//cant start pause and continue frm for time check
+		sCanvas.UpdateHierachy();
 		sCanvas.ConstructWorldCanvas();
 		frm->EndSystem("Canvas");
 
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			frm->StartSystem("Physics");
-			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-			{
-				gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
-
-
-				//Prestep: push dynamic poses to physics world
-				core->GetSystem<PhysicsSystem>().PreStepSync();
-
-				// Single world step
-				core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
-
-				// Post-step: pull dynamic poses for rendering
-				core->GetSystem<PhysicsSystem>().PostStepSync();
-
-
-			}
-			frm->EndSystem("Physics");
-
-			frm->StartSystem("Transform");
-			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-			frm->EndSystem("Transform");
-		}
-
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			frm->StartSystem("Animation"); 
-			for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-			{
-				sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
-				sBone.Update_Scenegraph();
-				sAnimator.BoneUpdate();
-			}
-			frm->EndSystem("Animation");
-			//somehow convert to pixel coord
-			frm->StartSystem("Canvas");
-			glm::vec2 mouse_coord = sInputs->GetMousePosition();
-			glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
-			//for now im just gona directly convert to game screen coord
-			unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
-			unsigned int mouse_y = static_cast<unsigned int>(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
-			Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
-			frm->EndSystem("Canvas");
-		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
-			frm->StartSystem("UI Interaction");
-			sButton.HandleMouse(*sInputs, raycast_target);
-			sSlider.HandleMouse(*sInputs, raycast_target);
-			frm->EndSystem("UI Interaction");
-
-			frm->StartSystem("Navigation System");
-			sNav.Update(static_cast<float>(frm->getDeltaTime()));
-			frm->EndSystem("Navigation System");
-		}
-
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
-		}
-
+		// note: might need to have a physics update version of particle sys to call in fixedDT loop
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
-
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
 		sRender->Render();
-
-		//frm->StartSystem("Canvas");
 		sCanvas.DrawOverlay();
-		//frm->EndSystem("Canvas");
 		frm->EndSystem("Graphics");
-
-
-		//frm->EndFrame();
-		//frm->CalculateSystemPercentages();
 	}
 
 	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
@@ -1021,6 +892,141 @@ namespace SliceEngine
 		isPlaying = false;
 		gScriptSystem->OnEnd();
 
+	}
+
+	void Engine::OnPlayStart()
+	{
+		auto core = Core::GetInstance();
+		auto sInputs = core->GetInputSystem();
+		auto sScene = core->GetSceneSystem();
+		auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto sAudio = core->GetAudioManager();
+
+		sInputs->SetMode(InputMode::Game);
+		sInputs->SetEnabled(true);
+		if (sScene->mCurrentState == SceneState::DEFAULT)
+		{
+			sScene->WriteTempFile();
+		}
+
+		if (!isPlaying)
+		{
+			SliceEngine::gScriptSystem->OnStart();
+			sAnimator.InitSystem();
+			sButton.InitSystem();
+			FactoryInstance.CreateGO("AudioManager");
+			isPlaying = true;
+		}
+
+		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			sAudio->SetCategoryPause(0, false);
+			sAudio->SetCategoryPause(1, false);
+		}
+
+		sScene->mCurrentState = SceneState::PLAY_SCENE;
+	}
+
+	void Engine::OnStopStart()
+	{
+		auto core = Core::GetInstance();
+		auto sScene = core->GetSceneSystem();
+
+		sScene->ReloadScene();
+		sScene->mCurrentState = SceneState::RELOAD_SCENE;
+		sScene->mNextState = SceneState::RELOAD_SCENE;
+	}
+
+	void Engine::OnPauseStart()
+	{
+		auto core = Core::GetInstance();
+		auto sInputs = core->GetInputSystem();
+		auto sAudio = core->GetAudioManager();
+		auto sScene = core->GetSceneSystem();
+
+		sInputs->SetMode(InputMode::Editor);
+		sInputs->SetEnabled(false);
+		sAudio->SetCategoryPause(0, true);
+		sAudio->SetCategoryPause(1, true);
+		//isPlaying = false;
+		sScene->mCurrentState = SceneState::PAUSE_SCENE;
+	}
+
+	void Engine::OnPlayStarted()
+	{
+		auto core = Core::GetInstance();
+		auto& sTransform = core->GetSystem<TransformSystem>();
+		auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		auto& sBone = core->GetSystem<BoneSystem>();
+		auto sInputs = core->GetInputSystem();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
+		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sSlider = core->GetSystem<SliderSystem>();
+		auto& sNav = core->GetSystem<NavigationSystem>();
+
+		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+		{
+			// game logic
+			frm->StartSystem("Script");
+			gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+			frm->EndSystem("Script");
+
+			frm->StartSystem("Transform");
+			// sync matrices before physics step
+			sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sTransform.UpdateTransforms();
+			frm->EndSystem("Transform");
+
+			// physics update
+			frm->StartSystem("Physics");
+			core->GetSystem<PhysicsSystem>().PreStepSync();
+			core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
+			core->GetSystem<PhysicsSystem>().PostStepSync();
+			frm->EndSystem("Physics");
+
+			frm->StartSystem("Transform");
+			// sync matrices after physics
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+			sTransform.UpdateTransforms();
+			frm->EndSystem("Transform");
+
+			// animation after logic and physics
+			frm->StartSystem("Animation");
+			sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sBone.Update_Scenegraph();
+			sAnimator.BoneUpdate();
+			frm->EndSystem("Animation");
+		}
+
+		// regular update for scripts
+		// idk if this should be before or after simulation loop
+		frm->StartSystem("Script");
+		gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+		frm->EndSystem("Script");
+		
+		frm->StartSystem("Navigation System");
+		sNav.Update(static_cast<float>(frm->getDeltaTime()));
+		frm->EndSystem("Navigation System");
+
+		frm->StartSystem("Canvas");
+		//glm::vec2 mouse_coord = sInputs->GetMousePosition();
+		glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
+		//for now im just gona directly convert to game screen coord
+		unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
+		unsigned int mouse_y = static_cast<unsigned int>(CanvasSystem::target_height - mouse_NDC.y * CanvasSystem::target_height);// (unsigned int)mouse_coord.y;
+		Entity raycast_target = sCanvas.Raycast(mouse_x, mouse_y);
+		frm->EndSystem("Canvas");
+		//	std::cout << "raycast: " << (unsigned int)raycast_target << std::endl;
+		frm->StartSystem("UI Interaction");
+		sButton.HandleMouse(*sInputs, raycast_target);
+		sSlider.HandleMouse(*sInputs, raycast_target);
+		frm->EndSystem("UI Interaction");
+
+		// late update for scripts
+		frm->StartSystem("Script");
+		gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		frm->EndSystem("Script");
 	}
 
 	void Engine::Draw()

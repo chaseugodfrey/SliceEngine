@@ -26,11 +26,12 @@ namespace SliceEngine
 		*/
 		class Material {
 		public:
-			Handle<Texture> albedo;
+			//Handle<Texture> albedo;
 			Handle<CustomShader> shader;
 
 			glm::vec4 color;
-			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float>> data;
+			bool isTranslucent;
+			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float, uint64_t>> data;
 
 			//takes in a shader resource file that links to shader files
 			//and compile

@@ -83,6 +83,9 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -137,7 +140,40 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
 			};
 
-		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		if (isMultipleSelection)
+		{
+			//Do the difference check (this one is for tags)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					std::string currentTag = SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).GetTag();
+
+					if (currentTag != editable_tag)
+					{
+						isSelectionDifferent = true;
+						break;
+					}
+				}
+			}
+		}
+		
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag,isSelectionDifferent))
+		{
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).SetTag(editable_tag);
+					}
+				}
+			}
+
+		}
 		//Game Object Tags:
 		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
 		{
@@ -680,22 +716,22 @@ namespace SliceEditor
 
 	}
 
-	void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	{
-		if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-		{
-			//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-			DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-			
-			
-			/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-			EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-			ImGui::TreePop();
-		}
+	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
+	//{
+	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
+	//	{
+	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
+	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
+	//		
+	//		
+	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
+	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
+	//		ImGui::TreePop();
+	//	}
 
 
-			//ImGui::TreePop();
-		}
+	//		//ImGui::TreePop();
+	//	}
 
 	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
 	{
@@ -1155,7 +1191,15 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 						}
 
-						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						std::string currStateName{ animator.stateMachine.EFSM.currState->stateName };
+						size_t charPos = currStateName.find('|');
+
+						if (charPos != std::string::npos)
+						{
+							currStateName = currStateName.substr(charPos);
+						}
+
+						ImGui::Text("Current Animation: %s , ID: %d", currStateName.c_str(), animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 						ImGui::Text("Prev: ");
 						ImGui::SameLine(150.f);
@@ -1816,13 +1860,13 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
-			{
-				if (ImGui::Selectable("Add Nav Mesh Link"))
-				{
-					reg.emplace<SliceEngine::NavMeshLink>(entity);
-				}
-			}
+			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
+			//{
+			//	if (ImGui::Selectable("Add Nav Mesh Link"))
+			//	{
+			//		reg.emplace<SliceEngine::NavMeshLink>(entity);
+			//	}
+			//}
 
 			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
 			{
@@ -2073,11 +2117,11 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			{
-				DisplayNavMeshLink(node->entity);
-				ImGui::Separator();
-			}
+			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
+			//{
+			//	DisplayNavMeshLink(node->entity);
+			//	ImGui::Separator();
+			//}
 
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
 			{
@@ -2151,10 +2195,10 @@ namespace SliceEditor
 			return;
 		}
 
-		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
+		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
 		{
 			mat.SerializeAsset(node->fullPath);
-		}		
+		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
@@ -2194,6 +2238,13 @@ namespace SliceEditor
 			{
 				std::string s = "##Material_Float_" + i.name;
 				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+					mat.SerializeAsset(node->fullPath);
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+			{
+				std::string s = "##Material_Texture_" + i.name;
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
@@ -2259,6 +2310,22 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
+		ImGui::SeparatorText("Transitions");
+
+		for (auto& transition : state.transitions)
+		{
+			if (ImGui::TreeNodeEx(transition.targetState.c_str()))
+			{
+				BoolInputHeader(mRegistry, "Has Exit Time: ", "##hasExitTime", transition.hasExitTime);
+				DragFloatInputHeader(mRegistry, "Entry Time: ", "##entryTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+				DragFloatInputHeader(mRegistry, "Exit Time: ", "##exitTime", transition.entryTime, "%.2f", 0.0f, 1.0f, 0.1f);
+
+				ImGui::TreePop();
+			}
+		}
 	
 
 		//auto state = node->state;
@@ -2274,7 +2341,7 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayTransition(TransitionLinkNode* node)
 	{
-		auto anim_data = mRegistry.GetManager<SessionManager>("SessionManager")->GetAnimatorData();
+		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
 
 		ImGui::SeparatorText("Transition");
 
@@ -2282,12 +2349,23 @@ namespace SliceEditor
 			return;
 		
 		auto stateOpt = anim_data->GetState(node->source_id);
+
+		if (!stateOpt.has_value())
+			return;
 		auto transitionOpt = anim_data->GetTransition(stateOpt.value(), node->id);
 
 		if (!transitionOpt.has_value())
 			return;
 
 		//auto& transition = transitionOpt.value().get();
+
+		ImGui::Text("Source State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().sourceState.c_str());
+
+		ImGui::Text("Target State");
+		ImGui::SameLine(150.f);
+		ImGui::Text(transitionOpt->get().targetState.c_str());
 
 		auto params = anim_data->GetParameters();
 

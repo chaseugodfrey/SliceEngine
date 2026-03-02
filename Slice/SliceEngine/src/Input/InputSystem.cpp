@@ -35,11 +35,11 @@ namespace SliceEngine
         if (action == GLFW_PRESS)
         {
             // update that particular key to pressed state
-            input->UpdateKeyMap(key, KeyStates::PRESS);
+            input->UpdateKeyMap(key, KeyStates::PRESSED);
         }
         else if (action == GLFW_RELEASE)
         {
-            input->UpdateKeyMap(key, KeyStates::RELEASE);
+            input->UpdateKeyMap(key, KeyStates::RELEASED);
         }
     }
 
@@ -50,11 +50,11 @@ namespace SliceEngine
 
         if (action == GLFW_PRESS)
         {
-            input->UpdateMouseMap(button, KeyStates::PRESS);
+            input->UpdateMouseMap(button, KeyStates::PRESSED);
         }
         else if (action == GLFW_RELEASE)
         {
-            input->UpdateMouseMap(button, KeyStates::RELEASE);
+            input->UpdateMouseMap(button, KeyStates::RELEASED);
         }
     }
 
@@ -86,59 +86,82 @@ namespace SliceEngine
     // update function to transition key states and reset scroll delta
     void InputSystem::Update()
     {
-        // transition states only if enabled
-        if (!enabled)
-        {
-            scrollDelta = 0.0f;
-            return;
-        }
 
-        mouseDelta = { 0.0f, 0.0f };
-        scrollDelta = 0.0f; // reset each frame
     }
 
     void InputSystem::UpdatePrevInput()
     {
         // create queue to hold frame edges [pressed/released only]
         std::queue<InputEvent> nextFrameEdges;
+        //if there is a change in the next frame, does not matter since it will just be pushed into the queue, thus be after the persist
 
         while (!changedQueue.empty())
         {
             InputEvent event = changedQueue.front();
-            changedQueue.pop(); // pop front in order to process it
+            changedQueue.pop();
 
-            KeyStates newState = KeyStates::NONE;
-            switch (event.state) // check which state the frame edge event is in
-            {
-            case KeyStates::PRESS:
-                newState = KeyStates::PRESSED;
-                break;
+            KeyStates newState = KeyStates::RELEASE;
+
+            switch (event.state) {
+                //event change
             case KeyStates::PRESSED:
-                newState = KeyStates::HOLD;
-                break;
-            case KeyStates::RELEASE:
-                newState = KeyStates::RELEASED;
+                newState = PRESSED;
+                nextFrameEdges.push({ event.isKey, event.code, KeyStates::HOLD });
                 break;
             case KeyStates::RELEASED:
-                newState = KeyStates::NONE;
+                newState = RELEASED;
+                nextFrameEdges.push({ event.isKey, event.code, KeyStates::RELEASE });
                 break;
-            default:
-                newState = KeyStates::NONE;
+
+                //persist from prev frame
+            case KeyStates::RELEASE:
+                newState = RELEASE;
+                break;
+            case KeyStates::HOLD:
+                newState = HOLD;
                 break;
             }
-            // update the key/mouse map with the new state
+
             if (event.isKey)
                 keyMap[event.code] = newState;
             else
                 mouseMap[event.code] = newState;
 
-            // keep only one frame edges so we can see them next frame
-            if (newState == KeyStates::PRESSED || newState == KeyStates::RELEASED)
-                nextFrameEdges.push({ event.isKey, event.code, newState });
+            //switch (event.state) // check which state the frame edge event is in
+            //{
+            //case KeyStates::HOLD:
+            //    newState = KeyStates::PRESSED;
+            //    break;
+            //case KeyStates::PRESSED:
+            //    newState = KeyStates::HOLD;
+            //    break;
+            //case KeyStates::RELEASE:
+            //    newState = KeyStates::RELEASED;
+            //    break;
+            //case KeyStates::RELEASED:
+            //    newState = KeyStates::NONE;
+            //    break;
+            //default:
+            //    newState = KeyStates::NONE;
+            //    break;
+            //}
+            //// update the key/mouse map with the new state
+            //if (event.isKey)
+            //    keyMap[event.code] = newState;
+            //else
+            //    mouseMap[event.code] = newState;
         }
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
+        //std::cout << changedQueue.size() << std::endl;
+        //mouseDelta = prevMousePos - currMousePos;
+        prevMousePos = currMousePos;
+        scrollDelta = 0.0f;
+    }
+
+    void InputSystem::UpdateCursorData()
+    {
         mouseDelta = prevMousePos - currMousePos;
         prevMousePos = currMousePos;
         scrollDelta = 0.0f;
@@ -202,35 +225,55 @@ namespace SliceEngine
 
     bool InputSystem::IsKeyPressed(int key)
     {
-        return keyMap[key] == PRESS || keyMap[key] == PRESSED;
+        return keyMap[key] == PRESSED;
     }
 
     bool InputSystem::IsKeyReleased(int key)
     {
-        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
+        return keyMap[key] == RELEASED;
     }
 
     bool InputSystem::IsKeyDown(int key)
     {
-        return keyMap[key] == HOLD || keyMap[key] == PRESSED || keyMap[key] == PRESS;
+        return keyMap[key] == HOLD || keyMap[key] == PRESSED;
+    }
+    bool InputSystem::IsKeyHold(int key)
+    {
+        return keyMap[key] == HOLD;
+    }
+    bool InputSystem::IsKeyUp(int key)
+    {
+        return keyMap[key] == RELEASE || keyMap[key] == RELEASED;
     }
 
     bool InputSystem::IsMousePressed(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
+        return mouseMap[key] == PRESSED;
     }
 
     bool InputSystem::IsMouseReleased(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
+        return  mouseMap[key] == RELEASED;
     }
 
     bool InputSystem::IsMouseDown(MouseButtons b)
     {
         int key = (int)b;
-        return mouseMap[key] == PRESS || mouseMap[key] == PRESSED;
+        return mouseMap[key] == HOLD || mouseMap[key] == PRESSED;
+    }
+
+    bool InputSystem::IsMouseHold(MouseButtons b)
+    {
+        int key = (int)b;
+        return mouseMap[key] == HOLD;
+    }
+
+    bool InputSystem::IsMouseUp(MouseButtons b)
+    {
+        int key = (int)b;
+        return mouseMap[key] == RELEASE || mouseMap[key] == RELEASED;
     }
 
     glm::vec2 InputSystem::GetMousePosition() const
@@ -268,7 +311,17 @@ namespace SliceEngine
         case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
         case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
         case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
-        case CursorState::DISABLED: newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+        case CursorState::DISABLED: 
+            if (mode == InputMode::Game)
+            {
+                newMode = GLFW_CURSOR_DISABLED;
+                rawInput = GLFW_TRUE; break;
+            }
+            else
+            {
+                newMode = GLFW_CURSOR_HIDDEN;
+                break;
+            }
         default: newMode = GLFW_CURSOR_NORMAL; break;
         }
 
@@ -298,13 +351,13 @@ namespace SliceEngine
 #pragma region callback updates
     void InputSystem::UpdateKeyMap(int key, KeyStates state)
     {
-        keyMap[key] = state; // update to immediate key state in map
+        //keyMap[key] = state; // update to immediate key state in map
         changedQueue.push({ true, key, state }); // record down the changed event in the queue
     }
 
     void InputSystem::UpdateMouseMap(int button, KeyStates state)
     {
-        mouseMap[button] = state;
+        //mouseMap[button] = state;
         changedQueue.push({ false, button, state });
     }
 

@@ -84,6 +84,7 @@ namespace SliceEngine
         void Init(GLFWwindow* window);
         void Update();
         void UpdatePrevInput();
+        void UpdateCursorData(); // editor doesn't call this
 
         // queue 
         size_t EventsThisFrame() const 
@@ -108,11 +109,15 @@ namespace SliceEngine
         bool IsKeyPressed(int key);
         bool IsKeyReleased(int key);
         bool IsKeyDown(int key);
+        bool IsKeyHold(int key);
+        bool IsKeyUp(int key);
 
         // mouse queries
         bool IsMousePressed(MouseButtons button);
         bool IsMouseReleased(MouseButtons button);
         bool IsMouseDown(MouseButtons button);
+        bool IsMouseHold(MouseButtons button);
+        bool IsMouseUp(MouseButtons button);
 
         // mouse position
         glm::vec2 GetMousePosition() const;
