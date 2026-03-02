@@ -99,10 +99,8 @@ namespace SliceEngine
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
-        float groundCheckTimer = 0f;
         public bool grounded;
         private bool groundedTemp;
-        public bool groundCheckLocked;
         public int groundContactCount;
 
         // Jumps
@@ -266,7 +264,6 @@ namespace SliceEngine
 
         public void StartAttackRecovery()
         {
-            Console.WriteLine("Start Recovery");
             playerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
             attackAutoRecover = true;
@@ -282,7 +279,6 @@ namespace SliceEngine
             //Console.WriteLine($"Attack recovery time: {attackResetTimer}");
             if (attackResetTimer >= attackRecoveryDuration)
             {
-                Console.WriteLine("Resetting attack");
                 attackAutoRecover = false;                
                 playerCurrentAttack = CurrentAttack.None;
                 attackCounter = 0;
@@ -584,28 +580,22 @@ namespace SliceEngine
             switch (playerCombatState)
             {
                 case CombatState.None:
-                    Console.WriteLine("combat None state");
                     if (playerMovementState == MovementState.Lunging)
                     {
                         playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
                 case CombatState.Attacking:
-                    Console.WriteLine("combat Attack state");
 
                     if (attackTimer <= 0.0f)
                     {
-                        Console.WriteLine("Entering Recovery State");
                         playerCombatState = CombatState.Recovery;
                         attackResetTimer = 0;
                     }
                     break;
                 case CombatState.Recovery:
-                    Console.WriteLine("combat Recovery state");
-
                     if (attackResetTimer >= attackRecoveryDuration)
                     {
-                        Console.WriteLine("Leaving Recovery State");
                         playerCombatState = CombatState.None;
                     }
                     break;
@@ -782,9 +772,6 @@ namespace SliceEngine
                 jumpCooldownTimer = jumpCooldown;
                 jumpDurationTimer = jumpDuration;
 
-                groundContactCount = 0;
-                grounded = false;
-
                 if (jumpCounter == 1)
                     playerMovementState = MovementState.Jumping;
                 else
@@ -871,7 +858,7 @@ namespace SliceEngine
 
         public override void OnCollideEnter(uint other)
         {
-            if (IsGround(other) && !groundCheckLocked)
+            if (IsGround(other))
             {
                 groundContactCount++;
             }
@@ -879,7 +866,7 @@ namespace SliceEngine
 
         public override void OnCollideExit(uint other)
         {
-            if (IsGround(other) && !groundCheckLocked)
+            if (IsGround(other))
             {
                 groundContactCount--;
                 if (groundContactCount < 0)
