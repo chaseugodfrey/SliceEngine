@@ -41,9 +41,7 @@ namespace SliceEngine
 
         public enum CurrentAttack
         {            
-            Attack1,
-            Attack2,
-            Attack3,
+            GroundAttack,
             PlungeLand,
             None
         }
@@ -83,6 +81,8 @@ namespace SliceEngine
         public float attackRecoveryDuration = 0.5f;
         private bool attackAutoRecover = false;
         public float attack1Delay, attack2Delay, attack3Delay;
+        private bool canIncrement = true; // isnt actually being used i just copied it over
+        private int attackCounter = 0;
 
         // Lunging (moving when attacking)
         float lungeTimer = 0f;
@@ -214,14 +214,16 @@ namespace SliceEngine
             if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
             {
                 playerCombatState = CombatState.Attacking;
+                // Ground attacking
+                playerCurrentAttack = CurrentAttack.GroundAttack;
                 attackAutoRecover = false;
-                playerCurrentAttack++;       
-                if (playerCurrentAttack > CurrentAttack.Attack3) playerCurrentAttack = CurrentAttack.Attack1;
+                attackCounter++;       
+                if (attackCounter > 3) attackCounter = 1;
                 attackTimer = attackDuration[(int)playerCurrentAttack];
 
-                switch (playerCurrentAttack)
+                switch (attackCounter)
                 {
-                    case CurrentAttack.Attack1:
+                    case 1:
                         //StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
 
                         AudioSettings.PlaySFX("A1");
@@ -229,7 +231,7 @@ namespace SliceEngine
                         playerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
-                    case CurrentAttack.Attack2:
+                    case 2:
                         //StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
@@ -240,7 +242,7 @@ namespace SliceEngine
                         playerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
-                    case CurrentAttack.Attack3:
+                    case 3:
                         //StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
@@ -270,10 +272,15 @@ namespace SliceEngine
 
             TurnOffHitboxes();
         }
+        public void CanAttackFlag(bool flag)
+        {
+            canIncrement = flag;
+        }
         private void AttackResetTimer()
         {
-            if (attackResetTimer <= 0.0f)
+            if (attackResetTimer >= attackRecoveryDuration)
             {
+                Console.WriteLine("Resetting attack");
                 attackAutoRecover = false;                
                 playerCurrentAttack = CurrentAttack.None;
 
@@ -340,7 +347,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack1]);
+                enemy.TakeDamage(attackDamageValues[attackCounter]);
             }
         }
         private void Attack2(GameObject target)
@@ -348,14 +355,14 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack2]);
+                enemy.TakeDamage(attackDamageValues[attackCounter]);
             }
         }
         private void Attack3(GameObject target){
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[(int)CurrentAttack.Attack3]);
+                enemy.TakeDamage(attackDamageValues[attackCounter]);
             }
         }
         private IEnumerator AttackDelay(float delay, Action action)
@@ -513,7 +520,6 @@ namespace SliceEngine
                         playerMovementState = MovementState.Idle;
                     }
                     break;
-
                 case MovementState.DoubleJumping:
                     if (!grounded && jumpDurationTimer <= 0.0f)
                     {
@@ -544,21 +550,18 @@ namespace SliceEngine
                         playerMovementState = MovementState.Idle;
                     }
                     break;
-
                 case MovementState.AirDash:
                     if (dashDurationTimer <= 0.0f)
                     {
                         playerMovementState = MovementState.Falling;
                     }
                     break;
-
                 case MovementState.Lunging:
                     if (lungeTimer <= 0.0f)
                     {
                         playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
-
                 case MovementState.Plunging:
                     if (grounded)
                     {
@@ -567,7 +570,6 @@ namespace SliceEngine
                         jumpLandTimer = jumpLandDuration;
                     }
                     break;
-
                 case MovementState.Dead:
                     break;
 
@@ -682,8 +684,46 @@ namespace SliceEngine
                 case CombatState.None:                    
                     break;
                 case CombatState.Attacking:
-                    if (animator.SafeToChange(playerCurrentAttack.ToString()))
-                    animator.SetBool(playerCurrentAttack.ToString(), true);
+                    {
+                        Console.WriteLine($"Attacking : {playerCurrentAttack.ToString()}");
+
+                        if (playerCurrentAttack == CurrentAttack.GroundAttack)
+                        {
+                            Console.WriteLine("Ground Attacking");
+                            switch (attackCounter)
+                            {
+                                case 1:
+                                    {
+                                        Console.WriteLine("Attack 1 anim playing");
+                                        animator.SetBool("Attack1", true);
+                                        break;
+                                    }
+                                case 2:
+                                    {
+                                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                                        {
+                                            Console.WriteLine("Attack 2 anim playing");
+
+                                            animator.SetBool("Attack2", true);
+                                        }
+
+                                        break;
+                                    }
+                                case 3:
+                                    {
+                                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                                        {
+                                            Console.WriteLine("Attack 3 anim playing");
+
+                                            animator.SetBool("Attack3", true);
+                                        }
+
+                                        break;
+                                    }
+                            }
+
+                        }
+                    }
                     break;
                 case CombatState.Recovery:
                     break;

@@ -19,13 +19,13 @@ namespace SliceEngine
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            //Bootstrap.Player.StartAttackRecovery();
+            Bootstrap.Player.StartAttackRecovery();
         }
         public void CanAttack(string str)
         {
             if(player.Has<PlayerController>())
             {
-                //player.As<PlayerController>().CanAttackFlag(true);
+                player.As<PlayerController>().CanAttackFlag(true);
             }
         }
         public void SetAttacking(string state)
@@ -49,7 +49,21 @@ namespace SliceEngine
                     break;
             }
         }
+        public void SetModelVisible(bool visible)
+        {
+            GameObject[] children = gameObject.GetAllChildren();
+            float alpha = visible ? 1.0f : 0.0f;
 
+            foreach (GameObject child in children)
+            {
+                if (child.HasComponent<Renderer>())
+                {
+                    Vector4 col = child.GetComponent<Renderer>().GetColor();
+                    col.w = alpha;
+                    child.GetComponent<Renderer>().SetColor(col);
+                }
+            }
+        }
         public static void PlayPlayerSFX(string type)
         {
             type = type.ToLower();
