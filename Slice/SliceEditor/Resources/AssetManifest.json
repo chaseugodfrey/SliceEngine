@@ -151,16 +151,6 @@
             "path": "Resources/15125514244222615558.wav"
         },
         {
-            "guid": 12706701987083786906,
-            "name": "Audio/SingleHit_Slime_1.wav",
-            "path": "Resources/12706701987083786906.wav"
-        },
-        {
-            "guid": 12851759591155610253,
-            "name": "Material/aaaaaaa.mat",
-            "path": "Resources/12851759591155610253.mat"
-        },
-        {
             "guid": 11963653456854187663,
             "name": "Shaders/skyboxLight.shader",
             "path": "Resources/11963653456854187663.shader"
@@ -169,6 +159,16 @@
             "guid": 10957655571049264411,
             "name": "Default/DefaultController.controller",
             "path": "Resources/10957655571049264411.controller"
+        },
+        {
+            "guid": 12851759591155610253,
+            "name": "Material/aaaaaaa.mat",
+            "path": "Resources/12851759591155610253.mat"
+        },
+        {
+            "guid": 12706701987083786906,
+            "name": "Audio/SingleHit_Slime_1.wav",
+            "path": "Resources/12706701987083786906.wav"
         },
         {
             "guid": 9646178157620972647,
@@ -224,6 +224,11 @@
             "guid": 9563528329987127914,
             "name": "Audio/MultiHit_Slime.wav",
             "path": "Resources/9563528329987127914.wav"
+        },
+        {
+            "guid": 16810191101304633330,
+            "name": "Default/InputTestScene.scene",
+            "path": "Resources/16810191101304633330.scene"
         },
         {
             "guid": 9723092677755559696,
@@ -401,6 +406,36 @@
             "path": "Resources/17833760349980101912.scene"
         },
         {
+            "guid": 9402868621044949570,
+            "name": "Shaders/skybox_Vert.vert",
+            "path": "Resources/9402868621044949570.vert"
+        },
+        {
+            "guid": 9910841942380384348,
+            "name": "Models/Modular_Environment/BrokenBridge3.fbx",
+            "path": "Resources/9910841942380384348.mdl"
+        },
+        {
+            "guid": 17252748523279415740,
+            "name": "Fonts/Roboto-VariableFont.ttf",
+            "path": "Resources/17252748523279415740.fnt"
+        },
+        {
+            "guid": 16018679418099098580,
+            "name": "Shaders/skybox_Frag.frag",
+            "path": "Resources/16018679418099098580.frag"
+        },
+        {
+            "guid": 17082663247688680890,
+            "name": "Shaders/downSample.shader",
+            "path": "Resources/17082663247688680890.shader"
+        },
+        {
+            "guid": 12439105952219452830,
+            "name": "Default/InputTestScene.temp",
+            "path": "Resources/12439105952219452830.scene"
+        },
+        {
             "guid": 14037766457360526962,
             "name": "Shaders/uiSprite_Frag.frag",
             "path": "Resources/14037766457360526962.frag"
@@ -499,21 +534,6 @@
             "guid": 13441197947458580501,
             "name": "Fonts/JetBrainsMono-Light.ttf",
             "path": "Resources/13441197947458580501.fnt"
-        },
-        {
-            "guid": 9402868621044949570,
-            "name": "Shaders/skybox_Vert.vert",
-            "path": "Resources/9402868621044949570.vert"
-        },
-        {
-            "guid": 9910841942380384348,
-            "name": "Models/Modular_Environment/BrokenBridge3.fbx",
-            "path": "Resources/9910841942380384348.mdl"
-        },
-        {
-            "guid": 17252748523279415740,
-            "name": "Fonts/Roboto-VariableFont.ttf",
-            "path": "Resources/17252748523279415740.fnt"
         },
         {
             "guid": 10125292758465881867,
@@ -1466,16 +1486,6 @@
             "path": "Resources/15235268585299909685.vert"
         },
         {
-            "guid": 16018679418099098580,
-            "name": "Shaders/skybox_Frag.frag",
-            "path": "Resources/16018679418099098580.frag"
-        },
-        {
-            "guid": 17082663247688680890,
-            "name": "Shaders/downSample.shader",
-            "path": "Resources/17082663247688680890.shader"
-        },
-        {
             "guid": 16493589749155911333,
             "name": "Shaders/final.shader",
             "path": "Resources/16493589749155911333.shader"
@@ -1611,9 +1621,9 @@
             "path": "Resources/16434964976376015281.frag"
         },
         {
-            "guid": 16945299331025220395,
-            "name": "Textures/Blank512.png",
-            "path": "Resources/16945299331025220395.dds"
+            "guid": 15644028420850910905,
+            "name": "Textures/Black512.png",
+            "path": "Resources/15644028420850910905.dds"
         },
         {
             "guid": 13949509492220521480,
@@ -1857,7 +1867,7 @@
         },
         {
             "guid": 11697903386653029786,
-            "name": "Color Deaded",
+            "name": "Blank256",
             "path": "NIL"
         },
         {

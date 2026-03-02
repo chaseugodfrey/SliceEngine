@@ -316,9 +316,26 @@ namespace SliceEngine
 		std::optional<Entity> camEntity = camSys.GetCamera(cam);
 
 		if (camEntity.has_value())
+		{
 			camSys.mainCam.emplace(cam);
+
+			// Sync exposure
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+			camera.exposure = mSessionExposure;
+		}
 		else
 			SLICE_LOG_ERROR("Setting to a non camera entity");
+	}
+
+	void RenderManager::SetSessionExposure(float exposure)
+	{
+		mSessionExposure = exposure;
+		auto& mainCam = GetGameCamera();
+		if (mainCam.has_value())
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value());
+			camera.exposure = exposure;
+		}
 	}
 
 	std::optional<Entity>& RenderManager::GetGameCamera()

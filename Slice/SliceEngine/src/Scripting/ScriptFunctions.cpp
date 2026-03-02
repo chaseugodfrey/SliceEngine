@@ -2253,19 +2253,13 @@ namespace SliceEngine
 	static void Camera_SetGamma(float gammaVal)
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
-		auto& mainGameCamera = rm->GetGameCamera();
+		rm->SetSessionExposure(gammaVal);
+	}
 
-		if (mainGameCamera.has_value())
-		{
-			auto mainGameCameraGO = FactoryInstance.GetGOByEntity(mainGameCamera.value());
-
-			if (mainGameCameraGO.HasComponent<Camera>())
-			{
-				auto& cameraComp = mainGameCameraGO.GetComponent<Camera>();
-
-				cameraComp.exposure = gammaVal;
-			}
-		}
+	static float Camera_GetGamma()
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		return rm->GetSessionExposure();
 	}
 
 #pragma endregion
@@ -2832,6 +2826,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
