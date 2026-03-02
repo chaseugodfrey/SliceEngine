@@ -53,7 +53,7 @@ namespace SliceEngine
             Disabled,
             Teleporting,
             Cutscene
-        }
+        }        
 
         public MovementState playerMovementState = MovementState.Idle;
         public CombatState playerCombatState = CombatState.None;
@@ -76,6 +76,12 @@ namespace SliceEngine
         float attackTimer = 0.0f;
         bool attackQueued;
         Coroutine attackCoroutine;
+
+        public float attackResetTime = 1f;
+        private float attackResetTimer = 0f;
+        public float attackRecoveryDuration = 0.5f;
+        private bool attackAutoRecover = false;
+        public float attack1Delay, attack2Delay, attack3Delay;
 
         // Lunging (moving when attacking)
         bool isLunging = false;
@@ -117,9 +123,9 @@ namespace SliceEngine
         float fallTimeTimer = 0.0f;
 
         // Movement
-        private Vector3 input;
-        private Vector3 finalMove;
-        private Vector3 velocity;
+        Vector3 input;
+        Vector3 finalMove;
+        Vector3 velocity;
         public float moveSpeed = 2.5f;
         public float moveAcceleration = 100.0f;
         public float moveDeceleration = 100.0f;
@@ -134,6 +140,8 @@ namespace SliceEngine
         public float dashSpeed = 20.0f;
         public float dashStartDuration = 0.25f;
         Vector3 dashDir = Vector3.Zero;
+        public float iFrameDuration = 0.2f;
+        public float flickerDuration = 0.05f;
         public void Initialize()
         {
             camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
@@ -144,7 +152,7 @@ namespace SliceEngine
         public override void OnCreate()
         {            
             InitializeInternalReferences();
-            //InitializeAttacks();
+            InitializeAttacks();
         }
 
         public override void OnUpdate(float dt)
@@ -184,126 +192,137 @@ namespace SliceEngine
 
             if (input.SquareMagnitude() > 1f) input = input.Normalize();
         }
+        private void ExecuteAttack()
+        {
+            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
+            {
+                playerCombatState = CombatState.Attacking;
 
-        //void EndAttackState()
+                attackAutoRecover = false;
+                playerCurrentAttack++;       
+
+                if (playerCurrentAttack > CurrentAttack.Attack3) playerCurrentAttack = CurrentAttack.Attack1;
+                switch (playerCurrentAttack)
+                {
+                    case CurrentAttack.Attack1:
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
+
+                        animator.SetBool("Attack1", true);
+                        AudioSettings.PlaySFX("A1");
+
+                        isLunging = true;
+                        lungeTimer = lungeDuration;
+                        break;
+                    case CurrentAttack.Attack2:
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                        {
+                            animator.SetBool("Attack2", true);
+                            AudioSettings.PlaySFX("A2");
+                        }
+
+                        isLunging = true;
+                        lungeTimer = lungeDuration;
+                        break;
+                    case CurrentAttack.Attack3:
+                        //StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
+
+                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                        {
+                            animator.SetBool("Attack3", true);
+                            AudioSettings.PlaySFX("A3");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                //console.writeline("Attack Counter: " + attackCounter);
+            }
+        }
+        private void TurnOffHitboxes()
+        {
+            //attack1HB.TurnOff();
+            //attack2HB.TurnOff();
+            //attack3HB.TurnOff();
+        }
+
+        public void StartAttackRecovery()
+        {
+            playerCombatState = CombatState.Recovery;
+            attackResetTimer = 0f;
+            attackAutoRecover = true;
+
+            TurnOffHitboxes();
+        }
+        private void AttackResetTimer()
+        {
+            if (playerCombatState != CombatState.Attacking)
+            {
+                attackResetTimer += Time.deltaTime;
+            }
+            if (attackResetTimer >= attackRecoveryDuration)
+            {
+                attackAutoRecover = false;
+                attackResetTimer = 0f;
+                playerCurrentAttack = CurrentAttack.None;
+
+                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
+                {
+                    if (animator.SafeToChange("AttackToIdle1"))
+                        animator.SetBool("AttackToIdle1", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
+                {
+                    if (animator.SafeToChange("AttackToIdle2"))
+                        animator.SetBool("AttackToIdle2", true);
+                }
+                if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
+                {
+                    if (animator.SafeToChange("Attack3ToLoco"))
+                        animator.SetBool("Attack3ToLoco", true);
+                }
+            }
+        }
+        private IEnumerator Plunge(float duration)
+        {
+            float timer = 0f;
+            while (timer < duration)
+            {
+                Vector3 velTemp = rigidBody.Velocity;
+                velTemp.y = 0.0f;
+                rigidBody.Velocity = velTemp;
+                //velocity.y = 0f;
+                timer += Time.deltaTime;
+                yield return null;
+            }
+        }
+
+        //private IEnumerator iFrameAnimation(float duration)
         //{
-        //    attackIndex = 0;
-        //    attackTimer = 0f;
-        //    attackCounter = 0;
-        //    attackQueued = false;
-        //    playerCombatState = CombatState.None;
-        //    attackResetTimer = 0f;
-        //    TurnOffHitboxes();
-
-        //    queuedNext = false;
-        //    queuedFacingOverride = false;
-
-        //    // Clear movement bursts
-        //    isLunging = false;
-        //    lungeStarted = false;
-
-        //    atk3ArcActive = false;
-        //    atk3ImpulseFired = false;
-        //    atk3HorizVel = Vector3.Zero;
-        //}
-        
-        //private void ExecuteAttack()
-        //{
-        //    if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunge)
+        //    float timer = 0.0f;
+        //    float flickerTimer = 0.0f;
+        //    bool flicker = false;
+        //    while (timer < duration)
         //    {
-        //        attackCounter++;
-        //        playerCombatState = CombatState.Attacking;
-
-        //        if (attackCounter > 3) attackCounter = 1;
-        //        switch (attackCounter)
+        //        if (flickerTimer >= flickerDuration)
         //        {
-        //            case 1:
-        //                StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
-
-        //                animator.SetBool("Attack1", true);
-        //                AudioSettings.PlaySFX("A1");
-
-        //                StartCoroutine(Lunge());
-        //                break;
-        //            case 2:
-        //                StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
-
-        //                if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-        //                {
-        //                    animator.SetBool("Attack2", true);
-        //                    AudioSettings.PlaySFX("A2");
-        //                }
-
-        //                StartCoroutine(Lunge());
-        //                break;
-        //            case 3:
-        //                StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
-
-        //                if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-        //                {
-        //                    animator.SetBool("Attack3", true);
-        //                    AudioSettings.PlaySFX("A3");
-        //                }
-        //                break;
-        //            default:
-        //                break;
+        //            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(flicker);
+        //            flicker = !flicker;
+        //            //Console.WriteLine($"Flicker timer {flickerTimer}");
+        //            flickerTimer = 0.0f;
         //        }
-        //        //console.writeline("Attack Counter: " + attackCounter);
-        //    }
-        //}
-        //private IEnumerator Lunge()
-        //{
-        //    float timer = 0f;
-        //    while (timer < lungeDuration)
-        //    {
-        //        transform.Position += transform.Forward * lungeSpeed * Time.deltaTime;
+
+        //        //Console.WriteLine($"total timer {timer}");
+
         //        timer += Time.deltaTime;
+        //        flickerTimer += Time.deltaTime;
         //        yield return null;
         //    }
-        //}
-        //private void TurnOffHitboxes()
-        //{
-        //    foreach (GeneralHitbox hb in attackHitboxes)
-        //    {
-        //        hb.TurnOff();
-        //    }
-        //}
-        //public void StartAttackRecovery()
-        //{
-        //    attackResetTimer = 0f;
-        //    playerCombatState = CombatState.Recovery;
-        //    attackAutoRecover = true;
 
-        //    TurnOffHitboxes();
-        //}
-        //private void AttackResetTimer()
-        //{
-        //    if (playerCombatState != CombatState.Attacking)
-        //    {
-        //        attackResetTimer += Time.deltaTime;
-        //    }
-        //    if (attackResetTimer >= attackRecoveryDuration)
-        //    {
-        //        attackAutoRecover = false;
-        //        attackResetTimer = 0f;
-        //        attackCounter = 0;
-
-        //        if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
-        //        {
-        //            if (animator.SafeToChange("AttackToIdle1"))
-        //                animator.SetBool("AttackToIdle1", true);
-        //        }
-        //        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-        //        {
-        //            if (animator.SafeToChange("AttackToIdle2"))
-        //                animator.SetBool("AttackToIdle2", true);
-        //        }
-        //        if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0)
-        //        {
-        //            if (animator.SafeToChange("Attack3ToLoco"))
-        //                animator.SetBool("Attack3ToLoco", true);
-        //        }
-        //    }
+        //    // Set visible at the end
+        //    playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+        //    iFrames = false;
         //}
 
         private void Attack1(GameObject target)
@@ -475,7 +494,7 @@ namespace SliceEngine
 
                 if (grounded)
                 {
-                    //ExecuteAttack();
+                    ExecuteAttack();
                     attackQueued = false;
                 }
             }
@@ -534,9 +553,14 @@ namespace SliceEngine
                         if (fallTimeTimer > fallTimeThreshold)
                         {
                             jumpLandTimer = jumpLandDuration;
+                            playerMovementState = MovementState.Landing;
+                        }
+                        else
+                        {
+                            playerMovementState = MovementState.Idle;
                         }
                         fallTimeTimer = 0.0f;
-                        playerMovementState = MovementState.Landing;
+                        
                     }
                     break;
                 case MovementState.Landing:
@@ -595,6 +619,11 @@ namespace SliceEngine
                 default:
                     break;
             }
+        }
+
+        void ResetAnimator()
+        {
+            animator.SetBool("", false);
         }
 
 
@@ -763,14 +792,14 @@ namespace SliceEngine
         private void InitializeAttacks()
         {
             attackHitboxes.Clear();
-            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[0])[0]?.As<GeneralHitbox>());
+            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
             attackHitboxes[0].HitBoxListeners += Attack1;
 
-            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[1])[0]?.As<GeneralHitbox>());
-            attackHitboxes[1].HitBoxListeners += Attack1;
+            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
+            attackHitboxes[1].HitBoxListeners += Attack2;
 
-            attackHitboxes.Add(FindGameObjectsWithTag(attackHitboxNames[2])[0]?.As<GeneralHitbox>());
-            attackHitboxes[2].HitBoxListeners += Attack1;
+            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[3])?.As<GeneralHitbox>());
+            attackHitboxes[2].HitBoxListeners += Attack3;
 
             //TurnOffHitboxes();
         }
