@@ -515,10 +515,9 @@ namespace SliceEditor
 
 							newAnimsName = "";
 							targetAnimsPath = std::filesystem::current_path();
+							ImGui::CloseCurrentPopup();
 						}
-						ImGui::CloseCurrentPopup();
 					}
-
 					ImGui::EndPopup();
 				}
 				ImGui::BeginDisabled();

@@ -864,6 +864,7 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
+		bool isTranslucent{ false };
 		std::map<std::string, std::variant<bool, uint32_t, int32_t, float, SliceEngine::GUID>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
@@ -981,7 +982,8 @@ namespace SliceEditor
 			}
 
 			from_json(metaJson["color"], color);
-
+			if(metaJson.contains("translucency"))
+				isTranslucent = metaJson["translucency"];
 			inFile.close();
 		}
 
@@ -991,6 +993,7 @@ namespace SliceEditor
 			// specific properties to shader goes here but we dh that yet
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
+			metaJson["translucency"] = isTranslucent;
 			nlohmann::json dataJson = nlohmann::json::object();
 			for (const auto& [key, val] : data)
 			{

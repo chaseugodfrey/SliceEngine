@@ -29,6 +29,7 @@ namespace SliceEngine
 			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			temp.color = glm::vec4(1.f);
+			temp.isTranslucent = false;
 
 			// filepath to material.mat in resource folder
 			std::ifstream file(filepath);
@@ -59,6 +60,9 @@ namespace SliceEngine
 
 			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);
+
+			if (materialJson.contains("translucency"))
+				temp.isTranslucent = materialJson["translucency"];
 
 			for (auto& i : temp.shader.get()->dataIn)
 			{
@@ -110,6 +114,7 @@ namespace SliceEngine
 			//albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
 			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+			isTranslucent = false;
 			for (auto& i : shader.get()->dataIn)
 				data[i.name] = i.baseData;
 		 }

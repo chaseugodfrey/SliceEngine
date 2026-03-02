@@ -76,6 +76,13 @@ namespace SliceEngine
 		}
 	}
 
+	void RenderCmdManager::Update(float dt)
+	{
+		time += dt;
+		while (time > maxTime)
+			time -= maxTime;
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -122,17 +129,12 @@ namespace SliceEngine
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
-			if (material->color.a > 0.999f)
-			{
-				key = key | MRCK_OPAQUE;
-				SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
-			}
-			else
-			{
+			if (material->isTranslucent)
 				key = key | MRCK_TRANSCLUCENT;
-				SetColor(data, material->color);
-			}
-			
+			else
+				key = key | MRCK_OPAQUE;
+			SetColor(data, material->color);
+
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
 			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
@@ -390,6 +392,8 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
 				}
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
@@ -474,6 +478,9 @@ namespace SliceEngine
 						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
 						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
 					}
+					uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
+
 				}
 
 				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
@@ -548,6 +555,9 @@ namespace SliceEngine
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
+
+			GLint uniformLoc = glGetUniformLocation(mShader, "time");
+			glUniform1f(uniformLoc, time);
 
 			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
