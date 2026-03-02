@@ -36,6 +36,7 @@ namespace SliceEngine
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		void RegenerateSkybox();
+		void Update(float dt);
 		// Camera related functions
 		GameObject CreateCamera();
 		GameObject CreatePrefabCam();

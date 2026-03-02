@@ -369,6 +369,8 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"SetB", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 			{"SetA", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
+			{"Sine", {"float %s = sin(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"Cosine", {"float %s = cos(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
 			{"Sat", {"vec3 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
 			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
@@ -389,7 +391,8 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
 			{"vUV", CSHAD_T::VEC2},
-			{"color", CSHAD_T::VEC4}
+			{"color", CSHAD_T::VEC4},
+			{"time", CSHAD_T::FLOAT}
 		};
 		std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
 		{
@@ -571,6 +574,7 @@ layout (location=5) out vec3 fEmission;
 
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
+uniform float time;
 
 struct BasicIDat
 {

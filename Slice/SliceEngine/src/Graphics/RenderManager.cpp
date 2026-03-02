@@ -402,6 +402,11 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Render
+	void RenderManager::Update(float dt)
+	{
+		renderQueue.Update(dt);
+	}
+
 	void RenderManager::Render()
 	{
 		ForceResetDefaultSettings();
