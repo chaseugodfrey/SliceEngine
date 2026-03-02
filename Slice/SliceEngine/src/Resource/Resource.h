@@ -134,7 +134,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Material>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 10819322238111217941;
+		constexpr static inline uint64_t defaultResourceGUID = 9336273396156370476;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Material> Load(ResourceManager& resourceMgr, const std::string& path);
