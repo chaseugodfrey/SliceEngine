@@ -38,8 +38,8 @@ namespace SliceEngine
 		{
 			glm::mat4 mdlMtx;
 			uint32_t entityID;
-			uint32_t texID;
-			uint32_t tex2ID;
+			uint32_t blank;
+			uint32_t blank2;
 			uint32_t col;
 		};
 	private:

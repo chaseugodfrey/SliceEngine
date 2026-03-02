@@ -221,6 +221,11 @@ namespace SliceEditor
 				AddWindow<AnimatorWindow>();
 			}
 
+			if (ImGui::MenuItem("Shader Graph"))
+			{
+				AddWindow<CustomShaderWindow>();
+			}
+
 			ImGui::EndMenu();
 		}
 

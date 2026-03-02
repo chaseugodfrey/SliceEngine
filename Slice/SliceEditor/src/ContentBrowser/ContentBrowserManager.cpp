@@ -292,6 +292,10 @@ namespace SliceEditor
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
+		else if (entry.fullPath.extension() == ".cshader")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
 
 		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}

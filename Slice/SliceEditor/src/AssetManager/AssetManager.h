@@ -76,6 +76,8 @@ namespace SliceEditor
 		void CompileNavMeshAsset(NavMeshData* metaData);
 		void CompileNavMeshBinAsset(NavMeshBinData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
+		void CompileAnimsAsset(AnimsData* metaData);
+		void CompileAnimAsset(AnimData* metaData);
 		void CreatePrefab(SliceEngine::GameObject GO);
 		void OnAssetFileSystemEvent(const std::string& path, const filewatch::Event changeType);
 		void CleanUpSceneTemp();
@@ -136,7 +138,9 @@ namespace SliceEditor
 			{".bin", {AssetType::NavMeshBin, "NavMesh"}},
 			{".csv", {AssetType::CSV, "CSV"}},
 			{".skl", {AssetType::Skeleton, "Skeleton"}},
-			{".animpkg", {AssetType::Animation, "Animation"}}
+			{".animpkg", {AssetType::Animation, "Animation"}},
+			{".anims", {AssetType::Anims, "Animations"}},
+			{".anim", {AssetType::Anim, "Animations"}}
 		};
 
 		std::unordered_map <AssetType, std::string> mAssetExtensions =
@@ -154,6 +158,8 @@ namespace SliceEditor
 			{AssetType::Prefab, ".prefab"},
 			{AssetType::Skeleton, ".skl"},
 			{AssetType::Animation, ".animpkg"},
+			{AssetType::Anims, ".anims"},
+			{AssetType::Anim, ".anim"},
 			{AssetType::Controller, ".controller" },
 			{AssetType::NavMesh, ".navmesh" },
 			{AssetType::NavMeshBin, ".bin" },
