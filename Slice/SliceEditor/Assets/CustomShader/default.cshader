@@ -2,51 +2,60 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node30"
+                "Node26"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node62"
             ]
         },
         "END_METALLIC": {
             "FinalNode0": [
-                "Node42"
+                "Node38"
             ]
         },
         "END_NORMAL": {
-            "FinalNode3": [
-                "Node34"
+            "FinalNode4": [
+                "Node30"
             ]
         },
         "END_ROUGHNESS": {
             "FinalNode2": [
-                "Node46"
+                "Node42"
             ]
         },
         "Flip_Y_Vec2": {
-            "Node26": [
+            "Node23": [
                 "vUV"
             ]
         },
         "Multiply": {
-            "Node30": [
+            "Node26": [
                 "color",
-                "Node38"
+                "Node34"
             ]
         },
         "sampleTexture": {
-            "Node34": [
+            "Node30": [
                 "NormalMap",
-                "Node26"
+                "Node23"
+            ],
+            "Node34": [
+                "albedo",
+                "Node23"
             ],
             "Node38": [
-                "albedo",
-                "Node26"
+                "MetallicMap",
+                "Node23"
             ],
             "Node42": [
-                "MetallicMap",
-                "Node26"
+                "RoughnessMap",
+                "Node23"
             ],
-            "Node46": [
-                "NormalMap",
-                "Node26"
+            "Node62": [
+                "EmissionMap",
+                "Node23"
             ]
         }
     },
@@ -55,6 +64,7 @@
         "Floats": {},
         "Ints": {},
         "Textures": {
+            "EmissionMap": 11697903386653029786,
             "MetallicMap": 11697903386653029786,
             "NormalMap": 11697903386653029786,
             "RoughnessMap": 11697903386653029786,

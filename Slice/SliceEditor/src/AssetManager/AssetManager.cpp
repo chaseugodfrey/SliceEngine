@@ -447,7 +447,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
-		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Blank256";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
 	}
 
@@ -1188,7 +1188,7 @@ namespace SliceEditor
 		manifestJSON["assets"].push_back(assetEntry);
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
-		assetEntry["name"] = "Color Deaded";
+		assetEntry["name"] = "Blank256";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 

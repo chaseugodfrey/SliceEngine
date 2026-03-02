@@ -865,6 +865,7 @@ namespace SliceEngine
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
+		sRender->Update(static_cast<float>(frm->getDeltaTime()));
 		sRender->Render();
 		sCanvas.DrawOverlay();
 		frm->EndSystem("Graphics");
