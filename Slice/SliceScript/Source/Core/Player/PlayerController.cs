@@ -76,7 +76,7 @@ namespace SliceEngine
         bool attackQueued;
         Coroutine attackCoroutine;
 
-        public float attackResetTime = 1f;
+        //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
         public float attackRecoveryDuration = 0.5f;
         private bool attackAutoRecover = false;
@@ -266,6 +266,7 @@ namespace SliceEngine
 
         public void StartAttackRecovery()
         {
+            Console.WriteLine("Start Recovery");
             playerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
             attackAutoRecover = true;
@@ -278,11 +279,13 @@ namespace SliceEngine
         }
         private void AttackResetTimer()
         {
+            //Console.WriteLine($"Attack recovery time: {attackResetTimer}");
             if (attackResetTimer >= attackRecoveryDuration)
             {
                 Console.WriteLine("Resetting attack");
                 attackAutoRecover = false;                
                 playerCurrentAttack = CurrentAttack.None;
+                attackCounter = 0;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                 {
@@ -419,7 +422,7 @@ namespace SliceEngine
             jumpLandTimer = (jumpLandTimer > 0.0f) ? jumpLandTimer - dt : 0.0f;
 
             if (playerCombatState != CombatState.Attacking)
-            attackResetTimer = (attackResetTimer > 0.0f) ? attackResetTimer - dt : 0.0f;
+            attackResetTimer = (attackResetTimer <= attackRecoveryDuration) ? attackResetTimer + dt : 0.0f;
 
             if (!grounded && rigidBody.Velocity.y < -2f) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
@@ -559,6 +562,7 @@ namespace SliceEngine
                 case MovementState.Lunging:
                     if (lungeTimer <= 0.0f)
                     {
+                        Console.WriteLine("Changing movement state from lunging");
                         playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
@@ -580,21 +584,28 @@ namespace SliceEngine
             switch (playerCombatState)
             {
                 case CombatState.None:
+                    Console.WriteLine("combat None state");
                     if (playerMovementState == MovementState.Lunging)
                     {
                         playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
                 case CombatState.Attacking:
+                    Console.WriteLine("combat Attack state");
+
                     if (attackTimer <= 0.0f)
                     {
+                        Console.WriteLine("Entering Recovery State");
                         playerCombatState = CombatState.Recovery;
-                        attackResetTimer = attackRecoveryDuration;
+                        attackResetTimer = 0;
                     }
                     break;
                 case CombatState.Recovery:
-                    if (attackResetTimer <= 0.0f)
+                    Console.WriteLine("combat Recovery state");
+
+                    if (attackResetTimer >= attackRecoveryDuration)
                     {
+                        Console.WriteLine("Leaving Recovery State");
                         playerCombatState = CombatState.None;
                     }
                     break;
@@ -662,8 +673,8 @@ namespace SliceEngine
                     break;
 
                 case MovementState.Lunging:
-                    if (animator.SafeToChange(playerCurrentAttack.ToString()))
-                        animator.SetBool(playerCurrentAttack.ToString(), true);
+                    //if (animator.SafeToChange(playerCurrentAttack.ToString()))
+                    //    animator.SetBool(playerCurrentAttack.ToString(), true);
                     break;
 
                 case MovementState.Plunging:
@@ -726,7 +737,11 @@ namespace SliceEngine
                     }
                     break;
                 case CombatState.Recovery:
-                    break;
+                        if (playerMovementState == MovementState.Lunging)
+                        {
+                           // playerMovementState
+                        }
+                        break;
                 case CombatState.Hitstun:
                     break;
                 default:
