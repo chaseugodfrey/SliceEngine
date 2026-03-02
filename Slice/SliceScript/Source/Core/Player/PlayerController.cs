@@ -902,7 +902,7 @@ namespace SliceEngine
                 return false;
             }
 
-            if (playerCombatState != CombatState.None)
+            if (playerCombatState == CombatState.Attacking)
             {
                 return false;
             }
