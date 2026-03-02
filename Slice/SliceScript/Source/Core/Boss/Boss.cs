@@ -21,10 +21,18 @@ namespace SliceEngine
         {
             health = new BossHealth(bossHealth);
             phaseController = new PhaseController(healthPhasesList);
+            phaseController.PhaseTrigger += HandlePhaseChange;
+
             attackSetManager = new AttackSetManager();
         }
         public override void OnUpdate(float dt)
         {
+        }
+
+        public void HandlePhaseChange(int phase)
+        {
+            //SliceLog.Log("Phase changed to " + phase);
+            // uh ill think of how to do the attack manager might not need it
         }
 
     }
