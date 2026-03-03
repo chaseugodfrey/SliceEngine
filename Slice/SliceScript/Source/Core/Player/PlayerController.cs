@@ -223,7 +223,7 @@ namespace SliceEngine
                 switch (attackCounter)
                 {
                     case 1:
-                        //StartCoroutine(AttackDelay(attack1Delay, () => attack1HB.TurnOn()));
+                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[0].TurnOn()));
 
                         AudioSettings.PlaySFX("A1");
 
@@ -231,7 +231,7 @@ namespace SliceEngine
                         lungeTimer = lungeDuration;
                         break;
                     case 2:
-                        //StartCoroutine(AttackDelay(attack1Delay, () => attack2HB.TurnOn()));
+                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[1].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
@@ -242,7 +242,7 @@ namespace SliceEngine
                         lungeTimer = lungeDuration;
                         break;
                     case 3:
-                        //StartCoroutine(AttackDelay(attack1Delay, () => attack3HB.TurnOn()));
+                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[2].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
@@ -306,6 +306,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
+                Console.WriteLine($"Attacking enemy in attack 1");
                 enemy.TakeDamage(attackDamageValues[attackCounter]);
             }
         }
@@ -314,6 +315,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
+                Console.WriteLine($"Attacking enemy in attack 2");
                 enemy.TakeDamage(attackDamageValues[attackCounter]);
             }
         }
@@ -361,7 +363,7 @@ namespace SliceEngine
             attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[3])?.As<GeneralHitbox>());
             attackHitboxes[2].HitBoxListeners += Attack3;
 
-            //TurnOffHitboxes();
+            TurnOffHitboxes();
         }
         private void InitializeInternalReferences()
         {
