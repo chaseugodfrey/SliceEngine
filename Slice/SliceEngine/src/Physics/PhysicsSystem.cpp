@@ -1278,69 +1278,6 @@ namespace SliceEngine
 		}
 	}
 
-	bool PhysicsSystem::WouldCollideAt(Entity entity)
-	{
-		auto& collider = mRegistry->get<ColliderShape>(entity);
-		auto& temp = mRegistry->get<TempTransform>(entity);
-		if (collider.bodyID.IsInvalid())
-			return false;
-
-		glm::vec3 worldScale = temp.GetWorldScale();
-		JPH::Vec3 jphScale = helpers::glmtoJPH(worldScale);
-
-		JPH::Vec3 jphPos = helpers::glmtoJPH(temp.position);
-		JPH::Quat jphRot = JPH::Quat(temp.rotation.x, temp.rotation.y, temp.rotation.z, temp.rotation.w);
-
-		JPH::CollideShapeSettings settings;
-
-		JPH::IgnoreSingleBodyFilter bodyFilter(collider.bodyID);
-		JPH::DefaultBroadPhaseLayerFilter bpFilter = physicsSystem->GetDefaultBroadPhaseLayerFilter(static_cast<JPH::ObjectLayer>(mRegistry->get<SliceEntity>(entity).mLayer));
-		JPH::DefaultObjectLayerFilter objectFilter = physicsSystem->GetDefaultLayerFilter(static_cast<JPH::ObjectLayer>(mRegistry->get<SliceEntity>(entity).mLayer));
-
-		JPH::AllHitCollisionCollector<JPH::CollideShapeCollector> collector;
-		physicsSystem->GetNarrowPhaseQuery().CollideShape(
-			collider.shape,
-			jphScale,
-			JPH::Mat44::sRotationTranslation(jphRot, jphPos),
-			settings,
-			JPH::RVec3::sZero(),
-			collector,
-			bpFilter,
-			objectFilter,
-			bodyFilter
-		);
-
-		return collector.HadHit();
-	}
-
-	void PhysicsSystem::ProcessTempMovements()
-	{
-		auto view = mRegistry->view<Transform, TempTransform, ColliderShape>();
-
-		for (auto [entity, transform, temp, collider] : view.each())
-		{
-			if (!WouldCollideAt(entity))
-			{
-				transform = temp;
-				SyncECSToPhysics(transform, collider);
-			}
-			else
-			{
-				// idk what to do here yet
-				
-			}
-		}
-
-		// after we're done processing temp movements
-		// clear all the temp transforms
-		auto secondView = mRegistry->view<TempTransform>();
-		for (auto [entity, temp] : secondView.each())
-		{
-			mRegistry->remove<TempTransform>(entity);
-		}
-
-	}
-
 	void PhysicsSystem::ClearCollisionPairs()
 	{
 		contactListener->clearCollisionsPairs();
