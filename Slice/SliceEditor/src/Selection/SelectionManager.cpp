@@ -84,6 +84,26 @@ namespace SliceEditor
 			PrefabInspectedEvent event(prefabGUID, true);
 			EventManager::GetInstance()->Publish<PrefabInspectedEvent>(event);
 		}
+		else if (node->type == SelectionType::SHADERGRAPH)
+		{
+			DirectoryNode* dirNode = static_cast<DirectoryNode*>(node);
+			auto& assetManager = registry.GetAssetManager();
+			auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
+			SliceEngine::GUID shaderGUID;
+			std::string fileName = std::filesystem::relative(dirNode->fullPath.lexically_normal(), registry.GetAssetManager().mAssetDirectory.lexically_normal()).generic_string();
+			//Search for the GUID in the map:
+			if (assetManager.mFilenameToGUID.find(fileName) != assetManager.mFilenameToGUID.end())
+			{
+				shaderGUID = assetManager.mFilenameToGUID[fileName];
+			}
+			else
+			{
+				SLICE_LOG_CRITICAL("Custom Shader Inspected not in AssetManager!");
+				return;
+			}
+			ShaderGraphInspectedEvent event{shaderGUID};
+			EventManager::GetInstance()->Publish<ShaderGraphInspectedEvent>(event);
+		}
 
 		mSelectionType = node->type;
 

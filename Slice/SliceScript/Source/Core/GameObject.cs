@@ -69,7 +69,24 @@ namespace SliceEngine
             return FunctionCalls.HasScriptInstance(mID, baseClassName);
         }
 
+        public GameObject[] GetAllChildren()
+        {
+            uint[] entityIDs = FunctionCalls.Entity_GetAllChildren(mID);
 
+            GameObject[] gameObjects = new GameObject[entityIDs.Length];
+
+            for (int i = 0; i < entityIDs.Length; i++)
+            {
+                gameObjects[i] = new GameObject(entityIDs[i]);
+            }
+
+            if (gameObjects.Length == 0)
+            {
+                return null;
+            }
+
+            return gameObjects;
+        }
 
         public GameObject[] FindGameObjectsWithTag(string tag)
         {

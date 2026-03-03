@@ -95,6 +95,7 @@ namespace SliceEngine
 			glm::vec3 position{};
 			glm::vec3 normal{};
 			glm::vec2 uv{};
+			glm::vec3 tangent{};
 		};
 		struct VertexBone {
 			int boneIDs[MAX_BONE_INFLUENCE]{ -1,-1,-1,-1 };
