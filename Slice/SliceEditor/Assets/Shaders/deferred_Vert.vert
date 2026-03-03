@@ -55,6 +55,9 @@ void main(void){
 			is_bone_animated = true;
 			bone_tform += final_bones_matrices[bone_id] * aWeights[i];
 		}
+		
+		if (bone_tform == mat4(0.0f))
+			bone_tform = mat4(1.0f);
 	}
 
 	mat4 model_to_world = iDat[gl_InstanceID].mdlMtx;
