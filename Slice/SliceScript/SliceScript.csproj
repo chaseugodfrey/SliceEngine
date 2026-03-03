@@ -47,6 +47,9 @@
     <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\ButtonTest.cs" />
     <Compile Include="Source\Core\Application.cs" />
+    <Compile Include="Source\Core\AttackPatternsBoos\DifferentAttacks\ExampleAttack.cs" />
+    <Compile Include="Source\Core\AttackPatternsBoos\IAttack.cs" />
+    <Compile Include="Source\Core\AttackPatternsBoos\AttackPatterns.cs" />
     <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Boss\AttackSetManager.cs" />
     <Compile Include="Source\Core\Boss\Boss.cs" />
@@ -160,8 +163,7 @@
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>
-  <ItemGroup>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

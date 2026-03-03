@@ -16,6 +16,12 @@ namespace SliceEngine
         public float bossHealth = 10f;
         public List<float> healthPhasesList = new List<float>();
 
+        //Attack Patterns
+        public List<int> attackPatterns1 = new List<int>();
+
+        public List<int> attackPatterns2 = new List<int>();
+
+        public List<int> attackPatterns3 = new List<int>();
 
         public override void OnCreate()
         {
@@ -23,17 +29,26 @@ namespace SliceEngine
             phaseController = new PhaseController(healthPhasesList);
             phaseController.PhaseTrigger += HandlePhaseChange;
 
-            attackSetManager = new AttackSetManager();
+            //attackSetManager = new AttackSetManager();
         }
         public override void OnUpdate(float dt)
         {
+            phaseController.UpdatePhases(health.PercentageHealth());
+            //if health below zero play death animation then delete entity?
+
+
         }
 
         public void HandlePhaseChange(int phase)
         {
             //SliceLog.Log("Phase changed to " + phase);
-            // uh ill think of how to do the attack manager might not need it
+            //uh ill think of how to do the attack manager might not need it
         }
 
+        public void initializeAttackPatterns()
+        {
+
+
+        }
     }
 }

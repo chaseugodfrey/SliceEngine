@@ -7,16 +7,9 @@ using System.Security.Permissions;
 
 namespace SliceEngine
 {
-    //sets which attack pattern to use
-    public class AttackSetManager : SliceBehaviour
+    // example attack behaviour
+    public class  ExampleAttack : IAttack
     {
-
-        //private List<AttackSet> attackSets = new List<AttackSet>();
-
-        public AttackSetManager(List<AttackPatterns> atpattern)
-        {
-
-        }
         public override void OnUpdate(float dt)
         {
         }
