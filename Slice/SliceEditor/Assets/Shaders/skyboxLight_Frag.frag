@@ -7,19 +7,21 @@ layout (location=0)	out vec4 fFragColor;
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uNomTex;
 layout (binding = 2) uniform samplerCube uCubemapTex;
+layout (binding = 3) uniform sampler2D	uEmission;
 
 void main(void){
 	ivec2 p = ivec2(gl_FragCoord.xy);
 	vec3 nom = texelFetch(uNomTex, p, 0).xyz;
 	vec3 dif = texelFetch(uTex, p, 0).rgb;
 	vec3 ambient = texture(uCubemapTex, nom).rgb;
+	vec3 emission = texelFetch(uEmission, p, 0).rgb;
 
 	if(any(notEqual(nom, vec3(0.0f))))
 	{
-		fFragColor = vec4(dif * ambient, 1.0);
+		fFragColor = vec4(dif * ambient + emission, 1.0);
 	}
 	else
 	{
-		fFragColor = vec4(dif, 1.0);
+		fFragColor = vec4(dif + emission, 1.0);
 	}
 }

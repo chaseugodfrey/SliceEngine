@@ -76,6 +76,13 @@ namespace SliceEngine
 		}
 	}
 
+	void RenderCmdManager::Update(float dt)
+	{
+		time += dt;
+		while (time > maxTime)
+			time -= maxTime;
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -385,6 +392,8 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
 				}
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
@@ -469,6 +478,9 @@ namespace SliceEngine
 						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
 						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
 					}
+					uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
+
 				}
 
 				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
@@ -543,6 +555,9 @@ namespace SliceEngine
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
+
+			GLint uniformLoc = glGetUniformLocation(mShader, "time");
+			glUniform1f(uniformLoc, time);
 
 			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);

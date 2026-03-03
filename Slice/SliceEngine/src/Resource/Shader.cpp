@@ -354,6 +354,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_EMISSION", {"finalEmission = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			
@@ -368,6 +369,8 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"SetB", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 			{"SetA", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
+			{"Sine", {"float %s = sin(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"Cosine", {"float %s = cos(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
 			{"Sat", {"vec3 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
 			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
@@ -388,7 +391,8 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
 			{"vUV", CSHAD_T::VEC2},
-			{"color", CSHAD_T::VEC4}
+			{"color", CSHAD_T::VEC4},
+			{"time", CSHAD_T::FLOAT}
 		};
 		std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
 		{
@@ -520,7 +524,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			// Extract Functions
 			std::unordered_map<std::string, std::string> fragInclFunctions{};
 			std::string fragMainShaderSource{
-R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic)
+R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic, inout vec3 finalEmission)
 {
 )"};
 			{
@@ -566,9 +570,11 @@ layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
 layout (location=4) out vec4 fMetalRoughData;
+layout (location=5) out vec3 fEmission;
 
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
+uniform float time;
 
 struct BasicIDat
 {
@@ -632,7 +638,8 @@ void main(void){
 	fFragColor = vec4(0.f);
 	float roughness = 0.f;
 	float metallic = 0.f;
-	CustomCalc(color, fFragColor, fNormalData, roughness, metallic);
+	fEmission = vec3(0.0f);
+	CustomCalc(color, fFragColor, fNormalData, roughness, metallic, fEmission);
  
 	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
 		discard;
