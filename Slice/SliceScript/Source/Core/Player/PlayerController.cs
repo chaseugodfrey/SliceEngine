@@ -116,7 +116,6 @@ namespace SliceEngine
         // Movement
         Vector3 input;
         //Vector3 finalMove;
-        public float moveSpeed = 2.5f;
         public float moveAcceleration = 100.0f;
         public float moveDeceleration = 100.0f;
         public float rotationSpeed = 45.0f;
@@ -128,7 +127,6 @@ namespace SliceEngine
         float dashCooldownTimer = 0.0f;
 
         public float dashSpeed = 20.0f;
-        public float dashStartDuration = 0.25f;
         Vector3 dashDir = Vector3.Zero;
         public float iFrameDuration = 0.2f;
         public float flickerDuration = 0.05f;
@@ -325,6 +323,7 @@ namespace SliceEngine
                             if (animator.SafeToChange("PlungeToWalk"))
                                 animator.SetBool("PlungeToWalk", true);                            
                         }
+                        playerMovementState = MovementState.Walking;
                     }
                     else
                     {
@@ -333,6 +332,7 @@ namespace SliceEngine
                             if (animator.SafeToChange("PlungeToIdle"))
                                 animator.SetBool("PlungeToIdle", true);
                         }
+                        playerMovementState = MovementState.Idle;
                     }                    
                 }
 
@@ -458,6 +458,7 @@ namespace SliceEngine
         private void UpdateMovements(float dt)
         {
             Vector3 camForward = new Vector3();
+             Vector3 velTemp = rigidBody.Velocity;
             //finalMove = Vector3.Zero;
             if (camera != null)
             {
@@ -492,7 +493,6 @@ namespace SliceEngine
             }
             else if (playerMovementState == MovementState.Plunging && !grounded)
             {
-                Vector3 velTemp = rigidBody.Velocity;
                 velTemp.x = 0.0f;
                 if (rigidBody.Velocity.y < -plungeTerminalVelocity)
                 {
@@ -506,7 +506,7 @@ namespace SliceEngine
                 rigidBody.Velocity = velTemp;
             }
 
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling)
             {
                 if (playerCombatState == CombatState.Attacking) return;
                 // Normal locomotion
@@ -515,22 +515,10 @@ namespace SliceEngine
                     Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
                     float scaledRotSpeed = rotationSpeed;
                     transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
+                    
                 }
-
-                if (playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
-                {
-                    Vector3 vel = rigidBody.Velocity;
-                    vel.y -= fallSpeed * dt;
-                    rigidBody.Velocity = vel;
-                }
-
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 rigidBody.Velocity = new Vector3(horizontal.x, rigidBody.Velocity.y, horizontal.z);
-                //finalMove = moveDirInput * movementSpeed;
-                //Vector3 vel = rigidBody.Velocity;
-                //vel += moveDirInput * movementSpeed;
-                //rigidBody.Velocity = vel;
-                //transform.Position += finalMove * dt;
             }
         }
 
@@ -607,12 +595,21 @@ namespace SliceEngine
                 case MovementState.GroundDash:
                     if (dashDurationTimer <= 0.0f)
                     {
+                        Vector3 vel = rigidBody.Velocity;
+                        vel.x *= 0.1f;
+                        vel.z *= 0.1f;
+                        rigidBody.Velocity = vel;
                         playerMovementState = MovementState.Idle;
                     }
                     break;
                 case MovementState.AirDash:
                     if (dashDurationTimer <= 0.0f)
                     {
+                        Vector3 vel = rigidBody.Velocity;
+                        vel.x *= 0.1f;
+                        vel.z *= 0.1f;
+                        rigidBody.Velocity = vel;
+
                         Console.WriteLine($"Transitioning to falling from {playerMovementState.ToString()}");
 
                         playerMovementState = MovementState.Falling;
@@ -630,7 +627,6 @@ namespace SliceEngine
                     {
                         playerMovementState = MovementState.Landing;
                         playerCurrentAttack = CurrentAttack.PlungeLand;
-                        jumpLandTimer = jumpLandDuration;
                         attackTimer = plungeAttackDuration;
                     }
                     break;
@@ -827,7 +823,7 @@ namespace SliceEngine
                     }
                     break;
                 case CurrentAttack.PlungeLand:
-                    if (animator.SafeToChange("PlungeLand") && (String.Compare(animator.GetCurrAnimName(), "PlungeLand") != 0))
+                    if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") != 0)
                         animator.SetBool("PlungeLand", true);
                     break;
                 default:
