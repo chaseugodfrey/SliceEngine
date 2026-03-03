@@ -556,6 +556,8 @@ namespace SliceEngine
                 case MovementState.AirDash:
                     if (dashDurationTimer <= 0.0f)
                     {
+                        Console.WriteLine($"Transitioning to falling from {playerMovementState.ToString()}");
+
                         playerMovementState = MovementState.Falling;
                     }
                     break;
@@ -678,7 +680,7 @@ namespace SliceEngine
                 case MovementState.DoubleJumping:
                     if (animator.SafeToChange("AirDashStart") && (String.Compare(animator.GetCurrAnimName(), "AirDashStart") != 0))
                         animator.SetBool("AirDashStart", true);
-                    Console.WriteLine("AirDashing now");
+                    //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
                     if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
@@ -694,8 +696,8 @@ namespace SliceEngine
                     break;
 
                 case MovementState.AirDash:
-                    if (animator.SafeToChange("AirDashStart") && (String.Compare(animator.GetCurrAnimName(), "AirDashStart") != 0))
-                        animator.SetBool("AirDashStart", true);
+                    if (animator.SafeToChange("DashStart") && (String.Compare(animator.GetCurrAnimName(), "DashStart") != 0))
+                        animator.SetBool("DashStart", true);
                     break;
 
                 case MovementState.Lunging:
@@ -777,12 +779,12 @@ namespace SliceEngine
 
         private void HandleAttackInputs()
         {
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
         }
 
         private void HandleJumpInputs()
         {
-            if (Input.IsKeyDown(Keys.KEY_SPACEBAR)) TryJump();
+            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
         }
 
         private void HandleDashInputs()
@@ -829,10 +831,15 @@ namespace SliceEngine
                 dashCooldownTimer = dashCooldown;
                 dashDurationTimer = dashDuration;
 
+                Console.WriteLine($"Dashing now, prev state is : {playerMovementState.ToString()}");
+
                 if (grounded)
                     playerMovementState = MovementState.GroundDash;
                 else
                     playerMovementState = MovementState.AirDash;
+
+
+                Console.WriteLine($"Dashing now, after state is : {playerMovementState.ToString()}");
             }
         }
 

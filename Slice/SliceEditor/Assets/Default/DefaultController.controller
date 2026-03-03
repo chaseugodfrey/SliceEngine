@@ -768,7 +768,7 @@
                     "sourceState": "DashStart",
                     "targetState": "Idle"
                 },
-		{
+		        {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -781,6 +781,20 @@
                     "hasExitTime": true,
                     "sourceState": "DashStart",
                     "targetState": "Walk"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Fall",
+                            "value": null
+                        }
+                    ],
+                                        "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "DashStart",
+                    "targetState": "Fall"
                 }
             ]
         }
