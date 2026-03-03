@@ -6,11 +6,13 @@ layout (location=2)	in vec2	aTex;
 
 layout (location=3) in ivec4 aBoneid;	//for skin mesh, only accessed if uniform bool is true
 layout (location=4) in vec4 aWeights;
+layout (location=5) in vec3 aTan;
 
 layout (location=0) out vec3 vPos; // World Space
 layout (location=1) out vec3 vNom;
-layout (location=2) out vec2 vTex;
+layout (location=2) out vec2 vUV;
 layout (location=3) out flat uint vInstance;
+layout (location=4) out mat3 vTBN;
 
 struct BasicIDat
 {
@@ -65,8 +67,15 @@ void main(void){
 	vec4 posInWorld = model_to_world * vec4(aVertexPosition, 1.0);
 
 	vPos = posInWorld.xyz;
+
 	vNom = normalize(N * aNom);
-	vTex = aTex;
+	vec3 normal = normalize(model_to_world * vec4(aNom, 0.0f)).xyz;
+	vec3 tangent = normalize(model_to_world * vec4(aTan, 0.0f)).xyz;
+	tangent = normalize(tangent - dot(tangent, normal) * normal);
+	vec3 bitangent = cross(normal, tangent);
+	vTBN = mat3(tangent, bitangent, normal);
+
+	vUV = aTex;
 	vInstance = gl_InstanceID;
 	gl_Position	= P * V * posInWorld;
 }

@@ -1,13 +1,75 @@
-#IN
-float roughness = 0;
-float metallic = 0;
-
-#CODE
-vec4 TexColorC(vec4 texCol, vec4 color)
 {
-    return texCol * color;
-}
-vec2 RoughMet()
-{
-    return vec2(roughness, metallic);
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node26"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node62"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node38"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "Node30"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "Node42"
+            ]
+        },
+        "Flip_Y_Vec2": {
+            "Node23": [
+                "vUV"
+            ]
+        },
+        "Multiply": {
+            "Node26": [
+                "color",
+                "Node34"
+            ]
+        },
+        "sampleTexture": {
+            "Node30": [
+                "NormalMap",
+                "Node23"
+            ],
+            "Node34": [
+                "albedo",
+                "Node23"
+            ],
+            "Node38": [
+                "MetallicMap",
+                "Node23"
+            ],
+            "Node42": [
+                "RoughnessMap",
+                "Node23"
+            ],
+            "Node62": [
+                "EmissionMap",
+                "Node23"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {},
+        "Ints": {},
+        "Textures": {
+            "EmissionMap": 15644028420850910905,
+            "MetallicMap": 11697903386653029786,
+            "NormalMap": 11697903386653029786,
+            "RoughnessMap": 11697903386653029786,
+            "albedo": 11697903386653029786
+        },
+        "Uints": {}
+    }
 }

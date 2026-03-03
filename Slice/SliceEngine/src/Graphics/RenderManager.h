@@ -36,6 +36,7 @@ namespace SliceEngine
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		void RegenerateSkybox();
+		void Update(float dt);
 		// Camera related functions
 		GameObject CreateCamera();
 		GameObject CreatePrefabCam();
@@ -117,7 +118,7 @@ namespace SliceEngine
 		enum FBOType : unsigned char
 		{
 			FB_NIL = 0,		// 0 Outs
-			FB_DEFERRED,	// 4 Outs
+			FB_DEFERRED,	// 5 Outs
 			FB_FINAL,		// 1 Out
 			FB_TOTAL		// NO BIND
 		};
@@ -180,6 +181,7 @@ namespace SliceEngine
 			GOUT_NOM,
 			GOUT_ID,
 			GOUT_ROUGH_METAL,
+			GOUT_EMISSION,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
 			GOUT_FINAL,

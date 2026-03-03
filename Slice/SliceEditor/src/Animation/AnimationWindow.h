@@ -42,6 +42,7 @@ namespace SliceEditor
 		
 
 		std::vector<SliceEngine::SliceEngineTypes::Animation* > animationClips;
+		std::vector<SliceEngine::SliceEngineTypes::Anim> customAnimClips;
 		size_t mCurrentClipIndex{ 0 };
 		size_t mCurrentEventIndex{ 0 };
 		size_t mCurrentKeyIndex{ 0 };
@@ -51,6 +52,7 @@ namespace SliceEditor
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
 		void LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animCipIdx);
+		void LoadDataFromAnimClip(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animCipIdx);
 		void LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph);
 		void ClearData();
 
@@ -58,6 +60,9 @@ namespace SliceEditor
 		void UpdateBoneScene(Entity ent);
 		void UpdateBones();
 		void AnimatorEventPopup(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame);
+		void AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame);
+
+		void UnLoadAnimsData(AnimsData& animsData, SliceEngine::SliceEngineTypes::Anims& anims);
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};

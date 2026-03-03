@@ -31,6 +31,10 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
 
+extern void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
+
 // My Comments to (Ctrl + f): -TODO- MAYDO:
 // -TODO- Currently not using mat in the InstanceData struct (original intention is to keep track of which textures to use)
 // -TODO- Make Gather Render Commands, and then draw using these commands instead lol
@@ -79,10 +83,11 @@ namespace SliceEngine
 				,GL_COLOR_ATTACHMENT2
 				,GL_COLOR_ATTACHMENT3
 				,GL_COLOR_ATTACHMENT4
+				,GL_COLOR_ATTACHMENT5
 			};
 			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
 		}
-		
+
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, mFBO[FB_FINAL]);
 			unsigned int drawBuffers[] = {
@@ -112,6 +117,7 @@ namespace SliceEngine
 		pboIdx[1] = 1;
 
 		LinkFrameBufferSettings(FB_TOTAL, 0);
+		CheckGLError();
 		//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 	}
 	void RenderManager::CreateInstancingParams()
@@ -119,6 +125,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mShadowUBO);
 		glNamedBufferStorage(mShadowUBO, mNumCascadeShadow * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, mShadowUBO);
+		CheckGLError();
 	}
 	void RenderManager::CreateDeferredTextures()
 	{
@@ -141,10 +148,14 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_DIF], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// float_16 rgb-Roughness + a-Metalic
-		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RGBA16F, maxWidth, maxHeight);
+		// float_16 rg-Roughness + a-Metalic
+		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RG16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgb-Emission
+		glTextureStorage2D(mColAttachment[GOUT_EMISSION], 1, GL_RGB16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// unint_8 object to outline
 		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE], 1, GL_R8UI, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -216,6 +227,7 @@ namespace SliceEngine
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 		RegenerateSkybox();
+		CheckGLError();
 	}
 	void RenderManager::RegenerateSkybox()
 	{
@@ -270,6 +282,7 @@ namespace SliceEngine
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
 		LinkFrameBufferSettings(FB_FINAL, 1, 0);
+		CheckGLError();
 	}
 #pragma endregion
 
@@ -389,6 +402,11 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Render
+	void RenderManager::Update(float dt)
+	{
+		renderQueue.Update(dt);
+	}
+
 	void RenderManager::Render()
 	{
 		ForceResetDefaultSettings();
@@ -428,9 +446,9 @@ namespace SliceEngine
 
 			//SetShader(ShaderPaths[S_DEFERRED]);
 			if(cam == mCurrentCamIDHover)
-				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL], mColAttachment[GOUT_EMISSION]);
 			else
-				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL]);
+				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, 0, mColAttachment[GOUT_POS], mColAttachment[GOUT_NOM], mColAttachment[GOUT_ROUGH_METAL], mColAttachment[GOUT_EMISSION]);
 			LoadSettings(GPS_DEFAULT);
 			//UpdateCamVP();
 			BindCameraDepth(cam);
@@ -444,7 +462,7 @@ namespace SliceEngine
 			RenderSkyboxLighting();
 
 			SetShader(ShaderPaths[S_LIGHTING]);
-			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			UpdateCamVP();
 			BindCameraDepth(cam);
 			RenderLighting(cam);
@@ -453,7 +471,7 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			if (cam == mCurrentCamIDHover) // Don't Draw into ID when drawing debugging onwards
 			{
-				LinkFrameBufferSettings(FB_DEFERRED, 5, 0, mColAttachment[GOUT_ID], 0, 0, 0);
+				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
 				glDepthMask(GL_FALSE);
 				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY, cameraPos);
 			}
@@ -524,6 +542,7 @@ namespace SliceEngine
 			}
 			glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat) * count, renderQueue.mBasicIMtx.data());
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
+			CheckGLError();
 		}
 		
 		// Draw Instance Debug Box (Physics)
@@ -624,6 +643,7 @@ namespace SliceEngine
 				}
 			}
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			CheckGLError();
 		}
 
 		// Draw Recast Navigation Data
@@ -646,6 +666,7 @@ namespace SliceEngine
 				glBindVertexArray(navDat.data[1].vao);
 				glDrawArrays(GL_TRIANGLES, 0, navDat.data[1].drawCnt);
 			}
+			CheckGLError();
 		}
 
 		// Draw Debug Grid Lines
@@ -658,6 +679,7 @@ namespace SliceEngine
 			SetUniformVec3(uniformLoc, cameraPos);
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
+			CheckGLError();
 		}
 		// Draw Debug Outline
 		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_OUTLINE_SELECTED_TAG)
@@ -702,7 +724,7 @@ namespace SliceEngine
 			SetUniformVec3(uniformLoc, glm::vec3(1.f));
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-
+			CheckGLError();
 		}
 		// Draw Debug Rays idfk (lines ig)
 		if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_DRAW_RAY_TAG)
@@ -724,6 +746,7 @@ namespace SliceEngine
 			}
 			glNamedBufferSubData(renderQueue.mIVBO, 0, sizeof(RenderCmdManager::BasicIDat)* count, renderQueue.mBasicIMtx.data());
 			glDrawElementsInstanced(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr, count);
+			CheckGLError();
 		}
 	}
 	void RenderManager::RenderPointShadowMaps()
@@ -760,6 +783,7 @@ namespace SliceEngine
 
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, lightPos);
 		}
+		CheckGLError();
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
@@ -810,6 +834,7 @@ namespace SliceEngine
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
 		}
+		CheckGLError();
 	}
 	void RenderManager::RenderSkybox()
 	{
@@ -819,14 +844,17 @@ namespace SliceEngine
 		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
 		glBindVertexArray(mdl.vao);
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+		CheckGLError();
 	}
 	void RenderManager::RenderSkyboxLighting()
 	{
 		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
 		glBindTextureUnit(2, SkyboxIrradianceMap);
+		glBindTextureUnit(3, mColAttachment[GOUT_EMISSION]);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
 	}
 	void RenderManager::RenderLighting(Entity cam)
 	{
@@ -834,6 +862,7 @@ namespace SliceEngine
 		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
 		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
 		glBindTextureUnit(3, mColAttachment[GOUT_ROUGH_METAL]);
+		glBindTextureUnit(6, mColAttachment[GOUT_EMISSION]);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		GLint uniformLoc;
@@ -914,6 +943,7 @@ namespace SliceEngine
 			}
 			}
 		}
+		CheckGLError();
 	}
 	void RenderManager::RenderFog(Entity cam)
 	{
@@ -937,6 +967,7 @@ namespace SliceEngine
 		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
 	}
 	void RenderManager::RenderBloom(Entity cam)
 	{
@@ -993,6 +1024,7 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
 	}
 	void RenderManager::RenderVignette(Entity cam)
 	{
@@ -1013,7 +1045,7 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.vignetteSmoothness);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
-
+		CheckGLError();
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
@@ -1027,6 +1059,7 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
 	}
 	void RenderManager::Draw()
 	{
@@ -1070,6 +1103,7 @@ namespace SliceEngine
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
+		CheckGLError();
 	}
 #pragma endregion
 
@@ -1104,6 +1138,7 @@ namespace SliceEngine
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &V[0][0]);
 		if (UniformExists("P", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+		CheckGLError();
 	}
 	void RenderManager::ForceCamNormalVP(Entity cam)
 	{
@@ -1118,6 +1153,7 @@ namespace SliceEngine
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &tempV[0][0]);
 		if (UniformExists("P", uniformLoc))
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &P[0][0]);
+		CheckGLError();
 	}
 	// Binds Depth Texture from camera & ViewPort size
 	void RenderManager::BindCameraDepth(Entity cam)
@@ -1126,6 +1162,7 @@ namespace SliceEngine
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, camera.depthTex, 0);
 
 		glViewport(0, 0, camera.width, camera.height);
+		CheckGLError();
 	}
 	bool RenderManager::UniformExists(const char* str, GLint& ref)
 	{
@@ -1436,7 +1473,7 @@ namespace SliceEngine
 		glBindBuffer(GL_PIXEL_PACK_BUFFER, 0);
 		glReadBuffer(GL_NONE);
 		glBindFramebuffer(GL_FRAMEBUFFER, prevBinding);
-		return;
+		CheckGLError();
 	}
 	unsigned int RenderManager::GetPickedID()
 	{

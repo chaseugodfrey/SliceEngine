@@ -15,7 +15,7 @@ DigiPen Institute of Technology is prohibited.
 
 namespace {
 	//some consts to help typing
-	constexpr uint16_t version_number = 4;	//i think having a vers number could be useful, maybe
+	constexpr uint16_t version_number = 5;	//i think having a vers number could be useful, maybe
 	constexpr uint64_t i_size = sizeof(unsigned int);
 	constexpr uint64_t f_size = sizeof(float);
 	const float PIF = 3.14159265359f;
@@ -208,45 +208,45 @@ namespace SliceEngine
 			vertices.reserve(24);
 			//----------bot
 			//left-bot-back     0-2
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,1.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{0.f,1.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,1.f}, {0.f,0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{0.f,1.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,1.f}, {-1.f,0.f,0.f} });
 
 			//right-bot-back    3-5
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{1.f,0.f,0.f},{1.f,1.f} });
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{1.f,1.f} });
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{1.f,0.f,0.f},{1.f,1.f}, {0.f,0.f,-1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,-1.f,0.f},{1.f,1.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,1.f}, {-1.f,0.f,0.f} });
 
 			//left-bot-front    6-8
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{-1.f,0.f,0.f},{1.f,1.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{0.f,0.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{-1.f,0.f,0.f},{1.f,1.f}, {0.f,0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{0.f,0.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{0.f,1.f}, {1.f,0.f,0.f} });
 
 			//right-bot-front   9-11
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{1.f,0.f,0.f},{0.f,1.f} });
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{1.f,0.f} });
-			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{1.f,1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{1.f,0.f,0.f},{0.f,1.f}, {0.f,0.f,-1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,-1.f,0.f},{1.f,0.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,-0.5f,0.5f},{0.f,0.f,1.f},{1.f,1.f}, {1.f,0.f,0.f} });
 
 			//----------top
 			//left-top-back     12-14
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,0.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{-1.f,0.f,0.f},{0.f,0.f}, {0.f,0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{0.f,0.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{1.f,0.f}, {-1.f,0.f,0.f} });
 
 			//right-top-back    15-17
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{1.f,0.f,0.f},{1.f,0.f} });
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{1.f,0.f} });
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{1.f,0.f,0.f},{1.f,0.f}, {0.f,0.f,-1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,1.f,0.f},{1.f,0.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,-0.5f},{0.f,0.f,-1.f},{0.f,0.f}, {-1.f,0.f,0.f} });
 
 			//left-top-front    18-20
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{-1.f,0.f,0.f},{1.f,0.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,1.f,0.f},{0.f,1.f} });
-			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,0.f,1.f},{0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{-1.f,0.f,0.f},{1.f,0.f}, {0.f,0.f,1.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,1.f,0.f},{0.f,1.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {-0.5f,0.5f,0.5f},{0.f,0.f,1.f},{0.f,0.f}, {1.f,0.f,0.f} });
 
 			//right-top-front   21-23
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{1.f,0.f,0.f},{0.f,0.f} });
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,1.f,0.f},{1.f,1.f} });
-			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,0.f,1.f},{1.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{1.f,0.f,0.f},{0.f,0.f}, {0.f,0.f,-1.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,1.f,0.f},{1.f,1.f}, {1.f,0.f,0.f} });
+			vertices.emplace_back(Vertex{ {0.5f,0.5f,0.5f},{0.f,0.f,1.f},{1.f,0.f}, {1.f,0.f,0.f} });
 
 			auto& indices = mesh.indices;	indices.clear();
 			indices.reserve(36);
@@ -323,8 +323,12 @@ namespace SliceEngine
 					float ny = y / radius;
 					float nz = z / radius;
 
+					float tx = -std::sin(theta);
+					float ty = 0.0f;
+					float tz = std::cos(theta);
+
 					// Add the vertex
-					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v}, {tx, ty, tz} });
 				}
 			}
 			for (int i = 0; i < stackCount; ++i)
@@ -440,7 +444,11 @@ namespace SliceEngine
 					nx = sinPhi * cosTheta;
 					nz = sinPhi * sinTheta;
 
-					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+					float tx = -sinTheta;
+					float ty = 0.0f;
+					float tz = cosTheta;
+
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v}, {tx, ty, tz} });
 				}
 			}
 
@@ -553,7 +561,11 @@ namespace SliceEngine
 					float nx = (ny == 0.0f) ? cosTheta : 0.0f;
 					float nz = (ny == 0.0f) ? sinTheta : 0.0f;
 
-					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v} });
+					float tx = -sinTheta;
+					float ty = 0.0f;
+					float tz = cosTheta;
+
+					vertices.emplace_back(Vertex{ {x, y, z}, {nx, ny, nz}, {u, v}, {tx, ty, tz} });
 				}
 			}
 
@@ -592,10 +604,13 @@ namespace SliceEngine
 			auto& mesh = meshes[0];
 			auto& vertices = mesh.vertices;	vertices.clear();
 			vertices.reserve(4);
-			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}});	//bot left
-			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}});	//bot right
-			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}});	//top left
-			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}});	//top right
+
+			glm::vec3 tangent = { 1.0f, 0.0f, 0.0f };
+
+			vertices.emplace_back(Vertex{{-0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 1.0}, tangent});	//bot left
+			vertices.emplace_back(Vertex{{ 0.5, -0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 1.0}, tangent});	//bot right
+			vertices.emplace_back(Vertex{{-0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {0.0, 0.0}, tangent});	//top left
+			vertices.emplace_back(Vertex{{ 0.5,  0.5, 0.0}, {0.0, 0.0, 1.0}, {1.0, 0.0}, tangent});	//top right
 
 			auto& indices = mesh.indices;	indices.clear();
 			indices.reserve(6);
@@ -731,10 +746,12 @@ namespace SliceEngine
 			glEnableVertexArrayAttrib(vao, 0);
 			glEnableVertexArrayAttrib(vao, 1);
 			glEnableVertexArrayAttrib(vao, 2);
+			glEnableVertexArrayAttrib(vao, 5);
 
 			glVertexArrayAttribFormat(vao, 0, 3, GL_FLOAT, false, offsetof(Vertex, position));
 			glVertexArrayAttribFormat(vao, 1, 3, GL_FLOAT, false, offsetof(Vertex, normal));
 			glVertexArrayAttribFormat(vao, 2, 2, GL_FLOAT, false, offsetof(Vertex, uv));
+			glVertexArrayAttribFormat(vao, 5, 3, GL_FLOAT, false, offsetof(Vertex, tangent));
 
 			glVertexArrayElementBuffer(vao, ebo);
 
@@ -744,6 +761,7 @@ namespace SliceEngine
 			glVertexArrayAttribBinding(vao, 0, 0);
 			glVertexArrayAttribBinding(vao, 1, 0);
 			glVertexArrayAttribBinding(vao, 2, 0);
+			glVertexArrayAttribBinding(vao, 5, 0);
 
 			if (!static_model) {
 

@@ -93,6 +93,11 @@ namespace SliceEditor
 		bool prefabBeingInspected;
 	};
 
+	struct ShaderGraphInspectedEvent
+	{
+		SliceEngine::GUID shaderGraphGUID;
+	};
+	
 	struct GameObjectScriptSelected
 	{
 		std::vector<Entity> entities;
