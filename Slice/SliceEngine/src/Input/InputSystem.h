@@ -81,6 +81,9 @@ namespace SliceEngine
         // Temporary here, cuz i lazy to make functions for these (--TODO--)
         bool mToCenterMousePosFromWindowDim{ true };
         glm::ivec2 windowDim{ 1920, 1080 };
+        glm::vec2 prevMouseInternalPos{ 0.0, 0.0 };
+        glm::vec2 currMouseInternalPos{ 0.0, 0.0 };
+        int lastMouseMode = GLFW_CURSOR_NORMAL;
 
         // func to convert keycode to string
         static const char* KeyNameFallback(int key);
@@ -129,7 +132,6 @@ namespace SliceEngine
         glm::vec2 GetMouseNDC() const;
         double GetMouseX() const;
         double GetMouseY() const;
-        
 
         // cursor states
         void SetCursorState(CursorState state);

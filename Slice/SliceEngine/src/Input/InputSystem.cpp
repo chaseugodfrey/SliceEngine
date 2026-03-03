@@ -62,44 +62,13 @@ namespace SliceEngine
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
         auto inputS = Core::GetInstance()->GetInputSystem();
-        if (inputS->mToCenterMousePosFromWindowDim)
-        {
-            float ar = 1920.f / 1080.f;
-            float myScreenAR = static_cast<float>(inputS->windowDim.x) / static_cast<float>(inputS->windowDim.y);
-            double tx = 1920.0, ty = 1080.0, totalWinScreenDimX = static_cast<double>(inputS->windowDim.x), totalWinScreenDimY = static_cast<double>(inputS->windowDim.y);
 
-            glm::vec2 winScreenDim{ totalWinScreenDimX , totalWinScreenDimY };
-            glm::vec2 winOffset{};
-
-            if (myScreenAR > ar)// if actual screen width is much wider
-            {
-                winScreenDim.x = totalWinScreenDimY * ar;
-                winOffset.x = (totalWinScreenDimX - winScreenDim.x) / 2.f;
-            }
-            else
-            {
-                winScreenDim.y = totalWinScreenDimX / ar;
-                winOffset.y = (totalWinScreenDimY - winScreenDim.y) / 2.f;
-
-            }
-            glm::ivec2 worldSpaceMouse{ (xpos - winOffset.x) / winScreenDim.x * tx,
-                ty - ((ypos - winOffset.y) / winScreenDim.y * ty) };
-
-            xpos = worldSpaceMouse.x;
-            ypos = ty - worldSpaceMouse.y;
-
-            inputS->SetMouseNDC(xpos / tx, ypos / ty);
-        }
         inputS->SetMousePosition(xpos, ypos);
     }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         Core::GetInstance()->GetInputSystem()->SetScrollOffset(yoffset);
-    }
-    static void WindowResizeCallback(GLFWwindow* window, int width, int height)
-    {
-        Core::GetInstance()->GetInputSystem()->SetWindowDim(width, height);
     }
 #pragma endregion
 
@@ -210,7 +179,6 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, MouseButtonCallback);
         glfwSetCursorPosCallback(windowRef, CursorPosCallback);
         glfwSetScrollCallback(windowRef, ScrollCallback);
-        glfwSetWindowSizeCallback(windowRef, WindowResizeCallback);
         callbacksBound = true;
     }
 
@@ -223,7 +191,6 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, nullptr);
         glfwSetCursorPosCallback(windowRef, nullptr);
         glfwSetScrollCallback(windowRef, nullptr);
-        glfwSetWindowSizeCallback(windowRef, nullptr);
         callbacksBound = false;
     }
 
@@ -337,6 +304,25 @@ namespace SliceEngine
         return currMousePos.y;
     }
 
+    //Commented out jic. Since its eze who is replacing copy pasted code.
+    //void InputSystem::SetCursorState()
+    //{
+    //    auto window = Core::GetInstance()->GetWindow();
+    //    int newMode{};
+    //    bool rawInput{};
+    //    switch (cursorState)
+    //    {
+    //    case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
+    //    case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
+    //    case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
+    //    case CursorState::DISABLED: newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+    //    default: newMode = GLFW_CURSOR_NORMAL; break;
+    //    }
+
+    //    glfwSetInputMode(window, GLFW_CURSOR, newMode);
+    //    glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, rawInput);
+    //}
+
     void InputSystem::SetCursorState()
     {
         auto window = Core::GetInstance()->GetWindow();
@@ -347,7 +333,17 @@ namespace SliceEngine
         case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
         case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
         case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
-        case CursorState::DISABLED: newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+        case CursorState::DISABLED:
+            if (mode == InputMode::Game)
+            {
+                newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
+            }
+
+            else
+            {
+                newMode = GLFW_CURSOR_HIDDEN; break;
+            }
+
         default: newMode = GLFW_CURSOR_NORMAL; break;
         }
 
@@ -400,12 +396,6 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
-    }
-
-    void InputSystem::SetWindowDim(int width, int height)
-    {
-        windowDim.x = width;
-        windowDim.y = height;
     }
 
     void InputSystem::SetMouseNDC(double x, double y)

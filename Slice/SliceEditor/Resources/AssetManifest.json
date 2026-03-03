@@ -56,11 +56,6 @@
             "path": "Resources/9975954260658880089.vert"
         },
         {
-            "guid": 9573254789064597855,
-            "name": "Prefabs/Sphere_1.prefab",
-            "path": "Resources/9573254789064597855.prefab"
-        },
-        {
             "guid": 18152500388378077030,
             "name": "Audio/WeightOfTheSky_Draft_Loop.wav",
             "path": "Resources/18152500388378077030.wav"
@@ -266,6 +261,11 @@
             "path": "Resources/14886466983544040807.shader"
         },
         {
+            "guid": 16154753395206587362,
+            "name": "Models/Modular_Environment/Column1.fbx",
+            "path": "Resources/16154753395206587362.mdl"
+        },
+        {
             "guid": 15950455196030294385,
             "name": "Audio/SingleHit_Slime_2.wav",
             "path": "Resources/15950455196030294385.wav"
@@ -319,6 +319,11 @@
             "guid": 9889631494548659078,
             "name": "Default/BasicController.controller",
             "path": "Resources/9889631494548659078.controller"
+        },
+        {
+            "guid": 12441885447440522879,
+            "name": "Default/New_Eze_Working_Scene.temp",
+            "path": "Resources/12441885447440522879.scene"
         },
         {
             "guid": 14704773854156626262,
@@ -391,6 +396,11 @@
             "path": "Resources/17435409685680308052.controller"
         },
         {
+            "guid": 17833760349980101912,
+            "name": "Default/Importing_Modular_Models.scene",
+            "path": "Resources/17833760349980101912.scene"
+        },
+        {
             "guid": 14037766457360526962,
             "name": "Shaders/uiSprite_Frag.frag",
             "path": "Resources/14037766457360526962.frag"
@@ -409,11 +419,6 @@
             "guid": 12320056596655170664,
             "name": "Default/Level1.temp",
             "path": "Resources/12320056596655170664.scene"
-        },
-        {
-            "guid": 17656138608147415398,
-            "name": "Material/DamagedSignal.mat",
-            "path": "Resources/17656138608147415398.mat"
         },
         {
             "guid": 13070731709285067317,
@@ -446,24 +451,29 @@
             "path": "Resources/17382876790473484968.scene"
         },
         {
-            "guid": 11668782159782244059,
-            "name": "Models/Updated/Environment_Visual_P3.skl",
-            "path": "Resources/11668782159782244059.skl"
+            "guid": 13117561941172401132,
+            "name": "Shaders/shadow.shader",
+            "path": "Resources/13117561941172401132.shader"
         },
         {
-            "guid": 15957715002093328400,
-            "name": "Material/DeathBox.mat",
-            "path": "Resources/15957715002093328400.mat"
+            "guid": 10105107416661838055,
+            "name": "Editor/FontIcon.png",
+            "path": "Resources/10105107416661838055.dds"
         },
         {
-            "guid": 16304538495588573609,
-            "name": "Default/ParticleSystemTest.scene",
-            "path": "Resources/16304538495588573609.scene"
+            "guid": 10394939968376999632,
+            "name": "Default/New_Eze_Working_Scene.scene",
+            "path": "Resources/10394939968376999632.scene"
         },
         {
             "guid": 9249884692167028415,
             "name": "Material/Crystal.mat",
             "path": "Resources/9249884692167028415.mat"
+        },
+        {
+            "guid": 16304538495588573609,
+            "name": "Default/ParticleSystemTest.scene",
+            "path": "Resources/16304538495588573609.scene"
         },
         {
             "guid": 18090639709837937991,
@@ -481,16 +491,6 @@
             "path": "Resources/18400379806743012927.dds"
         },
         {
-            "guid": 13117561941172401132,
-            "name": "Shaders/shadow.shader",
-            "path": "Resources/13117561941172401132.shader"
-        },
-        {
-            "guid": 10105107416661838055,
-            "name": "Editor/FontIcon.png",
-            "path": "Resources/10105107416661838055.dds"
-        },
-        {
             "guid": 17198371508955884240,
             "name": "Fonts/InstrumentSans.ttf",
             "path": "Resources/17198371508955884240.fnt"
@@ -506,6 +506,11 @@
             "path": "Resources/9402868621044949570.vert"
         },
         {
+            "guid": 9910841942380384348,
+            "name": "Models/Modular_Environment/BrokenBridge3.fbx",
+            "path": "Resources/9910841942380384348.mdl"
+        },
+        {
             "guid": 17252748523279415740,
             "name": "Fonts/Roboto-VariableFont.ttf",
             "path": "Resources/17252748523279415740.fnt"
@@ -514,6 +519,41 @@
             "guid": 10125292758465881867,
             "name": "Frieren.jpg",
             "path": "Resources/10125292758465881867.dds"
+        },
+        {
+            "guid": 17727881797119460253,
+            "name": "Material/CrystalBase.mat",
+            "path": "Resources/17727881797119460253.mat"
+        },
+        {
+            "guid": 17656138608147415398,
+            "name": "Material/DamagedSignal.mat",
+            "path": "Resources/17656138608147415398.mat"
+        },
+        {
+            "guid": 11668782159782244059,
+            "name": "Models/Updated/Environment_Visual_P3.skl",
+            "path": "Resources/11668782159782244059.skl"
+        },
+        {
+            "guid": 15957715002093328400,
+            "name": "Material/DeathBox.mat",
+            "path": "Resources/15957715002093328400.mat"
+        },
+        {
+            "guid": 17887744238975574133,
+            "name": "[05]New_Environment/Environment-NavMesh.animpkg",
+            "path": "Resources/17887744238975574133.animpkg"
+        },
+        {
+            "guid": 10210060411775308196,
+            "name": "Material/EnemyBlade.mat",
+            "path": "Resources/10210060411775308196.mat"
+        },
+        {
+            "guid": 16754778150418545180,
+            "name": "Prefabs/Projectile.prefab",
+            "path": "Resources/16754778150418545180.prefab"
         },
         {
             "guid": 18032923168457502346,
@@ -534,6 +574,11 @@
             "guid": 12638191067484305032,
             "name": "Material/EnemySlime_Inner_m.mat",
             "path": "Resources/12638191067484305032.mat"
+        },
+        {
+            "guid": 11443324886659557821,
+            "name": "Models/CrystalOnly.fbx",
+            "path": "Resources/11443324886659557821.mdl"
         },
         {
             "guid": 10230791056562210482,
@@ -576,6 +621,11 @@
             "path": "Resources/14335752017358431609.mat"
         },
         {
+            "guid": 15503211035181261813,
+            "name": "Models/Modular_Environment/Platform.fbx",
+            "path": "Resources/15503211035181261813.mdl"
+        },
+        {
             "guid": 16649409170736443788,
             "name": "Material/M3 Environment.mat",
             "path": "Resources/16649409170736443788.mat"
@@ -599,6 +649,11 @@
             "guid": 16895767658385788011,
             "name": "Material/Player_Sword_m.mat",
             "path": "Resources/16895767658385788011.mat"
+        },
+        {
+            "guid": 14115106649651537267,
+            "name": "Material/Projectile.mat",
+            "path": "Resources/14115106649651537267.mat"
         },
         {
             "guid": 13614208979118524504,
@@ -639,6 +694,11 @@
             "guid": 17754302010795007985,
             "name": "Material/WindUpSignal.mat",
             "path": "Resources/17754302010795007985.mat"
+        },
+        {
+            "guid": 12045424625610074175,
+            "name": "Models/BaseOnly.fbx",
+            "path": "Resources/12045424625610074175.mdl"
         },
         {
             "guid": 15884595881201833390,
@@ -689,6 +749,21 @@
             "guid": 15124670150845613275,
             "name": "Models/Enemy_Basic_Static.animpkg",
             "path": "Resources/15124670150845613275.animpkg"
+        },
+        {
+            "guid": 13974323677986012958,
+            "name": "Models/Enemy_Blade.fbx",
+            "path": "Resources/13974323677986012958.mdl"
+        },
+        {
+            "guid": 15204542420308286987,
+            "name": "Models/Enemy_Blade.skl",
+            "path": "Resources/15204542420308286987.skl"
+        },
+        {
+            "guid": 15107501585593822721,
+            "name": "Models/Enemy_Blade.animpkg",
+            "path": "Resources/15107501585593822721.animpkg"
         },
         {
             "guid": 17545168047952745399,
@@ -746,6 +821,11 @@
             "path": "Resources/16267972103362409246.animpkg"
         },
         {
+            "guid": 14595193542169348645,
+            "name": "Prefabs/Game Settings.prefab",
+            "path": "Resources/14595193542169348645.prefab"
+        },
+        {
             "guid": 16100658801862576713,
             "name": "Models/Environment_Enemy_NavMesh.fbx",
             "path": "Resources/16100658801862576713.mdl"
@@ -771,6 +851,11 @@
             "path": "Resources/13705850870004252372.mdl"
         },
         {
+            "guid": 17761595709687733754,
+            "name": "Prefabs/Settings_Popup.prefab",
+            "path": "Resources/17761595709687733754.prefab"
+        },
+        {
             "guid": 14949169321333336329,
             "name": "Models/Environment_Engine_BG.fbx",
             "path": "Resources/14949169321333336329.mdl"
@@ -784,6 +869,126 @@
             "guid": 14948592974222173917,
             "name": "Models/Environment_Visual_PlayerGround.fbx",
             "path": "Resources/14948592974222173917.mdl"
+        },
+        {
+            "guid": 12948409279997014394,
+            "name": "Shaders/debugLine_Frag.frag",
+            "path": "Resources/12948409279997014394.frag"
+        },
+        {
+            "guid": 16342897719943423903,
+            "name": "Models/Modular_Environment/BridgeConnector.fbx",
+            "path": "Resources/16342897719943423903.mdl"
+        },
+        {
+            "guid": 15594041251220525946,
+            "name": "Shaders/debugLine.shader",
+            "path": "Resources/15594041251220525946.shader"
+        },
+        {
+            "guid": 12162090342869467781,
+            "name": "Models/Modular_Environment/BrokenBridge1.fbx",
+            "path": "Resources/12162090342869467781.mdl"
+        },
+        {
+            "guid": 11522299978281830406,
+            "name": "Shaders/lighting_Vert.vert",
+            "path": "Resources/11522299978281830406.vert"
+        },
+        {
+            "guid": 12753288827108920289,
+            "name": "Models/Modular_Environment/BrokenBridge2.fbx",
+            "path": "Resources/12753288827108920289.mdl"
+        },
+        {
+            "guid": 10258064048949964320,
+            "name": "Models/Modular_Environment/BrokenBridge4.fbx",
+            "path": "Resources/10258064048949964320.mdl"
+        },
+        {
+            "guid": 9911898511109175898,
+            "name": "Prefabs/Bootstrap.prefab",
+            "path": "Resources/9911898511109175898.prefab"
+        },
+        {
+            "guid": 16604309806146835950,
+            "name": "Models/Modular_Environment/BrokenBridgeStart.fbx",
+            "path": "Resources/16604309806146835950.mdl"
+        },
+        {
+            "guid": 17966730548168267816,
+            "name": "Models/Modular_Environment/CircleArena.fbx",
+            "path": "Resources/17966730548168267816.mdl"
+        },
+        {
+            "guid": 10122030082628721913,
+            "name": "Models/Modular_Environment/CircleArenaConnector.fbx",
+            "path": "Resources/10122030082628721913.mdl"
+        },
+        {
+            "guid": 16595515136771715194,
+            "name": "[00]Player/Player.skl",
+            "path": "Resources/16595515136771715194.skl"
+        },
+        {
+            "guid": 14583800764795568948,
+            "name": "Models/Modular_Environment/Column2.fbx",
+            "path": "Resources/14583800764795568948.mdl"
+        },
+        {
+            "guid": 12271556191740990920,
+            "name": "[05]New_Environment/EnvironmentP1.skl",
+            "path": "Resources/12271556191740990920.skl"
+        },
+        {
+            "guid": 12655126755435588341,
+            "name": "Models/Modular_Environment/Column3.fbx",
+            "path": "Resources/12655126755435588341.mdl"
+        },
+        {
+            "guid": 17605643715968058785,
+            "name": "Models/Modular_Environment/FloorCorner.fbx",
+            "path": "Resources/17605643715968058785.mdl"
+        },
+        {
+            "guid": 16453345830123164686,
+            "name": "Shaders/pointShadow_Vert.vert",
+            "path": "Resources/16453345830123164686.vert"
+        },
+        {
+            "guid": 14081284289416937532,
+            "name": "Models/Modular_Environment/FloorSide.fbx",
+            "path": "Resources/14081284289416937532.mdl"
+        },
+        {
+            "guid": 11713083497097507036,
+            "name": "Models/Modular_Environment/Pillar.fbx",
+            "path": "Resources/11713083497097507036.mdl"
+        },
+        {
+            "guid": 10787808635766743373,
+            "name": "Shaders/uiFont.shader",
+            "path": "Resources/10787808635766743373.shader"
+        },
+        {
+            "guid": 13949061281476501143,
+            "name": "Models/Modular_Environment/ShortWall.fbx",
+            "path": "Resources/13949061281476501143.mdl"
+        },
+        {
+            "guid": 10352464760098420766,
+            "name": "Models/Updated/Environment_MeshCollider_3.fbx",
+            "path": "Resources/10352464760098420766.mdl"
+        },
+        {
+            "guid": 17475071399970836876,
+            "name": "Models/Modular_Environment/SlopeSide.fbx",
+            "path": "Resources/17475071399970836876.mdl"
+        },
+        {
+            "guid": 13231823400505274562,
+            "name": "Models/Modular_Environment/SmallPillar.fbx",
+            "path": "Resources/13231823400505274562.mdl"
         },
         {
             "guid": 12854187215604683955,
@@ -836,6 +1041,11 @@
             "path": "Resources/16233822509833608886.animpkg"
         },
         {
+            "guid": 13694285006182903832,
+            "name": "Prefabs/EnemySlime.prefab",
+            "path": "Resources/13694285006182903832.prefab"
+        },
+        {
             "guid": 12862521067400940876,
             "name": "Models/Updated/Environment_Enemy_NavMesh_Redo.animpkg",
             "path": "Resources/12862521067400940876.animpkg"
@@ -844,6 +1054,11 @@
             "guid": 9776906413334577460,
             "name": "[00] Player/Game Over 2.png",
             "path": "Resources/9776906413334577460.dds"
+        },
+        {
+            "guid": 11959505081050818781,
+            "name": "Prefabs/HUD Canvas.prefab",
+            "path": "Resources/11959505081050818781.prefab"
         },
         {
             "guid": 11719587833885559949,
@@ -874,11 +1089,6 @@
             "guid": 15988034323396602812,
             "name": "Models/Updated/Environment_MeshCollider_2.skl",
             "path": "Resources/15988034323396602812.skl"
-        },
-        {
-            "guid": 10352464760098420766,
-            "name": "Models/Updated/Environment_MeshCollider_3.fbx",
-            "path": "Resources/10352464760098420766.mdl"
         },
         {
             "guid": 9584680298831036432,
@@ -926,6 +1136,11 @@
             "path": "Resources/15099326127256956853.mdl"
         },
         {
+            "guid": 12482338140631159793,
+            "name": "Prefabs/Sparks.prefab",
+            "path": "Resources/12482338140631159793.prefab"
+        },
+        {
             "guid": 14315290921715176776,
             "name": "Prefabs/lightTheSecondPrefabTest.prefab",
             "path": "Resources/14315290921715176776.prefab"
@@ -939,6 +1154,11 @@
             "guid": 9855612107491711827,
             "name": "Shaders/debugOutlineBlur.shader",
             "path": "Resources/9855612107491711827.shader"
+        },
+        {
+            "guid": 11942215655384402786,
+            "name": "Prefabs/Column_2.prefab",
+            "path": "Resources/11942215655384402786.prefab"
         },
         {
             "guid": 12093113733688279538,
@@ -1011,11 +1231,6 @@
             "path": "Resources/17793787829430969705.navmesh"
         },
         {
-            "guid": 17088870147775819804,
-            "name": "Prefabs/HUD Canvas.prefab",
-            "path": "Resources/17088870147775819804.prefab"
-        },
-        {
             "guid": 15281544999074126968,
             "name": "NavMesh/Eze_Working_Scene.navmesh",
             "path": "Resources/15281544999074126968.navmesh"
@@ -1086,14 +1301,14 @@
             "path": "Resources/15422191604689839953.prefab"
         },
         {
-            "guid": 9911898511109175898,
-            "name": "Prefabs/Bootstrap.prefab",
-            "path": "Resources/9911898511109175898.prefab"
-        },
-        {
             "guid": 17023561938162725187,
             "name": "Prefabs/Camera Rig.prefab",
             "path": "Resources/17023561938162725187.prefab"
+        },
+        {
+            "guid": 11375246718170446546,
+            "name": "Prefabs/Column_1.prefab",
+            "path": "Resources/11375246718170446546.prefab"
         },
         {
             "guid": 17035423744017174956,
@@ -1104,21 +1319,6 @@
             "guid": 16843831220568304728,
             "name": "Prefabs/EnemyGrunt.prefab",
             "path": "Resources/16843831220568304728.prefab"
-        },
-        {
-            "guid": 16018679418099098580,
-            "name": "Shaders/skybox_Frag.frag",
-            "path": "Resources/16018679418099098580.frag"
-        },
-        {
-            "guid": 17082663247688680890,
-            "name": "Shaders/downSample.shader",
-            "path": "Resources/17082663247688680890.shader"
-        },
-        {
-            "guid": 9551500935352840734,
-            "name": "Prefabs/EnemySlime.prefab",
-            "path": "Resources/9551500935352840734.prefab"
         },
         {
             "guid": 13182828767649584504,
@@ -1136,14 +1336,19 @@
             "path": "Resources/17372928666018152619.prefab"
         },
         {
-            "guid": 14741714957763085651,
-            "name": "Prefabs/GameObject.prefab",
-            "path": "Resources/14741714957763085651.prefab"
-        },
-        {
             "guid": 11923730312665857025,
             "name": "Prefabs/Golem.prefab",
             "path": "Resources/11923730312665857025.prefab"
+        },
+        {
+            "guid": 18393706072362878028,
+            "name": "Prefabs/Grunt Sparks.prefab",
+            "path": "Resources/18393706072362878028.prefab"
+        },
+        {
+            "guid": 12675929039715353191,
+            "name": "Prefabs/HitBox.prefab",
+            "path": "Resources/12675929039715353191.prefab"
         },
         {
             "guid": 16661368870602356351,
@@ -1171,14 +1376,19 @@
             "path": "Resources/15578772992131463011.prefab"
         },
         {
+            "guid": 10880878978351863579,
+            "name": "[05]New_Environment/Environment-Barriers.fbx",
+            "path": "Resources/10880878978351863579.mdl"
+        },
+        {
+            "guid": 18130444670102619476,
+            "name": "Prefabs/ProjectileSpawner.prefab",
+            "path": "Resources/18130444670102619476.prefab"
+        },
+        {
             "guid": 16623696165479466212,
             "name": "Prefabs/RootNode_1.prefab",
             "path": "Resources/16623696165479466212.prefab"
-        },
-        {
-            "guid": 11836015483498668404,
-            "name": "Prefabs/Sparks.prefab",
-            "path": "Resources/11836015483498668404.prefab"
         },
         {
             "guid": 11802157215255510639,
@@ -1226,16 +1436,6 @@
             "path": "Resources/14287044962805522360.frag"
         },
         {
-            "guid": 15594041251220525946,
-            "name": "Shaders/debugLine.shader",
-            "path": "Resources/15594041251220525946.shader"
-        },
-        {
-            "guid": 12948409279997014394,
-            "name": "Shaders/debugLine_Frag.frag",
-            "path": "Resources/12948409279997014394.frag"
-        },
-        {
             "guid": 14031586730247189489,
             "name": "Shaders/fullScreen_Vert.vert",
             "path": "Resources/14031586730247189489.vert"
@@ -1264,6 +1464,16 @@
             "guid": 15235268585299909685,
             "name": "Shaders/deferred_Vert.vert",
             "path": "Resources/15235268585299909685.vert"
+        },
+        {
+            "guid": 16018679418099098580,
+            "name": "Shaders/skybox_Frag.frag",
+            "path": "Resources/16018679418099098580.frag"
+        },
+        {
+            "guid": 17082663247688680890,
+            "name": "Shaders/downSample.shader",
+            "path": "Resources/17082663247688680890.shader"
         },
         {
             "guid": 16493589749155911333,
@@ -1301,11 +1511,6 @@
             "path": "Resources/17094478662332462709.shader"
         },
         {
-            "guid": 11522299978281830406,
-            "name": "Shaders/lighting_Vert.vert",
-            "path": "Resources/11522299978281830406.vert"
-        },
-        {
             "guid": 15457146124636775528,
             "name": "Shaders/pointShadow.shader",
             "path": "Resources/15457146124636775528.shader"
@@ -1314,11 +1519,6 @@
             "guid": 10014890641284040322,
             "name": "Shaders/pointShadow_Frag.frag",
             "path": "Resources/10014890641284040322.frag"
-        },
-        {
-            "guid": 16453345830123164686,
-            "name": "Shaders/pointShadow_Vert.vert",
-            "path": "Resources/16453345830123164686.vert"
         },
         {
             "guid": 13781540877947589117,
@@ -1349,11 +1549,6 @@
             "guid": 10464052820645603593,
             "name": "Shaders/skyboxLight_Frag.frag",
             "path": "Resources/10464052820645603593.frag"
-        },
-        {
-            "guid": 10787808635766743373,
-            "name": "Shaders/uiFont.shader",
-            "path": "Resources/10787808635766743373.shader"
         },
         {
             "guid": 12554525915184668716,
@@ -1456,6 +1651,11 @@
             "path": "Resources/17229105916282360904.dds"
         },
         {
+            "guid": 14589284505957760526,
+            "name": "[97]Scenes/M5 Level 1.temp",
+            "path": "Resources/14589284505957760526.scene"
+        },
+        {
             "guid": 17911237990349162648,
             "name": "[00] Player/DefaultMaterial.mat",
             "path": "Resources/17911237990349162648.mat"
@@ -1474,11 +1674,6 @@
             "guid": 16423162977419947232,
             "name": "[00]Player/Player.fbx",
             "path": "Resources/16423162977419947232.mdl"
-        },
-        {
-            "guid": 16595515136771715194,
-            "name": "[00]Player/Player.skl",
-            "path": "Resources/16595515136771715194.skl"
         },
         {
             "guid": 14019125244509282815,
@@ -1566,11 +1761,6 @@
             "path": "Resources/13855574832480941767.animpkg"
         },
         {
-            "guid": 10880878978351863579,
-            "name": "[05]New_Environment/Environment-Barriers.fbx",
-            "path": "Resources/10880878978351863579.mdl"
-        },
-        {
             "guid": 13264738734741405139,
             "name": "[05]New_Environment/Environment-Barriers.animpkg",
             "path": "Resources/13264738734741405139.animpkg"
@@ -1584,11 +1774,6 @@
             "guid": 16763576159686657446,
             "name": "[05]New_Environment/Environment-NavMesh.skl",
             "path": "Resources/16763576159686657446.skl"
-        },
-        {
-            "guid": 17887744238975574133,
-            "name": "[05]New_Environment/Environment-NavMesh.animpkg",
-            "path": "Resources/17887744238975574133.animpkg"
         },
         {
             "guid": 17928097287040220423,
@@ -1611,24 +1796,24 @@
             "path": "Resources/13009295791428743009.mdl"
         },
         {
-            "guid": 12271556191740990920,
-            "name": "[05]New_Environment/EnvironmentP1.skl",
-            "path": "Resources/12271556191740990920.skl"
-        },
-        {
-            "guid": 12435561147606604158,
-            "name": "[80]Streaming_Assets/Dialogue.csv",
-            "path": "Resources/12435561147606604158.csv"
-        },
-        {
-            "guid": 17531386095546160316,
+            "guid": 13835904689893160748,
             "name": "[97]Scenes/M4 Level 1.scene",
-            "path": "Resources/17531386095546160316.scene"
+            "path": "Resources/13835904689893160748.scene"
         },
         {
             "guid": 18000196669969852959,
             "name": "[97]Scenes/M4 Level 1.temp",
             "path": "Resources/18000196669969852959.scene"
+        },
+        {
+            "guid": 13929045248473250792,
+            "name": "Default/M5 Level 1.scene",
+            "path": "Resources/13929045248473250792.scene"
+        },
+        {
+            "guid": 16966596749184840630,
+            "name": "[97]Scenes/Week 8 Level.scene",
+            "path": "Resources/16966596749184840630.scene"
         },
         {
             "guid": 4412061832024819835,

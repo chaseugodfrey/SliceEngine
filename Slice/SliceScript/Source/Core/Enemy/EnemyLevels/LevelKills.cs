@@ -16,8 +16,16 @@ namespace SliceEngine
         /// <returns></returns>
         public override bool CheckObjective()
         {
-            SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
-            return KillsRequired == 0;
+            //SliceLog.Log("kills objective beign checked. Kills left:" + KillsRequired);
+
+            if (KillsRequired <= 0)
+            {
+                // Clear enemies
+                // Display objective done
+                Bootstrap.LevelDirector.levels[Bootstrap.LevelDirector.currLevel].As<BaseLevel>().TriggerLevelCompleteEvent();
+                return true;
+            }
+            return false;
         }
 
         public override void EnemyKilled(GameObject enemy)

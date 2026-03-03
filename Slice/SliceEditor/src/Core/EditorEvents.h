@@ -32,6 +32,11 @@ namespace SliceEditor
 		bool assetChangeSuccess;
 	};
 
+	struct AssetRecompiledEvent
+	{
+		SliceEngine::GUID fileGUID;
+	};
+
 	struct UndoEvent
 	{
 

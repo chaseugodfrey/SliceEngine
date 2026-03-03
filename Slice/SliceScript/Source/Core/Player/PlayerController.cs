@@ -175,6 +175,8 @@ namespace SliceEngine
             {
                 //console.writeline("Camera Var in player is EMPTY");
             }
+
+            Bootstrap.HUDManager.SetHealth(currentHealth/maxHealth);
         }
         public override void OnCreate()
         {
@@ -207,7 +209,7 @@ namespace SliceEngine
 
             GroundCheck();
 
-            if (canInput)
+            //if (canInput)
             {
                 HandleInput();
                 HandleDashInput();
@@ -229,12 +231,16 @@ namespace SliceEngine
         {
             input = Vector3.Zero;
             // Forward/backward movement
-            if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
-            else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
+            if (canInput)
+            {
+                if (Input.IsKeyDown(Keys.KEY_W)) input += new Vector3(0f, 0f, 1f);
+                else if (Input.IsKeyDown(Keys.KEY_S)) input += new Vector3(0f, 0f, -1f);
 
-            // Sideways movement 
-            if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
-            else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
+                // Sideways movement 
+                if (Input.IsKeyDown(Keys.KEY_A)) input += new Vector3(1f, 0f, 0f);
+                else if (Input.IsKeyDown(Keys.KEY_D)) input += new Vector3(-1f, 0f, 0f);
+            }
+
 
             if (input.SquareMagnitude() > 1f) input = input.Normalize();
 
@@ -250,7 +256,11 @@ namespace SliceEngine
             }
 
             //if (Input.IsKeyPressed(Keys.KEY_SPACEBAR)) TryJump();
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            if (canInput)
+            {
+                if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+            }
+
         }
         #region New Movement
         private void HandleMovement()
@@ -508,6 +518,8 @@ namespace SliceEngine
         #region Dash
         void HandleDashInput()
         {
+            if (!canInput) return;
+
             if (!Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT)) return;
 
             // Dashes cancel the attack

@@ -1661,9 +1661,7 @@ namespace SliceEngine
 
 	static void Audio_SetMasterVolume(float volume)
 	{
-
-
-		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+			Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
@@ -2677,11 +2675,11 @@ namespace SliceEngine
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Assets").generic_string();
+		std::string path = std::filesystem::path("Resources").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion Application
+#pragma endregion
 
 
 #pragma region COMPONENT REGISTRATION

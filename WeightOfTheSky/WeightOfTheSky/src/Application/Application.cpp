@@ -69,14 +69,14 @@ namespace SliceBuild
 			{
 				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
 			}
-			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName() == "17531386095546160316") 
+			/*if (SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName() == "17531386095546160316") 
 			{
-				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			}
 			else
 			{
 				glfwSetInputMode(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			}
+			}*/
 
 		}
 

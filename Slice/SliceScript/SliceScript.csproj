@@ -64,9 +64,27 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\CrystalAnimation.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHitbox.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelKills.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTarget.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\LevelTutorial.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjective.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjectiveDone.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
+    <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
-    <Compile Include="Source\Core\Enemy\LevelDirector.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -78,10 +96,16 @@
     <Compile Include="Source\Core\Math\Vector4.cs" />
     <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
+    <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
+    <Compile Include="Source\Core\Player\PlayerAnimatorEvents.cs" />
+    <Compile Include="Source\Core\Player\PlayerController(Backup).cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
+    <Compile Include="Source\Core\Player\TestFixedBall.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile.cs" />
+    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
@@ -100,12 +124,10 @@
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
-    <Compile Include="Source\EnemyChase.cs" />
-    <Compile Include="Source\EnemySlime.cs" />
-    <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
@@ -123,10 +145,10 @@
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\MainMenuCamera.cs" />
+    <Compile Include="Source\Old_Test_Player.cs" />
+    <Compile Include="Source\Old_Test_Spawner.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\Player.cs" />
     <Compile Include="Source\PlayerTestNavAgent.cs" />
-    <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

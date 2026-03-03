@@ -25,6 +25,8 @@ namespace SliceEngine
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
+
+            
         }
 
         public override void OnUpdate(float dt)
@@ -34,15 +36,18 @@ namespace SliceEngine
                 if (isSubSettingsOpen)
                 {
                     CloseSubSettings();
+                    
                 }
                 // 2. If nothing is open, open the Pause Menu
                 else if (!isPauseMenuOpen)
                 {
                     OpenPauseMenu();
+                    
                 }
                 // 3. If Pause Menu is open, close it (Resume Game)
                 else
                 {
+                    
                     ResumeGame();
                 }
             }

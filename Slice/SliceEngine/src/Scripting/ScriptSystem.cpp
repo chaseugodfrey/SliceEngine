@@ -1571,7 +1571,7 @@ namespace SliceEngine
             if (mCollisionQueue.empty()) return;
             tempQueue.swap(mCollisionQueue);
         }
-        std::cout << tempQueue.size() << std::endl;
+        //std::cout << tempQueue.size() << std::endl;
         for (const auto& event : tempQueue)
         {
             // make sure entity is still alive

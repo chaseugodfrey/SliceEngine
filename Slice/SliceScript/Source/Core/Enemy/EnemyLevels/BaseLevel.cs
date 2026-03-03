@@ -15,6 +15,7 @@ namespace SliceEngine
         public GameObject levelDirectorObject;
 
         public delegate void levelCompleteObserver();
+        public event levelCompleteObserver MovingToNextLevelEvent;
         public event levelCompleteObserver LevelCompleteEvent;
 
         public GameObject respawnPoint;
@@ -23,6 +24,7 @@ namespace SliceEngine
 
         // If it will constantlyy spawn once the total enemies drops below max
         public bool constantSpawning = false;
+        public bool stopWhenCleared = true;
         // Keep spawning till it hits max;
         public int maxGrunts = 0;
         public int currSlimes = 0;
@@ -45,16 +47,46 @@ namespace SliceEngine
 
         public virtual bool CheckObjective() { return false; }
 
-        //public void LevelCompleteDebug()
-        //{
-        //    SliceLog.Log("Level complete has been called");
-        //}
+        public void MoveToNextLevelDebug()
+        {
+            SliceLog.Log("Level complete has been called");
+        }
 
-        //public override void OnAwake()
-        //{
-        //    base.OnAwake();
-        //    this.LevelCompleteEvent += LevelCompleteDebug;
-        //}
+        public override void OnCreate()
+        {
+            base.OnCreate();
+            //SliceLog.Log("Level on create called");
+            this.MovingToNextLevelEvent += MoveToNextLevelDebug;
+
+            //if (LevelCompleteEvent.GetInvocationList() != null )
+            //{
+            //    SliceLog.Log("EVent null chheck passed");
+            //}
+            //else
+            //{
+            //    SliceLog.Log("EVent null chheck failed");
+            //}
+                
+            // if (LevelCompleteEvent.GetInvocationList().Length != 0)
+            //{
+
+            //    SliceLog.Log("EVent zero count chheck passed");
+            //}
+            //else
+            //{
+            //    SliceLog.Log("EVent zero count chheck failed");
+            //}
+        }
+
+        public void TriggerMovingNextLevelEvent()
+        {
+            MovingToNextLevelEvent();
+        }
+
+        public void TriggerLevelCompleteEvent()
+        {
+            LevelCompleteEvent();
+        }
 
         public virtual void UpdateLevel(float dt)
         {
@@ -62,38 +94,18 @@ namespace SliceEngine
 
             if (CheckObjective())
             {
-                if (LevelCompleteEvent != null)
-                {
-                    LevelCompleteEvent();
-                }
                 toggleLevel = true;
             }
 
-           // SliceLog.Log("Level " + levelIndex + " spawning: " + toggleSpawning + " toggle: " + toggleLevel);
-
-            if (toggleLevel)
+            if (toggleLevel && stopWhenCleared)
             {
+                //SliceLog.Log("Level" + levelIndex + " stopped");
                 return;
             }
 
-           // SliceLog.Log("Base Level passed toggle level");
-
-            if (toggleSpawning)
-            {
-                timer += dt;
-                //SliceLog.Log("toggel spawning: " + toggleSpawning);
-            }
-            else
-            {
-                // if they can continue spawning
-                if (levelDirectorObject.As<LevelDirector>().EnemyCount() <= maxGrunts && constantSpawning)
-                {
-                    toggleSpawning = true;
-                }
-            }
-
-            //SliceLog.Log("Base Level passed toggle spawning");
-
+            // SliceLog.Log("Base Level passed toggle level");
+            timer += dt;
+            SliceLog.Log("Timer : " + timer);
             // when it reaches the last enemy point
             if (currPoint >= enemyPoints.Count)
             {
@@ -116,13 +128,13 @@ namespace SliceEngine
 
             //SliceLog.Log("Base Level passed ;vl dri object");
 
-            if (toggleSpawning && timer > spawnInterval)
+            if (toggleSpawning && timer > spawnInterval && maxGrunts > 0)
             {
                 SliceLog.Log("CREATING ENEMY at : " + currPoint);
                 Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
                 if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
                 {
-                    SliceLog.Log("Died in here 3");
+                    //SliceLog.Log("Died in here 3");
                     // if the curr point can't then just go next point instead
                     timer = 0.0f;
                     currPoint++;
@@ -130,27 +142,39 @@ namespace SliceEngine
                 }
 
                 GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateGruntEnemy();
+
+                if (!constantSpawning)
+                    maxGrunts--;
+
                 //SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
                 enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
 
-                timer = 0.0f;
+                //timer = 0.0f;
                 currPoint++;
-
-                if (maxGrunts <= levelDirectorObject.As<LevelDirector>().EnemyCount())
-                {
-                    SliceLog.Log("Max enemies spawned");
-                    toggleSpawning = false;
-                }
-                else
-                {
-                    toggleSpawning = true;
-                }
             }
 
-            if (SliceRandom.ValueFloat() <= slimeSpawnRate && currSlimes < maxSlimes && timer > spawnInterval)
+            float rand = SliceRandom.ValueFloat();
+            //SliceLog.Log("Random : " + rand);
+            if (rand <= slimeSpawnRate && currSlimes < maxSlimes && timer > spawnInterval)
             {
+                Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
+
+                if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
+                {
+                    timer = 0.0f;
+                    currPoint++;
+                    return;
+                }
+
                 GameObject enemy = levelDirectorObject.As<LevelDirector>().CreateSlimeEnemy();
+                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
                 currSlimes++;
+                currPoint++;
+            }
+
+            if (timer > spawnInterval)
+            {
+                timer = 0.0f;
             }
 
             //SliceLog.Log("Base Level should be working");

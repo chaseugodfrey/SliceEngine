@@ -54,6 +54,8 @@ namespace SliceEngine
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
 
+            //Cursor.state = Cursor.STATE.DISABLED;
+
             foreach (GameObject trigger in levelTriggers)
             {
                 //Console.WriteLine("id of triggerbox: " + trigger.mID);
@@ -89,6 +91,7 @@ namespace SliceEngine
         public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
         {
             // instantiate the enemy
+            SliceLog.Log("Creating Slime Enemy");
             GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
             SliceLog.Log("Creating enemy with: " + newEnemy.mID);
             newEnemy.As<EnemySlime>().SetUp();
@@ -162,7 +165,7 @@ namespace SliceEngine
 
             // if the level is done, then dont continue updating
             // the trigger box will toggle the next level
-            if (levelDone)
+            if (levelDone && levels[currLevel].As<BaseLevel>().stopWhenCleared)
                 return;
            // SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
@@ -181,11 +184,11 @@ namespace SliceEngine
             {
                 if (enemy == null) continue;
 
-                SliceLog.Log("Died in here 0");
+                ///SliceLog.Log("Died in here 0");
                 if (enemy.mID == 0) continue;
 
                 float Dist = (enemy.GetComponent<Transform>().WorldPosition - Pos).LengthSquared();
-                SliceLog.Log("Died in here 1");
+                //SliceLog.Log("Died in here 1");
                 if (Dist < SafetyDistance)
                 {
                     return false;
@@ -216,8 +219,17 @@ namespace SliceEngine
 
             if (input.Has<PlayerController>() && Bootstrap.Player == input.As<PlayerController>())
             {
+                foreach (GameObject enemy in enemies)
+                {
+                    enemy.Destroy();
+                }
+
+                enemies.Clear();
+
                 // note: this is assuming we start at lvl 0, then on the first trigger box
                 // we go to the next level
+                levels[currLevel].As<BaseLevel>().TriggerMovingNextLevelEvent();
+
 
                 // if we need to trigger a level box at the start then this might need a diff logic
                 levelTriggers[currLevel].As<GeneralHitbox>().TurnOff();
