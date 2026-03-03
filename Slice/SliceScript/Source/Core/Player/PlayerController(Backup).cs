@@ -789,25 +789,25 @@ namespace SliceEngine
 
         private void GroundCheck()
         {
-            if (groundCheckLocked)
-            {
-                groundCheckTimer += Time.deltaTime;
-                if (groundCheckTimer >= groundCheckDelay)
-                {
-                    groundCheckLocked = false;
-                    groundCheckTimer = 0f;
-                }
-            }
+            //if (groundCheckLocked)
+            //{
+            //    groundCheckTimer += Time.deltaTime;
+            //    if (groundCheckTimer >= groundCheckDelay)
+            //    {
+            //        groundCheckLocked = false;
+            //        groundCheckTimer = 0f;
+            //    }
+            //}
 
-            // Can only be grounded if initial delay is over
-            if (!groundCheckLocked)
-            {
-                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
-                if (grounded)
-                {
-                    jumpCounter = 0;
-                }
-            }
+            //// Can only be grounded if initial delay is over
+            //if (!groundCheckLocked)
+            //{
+            //    grounded = p// Gets grounded status from GroundCheck component
+            //    if (grounded)
+            //    {
+            //        jumpCounter = 0;
+            //    }
+            //}
         }
 
         #region Attacks
