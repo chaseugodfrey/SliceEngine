@@ -19,7 +19,7 @@ namespace SliceEngine
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            Bootstrap.Player.StartAttackRecovery();
+            player.As<PlayerController>().StartAttackRecovery();
         }
         public void CanAttack(string str)
         {
