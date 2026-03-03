@@ -36,6 +36,7 @@ namespace SliceEngine
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		void RegenerateSkybox();
+		void Update(float dt);
 		// Camera related functions
 		GameObject CreateCamera();
 		GameObject CreatePrefabCam();
@@ -48,6 +49,10 @@ namespace SliceEngine
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
+
+		float GetSessionExposure() const { return mSessionExposure; }
+		void SetSessionExposure(float exposure);
+
 		// Rendering functions
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
@@ -82,6 +87,7 @@ namespace SliceEngine
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.1f;
+		float mSessionExposure{ 10.f };
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 175.f;
@@ -117,7 +123,7 @@ namespace SliceEngine
 		enum FBOType : unsigned char
 		{
 			FB_NIL = 0,		// 0 Outs
-			FB_DEFERRED,	// 4 Outs
+			FB_DEFERRED,	// 5 Outs
 			FB_FINAL,		// 1 Out
 			FB_TOTAL		// NO BIND
 		};
@@ -180,6 +186,7 @@ namespace SliceEngine
 			GOUT_NOM,
 			GOUT_ID,
 			GOUT_ROUGH_METAL,
+			GOUT_EMISSION,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
 			GOUT_FINAL,

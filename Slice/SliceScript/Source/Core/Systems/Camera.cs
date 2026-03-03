@@ -12,5 +12,11 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetMainCamera(go.mID);
         }
+
+        public static float Exposure
+        {
+            get { return FunctionCalls.Camera_GetGamma(); }
+            set { FunctionCalls.Camera_SetGamma(value); }
+        }
     }
 }

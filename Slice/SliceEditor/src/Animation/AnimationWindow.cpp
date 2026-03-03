@@ -53,12 +53,14 @@ namespace SliceEditor
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
 			tmpEnt = entity;
 			// if anim exists
-			if (anim && anim->IsValid())
+
+			// the valid will fail cos if we add a animator component to something for non bone animation it will nvr hit the requirement of having valid skeleton
+			if (anim /*&& anim->IsValid()*/)
 			{
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				if (!mCurrentAnimator && anim != mCurrentAnimator)
+				if (!mCurrentAnimator || anim != mCurrentAnimator)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
@@ -88,24 +90,47 @@ namespace SliceEditor
 	{
 		mCurrentAnimator = component;
 
-		if (mCurrentAnimator->curr_anim_pkg.animations.size() == 0)
+		animationClips.clear();
+		customAnimClips.clear();
+
+		if ((mCurrentAnimator->curr_anim_pkg.animations.size() == 0 && mCurrentAnimator->Handle_skeleton.IsValid()))
 		{
-			animationClips.clear();
 			return;
 		}
-		
-		animationClips.reserve(mCurrentAnimator->curr_anim_pkg.animations.size());
-		animationClips.clear();
 
-		for (auto& anim : mCurrentAnimator->curr_anim_pkg.animations)
+		if (mCurrentAnimator->curr_anims.animations.size() == 0 && !mCurrentAnimator->Handle_skeleton.IsValid())
 		{
-			animationClips.push_back(&anim);
+			return;
+		}
+
+		mCurrentClipIndex = 0;
+		mPropertyGroups.clear();
+
+		if(mCurrentAnimator->Handle_skeleton.IsValid())
+		{
+			animationClips.reserve(mCurrentAnimator->curr_anim_pkg.animations.size());
+
+			for (auto& anim : mCurrentAnimator->curr_anim_pkg.animations)
+			{
+				animationClips.push_back(&anim);
+			}
+
+			LoadDataFromAnimationClip(*animationClips[0], mCurrentClipIndex);
+		}
+		else
+		{
+			customAnimClips.reserve(mCurrentAnimator->curr_anims.animations.size());
+
+			for (auto& anim : mCurrentAnimator->curr_anims.animations)
+			{
+				customAnimClips.push_back(anim);
+			}
+
+			LoadDataFromAnimClip(customAnimClips[0], mCurrentClipIndex);
 		}
 
 		// add 0 check for size()
-		mCurrentClipIndex = 0;
-		LoadDataFromAnimationClip(*animationClips[0], mCurrentClipIndex);
-
+		
 		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		AnimationPropertyGroup transformGroup;
 
@@ -155,6 +180,40 @@ namespace SliceEditor
 		EventGroup.properties.push_back(AnimationProperty{ "Animation Event", eventFrames });
 
 		mPropertyGroups.insert(mPropertyGroups.begin(),EventGroup);
+	}
+
+	void AnimationWindow::LoadDataFromAnimClip(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIdx)
+	{
+		endFrame = animClip.num_frames;
+		startFrame = 0;
+		currentFrame = 0;
+		mCurrentTime = 0;
+
+		if (!mPropertyGroups.empty())
+		{
+			if (std::strcmp(mPropertyGroups[0].name.c_str(), "Events") == 0)
+			{
+				mPropertyGroups.erase(mPropertyGroups.begin());
+			}
+		}
+
+		AnimationPropertyGroup EventGroup;
+
+		EventGroup.name = "Events";
+		std::vector<ImGui::FrameIndexType> eventFrames{};
+
+		for (int i = 0; i < mCurrentAnimator->eventFrames.size(); i++)
+		{
+			if (mCurrentAnimator->eventFrames[i].animIdx == static_cast<unsigned int>(animClipIdx))
+			{
+				eventFrames.push_back(mCurrentAnimator->eventFrames[i].frameNumber);
+			}
+
+		}
+
+		EventGroup.properties.push_back(AnimationProperty{ "Animation Event", eventFrames });
+
+		mPropertyGroups.insert(mPropertyGroups.begin(), EventGroup);
 	}
 
 	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
@@ -282,11 +341,24 @@ namespace SliceEditor
 	void AnimationWindow::Draw()
 	{
 		bool hasAnimator = CheckForAnimator();
+		bool isSkeleton{}; 
+		size_t clipSize{};
+
+
+		if (hasAnimator)
+		{
+			isSkeleton = mCurrentAnimator->Handle_skeleton.IsValid();
+
+			if (isSkeleton)
+				clipSize = animationClips.size();
+			else
+				clipSize = customAnimClips.size();
+		}
 
 		ImGui::Begin("Animation");
 
 		// disable if no selection
-		if (!hasAnimator || animationClips.size() == 0)
+		if (!hasAnimator || clipSize == 0)
 			ImGui::BeginDisabled();
 
 #pragma region Animation Toolbar
@@ -311,11 +383,21 @@ namespace SliceEditor
 			//auto core = SliceEngine::Core::GetInstance();
 
 			mTimeline.isPlaying = false;
-			if(animationClips.size() > 0)
+			if(clipSize > 0)
 			{
-				LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex], mCurrentClipIndex);
+				if(isSkeleton)
+				{
+					LoadDataFromAnimationClip(*animationClips[mCurrentClipIndex], mCurrentClipIndex);
 
-				UpdateTransform(animationClips[mCurrentClipIndex], 0);
+					UpdateTransform(animationClips[mCurrentClipIndex], 0);
+				}
+
+				else
+				{
+					LoadDataFromAnimClip(customAnimClips[mCurrentClipIndex], mCurrentClipIndex);
+
+					// update trf
+				}
 			}
 			//UpdateBoneScene(tmpEnt);
 			//UpdateBones();
@@ -358,20 +440,180 @@ namespace SliceEditor
 			}
 			if(!frameHasEvent)
 			{
-				if(animationClips.size() > 0)
+				if(clipSize > 0)
 				{
 					mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
+					
+					if(isSkeleton)
+					{
+						LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
+					else
+					{
+						LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 
-					LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
 				}
 			}
 		}
 
-		ImGui::SameLine();
-
-		if (ImGui::Button("Create Animation")) 
+		
+		
+		// check for non bone anim stuff
+		if (!isSkeleton && hasAnimator)
 		{
+			if (!mCurrentAnimator->Handle_Anims.IsValid())
+			{
+				ImGui::EndDisabled();
+				ImGui::SameLine();
 
+				static std::filesystem::path targetAnimsPath = std::filesystem::current_path();
+
+				if (ImGui::Button("Create Animation Package"))
+				{
+					if (targetAnimsPath.filename() != "Animations")
+					{
+						targetAnimsPath = targetAnimsPath / "Assets" / "Animations";
+						//std::filesystem::current_path(target);
+
+						ImGui::OpenPopup("SaveAnims_Popup");
+					}
+				}
+
+				if (ImGui::BeginPopupModal("SaveAnims_Popup", nullptr))
+				{
+					static std::string newAnimsName = "";
+
+					// so what changed? why no update string name
+
+
+					if (StringInputHeader(mRegistry, "New File Name: ", "##newFileAnims", newAnimsName))
+					{
+
+					}
+
+					if (ImGui::Button("Save Changes"))
+					{
+						if(!newAnimsName.empty())
+						{
+							targetAnimsPath = targetAnimsPath / newAnimsName;
+							if (targetAnimsPath.extension() != ".anims")
+							{
+								targetAnimsPath += ".anims";
+							}
+
+							// like this to save new resource?
+
+							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".anims";
+
+							AnimsData Anims{};
+							Anims.SerializeAsset(targetAnimsPath);
+
+							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
+							mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath];
+							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
+
+							newAnimsName = "";
+							targetAnimsPath = std::filesystem::current_path();
+							ImGui::CloseCurrentPopup();
+						}
+					}
+					ImGui::EndPopup();
+				}
+				ImGui::BeginDisabled();
+			}
+
+			else
+			{
+				if(clipSize == 0)
+					ImGui::EndDisabled();
+
+				ImGui::SameLine();
+
+				static std::filesystem::path targetAnimPath = std::filesystem::current_path();
+
+				if (ImGui::Button("Add Animation"))
+				{
+					if (targetAnimPath.filename() != "Animations")
+					{
+						targetAnimPath = targetAnimPath / "Assets" / "Animations";
+						//std::filesystem::current_path(target);
+
+						ImGui::OpenPopup("SaveAnim_Popup");
+					}
+				}
+
+				if (ImGui::BeginPopupModal("SaveAnim_Popup", nullptr))
+				{
+					static std::string newAnimName = "";
+					if (StringInputHeader(mRegistry, "New File Name: ", "##newFileAnim", newAnimName))
+					{
+
+					}
+
+					if (ImGui::Button("Save Changes"))
+					{
+						if(!newAnimName.empty())
+						{
+							targetAnimPath = targetAnimPath / newAnimName;
+							if (targetAnimPath.extension() != ".anim")
+							{
+								targetAnimPath += ".anim";
+							}
+
+							SliceEngine::SliceEngineTypes::Anim newAnim{};
+							newAnim.name = newAnimName;
+
+							std::string relativeAnimPath = "Animations/" + newAnimName + ".anim";
+
+							AnimData animData{};
+							animData.LoadAnimData(newAnim);
+							animData.SerializeAsset(targetAnimPath);
+
+							mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
+							//mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath];
+
+							mCurrentAnimator->curr_anims.animations.push_back(newAnim);
+							customAnimClips.push_back(newAnim);
+
+							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+							if (parentName)
+							{
+								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
+								AnimsData parentPkg{};
+								parentPkg.DeserializeAsset(parentPath);
+								parentPkg.animations.push_back(newAnim.name);
+								parentPkg.SerializeAsset(parentPath);
+							}
+
+							newAnimName = "";
+							targetAnimPath = std::filesystem::current_path();
+						}
+						ImGui::CloseCurrentPopup();
+					}
+
+					ImGui::EndPopup();
+				}
+
+				ImGui::SameLine();
+
+				if (ImGui::Button("Save"))
+				{
+					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+					if (animsFilePath.has_value())
+					{
+						AnimsData Anims{};
+						Anims.LoadAnimsData(mCurrentAnimator->curr_anims);
+
+						Anims.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animsFilePath.value());
+					}
+
+					// also add for animations
+				}
+
+				if (clipSize == 0)
+					ImGui::BeginDisabled();
+			}
 		}
 
 		// run timeline here temporarily
@@ -390,28 +632,55 @@ namespace SliceEditor
 
 		if (hasAnimator)
 		{
-			if (animationClips.size() > 0)
+			if (clipSize > 0)
 			{
-				size_t pos_ = animationClips[0]->name.find_first_of('|');
-				if(pos_ != std::string::npos)
+				if(isSkeleton)
 				{
-					animationName = animationClips[0]->name.substr(0, pos_) + " Animation: ";
+					size_t pos_ = animationClips[0]->name.find_first_of('|');
+					if (pos_ != std::string::npos)
+					{
+						animationName = animationClips[0]->name.substr(0, pos_) + " Animation: ";
+					}
+					for (auto animationClip : animationClips)
+					{
+						size_t pos = animationClip->name.find_first_of('|');
+						std::string clipName;
+
+						if (pos != std::string::npos)
+						{
+							clipName = animationClip->name.substr(pos + 1);
+						}
+						else
+						{
+							clipName = animationClip->name;
+						}
+
+						animationClipNames.push_back(clipName);
+					}
 				}
-				for (auto animationClip : animationClips)
+				else
 				{
-					size_t pos = animationClip->name.find_first_of('|');
-					std::string clipName;
-
-					if (pos != std::string::npos)
+					size_t pos_ = customAnimClips[0].name.find_first_of('|');
+					if (pos_ != std::string::npos)
 					{
-						clipName = animationClip->name.substr(pos + 1);
+						animationName = customAnimClips[0].name.substr(0, pos_) + " Animation: ";
 					}
-					else
+					for (auto animationClip : customAnimClips)
 					{
-						clipName = animationClip->name;
-					}
+						size_t pos = animationClip.name.find_first_of('|');
+						std::string clipName;
 
-					animationClipNames.push_back(clipName);
+						if (pos != std::string::npos)
+						{
+							clipName = animationClip.name.substr(pos + 1);
+						}
+						else
+						{
+							clipName = animationClip.name;
+						}
+
+						animationClipNames.push_back(clipName);
+					}
 				}
 			}
 			else
@@ -433,7 +702,10 @@ namespace SliceEditor
 
 		if (ComboHeader(mRegistry, animationName.c_str(), "##animSelected", mCurrentClipIndex, animationClipNames, true))
 		{
-			LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex],mCurrentClipIndex);
+			if (isSkeleton)
+				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
+			else
+				LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 		}
 
 		ImGui::EndGroup();
@@ -520,15 +792,19 @@ namespace SliceEditor
 		// only update when on window
 		if(ImGui::IsWindowFocused())
 		{
-			if(animationClips.size() > 0)
+			if(clipSize > 0)
 			{
 				auto core = SliceEngine::Core::GetInstance();
 				if (mCurrentAnimator && hasAnimator && core->GetSceneSystem()->mCurrentState == SliceEngine::DEFAULT)
 				{
-
 					if (mTimeline.isPlaying)
 					{
-						currentFrame = static_cast<ImGui::FrameIndexType>(mCurrentTime * animationClips[mCurrentClipIndex]->fps);
+						if(isSkeleton)
+							currentFrame = static_cast<ImGui::FrameIndexType>(mCurrentTime * animationClips[mCurrentClipIndex]->fps);
+						else
+							currentFrame = static_cast<ImGui::FrameIndexType>(mCurrentTime * customAnimClips[mCurrentClipIndex].fps);
+
+
 						if (currentFrame > endFrame)
 						{
 							currentFrame = startFrame;
@@ -542,12 +818,15 @@ namespace SliceEditor
 
 					else
 					{
-						mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+						if(isSkeleton)
+							mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(animationClips[mCurrentClipIndex]->fps);
+						else
+							mCurrentTime = static_cast<float>(currentFrame) / static_cast<float>(customAnimClips[mCurrentClipIndex].fps);
 					}
 
 
 					//Bone animation
-					if (mCurrentAnimator->is_bone)
+					if (isSkeleton)
 					{
 						auto& anim = animationClips[mCurrentClipIndex];
 						if (anim->duration <= 0.0f)
@@ -591,12 +870,15 @@ namespace SliceEditor
 		if (mOpenEventPopup)
 		{
 			ImGui::OpenPopup("AnimationEventPopup");
-			AnimatorEventPopup(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
+			if (isSkeleton)
+				AnimatorEventPopup(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
+			else
+				AnimatorEventPopupCustom(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex, mCurrentAnimator->eventFrames[mCurrentEventIndex]);
 		}
 
 #pragma endregion
 
-		if (!hasAnimator || animationClips.size() == 0)
+		if (!hasAnimator || clipSize == 0)
 			ImGui::EndDisabled();
 
 		ImGui::End();
@@ -621,6 +903,48 @@ namespace SliceEditor
 			}
 
 			ImGui::EndPopup();
+		}
+	}
+	void AnimationWindow::AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
+	{
+		if (ImGui::BeginPopupModal("AnimationEventPopup", nullptr))
+		{
+			if (StringInputHeader(mRegistry, "Function Name: ", "##animEventFuncName", keyFrame.scriptFunc))
+			{
+			}
+
+			if (StringInputHeader(mRegistry, "Param String: ", "##animEventParams", keyFrame.scriptName))
+			{
+			}
+
+			if (ImGui::Button("Save Changes"))
+			{
+				//ImGui::NeoClearSelection();
+				mOpenEventPopup = false;
+				LoadDataFromAnimClip(animClip, animClipIndex);
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+	void AnimationWindow::UnLoadAnimsData(AnimsData& animsData, SliceEngine::SliceEngineTypes::Anims& anims)
+	{
+		for (const auto& name : animsData.animations)
+		{
+			// do this not metadata file name nogga
+			if (mRegistry.GetAssetManager().mFilenameToGUID.find(name) != mRegistry.GetAssetManager().mFilenameToGUID.end())
+			{
+				std::filesystem::path childPath = mRegistry.GetAssetManager().mAssetDirectory / "Animations" / name;
+
+				AnimData childAnim{};
+				childAnim.DeserializeAsset(childPath);
+
+				SliceEngine::SliceEngineTypes::Anim addAnim{};
+				childAnim.UnLoadAnimData(addAnim);
+
+				anims.animations.push_back(addAnim);
+			}
 		}
 	}
 }

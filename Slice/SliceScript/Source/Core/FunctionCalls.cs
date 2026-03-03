@@ -12,6 +12,10 @@ namespace SliceEngine
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetGamma(float gamma);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Camera_GetGamma();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();
@@ -140,7 +144,7 @@ namespace SliceEngine
         internal extern static void Audio_SetVolume(uint entityID, float volume);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_SetCategoryVolume(string category, ref float volume);
+        internal extern static void Audio_SetCategoryVolume(ref string category, ref float volume);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Audio_GetCategoryVolume(string category);

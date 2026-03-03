@@ -884,11 +884,17 @@ namespace SliceEngine
 		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
+		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			OnPlayStarted();
+		}
+
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
+		sRender->Update(static_cast<float>(frm->getDeltaTime()));
 		sRender->Render();
 		sCanvas.DrawOverlay();
 		frm->EndSystem("Graphics");
