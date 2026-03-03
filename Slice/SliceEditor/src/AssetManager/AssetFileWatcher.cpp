@@ -224,17 +224,17 @@ namespace SliceEditor
             bool resourceExist = false;
             // if the meta file exist
             // then check if the resource exist
-           if (std::filesystem::exists(metaPath))
-           {
-               std::unique_ptr<MetaData> metaData = am.CreateDefaultMeta(assetName);
+            if (std::filesystem::exists(metaPath))
+            {
+                std::unique_ptr<MetaData> metaData = am.CreateDefaultMeta(assetName);
 				metaData->Deserialize(metaPath);
 				if (std::filesystem::exists(metaData->resourcePath))
-               {
-                   AssetExistEvent assetEvent(assetName);
-                   EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
-                   resourceExist = true;
-               }
-           }
+                {
+                    AssetExistEvent assetEvent(assetName);
+                    EventManager::GetInstance()->Publish<AssetExistEvent>(assetEvent);
+                    resourceExist = true;
+                }
+            }
 
             if (!resourceExist)
                 am.CreateResource(addEvent.filePath, nullptr, true);

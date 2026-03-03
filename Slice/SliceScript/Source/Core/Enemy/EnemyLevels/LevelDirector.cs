@@ -128,7 +128,7 @@ namespace SliceEngine
                 //Vector3 loc = levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position;
                 //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
                 //SliceLog.Log("Teleporting player");
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+                //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
             }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
@@ -271,7 +271,7 @@ namespace SliceEngine
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
                 ////SliceLog.Log("Teleporting player");
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+                //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
         }

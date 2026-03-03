@@ -14,7 +14,7 @@ namespace SliceEngine
 
         public int maxEnemies = 4;
         public List<GameObject> spawnPoints;
-        List<GameObject> remainingEnemies;
+        List<GameObject> remainingEnemies = new List<GameObject>();
 
         public bool begun = false;
         private int currentSpawnIndex = 0;

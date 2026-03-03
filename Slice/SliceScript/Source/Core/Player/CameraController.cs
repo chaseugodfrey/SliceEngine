@@ -11,18 +11,11 @@ namespace SliceEngine
         public Vector3 yClamp = new Vector3(-40f, 60f, 0f);
         public float resolutionX = 1920, resolutionY = 1080;
         private float pitch = 0f;
-        public GameObject playerObject;
-        TestController playerController;
         //private Vector2 lastMousePos;
 
         public override void OnCreate()
         {
             //SliceLog.Log("Rotation: x<" + transform.Rotation.x + ">y<" + transform.Rotation.y + ">z<" + transform.Rotation.z);
-            if (playerObject == null)
-            {
-                SliceLog.Error("Player object in camera controller not assigned");
-                playerController = playerObject.As<TestController>();
-            }
         }
 
         public void Initialize()
@@ -32,7 +25,6 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             Vector2 mouseDelta = Input.GetMouseDelta();
-            //SliceLog.Log(mouseDelta.ToString());
             float yawDelta = mouseDelta.x * sensitivity.x * dt;
             float pitchDelta = mouseDelta.y * sensitivity.y * dt;
             transform.Rotate(yawDelta, Vector3.Up, true);
@@ -41,9 +33,9 @@ namespace SliceEngine
 
             //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
             //       So I did this null check(27/12/2025)
-            if (playerObject != null)
+            if (Bootstrap.Player != null)
             {
-                transform.Position = playerObject.GetComponent<Transform>().Position;
+                transform.Position = Bootstrap.Player.transform.Position;
             }
             //float deltaToApply = newPitch - pitch;
             //pitch = newPitch;

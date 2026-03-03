@@ -21,13 +21,6 @@ namespace SliceEngine
             //Console.WriteLine("Attack recovery started.");
             player.As<PlayerController>().StartAttackRecovery();
         }
-        public void CanAttack(string str)
-        {
-            if(player.Has<PlayerController>())
-            {
-                player.As<PlayerController>().CanAttackFlag(true);
-            }
-        }
         public void SetAttacking(string state)
         {
             state = state.ToLower();
@@ -35,13 +28,13 @@ namespace SliceEngine
             switch (state)
             {
                 case "true":
-                    //player.As<TestController>().canMove = false;
-                    player.As<PlayerController>().isAttacking = true;
+                    //Bootstrap.Player.canMove = false;
+                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.Attacking;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
-                    //player.As<TestController>().canMove = true;
-                    player.As<PlayerController>().isAttacking = false;
+                    //Bootstrap.Player.canMove = true;
+                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.None;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
@@ -49,7 +42,6 @@ namespace SliceEngine
                     break;
             }
         }
-
         public void SetModelVisible(bool visible)
         {
             GameObject[] children = gameObject.GetAllChildren();
@@ -65,7 +57,6 @@ namespace SliceEngine
                 }
             }
         }
-
         public static void PlayPlayerSFX(string type)
         {
             type = type.ToLower();
