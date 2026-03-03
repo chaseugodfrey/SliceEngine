@@ -1557,6 +1557,13 @@ namespace SliceEngine
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
 	}
 
+	static bool Physics_Spherecast(glm::vec3* origin, glm::vec3* direction,float radius, uint32_t* bodyHitID, glm::vec3* hitPos, glm::vec3* normal, bool triggerInteraction, uint32_t mask)
+	{
+		//bool PhysicsSystem::PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+			//uint32_t & bodyHitID, glm::vec3 & hitPos, glm::vec3 & normal, bool triggerInteraction, uint32_t mask)
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemSphereCast(*origin, *direction, radius, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
+	}
+
 	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
 	{
 		auto* eventManager = EventManager::GetInstance();
@@ -1600,6 +1607,8 @@ namespace SliceEngine
 
 
 	}
+
+
 
 
 #pragma endregion
@@ -3012,6 +3021,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_Spherecast);
 		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
