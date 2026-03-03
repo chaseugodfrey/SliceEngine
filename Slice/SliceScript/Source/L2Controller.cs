@@ -31,6 +31,7 @@ namespace SliceEngine
         public List<GameObject> activeEnemies = new List<GameObject>();
 
         public string projectilePrefabPath;
+        public string enemyPrefabPath;
 
         public void Initialize()
         {
@@ -39,20 +40,55 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            
+            spawnPointOccupied.Clear();
+            foreach (GameObject spawnPoint in projectileSpawnPoints)
+            {
+                Console.WriteLine("Setting spawn occupied to false");
+                spawnPointOccupied[spawnPoint] = false;
+            }
+
+            debugTest();
+        }
+
+        public void debugTest()
+        {
+            int index = 0; 
+            foreach (var entry in spawnPointOccupied)
+            {
+                if (entry.Value == false)
+                {
+                    Console.WriteLine($"{index} point is unoccupied");
+                }
+                else
+                {
+                    Console.WriteLine($"{index} point is occupied");
+                }
+
+                index++;
+            }
         }
 
         public override void OnUpdate(float dt)
         {
+            //debugTest();
             foreach (GameObject spawnPoint in projectileSpawnPoints)
             {
+                //Console.WriteLine($"{spawnPointOccupied.Count}");
                 if (spawnPointOccupied.ContainsKey(spawnPoint) && spawnPointOccupied[spawnPoint])
                 {
                     // This spawn point is currently occupied, skip it
+                   // Console.WriteLine("Spawn point occupied");
+                    continue;
+                }
+
+                if (projectilePrefabPath.Length == 0)
+                {
+                    SliceLog.Error("Projectile Prefab Path is empty!");
                     continue;
                 }
 
                 GameObject newProjectileEnemy = CreateGameObject(projectilePrefabPath);
+               // Console.WriteLine("Creating projectile Enemy");
                 //activeProjectileEnemies.Add(newProjectileEnemy);
                 spawnPointOccupied[spawnPoint] = true;
                 projectileEnemyToSpawnPoint[newProjectileEnemy] = spawnPoint;
