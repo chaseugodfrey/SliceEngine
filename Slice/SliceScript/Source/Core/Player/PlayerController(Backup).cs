@@ -802,7 +802,7 @@ namespace SliceEngine
             // Can only be grounded if initial delay is over
             if (!groundCheckLocked)
             {
-                grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
+                //grounded = groundCheck.Grounded; // Gets grounded status from GroundCheck component
                 if (grounded)
                 {
                     jumpCounter = 0;

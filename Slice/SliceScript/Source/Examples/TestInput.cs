@@ -20,13 +20,13 @@ namespace SliceEngine
                 Cursor.state = Cursor.STATE.DEFAULT;
             }
 
-            var mouseDelta = Input.GetMouseDelta();
+            //var mouseDelta = Input.GetMouseDelta();
 
-            transform.Position += new Vector3(mouseDelta.x, mouseDelta.y, 0) * Time.deltaTime;
-            transform.Position = new Vector3(
-                Utilities.Clamp(transform.Position.x, -20.0f, 20.0f),
-                Utilities.Clamp(transform.Position.y, -20.0f, 20.0f),
-                0);
+            //transform.Position += new Vector3(mouseDelta.x, mouseDelta.y, 0) * Time.deltaTime;
+            //transform.Position = new Vector3(
+            //    Utilities.Clamp(transform.Position.x, -20.0f, 20.0f),
+            //    Utilities.Clamp(transform.Position.y, -20.0f, 20.0f),
+            //    0);
         }
     }
 }

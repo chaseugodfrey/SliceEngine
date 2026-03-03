@@ -14,19 +14,12 @@ namespace SliceEngine
         public override void OnCreate()
         {
             player = FindGameObjectsWithTag("Player")[0];
-        } 
+        }
 
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
             player.As<PlayerController>().StartAttackRecovery();
-        }
-        public void CanAttack(string str)
-        {
-            if(player.Has<PlayerController>())
-            {
-                player.As<PlayerController>().CanAttackFlag(true);
-            }
         }
         public void SetAttacking(string state)
         {
@@ -35,13 +28,13 @@ namespace SliceEngine
             switch (state)
             {
                 case "true":
-                    Bootstrap.Player.canMove = false;
-                    Bootstrap.Player.isAttacking = true;
+                    //Bootstrap.Player.canMove = false;
+                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.Attacking;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
-                    Bootstrap.Player.canMove = true;
-                    Bootstrap.Player.isAttacking = false;
+                    //Bootstrap.Player.canMove = true;
+                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.None;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
@@ -49,7 +42,21 @@ namespace SliceEngine
                     break;
             }
         }
+        public void SetModelVisible(bool visible)
+        {
+            GameObject[] children = gameObject.GetAllChildren();
+            float alpha = visible ? 1.0f : 0.0f;
 
+            foreach (GameObject child in children)
+            {
+                if (child.HasComponent<Renderer>())
+                {
+                    Vector4 col = child.GetComponent<Renderer>().GetColor();
+                    col.w = alpha;
+                    child.GetComponent<Renderer>().SetColor(col);
+                }
+            }
+        }
         public static void PlayPlayerSFX(string type)
         {
             type = type.ToLower();

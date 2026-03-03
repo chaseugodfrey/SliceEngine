@@ -26,7 +26,7 @@ namespace SliceEngine
         public Prefab enemyGruntPrefab = new Prefab("Prefabs/EnemyGrunt.prefab");
         public Prefab enemySlimePrefab = new Prefab("Prefabs/EnemySlime.prefab");
 
-        private bool isActive = false;
+        public bool isActive = false;
 
         /// <summary>
         /// Initialize the levels and stuff
@@ -70,11 +70,11 @@ namespace SliceEngine
                 deathBox.As<GeneralHitbox>().TurnOn();
             }
 
-            isActive = true;
+            //isActive = true;
 
 
-            //Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
-            //Console.WriteLine("Num of levels: " + levels.Count);
+            Console.WriteLine("Num of level triggers: " + levelTriggers.Count);
+            Console.WriteLine("Num of levels: " + levels.Count);
         }
 
         public GameObject CreateGruntEnemy(/*Prefab prefab*/)
@@ -128,7 +128,7 @@ namespace SliceEngine
                 //Vector3 loc = levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position;
                 //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
                 //SliceLog.Log("Teleporting player");
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+                //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
             }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
@@ -147,7 +147,7 @@ namespace SliceEngine
                 // end of level director?
                 return;
             }
-            
+
             // if the curr level is done
             if (levels[currLevel].As<BaseLevel>().CheckObjective() && !levelDone)
             {
@@ -167,7 +167,7 @@ namespace SliceEngine
             // the trigger box will toggle the next level
             if (levelDone && levels[currLevel].As<BaseLevel>().stopWhenCleared)
                 return;
-           // SliceLog.Log("Updating Level: " + currLevel);
+            // SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
         }
 
@@ -180,7 +180,7 @@ namespace SliceEngine
         public bool CanCreateEnemy(Vector3 Pos)
         {
             // do simple dist check 
-            foreach(GameObject enemy in enemies)
+            foreach (GameObject enemy in enemies)
             {
                 if (enemy == null) continue;
 
@@ -271,7 +271,7 @@ namespace SliceEngine
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
                 ////SliceLog.Log("Teleporting player");
-                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+                //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
         }
