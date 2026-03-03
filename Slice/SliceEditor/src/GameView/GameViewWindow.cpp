@@ -155,8 +155,8 @@ namespace SliceEditor
 
 		auto window = SliceEngine::Core::GetInstance()->GetWindow();
 
-		//if (!glfwGetWindowAttrib(window, GLFW_FOCUSED))
-		//	return;
+		if (!glfwGetWindowAttrib(window, GLFW_FOCUSED))
+			return;
 
 		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
 		auto cursor_state = inputSystem->GetCursorState();
