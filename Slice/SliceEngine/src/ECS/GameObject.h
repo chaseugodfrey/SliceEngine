@@ -118,6 +118,8 @@ namespace SliceEngine
 			return mEntity < other.mEntity; 
 		}
 
+		std::vector<Entity> GetAllChildren();
+
 		GameObject& operator=(const GameObject& other)  
 		{
 			if(this != &other)

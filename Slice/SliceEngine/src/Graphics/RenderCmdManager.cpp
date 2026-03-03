@@ -20,6 +20,7 @@
 
 #include "Resource/Shader.h"
 #include "Resource/Model.h"
+#include "Resource/Texture.h"
 
 // SSBOs
 // Textures			  0 - Custom Shaders (Deferred.frag)
@@ -29,6 +30,10 @@
 
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom
+
+extern void _CheckGLError(const char* file, int line);
+
+#define CheckGLError() _CheckGLError(__FILE__, __LINE__)
 
 
 namespace SliceEngine
@@ -50,6 +55,7 @@ namespace SliceEngine
 		glCreateBuffers(1, &mEVBO);
 		glNamedBufferStorage(mEVBO, sizeof(glm::uvec4) * mMaxInstance * mEVBOSafetyMult, nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, mEVBO);
+		CheckGLError();
 	}
 	RenderCmdManager::~RenderCmdManager()
 	{
@@ -70,6 +76,13 @@ namespace SliceEngine
 		}
 	}
 
+	void RenderCmdManager::Update(float dt)
+	{
+		time += dt;
+		while (time > maxTime)
+			time -= maxTime;
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -81,6 +94,7 @@ namespace SliceEngine
 
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
+		
 		//sScene->mCurrentState;
 		for (auto entity : view)
 		{
@@ -88,9 +102,9 @@ namespace SliceEngine
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
 			{
-				if (!rend.materialInstance.albedo.IsValid() || !rend.materialInstance.shader.IsValid())
+				if (!rend.materialInstance.shader.IsValid())
 					rend.materialInstance = *(rend.materialHandle.get());
 				material = &rend.materialInstance;
 			}
@@ -99,34 +113,30 @@ namespace SliceEngine
 
 			auto* rcmds = &renderCmds;
 			auto* rtcmds = &translucentCmds;
-			bool isPrefab = Core::GetInstance()->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity);
+			bool isPrefab = core->mFactory.mRegistry.any_of<PrefabEditingEntity>(entity);
 			if (isPrefab)
 			{
 				rcmds = &prefabRenderCmds;
 				rtcmds = &prefabTranslucentCmds;
 			}
 
-			//uint64_t shaderID = 9461939409271178249;// --TODO-- Should be responsibility of material
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
 			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
 
+			//if (material->data.size() != material->shader.get()->dataIn.size()) // Weak error checking, removed
+			//	SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
 
 			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
-			if (material->color.a > 0.999f)
-			{
-				key = key | MRCK_OPAQUE;
-				SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
-			}
-			else
-			{
+			if (material->isTranslucent)
 				key = key | MRCK_TRANSCLUCENT;
-				SetColor(data, material->color);
-			}
-			
+			else
+				key = key | MRCK_OPAQUE;
+			SetColor(data, material->color);
+
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
-			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 
 			if (rend.castShadow && !isPrefab)
@@ -145,15 +155,16 @@ namespace SliceEngine
 			}
 		}
 	
-		// Gather Particles --TODO-- Gather shader for particles too
+		// Gather Particles
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
+			// --TODO-- IMPT: NOT MESH PARTILES WILL BREAK, Change particle Textures to rely fully on material for this
 			if (!ptx.isMeshParticle)
 			{
 				auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-				// --TODO-- Currently hard set particles shader
+				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
 				uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->s);
 				RCK_Size key =
 					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
@@ -166,7 +177,7 @@ namespace SliceEngine
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
-				data.texID = GetTextureDetails(ptx.textureID);
+				//data.blank = GetTextureDetails(ptx.textureID);
 				data.entityID = 0;
 
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
@@ -204,6 +215,9 @@ namespace SliceEngine
 				if (!model || !material)
 					continue;
 
+				if (material->data.size() != material->shader.get()->dataIn.size())
+					SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(materialGUID);
+
 				RCK_ModelT mdlDet = GetModelDetails(
 					modelGUID.GetGUID(),
 					0,
@@ -218,7 +232,7 @@ namespace SliceEngine
 
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
-				data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
@@ -378,6 +392,8 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
 				}
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
@@ -395,20 +411,22 @@ namespace SliceEngine
 				//GLint uniformLoc;
 				if (mdlRef.isSkin)
 				{
-					for (size_t j{}; j < batch.base.size(); ++j)
+					// Single Draws based on entity id for animations stuffs, so dun need worry abt ext data
+					for (size_t i{}; i < batch.base.size(); ++i)
 					{
-						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[j].entityID);
-						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[j]);
-						glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * j);
+						SetModelSkinUniform(mShader, mdlRef.isSkin, batch.base[i].entityID);
+						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &batch.base[i]);
+						glNamedBufferSubData(mEVBO, 0, sizeof(float) * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * i);
 						glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 					}
 				}
 				else
 				{
 					SetModelSkinUniform(mShader, mdlRef.isSkin, 0);
+					size_t maxExtCount = static_cast<size_t>(mMaxInstance * mEVBOSafetyMult * 4 / (batch.numVar == 0 ? 1 : batch.numVar));
 					for (size_t drawCounter{}; drawCounter < batch.base.size(); )
 					{
-						size_t drawNum{ std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
+						size_t drawNum{ std::min(std::min(batch.base.size() - drawCounter, static_cast<size_t>(mMaxInstance)), maxExtCount) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.base.data() + drawCounter);
 						glNamedBufferSubData(mEVBO, 0, sizeof(float) * drawNum * batch.numVar, reinterpret_cast<const float*>(batch.ext.data()) + batch.numVar * drawCounter);
 						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum));
@@ -460,6 +478,9 @@ namespace SliceEngine
 						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
 						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
 					}
+					uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
+
 				}
 
 				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
@@ -479,13 +500,14 @@ namespace SliceEngine
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
 					glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &dat);
-					glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &i.ext);
+					glNamedBufferSubData(mEVBO, 0, sizeof(float) * i.ext.size() * 4, reinterpret_cast<const float*>(i.ext.data()));
 					glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				}
 			}
 			break;
 		}
 		}
+		CheckGLError();
 	}
 
 	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)
@@ -494,6 +516,10 @@ namespace SliceEngine
 		auto& transform = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity);
 		auto& rend = core->GetRegistry().get<Renderer>(entity);
 		if (!rend.modelHandle.IsValid()) return;
+
+		if (rend.materialHandle->data.size() != rend.materialHandle->shader.get()->dataIn.size())
+			SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
+
 		auto meshOffset = std::min(rend.meshOffset, static_cast<unsigned char>(rend.modelHandle.get()->meshes.size() - 1));
 
 		auto& mesh = rend.modelHandle.get()->meshes[meshOffset];
@@ -516,7 +542,7 @@ namespace SliceEngine
 			const SliceEngine::SliceEngineTypes::Material* material;
 			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
 			{
-				if (!rend.materialInstance.albedo.IsValid() || !rend.materialInstance.shader.IsValid())
+				if (!rend.materialInstance.shader.IsValid()) // --TODO-- Again, this shouldn't happen
 					rend.materialInstance = *(rend.materialHandle.get());
 				material = &rend.materialInstance;
 			}
@@ -530,14 +556,18 @@ namespace SliceEngine
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
 
-			data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			GLint uniformLoc = glGetUniformLocation(mShader, "time");
+			glUniform1f(uniformLoc, time);
+
+			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
-			glNamedBufferSubData(mEVBO, 0, sizeof(glm::uvec4), &ext);
+			glNamedBufferSubData(mEVBO, 0, sizeof(float) * material->data.size(), &ext);
 			break;
 		}
 		}
 		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+		CheckGLError();
 	}
 
 	void RenderCmdManager::SetModelSkinUniform(GLuint mShader, bool isSkin, unsigned int entityID)
@@ -630,9 +660,17 @@ namespace SliceEngine
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 				cmd[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+				auto textureGUID = (GUID)std::get<uint64_t>(mat->data.find(i.name)->second);
+				auto texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>(textureGUID);
+				if (!texture.IsValid())
+					texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+				
+				cmd[mainID][subID] = GetTextureDetails(texture.get()->bindless_id);
+				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				cmd.push_back(glm::uvec4{});
 				subID = 0;
@@ -647,11 +685,10 @@ namespace SliceEngine
 
 		auto numVar = mat->shader.get()->dataIn.size();
 
-		int mainID = static_cast<int>(num * numVar / 4);
-		int subID = num * numVar % 4;
+		int mainID = (num * numVar) / 4;
+		int subID = (num * numVar) % 4;
 		if (rc.ext.size() < mainID + 1)
 			rc.ext.push_back(glm::uvec4{});
-		//size_t numFloats{}, numUints{}, numInts{}, numBools{};
 
 		for (auto i : mat->shader.get()->dataIn)
 		{
@@ -669,9 +706,17 @@ namespace SliceEngine
 			case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 				rc.ext[mainID][subID] = std::bit_cast<uint32_t>(std::get<float>(mat->data.find(i.name)->second));
 				break;
+			case SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+				auto textureGUID = (GUID)std::get<uint64_t>(mat->data.find(i.name)->second);
+				auto texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>(textureGUID);
+				if (!texture.IsValid())
+					texture = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+
+				rc.ext[mainID][subID] = GetTextureDetails(texture.get()->bindless_id);
+				break;
 			}
 
-			if (++subID > 4)
+			if (++subID > 3)
 			{
 				rc.ext.push_back(glm::uvec4{});
 				subID = 0;

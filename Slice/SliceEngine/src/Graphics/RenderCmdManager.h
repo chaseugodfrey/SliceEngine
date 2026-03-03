@@ -38,8 +38,8 @@ namespace SliceEngine
 		{
 			glm::mat4 mdlMtx;
 			uint32_t entityID;
-			uint32_t texID;
-			uint32_t tex2ID;
+			uint32_t blank;
+			uint32_t blank2;
 			uint32_t col;
 		};
 	private:
@@ -106,6 +106,7 @@ namespace SliceEngine
 		~RenderCmdManager();
 		void HandlePlayEvent(const OnPlayEvent& event);
 		void GatherDrawCalls();
+		void Update(float dt);
 		void SortTranslucent(Entity camEntity);
 		void UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 relPos);
 		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos);
@@ -126,6 +127,7 @@ namespace SliceEngine
 
 		const float minDistTranslucent = -1.f;
 		const int mEVBOSafetyMult = 2;
+		const float maxTime = 3600.f;
 		GLuint mEVBO{};
 		GLuint mTextureVBO{};
 		Entity mLastKnownCam{};
@@ -135,6 +137,7 @@ namespace SliceEngine
 		glm::vec3 lastRenderPrefabOffset{};
 		glm::vec3 lastTranslucentOffset{};
 		glm::vec3 lastTranslucentPrefabOffset{};
+		float time{};
 
 		std::map<RCK_Size, RenderCmd> renderCmds;
 		std::vector<TranslucentCmd> translucentCmds; //single draw calls

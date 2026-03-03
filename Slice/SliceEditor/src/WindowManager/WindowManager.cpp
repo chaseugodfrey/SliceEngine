@@ -221,6 +221,11 @@ namespace SliceEditor
 				AddWindow<AnimatorWindow>();
 			}
 
+			if (ImGui::MenuItem("Shader Graph"))
+			{
+				AddWindow<CustomShaderWindow>();
+			}
+
 			ImGui::EndMenu();
 		}
 
@@ -322,6 +327,7 @@ namespace SliceEditor
 					ClearSelectionEvent clearedEvent;
 					clearedEvent.suppressHistory = true;
 					EventManager::GetInstance()->Publish<ClearSelectionEvent>(clearedEvent);
+					EventManager::GetInstance()->Publish<OnGameStopEvent>();
 				}
 			}
 		}

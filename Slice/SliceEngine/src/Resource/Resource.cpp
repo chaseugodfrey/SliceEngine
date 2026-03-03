@@ -101,7 +101,27 @@ namespace SliceEngine
 	void Type<SliceEngineTypes::CustomShader>::Reload(SliceEngineTypes::CustomShader* resource, ResourceManager& mgr, const std::string& path)
 	{
 		resource->DestroyCShader();	//calls glDeleteProgram
-		resource->LoadCShader(path); // --TODO-- in case I store the val somewhere else
+		auto newResource = resource->LoadCShader(path);
+		resource->s = newResource.s;
+		resource->dataIn = newResource.dataIn;
+
+		std::string shdrGUID = path.substr(path.find_first_of('/') + 1);
+		shdrGUID = shdrGUID.substr(0, shdrGUID.find_first_of('.'));
+
+		for (auto& [name, id] : mgr.mFileNameToGUID)
+		{
+			if (name.find(".mat") != std::string::npos)
+			{
+				auto mat = mgr.get<SliceEngineTypes::Material>(id);
+				if (mat.get()->shader.getGUID().GetGUID() == std::stoull(shdrGUID))
+				{
+					mat->isShaderUpdated = true;
+					mgr.ReloadResourceInPlace(id);
+				}
+			}
+		}
+		// safety check for default resource ID for material
+		mgr.ReloadResourceInPlace((GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID);
 	}
 
 	// Vertex Shader
@@ -162,6 +182,7 @@ namespace SliceEngine
 			{
 			case Type<SliceEngineTypes::Material>::defaultResourceGUID:
 				t->LoadDefault();
+				
 				break;
 			default:
 				return nullptr;
@@ -181,93 +202,49 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Material>::Reload(SliceEngineTypes::Material* materialToReload, ResourceManager& mgr, const std::string& path)
 	{
+		// the path passed in is just the defualt GUID 10819322238111217941
+		// so itll fail to open
+		// so i'm gonna add some check if its default
+		// and change to use LoadMaterial and LoadDefault in material so taht I can reuse the code below w/o copy pasting it all
+		SliceEngineTypes::Material loadedMaterialData;
+
 		std::ifstream file(path);
 		if (!file.is_open())
 		{
-			SLICE_LOG_ERROR("Could not open material file for reload: " + path);
-			return;
-		}
-
-		nlohmann::json materialJson;
-		try
-		{
-			materialJson = nlohmann::json::parse(file);
-		}
-		catch (nlohmann::json::parse_error& e)
-		{
-			SLICE_LOG_ERROR("Invalid material JSON file for reload: " + path + e.what());
-			return;
-		}
-
-		try
-		{
-			GUID newAlbedoGUID = (GUID)materialJson["albedo"].get<uint64_t>();
-			GUID newShaderGUID = (GUID)materialJson["shader"].get<uint64_t>();
-
-			glm::from_json(materialJson["color"], materialToReload->color);
-			materialToReload->data.clear();
-
-			GUID oldAlbedoGUID = materialToReload->albedo.getGUID();
-			GUID oldShaderGUID = materialToReload->shader.getGUID();
-
-			
-			if (oldAlbedoGUID != newAlbedoGUID)
+			// if path doesnt exist check if its a default resource
+			if (path == std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID))
 			{
-				materialToReload->albedo = mgr.get<SliceEngineTypes::Texture>(newAlbedoGUID);
+				SLICE_LOG("Loading default material for reload: " + path);
+				loadedMaterialData.LoadDefault();
 			}
 			else
-			{
-				// The texture is the same. DO NOTHING to the handle.
-			}
-			if (newShaderGUID != oldShaderGUID)
-			{
-				materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
-				for (auto& i : materialToReload->shader.get()->dataIn)
-					materialToReload->data.emplace(i.name, i.baseData);
-			}
-			else
-			{
-				for (auto& i : materialToReload->shader.get()->dataIn)
-				{
-					if (materialJson["data"].contains(i.name))
-					{
-						switch (i.dataType)
-						{
-						case SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
-						{
-							bool b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::UINT:
-						{
-							uint32_t b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::INT:
-						{
-							int32_t b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						case SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
-						{
-							float b = materialJson["data"][i.name];
-							materialToReload->data.emplace(i.name, b);
-							break;
-						}
-						}
-					}
-					else
-						materialToReload->data.emplace(i.name, i.baseData);
-				}
-			}
+				SLICE_LOG_ERROR("Could not open material file for reload: " + path);
 		}
-		catch (nlohmann::json::exception& e)
+		else
 		{
-			SLICE_LOG_ERROR("Error parsing reloaded material properties from file: " + path + ". " + e.what());
+			// if file can open then its a valid material so load material from json
+			loadedMaterialData = SliceEngineTypes::Material::LoadMaterial(path);
+			file.close();
 		}
+
+		GUID newShaderGUID = loadedMaterialData.shader.getGUID();//(GUID)materialJson["shader"].get<uint64_t>();
+
+		materialToReload->color = loadedMaterialData.color;
+		materialToReload->isTranslucent = loadedMaterialData.isTranslucent;
+		auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
+		materialToReload->data.clear();
+
+		if (newShaderGUID != materialToReload->shader.getGUID())
+			materialToReload->shader = mgr.get<SliceEngineTypes::CustomShader>(newShaderGUID);
+
+		for (auto& [name, data] : loadedMaterialData.data)
+		{
+			if (materialToReload->isShaderUpdated && oldData.contains(name))
+				materialToReload->data[name] = oldData[name];
+			else
+				materialToReload->data[name] = data;
+		}
+		materialToReload->isShaderUpdated = false;
 	}
 
 	//Model
@@ -328,6 +305,51 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Model>::Reload(SliceEngineTypes::Model* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyModel();
+
+		std::filesystem::path file(path);
+		if (!std::filesystem::exists(path))
+		{
+			// load default model
+			uint64_t defaultID = std::stoull(path);
+
+			switch (defaultID)
+			{
+			case DefaultResourceIDs::CUBE_DEFAULT:
+				resource->LoadDefaultCubeModel();
+				break;
+			case DefaultResourceIDs::SPHERE_DEFAULT:
+				resource->LoadDefaultSphereModel();
+				break;
+			case DefaultResourceIDs::SPHERE_LOW_POLY_DEFAULT:
+				resource->LoadDefaultSphereModel(5, 7);
+				break;
+			case DefaultResourceIDs::CAPSULE_DEFAULT:
+				resource->LoadDefaultCapsuleModel();
+				break;
+			case DefaultResourceIDs::CYLINDER_DEFAULT:
+				resource->LoadDefaultCylinderModel();
+				break;
+			case DefaultResourceIDs::QUAD_DEFAULT:
+				resource->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::LINE_DEFAULT:
+				resource->LoadDefaultLineModel();
+				break;
+			case DefaultResourceIDs::FRUSTRUM_DEFAULT:
+				resource->LoadDefaultFrustrumModel();
+				break;
+			default:
+				delete resource;
+				break;
+			}
+		}
+		if (file.extension() == ".mdl") {
+			if (!resource->LoadModelResource(path)) {
+				//delete m;
+				delete resource;
+			}
+		}
 	}
 
 	std::unique_ptr<SliceEngineTypes::Scene> Type<SliceEngineTypes::Scene>::Load(ResourceManager& resourceMgr, const std::string& path)
