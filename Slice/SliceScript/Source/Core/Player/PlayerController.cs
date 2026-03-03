@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Threading;
 using static SliceEngine.GeneralHitbox;
 
 
@@ -73,8 +74,7 @@ namespace SliceEngine
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
         float attackTimer = 0.0f;
-        bool attackQueued;
-        Coroutine attackCoroutine;
+        bool attackQueued;        
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
@@ -86,6 +86,10 @@ namespace SliceEngine
         float lungeTimer = 0f;
         public float lungeDuration = 0.5f;
         public float lungeSpeed = 5.0f;
+
+        // Plunge (ground slam when attacking while midair)
+        public float plungeVerticalForce = 20.0f;
+        public float plungeTerminalVelocity = 40.0f;
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
@@ -197,12 +201,13 @@ namespace SliceEngine
         }
         private void ExecuteAttack()
         {
-            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
+            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging && grounded)
             {
                 playerCombatState = CombatState.Attacking;
+
                 // Ground attacking
                 playerCurrentAttack = CurrentAttack.GroundAttack;
-                attackCounter++;       
+                attackCounter++;
                 if (attackCounter > 3) attackCounter = 1;
                 attackTimer = attackDuration[(int)playerCurrentAttack];
 
@@ -238,8 +243,13 @@ namespace SliceEngine
                     default:
                         break;
                 }
-                //console.writeline("Attack Counter: " + attackCounter);
             }
+            else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
+            {
+                playerCombatState = CombatState.Attacking;
+                playerMovementState = MovementState.Plunging;
+                playerCurrentAttack = CurrentAttack.None;
+            }            
         }
         private void TurnOffHitboxes()
         {
@@ -260,7 +270,7 @@ namespace SliceEngine
         {
             //Console.WriteLine($"Attack recovery time: {attackResetTimer}");
             if (attackResetTimer >= attackRecoveryDuration)
-            {               
+            {
                 playerCurrentAttack = CurrentAttack.None;
                 attackCounter = 0;
 
@@ -279,19 +289,6 @@ namespace SliceEngine
                     if (animator.SafeToChange("Attack3ToLoco"))
                         animator.SetBool("Attack3ToLoco", true);
                 }
-            }
-        }
-        private IEnumerator Plunge(float duration)
-        {
-            float timer = 0f;
-            while (timer < duration)
-            {
-                Vector3 velTemp = rigidBody.Velocity;
-                velTemp.y = 0.0f;
-                rigidBody.Velocity = velTemp;
-                //velocity.y = 0f;
-                timer += Time.deltaTime;
-                yield return null;
             }
         }
 
@@ -551,6 +548,12 @@ namespace SliceEngine
                         playerCurrentAttack = CurrentAttack.PlungeLand;
                         jumpLandTimer = jumpLandDuration;
                     }
+                    else
+                    {
+                        Vector3 velTemp = rigidBody.Velocity;
+                        velTemp.y = 0.0f;
+                        rigidBody.Velocity = velTemp;
+                    }
                     break;
                 case MovementState.Dead:
                     break;
@@ -610,11 +613,11 @@ namespace SliceEngine
             switch (playerMovementState)
             {
                 case MovementState.Idle:
-                    if (animator.SafeToChange("Idle"))
+                    if (animator.SafeToChange("Idle") && (String.Compare(animator.GetCurrAnimName(), "Idle") != 0))
                     animator.SetBool("Idle", true);
                     break;
                 case MovementState.Walking:
-                    if (animator.SafeToChange("Walk"))
+                    if (animator.SafeToChange("Walk") && (String.Compare(animator.GetCurrAnimName(), "Walk") != 0))
                         animator.SetBool("Walk", true);
                     break;
                 case MovementState.Jumping:
@@ -626,11 +629,11 @@ namespace SliceEngine
                         animator.SetBool("AirDashStart", true);
                     break;
                 case MovementState.Falling:
-                    if (animator.SafeToChange("Fall"))
+                    if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
                         animator.SetBool("Fall", true);
                     break;
                 case MovementState.Landing:
-                    if (animator.SafeToChange("Land"))
+                    if (animator.SafeToChange("Land") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
                         animator.SetBool("Land", true);
                     break;
                 case MovementState.GroundDash:
@@ -639,7 +642,7 @@ namespace SliceEngine
                     break;
 
                 case MovementState.AirDash:
-                    if (animator.SafeToChange("AirDashStart"))
+                    if (animator.SafeToChange("AirDashStart") && (String.Compare(animator.GetCurrAnimName(), "AirDashStart") != 0))
                         animator.SetBool("AirDashStart", true);
                     break;
 
