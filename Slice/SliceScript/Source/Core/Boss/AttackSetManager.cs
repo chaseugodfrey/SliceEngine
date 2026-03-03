@@ -11,14 +11,18 @@ namespace SliceEngine
     public class AttackSetManager : SliceBehaviour
     {
 
-        //private List<AttackSet> attackSets = new List<AttackSet>();
+        private List<AttackPatterns> attackSets = new List<AttackPatterns>();
+        private int currentSet = 0;
+        private int maxPhases;
 
-        public AttackSetManager(List<AttackPatterns> atpattern)
+        public AttackSetManager(List<AttackPatterns> atpattern, int numberOfPhases)
         {
-
+            attackSets = atpattern;
+            maxPhases = numberOfPhases;
         }
         public override void OnUpdate(float dt)
         {
+
         }
 
     }

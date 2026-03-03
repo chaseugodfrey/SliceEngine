@@ -39,7 +39,7 @@ namespace SliceEngine
 
         public void UpdatePhases(float percentageHealth)
         {
-            if (currentPhase > maxPhase)
+            if (currentPhase >= maxPhase)
                 return;
 
             if  (percentageHealth <= healthPhases[currentPhase])

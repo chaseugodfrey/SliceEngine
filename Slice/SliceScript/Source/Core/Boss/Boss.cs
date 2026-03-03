@@ -29,7 +29,9 @@ namespace SliceEngine
             phaseController = new PhaseController(healthPhasesList);
             phaseController.PhaseTrigger += HandlePhaseChange;
 
-            //attackSetManager = new AttackSetManager();
+            List<AttackPatterns> temp = initializeAttackPatterns();
+
+            attackSetManager = new AttackSetManager(temp, healthPhasesList.Count);
         }
         public override void OnUpdate(float dt)
         {
@@ -45,10 +47,29 @@ namespace SliceEngine
             //uh ill think of how to do the attack manager might not need it
         }
 
-        public void initializeAttackPatterns()
+        public List<AttackPatterns> initializeAttackPatterns()
         {
+            List<AttackPatterns> temp = new List<AttackPatterns>();
 
+            if(!(attackPatterns1.Count == 0)) // not equal zero, just in case yall never see
+            {
+                temp.Add(new AttackPatterns(attackPatterns1));
+            }
+            if (!(attackPatterns2.Count == 0))
+            {
+                temp.Add(new AttackPatterns(attackPatterns2));
+            }
+            if (!(attackPatterns3.Count == 0))
+            {
+                temp.Add(new AttackPatterns(attackPatterns3));
+            }
 
+            if (temp.Count == 0)
+            {
+               SliceLog.Log("No attack patterns assigned to boss");
+            }
+
+            return temp;
         }
     }
 }

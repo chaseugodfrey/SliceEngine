@@ -15,7 +15,7 @@ namespace SliceEngine
 
         public AttackPatterns(List<int> attacks)
         {
-            // idk how else it should be done due to limitations
+            //idk how else it should be done due to limitations
             //for now do this each attack will be identified with an index
             foreach (int i in attacks)
             {
