@@ -21,13 +21,6 @@ namespace SliceEngine
             //Console.WriteLine("Attack recovery started.");
             Bootstrap.Player.StartAttackRecovery();
         }
-        public void CanAttack(string str)
-        {
-            if(player.Has<PlayerController>())
-            {
-                player.As<PlayerController>().CanAttackFlag(true);
-            }
-        }
         public void SetAttacking(string state)
         {
             state = state.ToLower();
