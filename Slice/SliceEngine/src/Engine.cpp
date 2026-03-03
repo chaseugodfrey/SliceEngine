@@ -786,6 +786,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
+		
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -799,12 +800,6 @@ namespace SliceEngine
 		(void)projSettingsManager;
 		(void)sParticleSystemManager;		
 
-		//static bool isPlaying = false;
-
-		//
-
-		//frm->StartFrame();
-
 		if (!sScene->CheckQueueEmpty())
 		{
 			if (sScene->isSceneUnloaded)
@@ -815,7 +810,6 @@ namespace SliceEngine
 
 		while (sScene->mCurrentState != sScene->mNextState)
 		{
-			//Line to load resources
 			if (sScene->mNextState == SceneState::PLAY_SCENE)
 			{
 				OnPlayStart();
@@ -826,40 +820,15 @@ namespace SliceEngine
 				OnPauseStart();
 			}
 
-			//When the stop button has been clicked and the scene state is set to STOP_SCENE, reload the current scene
 			if (sScene->mNextState == SceneState::STOP_SCENE)
 			{
-
-				/*core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-				sInputs->SetMode(InputMode::Editor);
-				sInputs->SetEnabled(false);
-				sInputs->ResetCursorState();
-				sParticleSystemManager.ResetManager();
-				sAudio->StopAllSound();
-				auto audioSettings = projSettingsManager->GetSettings<AudioSettings>();
-				audioSettings->DeleteAM();
-
-				gScriptSystem->OnEnd();*/
-
 				OnStopStart();
 			}
 		}
 
-
 		frm->StartSystem("Update Delta Time");
-		frm->updateDeltaTime(); //update deltatime and currentnumber of steps for systems that uses fixeddt
+		frm->updateDeltaTime(); 
 		frm->EndSystem("Update Delta Time");
-
-		frm->StartSystem("GLFW Poll Events");
-		glfwMakeContextCurrent(core->GetWindow());
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glfwPollEvents();
-		frm->EndSystem("GLFW Poll Events");
-
-		frm->StartSystem("Input");
-		sInputs->UpdatePrevInput();
-		GetActionMappingSystem().processAllInput();
-		frm->EndSystem("Input");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
@@ -869,49 +838,37 @@ namespace SliceEngine
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
-		//gScriptSystem->Update((float)frm->getDeltaTime());
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
-		{
-			gScriptSystem->OnUpdate((float)frm->getDeltaTime());
-			//gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
-		}
 		frm->EndSystem("Script");
 
-
-		frm->StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
-		sTransform.UpdateTransforms();
-		prefabSys.UpdateBasePrefabs(); // updates base prefab transform so ig it belongs here idk
-		frm->EndSystem("Transform");
-
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();		//updates the rect transforms
-		
-		//cant start pause and continue frm for time check
-		sCanvas.ConstructWorldCanvas();
-		frm->EndSystem("Canvas");
-
+		// Run Simulation (Physics, Animations, FixedUpdate Scripts)
 		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			OnPlayStarted();
 		}
 
+		// regular transform update
+		frm->StartSystem("Transform");
+		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
+		sTransform.UpdateTransforms();
+		prefabSys.UpdateBasePrefabs(); 
+		frm->EndSystem("Transform");
+
+		// i shifted this to the end cause UI usually updates last(?) i think
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		sCanvas.ConstructWorldCanvas();
+		frm->EndSystem("Canvas");
+
+		// note: might need to have a physics update version of particle sys to call in fixedDT loop
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
-
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
+		sRender->Update(static_cast<float>(frm->getDeltaTime()));
 		sRender->Render();
-
-		//frm->StartSystem("Canvas");
 		sCanvas.DrawOverlay();
-		//frm->EndSystem("Canvas");
 		frm->EndSystem("Graphics");
-
-
-		//frm->EndFrame();
-		//frm->CalculateSystemPercentages();
 	}
 
 	void Engine::SceneChangeEvent(const OnSceneChangeEvent& event)
@@ -1009,42 +966,52 @@ namespace SliceEngine
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
 
-		//Starting Physics
-		frm->StartSystem("Physics");
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
+			// game logic
+			frm->StartSystem("Script");
 			gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+			frm->EndSystem("Script");
 
+			frm->StartSystem("Transform");
+			// sync matrices before physics step
+			sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sTransform.UpdateTransforms();
+			frm->EndSystem("Transform");
 
-			//Prestep: push dynamic poses to physics world
+			// physics update
+			frm->StartSystem("Physics");
 			core->GetSystem<PhysicsSystem>().PreStepSync();
-
-			// Single world step
 			core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
-
-			// Post-step: pull dynamic poses for rendering
 			core->GetSystem<PhysicsSystem>().PostStepSync();
+			frm->EndSystem("Physics");
 
+			frm->StartSystem("Transform");
+			// sync matrices after physics
+			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+			sTransform.UpdateTransforms();
+			frm->EndSystem("Transform");
 
-		}
-		frm->EndSystem("Physics");
-
-		frm->StartSystem("Transform");
-		sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-		frm->EndSystem("Transform");
-
-		//Starting Animation
-		frm->StartSystem("Animation");
-		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
-		{
+			// animation after logic and physics
+			frm->StartSystem("Animation");
 			sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
 			sBone.Update_Scenegraph();
 			sAnimator.BoneUpdate();
+			frm->EndSystem("Animation");
 		}
-		frm->EndSystem("Animation");
-		//somehow convert to pixel coord
+
+		// regular update for scripts
+		// idk if this should be before or after simulation loop
+		frm->StartSystem("Script");
+		gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+		frm->EndSystem("Script");
+		
+		frm->StartSystem("Navigation System");
+		sNav.Update(static_cast<float>(frm->getDeltaTime()));
+		frm->EndSystem("Navigation System");
+
 		frm->StartSystem("Canvas");
-		glm::vec2 mouse_coord = sInputs->GetMousePosition();
+		//glm::vec2 mouse_coord = sInputs->GetMousePosition();
 		glm::vec2 mouse_NDC = sInputs->GetMouseNDC();
 		//for now im just gona directly convert to game screen coord
 		unsigned int mouse_x = static_cast<unsigned int>(mouse_NDC.x * CanvasSystem::target_width);//(unsigned int)mouse_coord.x;
@@ -1057,12 +1024,10 @@ namespace SliceEngine
 		sSlider.HandleMouse(*sInputs, raycast_target);
 		frm->EndSystem("UI Interaction");
 
-		frm->StartSystem("Navigation System");
-		sNav.Update(static_cast<float>(frm->getDeltaTime()));
-		frm->EndSystem("Navigation System");
-
-		//Call script late update
+		// late update for scripts
+		frm->StartSystem("Script");
 		gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		frm->EndSystem("Script");
 	}
 
 	void Engine::Draw()

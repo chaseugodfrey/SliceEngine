@@ -88,6 +88,9 @@ namespace SliceEditor
 					targetControllerPath += ".controller";
 				}
 				mAnimatorData->mStateMachineAsset->SerializeAsset(targetControllerPath);
+
+				//mRegistry.GetAssetManager().CreateDefaultAsset(targetControllerPath, )
+
 				newFileName = "";
 				targetControllerPath = std::filesystem::current_path();
 				ImGui::CloseCurrentPopup();

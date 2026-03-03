@@ -38,6 +38,7 @@ namespace SliceEditor
 	{
 		mIsPlayMode = false;
 		mLastCursorState = {};
+		SliceEngine::Core::GetInstance()->GetInputSystem()->ResetCursorState();
 	}
 
 	void GameViewWindow::Draw()
@@ -50,17 +51,17 @@ namespace SliceEditor
 			mRequestToFocus = false;
 		}
 
+		position = ImGui::GetWindowPos();
+		size = ImGui::GetWindowSize();
+		center = { std::floor(position.x + size.x / 2.0f), std::floor(position.y + size.y / 2.0f) };
+		
+
 		DrawHeaderBar();
 		mWindowScreen.CalculatePositions(ImGui::GetCursorScreenPos(), ImGui::GetContentRegionAvail());
 		DrawCameraView();
 		UpdateGameMousePosition();
 		CaptureInputs();
 		DrawDebugInfo();
-
-		position = ImGui::GetWindowPos();
-		size = ImGui::GetWindowSize();
-		center = { position.x + size.x / 2.0f, position.y + size.y / 2.0f };
-
 
 		ImGui::End();
 	}
@@ -149,24 +150,58 @@ namespace SliceEditor
 
 	void GameViewWindow::UpdateGameMousePosition()
 	{
-		auto mouse_pos = ImGui::GetIO().MousePos;
-		
-		const float cReallyHugeNumber = 999'999'999'999'999'999'999'999'999.f;
-		if (mouse_pos.x < -cReallyHugeNumber || mouse_pos.y < -cReallyHugeNumber ||
-			mouse_pos.x > cReallyHugeNumber || mouse_pos.y > cReallyHugeNumber)
+		if (!mIsPlayMode)
 			return;
+
+		auto window = SliceEngine::Core::GetInstance()->GetWindow();
+
+		if (!glfwGetWindowAttrib(window, GLFW_FOCUSED))
+			return;
+
+		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto cursor_state = inputSystem->GetCursorState();
+		auto mouse_pos = ImGui::GetIO().MousePos;
 
 		auto relative_mouse_pos = mouse_pos - mGameScreen.topLeft;
 		auto percentage_x = relative_mouse_pos.x / mGameScreen.size.x;
 		auto percentage_y = relative_mouse_pos.y / mGameScreen.size.y;
 
-		ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
-		
-		mGameMouseDelta = new_mouse_pos - mGameMousePosition;
-		mGameMousePosition = new_mouse_pos;
-		mGameMouseNDC = { percentage_x, percentage_y };
+		if (cursor_state == SliceEngine::CursorState::DISABLED)
+		{
+			int window_size_x, window_size_y;
 
-		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
+			glfwGetWindowSize(window, &window_size_x, &window_size_y);
+
+			auto delta = mouse_pos - center;
+			ImVec2 ratio = { window_size_x / mGameScreen.size.x,  window_size_y / mGameScreen.size.y };
+
+			mGameMouseDelta = { delta.x * ratio.x, delta.y * ratio.y };
+			mGameMousePosition = mGameScreen.center;
+			mGameMouseNDC = { 0.5f, 0.5f };
+			mInternalMousePosition += mGameMouseDelta;
+
+			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+			ImGui::GetIO().MousePos = center;
+
+			int x, y;
+			float x_scale, y_scale;
+			glfwGetWindowContentScale(window, &x_scale, &y_scale);
+			glfwGetWindowPos(window, &x, &y);
+			//glfwSetCursorPos(window, (center.x - x) / x_scale, (center.y - y) / y_scale);
+			glfwSetCursorPos(window, center.x - x, center.y - y);
+		}
+
+		else
+		{
+			ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
+
+			mGameMouseDelta = new_mouse_pos - mGameMousePosition;
+			mGameMousePosition = new_mouse_pos;
+			mGameMouseNDC = { percentage_x, percentage_y };
+		}
+
+		mGameMouseDelta *= -1; // flip y delta so that up is positive
+		
 		inputSystem->SetMousePosition(mGameMousePosition.x, mGameMousePosition.y);
 		inputSystem->SetMouseDelta(mGameMouseDelta.x, mGameMouseDelta.y);
 		inputSystem->SetMouseNDC(mGameMouseNDC.x, mGameMouseNDC.y);
@@ -189,30 +224,20 @@ namespace SliceEditor
 
 		if (ImGui::IsWindowFocused())
 		{
-			if (mIsHoveringGameScreen)
+			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				ImGui::SetWindowFocus();
-				//inputSystem->SetCursorState(SliceEngine::CursorState::CONFINED);
-				ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+				ImGui::SetWindowFocus(NULL);
+				mLastCursorState = inputSystem->GetCursorState();
+				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
 			}
 
-			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
+			if (!mIsFocused)
 			{
-				//ImGui::SetWindowFocus(NULL);
-				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
-				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
+				inputSystem->SetCursorState(mLastCursorState);
 			}
 		}
-		
-		else
-		{
-			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
-			{
-				//ImGui::SetWindowFocus(NULL);
-				ImGui::GetIO().ConfigFlags &= ~ImGuiConfigFlags_NoMouseCursorChange;
-				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
-			}
-		}
+
+		mIsFocused = ImGui::IsWindowFocused();
 	}
 
 	void GameViewWindow::DrawDebugInfo()
@@ -231,6 +256,9 @@ namespace SliceEditor
 		ImGui::BeginChild("GameDebugInfo", debugger_size, ImGuiChildFlags_Borders, ImGuiWindowFlags_NoScrollWithMouse);
 
 		ImGui::Text("Mouse Position");
+		ImGui::Text("%.1f, %.1f", ImGui::GetIO().MousePos.x, ImGui::GetIO().MousePos.y);
+
+		ImGui::Text("Mouse Game Position");
 		ImGui::Text("%.1f, %.1f", mGameMousePosition.x, mGameMousePosition.y);
 
 		ImGui::Text("Mouse Delta");
@@ -238,6 +266,12 @@ namespace SliceEditor
 
 		ImGui::Text("Mouse NDC");
 		ImGui::Text("%.3f, %.3f", mGameMouseNDC.x, mGameMouseNDC.y);
+
+		ImGui::Text("Window Center Position");
+		ImGui::Text("%.1f, %.1f", center.x, center.y);
+
+		ImGui::Text("Game Center Position");
+		ImGui::Text("%.1f, %.1f", mGameScreen.center.x, mGameScreen.center.y);
 
 		ImGui::Text("Hovering Game Screen");
 		ImGui::Text("%s", mIsHoveringGameScreen ? "yes" : "no");
