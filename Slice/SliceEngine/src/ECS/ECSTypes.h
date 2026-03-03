@@ -759,9 +759,9 @@ namespace SliceEngine
 	struct Canvas
 	{
 		enum Type {
-			OVERLAY
+			OVERLAY,
 			//CAMERA
-			//WORLD
+			WORLD
 		};
 
 		bool componentEnabled{ true };
@@ -802,9 +802,9 @@ namespace SliceEngine
 		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
-		void Update(Canvas const& ctx, RectTransform const& parent);
+		void Update(RectTransform const& parent);
 
-		glm::mat4 ToMatrix() const;
+		glm::mat4 ToMatrix() const noexcept;
 
 		RTTR_ENABLE();
 	};
