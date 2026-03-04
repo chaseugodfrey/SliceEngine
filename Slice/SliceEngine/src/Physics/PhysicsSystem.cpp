@@ -17,7 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../ECS/GOFactory.h"
 #include "../Core/ComponentModified.h"
 #include <glm/gtx/matrix_decompose.hpp>
-
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 
 #define EPSILON 0.0001f
 #define GLM_ENABLE_EXPERIMENTAL

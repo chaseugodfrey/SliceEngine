@@ -14,7 +14,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             player = FindGameObjectsWithTag("Player")[0];
-        } 
+        }
 
         public void AttackRecovery(string str)
         {

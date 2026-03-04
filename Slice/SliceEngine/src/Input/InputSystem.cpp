@@ -62,13 +62,72 @@ namespace SliceEngine
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
         auto inputS = Core::GetInstance()->GetInputSystem();
+        if (inputS->mToCenterMousePosFromWindowDim)
+        {
+            int cursorMode = glfwGetInputMode(window, GLFW_CURSOR);
+            float ar = 1920.f / 1080.f;
+            float myScreenAR = static_cast<float>(inputS->windowDim.x) / static_cast<float>(inputS->windowDim.y);
+            double tx = 1920.0, ty = 1080.0, totalWinScreenDimX = static_cast<double>(inputS->windowDim.x), totalWinScreenDimY = static_cast<double>(inputS->windowDim.y);
 
+            glm::vec2 winScreenDim{ totalWinScreenDimX , totalWinScreenDimY };
+            glm::vec2 winOffset{};
+
+            if (myScreenAR > ar)// if actual screen width is much wider
+            {
+                winScreenDim.x = totalWinScreenDimY * ar;
+                winOffset.x = (totalWinScreenDimX - winScreenDim.x) / 2.f;
+            }
+            else
+            {
+                winScreenDim.y = totalWinScreenDimX / ar;
+                winOffset.y = (totalWinScreenDimY - winScreenDim.y) / 2.f;
+
+            }
+            glm::ivec2 worldSpaceMouse{ (xpos - winOffset.x) / winScreenDim.x * tx,
+            (ypos - winOffset.y) / winScreenDim.y * ty };
+
+            switch (cursorMode)
+            {
+            case GLFW_CURSOR_NORMAL:
+            {
+                xpos = worldSpaceMouse.x;
+                ypos = worldSpaceMouse.y;
+                break;
+            }
+            case GLFW_CURSOR_DISABLED:
+            {
+                if (inputS->lastMouseMode == GLFW_CURSOR_NORMAL)
+                {
+                    inputS->currMouseInternalPos.x = inputS->prevMouseInternalPos.x = worldSpaceMouse.x;
+                    inputS->currMouseInternalPos.y = inputS->prevMouseInternalPos.y = worldSpaceMouse.y;
+                    inputS->lastMouseMode = GLFW_CURSOR_DISABLED;
+                    return;
+                }
+                inputS->currMouseInternalPos.x = worldSpaceMouse.x;
+                inputS->currMouseInternalPos.y = worldSpaceMouse.y;
+
+
+                glm::vec2 lastPos = inputS->GetMousePosition();
+                lastPos += inputS->prevMouseInternalPos - inputS->currMouseInternalPos;
+                xpos = std::clamp(static_cast<double>(lastPos.x), 0.0, tx);
+                ypos = std::clamp(static_cast<double>(lastPos.y), 0.0, ty);
+                break;
+            }
+            }
+            inputS->lastMouseMode = cursorMode;
+
+            inputS->SetMouseNDC(xpos / tx, ypos / ty);
+        }
         inputS->SetMousePosition(xpos, ypos);
     }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         Core::GetInstance()->GetInputSystem()->SetScrollOffset(yoffset);
+    }
+    static void WindowResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        Core::GetInstance()->GetInputSystem()->SetWindowDim(width, height);
     }
 #pragma endregion
 
@@ -176,6 +235,7 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, MouseButtonCallback);
         glfwSetCursorPosCallback(windowRef, CursorPosCallback);
         glfwSetScrollCallback(windowRef, ScrollCallback);
+        glfwSetWindowSizeCallback(windowRef, WindowResizeCallback);
         callbacksBound = true;
     }
 
@@ -188,6 +248,7 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, nullptr);
         glfwSetCursorPosCallback(windowRef, nullptr);
         glfwSetScrollCallback(windowRef, nullptr);
+        glfwSetWindowSizeCallback(windowRef, nullptr);
         callbacksBound = false;
     }
 
@@ -393,6 +454,12 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
+    }
+
+    void InputSystem::SetWindowDim(int width, int height)
+    {
+        windowDim.x = width;
+        windowDim.y = height;
     }
 
     void InputSystem::SetMouseNDC(double x, double y)
