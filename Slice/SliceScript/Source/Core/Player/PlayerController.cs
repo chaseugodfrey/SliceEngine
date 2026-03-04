@@ -91,6 +91,7 @@ namespace SliceEngine
         public float plungeTerminalVelocity = 40.0f;
         public float plungeAttackDuration = 0.25f;
         public float plungeRecoveryDuration = 0.25f;
+        public float plungeMinDistance = 2.0f;
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
@@ -158,6 +159,46 @@ namespace SliceEngine
             UpdateAttacks(dt);
             UpdateStates();
             UpdateAnimator();
+RayCastHit hitInfo;
+// Check if can plunge by raycasting down to see distance to ground
+bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+if (hit)
+            Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
+            if (hit)
+            {
+                //Console.WriteLine("It hit something");
+                GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                if (objHit == null)
+                {
+                    Console.WriteLine("Obj hit is null");
+                }
+                // Only check distance if its a ground obj
+                else if (objHit.tag == "Ground")
+                {
+                    // if its too close to the ground then dont let it plunge
+                    if (hitInfo.distance <= plungeMinDistance)
+                    {
+                        //Console.WriteLine("Not high enough");
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Distance : {hitInfo.distance}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"It hit smth that isnt ground: {objHit.mID}");
+                }
+            }
+            else
+            {
+                 Console.WriteLine("Not hitting");
+            }
+
+
+            //Console.WriteLine($"Prev {prevMoveState.ToString()} and curr {playerMovementState.ToString()}");
+            //Console.WriteLine($"Prev {prevCombatState.ToString()} and curr {playerCombatState.ToString()}");
 
             if (prevMoveState != playerMovementState)
             {
@@ -266,7 +307,9 @@ namespace SliceEngine
                 }
             }
             else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
-            {                
+            {
+                Console.WriteLine("Trying to execute attack");
+
                 playerCombatState = CombatState.Attacking;
                 playerMovementState = MovementState.Plunging;
                 playerCurrentAttack = CurrentAttack.None;
