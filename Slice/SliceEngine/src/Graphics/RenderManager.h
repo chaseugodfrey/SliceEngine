@@ -93,6 +93,8 @@ namespace SliceEngine
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
+		const unsigned int SHADOW_DIMENSION = 512;
+		const int mMaxPointLights = 10;
 		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
 		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
 		struct ShadowCamDir
@@ -222,6 +224,8 @@ namespace SliceEngine
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mShadowUBO;
+		GLuint mDirLightDepthMaps;
+		GLuint mShadowCubeMapArr;
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
 		GLuint pboIdx[2]{};

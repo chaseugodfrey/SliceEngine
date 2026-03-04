@@ -5,6 +5,7 @@ struct Light{
 	vec3 direction;
 	vec4 color; // rgb + intensity
 	float hasShadow;
+	int ptLightIdx;
 	int type;
 };
 

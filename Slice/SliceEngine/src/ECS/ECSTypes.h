@@ -253,8 +253,6 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthMaps{};
-		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();

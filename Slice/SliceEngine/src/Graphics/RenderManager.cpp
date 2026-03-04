@@ -58,6 +58,12 @@ namespace SliceEngine
 		if(mShadowUBO != 0)
 			glDeleteBuffers(1, &mShadowUBO);
 
+
+		if (mDirLightDepthMaps != 0)
+			glDeleteTextures(1, &mDirLightDepthMaps);
+		if (mShadowCubeMapArr != 0)
+			glDeleteTextures(1, &mShadowCubeMapArr);
+
 		glDeleteTextures(GOUT_TOTAL, mColAttachment);
 		for (auto i : mBloomMips)
 			glDeleteTextures(1, &i.tex);
@@ -225,6 +231,28 @@ namespace SliceEngine
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+
+		glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &mDirLightDepthMaps);
+		glTextureStorage3D(mDirLightDepthMaps, 1, GL_DEPTH_COMPONENT32F, SHADOW_DIMENSION, SHADOW_DIMENSION, mNumCascadeShadow);
+		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+		float borderColor[] = { 1.f,1.f,1.f,1.f };
+		glTextureParameterfv(mDirLightDepthMaps, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+		//glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &light.shadowCubeMap);
+		//glTexStorage2D(light.shadowCubeMap, 1, GL_DEPTH_COMPONENT24, SHADOW_DIMENSION, SHADOW_DIMENSION); 
+		glGenTextures(1, &mShadowCubeMapArr);
+		glBindTexture(  GL_TEXTURE_CUBE_MAP_ARRAY, mShadowCubeMapArr);
+
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP_ARRAY, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+		glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, GL_DEPTH_COMPONENT24, SHADOW_DIMENSION, SHADOW_DIMENSION, 6 * mMaxPointLights);
+		glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
 		RegenerateSkybox();
 		CheckGLError();
@@ -455,6 +483,7 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::ALL);// Only one to do this, cuz dw reset
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, mColAttachment[GOUT_DIF], 0);
 			renderQueue.UseDrawCalls(mCurrShader.second, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_OPAQUE : RenderCmdManager::DrawType::DRAW_OPAQUE, cameraPos);
+			CheckGLError();
 			//----------------------------------------------------------------
 			SetShader(ShaderPaths[S_SKYBOX_Light]);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -474,12 +503,14 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
 				glDepthMask(GL_FALSE);
 				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY, cameraPos);
+				CheckGLError();
 			}
 			// When Drawing the Transparent part also writes into depth buffer
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			//UpdateCamVP();
 			glDepthMask(GL_TRUE);
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
+			CheckGLError();
 			//----------------------------------------------------------------
 			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
@@ -751,11 +782,14 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderPointShadowMaps()
 	{
-		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
-		glViewport(0, 0, shadowDim, shadowDim);
+		glViewport(0, 0, SHADOW_DIMENSION, SHADOW_DIMENSION);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mShadowCubeMapArr, 0);
+		ClearBuffer(BufferClearSetting::ALL);
+		CheckGLError();
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		glm::vec3 eye{};
+		int currLightIdx{};
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -764,12 +798,12 @@ namespace SliceEngine
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 			const auto& lightPos = transform.GetWorldPosition();
 
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.shadowCubeMap, 0);
-			ClearBuffer(BufferClearSetting::ALL);
-
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			float ptLightFar = CalcPointLightFar(transform.GetWorldScale(), light.intensity);
 			glUniform1f(uniformLoc, ptLightFar);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
+			glUniform1i(uniformLoc, currLightIdx);
+
 			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, ptLightFar);
 			std::stringstream ss{};
 			for (size_t i{}; i < 6; ++i)
@@ -782,13 +816,13 @@ namespace SliceEngine
 			}
 
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, lightPos);
+			++currLightIdx;
 		}
 		CheckGLError();
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
-		const auto shadowDim = Core::GetInstance()->GetSystem<LightingSystem>().SHADOW_DIMENSION;
-		glViewport(0, 0, shadowDim, shadowDim);
+		glViewport(0, 0, SHADOW_DIMENSION, SHADOW_DIMENSION);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
@@ -830,9 +864,10 @@ namespace SliceEngine
 			glBufferSubData(GL_UNIFORM_BUFFER, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
 			glBindBuffer(GL_UNIFORM_BUFFER, 0);
 			
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, light.depthMaps, 0);
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
+			break;
 		}
 		CheckGLError();
 	}
@@ -862,12 +897,15 @@ namespace SliceEngine
 		glBindTextureUnit(1, mColAttachment[GOUT_POS]);
 		glBindTextureUnit(2, mColAttachment[GOUT_NOM]);
 		glBindTextureUnit(3, mColAttachment[GOUT_ROUGH_METAL]);
+		glBindTextureUnit(4, mDirLightDepthMaps);
+		glBindTextureUnit(5, mShadowCubeMapArr);
 		glBindTextureUnit(6, mColAttachment[GOUT_EMISSION]);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		GLint uniformLoc;
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
+		int currPtLightIdx{},currDirLightIdx{};
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
@@ -887,6 +925,8 @@ namespace SliceEngine
 			{
 			case Light::LightType::Light_Directional:
 			{
+				if (currDirLightIdx > 0) continue;
+
 				LoadSettings(GPS_ADDITION);
 
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
@@ -907,17 +947,18 @@ namespace SliceEngine
 						glUniform1f(uniformLoc, camera.far/shadowCascadeLevels[i]);
 				}
 
-				glBindTextureUnit(4, light.depthMaps);
-
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
 				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
 				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+				++currDirLightIdx;
 				break;
 			}
 			case Light::LightType::Light_Point:
 			{
+				if (currPtLightIdx >= mMaxPointLights) continue;
+
 				float ptLightFar = CalcPointLightFar(lightT.GetWorldScale(), light.intensity);
 				if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
@@ -927,18 +968,19 @@ namespace SliceEngine
 				glm::mat4 M{ 1.f };
 				M = glm::translate(M, lightT.GetWorldPosition() - cameraPos);
 				M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.ptLightIdx");
+				glUniform1i(uniformLoc, currPtLightIdx);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 				glUniform1f(uniformLoc, ptLightFar);
 
-				glBindTextureUnit(5, light.shadowCubeMap);
-
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
-				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
+
 				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
+				++currPtLightIdx;
 				break;
 			}
 			}

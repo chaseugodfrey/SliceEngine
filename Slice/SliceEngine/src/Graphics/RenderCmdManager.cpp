@@ -507,7 +507,6 @@ namespace SliceEngine
 			break;
 		}
 		}
-		CheckGLError();
 	}
 
 	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)

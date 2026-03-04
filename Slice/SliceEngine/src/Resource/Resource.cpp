@@ -53,6 +53,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::COLOR_DEADED_DEFAULT:
 				t->LoadColorTexture(1.f, 1.f, 1.f, 1.f);
 				break;
+			case DefaultResourceIDs::COLOR_NORMAL_DEFAULT:
+				t->LoadColorTexture(0.5f, 0.5f, 1.f, 1.f);
+				break;
 			default:
 				return nullptr;
 				break;

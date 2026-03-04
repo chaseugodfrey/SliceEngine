@@ -5,6 +5,7 @@ struct Light{
 	vec3 direction;
 	vec4 color; // rgb + intensity
 	float hasShadow;
+	int ptLightIdx;
 	int type;
 };
 
@@ -35,7 +36,7 @@ layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
 layout (binding = 3) uniform sampler2D 	uRoughMetalTex;
 layout (binding = 4) uniform sampler2DArray uShadowTex;			// Only for shadow mapping (spot / directional light)
-layout (binding = 5) uniform samplerCube 	uShadowCubeMap; // Only for shadow mapping (point light)
+layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap; // Only for shadow mapping (point light)
 // if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
@@ -216,7 +217,8 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 	{
 		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
 
-		float closestDepth = texture(uShadowCubeMap, fragToLight + offset * diskRadius).r;
+		//float closestDepth = texture(uShadowCubeMap, fragToLight + offset * diskRadius).r;
+		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(uLight.ptLightIdx))).r;
 		closestDepth *= uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
