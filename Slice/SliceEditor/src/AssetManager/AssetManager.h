@@ -120,6 +120,7 @@ namespace SliceEditor
 			{".gif", {AssetType::Texture, "Texture"}},
 			{".obj", {AssetType::Model, "Model"}},
 			{".fbx", {AssetType::Model, "Model"}},
+			{".glb", {AssetType::Model, "Model"}},
 			{".ttf", {AssetType::Font, "Font"}},
 			{".wav", {AssetType::Audio, "Audio"}},
 			{".mp3", {AssetType::Audio, "Audio"}},

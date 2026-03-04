@@ -327,7 +327,7 @@ namespace SliceEditor
 					ClearSelectionEvent clearedEvent;
 					clearedEvent.suppressHistory = true;
 					EventManager::GetInstance()->Publish<ClearSelectionEvent>(clearedEvent);
-					EventManager::GetInstance()->Publish<OnGameStopEvent>();
+					EventManager::GetInstance()->Publish<OnStopEvent>();
 				}
 			}
 		}

@@ -26,6 +26,10 @@ namespace SliceEditor
 
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection);
 
+	std::array<bool, 3> Vector3MultipleSelection(SelectionManager* selectionManager, glm::vec3 currentSelection, bool isMultiSelection, std::function<glm::vec3(Entity)> func);
+
+	//std::array<bool, 3> RotationMultipleSelection(SelectionManager* selectionManager, glm::quat currentRot, glm::vec3 currentHint, bool isMultiSelection, std::function<glm::vec3(Entity)> func);
+
 
 }
 
