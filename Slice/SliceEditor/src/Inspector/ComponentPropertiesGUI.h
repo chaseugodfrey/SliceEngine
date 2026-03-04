@@ -99,7 +99,7 @@ namespace SliceEditor
 
 	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& color);
 
-	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler);
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis);
 	//void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
