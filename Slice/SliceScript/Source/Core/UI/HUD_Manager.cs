@@ -31,11 +31,11 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            if (DialogueOnStart)
-            {
-                PlayDialogueForLevel(currLevel);
-                Bootstrap.Player.canInput = false;
-            }
+            //if (DialogueOnStart)
+            //{
+            //    PlayDialogueForLevel(currLevel);
+            //    Bootstrap.Player.canInput = false;
+            //}
         }
 
         public override void OnUpdate(float dt)
@@ -136,7 +136,7 @@ namespace SliceEngine
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
-                Bootstrap.Player.canInput = true;
+                //Bootstrap.Player.canInput = true;
                 dialogueIndex = 0;
                 levelDialogues.Clear();
                 SetTextBox("");

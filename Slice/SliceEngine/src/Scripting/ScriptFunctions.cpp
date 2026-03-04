@@ -1498,6 +1498,13 @@ namespace SliceEngine
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
 	}
 
+	static bool Physics_Spherecast(glm::vec3* origin, glm::vec3* direction,float radius, uint32_t* bodyHitID, glm::vec3* hitPos, glm::vec3* normal, bool triggerInteraction, uint32_t mask)
+	{
+		//bool PhysicsSystem::PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+			//uint32_t & bodyHitID, glm::vec3 & hitPos, glm::vec3 & normal, bool triggerInteraction, uint32_t mask)
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemSphereCast(*origin, *direction, radius, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
+	}
+
 	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
 	{
 		auto* eventManager = EventManager::GetInstance();
@@ -1541,6 +1548,8 @@ namespace SliceEngine
 
 
 	}
+
+
 
 
 #pragma endregion
@@ -1881,6 +1890,22 @@ namespace SliceEngine
 
 		std::vector<Entity> entityIDs = FactoryInstance.GetEntitiesWithTag(cStrName);
 
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
+
+	static MonoArray* Entity_GetAllChildren(unsigned int entityID)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::vector<Entity> entityIDs = go.GetAllChildren();
 
 		MonoDomain* domain = mono_domain_get();
 		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
@@ -2745,6 +2770,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_GetAllChildren);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
@@ -2922,6 +2948,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_Spherecast);
 		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 

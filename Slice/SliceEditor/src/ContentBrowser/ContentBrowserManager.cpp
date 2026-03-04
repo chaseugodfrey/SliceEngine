@@ -249,7 +249,7 @@ namespace SliceEditor
 				}
 		}
 		//Currently Open will Create a Model
-		else if (entry.fullPath.extension() == ".fbx")
+		else if (entry.fullPath.extension() == ".fbx" || entry.fullPath.extension() == ".glb")
 		{
 			//auto rm = SliceEngine::Core::GetInstance()->GetResourceManager();
 			//DOUBLE CHECK THE RM IF THEIR MAPS ARE BEING UPDATED CORRECTLY.
@@ -289,6 +289,10 @@ namespace SliceEditor
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}
 		else if (entry.fullPath.extension() == ".mat")
+		{
+			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
+		}
+		else if (entry.fullPath.extension() == ".cshader")
 		{
 			registry.GetManager<SelectionManager>("Selection")->SelectSingle(&entry, true);
 		}

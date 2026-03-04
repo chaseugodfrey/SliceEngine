@@ -31,24 +31,24 @@ namespace SliceEngine
             // Finding references to each script
             GameObject[] arr = gameObject.FindGameObjectsWithTag("Camera");
             if (arr != null) CameraController = arr[0].As<CameraController>();
-            //if (CameraController != null) SliceLog.Log("Camera found");
-            //else SliceLog.Log("Camera not found");
+            if (CameraController != null) SliceLog.Log("Camera found");
+            else SliceLog.Log("Camera not found");
 
             arr = gameObject.FindGameObjectsWithTag("Player");
             if (arr != null) Player = arr[0].As<PlayerController>();
-            //if (Player != null) SliceLog.Log("Player found");
-            //else SliceLog.Log("Player not found");
+            if (Player != null) SliceLog.Log("Player found");
+            else SliceLog.Log("Player not found");
 
             arr = gameObject.FindGameObjectsWithTag("Level Director");
             LevelDirector = arr[0].As<LevelDirector>();
-            //if (LevelDirector != null) SliceLog.Log("Level Director found");
-            //else SliceLog.Log("Level Director not found");
+            if (LevelDirector != null) SliceLog.Log("Level Director found");
+            else SliceLog.Log("Level Director not found");
 
 
             arr = gameObject.FindGameObjectsWithTag("HUD");
             HUDManager = arr[0].As<HUD_Manager>();
-            //if (HUDManager != null) SliceLog.Log("HUD Manager found");
-            //else SliceLog.Log("HUD Manager not found");
+            if (HUDManager != null) SliceLog.Log("HUD Manager found");
+            else SliceLog.Log("HUD Manager not found");
 
             // Calling initialize on each script if nothing is empty
 

@@ -1677,8 +1677,6 @@ namespace SliceEngine
 		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = { };
 		ObjectLayerFilterImpl filterLayer(mask);
 
-
-
 		JPH::BodyFilter inBodyFilter = {};
 		BodyFilterIgnore ignoreFilter;
 		bool didRayHit = false;
@@ -1691,8 +1689,6 @@ namespace SliceEngine
 		{
 			didRayHit = physicsSystem->GetNarrowPhaseQuery().CastRay(inRay, ioHit, inBroadPhaseLayerFilter, filterLayer, ignoreFilter);
 		}
-
-		
 
 		if (!ioHit.mBodyID.IsInvalid())
 		{
@@ -1715,5 +1711,74 @@ namespace SliceEngine
 
 		return didRayHit;
 	}
+	bool PhysicsSystem::PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+		uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, bool triggerInteraction, uint32_t mask)
+	{
+		JPH::Vec3 ori = helpers::glmtoJPH(origin);
+		JPH::Vec3 dir = helpers::glmtoJPH(direction);
+
+		// Build the sphere shape
+		JPH::SphereShape sphereShape(radius);
+
+		// ShapeCast needs a starting transform (just translation, no rotation needed for sphere)
+		JPH::RShapeCast shapeCast = JPH::RShapeCast::sFromWorldTransform(
+			&sphereShape,
+			JPH::Vec3::sReplicate(1.0f),        // scale
+			JPH::RMat44::sTranslation(ori),      // start transform
+			dir                                   // cast direction (length = distance)
+		);
+
+		JPH::ShapeCastSettings castSettings;
+		//castSettings.mBackFaceModeTriangles = JPH::EBackFaceMode::IgnoreBackFaces;
+		//castSettings.mBackFaceModeConvex = JPH::EBackFaceMode::IgnoreBackFaces;
+
+		// Use ClosestHit collector to mirror raycast behaviour (first/closest hit)
+		JPH::ClosestHitCollisionCollector<JPH::CastShapeCollector> collector;
+
+		const JPH::BroadPhaseLayerFilter& inBroadPhaseLayerFilter = {};
+		ObjectLayerFilterImpl filterLayer(mask);
+		JPH::BodyFilter inBodyFilter = {};
+		BodyFilterIgnore ignoreFilter;
+
+		// Base offset for float precision (same trick as Jolt docs recommend)
+		JPH::RVec3 baseOffset = ori;
+
+		if (triggerInteraction)
+		{
+			physicsSystem->GetNarrowPhaseQuery().CastShape(
+				shapeCast, castSettings, baseOffset, collector,
+				inBroadPhaseLayerFilter, filterLayer, inBodyFilter);
+		}
+		else
+		{
+			physicsSystem->GetNarrowPhaseQuery().CastShape(
+				shapeCast, castSettings, baseOffset, collector,
+				inBroadPhaseLayerFilter, filterLayer, ignoreFilter);
+		}
+
+		if (!collector.HadHit())
+			return false;
+
+		const JPH::ShapeCastResult& hit = collector.mHit;
+
+		if (hit.mBodyID2.IsInvalid())
+			return false;
+
+		// Reconstruct world hit position
+		// baseOffset + contact point (which is relative to baseOffset)
+		glm::vec3 contactPoint = helpers::JPHtoglm(JPH::Vec3(baseOffset) + hit.mContactPointOn2);
+		hitPos = contactPoint;
+
+		JPH::BodyLockRead lock(physicsSystem->GetBodyLockInterface(), hit.mBodyID2);
+		if (lock.Succeeded())
+		{
+			const JPH::Body& body = lock.GetBody();
+			bodyHitID = static_cast<JPH::uint32>(body.GetUserData());
+			normal = helpers::JPHtoglm(body.GetWorldSpaceSurfaceNormal(hit.mSubShapeID2, helpers::glmtoJPH(hitPos)));
+		}
+
+		return true;
+	}
+
 
 }

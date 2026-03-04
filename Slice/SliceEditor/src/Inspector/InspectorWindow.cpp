@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Selection/SelectionManager.h"
 #include "Session/SessionManager.h"
 #include "ComponentPropertiesGUI.h"
+#include "ComponentMultipleSelection.h"
 
 #include <Resource/GUID.h>
 #include <Scripting/ScriptSystem.h>
@@ -83,6 +84,8 @@ namespace SliceEditor
 		auto original_name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
 		auto original_tag = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetTag();
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -137,7 +140,25 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetTag(name);
 			};
 
-		StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag);
+		//Multi-select for Tags
+		//Do the different checks here for now.
+		//TODO: Move to a different file maybe
+		
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
+		{
+			//Multi-Selection Setting for Tags
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						SliceEngine::FactoryInstance.GetGOByEntity(static_cast<EntityNode*>(selectedNode)->entity).SetTag(editable_tag);
+					}
+				}
+			}
+
+		}
 		//Game Object Tags:
 		/*if (StringInputHeader(mRegistry, "Tag: ", "##entityTag", slice.mTag))
 		{
@@ -148,12 +169,22 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 
-		//ImGui::BeginDisabled();
-		//ComboHeader(mRegistry, "Tags", "##tags", tag, tags);
-		//ImGui::EndDisabled();
-		//ImGui::SameLine();
-
-		ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list);
+		if (ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slice.mLayer, isMultipleSelection)))
+		{
+			//Multi-Selection Setting for Layers
+			if (isMultipleSelection)
+			{
+				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				{
+					if (selectedNode->type == SelectionType::ENTITY)
+					{
+						Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;	
+						auto& currentSlice = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity);
+						currentSlice.mLayer = slice.mLayer;
+					}
+				}
+			}
+		}
 		ImGui::Separator();
 
 	}
@@ -163,11 +194,140 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Transform", mBaseFlags))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+			auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+			bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+			std::array<bool, 3> editedAxis= std::array<bool, 3>{ false,false,false };
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
-			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
+
+			std::function<glm::vec3(Entity)> getterPos =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.position;
+				};
+
+			if (DragVec3InputHeader(mRegistry, "Position", "##t", tr.position, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.position, isMultipleSelection, getterPos), &editedAxis))
+			{
+
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentPosition = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).position;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentPosition.x = tr.position.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentPosition.y = tr.position.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentPosition.z = tr.position.z;
+							}
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterRot =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.eulerAnglesHint;
+				};
+
+			if (DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint, Vector3MultipleSelection(selectionManager, tr.eulerAnglesHint, isMultipleSelection, getterRot), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentRot = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).rotation;
+							auto& currentEulerAngleHint = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).eulerAnglesHint;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentEulerAngleHint.x = tr.eulerAnglesHint.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentEulerAngleHint.y = tr.eulerAnglesHint.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentEulerAngleHint.z = tr.eulerAnglesHint.z;
+							}
+
+							currentRot = SliceEngine::Vec3ToQuat(tr.eulerAnglesHint);
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterScale =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.scale;
+				};
+			if (DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.scale, isMultipleSelection, getterScale), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentScale = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).scale;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentScale.x = tr.scale.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentScale.y = tr.scale.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentScale.z = tr.scale.z;
+							}
+						}
+					}
+				}
+			}
 
 			ImGui::TreePop();
 		}
@@ -1155,7 +1315,15 @@ namespace SliceEditor
 							animator.stateMachine.EFSM.currState->curr_anim_idx = (animator.stateMachine.EFSM.currState->curr_anim_idx + 1) % animator.curr_anim_pkg.animations.size();
 						}
 
-						ImGui::Text("Cuurent Animation: %d", animator.stateMachine.EFSM.currState->curr_anim_idx);
+						std::string currStateName{ animator.stateMachine.EFSM.currState->stateName };
+						size_t charPos = currStateName.find('|');
+
+						if (charPos != std::string::npos)
+						{
+							currStateName = currStateName.substr(charPos);
+						}
+
+						ImGui::Text("Current Animation: %s , ID: %d", currStateName.c_str(), animator.stateMachine.EFSM.currState->curr_anim_idx);
 
 						ImGui::Text("Prev: ");
 						ImGui::SameLine(150.f);
@@ -2151,10 +2319,10 @@ namespace SliceEditor
 			return;
 		}
 
-		if (GUIDDragDropInputHeader(mRegistry, "Albedo", "##albedo", mat.albedo, "Texture"))
+		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
 		{
 			mat.SerializeAsset(node->fullPath);
-		}		
+		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
@@ -2194,6 +2362,13 @@ namespace SliceEditor
 			{
 				std::string s = "##Material_Float_" + i.name;
 				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+					mat.SerializeAsset(node->fullPath);
+				break;
+			}
+			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
+			{
+				std::string s = "##Material_Texture_" + i.name;
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
@@ -2259,6 +2434,8 @@ namespace SliceEditor
 		auto& state = state_it->second;
 
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+
+		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
 
 		ImGui::SeparatorText("Transitions");
 

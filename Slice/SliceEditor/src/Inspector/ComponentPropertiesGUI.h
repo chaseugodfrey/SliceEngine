@@ -28,7 +28,7 @@ namespace SliceEditor
 
 	#pragma endregion
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f, float speed = 0.1f);
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min = 0.f, float max = 0.f, float speed = 0.1f, bool selectionDifferent = false);
 
 	bool SliderFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max);
 	
@@ -42,7 +42,7 @@ namespace SliceEditor
 	
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec);
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min = 0.0f, float max = 0.0f);
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min = 0.0f, float max = 0.0f, std::array<bool, 3> selectionDifferent = std::array<bool, 3>{false,false,false}, std::array<bool, 3>* changedAxis = nullptr);
 
 	bool DragFreezeOptionsInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::RigidBody::FreezeOptions& options);
 
@@ -61,9 +61,9 @@ namespace SliceEditor
 
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
 	
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func = nullptr);
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, std::function<void(std::string)> func = nullptr);
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
@@ -99,7 +99,7 @@ namespace SliceEditor
 
 	bool DragColor4InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec4& color);
 
-	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler);
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis);
 	//void IntInput(const char* id, int& val, std::function<void(int)> setFunc = nullptr);
 	//void DragIntInput(const char* id, int& val, int min, int max, std::function<void(int)> setFunc = nullptr);
 	//void DragDoubleInput(const char* id, double& val, const char* format, std::function<void(double)> setFunc = nullptr);
@@ -124,14 +124,19 @@ namespace SliceEditor
 	//
 
 	template<typename Enum>
-	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	bool ComboInput(Registry& reg, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false)
 	{
 		static char buffer[256];
 		static std::string searchPrompt;
 		bool changed = false;
 		int idx = static_cast<int>(selected);
+
+		if (selectionDifferent)
+		{
+			idx = container.size() - 1;
+		}
 		ImGui::SetNextItemWidth(-FLT_MIN);
-		if (ImGui::BeginCombo(id, container[(int)selected].c_str()))
+		if (ImGui::BeginCombo(id, container[idx].c_str()))
 		{
 			
 			if (searchBar)
@@ -180,19 +185,24 @@ namespace SliceEditor
 	}
 
 	template <typename Enum>
-	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false)
+	bool ComboHeader(Registry& reg, std::string property_label, const char* id, Enum& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false)
 	{
 		bool changed = false;
-
+		std::vector<std::string> containerCopy = container;
 		if (!property_label.empty())
 		{
 			ImGui::Text(property_label.c_str());
 			ImGui::SameLine(150.f);
 		}
+		if (selectionDifferent)
+		{
+			containerCopy.push_back("---");
+		}
 
 		ImGui::SetNextItemWidth(150.0f);
 
-		changed = ComboInput(reg , id, selected, container,searchBar);
+		changed = ComboInput(reg , id, selected, containerCopy, searchBar, selectionDifferent);
+
 		return changed;
 	}
 

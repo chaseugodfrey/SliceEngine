@@ -25,7 +25,6 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             Vector2 mouseDelta = Input.GetMouseDelta();
-            SliceLog.Log(mouseDelta.ToString());
             float yawDelta = mouseDelta.x * sensitivity.x * dt;
             float pitchDelta = mouseDelta.y * sensitivity.y * dt;
             transform.Rotate(yawDelta, Vector3.Up, true);
