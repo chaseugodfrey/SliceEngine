@@ -57,6 +57,8 @@ namespace SliceEngine
 		glDeleteFramebuffers(FB_TOTAL, mFBO);
 		if(mShadowUBO != 0)
 			glDeleteBuffers(1, &mShadowUBO);
+		if(mLightUBO != 0)
+			glDeleteBuffers(1, &mLightUBO);
 
 
 		if (mDirLightDepthMaps != 0)
@@ -131,6 +133,11 @@ namespace SliceEngine
 		glCreateBuffers(1, &mShadowUBO);
 		glNamedBufferStorage(mShadowUBO, mNumCascadeShadow * sizeof(glm::mat4), nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, mShadowUBO);
+
+		glCreateBuffers(1, &mLightUBO);
+		glNamedBufferStorage(mLightUBO, (mMaxPointLights + 1) * sizeof(LightDat), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glBindBufferBase(GL_UNIFORM_BUFFER, 1, mLightUBO);
+
 		CheckGLError();
 	}
 	void RenderManager::CreateDeferredTextures()
@@ -233,7 +240,7 @@ namespace SliceEngine
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
 
 		glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &mDirLightDepthMaps);
-		glTextureStorage3D(mDirLightDepthMaps, 1, GL_DEPTH_COMPONENT32F, SHADOW_DIMENSION, SHADOW_DIMENSION, mNumCascadeShadow);
+		glTextureStorage3D(mDirLightDepthMaps, 1, GL_DEPTH_COMPONENT32F, DIRECTIONAL_SHADOW_DIMENSION, DIRECTIONAL_SHADOW_DIMENSION, mNumCascadeShadow);
 		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameteri(mDirLightDepthMaps, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
@@ -822,7 +829,7 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
-		glViewport(0, 0, SHADOW_DIMENSION, SHADOW_DIMENSION);
+		glViewport(0, 0, DIRECTIONAL_SHADOW_DIMENSION, DIRECTIONAL_SHADOW_DIMENSION);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
@@ -860,9 +867,7 @@ namespace SliceEngine
 				const auto camProj = glm::perspective(glm::radians(camera.pov), ar, near, far);
 				lightSpaceMtx.push_back(DirLightMatCalc(camProj, V, lightDir));
 			}
-			glBindBuffer(GL_UNIFORM_BUFFER, mShadowUBO);
-			glBufferSubData(GL_UNIFORM_BUFFER, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
-			glBindBuffer(GL_UNIFORM_BUFFER, 0);
+			glNamedBufferSubData(mShadowUBO, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
 			
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
 			glClear(GL_DEPTH_BUFFER_BIT);
@@ -906,21 +911,61 @@ namespace SliceEngine
 
 		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		int currPtLightIdx{},currDirLightIdx{};
+		numLightsFound = 0;
 		for (auto entity : view)
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (!light.componentEnabled) continue;
 			if (Core::GetInstance()->GetRegistry().any_of<PrefabCameraEntity>(cam) != Core::GetInstance()->GetRegistry().any_of<PrefabEditingEntity>(entity)) continue;
 			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.position");
-			SetUniformVec3(uniformLoc, lightT.GetWorldPosition() - cameraPos);
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.color");
-			glUniform4f(uniformLoc, light.color.r, light.color.g, light.color.b, light.intensity);
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.type");
-			glUniform1i(uniformLoc, static_cast<int>(light.type));
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.hasShadow");
-			glUniform1f(uniformLoc, 1.f);
+			
+			int lightIdx = currPtLightIdx + currDirLightIdx;
 
+			switch(light.type)
+			{
+			case Light::LightType::Light_Directional:
+			{
+				if (currDirLightIdx > 0) continue;
+
+				lightData[lightIdx].pos = lightT.GetWorldPosition() - cameraPos;
+				lightData[lightIdx].col = glm::vec4(light.color.r, light.color.g, light.color.b, light.intensity);
+				lightData[lightIdx].type = static_cast<int>(light.type);
+				lightData[lightIdx].dir = -lightT.GetWorldPosition();
+				lightData[lightIdx].uFarPlane = camera.far;
+				//lightData[lightIdx].hasShadow = 1.f;
+
+				++currDirLightIdx;
+				break;
+			}
+			case Light::LightType::Light_Point:
+			{
+				if (currPtLightIdx >= mMaxPointLights) continue;
+
+				lightData[lightIdx].pos = lightT.GetWorldPosition() - cameraPos;
+				lightData[lightIdx].col = glm::vec4(light.color.r, light.color.g, light.color.b, light.intensity);
+				lightData[lightIdx].type = static_cast<int>(light.type);
+				float ptLightFar = CalcPointLightFar(lightT.GetWorldScale(), light.intensity);
+				lightData[lightIdx].uFarPlane = ptLightFar;
+
+				++currPtLightIdx;
+				break;
+			}
+			}
+		}
+	
+		numLightsFound = currPtLightIdx + currDirLightIdx;
+
+		glNamedBufferSubData(mLightUBO, 0, (mMaxPointLights + 1) * sizeof(LightDat), lightData);
+		CheckGLError();
+		currPtLightIdx = currDirLightIdx = 0;
+		mainDirLightFar = 0.f;
+		for (auto entity : view)
+		{
+			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
+			if (Core::GetInstance()->GetRegistry().any_of<PrefabCameraEntity>(cam) != Core::GetInstance()->GetRegistry().any_of<PrefabEditingEntity>(entity)) continue;
+			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+			
 			switch(light.type)
 			{
 			case Light::LightType::Light_Directional:
@@ -929,10 +974,9 @@ namespace SliceEngine
 
 				LoadSettings(GPS_ADDITION);
 
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.direction");
-				SetUniformVec3(uniformLoc, -lightT.GetWorldPosition());
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-				glUniform1f(uniformLoc, camera.far);
+				mainDirLightFar = camera.far;
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
+				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
 				glUniform1i(uniformLoc, mNumCascadeShadow);
 				std::stringstream ss{};
@@ -959,21 +1003,21 @@ namespace SliceEngine
 			{
 				if (currPtLightIdx >= mMaxPointLights) continue;
 
-				float ptLightFar = CalcPointLightFar(lightT.GetWorldScale(), light.intensity);
+				float ptLightFar = lightData[currPtLightIdx + currDirLightIdx].uFarPlane;
 				if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
 				else
 					LoadSettings(GPS_SPE_ADDITION);
 
 				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightT.GetWorldPosition() - cameraPos);
+				M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
 				M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "uLight.ptLightIdx");
-				glUniform1i(uniformLoc, currPtLightIdx);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-				glUniform1f(uniformLoc, ptLightFar);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
+				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
+				uniformLoc = glGetUniformLocation(mCurrShader.second, "numDirLights");
+				glUniform1i(uniformLoc, currDirLightIdx);
 
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
@@ -985,6 +1029,7 @@ namespace SliceEngine
 			}
 			}
 		}
+		
 		CheckGLError();
 	}
 	void RenderManager::RenderFog(Entity cam)

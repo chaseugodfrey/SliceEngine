@@ -105,7 +105,8 @@ namespace SliceEngine
 	{
 		resource->DestroyCShader();	//calls glDeleteProgram
 		auto newResource = resource->LoadCShader(path);
-		resource->s = newResource.s;
+		resource->opaqueS = newResource.opaqueS;
+		resource->translucentS = newResource.translucentS;
 		resource->dataIn = newResource.dataIn;
 
 		std::string shdrGUID = path.substr(path.find_first_of('/') + 1);

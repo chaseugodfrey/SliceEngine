@@ -2,11 +2,11 @@
 //lighting_Frag
 struct Light{
 	vec3 position;
+	//float hasShadow;
+	float uFarPlane;
 	vec3 direction;
-	vec4 color; // rgb + intensity
-	float hasShadow;
-	int ptLightIdx;
 	int type;
+	vec4 color; // rgb + intensity
 };
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
@@ -21,12 +21,16 @@ const int isPoint 		= 1;
 const int isSpot 		= 2;
 
 uniform mat4 V;
-uniform Light uLight;
-uniform float uFarPlane;
+uniform int lightIdx;
+uniform int numDirLights;
 
 layout (std140, binding = 0) uniform lightSpaceBlock
 {
 	mat4 lightSpaceMtx[16];
+};
+layout (std140, binding = 1) uniform lights
+{
+	Light uLight[11];
 };
 uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
@@ -61,7 +65,7 @@ void main(void){
 		nom = normalize(nom);
 		vec3 v = normalize(-wPos);
 
-		if(uLight.type == isDirectional)
+		if(uLight[lightIdx].type == isDirectional)
 		{
 			vec4 fragViewSpace = V * vec4(wPos, 1.0f);
 			float depthVal = abs(fragViewSpace.z);
@@ -79,26 +83,27 @@ void main(void){
 				layer = cascadeCnt - 1;
 			}
 
-			vec3 offsetPos = wPos + nom * 0.05;
-			vec4 vLightPos = lightSpaceMtx[layer] * vec4(offsetPos, 1.0f);
+			//vec3 offsetPos = wPos + nom * 0.05;
+			//vec4 vLightPos = lightSpaceMtx[layer] * vec4(offsetPos, 1.0f);
+			vec4 vLightPos = lightSpaceMtx[layer] * vec4(wPos, 1.0f);
 			vec3 projCoords = vLightPos.xyz / vLightPos.w;
 			projCoords = projCoords * 0.5f + 0.5f;
 
 			vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
 
-			vec3 l = normalize(-uLight.direction);// Surface to Light
-			float shadow = uLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
-			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight.color.rgb * uLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
+			vec3 l = normalize(-uLight[lightIdx].direction);// Surface to Light
+			float shadow = /* uLight[lightIdx].hasShadow * */ getShadowMulti(nom, l, projCoords, layer);
+			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight[lightIdx].color.rgb * uLight[lightIdx].color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
 			fFragColor = vec4(finalLighting, 1.0f);
 		}
-		else if(uLight.type == isPoint)
+		else if(uLight[lightIdx].type == isPoint)
 		{
-			vec3 l = uLight.position - wPos; // Surface to Light
+			vec3 l = uLight[lightIdx].position - wPos; // Surface to Light
 			float dist = length(l);
-			vec4 lightCol = uLight.color;
+			vec4 lightCol = uLight[lightIdx].color;
 			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
-			float shadow = uLight.hasShadow * getShadowCubeMulti(nom, l, length(wPos), dist);
+			float shadow = /* uLight[lightIdx].hasShadow * */ getShadowCubeMulti(nom, l, length(wPos), dist);
 			l = l / dist;
 			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 1.0f);
 		}
@@ -160,8 +165,11 @@ float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
 	if(projCoords.z > 1.0)
         return 0.0;
 	
+
+	float baseBias = max(0.05 * (1.0 - dot(n, l)), 0.005);
+	float bias = baseBias * (cascadePlaneDist[layer] * 0.001);
  	// Because I forced the minZ & maxZ to be huge
-	float bias = max(0.001 * (1.0 - dot(n, l)), 0.0001);
+	//float bias = max(0.001 * (1.0 - dot(n, l)), 0.0001);
 
 	//float bias = max(0.05 * (1.0 - dot(n, l)), 0.005); 
 	////bias *= (cascadePlaneDist[layer] / uFarPlane);
@@ -218,8 +226,8 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
 
 		//float closestDepth = texture(uShadowCubeMap, fragToLight + offset * diskRadius).r;
-		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(uLight.ptLightIdx))).r;
-		closestDepth *= uFarPlane;
+		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(lightIdx - numDirLights))).r;
+		closestDepth *= uLight[lightIdx].uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
 	}
