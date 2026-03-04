@@ -22,6 +22,8 @@ namespace SliceEditor
 	class Registry;
 	class SelectionManager;
 
+	bool BoolMultipleSelection(SelectionManager* selectionManager, bool currentBool, bool isMultiSelection, std::function<bool(Entity)> func);
+
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection);

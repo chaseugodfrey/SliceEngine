@@ -93,16 +93,34 @@ namespace SliceEditor
 
 		if (BoolInput(mRegistry, "##isActive", isActive))
 		{
-			if (isActive)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(entity);
-				slice.mActive = true;
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					if (isActive)
+					{
+						SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(currentEntity);
+						slice.mActive = true;
+					}
+					else
+					{
+						slice.mActive = false;
+						SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(currentEntity);
+					}
+				}
 			}
-			else
-			{
-				slice.mActive = false;
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(entity);
-			}
+
+			//if (isActive)
+			//{
+			//	SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(entity);
+			//	slice.mActive = true;
+			//}
+			//else
+			//{
+			//	slice.mActive = false;
+			//	SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(entity);
+			//}
 		}
 		ImGui::SameLine();
 
