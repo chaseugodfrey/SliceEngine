@@ -517,11 +517,12 @@ namespace SliceEngine
 
             if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
+                Dash();
+
                 Vector3 dashVel = dashDir * dashSpeed;
-                float yVel = playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
+                float yVel = 0;//playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
                 rigidBody.Velocity = new Vector3(dashVel.x, yVel, dashVel.z);
 
-                Dash();
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
@@ -903,6 +904,10 @@ namespace SliceEngine
 
         private void TryJump()
         {
+            // no jumping when attacking
+            if (playerCombatState != CombatState.None)
+                return;
+
             if (jumpCounter < 2 && jumpCooldownTimer <= 0.0f)
             {
                 jumpCounter++;
@@ -947,6 +952,7 @@ namespace SliceEngine
                 else
                     playerMovementState = MovementState.AirDash;
 
+                dashDir = ComputeFlatDashDir(true);
 
                 Console.WriteLine($"Dashing now, after state is : {playerMovementState.ToString()}");
             }
@@ -954,11 +960,16 @@ namespace SliceEngine
 
         void Dash()
         {
-            dashDir = ComputeFlatDashDir(true);
+            bool hasInput = input.SquareMagnitude() > 0.0001f;
 
-            if (dashDir.SquareMagnitude() > 0.0001f)
+            if (hasInput)
             {
-                transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
+                dashDir = ComputeFlatDashDir(true);
+
+                if (dashDir.SquareMagnitude() > 0.0001f)
+                {
+                    transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
+                }
             }
         }
 
@@ -1018,7 +1029,7 @@ namespace SliceEngine
             }
 
             bool inputtable;
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
                 inputtable = true;
             }
@@ -1038,7 +1049,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return forward.Normalize();
+                return -forward.Normalize();
             }
 
             if (camera != null)
