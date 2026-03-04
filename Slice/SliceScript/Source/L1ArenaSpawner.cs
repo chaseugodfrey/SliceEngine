@@ -2,6 +2,7 @@ using SliceEngine;
 using SliceScript.Source.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 
 namespace SliceEngine
@@ -13,36 +14,50 @@ namespace SliceEngine
         public float moveDuration = 2f;
 
         public int maxEnemies = 4;
-        public List<GameObject> spawnPoints;
+        public List<GameObject> spawnPoints = new List<GameObject>();
         List<GameObject> remainingEnemies = new List<GameObject>();
 
         public bool begun = false;
         private int currentSpawnIndex = 0;
+        bool active = true;
         public override void OnCreate()
         {
             progressionBarrier = FindGameObjectWithName("Arena_1_Barrier");
             remainingEnemies = new List<GameObject>();
-
-            spawnPoints = new List<GameObject>();
+            
             GameObject[] spawnsArray = FindGameObjectsWithTag("Arena_1_Spawn");
             spawnPoints = new List<GameObject>(spawnsArray);
         }
 
         public override void OnUpdate(float dt)
         {
-            if (begun && (remainingEnemies.Count == 0))
+            if (!begun || !active)
             {
-                //progressionBarrier.Destroy();
+                return;
+            }
+
+            remainingEnemies.RemoveAll(e =>
+            {
+                if (e == null) return true;
+
+                EnemyGrunt g = e.GetComponent<EnemyGrunt>();
+                return g != null && g.currentHealth <= 0;
+            });
+
+            if (remainingEnemies.Count == 0)
+            {
+                progressionBarrier.Destroy();
+                active = false;
             }
         }
 
         public override void OnCollideEnter(uint other)
         {
-            if (begun) return;
+            if (begun || !active) return;
 
             SliceLog.Log("OnCollideEnter triggered. Other ID: " + other);
 
-            if (other == Bootstrap.Player.gameObject.mID)
+            if (FindGameObjectWithID(other).tag == Bootstrap.Player.gameObject.tag)
             {
                 begun = true;
                 SliceLog.Log("Player collided. Beginning enemy spawn...");

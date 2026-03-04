@@ -153,9 +153,21 @@ namespace SliceEngine
             {
                 if (other == Bootstrap.Player.gameObject.mID)
                 {
-                    isMoving = true;
+                    isMoving = true;                    
                 }
-            }            
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (isMoveOnContactWithPlayer)
+            {
+                if (other == Bootstrap.Player.gameObject.mID)
+                {
+                    isMoving = true;
+                    // need to set the player parent to the platform
+                }
+            }
         }
     }
 }
