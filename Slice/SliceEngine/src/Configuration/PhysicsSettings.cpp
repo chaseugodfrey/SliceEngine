@@ -3,6 +3,8 @@
 #include "Core/Core.h"
 #include "Systems/LayerManager.h"
 #include "Physics/PhysicsSystem.h"
+#include <iomanip>
+#include <charconv>
 
 namespace SliceEngine
 {
@@ -11,28 +13,32 @@ namespace SliceEngine
 		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
 		auto physicsSystem = &SliceEngine::Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		std::string matrix = settings["Broad Layer Collision Matrix"].get<std::string>();
-
-		for (size_t i = 0; i < matrix.size(); i++)
+		if (settings.contains("Broad Layer Collision Matrix"))
 		{
-			std::string chunk = matrix.substr(i, 1);
-			JPH::BroadPhaseLayer::Type bpLayer = static_cast<JPH::BroadPhaseLayer::Type>(std::stoi(chunk));
-			physicsSystem->SetObjectBroadPhaseLayer(static_cast<uint32_t>(i), JPH::BroadPhaseLayer(bpLayer));
+			std::string matrix = settings["Broad Layer Collision Matrix"].get<std::string>();
+
+			for (size_t i = 0; i < matrix.size(); i++)
+			{
+				std::string chunk = matrix.substr(i, 1);
+				JPH::BroadPhaseLayer::Type bpLayer = static_cast<JPH::BroadPhaseLayer::Type>(std::stoi(chunk));
+				physicsSystem->SetObjectBroadPhaseLayer(static_cast<uint32_t>(i), JPH::BroadPhaseLayer(bpLayer));
+			}
 		}
 
-		matrix = settings["Layer Collision Matrix"].get<std::string>();
-
-		std::stringstream ss{};
-		std::string buffer{};
-		auto ptr = layerManager->indexToLayerName.begin();
-
-		for (size_t i = 0; i < matrix.size(); i+=8)
+		if (settings.contains("Layer Collision Matrix"))
 		{
-			std::string chunk = matrix.substr(i, 8);
-			
-			auto& mask = layerManager->collisionMask[ptr->second];
-			std::from_chars(chunk.data(), chunk.data() + chunk.size(), mask, 16);
-			ptr++;
+			std::string matrix = settings["Layer Collision Matrix"].get<std::string>();
+
+			auto ptr = layerManager->indexToLayerName.begin();
+
+			for (size_t i = 0; i < matrix.size() && ptr != layerManager->indexToLayerName.end(); i += 8)
+			{
+				std::string chunk = matrix.substr(i, 8);
+
+				auto& mask = layerManager->collisionMask[ptr->second];
+				std::from_chars(chunk.data(), chunk.data() + chunk.size(), mask, 16);
+				ptr++;
+			}
 		}
 	}
 
@@ -59,7 +65,7 @@ namespace SliceEngine
 		for (auto& [layer, name] : layerManager->indexToLayerName)
 		{
 			auto& mask = layerManager->collisionMask[name];
-			ss << std::hex << mask;
+			ss << std::setfill('0') << std::setw(8) << std::hex << mask;
 			matrix += ss.str();
 			ss.str(std::string());
 		}
