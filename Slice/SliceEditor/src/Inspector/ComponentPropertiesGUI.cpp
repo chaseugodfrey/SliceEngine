@@ -1178,7 +1178,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler)
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		static glm::vec3 oldVal{};
 
@@ -1193,7 +1193,14 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f");
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+		bool resultX = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, formatX.c_str());
+		changed = resultX || changed;
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1206,7 +1213,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f") || changed;
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+		bool resultY = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, formatY.c_str());
+		changed = resultY || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1219,7 +1232,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f") || changed;
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
+		bool resultZ = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, formatZ.c_str());
+		changed = resultZ || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1232,6 +1251,13 @@ namespace SliceEditor
 
 		if (changed)
 			quat = SliceEngine::Vec3ToQuat(euler);
+
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = resultX;
+			(*changedAxis)[1] = resultY;
+			(*changedAxis)[2] = resultZ;
+		}
 
 		return changed;
 	}

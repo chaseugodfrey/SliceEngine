@@ -242,7 +242,51 @@ namespace SliceEditor
 					}
 				}
 			}
-			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
+
+			std::function<glm::vec3(Entity)> getterRot =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.eulerAnglesHint;
+				};
+
+			if (DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint, Vector3MultipleSelection(selectionManager, tr.eulerAnglesHint, isMultipleSelection, getterRot), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentRot = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).rotation;
+							auto& currentEulerAngleHint = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).eulerAnglesHint;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentEulerAngleHint.x = tr.eulerAnglesHint.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentEulerAngleHint.y = tr.eulerAnglesHint.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentEulerAngleHint.z = tr.eulerAnglesHint.z;
+							}
+
+							currentRot = SliceEngine::Vec3ToQuat(tr.eulerAnglesHint);
+						}
+					}
+				}
+			}
 
 			std::function<glm::vec3(Entity)> getterScale =
 				[](Entity e)
