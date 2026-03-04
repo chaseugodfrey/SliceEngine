@@ -94,7 +94,7 @@ namespace SliceEngine
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
-		const float mZBufferShadow = 175.f;
+		const float mZBufferShadow = 400.f;
 		const float mMinShadowSize = 20.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };

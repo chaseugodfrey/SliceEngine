@@ -429,8 +429,8 @@ namespace SliceEngine
 		//else
 		//	maxZ *= mLightZDist;
 
-		minZ -= mZBufferShadow;
-		maxZ += mZBufferShadow;
+		minZ -= mZBufferShadow * 1.5f;
+		maxZ += mZBufferShadow * 0.5f;
 
 		return glm::ortho(minX, maxX, minY, maxY, minZ, maxZ) * lightView;
 	}
