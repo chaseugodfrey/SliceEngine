@@ -1,6 +1,6 @@
 [
     {
-        "PTest_Moving": {
+        "PTest_Moving(MovingPlatformNotWorking)": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,18 +9,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6,
+                "entity_id": 38797410,
                 "neighbours": [
                     0,
-                    4,
-                    7,
+                    41943179,
+                    37748923,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "PTest_Moving",
+                "mName": "PTest_Moving(MovingPlatformNotWorking)",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -30,7 +30,7 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
+                    -44.5890998840332,
                     0.0,
                     0.0
                 ],
@@ -106,12 +106,12 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
+                "entity_id": 41943179,
                 "neighbours": [
-                    6,
+                    38797410,
                     4294967295,
                     4294967295,
-                    3
+                    41943180
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -128,8 +128,8 @@
                 ],
                 "position": [
                     -0.2933335304260254,
-                    -32.13300323486328,
-                    0.9731440544128418
+                    -39.377498626708984,
+                    72.86270904541016
                 ],
                 "rotation": [
                     1.0,
@@ -140,7 +140,7 @@
                 "scale": [
                     1.0,
                     1.0,
-                    0.4943733513355255
+                    0.6749439239501953
                 ]
             }
         }
@@ -192,20 +192,20 @@
                     false,
                     false
                 ],
-                "friction": 0.5,
-                "gravityFactor": 1.0,
+                "friction": 10000.0,
+                "gravityFactor": 0.0,
                 "isKinematic": true,
                 "linearDamping": 0.05000000074505806,
                 "mass": 1.0,
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 41943180,
                 "neighbours": [
-                    6,
+                    38797410,
                     4294967295,
-                    4,
-                    5
+                    41943179,
+                    38797413
                 ]
             },
             "struct SliceEngine::Script": {
@@ -233,7 +233,11 @@
                     },
                     "speed": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 0.5
+                    },
+                    "wait": {
+                        "Type": "float",
+                        "Value": 3.0
                     }
                 }
             },
@@ -250,7 +254,7 @@
                     0.0
                 ],
                 "position": [
-                    -27.343156814575195,
+                    -3.070063591003418,
                     -11.870462417602539,
                     38.3991584777832
                 ],
@@ -269,13 +273,16 @@
         }
     },
     {
-        "Env_Platform_3_1": {
+        "Env_Platform_1_1_1_1": {
             "struct SliceEngine::ColliderShape": {
-                "componentEnabled": true,
-                "cylinderData": {
-                    "height": 3.700000047683716,
-                    "radius": 12.399999618530273
+                "boxData": {
+                    "scale": [
+                        13.199999809265137,
+                        31.100000381469727,
+                        24.799999237060547
+                    ]
                 },
+                "componentEnabled": true,
                 "isTrigger": false,
                 "offSet": [
                     0.0,
@@ -297,7 +304,7 @@
                 },
                 "meshOffset": "0",
                 "model": {
-                    "GUID": "15503211035181261813"
+                    "GUID": "16342897719943423903"
                 },
                 "renderTag": "0",
                 "skinned": false
@@ -323,18 +330,18 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5,
+                "entity_id": 38797413,
                 "neighbours": [
-                    6,
+                    38797410,
                     4294967295,
-                    3,
+                    41943180,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 4,
-                "mName": "Env_Platform_3_1",
+                "mName": "Env_Platform_1_1_1_1",
                 "mTag": "Ground"
             },
             "struct SliceEngine::Transform": {
@@ -344,9 +351,9 @@
                     0.0
                 ],
                 "position": [
-                    -17.07225799560547,
-                    -11.870473861694336,
-                    139.634033203125
+                    -0.2933335304260254,
+                    -32.13300323486328,
+                    6.475915908813477
                 ],
                 "rotation": [
                     1.0,
@@ -357,7 +364,7 @@
                 "scale": [
                     1.0,
                     1.0,
-                    1.0
+                    0.6749439239501953
                 ]
             }
         }

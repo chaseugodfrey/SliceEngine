@@ -2,6 +2,7 @@ using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Security.Permissions;
 
 
@@ -14,28 +15,24 @@ namespace SliceEngine
         public float projPerSecond = 4f;
         public float bulletSpeed = 1f;
         public Vector3 bulletScale = new Vector3(1);
-
         public int bulletDamage = 1;
-
-        public int spawnStyle = 0;
+        public bool projDestroysOnImpact = true;
 
         public float spiralRate = 1f; // seconds for a rotation
-
         public Vector3 spiralAxis = new Vector3(0,1,0);
 
         public bool active = false;
 
         public int limit = 100;
-
         public float rangeLimit = 10f;
 
+        public int spawnStyle = 0;
         private enum SpawnStyle { Straight, Spiral, Aim };
-
         private SpawnStyle currentStyle = SpawnStyle.Straight;
 
 
         #region bullet creation
-        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed)
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact)
         {
             GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
 
@@ -51,6 +48,7 @@ namespace SliceEngine
             tempP.speed = speed;
             tempP.owner = this;
             tempP.damage = bulletDamage;
+            tempP.destroyOnImpact = destroyOnImpact;
 
             allProjectiles.Add(tempP);
 
@@ -92,7 +90,7 @@ namespace SliceEngine
         {
             Transform T = this.GetComponent<Transform>();
 
-            CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+            CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact);
         }
 
         public void SpawnInCircle(int number, float radius)
@@ -107,7 +105,7 @@ namespace SliceEngine
             {
                 copiedT.Rotate(degree, T.Up);
 
-                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact);
             }
         }
 
@@ -141,7 +139,7 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact);
                     }
 
 
@@ -160,7 +158,7 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact);
                     }
 
                     break;
@@ -172,7 +170,7 @@ namespace SliceEngine
 
                         Transform T = this.GetComponent<Transform>();
 
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact);
                     }
 
                     break;

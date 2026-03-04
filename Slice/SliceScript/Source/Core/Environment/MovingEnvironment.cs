@@ -12,12 +12,13 @@ namespace SliceEngine
     {
         public bool active = false;
         public float speed = 1.0f;
+        public float wait = 3f;
 
         public Vector3 position1  = new Vector3(0);
         public Vector3 position2 = new Vector3(0);
 
 
-
+        private RigidBody rb;
         private Vector3 differenceHalfed = new Vector3(0, 0, 0);
         private Vector3 middlePos = new Vector3(0, 0, 0);
 
@@ -30,11 +31,13 @@ namespace SliceEngine
             differenceHalfed = (position1 - position2) / 2;
 
             middlePos = position2 + differenceHalfed;
+
+            rb = this.GetComponent<RigidBody>();
         }
 
         public override void OnUpdate(float dt)
         {
-            if (!active) return 
+            if (!active) return;
 
             base.OnUpdate(dt);
 
@@ -45,6 +48,8 @@ namespace SliceEngine
             float calc = (float)(1f * Math.Sin(speed * cycle));
 
             transform.Position = middlePos + (differenceHalfed * calc);
+
+            
 
             //this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * speed * dt; 
         }

@@ -2,16 +2,16 @@
     {
         "Projectile": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16754778150418545180",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "16754778150418545180"
+                    "GUID": ""
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "12851759591155610253"
+                    "GUID": "16084993839446534427"
                 },
                 "meshOffset": "0",
                 "model": {
@@ -21,12 +21,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145779,
+                "entity_id": 25165905,
                 "neighbours": [
+                    25165906,
+                    25165884,
                     4294967295,
-                    3145778,
-                    4294967295,
-                    4294967295
+                    25165883
                 ]
             },
             "struct SliceEngine::Script": {
@@ -36,9 +36,13 @@
                         "Type": "int",
                         "Value": 30
                     },
+                    "destroyOnImpact": {
+                        "Type": "bool",
+                        "Value": false
+                    },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 3145778
+                        "Value": 25165884
                     },
                     "speed": {
                         "Type": "float",
@@ -60,7 +64,7 @@
                 ],
                 "position": [
                     0.0,
-                    4.687811851501465,
+                    0.0,
                     0.0
                 ],
                 "rotation": [
@@ -96,16 +100,16 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16754778150418545180",
+                "prefabGUID": "10445884867155255521",
                 "prefabHandle": {
-                    "GUID": "16754778150418545180"
+                    "GUID": "10445884867155255521"
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145778,
+                "entity_id": 25165884,
                 "neighbours": [
-                    3145779,
+                    25165905,
                     4294967295,
                     4294967295,
                     4294967295
