@@ -151,16 +151,6 @@
             "path": "Resources/15125514244222615558.wav"
         },
         {
-            "guid": 12706701987083786906,
-            "name": "Audio/SingleHit_Slime_1.wav",
-            "path": "Resources/12706701987083786906.wav"
-        },
-        {
-            "guid": 12851759591155610253,
-            "name": "Material/aaaaaaa.mat",
-            "path": "Resources/12851759591155610253.mat"
-        },
-        {
             "guid": 11963653456854187663,
             "name": "Shaders/skyboxLight.shader",
             "path": "Resources/11963653456854187663.shader"
@@ -169,6 +159,16 @@
             "guid": 10957655571049264411,
             "name": "Default/DefaultController.controller",
             "path": "Resources/10957655571049264411.controller"
+        },
+        {
+            "guid": 12851759591155610253,
+            "name": "Material/aaaaaaa.mat",
+            "path": "Resources/12851759591155610253.mat"
+        },
+        {
+            "guid": 12706701987083786906,
+            "name": "Audio/SingleHit_Slime_1.wav",
+            "path": "Resources/12706701987083786906.wav"
         },
         {
             "guid": 9646178157620972647,
@@ -226,6 +226,11 @@
             "path": "Resources/9563528329987127914.wav"
         },
         {
+            "guid": 16810191101304633330,
+            "name": "Default/InputTestScene.scene",
+            "path": "Resources/16810191101304633330.scene"
+        },
+        {
             "guid": 9723092677755559696,
             "name": "[05]New_Environment/Environment.skl",
             "path": "Resources/9723092677755559696.skl"
@@ -249,6 +254,21 @@
             "guid": 15114324369343810599,
             "name": "Default/TestUIScene.scene",
             "path": "Resources/15114324369343810599.scene"
+        },
+        {
+            "guid": 16754778150418545180,
+            "name": "Prefabs/Projectile.prefab",
+            "path": "Resources/16754778150418545180.prefab"
+        },
+        {
+            "guid": 18032923168457502346,
+            "name": "Material/EnemyGrunt.mat",
+            "path": "Resources/18032923168457502346.mat"
+        },
+        {
+            "guid": 17404324518387509704,
+            "name": "Default/Player11.skl",
+            "path": "Resources/17404324518387509704.skl"
         },
         {
             "guid": 11944477452832270171,
@@ -401,6 +421,31 @@
             "path": "Resources/17833760349980101912.scene"
         },
         {
+            "guid": 16018679418099098580,
+            "name": "Shaders/skybox_Frag.frag",
+            "path": "Resources/16018679418099098580.frag"
+        },
+        {
+            "guid": 17082663247688680890,
+            "name": "Shaders/downSample.shader",
+            "path": "Resources/17082663247688680890.shader"
+        },
+        {
+            "guid": 12439105952219452830,
+            "name": "Default/InputTestScene.temp",
+            "path": "Resources/12439105952219452830.scene"
+        },
+        {
+            "guid": 13854116019728604558,
+            "name": "Models/Updated/Environment_Enemy_NavMesh.fbx",
+            "path": "Resources/13854116019728604558.mdl"
+        },
+        {
+            "guid": 17485276470301423300,
+            "name": "Default/Player11.glb",
+            "path": "Resources/17485276470301423300.mdl"
+        },
+        {
             "guid": 14037766457360526962,
             "name": "Shaders/uiSprite_Frag.frag",
             "path": "Resources/14037766457360526962.frag"
@@ -466,6 +511,11 @@
             "path": "Resources/10394939968376999632.scene"
         },
         {
+            "guid": 16546296270966231157,
+            "name": "Material/FogTestL2.mat",
+            "path": "Resources/16546296270966231157.mat"
+        },
+        {
             "guid": 9249884692167028415,
             "name": "Material/Crystal.mat",
             "path": "Resources/9249884692167028415.mat"
@@ -474,6 +524,11 @@
             "guid": 16304538495588573609,
             "name": "Default/ParticleSystemTest.scene",
             "path": "Resources/16304538495588573609.scene"
+        },
+        {
+            "guid": 9282074471914531571,
+            "name": "Default/Player11.animpkg",
+            "path": "Resources/9282074471914531571.animpkg"
         },
         {
             "guid": 18090639709837937991,
@@ -551,16 +606,6 @@
             "path": "Resources/10210060411775308196.mat"
         },
         {
-            "guid": 16754778150418545180,
-            "name": "Prefabs/Projectile.prefab",
-            "path": "Resources/16754778150418545180.prefab"
-        },
-        {
-            "guid": 18032923168457502346,
-            "name": "Material/EnemyGrunt.mat",
-            "path": "Resources/18032923168457502346.mat"
-        },
-        {
             "guid": 9317243943789770501,
             "name": "[04]Environment/Environment_Barriers.skl",
             "path": "Resources/9317243943789770501.skl"
@@ -594,6 +639,16 @@
             "guid": 14474920984947933644,
             "name": "Material/Explosion.mat",
             "path": "Resources/14474920984947933644.mat"
+        },
+        {
+            "guid": 13642435283238726926,
+            "name": "Shaders/uiSprite_Vert.vert",
+            "path": "Resources/13642435283238726926.vert"
+        },
+        {
+            "guid": 17734129292647502161,
+            "name": "Material/FogTestL1.mat",
+            "path": "Resources/17734129292647502161.mat"
         },
         {
             "guid": 14919455020680615893,
@@ -669,6 +724,11 @@
             "guid": 14134728040193570933,
             "name": "Material/TempGroundMat.mat",
             "path": "Resources/14134728040193570933.mat"
+        },
+        {
+            "guid": 14705961304912718438,
+            "name": "NavMesh/M5 Level 1.bin",
+            "path": "Resources/14705961304912718438.bin"
         },
         {
             "guid": 16483552102943977758,
@@ -1001,11 +1061,6 @@
             "path": "Resources/9390251237299964164.mdl"
         },
         {
-            "guid": 13854116019728604558,
-            "name": "Models/Updated/Environment_Enemy_NavMesh.fbx",
-            "path": "Resources/13854116019728604558.mdl"
-        },
-        {
             "guid": 12935474785168557745,
             "name": "Models/Updated/Environment_Enemy_NavMesh.skl",
             "path": "Resources/12935474785168557745.skl"
@@ -1231,6 +1286,11 @@
             "path": "Resources/17793787829430969705.navmesh"
         },
         {
+            "guid": 15601922885550311038,
+            "name": "Prefabs/Player.prefab",
+            "path": "Resources/15601922885550311038.prefab"
+        },
+        {
             "guid": 15281544999074126968,
             "name": "NavMesh/Eze_Working_Scene.navmesh",
             "path": "Resources/15281544999074126968.navmesh"
@@ -1239,6 +1299,11 @@
             "guid": 10581378697935935163,
             "name": "NavMesh/Gid_Working_Scene.bin",
             "path": "Resources/10581378697935935163.bin"
+        },
+        {
+            "guid": 13169723019593627858,
+            "name": "NavMesh/M5 Level 1.navmesh",
+            "path": "Resources/13169723019593627858.navmesh"
         },
         {
             "guid": 14619092371752370335,
@@ -1371,11 +1436,6 @@
             "path": "Resources/17084868993414741854.prefab"
         },
         {
-            "guid": 15578772992131463011,
-            "name": "Prefabs/Player.prefab",
-            "path": "Resources/15578772992131463011.prefab"
-        },
-        {
             "guid": 10880878978351863579,
             "name": "[05]New_Environment/Environment-Barriers.fbx",
             "path": "Resources/10880878978351863579.mdl"
@@ -1464,16 +1524,6 @@
             "guid": 15235268585299909685,
             "name": "Shaders/deferred_Vert.vert",
             "path": "Resources/15235268585299909685.vert"
-        },
-        {
-            "guid": 16018679418099098580,
-            "name": "Shaders/skybox_Frag.frag",
-            "path": "Resources/16018679418099098580.frag"
-        },
-        {
-            "guid": 17082663247688680890,
-            "name": "Shaders/downSample.shader",
-            "path": "Resources/17082663247688680890.shader"
         },
         {
             "guid": 16493589749155911333,
@@ -1576,11 +1626,6 @@
             "path": "Resources/9324558447249102645.frag"
         },
         {
-            "guid": 13642435283238726926,
-            "name": "Shaders/uiSprite_Vert.vert",
-            "path": "Resources/13642435283238726926.vert"
-        },
-        {
             "guid": 11293181652687913365,
             "name": "Shaders/upSample.shader",
             "path": "Resources/11293181652687913365.shader"
@@ -1611,9 +1656,9 @@
             "path": "Resources/16434964976376015281.frag"
         },
         {
-            "guid": 16945299331025220395,
-            "name": "Textures/Blank512.png",
-            "path": "Resources/16945299331025220395.dds"
+            "guid": 15644028420850910905,
+            "name": "Textures/Black512.png",
+            "path": "Resources/15644028420850910905.dds"
         },
         {
             "guid": 13949509492220521480,
@@ -1857,7 +1902,7 @@
         },
         {
             "guid": 11697903386653029786,
-            "name": "Color Deaded",
+            "name": "Blank256",
             "path": "NIL"
         },
         {

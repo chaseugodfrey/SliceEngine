@@ -12,9 +12,7 @@ namespace SliceEngine
         public List<Projectile> allProjectiles = new List<Projectile>();
 
         public float projPerSecond = 4f;
-
         public float bulletSpeed = 1f;
-
         public Vector3 bulletScale = new Vector3(1);
 
         public int bulletDamage = 1;
@@ -29,12 +27,14 @@ namespace SliceEngine
 
         public int limit = 100;
 
-        public float RangeLimit = 10f;
+        public float rangeLimit = 10f;
 
         private enum SpawnStyle { Straight, Spiral, Aim };
 
         private SpawnStyle currentStyle = SpawnStyle.Straight;
 
+
+        #region bullet creation
         public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed)
         {
             GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
@@ -88,6 +88,31 @@ namespace SliceEngine
             }
         }
 
+        public void SpawnSetProjectile()
+        {
+            Transform T = this.GetComponent<Transform>();
+
+            CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+        }
+
+        public void SpawnInCircle(int number, float radius)
+        {
+            float degree = 360f / (float)number;
+
+            Transform T = this.GetComponent<Transform>();
+
+            Transform copiedT = new Transform(this.gameObject);
+
+            for (int i = 0; i< number; i++)
+            {
+                copiedT.Rotate(degree, T.Up);
+
+                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+            }
+        }
+
+        #endregion
+
         private float count = 0f;
 
         public override void OnUpdate(float dt)
@@ -123,7 +148,7 @@ namespace SliceEngine
                     break;
                 case SpawnStyle.Aim:
 
-                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > RangeLimit)
+                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > rangeLimit)
                     break;
 
 
