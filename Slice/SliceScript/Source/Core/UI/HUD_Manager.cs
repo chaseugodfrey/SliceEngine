@@ -36,6 +36,7 @@ namespace SliceEngine
             //    PlayDialogueForLevel(currLevel);
             //    Bootstrap.Player.canInput = false;
             //}
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public override void OnUpdate(float dt)
@@ -271,7 +272,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            LoadDialogues();
+            //LoadDialogues();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }

@@ -50,6 +50,7 @@ namespace SliceEngine
                 {
                     
                     ResumeGame();
+                    CursorChecking(Cursor.state);
                 }
 
             }
@@ -69,7 +70,6 @@ namespace SliceEngine
             if (settingsPopup != null) settingsPopup.SetActive(false);
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
-            CursorChecking(Cursor.state);
         }
 
         public void OpenSubSettings()

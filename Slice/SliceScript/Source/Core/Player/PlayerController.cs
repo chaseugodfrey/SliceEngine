@@ -159,6 +159,8 @@ namespace SliceEngine
             UpdateStates();
             UpdateAnimator();
 
+
+
             if (prevMoveState != playerMovementState)
             {
                 SliceLog.Log(playerMovementState.ToString());
