@@ -126,7 +126,7 @@ namespace SliceEngine
 			unsigned int fps{ 60 };
 			float duration{};
 			unsigned int num_frames{ 60 };
-			std::vector<glm::vec3> transform;
+			std::vector<std::pair<unsigned int ,glm::vec3>> transform;
 
 		};
 
