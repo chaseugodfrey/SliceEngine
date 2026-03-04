@@ -18,28 +18,6 @@ DigiPen Institute of Technology is prohibited.
 
 namespace SliceEditor
 {
-	//I'm not sure if this is really necessary
-	bool BoolMultipleSelection(SelectionManager* selectionManager, bool currentSelection, bool isMultiSelection, std::function<bool(Entity)> func)
-	{
-		if (isMultiSelection)
-		{
-			//Do the difference check (this one is for tags)
-			for (auto selectedNode : selectionManager->GetSelectedNodes())
-			{
-				if (selectedNode->type == SelectionType::ENTITY)
-				{
-					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-					bool currentBool = func(currentEntity);
-
-					if (currentBool != currentSelection)
-					{
-						return true;
-					}
-				}
-			}
-		}
-		return false;
-	}
 	bool StringMultipleSelection(SelectionManager* selectionManager, std::string currentSelection, bool isMultiSelection)
 	{
 		if (isMultiSelection)
