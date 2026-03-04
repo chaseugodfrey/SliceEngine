@@ -162,9 +162,102 @@ namespace SliceEngine
             FunctionCalls.Physics_DrawRay(ref origin, ref direction, magnitute);
         }
 
-        public bool SphereCast()
+        public static bool SphereCast(Vector3 origin, float radius, Vector3 direction, out RayCastHit hitInfo, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
         {
-            return true;
+            hitInfo = new RayCastHit();
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Spherecast(out origin, out direction, radius, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
+            hitInfo.distance = (hitInfo.point - origin).Magnitude();
+            GameObject obj = new GameObject(bodyHitID);
+            hitInfo.transform = obj.GetComponent<Transform>();
+
+            return isRayHit;
+        }
+
+        public static bool SphereCast(Ray ray, float radius,uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        {
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+            Vector3 normal = new Vector3();
+            Vector3 point = new Vector3();
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Spherecast(out ray.origin, out ray.direction, radius, ref bodyHitID, ref point, ref normal, triggerInteraction, layerMask);
+
+
+            return isRayHit;
+        }
+
+        public static bool SphereCast(Ray ray, float radius, out RayCastHit hitInfo, uint layerMask = DefaultRaycastLayers, QueryTriggerInteraction queryTriggerInteraction = QueryTriggerInteraction.UseGlobal)
+        {
+            hitInfo = new RayCastHit();
+            bool triggerInteraction = false;
+            uint bodyHitID = 0;
+
+            if (queryTriggerInteraction == QueryTriggerInteraction.UseGlobal)
+            {
+                if (queriesHitTriggers)
+                {
+                    triggerInteraction = true;
+                }
+                else
+                {
+                    triggerInteraction = false;
+                }
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Ignore)
+            {
+                triggerInteraction = false;
+            }
+            else if (queryTriggerInteraction == QueryTriggerInteraction.Collide)
+            {
+                triggerInteraction = true;
+            }
+            bool isRayHit = FunctionCalls.Physics_Spherecast(out ray.origin, out ray.direction, radius, ref bodyHitID, ref hitInfo.point, ref hitInfo.normal, triggerInteraction, layerMask);
+            hitInfo.distance = (hitInfo.point - ray.origin).Magnitude();
+            GameObject obj = new GameObject(bodyHitID);
+            hitInfo.transform = obj.GetComponent<Transform>();
+
+            return isRayHit;
         }
     }
 }
