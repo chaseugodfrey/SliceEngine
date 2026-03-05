@@ -1049,6 +1049,16 @@ namespace SliceEngine
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
 
+				if (!checkEntity1.HasComponent<ColliderShape>() || !checkEntity2.HasComponent<ColliderShape>())
+				{
+					std::string errorMsg = "Contact removed between ";
+					errorMsg += std::to_string((unsigned int)checkEntity1.GetEntity());
+					errorMsg += " and ";
+					errorMsg += std::to_string((unsigned int)checkEntity2.GetEntity());
+					SLICE_LOG_ERROR(errorMsg);
+					continue;
+				}
+
 				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
 
