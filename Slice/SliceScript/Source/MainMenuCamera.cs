@@ -7,7 +7,7 @@ namespace SliceEngine
     public class MainMenuCamera : SliceBehaviour
     {
         Transform camTrans;
-        public Vector3 Value;
+        Vector3 Value;
         GameObject rainEmitter;
         Transform rain;
 

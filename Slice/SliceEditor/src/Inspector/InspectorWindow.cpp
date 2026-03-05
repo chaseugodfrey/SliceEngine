@@ -86,7 +86,6 @@ namespace SliceEditor
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
-		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -147,6 +146,7 @@ namespace SliceEditor
 		
 		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
 		{
+			//Multi-Selection Setting for Tags
 			if (isMultipleSelection)
 			{
 				for (auto selectedNode : selectionManager->GetSelectedNodes())
@@ -169,31 +169,9 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 
-		//Multi-select for Layer
-		//Do the different checks here for now.
-		//TODO: Move to a different file maybe
-		//if (isMultipleSelection)
-		//{
-		//	//Do the difference check (this one is for tags)
-		//	for (auto selectedNode : selectionManager->GetSelectedNodes())
-		//	{
-		//		if (selectedNode->type == SelectionType::ENTITY)
-		//		{
-		//			Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-		//			
-		//			uint32_t currentLayer = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity).mLayer;
-
-		//			if (currentLayer != slice.mLayer)
-		//			{
-		//				isSelectionDifferent = true;
-		//				break;
-		//			}
-		//		}
-		//	}
-		//}
-
 		if (ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slice.mLayer, isMultipleSelection)))
 		{
+			//Multi-Selection Setting for Layers
 			if (isMultipleSelection)
 			{
 				for (auto selectedNode : selectionManager->GetSelectedNodes())
@@ -216,11 +194,140 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Transform", mBaseFlags))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+			auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+			bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+			std::array<bool, 3> editedAxis= std::array<bool, 3>{ false,false,false };
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
-			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
+
+			std::function<glm::vec3(Entity)> getterPos =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.position;
+				};
+
+			if (DragVec3InputHeader(mRegistry, "Position", "##t", tr.position, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.position, isMultipleSelection, getterPos), &editedAxis))
+			{
+
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentPosition = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).position;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentPosition.x = tr.position.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentPosition.y = tr.position.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentPosition.z = tr.position.z;
+							}
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterRot =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.eulerAnglesHint;
+				};
+
+			if (DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint, Vector3MultipleSelection(selectionManager, tr.eulerAnglesHint, isMultipleSelection, getterRot), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentRot = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).rotation;
+							auto& currentEulerAngleHint = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).eulerAnglesHint;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentEulerAngleHint.x = tr.eulerAnglesHint.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentEulerAngleHint.y = tr.eulerAnglesHint.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentEulerAngleHint.z = tr.eulerAnglesHint.z;
+							}
+
+							currentRot = SliceEngine::Vec3ToQuat(tr.eulerAnglesHint);
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterScale =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.scale;
+				};
+			if (DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.scale, isMultipleSelection, getterScale), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentScale = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).scale;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentScale.x = tr.scale.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentScale.y = tr.scale.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentScale.z = tr.scale.z;
+							}
+						}
+					}
+				}
+			}
 
 			ImGui::TreePop();
 		}

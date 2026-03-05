@@ -17,6 +17,7 @@ DigiPen Institute of Technology is prohibited.
 #include "ComponentPropertiesGUI.h"
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
+#include "Selection/SelectionManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -52,10 +53,9 @@ namespace SliceEditor
 
 
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed, bool selectionDifferent)
 	{
 		static float oldVal{};
-
 		bool changed = ImGui::DragFloat(id, &val, speed, min, max, format);
 
 		if (ImGui::IsItemActivated())
@@ -1178,7 +1178,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler)
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		static glm::vec3 oldVal{};
 
@@ -1193,7 +1193,14 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f");
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+		bool resultX = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, formatX.c_str());
+		changed = resultX || changed;
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1206,7 +1213,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f") || changed;
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+		bool resultY = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, formatY.c_str());
+		changed = resultY || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1219,7 +1232,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f") || changed;
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
+		bool resultZ = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, formatZ.c_str());
+		changed = resultZ || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1232,6 +1251,13 @@ namespace SliceEditor
 
 		if (changed)
 			quat = SliceEngine::Vec3ToQuat(euler);
+
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = resultX;
+			(*changedAxis)[1] = resultY;
+			(*changedAxis)[2] = resultZ;
+		}
 
 		return changed;
 	}
@@ -1413,21 +1439,55 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool,3>* changedAxis)
 	{
 		bool changed = false;
+		if (selectionDifferent.size() != 3)
+		{
+			SLICE_LOG_ERROR("Vector set size is wrong!");
+			return changed;
+		}
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f",min,max) || changed;
+		//Handle the value setting here:
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+
+		bool resultX = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, formatX.c_str(), min, max, 0.1f, selectionDifferent[0]);
+		changed = resultX || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f",min,max) || changed;
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
 
+		bool resultY = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, formatY.c_str(), min, max, 0.1f, selectionDifferent[1]);
+		changed = resultY || changed;
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f",min,max) || changed;
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
+
+		bool resultZ = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, formatZ.c_str(), min, max, 0.1f, selectionDifferent[2]);
+		changed = resultZ || changed;
+
+		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = resultX;
+			(*changedAxis)[1] = resultY;
+			(*changedAxis)[2] = resultZ;
+		}
 
 		return changed;
 	}

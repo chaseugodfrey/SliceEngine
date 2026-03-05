@@ -2,16 +2,16 @@
     {
         "Projectile": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16754778150418545180",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16754778150418545180"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "14115106649651537267"
+                    "GUID": "12851759591155610253"
                 },
                 "meshOffset": "0",
                 "model": {
@@ -21,11 +21,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048739,
+                "entity_id": 3145779,
                 "neighbours": [
-                    0,
-                    1048738,
-                    1048740,
+                    4294967295,
+                    3145778,
+                    4294967295,
                     4294967295
                 ]
             },
@@ -38,7 +38,7 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048738
+                        "Value": 3145778
                     },
                     "speed": {
                         "Type": "float",
@@ -96,16 +96,16 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16197657840157391990",
+                "prefabGUID": "16754778150418545180",
                 "prefabHandle": {
-                    "GUID": "16197657840157391990"
+                    "GUID": "16754778150418545180"
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048738,
+                "entity_id": 3145778,
                 "neighbours": [
-                    1048739,
+                    3145779,
                     4294967295,
                     4294967295,
                     4294967295

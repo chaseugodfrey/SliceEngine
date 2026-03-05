@@ -59,6 +59,13 @@ namespace SliceBuild
 
 		while (!glfwWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow()))
 		{
+			glfwMakeContextCurrent(SliceEngine::Core::GetInstance()->GetWindow());
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glfwPollEvents();
+
+			inputSys->UpdatePrevInput();
+			inputSys->UpdateCursorData();
+
 			engine.Update();
 			engine.Draw();
 			engine.EndFrame();
