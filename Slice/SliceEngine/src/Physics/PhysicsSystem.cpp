@@ -94,7 +94,7 @@ namespace SliceEngine
 
 			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
-			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
+			//mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
 
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
