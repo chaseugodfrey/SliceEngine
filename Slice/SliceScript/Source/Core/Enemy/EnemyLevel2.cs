@@ -7,52 +7,191 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
+    #region States
+    public class IntroState : BaseState
+    {
+        EnemyLevel2 enemyController;
+
+        // add a delay bfore hte enemy moves down
+        float timer = 0.0f;
+        float timeToMove = 2.0f;
+        bool moved = false;
+
+        public IntroState(GameObject owner) : base(owner)
+        {
+            enemyController = owner.As<EnemyLevel2>();
+        }
+
+        public override void OnEnter()
+        {
+            // when it enters, it will float down to the starting position
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            timer += dt;
+            if (timeToMove >= 2.0f && !moved)
+            {
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                moved = true;
+            }
+        }
+
+        // transitions when movement is done in onMovementFinished in EnemyLevel2 
+    }
+
     public class IdleState : BaseState
     {
+        EnemyLevel2 enemyController;
+
         public IdleState(GameObject owner) : base(owner)
         {
+            enemyController = owner.As<EnemyLevel2>();
         }
         public override void OnEnter()
         {
             Console.WriteLine("Idle state entered");
+            if (enemyController.stateMachine.prevState is SlamState)
+            {
+                // move straight away
+                enemyController.movementTimer = enemyController.movementCooldown;
+            }
         }
 
         public override void OnUpdate(float dt)
         {
             if (owner != null)
             {
-                EnemyLevel2 enemy = owner.As<EnemyLevel2>();
-
                 // update movement for idle
-                enemy.IdleMovement(dt);
+                if (enemyController.movementDone)
+                {
+                   // Console.WriteLine("Incrementing");
+                    // prob decide here if attack or no attack
+                    // im not sure how to attack yet for now
 
+                    enemyController.movementTimer += dt;
+                }
 
+                if (enemyController.movementTimer >= enemyController.movementCooldown)
+                {
+                    enemyController.movementTimer = 0.0f;
+                    enemyController.currPoint = enemyController.GetNextIdlePoint();
+
+                    enemyController.movementDone = false;
+                    // move to the random point
+                    enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                }
             }
         }
     }
 
+    public class SlamState : BaseState
+    {
+        EnemyLevel2 enemyController;
+        public bool onCooldown = false;
+        public bool attacking = false;
+        public bool reset = false;
+        public Vector3 originalPosition;
+        float timer = 0.0f;
+
+        public SlamState(GameObject owner) : base(owner)
+        {
+            enemyController = owner.As<EnemyLevel2>();
+        }
+
+        public override void OnEnter()
+        {
+            // move to the player fast
+            Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
+            targetPos.y = owner.GetComponent<Transform>().Position.y;
+            enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
+
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            // only start slamming once its done moving
+            if (enemyController.movementDone && !attacking)
+            {
+                attacking = true;
+                // save the original position before slamming
+                //originalPosition = owner.GetComponent<Transform>().Position;
+
+
+                owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+            }
+
+            // onCooldown means it already hit the floor
+            if (onCooldown)
+            {
+                timer += dt;
+
+                if (timer >= 0.1f)
+                {
+                    // turn off hitbox?
+                }
+
+                if (timer >= 1.0f)
+                {
+                    onCooldown = false;
+                    attacking = false;
+                    reset = true;
+                    ResetPosition();
+                }
+            }
+        }
+
+        public void ResetPosition()
+        {
+            owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
+            enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, originalPosition, 1.2f));
+        }
+
+        public void ToggleHitbox(bool flag)
+        {
+            if (flag)
+            {
+
+            }
+            else
+            {
+                
+            }
+        }
+    }
+
+    #endregion
+
     public class EnemyLevel2 : SliceBehaviour
     {
-        StateMachine stateMachine;
+        public StateMachine stateMachine;
         IdleState idleState;
+        IntroState introState;
+        SlamState slamState;
+
+        public GameObject startingPosition;
 
         // Where it will move to when idle
         public List<GameObject> idlePoints = new List<GameObject>();
-        int currPoint = 0;
+        public int currPoint = 0;
         public float movementCooldown = 5.0f;
         public float movementTimer = 0.0f;
         public bool movementDone = false;
+
+        uint collidedEntity = 0;
 
         public override void OnCreate()
         {
             // Initialize state machine and states
             stateMachine = new StateMachine();
             idleState = new IdleState(this.gameObject);
+            introState = new IntroState(this.gameObject);
+            slamState = new SlamState(this.gameObject);
 
+            // start at intro state
+            stateMachine.ChangeState(introState);
             // start at a random point first also
             currPoint = GetNextIdlePoint();
-
-
         }
 
         public override void OnUpdate(float dt)
@@ -73,7 +212,7 @@ namespace SliceEngine
 
             // get a random point to teleport to
             int nextPoint = SliceRandom.RangeInt(0, idlePoints.Count);
-            while (nextPoint != currPoint)
+            while (nextPoint == currPoint)
             {
                 nextPoint = SliceRandom.RangeInt(0, idlePoints.Count);
             }
@@ -81,28 +220,12 @@ namespace SliceEngine
             return nextPoint;
         }
 
-        public void IdleMovement(float dt)
-        {
-            if (movementDone)
-                movementTimer += dt;
-
-            if (movementTimer >= movementCooldown)
-            {
-                movementTimer = 0.0f;
-                currPoint = GetNextIdlePoint();
-                movementDone = false;
-                // move to the random point
-                StartCoroutine(MoveToPoint(transform.Position, idlePoints[currPoint].GetComponent<Transform>().Position, 3.0f));
-            }
-
-
-        }
-
-        private IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
+        public IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
         {
             float elapsedTime = 0.0f;
 
             Transform transform = this.gameObject.GetComponent<Transform>();
+            movementDone = false;
 
             while (elapsedTime < duration)
             {
@@ -112,7 +235,70 @@ namespace SliceEngine
                 yield return null; // Wait for the next frame
             }
 
+            movementDone = true;
             transform.Position = targetPos; // Ensure it ends exactly at the target position
+            OnMovementFinish();
+        }
+
+        public void OnMovementFinish()
+        {
+            Console.WriteLine("Movement Finished");
+            switch(stateMachine.currentState)
+            {
+                // wtf is this syntax copilot auto filled this for me and it worked
+                case IdleState _:
+                    //movementDone = true;
+                    break;
+                case IntroState _:
+                    // setting it to slam straight away to test
+                    Console.WriteLine("Changing to slam State");
+                    stateMachine.ChangeState(slamState);
+                    break;
+                case SlamState _:
+                    SlamState slam = stateMachine.currentState as SlamState;
+                    slam.originalPosition = transform.Position;
+                    if (slam.reset)
+                    {
+                        stateMachine.ChangeState(idleState);
+                    }
+                    //Console.WriteLine($"Original position: {slam.originalPosition.ToString()}");
+                    break;
+            }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            // prevent multiple triggering
+            if (collidedEntity == 0)
+            {
+                collidedEntity = other;
+                if (stateMachine.currentState is SlamState slam)
+                {
+                    if (!slam.onCooldown && slam.attacking)
+                    {
+                        slam.ToggleHitbox(true);
+                        slam.onCooldown = true;
+
+                        // idea: maybe let it sit for awhile so the player can do damage??
+
+                        // make it rise back up once it hits the floor
+                        //slam.ResetPosition();
+                    }
+                }
+            }
+
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (collidedEntity == other)
+            {
+                collidedEntity = 0;
+                if (stateMachine.currentState is SlamState slam)
+                {
+                    slam.ToggleHitbox(false);
+                }
+            }
         }
     }
 }

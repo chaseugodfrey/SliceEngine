@@ -9,10 +9,10 @@ namespace SliceEngine
 
     public class StateMachine
     {
-        BaseState currentState;
+        public BaseState currentState;
 
         // if needed for any "if prev state is this do this instead" logic
-        BaseState prevState;
+        public BaseState prevState;
 
         public StateMachine() { }
         
