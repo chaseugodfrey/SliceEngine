@@ -48,6 +48,8 @@ namespace SliceEngine
 
 		uint32_t GetMask(uint32_t index);
 
+		uint32_t GetCollisionMask(std::string name);
+
 		uint32_t GetLayer(std::string name);
 
 		uint32_t GetLayer(uint32_t index);

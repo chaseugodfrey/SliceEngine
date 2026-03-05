@@ -38,6 +38,7 @@ namespace SliceEngine
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
+		constexpr uint64_t COLOR_NORMAL_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultNormalMap");
 
 		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
 		constexpr uint64_t CSHADER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCShader");
