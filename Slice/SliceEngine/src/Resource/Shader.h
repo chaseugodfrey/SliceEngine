@@ -97,7 +97,8 @@ namespace SliceEngine
 
 		class CustomShader {
 		public:
-			unsigned int s;
+			unsigned int opaqueS;
+			unsigned int translucentS;
 
 			enum class SP_TYPE : unsigned char
 			{
