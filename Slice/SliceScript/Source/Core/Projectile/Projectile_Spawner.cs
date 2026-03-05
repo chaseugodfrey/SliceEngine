@@ -39,16 +39,16 @@ namespace SliceEngine
         {
 
             GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
-            Console.WriteLine("Creating bullet");
+            //Console.WriteLine("Creating bullet");
             Transform tempT = newBullet.GetComponent<Transform>();
-            Console.WriteLine($"Bullet transform: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
+            //Console.WriteLine($"Bullet transform: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
             
             tempT.Position = startPos;
             tempT.Rotation = angle;
             tempT.Scale = scale;
-            Console.WriteLine($"Target transform: {startPos.ToString()}, {angle.ToString()}, {scale.ToString()}");
+            //Console.WriteLine($"Target transform: {startPos.ToString()}, {angle.ToString()}, {scale.ToString()}");
 
-            Console.WriteLine($"Bullet transform Part 2: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
+            //Console.WriteLine($"Bullet transform Part 2: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
 
             Projectile tempP = newBullet.As<Projectile>();
 
@@ -59,7 +59,7 @@ namespace SliceEngine
 
             allProjectiles.Add(tempP);
 
-            Console.WriteLine($"Bullet transform Part 3: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
+            //Console.WriteLine($"Bullet transform Part 3: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
 
             if (allProjectiles.Count > limit)
             {

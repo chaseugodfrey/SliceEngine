@@ -436,15 +436,39 @@ namespace SliceEngine
         private void InitializeAttacks()
         {
             attackHitboxes.Clear();
-            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
-            attackHitboxes[0].HitBoxListeners += Attack1;
+            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
+            //attackHitboxes[0].HitBoxListeners += Attack1;
 
-            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
-            attackHitboxes[1].HitBoxListeners += Attack2;
+            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
+            //attackHitboxes[1].HitBoxListeners += Attack2;
 
-            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[3])?.As<GeneralHitbox>());
-            attackHitboxes[2].HitBoxListeners += Attack3;
+            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[2])?.As<GeneralHitbox>());
+            //attackHitboxes[2].HitBoxListeners += Attack3;
 
+            for (int i = 0; i < attackHitboxNames.Count; i++)
+            {
+                attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[i])?.As<GeneralHitbox>());
+
+                HitBoxTriggerEvent attackAction = null;
+
+                switch (i)
+                {
+                    case 0:
+                        attackAction = Attack1;
+                        break;
+                    case 1: 
+                        attackAction = Attack2;
+                        break;
+                    case 2: 
+                        attackAction = Attack3;
+                        break;
+                    case 3:
+                        attackAction = Dash;
+                        break;
+                }
+                attackHitboxes[i].HitBoxListeners += attackAction;
+            }
+            Console.WriteLine($"Found {attackHitboxes.Count} hitboxes");
             TurnOffHitboxes();
         }
         private void InitializeInternalReferences()
@@ -515,7 +539,7 @@ namespace SliceEngine
 
             if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
-                Dash();
+                Dash(null);
 
                 Vector3 dashVel = dashDir * dashSpeed;
                 float yVel = 0;//playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
@@ -956,7 +980,7 @@ namespace SliceEngine
             }
         }
 
-        void Dash()
+        void Dash(GameObject target)
         {
             bool hasInput = input.SquareMagnitude() > 0.0001f;
 
@@ -968,6 +992,13 @@ namespace SliceEngine
                 {
                     transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
                 }
+            }
+
+            EnemyBase enemy = target.As<EnemyBase>();
+            if (enemy != null)
+            {
+                enemy.TakeDamage(attackDamageValues[3]);
+                Console.WriteLine("Dealing damage using dash");
             }
         }
 
