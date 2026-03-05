@@ -8,15 +8,19 @@ namespace SliceEngine
     {
         public bool DialogueOnStart = false;
         public int currLevel = 0; // to sync with level director
+        public string nextSceneToLoad = "";
+        public string currSceneToLoad = "";
 
         Slider health;
         public GameObject healthSliderObject;
 
         SpriteRenderer victory;
         public GameObject victoryObject;
+        public GameObject continueBtn;
 
         SpriteRenderer defeat;
         public GameObject defeatObject;
+        public GameObject retryBtn;
 
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
@@ -57,6 +61,8 @@ namespace SliceEngine
                 }
             }
 
+           
+
         }
 
 
@@ -72,12 +78,40 @@ namespace SliceEngine
         {
             //victory.SetEnabled(true);
             victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
+            continueBtn.SetActive(true);
+            CursorChecking(Cursor.state);
+
+
+        }
+
+        public void LoadNextLevel()
+        {
+            SceneManager.LoadScene(nextSceneToLoad);
+        }
+
+        public void RestartLevel()
+        {
+            SceneManager.LoadScene(currSceneToLoad);
         }
 
         public void GameLoseScreen()
         {
             //defeat.SetEnabled(true);
             defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
+            retryBtn.SetActive(true);
+            CursorChecking(Cursor.state);
+        }
+
+        public void CursorChecking(Cursor.STATE currentCursorState)
+        {
+            if (currentCursorState == Cursor.STATE.DISABLED)
+            {
+                Cursor.state = Cursor.STATE.DEFAULT;
+            }
+            else
+            {
+                Cursor.state = Cursor.STATE.DISABLED;
+            }
         }
 
         public override void OnButtonClick()

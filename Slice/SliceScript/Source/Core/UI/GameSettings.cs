@@ -36,13 +36,12 @@ namespace SliceEngine
                 if (isSubSettingsOpen)
                 {
                     CloseSubSettings();
-                    CursorChecking(Cursor.state);
                 }
                 // 2. If nothing is open, open the Pause Menu
                 else if (!isPauseMenuOpen)
                 {
                     OpenPauseMenu();
-                    CursorChecking(Cursor.state);
+                    Bootstrap.HUDManager.CursorChecking(Cursor.state);
 
                 }
                 // 3. If Pause Menu is open, close it (Resume Game)
@@ -59,6 +58,8 @@ namespace SliceEngine
         {
             if (settingsPanel != null) settingsPanel.SetActive(true);
             isPauseMenuOpen = true;
+
+            //Time.time = 
         }
 
 
@@ -69,7 +70,8 @@ namespace SliceEngine
             if (settingsPopup != null) settingsPopup.SetActive(false);
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
-            CursorChecking(Cursor.state);
+
+            Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
 
         public void OpenSubSettings()
@@ -90,18 +92,8 @@ namespace SliceEngine
 
             isSubSettingsOpen = false;
             isPauseMenuOpen = true;
-        }
 
-        public void CursorChecking(Cursor.STATE currentCursorState)
-        {
-            if(currentCursorState == Cursor.STATE.DISABLED)
-            {
-                Cursor.state = Cursor.STATE.DEFAULT;
-            }
-            else
-            {
-                Cursor.state = Cursor.STATE.DISABLED;
-            }
+            Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
     }
 }
