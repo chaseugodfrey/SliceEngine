@@ -1397,7 +1397,13 @@ namespace SliceEngine
 
 	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
 	{
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RigidBody>())
+		{
+			go.GetComponent<RigidBody>().gravityFactor = factor;
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+		}
+		
 	}
 
 	static bool RigidBody_IsGravityOff(unsigned int entity)
@@ -1407,7 +1413,13 @@ namespace SliceEngine
 
 	static void RigidBody_OffGravity(unsigned int entity, bool condition)
 	{
-		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RigidBody>())
+		{
+			float factor = condition ? 0.0f : 1.0f;
+			go.GetComponent<RigidBody>().gravityFactor = factor;
+			Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+		}
 	}
 
 #pragma endregion

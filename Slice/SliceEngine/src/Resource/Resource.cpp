@@ -53,6 +53,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::COLOR_DEADED_DEFAULT:
 				t->LoadColorTexture(1.f, 1.f, 1.f, 1.f);
 				break;
+			case DefaultResourceIDs::COLOR_NORMAL_DEFAULT:
+				t->LoadColorTexture(0.5f, 0.5f, 1.f, 1.f);
+				break;
 			default:
 				return nullptr;
 				break;
@@ -102,7 +105,8 @@ namespace SliceEngine
 	{
 		resource->DestroyCShader();	//calls glDeleteProgram
 		auto newResource = resource->LoadCShader(path);
-		resource->s = newResource.s;
+		resource->opaqueS = newResource.opaqueS;
+		resource->translucentS = newResource.translucentS;
 		resource->dataIn = newResource.dataIn;
 
 		std::string shdrGUID = path.substr(path.find_first_of('/') + 1);
