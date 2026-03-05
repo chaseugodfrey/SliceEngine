@@ -101,6 +101,8 @@ namespace SliceEngine
 
 			mRegistry->on_destroy<ColliderShape>().connect<&PhysicsSystem::OnColliderRemove>(this);
 
+			mRegistry->on_update<SliceEntity>().connect<&PhysicsSystem::OnSliceEntityModified>(this);
+
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
 			return true;
@@ -647,6 +649,28 @@ namespace SliceEngine
 			}
 		}
 		
+	}
+
+	void PhysicsSystem::OnSliceEntityModified(entt::registry& reg, entt::entity entity)
+	{
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
+
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+		auto& slice = reg.get<SliceEntity>(entity);
+
+		if (!physicsSystem->GetBodyInterface().IsAdded(colliderShape.bodyID))
+		{
+			return;
+		}
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		}
+
 	}
 
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)

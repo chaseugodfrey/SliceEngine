@@ -81,6 +81,8 @@ namespace SliceEngine
 
 		void OnEntityDisabled(entt::registry& reg, entt::entity entity);
 
+		void OnSliceEntityModified(entt::registry& reg, entt::entity entity);
+
 		void UpdateShapeFromTransform(Entity entity);
 
 		void SyncECSToPhysics(Transform& transform, ColliderShape& colliderShape) const;
