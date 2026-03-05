@@ -22,6 +22,7 @@ namespace SliceEngine
             {
                 currentState.OnExit();
             }
+
             prevState = currentState;
             currentState = newState;
             currentState.OnEnter();

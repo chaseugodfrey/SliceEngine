@@ -43,6 +43,8 @@ namespace SliceEngine
     public class IdleState : BaseState
     {
         EnemyLevel2 enemyController;
+        public int moves = 0;
+
 
         public IdleState(GameObject owner) : base(owner)
         {
@@ -50,11 +52,16 @@ namespace SliceEngine
         }
         public override void OnEnter()
         {
+            moves = 0;
+
             Console.WriteLine("Idle state entered");
             if (enemyController.stateMachine.prevState is SlamState)
             {
                 // move straight away
                 enemyController.movementTimer = enemyController.movementCooldown;
+
+                // force it to move once atleast
+                //enemyController.movementDone = false;
             }
         }
 
@@ -65,21 +72,39 @@ namespace SliceEngine
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                   // Console.WriteLine("Incrementing");
+                    // Console.WriteLine("Incrementing");
                     // prob decide here if attack or no attack
                     // im not sure how to attack yet for now
 
-                    enemyController.movementTimer += dt;
+                    // ill try this, % chance
+                        enemyController.movementTimer += dt;
                 }
 
-                if (enemyController.movementTimer >= enemyController.movementCooldown)
+                if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
                 {
-                    enemyController.movementTimer = 0.0f;
-                    enemyController.currPoint = enemyController.GetNextIdlePoint();
+                    float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
+                    // 40% chance to slam attack
+                    if (roll < 0.75f && moves != 0) // 75% chance for now cause testing
+                    {
+                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                    }
+                    //else if (roll < 0.8f)
+                    //{
+                    //    // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
+                    //    Console.WriteLine("pew pew pew");
 
-                    enemyController.movementDone = false;
-                    // move to the random point
-                    enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                    //}
+                    else
+                    {
+                        // nth, itll just move down and move to a new waypoint
+                        enemyController.movementTimer = 0.0f;
+                        enemyController.currPoint = enemyController.GetNextIdlePoint();
+
+                        enemyController.movementDone = false;
+                        // move to the random point
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                    }
+
                 }
             }
         }
@@ -101,6 +126,13 @@ namespace SliceEngine
 
         public override void OnEnter()
         {
+            Console.WriteLine("Entering slam state");
+            // reset all variables
+            onCooldown = false;
+            attacking = false;
+            reset = false;
+            timer = 0.0f;
+
             // move to the player fast
             Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
             targetPos.y = owner.GetComponent<Transform>().Position.y;
@@ -117,7 +149,7 @@ namespace SliceEngine
                 // save the original position before slamming
                 //originalPosition = owner.GetComponent<Transform>().Position;
 
-
+                Console.WriteLine("Slamming");
                 owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
             }
 
@@ -149,6 +181,9 @@ namespace SliceEngine
 
         public void ToggleHitbox(bool flag)
         {
+            // idk how general hit boxes work
+            // i need to ask eze so ill do this ltr
+
             if (flag)
             {
 
@@ -165,9 +200,9 @@ namespace SliceEngine
     public class EnemyLevel2 : SliceBehaviour
     {
         public StateMachine stateMachine;
-        IdleState idleState;
-        IntroState introState;
-        SlamState slamState;
+        public IdleState idleState;
+        public IntroState introState;
+        public SlamState slamState;
 
         public GameObject startingPosition;
 
@@ -236,7 +271,8 @@ namespace SliceEngine
             }
 
             movementDone = true;
-            transform.Position = targetPos; // Ensure it ends exactly at the target position
+            // Ensure it ends exactly at the target position
+            transform.Position = targetPos; 
             OnMovementFinish();
         }
 
@@ -248,11 +284,12 @@ namespace SliceEngine
                 // wtf is this syntax copilot auto filled this for me and it worked
                 case IdleState _:
                     //movementDone = true;
+                    IdleState idle = stateMachine.currentState as IdleState;
+                    idle.moves++;
                     break;
                 case IntroState _:
-                    // setting it to slam straight away to test
-                    Console.WriteLine("Changing to slam State");
-                    stateMachine.ChangeState(slamState);
+                    Console.WriteLine("Changing to idle State");
+                    stateMachine.ChangeState(idleState);
                     break;
                 case SlamState _:
                     SlamState slam = stateMachine.currentState as SlamState;
