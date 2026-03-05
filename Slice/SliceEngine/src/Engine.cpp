@@ -300,6 +300,9 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("cloudsHeight", &Camera::cloudsHeight)
+		.property("cloudsIntensity", &Camera::cloudsIntensity)
+		.property("cloudsSmoothness", &Camera::cloudsSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 

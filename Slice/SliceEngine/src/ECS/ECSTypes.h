@@ -198,6 +198,7 @@ namespace SliceEngine
 		RENDER_BLUR			= 0x02,
 		RENDER_BLOOM		= 0x04,
 		RENDER_VIGNETTE		= 0x08,
+		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -233,6 +234,9 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		float cloudsHeight{ -1.f };
+		float cloudsIntensity{ 1.f };
+		float cloudsSmoothness{ 1.f };
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};

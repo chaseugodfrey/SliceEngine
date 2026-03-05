@@ -643,6 +643,7 @@ namespace SliceEditor
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
+			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
 
 			ImGui::Text("Bloom");
 			ImGui::SameLine(150.0f);
@@ -683,6 +684,20 @@ namespace SliceEditor
 				DragVec2InputHeader(mRegistry, "Vignette Center", "##cam_vignette_center", cam.vignetteCenter);
 				DragFloatInputHeader(mRegistry, "Vignette Intensity", "##cam_vignette_intensity", cam.vignetteIntensity, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Vignette Smoothness", "##cam_vignette_smoothness", cam.vignetteSmoothness, "%.1f", 0.0f, FLT_MAX);
+			}
+
+			ImGui::Text("Ground Clouds");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_hasGroundClouds", &isGroundCloud))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_GROUND_CLOUD, isGroundCloud);
+			}
+
+			if (isGroundCloud)
+			{
+				DragFloatInputHeader(mRegistry, "Clouds Center", "##cam_ground_clouds_height", cam.cloudsHeight, "%.1f", -FLT_MAX, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Clouds Intensity", "##cam_ground_clouds_intensity", cam.cloudsIntensity, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Clouds Smoothness", "##cam_ground_clouds_smoothness", cam.cloudsSmoothness, "%.1f", 0.0f, FLT_MAX);
 			}
 
 			ImGui::TreePop();
