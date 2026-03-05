@@ -13,7 +13,7 @@ namespace SliceEngine
     {
         private List<IAttack> attacks = new List<IAttack>();
 
-        public AttackPatterns(List<int> attacks)
+        public AttackPatterns(List<int> attacks, uint bossID, uint playerID)
         {
             //idk how else it should be done due to limitations
             //for now do this each attack will be identified with an index
@@ -22,7 +22,7 @@ namespace SliceEngine
                 switch (i)
                 {
                     case 0:
-                        this.attacks.Add(new ExampleAttack());
+                        this.attacks.Add(new ExampleAttack(bossID, playerID));
                         break;
                     //case 1:
                     //    this.attacks.Add(new Behaviour2());

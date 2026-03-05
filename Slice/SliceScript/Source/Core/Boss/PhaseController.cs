@@ -45,7 +45,7 @@ namespace SliceEngine
             if  (percentageHealth <= healthPhases[currentPhase])
             {
                 ++currentPhase;
-                PhaseTrigger(currentPhase);
+                PhaseTrigger?.Invoke(currentPhase); // there will one mroe attack patetrn compared to the phases since the boss will start with a base attack pattern
             }
 
         }
