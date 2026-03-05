@@ -49,7 +49,7 @@ namespace SliceEngine
 
             debugTest();
 
-            Bootstrap.CameraController.LockCamera = true;
+            //Bootstrap.CameraController.LockCamera = true;
         }
 
         public void debugTest()
