@@ -91,6 +91,7 @@ namespace SliceEngine
         public float plungeTerminalVelocity = 40.0f;
         public float plungeAttackDuration = 0.25f;
         public float plungeRecoveryDuration = 0.25f;
+        public float plungeMinDistance = 2.0f;
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
@@ -158,7 +159,6 @@ namespace SliceEngine
             UpdateAttacks(dt);
             UpdateStates();
             UpdateAnimator();
-
 
 
             if (prevMoveState != playerMovementState)
@@ -268,7 +268,47 @@ namespace SliceEngine
                 }
             }
             else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
-            {                
+            {
+                Console.WriteLine("Trying to execute attack");
+                RayCastHit hitInfo;
+                // Check if can plunge by raycasting down to see distance to ground
+                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                if (hit)
+                    Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
+                if (hit)
+                {
+                    //Console.WriteLine("It hit something");
+                    GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    if (objHit == null)
+                    {
+                        Console.WriteLine("Obj hit is null");
+                    }
+                    // Only check distance if its a ground obj
+                    else if (objHit.tag == "Ground")
+                    {
+                        // if its too close to the ground then dont let it plunge
+                        if (hitInfo.distance <= plungeMinDistance)
+                        {
+                            //Console.WriteLine("Not high enough");
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine($"Distance : {hitInfo.distance}");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine($"It hit smth that isnt ground: {objHit.mID}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Not hitting");
+                }
+
+
+
                 playerCombatState = CombatState.Attacking;
                 playerMovementState = MovementState.Plunging;
                 playerCurrentAttack = CurrentAttack.None;
@@ -475,11 +515,12 @@ namespace SliceEngine
 
             if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
+                Dash();
+
                 Vector3 dashVel = dashDir * dashSpeed;
-                float yVel = playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
+                float yVel = 0;//playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
                 rigidBody.Velocity = new Vector3(dashVel.x, yVel, dashVel.z);
 
-                Dash();
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
@@ -861,6 +902,10 @@ namespace SliceEngine
 
         private void TryJump()
         {
+            // no jumping when attacking
+            if (playerCombatState != CombatState.None)
+                return;
+
             if (jumpCounter < 2 && jumpCooldownTimer <= 0.0f)
             {
                 jumpCounter++;
@@ -905,6 +950,7 @@ namespace SliceEngine
                 else
                     playerMovementState = MovementState.AirDash;
 
+                dashDir = ComputeFlatDashDir(true);
 
                 Console.WriteLine($"Dashing now, after state is : {playerMovementState.ToString()}");
             }
@@ -912,11 +958,16 @@ namespace SliceEngine
 
         void Dash()
         {
-            dashDir = ComputeFlatDashDir(true);
+            bool hasInput = input.SquareMagnitude() > 0.0001f;
 
-            if (dashDir.SquareMagnitude() > 0.0001f)
+            if (hasInput)
             {
-                transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
+                dashDir = ComputeFlatDashDir(true);
+
+                if (dashDir.SquareMagnitude() > 0.0001f)
+                {
+                    transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
+                }
             }
         }
 
@@ -976,7 +1027,7 @@ namespace SliceEngine
             }
 
             bool inputtable;
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
                 inputtable = true;
             }
@@ -996,7 +1047,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return forward.Normalize();
+                return -forward.Normalize();
             }
 
             if (camera != null)
