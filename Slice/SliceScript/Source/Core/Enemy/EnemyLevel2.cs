@@ -210,7 +210,9 @@ namespace SliceEngine
 
                 Transform T = owner.GetComponent<Transform>();
                 //Console.WriteLine("SHooting boolet");
-                enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed);
+                GameObject bullet = enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed, false, enemyController.distanceBeforeDestroyBullet);
+                
+                bullet.As<Projectile>().destroyOnPlayerImpact = true;
             }
         }
     }
