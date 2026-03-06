@@ -87,7 +87,7 @@ namespace SliceEngine
                     // 40% chance to slam attack
                     if (roll < 0.75f && moves != 0) // 75% chance for now cause testing
                     {
-                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
                     }
                     //else if (roll < 0.8f)
                     //{
@@ -186,14 +186,6 @@ namespace SliceEngine
     {
         EnemyLevel2 enemyController;
         public List<Projectile> allProjectiles = new List<Projectile>();
-        public int limit = 100;
-        public int bulletDamage = 1;
-        public float projPerSecond = 4f;
-
-        public float bulletSpeed = 1f;
-
-        public Vector3 bulletScale = new Vector3(1);
-
 
         private float count = 0f;
 
@@ -210,13 +202,15 @@ namespace SliceEngine
         {
             owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
 
-            if (count >= 1f / projPerSecond)
+            count += dt;
+            //Console.WriteLine($"count : {count}");
+            if (count >= 1f / enemyController.projPerSecond)
             {
-                count -= 1f / projPerSecond;
+                count -= 1f / enemyController.projPerSecond;
 
                 Transform T = owner.GetComponent<Transform>();
-
-                enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                //Console.WriteLine("SHooting boolet");
+                enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed);
             }
         }
     }
