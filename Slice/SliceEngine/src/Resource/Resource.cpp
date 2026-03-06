@@ -497,6 +497,25 @@ namespace SliceEngine
 	{
 	}
 
+	//Anims Package
+	std::unique_ptr<SliceEngineTypes::Anims> Type<SliceEngineTypes::Anims>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto anim = std::make_unique<SliceEngineTypes::Anims>();
+		if (!anim->LoadAnimsResource(path)) {
+			return nullptr;
+		}
+		return anim;
+	}
+
+	void Type<SliceEngineTypes::Anims>::Destroy(SliceEngineTypes::Anims& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
+	}
+
+	void Type<SliceEngineTypes::Anims>::Reload(SliceEngineTypes::Anims* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
 	//Controller
 	std::unique_ptr<SliceEngineTypes::StateMachine> Type<SliceEngineTypes::StateMachine>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{

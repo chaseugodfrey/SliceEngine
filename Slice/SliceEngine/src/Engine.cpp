@@ -558,6 +558,7 @@ namespace SliceEngine
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
 		.property("componentEnabled", &Animator::componentEnabled)
+		.property("Anims Pkg GUID", &Animator::Handle_Anims)
 		.property("eventFrames", &Animator::eventFrames);
 
 
