@@ -85,16 +85,16 @@ namespace SliceEngine
                 {
                     float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                     // 40% chance to slam attack
-                    if (roll < 0.75f && moves != 0) // 75% chance for now cause testing
+                    if (roll < 0.4f && moves != 0) // 75% chance for now cause testing
                     {
-                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                            enemyController.stateMachine.ChangeState(enemyController.slamState);
                     }
-                    //else if (roll < 0.8f)
-                    //{
-                    //    // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
-                    //    Console.WriteLine("pew pew pew");
-
-                    //}
+                    else if (roll < 0.8f && roll > 0.4f)
+                    {
+                        // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
+                        Console.WriteLine("pew pew pew");
+                        enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                    }
                     else
                     {
                         // nth, itll just move down and move to a new waypoint
@@ -186,8 +186,10 @@ namespace SliceEngine
     {
         EnemyLevel2 enemyController;
         public List<Projectile> allProjectiles = new List<Projectile>();
+        public float stateDuration = 5.0f;
 
         private float count = 0f;
+        private float timer = 0f;
 
         public ProjectileState(GameObject owner) : base(owner)
         {
@@ -197,11 +199,14 @@ namespace SliceEngine
         {
             // spawn projectiles from spawn points that shoot towards the player
             Console.WriteLine("Entering projectile state");
+            timer = 0f;
+            count = 0f;
         }
         public override void OnUpdate(float dt)
         {
             owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
 
+            timer += dt;
             count += dt;
             //Console.WriteLine($"count : {count}");
             if (count >= 1f / enemyController.projPerSecond)
@@ -213,6 +218,11 @@ namespace SliceEngine
                 GameObject bullet = enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed, false, enemyController.distanceBeforeDestroyBullet);
                 
                 bullet.As<Projectile>().destroyOnPlayerImpact = true;
+            }
+
+            if (timer >= stateDuration)
+            {
+                enemyController.stateMachine.ChangeState(enemyController.idleState);
             }
         }
     }
