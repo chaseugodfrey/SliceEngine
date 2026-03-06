@@ -472,7 +472,7 @@ namespace SliceEngine
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
 		glm::vec4 colour{};
-
+		float emissionIntensity{};
 		GLuint64 textureID{};
 
 		bool isMeshParticle{false};

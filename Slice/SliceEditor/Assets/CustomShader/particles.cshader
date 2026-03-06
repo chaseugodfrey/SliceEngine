@@ -2,7 +2,12 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node16"
+                "Node19"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node34"
             ]
         },
         "END_METALLIC": {
@@ -11,7 +16,7 @@
             ]
         },
         "END_NORMAL": {
-            "FinalNode3": [
+            "FinalNode4": [
                 "0"
             ]
         },
@@ -21,9 +26,13 @@
             ]
         },
         "Multiply": {
-            "Node16": [
+            "Node19": [
                 "Node23",
                 "color"
+            ],
+            "Node34": [
+                "Node19",
+                "EmissionIntensity"
             ]
         },
         "sampleTexture": {
@@ -35,7 +44,9 @@
     },
     "Params": {
         "Bools": {},
-        "Floats": {},
+        "Floats": {
+            "EmissionIntensity": 0.0
+        },
         "Ints": {},
         "Textures": {
             "texCol": 17753361635269803423
