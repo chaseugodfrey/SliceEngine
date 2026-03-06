@@ -1,3 +1,20 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        RecastNavmesh.h
+
+ author:      Crystal Koh Qiao Wei
+
+ email:       k.crystalqiaowei@digipen.edu
+
+ brief:       Defines the RecastNavMesh class, responsible for extracting level geometry
+              and baking it into a Navigation Mesh using the Recast library. It also
+              initializes the Detour navigation data and query objects required for
+              runtime pathfinding within the editor and engine.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #ifndef RECAST_NAVMESH_H
 #define RECAST_NAVMESH_H
 
@@ -17,18 +34,32 @@ namespace SliceEditor
 	public:
 		RecastNavMesh();
 		~RecastNavMesh();
+        /**
+         * @brief Extracts geometry from a single entity and bakes a Navigation Mesh.
+         * * @param entity Pointer to the entity containing the model geometry to build from.
+         * @return True if the NavMesh was successfully built, false otherwise.
+         */
+        bool BuildFromModel(Entity* entity);
 
-        bool BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform);
-
-        //bool BuildFromModel(
-        //    const std::vector<Entity *> entities,
-        //    const std::vector<SliceEngine::NavMeshLink> &links 
-        //);
-
+        /**
+         * @brief Extracts and combines geometry from multiple entities to bake a unified Navigation Mesh.
+         * * @param entities A vector of entity pointers containing the models to build from.
+         * @return True if the NavMesh was successfully built, false otherwise.
+         */
         bool BuildFromModel(
             const std::vector<Entity *> entities
         );
-        // helper to look for child nodes
+        
+        /**
+         * @brief Recursively traverses a model's node hierarchy to extract vertices and indices.
+         * Transforms vertices into world space and flattens them into single buffers for Recast.
+         * * @param model           The model containing the geometry.
+         * @param node            The current node being processed.
+         * @param parentTransform The accumulated local-to-world transformation matrix.
+         * @param outVertices     Buffer storing the flattened world-space vertices.
+         * @param outIndices      Buffer storing the flattened indices.
+         * @param vertexOffset    The current index offset to ensure global indices are correct across multiple meshes.
+         */
         void CollectMeshDataFromNode(
             const SliceEngine::SliceEngineTypes::Model &model,
             const SliceEngine::SliceEngineTypes::ModelNode &node,

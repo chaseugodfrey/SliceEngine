@@ -1,16 +1,20 @@
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
- file:        DetourNavMesh.cpp
+ file:        NavMeshUtilities.cpp
 
- author:	  Crystal Koh Qiao Wei
+ author:      Crystal Koh Qiao Wei
 
  email:       k.crystalqiaowei@digipen.edu
 
- brief:		  Responsible for handling of the loading of and other functions of DetourNavMesh
+brief:        Provides a collection of standalone utility functions for interacting with
+			  Detour Navigation Meshes. This includes functions for file I/O, generating
+			  renderable debug geometry for meshes and paths, calculating point-to-point
+			  paths, querying surface heights, and initializing crowd managers.
 
 Copyright (C) 2025 DigiPen Institute of Technology.
 Reproduction or disclosure of this file or its contents without the prior written consent of
 DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include <pch.h>
 #include "NavMeshUtilities.h"
 #include <filesystem>
@@ -366,33 +370,4 @@ namespace SliceEngine
 		return std::nullopt;
 	}
 
-	NavMeshDebugObj NavMeshUtilities::CreateDebugPathMesh(const std::vector<glm::vec3> &pathPoints)
-	{
-		NavMeshDebugObj dataObjArr{};
-		std::vector<float> vertices;
-
-		// Convert glm::vec3 path to float array for rendering
-		// Raise the line slightly (Y+0.1) so it draws on top of the NavMesh
-		for (const auto &point : pathPoints)
-		{
-			vertices.push_back(point.x);
-			vertices.push_back(point.y + 0.2f);
-			vertices.push_back(point.z);
-		}
-
-		// Use the first slot (data[0]) for the path line
-		glCreateBuffers(1, &dataObjArr.data[0].vbo);
-		glNamedBufferStorage(dataObjArr.data[0].vbo, vertices.size() * sizeof(float), vertices.data(), 0);
-
-		glCreateVertexArrays(1, &dataObjArr.data[0].vao);
-		glEnableVertexArrayAttrib(dataObjArr.data[0].vao, 0);
-		glVertexArrayAttribFormat(dataObjArr.data[0].vao, 0, 3, GL_FLOAT, false, 0);
-
-		glVertexArrayVertexBuffer(dataObjArr.data[0].vao, 0, dataObjArr.data[0].vbo, 0, sizeof(float) * 3);
-		glVertexArrayAttribBinding(dataObjArr.data[0].vao, 0, 0);
-
-		dataObjArr.data[0].drawCnt = static_cast<uint32_t>(vertices.size() / 3);
-
-		return dataObjArr;
-	}
 }
