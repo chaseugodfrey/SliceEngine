@@ -15,7 +15,9 @@ namespace SliceEngine
         public GameObject generalHitbox;
         public Projectile_Spawner owner;
         public bool destroyOnImpact = false;
+        public float distanceBeforeDestroy = 10f;
 
+        private float distancetravelledCount = 0f;
         public void DamagePlayer(GameObject hit)
         {
 
@@ -54,7 +56,16 @@ namespace SliceEngine
 
             //push it forward based on speed
 
-            this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * speed * dt; 
+            float distanceTraveled = speed * dt;
+
+            this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * distanceTraveled;
+
+            distancetravelledCount += distanceTraveled;
+
+            if (distancetravelledCount >= distanceBeforeDestroy)
+            {
+                DestroyProj();
+            }
         }
 
         public void DestroyProj()

@@ -23,6 +23,7 @@ namespace SliceEngine
         private Vector3 middlePos = new Vector3(0, 0, 0);
 
         private float cycle = 0f;
+        private bool waiting = false;
 
         public override void OnCreate()
         {
@@ -35,11 +36,26 @@ namespace SliceEngine
             rb = this.GetComponent<RigidBody>();
         }
 
-        public override void OnUpdate(float dt)
-        {
-            if (!active) return;
 
-            base.OnUpdate(dt);
+        //IEnumerator Wait(float time)
+        //{
+        //    waiting = true;
+        //    float count = 0f;
+
+        //    while(count < time)
+        //    {
+        //        count += Time.fixedDeltaTime;
+        //        yield return new WaitForSeconds(Time.fixedDeltaTime);
+        //    }
+        //    waiting = false;
+        //    yield break;
+        //}
+
+        public override void OnFixedUpdate(float dt)
+        {
+            if (!active || waiting) return;
+
+            base.OnFixedUpdate(dt);
 
             //push it forward based on speed
 
@@ -47,7 +63,7 @@ namespace SliceEngine
 
             float calc = (float)(1f * Math.Sin(speed * cycle));
 
-            transform.Position = middlePos + (differenceHalfed * calc);
+            transform.Position= middlePos + (differenceHalfed * calc);
 
             
 

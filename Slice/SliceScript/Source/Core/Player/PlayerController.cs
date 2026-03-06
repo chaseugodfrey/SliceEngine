@@ -1067,6 +1067,13 @@ namespace SliceEngine
             moveDir.y = 0f;
             return moveDir.Normalize();
         }
+
+        public void TeleportPlayer(Vector3 pos)
+        {
+            EndAttackState();
+            transform.Position = pos;
+        }
+
         #endregion
     }
 }
