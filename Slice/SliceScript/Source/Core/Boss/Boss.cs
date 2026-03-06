@@ -27,6 +27,8 @@ namespace SliceEngine
 
         public List<int> attackPatterns4 = new List<int>();
 
+        public List<Phase> phases = new List<Phase>();
+
         // unsure if i have to set it in oncreate on just through editor is fine, leaving comment here in case
         public GameObject player;
 
@@ -36,7 +38,7 @@ namespace SliceEngine
             phaseController = new PhaseController(healthPhasesList);
             phaseController.PhaseTrigger += HandlePhaseChange;
 
-            List<AttackPatterns> temp = initializeAttackPatterns();
+            List<Phase> temp = initializeAttackPatterns();
 
             attackSetManager = new AttackSetManager(temp, healthPhasesList.Count);
 
@@ -58,9 +60,9 @@ namespace SliceEngine
             attackSetManager.SetPhase(phase);
         }
 
-        public List<AttackPatterns> initializeAttackPatterns()
+        public List<Phase> initializeAttackPatterns()
         {
-            List<AttackPatterns> temp = new List<AttackPatterns>();
+            List<Phase> temp = new List<Phase>();
 
             if((attackPatterns1.Count == 0)) 
             {
@@ -68,19 +70,19 @@ namespace SliceEngine
                 return temp;
             }
 
-            temp.Add(new AttackPatterns(attackPatterns1, gameObject.mID, player.mID));
+            temp.Add(new Phase(attackPatterns1, gameObject.mID, player.mID));
 
             if (!(attackPatterns2.Count == 0))// not equal zero, just in case yall never see
             {
-                temp.Add(new AttackPatterns(attackPatterns2, gameObject.mID, player.mID));
+                temp.Add(new Phase(attackPatterns2, gameObject.mID, player.mID));
             }
             if (!(attackPatterns3.Count == 0))
             {
-                temp.Add(new AttackPatterns(attackPatterns3, gameObject.mID, player.mID));
+                temp.Add(new Phase(attackPatterns3, gameObject.mID, player.mID));
             }
             if (!(attackPatterns4.Count == 0))
             {
-                temp.Add(new AttackPatterns(attackPatterns4, gameObject.mID, player.mID));
+                temp.Add(new Phase(attackPatterns4, gameObject.mID, player.mID));
             }
 
             return temp;

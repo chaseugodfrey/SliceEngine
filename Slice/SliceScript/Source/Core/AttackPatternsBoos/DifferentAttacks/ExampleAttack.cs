@@ -8,7 +8,7 @@ using System.Security.Permissions;
 namespace SliceEngine
 {
     // example attack behaviour
-    public class  ExampleAttack : IAttack
+    public class  ExampleAttack : State
     {
         public ExampleAttack(uint bossId, uint playerId) : base(bossId, playerId) { }
 

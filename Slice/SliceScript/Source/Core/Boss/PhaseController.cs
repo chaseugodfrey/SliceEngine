@@ -1,6 +1,7 @@
 using SliceEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 
@@ -17,6 +18,11 @@ namespace SliceEngine
 
         public delegate void PhaseTriggerEvent(int phase);
         public event PhaseTriggerEvent PhaseTrigger;
+
+        void Init()
+        {
+        }
+
 
         public PhaseController(List<float> healthPhases)
         {
@@ -44,7 +50,7 @@ namespace SliceEngine
 
             if  (percentageHealth <= healthPhases[currentPhase])
             {
-                ++currentPhase;
+                currentPhase++;
                 PhaseTrigger?.Invoke(currentPhase); // there will one mroe attack patetrn compared to the phases since the boss will start with a base attack pattern
             }
 

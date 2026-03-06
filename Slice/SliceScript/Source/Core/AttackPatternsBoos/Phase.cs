@@ -8,10 +8,10 @@ using System.Security.Permissions;
 namespace SliceEngine
 {
 
-    // this class will handle the transition between the attacks
-    public class AttackPatterns : SliceBehaviour
+    // this class will handle the transition between the states
+    public class Phase : SliceBehaviour
     {
-        private List<IAttack> attacks = new List<IAttack>();
+        public List<State> states = new List<State>();
 
         private int currentAttack = 0;
         public bool IsFinished { get; private set; } = false;
@@ -21,17 +21,17 @@ namespace SliceEngine
             currentAttack = 0;
             IsFinished = false;
 
-            if (attacks.Count > 0)
+            if (states.Count > 0)
             {
-                attacks[currentAttack].Enter();
+                states[currentAttack].Enter();
             }
         }
         public void Update(float dt)
         {
-            if (attacks.Count == 0) 
+            if (states.Count == 0) 
                 return;
 
-            IAttack active = attacks[currentAttack];
+            State active = states[currentAttack];
             active.Update(dt);
 
             if (active.IsFinished)
@@ -39,37 +39,37 @@ namespace SliceEngine
                 active.Exit();
                 currentAttack++;
 
-                if (currentAttack >= attacks.Count)
+                if (currentAttack >= states.Count)
                 {
                     currentAttack = 0;
                     IsFinished = true;
                 }
 
-                attacks[currentAttack].Enter();
+                states[currentAttack].Enter();
             }
         }
         public void Exit()
         {
-            if (attacks.Count > 0) attacks[currentAttack].Exit();
+            if (states.Count > 0) states[currentAttack].Exit();
             IsFinished = false;
         }
 
-        public AttackPatterns(List<int> attacks, uint bossID, uint playerID)
+        public Phase(List<int> states, uint bossID, uint playerID)
         {
             //idk how else it should be done due to limitations
             //for now do this each attack will be identified with an index
-            foreach (int i in attacks)
+            foreach (int i in states)
             {
                 switch (i)
                 {
                     case 0:
-                        this.attacks.Add(new ExampleAttack(bossID, playerID));
+                        this.states.Add(new ExampleAttack(bossID, playerID));
                         break;
                     //case 1:
-                    //    this.attacks.Add(new Behaviour2());
+                    //    this.states.Add(new Behaviour2());
                     //    break;
                     //case 2:
-                    //    this.attacks.Add(new Behaviour3());
+                    //    this.states.Add(new Behaviour3());
                     //    break;
                     default:
                         SliceLog.Log("Invalid attack pattern index: " + i);

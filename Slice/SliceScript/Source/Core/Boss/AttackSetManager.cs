@@ -11,13 +11,14 @@ namespace SliceEngine
     public class AttackSetManager : SliceBehaviour
     {
 
-        private List<AttackPatterns> attackSets = new List<AttackPatterns>();
+        private List<Phase> phases = new List<Phase>();
         private int currentSet = 0;
         private int maxNumberAttackPattern;
 
-        public AttackSetManager(List<AttackPatterns> atpattern, int numberOfPhases)
+        public AttackSetManager(List<Phase> atpattern, int numberOfPhases)
         {
-            attackSets = atpattern;
+            phases = atpattern;
+            //currentPhase = phases[0];
             maxNumberAttackPattern = numberOfPhases + 1;
         }
 
@@ -32,24 +33,24 @@ namespace SliceEngine
             if(phase == 0)
             {
                 currentSet = phase;
-                attackSets[currentSet].Enter();
+                phases[currentSet].Enter();
             }
             else
             {
-                attackSets[currentSet].Exit();
+                phases[currentSet].Exit();
                 currentSet = phase;
-                attackSets[currentSet].Enter();
+                phases[currentSet].Enter();
             }
 
         }
         public void Update(float dt)
         {
-            if (attackSets.Count == 0)
+            if (phases.Count == 0)
             {
                SliceLog.Log("No attack patterns set in AttackSetManager");
                return;
             }
-            attackSets[currentSet].Update(dt);
+            phases[currentSet].Update(dt);
         }
 
     }
