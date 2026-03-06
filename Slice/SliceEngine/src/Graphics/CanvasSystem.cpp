@@ -131,7 +131,7 @@ namespace SliceEngine {
 
 		for (auto entity : view) {
 			//auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */entity, empty, entity);
+			get_child_ui(/*entities_to_draw, */entity, entity, entity);
 		}
 	}
 
@@ -171,17 +171,6 @@ namespace SliceEngine {
 
 		//clear the raycast buffer to entt null
 
-		/*
-		* Things to note:
-		* currently only the last camera that was added in scene view is used as camera,(GameViewWindow.cpp)
-		* this camera is the very first entity within the view(idk why its a stack)
-		*
-		* the camera that is used for editor is accessed via scene camera (SceneViewWindow.cpp)
-		* 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
-				camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		*
-		* for now just draw game camera, deal with scene view later
-		*/
 		auto core = SliceEngine::Core::GetInstance();
 
 		auto const& cam_sys = core->GetSystem<CameraSystem>();
@@ -250,21 +239,6 @@ namespace SliceEngine {
 		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void CanvasSystem::ConstructWorldCanvas() {
-		return;
-		//convert rect transform to transform
-	/*	auto core = SliceEngine::Core::GetInstance();
-		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
-
-		std::vector<Entity> world_canvas{};
-		for (auto entity : view) {
-			auto const& canvas = mRegistry->get<Canvas>(entity);
-			if (canvas.canvas_type == Canvas::WORLD) {
-				world_canvas.push_back(entity);
-			}
-		}*/
 	}
 
 	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
@@ -585,7 +559,7 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Entity canvas_entity, RectTransform const& parent, Entity node) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node) {
 		/*
 		*	assumptions
 		*	all children have rect transform
@@ -595,11 +569,25 @@ namespace SliceEngine {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
-		rect.Update(parent);	//get position of rect relative to parent
+		auto const& p_rect = mRegistry->get<RectTransform>(parent);
+		rect.Update(p_rect);	//get position of rect relative to parent
 
 		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
-		if (ctx.canvas_type == Canvas::WORLD) {
+		if (ctx.canvas_type == Canvas::WORLD && node != parent) {
 			//update world pos?
+			//rotation of child is always 0
+			//scale of child is relative to immediate parent
+			//pos of child is child - parent
+			auto& c_tform = mRegistry->get<Transform>(node);
+			auto& p_tform = mRegistry->get<Transform>(parent);
+
+			c_tform.rotation = glm::identity<glm::quat>();
+			c_tform.scale.x = rect.final_width / p_rect.final_width; 
+			c_tform.scale.y = rect.final_height / p_rect.final_height; 
+			c_tform.scale.z = 1.f;
+			c_tform.position.x = rect.final_x - p_rect.final_x;
+			c_tform.position.y = rect.final_y - p_rect.final_y;
+			c_tform.position.z = 0.f;
 		}
 
 
@@ -607,7 +595,7 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */canvas_entity, rect, child);
+				get_child_ui(/*entities_to_draw, */canvas_entity, node, child);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}

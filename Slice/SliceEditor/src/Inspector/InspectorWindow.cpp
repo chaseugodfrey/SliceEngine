@@ -443,7 +443,7 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
-			static std::vector<std::string> canvas_types{ "Overlay" };
+			static std::vector<std::string> canvas_types{ "Overlay", "World Space"};
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
 
 			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
@@ -579,13 +579,21 @@ namespace SliceEditor
 
 	void InspectorWindow::DisplayMeshRenderer(entt::entity entity)
 	{
-		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(entity);
+		auto core = SliceEngine::Core::GetInstance();
+		auto& rend = core->GetRegistry().get<SliceEngine::Renderer>(entity);
 
 		if (ImGui::TreeNodeEx("Renderer", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
+
+			auto const mdl = rend.modelHandle.get();
+			if (mdl) {
+				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8
+				DragUInt32InputHeader(mRegistry, "Mesh Index", "##mesh_index", temp, "Mesh: %u", 0, mdl->meshes.size() - 1);	//[min,max]
+				rend.meshOffset = temp;
+			}
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
