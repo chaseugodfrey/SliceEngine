@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -47,13 +45,16 @@
     <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\ButtonTest.cs" />
     <Compile Include="Source\Core\Application.cs" />
-    <Compile Include="Source\Core\AttackPatternsBoos\DifferentAttacks\ExampleState.cs" />
-    <Compile Include="Source\Core\AttackPatternsBoos\State.cs" />
-    <Compile Include="Source\Core\AttackPatternsBoos\Phase.cs" />
     <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Boss\AttackSetManager.cs" />
     <Compile Include="Source\Core\Boss\Boss.cs" />
     <Compile Include="Source\Core\Boss\BossHealth.cs" />
+    <Compile Include="Source\Core\Boss\BossPhase.cs" />
+    <Compile Include="Source\Core\Boss\BossState.cs" />
+    <Compile Include="Source\Core\Boss\BossStates\BossState1.cs" />
+    <Compile Include="Source\Core\Boss\BossStates\BossState2.cs" />
+    <Compile Include="Source\Core\Boss\BossStates\BossState3.cs" />
+    <Compile Include="Source\Core\Boss\BossStates\ExampleState.cs" />
     <Compile Include="Source\Core\Boss\PhaseController.cs" />
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
