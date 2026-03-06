@@ -126,6 +126,7 @@ namespace SliceEngine
         public float dashCooldown = 0.75f;
         float dashDurationTimer = 0.0f;
         float dashCooldownTimer = 0.0f;
+        public int dashArrayIndex = 3;
 
         public float dashSpeed = 20.0f;
         Vector3 dashDir = Vector3.Zero;
@@ -456,14 +457,14 @@ namespace SliceEngine
                     case 0:
                         attackAction = Attack1;
                         break;
-                    case 1: 
+                    case 1:
                         attackAction = Attack2;
                         break;
-                    case 2: 
+                    case 2:
                         attackAction = Attack3;
                         break;
                     case 3:
-                        attackAction = Dash;
+                        attackAction = DashAttack;
                         break;
                 }
                 attackHitboxes[i].HitBoxListeners += attackAction;
@@ -539,7 +540,7 @@ namespace SliceEngine
 
             if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
-                Dash(null);
+                Dash();
 
                 Vector3 dashVel = dashDir * dashSpeed;
                 float yVel = 0;//playerMovementState == MovementState.GroundDash ? 0 : rigidBody.Velocity.y;
@@ -666,6 +667,7 @@ namespace SliceEngine
                         vel.x *= 0.1f;
                         vel.z *= 0.1f;
                         rigidBody.Velocity = vel;
+                        attackHitboxes[dashArrayIndex].TurnOff();
                         playerMovementState = MovementState.Idle;
                     }
                     break;
@@ -679,6 +681,7 @@ namespace SliceEngine
 
                         Console.WriteLine($"Transitioning to falling from {playerMovementState.ToString()}");
 
+                        attackHitboxes[dashArrayIndex].TurnOff();
                         playerMovementState = MovementState.Falling;
                     }
                     break;
@@ -980,7 +983,7 @@ namespace SliceEngine
             }
         }
 
-        void Dash(GameObject target)
+        void Dash()
         {
             bool hasInput = input.SquareMagnitude() > 0.0001f;
 
@@ -993,11 +996,16 @@ namespace SliceEngine
                     transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
                 }
             }
-
-            EnemyBase enemy = target.As<EnemyBase>();
+            attackHitboxes[dashArrayIndex].TurnOn();
+        }
+        void DashAttack(GameObject target = null)
+        {
+            Console.WriteLine((target == null).ToString());
+            EnemyBase enemy = target?.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[3]);
+                enemy.TakeDamage(attackDamageValues[dashArrayIndex]);
+                dashDurationTimer = 0f;
                 Console.WriteLine("Dealing damage using dash");
             }
         }
