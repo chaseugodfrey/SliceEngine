@@ -93,15 +93,22 @@ namespace SliceEditor
 
 		if (BoolInput(mRegistry, "##isActive", isActive))
 		{
-			if (isActive)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
 			{
-				SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(entity);
-				slice.mActive = true;
-			}
-			else
-			{
-				slice.mActive = false;
-				SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(entity);
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					if (isActive)
+					{
+						SliceEngine::Core::GetInstance()->GetRegistry().remove<SliceEngine::InactiveEntity>(currentEntity);
+						slice.mActive = true;
+					}
+					else
+					{
+						slice.mActive = false;
+						SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::InactiveEntity>(currentEntity);
+					}
+				}
 			}
 		}
 		ImGui::SameLine();
@@ -169,22 +176,27 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 
-		if (ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slice.mLayer, isMultipleSelection)))
+		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
-			//Multi-Selection Setting for Layers
-			if (isMultipleSelection)
+			if (ComboHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
 			{
-				for (auto selectedNode : selectionManager->GetSelectedNodes())
+				//Multi-Selection Setting for Layers
+				if (isMultipleSelection)
 				{
-					if (selectedNode->type == SelectionType::ENTITY)
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
 					{
-						Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;	
-						auto& currentSlice = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity);
-						currentSlice.mLayer = slice.mLayer;
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& currentSlice)
+								{
+									currentSlice.mLayer = slice.mLayer;
+								});
+						}
 					}
 				}
 			}
-		}
+		});
 		ImGui::Separator();
 
 	}
@@ -443,7 +455,7 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
-			static std::vector<std::string> canvas_types{ "Overlay" };
+			static std::vector<std::string> canvas_types{ "Overlay", "World Space"};
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
 
 			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
@@ -580,12 +592,38 @@ namespace SliceEditor
 	void InspectorWindow::DisplayMeshRenderer(entt::entity entity)
 	{
 		auto& rend = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
 
 		if (ImGui::TreeNodeEx("Renderer", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Renderer>(entity);
 
-			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled);
+			if (BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", rend.componentEnabled))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(currentEntity))
+							{
+								auto& currentRenderer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(currentEntity);
+								currentRenderer.componentEnabled = rend.componentEnabled;
+							}
+						}
+					}
+				}
+			}
+
+			auto const mdl = rend.modelHandle.get();
+			if (mdl) {
+				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8
+				DragUInt32InputHeader(mRegistry, "Mesh Index", "##mesh_index", temp, "Mesh: %u", 0, mdl->meshes.size() - 1);	//[min,max]
+				rend.meshOffset = temp;
+			}
 
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
 			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
@@ -734,6 +772,8 @@ namespace SliceEditor
 	{
 		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto& colliderData = reg.get<SliceEngine::ColliderShape>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
 
 		const char* arr[2] = { "Non-Moving" ,"Moving" };
 		std::string colliderName;
@@ -759,7 +799,26 @@ namespace SliceEditor
 			{
 				reg.patch<SliceEngine::ColliderShape>(entity, [&](SliceEngine::ColliderShape& col)
 				{
-					BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", col.componentEnabled);
+						if (BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", col.componentEnabled))
+						{
+							if (isMultipleSelection)
+							{
+								for (auto selectedNode : selectionManager->GetSelectedNodes())
+								{
+									if (selectedNode->type == SelectionType::ENTITY)
+									{
+										Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+										if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::ColliderShape>(currentEntity))
+										{
+											reg.patch<SliceEngine::ColliderShape>(currentEntity, [&](SliceEngine::ColliderShape& currentCol)
+												{
+													currentCol.componentEnabled = col.componentEnabled;
+												});
+										}
+									}
+								}
+							}
+						}
 
 					BoolInputHeader(mRegistry, "Is Trigger", "##isTrigger", col.isTrigger);
 

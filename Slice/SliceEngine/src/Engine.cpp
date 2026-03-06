@@ -863,7 +863,6 @@ namespace SliceEngine
 		// i shifted this to the end cause UI usually updates last(?) i think
 		frm->StartSystem("Canvas");
 		sCanvas.UpdateHierachy();
-		sCanvas.ConstructWorldCanvas();
 		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
@@ -996,7 +995,7 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			// sync matrices after physics
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-			sTransform.UpdateTransforms();
+		//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
 			// animation after logic and physics

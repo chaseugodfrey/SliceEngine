@@ -386,10 +386,14 @@ namespace SliceEditor
 
 	void AnimationWindow::Draw()
 	{
+		ImGui::Begin("Animation");
 		bool hasAnimator = CheckForAnimator();
 		bool isSkeleton{}; 
 		size_t clipSize{};
 
+		//ImVec2 windowSize = ImGui::GetContentRegionAvail();
+
+		
 
 		if (hasAnimator)
 		{
@@ -401,7 +405,24 @@ namespace SliceEditor
 				clipSize = customAnimClips.size();
 		}
 
-		ImGui::Begin("Animation");
+
+		ImVec2 p0 = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMin();
+		ImVec2 p1 = ImGui::GetWindowPos() + ImGui::GetWindowContentRegionMax();
+		ImGuiID id = ImGui::GetCurrentWindow()->GetID("AnimationWindowPassive");
+		ImRect rect(p0, p1);
+
+		if (ImGui::BeginDragDropTargetCustom(rect, id))
+		{
+			if (ImGui::AcceptDragDropPayload("Animations"))
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animations"))
+				{
+					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+					//TODO: Rayan does drop stuf f here.
+				}
+			}
+			ImGui::EndDragDropTarget();
+		}
 
 		// disable if no selection
 		if (!hasAnimator || clipSize == 0)
@@ -522,11 +543,11 @@ namespace SliceEditor
 						targetAnimsPath = targetAnimsPath / "Assets" / "Animations";
 						//std::filesystem::current_path(target);
 
-						ImGui::OpenPopup("SaveAnims_Popup");
+						ImGui::OpenPopup("##SaveAnims_Popup");
 					}
 				}
 
-				if (ImGui::BeginPopupModal("SaveAnims_Popup", nullptr))
+				if (ImGui::BeginPopupModal("##SaveAnims_Popup", nullptr))
 				{
 					static std::string newAnimsName = "";
 
