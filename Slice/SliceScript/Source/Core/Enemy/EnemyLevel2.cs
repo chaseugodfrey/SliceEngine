@@ -52,11 +52,12 @@ namespace SliceEngine
         }
         public override void OnEnter()
         {
-            moves = 0;
 
             Console.WriteLine("Idle state entered");
             if (enemyController.stateMachine.prevState is SlamState)
             {
+                moves = 0;
+
                 // move straight away
                 enemyController.movementTimer = enemyController.movementCooldown;
 
@@ -86,7 +87,7 @@ namespace SliceEngine
                     // 40% chance to slam attack
                     if (roll < 0.75f && moves != 0) // 75% chance for now cause testing
                     {
-                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
                     }
                     //else if (roll < 0.8f)
                     //{
@@ -179,18 +180,51 @@ namespace SliceEngine
             owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
             enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, originalPosition, 1.2f));
         }
+    }
 
+    public class ProjectileState : BaseState
+    {
+        EnemyLevel2 enemyController;
+        public List<Projectile> allProjectiles = new List<Projectile>();
+
+        private float count = 0f;
+
+        public ProjectileState(GameObject owner) : base(owner)
+        {
+            enemyController = owner.As<EnemyLevel2>();
+        }
+        public override void OnEnter()
+        {
+            // spawn projectiles from spawn points that shoot towards the player
+            Console.WriteLine("Entering projectile state");
+        }
+        public override void OnUpdate(float dt)
+        {
+            owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
+
+            count += dt;
+            //Console.WriteLine($"count : {count}");
+            if (count >= 1f / enemyController.projPerSecond)
+            {
+                count -= 1f / enemyController.projPerSecond;
+
+                Transform T = owner.GetComponent<Transform>();
+                //Console.WriteLine("SHooting boolet");
+                enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed);
+            }
+        }
     }
 
     #endregion
 
-    public class EnemyLevel2 : SliceBehaviour
+    public class EnemyLevel2 : Projectile_Spawner
     {
         public StateMachine stateMachine;
 
         public IdleState idleState;
         public IntroState introState;
         public SlamState slamState;
+        public ProjectileState projectileState;
 
         public GameObject startingPosition;
 
@@ -214,6 +248,7 @@ namespace SliceEngine
             idleState = new IdleState(this.gameObject);
             introState = new IntroState(this.gameObject);
             slamState = new SlamState(this.gameObject);
+            projectileState = new ProjectileState(this.gameObject);
 
             // start at intro state
             stateMachine.ChangeState(introState);

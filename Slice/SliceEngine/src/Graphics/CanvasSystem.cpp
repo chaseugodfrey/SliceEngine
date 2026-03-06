@@ -130,8 +130,8 @@ namespace SliceEngine {
 		empty.width = 0; empty.height = 0;
 
 		for (auto entity : view) {
-			auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */canvas, empty, entity);
+			//auto const& canvas = mRegistry->get<Canvas>(entity);
+			get_child_ui(/*entities_to_draw, */entity, empty, entity);
 		}
 	}
 
@@ -253,7 +253,18 @@ namespace SliceEngine {
 	}
 
 	void CanvasSystem::ConstructWorldCanvas() {
-		
+		return;
+		//convert rect transform to transform
+	/*	auto core = SliceEngine::Core::GetInstance();
+		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
+
+		std::vector<Entity> world_canvas{};
+		for (auto entity : view) {
+			auto const& canvas = mRegistry->get<Canvas>(entity);
+			if (canvas.canvas_type == Canvas::WORLD) {
+				world_canvas.push_back(entity);
+			}
+		}*/
 	}
 
 	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
@@ -455,47 +466,6 @@ namespace SliceEngine {
 
 					y_pen -= font_render.line_spacing * font_render.font_size;
 				}
-				/*
-				for (char ch : font_render.text) {
-					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
-
-					float x = x_pen + glyph.xoff * relative_scale;
-					float y = y_pen - glyph.yoff * relative_scale;
-					float w = glyph.w * relative_scale;
-					float h = glyph.h * relative_scale;
-
-					x_pen += glyph.advance * relative_scale;
-
-					if (w == 0) {
-						continue;
-					}
-
-					RectTransform temp_rect;
-					temp_rect.final_width = w;
-					temp_rect.final_height = h;
-					temp_rect.final_x = x;
-					temp_rect.final_y = y;
-
-					Font_Instance instance_data;
-
-					instance_data.model_to_ndc = temp_rect.ToMatrix();
-					SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
-					instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
-					//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
-					font_Instances[instance_count] = instance_data;
-					++instance_count;
-
-					if (instance_count >= Font_Max_Instance) {
-						glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * Font_Max_Instance, font_Instances);
-						CheckGLError();
-						glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, Font_Max_Instance);
-						CheckGLError();
-						instance_count = 0;
-					}
-				}
-				*/
-				//glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				//CheckGLError();
 
 				if (instance_count) {
 					glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * instance_count, font_Instances);
@@ -615,7 +585,7 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Canvas const& ctx, RectTransform const& parent, Entity node) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, RectTransform const& parent, Entity node) {
 		/*
 		*	assumptions
 		*	all children have rect transform
@@ -625,20 +595,25 @@ namespace SliceEngine {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
-		rect.Update(ctx, parent);
+		rect.Update(parent);	//get position of rect relative to parent
+
+		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
+		if (ctx.canvas_type == Canvas::WORLD) {
+			//update world pos?
+		}
 
 
 		if (auto scene_graph = mRegistry->try_get<SceneGraph>(node)) {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */ctx, rect, child);
+				get_child_ui(/*entities_to_draw, */canvas_entity, rect, child);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
 	}
 
-	glm::mat4 RectTransform::ToMatrix() const {
+	glm::mat4 RectTransform::ToMatrix() const noexcept {
 		return {
 			{final_width, 0.f, 0.f, 0.f},
 			{0.f, final_height, 0.f, 0.f},
@@ -646,7 +621,7 @@ namespace SliceEngine {
 			{final_x, final_y, 0.f, 1.f}
 		};
 	}
-	void RectTransform::Update(Canvas const& ctx, RectTransform const& parent) {
+	void RectTransform::Update(RectTransform const& parent) {
 		const float parent_x = parent.final_x;
 		const float parent_y = parent.final_y;
 		const float parent_width = parent.final_width;
@@ -656,13 +631,6 @@ namespace SliceEngine {
 
 		const float parent_left = parent_x - half_width;
 		const float parent_right = parent_x + half_width;
-
-		//if (old_hori != hori_pivot) {
-		//	old_hori = hori_pivot;
-		//}
-		//if (old_vert != vert_pivot) {
-		//	old_vert = vert_pivot;
-		//}
 
 		if (hori_pivot == HoriPivot::STRETCH_H) {
 			const float left_ref = parent_left + left;	//apply left pad

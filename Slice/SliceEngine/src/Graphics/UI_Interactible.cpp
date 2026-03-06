@@ -298,6 +298,15 @@ namespace SliceEngine {
 
 	void ButtonSystem::InitSystem() {
 		current_button = entt::null;
+
+
+		auto core = Core::GetInstance();
+		auto view = core->GetRegistry().view<buttonEntity>();
+
+		auto default_event = ButtonSystem::Events::Cancel;
+		for (auto entity : view) {
+			update_button(entity, default_event);
+		}
 	}
 
 	/*
@@ -403,7 +412,7 @@ namespace SliceEngine {
 		}
 			break;
 		case Cancel:
-			//std::cout << "Cancel event" << std::endl;
+		default:
 			button.state = Button::Normal;
 			break;
 		}
