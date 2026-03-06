@@ -66,6 +66,7 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting();
 		void RenderLighting(Entity cam);
+		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam);
 		void RenderVignette(Entity cam);
@@ -146,6 +147,7 @@ namespace SliceEngine
 			S_LIGHTING				,
 			S_PARTICLES				,
 			S_INSTANCED			,
+			S_CLOUDS,
 			S_DEBUG_LINE			,
 			S_DEBUG_OUTLINE	,
 			S_DEBUG_OUT_BLUR,
@@ -172,6 +174,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_LIGHTING,        "Shaders/lighting.shader" },
 			{ ShaderOpt::S_PARTICLES,       "Shaders/particles.shader" },
 			{ ShaderOpt::S_INSTANCED,       "Shaders/instanced.shader" },
+			{ ShaderOpt::S_CLOUDS,			"Shaders/cloud.shader" },
 			{ ShaderOpt::S_DEBUG_LINE,      "Shaders/debugLine.shader" },
 			{ ShaderOpt::S_DEBUG_OUTLINE,   "Shaders/debugOutline.shader" },
 			{ ShaderOpt::S_DEBUG_OUT_BLUR,  "Shaders/debugOutlineBlur.shader" },
@@ -254,6 +257,7 @@ namespace SliceEngine
 		bool mObjPickedThisFrame{ false };
 		Entity mCurrentCamIDHover{};
 		unsigned int mIDHovered{};
+		float mTime{};
 
 		LightDat lightData[mMaxPointLights + 1]{};
 

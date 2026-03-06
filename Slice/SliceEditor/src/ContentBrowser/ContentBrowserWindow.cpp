@@ -506,6 +506,12 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
+			case AssetType::Anims:
+				if (auto* data = static_cast<AnimsData*>(file.metaData.get()))
+				{
+					DisplayAnimsData(data);
+					//DisplayAudioData(data);
+				}
 				break;
 			}
 
@@ -805,6 +811,25 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
+	}
+
+	void ContentBrowserWindow::DisplayAnimsData(AnimsData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
+		Label("List of Animations: ");
+
+		for (int i = 0; i < data->animations.size(); ++i)
+		{
+			ImGui::Selectable(data->animations[i].c_str());
+		}
+
 	}
 #pragma endregion
 }
