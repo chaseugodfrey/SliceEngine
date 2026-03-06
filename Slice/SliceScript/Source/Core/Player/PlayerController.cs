@@ -160,8 +160,6 @@ namespace SliceEngine
             UpdateStates();
             UpdateAnimator();
 
-            //Console.WriteLine($"Prev {prevMoveState.ToString()} and curr {playerMovementState.ToString()}");
-            //Console.WriteLine($"Prev {prevCombatState.ToString()} and curr {playerCombatState.ToString()}");
 
             if (prevMoveState != playerMovementState)
             {

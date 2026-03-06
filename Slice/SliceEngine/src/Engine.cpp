@@ -577,8 +577,7 @@ namespace SliceEngine
 		.constructor<>()
 		.property("transition", &Button::transition)
 		.property("color_tints", &Button::color_transitions)
-		//.property("test_float", &Button::test)
-		//.property("test_float2", &Button::test2)
+		.property("sprite_state", &Button::sprite_transitions)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -589,8 +588,6 @@ namespace SliceEngine
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
 		.property("enabled", &Slider::componentEnabled);
-	//.property("colors", &Button::color_transitions)
-	//.property("sprites", &Button::sprite_transitions);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.constructor<>()
@@ -884,6 +881,11 @@ namespace SliceEngine
 		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
+		/*if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			OnPlayStarted();
+		}*/
+
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");

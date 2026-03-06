@@ -147,7 +147,7 @@ namespace SliceEngine
                 // end of level director?
                 return;
             }
-            
+
             // if the curr level is done
             if (levels[currLevel].As<BaseLevel>().CheckObjective() && !levelDone)
             {
@@ -167,7 +167,7 @@ namespace SliceEngine
             // the trigger box will toggle the next level
             if (levelDone && levels[currLevel].As<BaseLevel>().stopWhenCleared)
                 return;
-           // SliceLog.Log("Updating Level: " + currLevel);
+            // SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
         }
 
@@ -180,7 +180,7 @@ namespace SliceEngine
         public bool CanCreateEnemy(Vector3 Pos)
         {
             // do simple dist check 
-            foreach(GameObject enemy in enemies)
+            foreach (GameObject enemy in enemies)
             {
                 if (enemy == null) continue;
 

@@ -48,6 +48,8 @@ namespace SliceEngine
             }
 
             debugTest();
+
+            Bootstrap.CameraController.LockCamera = true;
         }
 
         public void debugTest()
@@ -98,22 +100,22 @@ namespace SliceEngine
             }
 
             if (!waveDone)
-            {
-                // for now just testing projectiles
-                return;
+            {               
                 if (!spawningDone)
                 {
                     for(int i = 0; i < enemiesPerWave; i++)
                     {
-                        GameObject spawnPoint = GetAvailableSpawnPoint();
+                        GameObject spawnPoint = enemySpawnPoints[i];//GetAvailableSpawnPoint();
                         if (spawnPoint == null)
                         {
                             continue;
                         }
-                        GameObject newEnemy = CreateGameObject("EnemyPrefab");
+                        GameObject newEnemy = CreateGameObject(enemyPrefabPath);
                         activeEnemies.Add(newEnemy);
                         newEnemy.GetComponent<Transform>().Position = spawnPoint.GetComponent<Transform>().Position;
                     }
+
+                    spawningDone = true;
                 }
             }
             else
@@ -122,6 +124,7 @@ namespace SliceEngine
                 if (waveTimer >= timeBetweenWaves)
                 {
                     waveDone = false;
+                    spawningDone = false;
                 }
             }
         }

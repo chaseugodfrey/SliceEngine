@@ -2212,6 +2212,18 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
+	static void Camera_SetGamma(float gammaVal)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetSessionExposure(gammaVal);
+	}
+
+	static float Camera_GetGamma()
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		return rm->GetSessionExposure();
+	}
+
 #pragma endregion
 
 #pragma region NAVIGATION FUNCTIONS
@@ -2776,6 +2788,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
