@@ -16,7 +16,6 @@ namespace SliceEngine
         int squareStep = 0;
         float stepTimer = 0f;
         Vector3 startPosition;
-        Transform transform;
 
         public BossState3(uint bossId, uint playerId) : base(bossId, playerId) { }
 

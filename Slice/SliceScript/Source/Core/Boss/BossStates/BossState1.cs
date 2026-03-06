@@ -13,13 +13,11 @@ namespace SliceEngine
         float timer = 0f;
         float speed = 2f;
         Vector3 startPosition;
-        Transform transform;
 
         public BossState1(uint bossId, uint playerId) : base(bossId, playerId) { }
 
         public override void Enter() 
         {
-            transform = GetComponent<Transform>();
             startPosition = transform.Position;
             timer = 0f;
         }

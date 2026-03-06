@@ -15,13 +15,11 @@ namespace SliceEngine
         float amplitude = 2f; // up/down range
         float frequency = 2f; // speed of oscillation
         Vector3 startPosition;
-        Transform transform;
 
         public BossState2(uint bossId, uint playerId) : base(bossId, playerId) { }
 
         public override void Enter()
         {
-            transform = GetComponent<Transform>();
             startPosition = transform.Position;
             timer = 0f;
         }
