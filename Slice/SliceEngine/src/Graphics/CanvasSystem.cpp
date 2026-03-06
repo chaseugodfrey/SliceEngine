@@ -117,7 +117,9 @@ namespace SliceEngine {
 		glDeleteFramebuffers(1, &fbo);
 		CheckGLError();
 	}
-
+	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
+		return world_space_ui;
+	}
 	void CanvasSystem::UpdateHierachy() {
 		//list of pair of entity and what type of rendering - split into 2 funcs for now
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
@@ -129,6 +131,7 @@ namespace SliceEngine {
 		empty.final_height = target_height; empty.final_width = target_width;
 		empty.width = 0; empty.height = 0;
 
+		world_space_ui.clear();
 		for (auto entity : view) {
 			//auto const& canvas = mRegistry->get<Canvas>(entity);
 			get_child_ui(/*entities_to_draw, */entity, entity, entity);
@@ -582,12 +585,17 @@ namespace SliceEngine {
 			auto& p_tform = mRegistry->get<Transform>(parent);
 
 			c_tform.rotation = glm::identity<glm::quat>();
+			c_tform.eulerAnglesHint = glm::vec3();
 			c_tform.scale.x = rect.final_width / p_rect.final_width; 
 			c_tform.scale.y = rect.final_height / p_rect.final_height; 
 			c_tform.scale.z = 1.f;
 			c_tform.position.x = rect.final_x - p_rect.final_x;
 			c_tform.position.y = rect.final_y - p_rect.final_y;
 			c_tform.position.z = 0.f;
+
+			if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
+				world_space_ui.insert(node);
+			}
 		}
 
 
