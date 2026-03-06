@@ -132,7 +132,7 @@ namespace SliceEditor
 		{
 			//std::vector<SliceEngine::NavMeshLink> links;
 
-			auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			//auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
 
 			// 2. Iterate using .each() to avoid iterator errors
 			//reg.view<SliceEngine::NavMeshLink, SliceEngine::Transform>().each([&](auto entity, auto &linkComp, auto &transform)
