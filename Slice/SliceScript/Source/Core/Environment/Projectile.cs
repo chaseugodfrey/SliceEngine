@@ -15,6 +15,7 @@ namespace SliceEngine
         public GameObject generalHitbox;
         public Projectile_Spawner owner;
         public bool destroyOnImpact = false;
+        public bool destroyOnPlayerImpact = false;
         public float distanceBeforeDestroy = 10f;
 
         private float distancetravelledCount = 0f;
@@ -27,6 +28,11 @@ namespace SliceEngine
             {
                 SliceLog.Log("Player is hit");
                 Bootstrap.Player.TakeDamage(damage);
+
+                if (destroyOnPlayerImpact)
+                {
+                    DestroyProj();
+                }
             }
             if (destroyOnImpact)
             {

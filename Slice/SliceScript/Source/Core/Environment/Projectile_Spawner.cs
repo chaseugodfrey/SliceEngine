@@ -19,6 +19,12 @@ namespace SliceEngine
         public bool projDestroysOnImpact = true;
         public float distanceBeforeDestroyBullet = 10f;
 
+        public bool burstProjectiles = false;
+        public float burstRate = 0.1f;
+        public int burstCount = 3;
+
+        public float radialRandomInDegrees = 0f;
+
         public float spiralRate = 1f; // seconds for a rotation
         public Vector3 spiralAxis = new Vector3(0,1,0);
 
@@ -113,6 +119,11 @@ namespace SliceEngine
 
                 CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
             }
+        }
+
+        public void SpawnInBurst()
+        {
+
         }
 
         #endregion
