@@ -137,7 +137,7 @@ namespace SliceEngine
             Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
             targetPos.y = owner.GetComponent<Transform>().Position.y;
             enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
-
+            //ToggleHitbox(true);
         }
 
         public override void OnUpdate(float dt)
@@ -158,12 +158,13 @@ namespace SliceEngine
             {
                 timer += dt;
 
-                if (timer >= 0.1f)
+                if (timer >= 0.5f)
                 {
                     // turn off hitbox?
+                    enemyController.ToggleHitbox(false);
                 }
 
-                if (timer >= 1.0f)
+                if (timer >= 2.0f)
                 {
                     onCooldown = false;
                     attacking = false;
@@ -179,20 +180,6 @@ namespace SliceEngine
             enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, originalPosition, 1.2f));
         }
 
-        public void ToggleHitbox(bool flag)
-        {
-            // idk how general hit boxes work
-            // i need to ask eze so ill do this ltr
-
-            if (flag)
-            {
-
-            }
-            else
-            {
-                
-            }
-        }
     }
 
     #endregion
@@ -200,6 +187,7 @@ namespace SliceEngine
     public class EnemyLevel2 : SliceBehaviour
     {
         public StateMachine stateMachine;
+
         public IdleState idleState;
         public IntroState introState;
         public SlamState slamState;
@@ -212,6 +200,10 @@ namespace SliceEngine
         public float movementCooldown = 5.0f;
         public float movementTimer = 0.0f;
         public bool movementDone = false;
+        public int damage = 20;
+        bool canDamage = false;
+
+        public GameObject generalHitbox;
 
         uint collidedEntity = 0;
 
@@ -227,6 +219,23 @@ namespace SliceEngine
             stateMachine.ChangeState(introState);
             // start at a random point first also
             currPoint = GetNextIdlePoint();
+
+            if (generalHitbox != null)
+            {
+                generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+                generalHitbox.As<GeneralHitbox>().TurnOff();
+            }
+        }
+
+        public void DamagePlayer(GameObject hit)
+        {
+            Console.WriteLine("Damaging the player");
+            if (hit.Has<PlayerController>())
+            {
+                Console.WriteLine("Player hit");
+                Bootstrap.Player.TakeDamage(damage);
+
+            }
         }
 
         public override void OnUpdate(float dt)
@@ -303,6 +312,29 @@ namespace SliceEngine
             }
         }
 
+        public void ToggleHitbox(bool flag)
+        {
+            Console.WriteLine("Toggle hitbox");
+            if (flag)
+            {
+                if (generalHitbox != null)
+                {
+                    Console.WriteLine("Turning on hit box");
+                    generalHitbox.As<GeneralHitbox>().TurnOn();
+                }
+            }
+            else
+            {
+                if (generalHitbox != null)
+                {
+                    Console.WriteLine("Turning off hitbox");
+                    generalHitbox.As<GeneralHitbox>().TurnOff();
+                }
+
+            }
+        }
+
+
         public override void OnCollideEnter(uint other)
         {
             // prevent multiple triggering
@@ -313,7 +345,8 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        slam.ToggleHitbox(true);
+                        ToggleHitbox(true);
+                        //slam.ToggleHitbox(true);
                         slam.onCooldown = true;
 
                         // idea: maybe let it sit for awhile so the player can do damage??
@@ -333,7 +366,7 @@ namespace SliceEngine
                 collidedEntity = 0;
                 if (stateMachine.currentState is SlamState slam)
                 {
-                    slam.ToggleHitbox(false);
+                    //slam.ToggleHitbox(false);
                 }
             }
         }

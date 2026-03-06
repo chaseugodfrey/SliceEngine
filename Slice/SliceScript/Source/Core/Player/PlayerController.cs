@@ -442,7 +442,7 @@ namespace SliceEngine
             attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
             attackHitboxes[1].HitBoxListeners += Attack2;
 
-            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[3])?.As<GeneralHitbox>());
+            attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[2])?.As<GeneralHitbox>());
             attackHitboxes[2].HitBoxListeners += Attack3;
 
             TurnOffHitboxes();
