@@ -166,17 +166,27 @@ namespace SliceEngine
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
 				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
-				
+				SliceEngineTypes::Material tempMat;
+				tempMat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+				tempMat.color = ptx.colour;
+				for (auto& i : tempMat.shader.get()->dataIn)
+				{
+					if (i.name == "texCol") // --TODO-- FR a temporary fix, plz change to material based
+						tempMat.data[i.name] = ptx.textureID;
+					else
+						tempMat.data[i.name] = i.baseData;
+				}
 				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 
 				if (ptx.colour.a > 0.999f)
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
 					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
 				else
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
+					tempMat.isTranslucent = true;
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->translucentS);
 					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
 
@@ -191,13 +201,14 @@ namespace SliceEngine
 				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, &tempMat);
 					translucentCmds.emplace_back(tc);
 				}
 				else
 				{
-					SetAlpha(data, 1.f);
-					// --TODO--
-					renderCmds[key].base.push_back(std::move(data));
+					AppendRenderCmd(renderCmds[key], data, &tempMat);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
 				}
 			}
 			else 
@@ -238,7 +249,7 @@ namespace SliceEngine
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
-				if (ptx.colour.a > 0.999f)
+				if (material->isTranslucent)
 				{
 					uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
 					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
