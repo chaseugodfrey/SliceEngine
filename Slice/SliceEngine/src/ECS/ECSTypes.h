@@ -759,9 +759,9 @@ namespace SliceEngine
 	struct Canvas
 	{
 		enum Type {
-			OVERLAY
+			OVERLAY,
 			//CAMERA
-			//WORLD
+			WORLD
 		};
 
 		bool componentEnabled{ true };
@@ -802,9 +802,9 @@ namespace SliceEngine
 		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
-		void Update(Canvas const& ctx, RectTransform const& parent);
+		void Update(RectTransform const& parent);
 
-		glm::mat4 ToMatrix() const;
+		glm::mat4 ToMatrix() const noexcept;
 
 		RTTR_ENABLE();
 	};
@@ -813,7 +813,7 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
@@ -876,8 +876,7 @@ namespace SliceEngine
 			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
 			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
-
-		GUID sprite_transitions[Total_States]{
+		std::array<GUID, Total_States> sprite_transitions{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT
