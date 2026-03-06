@@ -1056,12 +1056,16 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, mTime);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, cameraPos);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsHeight");
-		glUniform1f(uniformLoc, camera.cloudsHeight);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
+		glUniform1f(uniformLoc, camera.cloudsAmplitude);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
 		glUniform1f(uniformLoc, camera.cloudsIntensity);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
 		glUniform1f(uniformLoc, camera.cloudsSmoothness);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsCutoff");
+		glUniform1f(uniformLoc, camera.cloudsCutoff);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
+		glUniform3f(uniformLoc, 0.f, camera.cloudsHeight, 0.f);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
 		glUniform1i(uniformLoc, numLightsFound);
@@ -1081,6 +1085,21 @@ namespace SliceEngine
 		}
 
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+		// 2nd cloud
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
+		glUniform3f(uniformLoc, camera.cloudsSecondCloudOffset.x, camera.cloudsHeight + camera.cloudsSecondCloudOffset.y, camera.cloudsSecondCloudOffset.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsCutoff");
+		glUniform1f(uniformLoc, -1.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudAmplitude);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudSmoothness);
+
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
 		glDepthMask(GL_TRUE);
 		CheckGLError();
 	}

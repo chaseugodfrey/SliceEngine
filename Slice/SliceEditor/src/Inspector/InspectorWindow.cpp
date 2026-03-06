@@ -669,7 +669,9 @@ namespace SliceEditor
 			if (isFog)
 			{
 				DragColor3InputHeader(mRegistry, "Fog Color", "##cam_fog_color", cam.fogColor);
-				DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", cam.fogIntensity, "%.1f", 0.0f, FLT_MAX);
+				float tempIntensity = cam.fogIntensity * 100.f;
+				if (DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", tempIntensity, "%.1f", 0.0f, FLT_MAX))
+					cam.fogIntensity = tempIntensity / 100.f;
 			}
 
 			ImGui::Text("Vignette");
@@ -695,9 +697,21 @@ namespace SliceEditor
 
 			if (isGroundCloud)
 			{
-				DragFloatInputHeader(mRegistry, "Clouds Center", "##cam_ground_clouds_height", cam.cloudsHeight, "%.1f", -FLT_MAX, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Clouds Y Pos", "##cam_ground_clouds_height", cam.cloudsHeight, "%.1f", -FLT_MAX, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Clouds Amplitude", "##cam_ground_clouds_amplitude", cam.cloudsAmplitude, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Clouds Intensity", "##cam_ground_clouds_intensity", cam.cloudsIntensity, "%.1f", 0.0f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Clouds Smoothness", "##cam_ground_clouds_smoothness", cam.cloudsSmoothness, "%.1f", 0.0f, FLT_MAX);
+				float tempCutoff = cam.cloudsCutoff * 100.f;
+				if (DragFloatInputHeader(mRegistry, "Clouds Alpha Cutoff", "##cam_ground_clouds_cutoff", tempCutoff, "%.1f", 0.0f, 1.0f))
+					cam.cloudsCutoff = tempCutoff / 100.f;
+				float tempSmoothness = cam.cloudsSmoothness * 10000.f;
+				if (DragFloatInputHeader(mRegistry, "Clouds Smoothness", "##cam_ground_clouds_smoothness", tempSmoothness, "%.1f", 0.0f, FLT_MAX))
+					cam.cloudsSmoothness = tempSmoothness / 10000.f;
+				DragVec3InputHeader(mRegistry, "Clouds Second", "##cam_secondCloudOffset", cam.cloudsSecondCloudOffset);
+				DragFloatInputHeader(mRegistry, "Second Clouds Amplitude", "##cam_ground_second_clouds_amplitude", cam.cloudsSecondCloudAmplitude, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Second Clouds Intensity", "##cam_ground_second_clouds_intensity", cam.cloudsSecondCloudIntensity, "%.1f", 0.0f, FLT_MAX);
+				tempSmoothness = cam.cloudsSecondCloudSmoothness * 10000.f;
+				if (DragFloatInputHeader(mRegistry, "Second Clouds Smoothness", "##cam_ground_second_clouds_smoothness", tempSmoothness, "%.1f", 0.0f, FLT_MAX))
+					cam.cloudsSecondCloudSmoothness = tempSmoothness / 10000.f;
 			}
 
 			ImGui::TreePop();

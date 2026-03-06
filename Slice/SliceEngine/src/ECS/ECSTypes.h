@@ -234,9 +234,17 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
-		float cloudsHeight{ -1.f };
-		float cloudsIntensity{ 1.f };
-		float cloudsSmoothness{ 1.f };
+
+		float cloudsHeight{ -110.f };
+		float cloudsAmplitude{ 49.f };
+		float cloudsIntensity{ 0.3f };
+		float cloudsSmoothness{ 0.0027 };
+		float cloudsCutoff{ 0.167f };
+		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
+		float cloudsSecondCloudAmplitude{ 49.f };
+		float cloudsSecondCloudIntensity{ 0.3f };
+		float cloudsSecondCloudSmoothness{ 0.0027 };
+
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};

@@ -2,6 +2,7 @@
 //cloud_Frag
 layout (location=0) in vec3 vPos;
 layout (location=1) in vec3 vNom;
+layout (location=2) in float vRandNoise;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 
@@ -34,13 +35,17 @@ const int isDirectional = 0;
 const int isPoint 		= 1;
 const int isSpot 		= 2;
 const int maxLights = 10;
-const float roughness = 0.5f;
+const float roughness = 1.0f;
 const float metallic = 0.0f;
+const float transparancy = 0.25f;
+
 
 uniform mat4 V;
 uniform int numLights;
 uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
+
+uniform float uCloudsCutoff;
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights);
@@ -48,9 +53,11 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 vec3 GetRandDir(vec3 seed);
 
 void main(void){
-	vec4 dif = vec4(1.0f, 1.0f, 1.0f, 0.5f);
+	if(vRandNoise < uCloudsCutoff)
+		discard;
+	
+	vec4 dif = vec4(1.0f, 1.0f, 1.0f, transparancy);
 	vec3 nom = vNom;
-
 	if(any(notEqual(nom, vec3(0.0f))))
 	{
 		nom = normalize(nom);
@@ -91,8 +98,11 @@ void main(void){
     			vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
 
     			vec3 l = normalize(-uLight[lightCnt].direction);// Surface to Light
-    			float shadow = getShadowMulti(nom, l, projCoords, layer);
-    			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight[lightCnt].color.rgb * uLight[lightCnt].color.a, l, dif.rgb, roughness, metallic);
+
+    			//float shadow = getShadowMulti(nom, l, projCoords, layer);
+    			//finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight[lightCnt].color.rgb * uLight[lightCnt].color.a, l, dif.rgb, roughness, metallic);
+				finalLighting += microfacetModel(v, nom, uLight[lightCnt].color.rgb * uLight[lightCnt].color.a, l, dif.rgb, roughness, metallic);
+
     			fFragColor += vec4(finalLighting, 0.0f);
     	        ++numDirectionalLight;
     		}
@@ -103,9 +113,10 @@ void main(void){
     			vec4 lightCol = uLight[lightCnt].color;
     			lightCol.a /= (dist * dist); // Intensity is normalized, so scale up by 100?
 
-    			float shadow = getShadowCubeMulti(nom, l, length(vPos), dist, lightCnt, numDirectionalLight);
+    			//float shadow = getShadowCubeMulti(nom, l, length(vPos), dist, lightCnt, numDirectionalLight);
     			l = l / dist;
-    			fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic)), 0.0f);
+    			//fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic)), 0.0f);
+    			fFragColor += vec4(microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic), 0.0f);
     		}
     	}
 	}
@@ -113,6 +124,7 @@ void main(void){
 	{
 	    fFragColor = dif;
 	}
+	
 }
 
 
