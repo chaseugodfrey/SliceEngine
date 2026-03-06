@@ -1979,6 +1979,10 @@ namespace SliceEditor
 						break;
 				}
 			}
+			if (ImGui::CollapsingHeader("Post-Processing"))
+			{
+
+			}
 
 			ImGui::TreePop();
 		}
