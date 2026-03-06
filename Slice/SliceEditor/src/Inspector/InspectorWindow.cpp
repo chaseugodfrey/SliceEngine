@@ -86,7 +86,6 @@ namespace SliceEditor
 		bool isActive = !core->GetRegistry().any_of<SliceEngine::InactiveEntity>(entity);
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
-		bool isSelectionDifferent = false;
 
 		
 		auto layer_manager = core->GetLayerManager();
@@ -147,6 +146,7 @@ namespace SliceEditor
 		
 		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
 		{
+			//Multi-Selection Setting for Tags
 			if (isMultipleSelection)
 			{
 				for (auto selectedNode : selectionManager->GetSelectedNodes())
@@ -169,31 +169,9 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 
-		//Multi-select for Layer
-		//Do the different checks here for now.
-		//TODO: Move to a different file maybe
-		//if (isMultipleSelection)
-		//{
-		//	//Do the difference check (this one is for tags)
-		//	for (auto selectedNode : selectionManager->GetSelectedNodes())
-		//	{
-		//		if (selectedNode->type == SelectionType::ENTITY)
-		//		{
-		//			Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-		//			
-		//			uint32_t currentLayer = core->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity).mLayer;
-
-		//			if (currentLayer != slice.mLayer)
-		//			{
-		//				isSelectionDifferent = true;
-		//				break;
-		//			}
-		//		}
-		//	}
-		//}
-
 		if (ComboHeader(mRegistry, "Layer", "##layer", slice.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slice.mLayer, isMultipleSelection)))
 		{
+			//Multi-Selection Setting for Layers
 			if (isMultipleSelection)
 			{
 				for (auto selectedNode : selectionManager->GetSelectedNodes())
@@ -216,11 +194,140 @@ namespace SliceEditor
 		if (ImGui::TreeNodeEx("Transform", mBaseFlags))
 		{
 			auto& tr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+			auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+			bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+			std::array<bool, 3> editedAxis= std::array<bool, 3>{ false,false,false };
 
 			DisplayComponentHeader<SliceEngine::Transform>(entity, false);
-			DragVec3InputHeader(mRegistry, "Position", "##t", tr.position);			
-			DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint);
-			DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale);
+
+			std::function<glm::vec3(Entity)> getterPos =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.position;
+				};
+
+			if (DragVec3InputHeader(mRegistry, "Position", "##t", tr.position, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.position, isMultipleSelection, getterPos), &editedAxis))
+			{
+
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentPosition = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).position;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentPosition.x = tr.position.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentPosition.y = tr.position.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentPosition.z = tr.position.z;
+							}
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterRot =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.eulerAnglesHint;
+				};
+
+			if (DragRotationInputHeader(mRegistry, "Rotation", "##r", tr.rotation, tr.eulerAnglesHint, Vector3MultipleSelection(selectionManager, tr.eulerAnglesHint, isMultipleSelection, getterRot), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentRot = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).rotation;
+							auto& currentEulerAngleHint = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).eulerAnglesHint;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentEulerAngleHint.x = tr.eulerAnglesHint.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentEulerAngleHint.y = tr.eulerAnglesHint.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentEulerAngleHint.z = tr.eulerAnglesHint.z;
+							}
+
+							currentRot = SliceEngine::Vec3ToQuat(tr.eulerAnglesHint);
+						}
+					}
+				}
+			}
+
+			std::function<glm::vec3(Entity)> getterScale =
+				[](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()
+						->GetRegistry()
+						.get<SliceEngine::Transform>(e)
+						.scale;
+				};
+			if (DragVec3InputHeader(mRegistry, "Scale", "##s", tr.scale, 0.0f, 0.0f, Vector3MultipleSelection(selectionManager, tr.scale, isMultipleSelection, getterScale), &editedAxis))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							auto& currentScale = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(currentEntity).scale;
+
+							//Set the X axis if changed
+							if (editedAxis[0])
+							{
+								currentScale.x = tr.scale.x;
+							}
+
+							//Set the Y axis if changed
+							if (editedAxis[1])
+							{
+								currentScale.y = tr.scale.y;
+							}
+
+							//Set the Z axis if changed
+							if (editedAxis[2])
+							{
+								currentScale.z = tr.scale.z;
+							}
+						}
+					}
+				}
+			}
 
 			ImGui::TreePop();
 		}
@@ -356,7 +463,7 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
-			static std::vector<std::string> transitions{ "Color, Sprite" };
+			static std::vector<std::string> transitions{ "Color", "Sprite" };
 			ComboHeader<SliceEngine::Button::Transition>(mRegistry, "Button Transitions", "##btntransitions", button.transition, transitions);
 
 			switch (button.transition) {
@@ -365,39 +472,13 @@ namespace SliceEditor
 				DragColor4InputHeader(mRegistry, "Highlighted", "##btncolor2", button.color_transitions[SliceEngine::Button::Highlighted]);
 				DragColor4InputHeader(mRegistry, "Pressed", "##btncolor3", button.color_transitions[SliceEngine::Button::Pressed]);
 				break;
-			//case SliceEngine::Button::Sprite:	//i didnt test this
-			//{
-			//	const char* state_names[] = { "Normal", "Highlighted", "Pressed" };
-			//	for (int i = 0; i < 3; ++i) {
-			//		auto& btn_sprites = button.sprite_transitions;
-			//		ImGui::Text(state_names[i]);
-			//		ImGui::SameLine(150.0f);
-			//		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-
-			//		auto& texture_guid = btn_sprites[SliceEngine::Button::Normal];
-			//		std::string texture_guid_string = std::to_string(texture_guid.GetGUID());
-			//		std::string textureFileName;
-			//		if (mRegistry.GetAssetManager().mGUIDtoFilename.find(texture_guid) != mRegistry.GetAssetManager().mGUIDtoFilename.end())
-			//		{
-			//			textureFileName = mRegistry.GetAssetManager().mGUIDtoFilename[texture_guid];
-			//		}
-			//		else //Its a default texture
-			//		{
-			//			textureFileName = texture_guid_string;
-			//		}
-			//		ImGui::InputText(state_names[i], &textureFileName, ImGuiInputTextFlags_ReadOnly);
-			//		if (ImGui::BeginDragDropTarget())
-			//		{
-			//			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(state_names[i]))
-			//			{
-			//				SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-			//				texture_guid = recievedPayload;
-			//				// update the handle after
-			//			}
-			//		}
-			//	}
-			//}
-			//	break;
+			case SliceEngine::Button::Sprite:
+				//auto sprite_states = button.sprite_transitions;
+				GUIDDragDropInputHeader(mRegistry, "Normal", "##btnsprite1", button.sprite_transitions[SliceEngine::Button::Normal], "Texture");
+				GUIDDragDropInputHeader(mRegistry, "Highlighted", "##btnsprite2", button.sprite_transitions[SliceEngine::Button::Highlighted], "Texture");
+				GUIDDragDropInputHeader(mRegistry, "Pressed", "##btnsprite3", button.sprite_transitions[SliceEngine::Button::Pressed], "Texture");
+				//sprite.textureHandle = tex_guid;
+				break;
 			}
 
 			ImGui::TreePop();

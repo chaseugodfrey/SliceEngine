@@ -22,6 +22,9 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision//Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Raycast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollector.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -77,6 +80,8 @@ namespace SliceEngine
 		void OnEntityEnabled(entt::registry& reg, entt::entity entity);
 
 		void OnEntityDisabled(entt::registry& reg, entt::entity entity);
+
+		void OnSliceEntityModified(entt::registry& reg, entt::entity entity);
 
 		void UpdateShapeFromTransform(Entity entity);
 
@@ -181,6 +186,9 @@ namespace SliceEngine
 
 		// deafult param ~0 so it can hit all layers
 		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal,bool triggerInteraction ,uint32_t mask = ~0);
+
+		bool PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+							   uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, bool triggerInteraction, uint32_t mask = ~0);
 	};
 }
 
