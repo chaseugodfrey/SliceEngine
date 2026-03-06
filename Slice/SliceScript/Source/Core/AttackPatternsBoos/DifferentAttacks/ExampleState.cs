@@ -7,10 +7,10 @@ using System.Security.Permissions;
 
 namespace SliceEngine
 {
-    // example attack behaviour
-    public class  ExampleAttack : State
+    // example state
+    public class  ExampleState : State
     {
-        public ExampleAttack(uint bossId, uint playerId) : base(bossId, playerId) { }
+        public ExampleState(uint bossId, uint playerId) : base(bossId, playerId) { }
 
         public override void Enter() { }
 

@@ -24,26 +24,26 @@ namespace SliceEngine
         // there will be one more state than the phases since the boss will start with a base state before the first threshold is reached, so if there are 3 phases there will be 4 states
         private int maxNumberStates;
 
-        //public delegate void PhaseTriggerEvent(int phase);
-        //public event PhaseTriggerEvent PhaseTrigger;
+        public delegate void PhaseTriggerEvent(int phase);
+        public event PhaseTriggerEvent PhaseTrigger;
 
-        public PhaseController(List<float> healthPhases, List<Phase> atpattern)
+        public PhaseController(List<float> healthPhases, List<Phase> phaseList)
         {
             if (healthPhases.Count == 0)
             {
                 this.healthPhases.Add(0.5f); // just in case, but should be set in boss script
                 maxPhase = 1;
 
-                phases = atpattern;
-                maxNumberStates = maxPhase + 1;
+                phases = phaseList;
+                maxNumberStates = phaseList.Count;
             }
             else
             {
                 this.healthPhases = healthPhases;
                 maxPhase = healthPhases.Count;
 
-                phases = atpattern;
-                maxNumberStates = maxPhase + 1;
+                phases = phaseList;
+                maxNumberStates = phaseList.Count;
             }
         }
 
@@ -80,7 +80,7 @@ namespace SliceEngine
 
         public void StartFirstPhase()
         {
-            //PhaseTrigger?.Invoke(0);
+            SetPhase(0);
         }
 
         public void UpdateActivePhase(float percentageHealth)
@@ -91,6 +91,7 @@ namespace SliceEngine
             if  (percentageHealth <= healthPhases[currentPhase])
             {
                 currentPhase++;
+                SetPhase(currentPhase);
                 //PhaseTrigger?.Invoke(currentPhase); // there will one mroe attack patetrn compared to the phases since the boss will start with a base attack pattern
             }
 
