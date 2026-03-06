@@ -1065,6 +1065,30 @@ namespace SliceEngine
             moveDir.y = 0f;
             return moveDir.Normalize();
         }
+
+        public void SetPlayerLock(bool lockPlayer)
+        {
+            if (lockPlayer)
+            {
+                
+                playerControlState = ControlState.Cutscene;
+
+                
+                input = Vector3.Zero;
+
+                
+                if (grounded)
+                {
+                    playerMovementState = MovementState.Idle;
+                }
+            }
+            else
+            {
+                // Return control to the player
+                playerControlState = ControlState.Gameplay;
+            }
+        }
+
         #endregion
     }
 }

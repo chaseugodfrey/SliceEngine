@@ -654,6 +654,7 @@ namespace SliceEditor
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
+			DragFloatInputHeader(mRegistry, "Render Distance", "##distance", camObj->camera.far, "%.3f", camObj->camera.near, FLT_MAX, 0.1f);
 			ImGui::EndPopup();
 		}
 	}
