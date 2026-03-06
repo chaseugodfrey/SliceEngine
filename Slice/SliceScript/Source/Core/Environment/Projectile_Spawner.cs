@@ -154,9 +154,7 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+                        SpawnSetProjectile();
                     }
 
 
@@ -173,9 +171,7 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+                        SpawnSetProjectile();
                     }
 
                     break;
@@ -185,9 +181,7 @@ namespace SliceEngine
                     {
                         count -= 1 / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+                        SpawnSetProjectile();
                     }
 
                     break;

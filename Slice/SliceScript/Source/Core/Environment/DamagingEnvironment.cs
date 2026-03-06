@@ -78,11 +78,11 @@ namespace SliceEngine
         }
         */
 
-        public override void OnUpdate(float dt)
-        {
-            base.OnUpdate(dt);
+        //public override void OnUpdate(float dt)
+        //{
+        //    base.OnUpdate(dt);
 
-            //push it forward based on speed
-        }
+        //    //push it forward based on speed
+        //}
     }
 }
