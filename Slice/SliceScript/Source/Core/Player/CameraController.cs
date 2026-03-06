@@ -10,6 +10,7 @@ namespace SliceEngine
         public Vector3 sensitivity = new Vector3(10f, 8f, 0f);
         public Vector3 yClamp = new Vector3(-40f, 60f, 0f);
         public float resolutionX = 1920, resolutionY = 1080;
+        public bool LockCamera = false;
         private float pitch = 0f;
         //private Vector2 lastMousePos;
 
@@ -25,22 +26,27 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             Vector2 mouseDelta = Input.GetMouseDelta();
-            float yawDelta = mouseDelta.x * sensitivity.x * dt;
-            float pitchDelta = mouseDelta.y * sensitivity.y * dt;
-            transform.Rotate(yawDelta, Vector3.Up, true);
-
-            float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
-
-            //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
-            //       So I did this null check(27/12/2025)
-            if (Bootstrap.Player != null)
+            SliceLog.Log(mouseDelta.ToString());
+            if (!LockCamera)
             {
-                transform.Position = Bootstrap.Player.transform.Position;
-            }
-            //float deltaToApply = newPitch - pitch;
-            //pitch = newPitch;
+                float yawDelta = mouseDelta.x * sensitivity.x * dt;
+                float pitchDelta = mouseDelta.y * sensitivity.y * dt;
+                transform.Rotate(yawDelta, Vector3.Up, true);
 
-            transform.Rotate(clampedPitch, Vector3.Right);
+                float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
+
+                //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
+                //       So I did this null check(27/12/2025)
+                if (Bootstrap.Player != null)
+                {
+                    transform.Position = Bootstrap.Player.transform.Position;
+                }
+                //float deltaToApply = newPitch - pitch;
+                //pitch = newPitch;
+
+                transform.Rotate(clampedPitch, Vector3.Right);
+
+            }
 
             //Vector2 mousePos = Input.GetMousePosition();
             //Console.WriteLine("Mouse Position: X=" + mousePos.x + " Y=" + mousePos.y);
