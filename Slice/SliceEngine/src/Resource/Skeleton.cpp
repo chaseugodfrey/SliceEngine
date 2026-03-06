@@ -13,6 +13,7 @@ DigiPen Institute of Technology is prohibited.
 #include <fstream>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <Serializer/JSONSerializer.h>
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -118,6 +119,87 @@ namespace SliceEngine
 			//offset, neutral
 			memcpy(&this->offset, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
 			memcpy(&this->neutral, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
+		}
+
+		bool Anims::LoadAnimsResource(std::string const& filename)
+		{
+			Anims tmpAnims{};
+
+			std::ifstream file(filename);
+			if (!file.is_open())
+			{
+				return false;
+			}
+
+			nlohmann::json ctrlJson;
+			try
+			{
+				ctrlJson = nlohmann::json::parse(file);
+			}
+			catch (nlohmann::json::parse_error& e)
+			{
+				SLICE_LOG_ERROR("Invalid Anims JSON file" + std::string(e.what()));
+
+				return false;
+			}
+
+			std::vector<std::string> animationNames{};
+
+			animationNames = ctrlJson["Animations"];
+
+			for (std::string anim : animationNames)
+			{
+				Anim tmpAnim{};
+				tmpAnim.LoadAnimResource(anim);
+
+				tmpAnims.animations.push_back(tmpAnim);
+			}
+
+
+			return true;
+		}
+
+		bool Anim::LoadAnimResource(std::string const& animName)
+		{
+			std::filesystem::path animationsPath = std::filesystem::current_path();
+
+			if (animationsPath.filename() != "Animations")
+			{
+				animationsPath = animationsPath / "Assets" / "Animations";
+			}
+
+			animationsPath = animationsPath / animName;
+			if (animationsPath.extension() != ".anim")
+			{
+				animationsPath += ".anim";
+			}
+
+
+			std::ifstream file(animationsPath);
+			if (!file.is_open())
+			{
+				return false;
+			}
+
+			nlohmann::json ctrlJson;
+			try
+			{
+				ctrlJson = nlohmann::json::parse(file);
+			}
+			catch (nlohmann::json::parse_error& e)
+			{
+				SLICE_LOG_ERROR("Invalid Anim JSON file" + std::string(e.what()));
+
+				return false;
+			}
+
+			name = ctrlJson["Name"];
+			fps = ctrlJson["FPS"];
+			duration = ctrlJson["Duration"];
+			num_frames = ctrlJson["Number of Frames"];
+			transform = ctrlJson["Transforms"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+
+			return true;
 		}
 
 
@@ -320,6 +402,8 @@ namespace SliceEngine
 			blended.rotation = glm::normalize(glm::slerp(lhs.rotation, rhs.rotation, inter));
 			return blended;
 		}
+
+		
 
 	}
 }

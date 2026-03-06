@@ -128,6 +128,7 @@ namespace SliceEngine
 			unsigned int num_frames{ 60 };
 			std::vector<std::pair<unsigned int ,glm::vec3>> transform;
 
+			bool LoadAnimResource(std::string const&);
 		};
 
 		class Anims 
@@ -135,6 +136,8 @@ namespace SliceEngine
 		public:
 			std::vector<Anim> animations{};
 			std::string name{};
+
+			bool LoadAnimsResource(std::string const&);
 		};
 
 	}

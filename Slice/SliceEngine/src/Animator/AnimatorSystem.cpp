@@ -255,7 +255,7 @@ namespace SliceEngine
 
 
 		// check this cos like hwo dp i get it from scene saving bruh
-		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(animator.Handle_Anims).getGUID();
+		//animator.Handle_Anims = core->GetResourceManager()->mSceneGUIDs.
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
