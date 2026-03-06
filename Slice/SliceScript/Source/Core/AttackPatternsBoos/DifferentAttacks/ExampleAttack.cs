@@ -12,8 +12,6 @@ namespace SliceEngine
     {
         public ExampleAttack(uint bossId, uint playerId) : base(bossId, playerId) { }
 
-        public override bool IsFinished { get; protected set; } = false;
-
         public override void Enter() { }
 
         public override void Update(float dt)

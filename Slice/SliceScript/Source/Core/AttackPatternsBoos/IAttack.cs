@@ -11,10 +11,10 @@ namespace SliceEngine
     // this class will have the logic for the attack, and will be used as a base class for all attacks
     public class IAttack : SliceBehaviour
     {
-        protected ulong bossId;
-        protected ulong playerId;
+        protected uint bossId;
+        protected uint playerId;
 
-        public IAttack(ulong bossId, ulong playerId)
+        public IAttack(uint bossId, uint playerId)
         {
             this.bossId = bossId;
             this.playerId = playerId;

@@ -13,6 +13,47 @@ namespace SliceEngine
     {
         private List<IAttack> attacks = new List<IAttack>();
 
+        private int currentAttack = 0;
+        public bool IsFinished { get; private set; } = false;
+
+        public void Enter()
+        {
+            currentAttack = 0;
+            IsFinished = false;
+
+            if (attacks.Count > 0)
+            {
+                attacks[currentAttack].Enter();
+            }
+        }
+        public void Update(float dt)
+        {
+            if (attacks.Count == 0) 
+                return;
+
+            IAttack active = attacks[currentAttack];
+            active.Update(dt);
+
+            if (active.IsFinished)
+            {
+                active.Exit();
+                currentAttack++;
+
+                if (currentAttack >= attacks.Count)
+                {
+                    currentAttack = 0;
+                    IsFinished = true;
+                }
+
+                attacks[currentAttack].Enter();
+            }
+        }
+        public void Exit()
+        {
+            if (attacks.Count > 0) attacks[currentAttack].Exit();
+            IsFinished = false;
+        }
+
         public AttackPatterns(List<int> attacks, uint bossID, uint playerID)
         {
             //idk how else it should be done due to limitations
@@ -36,9 +77,7 @@ namespace SliceEngine
                 }
             }
         }
-        public override void OnUpdate(float dt)
-        {
-        }
+
 
     }
 }

@@ -45,6 +45,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             phaseController.UpdatePhases(health.PercentageHealth());
+            attackSetManager.Update(dt);
             //if health below zero play death animation then delete entity?
 
 
@@ -54,6 +55,7 @@ namespace SliceEngine
         {
             //SliceLog.Log("Phase changed to " + phase);
             //uh ill think of how to do the attack manager might not need it
+            attackSetManager.SetPhase(phase);
         }
 
         public List<AttackPatterns> initializeAttackPatterns()

@@ -20,9 +20,36 @@ namespace SliceEngine
             attackSets = atpattern;
             maxNumberAttackPattern = numberOfPhases + 1;
         }
-        public override void OnUpdate(float dt)
-        {
 
+        public void SetPhase(int phase)
+        {
+            if (phase < 0 || phase >= maxNumberAttackPattern)
+            {
+                SliceLog.Log("Invalid phase index: " + phase);
+                return;
+            }
+
+            if(phase == 0)
+            {
+                currentSet = phase;
+                attackSets[currentSet].Enter();
+            }
+            else
+            {
+                attackSets[currentSet].Exit();
+                currentSet = phase;
+                attackSets[currentSet].Enter();
+            }
+
+        }
+        public void Update(float dt)
+        {
+            if (attackSets.Count == 0)
+            {
+               SliceLog.Log("No attack patterns set in AttackSetManager");
+               return;
+            }
+            attackSets[currentSet].Update(dt);
         }
 
     }

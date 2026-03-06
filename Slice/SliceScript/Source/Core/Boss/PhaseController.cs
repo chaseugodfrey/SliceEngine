@@ -34,7 +34,7 @@ namespace SliceEngine
 
         public void StartFirstPhase()
         {
-            PhaseTrigger(0);
+            PhaseTrigger?.Invoke(0);
         }
 
         public void UpdatePhases(float percentageHealth)
