@@ -4,6 +4,7 @@ workspace "Slice"
     startproject "SliceEditor"
     flags { "MultiProcessorCompile" }
     warnings "Extra"
+    buildoptions { "/bigobj" }
 
 engine_lib_path = "%{wks.location}/SliceEngine/SliceEngine.lib"
 script_dev_path = "%{wks.location}/SliceScript"
@@ -16,7 +17,7 @@ IncludeDir["EnginePublic"]   = "%{wks.location}/SliceEngine/src"
 IncludeDir["EnTT"]              = "%{wks.location}/SliceEngine/thirdparty/entt"
 
 ThirdParty = {}
-ThirdParty.GLEW_INC = "%{wks.location}/SliceEngine/thirdparty/glew/GL"
+ThirdParty.GLEW_INC = "%{wks.location}/SliceEngine/thirdparty/glew"
 ThirdParty.GLEW_LIB = "%{wks.location}/SliceEngine/thirdparty/glew"
 ThirdParty.GLEW_DLL =  "%{wks.location}/SliceEngine/thirdparty/glew/glew32.dll"
 

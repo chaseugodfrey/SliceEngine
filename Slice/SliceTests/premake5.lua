@@ -7,81 +7,92 @@ project "SliceTests"
     targetdir ("bin/%{cfg.buildcfg}")
     objdir ("bin-int/%{cfg.buildcfg}")
 
-    -- This is the key change: we are now compiling the engine's dependencies directly.
     files
     {
         "**.cpp",
         "**.h",
-        "../SliceEngine/thirdparty/googletest/googletest/src/gtest-all.cc",
-        "../SliceEngine/thirdparty/googletest/googlemock/src/gmock-all.cc",
-        "../SliceEngine/thirdparty/recast/Recast/Source/**.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/Source/**.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/DetourCrowd/Source/**.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/DetourTileCache/Source/**.cpp"
+        -- navigation dependencies (recast/detour)
+        "../SliceEngine/thirdparty/recast/Recast/Source/*.cpp",
+        "../SliceEngine/thirdparty/recast/Detour/Detour/Source/*.cpp",
+        "../SliceEngine/thirdparty/recast/Detour/DetourCrowd/Source/*.cpp",
+        "../SliceEngine/thirdparty/recast/Detour/DetourTileCache/Source/*.cpp"
     }
 
     includedirs
     {
         "../SliceEngine/src",
-        "../SliceEngine/thirdparty/entt",
-        "../SliceEngine/thirdparty/glew",
-        "../SliceEngine/thirdparty/glfw/include",
-        "../SliceEngine/thirdparty/glm",
-        "../SliceEngine/thirdparty/googletest/googletest/include",
-        "../SliceEngine/thirdparty/nlohmann/include",
-        "../SliceEngine/thirdparty/JoltPhysics",
-        "../SliceEngine/thirdparty/fmod/include",
-        "../SliceEngine/thirdparty/rttr/include",
-        "../SliceEngine/thirdparty/recast/Recast/include",
-        "../SliceEngine/thirdparty/recast/Detour/Detour/include",
-        "../SliceEngine/thirdparty/recast/Detour/DetourCrowd/include",
-        "../SliceEngine/thirdparty/recast/Detour/DetourTileCache/include",
-        "../SliceEngine/thirdparty/Mono/include"
+        ThirdParty.GLEW_INC,
+        ThirdParty.GLFW_INC,
+        ThirdParty.FMOD_INC,
+        ThirdParty.JSON_INC,
+        ThirdParty.RTTR_INC,
+        IncludeDir.EnTT,
+        ThirdParty.GLM_INC,
+        ThirdParty.JOLT_INC,
+        ThirdParty.MONO_INC,
+        ThirdParty.RECAST_INC,
+        ThirdParty.DETOUR_INC,
+        ThirdParty.DETOUR_CROWD_INC,
+        ThirdParty.DETOUR_TILE_INC,
+        "../SliceEngine/thirdparty/catch2"
     }
 
     libdirs
     {
-        "../SliceEngine/thirdparty/glfw/lib-vc2022",
-        "../SliceEngine/thirdparty/glew",
-        "../SliceEngine/thirdparty/fmod/lib",
-        "../SliceEngine/thirdparty/rttr/lib",
-        "../SliceEngine/thirdparty/JoltPhysics/lib/Debug",
-        "../SliceEngine/thirdparty/JoltPhysics/lib/Release",
-        "../SliceEngine/thirdparty/Mono/lib"
+        ThirdParty.GLEW_LIB,
+        ThirdParty.GLFW_LIB,
+        ThirdParty.FMOD_LIB,
+        ThirdParty.RTTR_LIB,
+        ThirdParty.JOLT_LIB_D,
+        ThirdParty.JOLT_LIB_R,
+        ThirdParty.MONO_LIB
     }
 
     defines { 
         "_CRT_SECURE_NO_WARNINGS",
         "GLEW_STATIC",
-        "RTTR_DLL"
+        "RTTR_DLL",
+        "GLFW_INCLUDE_NONE"
     }
 
     links
     {
-        "SliceEngine", -- Still link the main engine library for non-recast code
+        "SliceEngine",
+        "glew32",
         "opengl32",
         "glfw3",
-        "glew32",
         "fmod_vc",
         "mono-2.0-sgen.lib",
         "MonoPosixHelper.lib"
     }
 
-    filter { "files:../SliceEngine/thirdparty/**.cpp" }
-        flags { "NoPCH" }
+    postbuildcommands {
+        '{COPYFILE} "%{ThirdParty.GLEW_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.GLFW_DLL}" "%{cfg.targetdir}"',    
+        '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"'
+    }
 
     filter "configurations:EditorDebug"
         defines { "DEBUG_MODE" }
         symbols "On"
         links { "rttr_core_d", "Jolt_d.lib" }
+        linkoptions { "/IGNORE:4204", "/IGNORE:4006", "/IGNORE:4098" }
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_D .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }
 
     filter "configurations:EditorRelease"
         defines { "RELEASE_MODE" }
         optimize "On"
         links { "rttr_core", "Jolt_r.lib" }
+        postbuildcommands {
+            "(robocopy \"" .. ThirdParty.JOLT_LIB_R .. "\" \"%{cfg.targetdir}\" Jolt.pdb) ^& IF %ERRORLEVEL% LEQ 1 exit 0"
+        }
 
     filter "system:windows"
         systemversion "latest"
-        defines { "GTEST_HAS_PTHREAD=0", "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING" }
 
     filter {}
