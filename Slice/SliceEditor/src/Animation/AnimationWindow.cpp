@@ -65,9 +65,9 @@ namespace SliceEditor
 					
 					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
-
-					return true;
 				}
+
+				return true;
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data

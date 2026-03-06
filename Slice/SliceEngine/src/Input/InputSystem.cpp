@@ -362,25 +362,6 @@ namespace SliceEngine
         return currMousePos.y;
     }
 
-    //Commented out jic. Since its eze who is replacing copy pasted code.
-    //void InputSystem::SetCursorState()
-    //{
-    //    auto window = Core::GetInstance()->GetWindow();
-    //    int newMode{};
-    //    bool rawInput{};
-    //    switch (cursorState)
-    //    {
-    //    case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
-    //    case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
-    //    case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
-    //    case CursorState::DISABLED: newMode = GLFW_CURSOR_DISABLED; rawInput = GLFW_TRUE; break;
-    //    default: newMode = GLFW_CURSOR_NORMAL; break;
-    //    }
-
-    //    glfwSetInputMode(window, GLFW_CURSOR, newMode);
-    //    glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, rawInput);
-    //}
-
     void InputSystem::SetCursorState()
     {
         auto window = Core::GetInstance()->GetWindow();
