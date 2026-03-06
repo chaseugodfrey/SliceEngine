@@ -692,8 +692,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-
-		GUID Handle_Anims;
+		Handle<SliceEngineTypes::Anims> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 		SliceEngineTypes::Anims curr_anims;

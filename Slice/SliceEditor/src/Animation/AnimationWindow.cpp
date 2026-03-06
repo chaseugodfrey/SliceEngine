@@ -556,7 +556,7 @@ namespace SliceEditor
 							Anims.SerializeAsset(targetAnimsPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
-							mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath];
+							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
 							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
 
 							newAnimsName = "";
@@ -625,7 +625,7 @@ namespace SliceEditor
 							mCurrentAnimator->curr_anims.animations.push_back(newAnim);
 							customAnimClips.push_back(newAnim);
 
-							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 							if (parentName)
 							{
 								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
@@ -650,7 +650,7 @@ namespace SliceEditor
 
 				if (ImGui::Button("Save"))
 				{
-					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 					if (animsFilePath.has_value())
 					{
 						AnimsData Anims{};

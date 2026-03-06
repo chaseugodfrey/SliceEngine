@@ -252,15 +252,18 @@ namespace SliceEngine
 			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
-
-
-		// check this cos like hwo dp i get it from scene saving bruh
-		//animator.Handle_Anims = core->GetResourceManager()->mSceneGUIDs.
+		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(animator.Handle_Anims.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
 			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 			animator.stateMachine.InitState();
+		}
+
+		if (animator.Handle_Anims.IsValid())
+		{
+			animator.curr_anims = *animator.Handle_Anims.get();
+			animator.stateMachine.InitState(animator.curr_anims);
 		}
 
 		if (animator.IsValid())

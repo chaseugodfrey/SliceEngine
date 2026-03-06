@@ -123,8 +123,6 @@ namespace SliceEngine
 
 		bool Anims::LoadAnimsResource(std::string const& filename)
 		{
-			Anims tmpAnims{};
-
 			std::ifstream file(filename);
 			if (!file.is_open())
 			{
@@ -152,7 +150,7 @@ namespace SliceEngine
 				Anim tmpAnim{};
 				tmpAnim.LoadAnimResource(anim);
 
-				tmpAnims.animations.push_back(tmpAnim);
+				animations.push_back(tmpAnim);
 			}
 
 
