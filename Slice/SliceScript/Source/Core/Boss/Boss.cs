@@ -60,7 +60,7 @@ namespace SliceEngine
             phaseController.SetPhase(phase);
         }
 
-        public List<Phase> initalizeStateList()
+        public List<Phase> InitalizeStateList()
         {
             List<Phase> temp = new List<Phase>();
 
