@@ -8,6 +8,7 @@ using System.Security.Permissions;
 namespace SliceEngine
 {
     //sets which attack pattern to use
+    //not in use anymore here just for reference, the phase controller will handle the transition between the attack patterns now
     public class AttackSetManager : SliceBehaviour
     {
 
