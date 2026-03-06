@@ -884,10 +884,10 @@ namespace SliceEngine
 		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
-		if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		/*if (sScene->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			OnPlayStarted();
-		}
+		}*/
 
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));

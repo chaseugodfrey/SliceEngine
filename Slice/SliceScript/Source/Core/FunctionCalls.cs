@@ -147,7 +147,7 @@ namespace SliceEngine
         internal extern static void Audio_SetVolume(uint entityID, float volume);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_SetCategoryVolume(ref string category, ref float volume);
+        internal extern static void Audio_SetCategoryVolume(string category, ref float volume);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Audio_GetCategoryVolume(string category);

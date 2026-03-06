@@ -6,6 +6,7 @@ namespace SliceEngine
     public class ExposureSlider : SliceBehaviour
     {
         private Slider slider;
+        float gammaValue = 0f;
 
         public override void OnCreate()
         {
@@ -18,7 +19,8 @@ namespace SliceEngine
 
         public override void OnSliderValue(float value)
         {
-            Camera.Exposure = value;
+            gammaValue = value * 10;
+            Camera.Exposure = gammaValue;
         }
     }
 }

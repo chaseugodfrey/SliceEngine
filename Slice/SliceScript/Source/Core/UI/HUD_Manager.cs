@@ -4,19 +4,23 @@ using System.Collections.Generic;
 
 namespace SliceEngine
 {
-    public class HUD_Manager: SliceBehaviour, IInitializable
+    public class HUD_Manager : SliceBehaviour, IInitializable
     {
         public bool DialogueOnStart = false;
         public int currLevel = 0; // to sync with level director
+        public string nextSceneToLoad = "";
+        public string currSceneToLoad = "";
 
         Slider health;
         public GameObject healthSliderObject;
 
         SpriteRenderer victory;
         public GameObject victoryObject;
+        public GameObject continueBtn;
 
         SpriteRenderer defeat;
         public GameObject defeatObject;
+        public GameObject retryBtn;
 
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
@@ -36,6 +40,7 @@ namespace SliceEngine
             //    PlayDialogueForLevel(currLevel);
             //    Bootstrap.Player.canInput = false;
             //}
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public override void OnUpdate(float dt)
@@ -56,6 +61,8 @@ namespace SliceEngine
                 }
             }
 
+           
+
         }
 
 
@@ -71,12 +78,40 @@ namespace SliceEngine
         {
             //victory.SetEnabled(true);
             victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
+            continueBtn.SetActive(true);
+            CursorChecking(Cursor.state);
+
+
+        }
+
+        public void LoadNextLevel()
+        {
+            SceneManager.LoadScene(nextSceneToLoad);
+        }
+
+        public void RestartLevel()
+        {
+            SceneManager.LoadScene(currSceneToLoad);
         }
 
         public void GameLoseScreen()
         {
             //defeat.SetEnabled(true);
             defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
+            retryBtn.SetActive(true);
+            CursorChecking(Cursor.state);
+        }
+
+        public void CursorChecking(Cursor.STATE currentCursorState)
+        {
+            if (currentCursorState == Cursor.STATE.DISABLED)
+            {
+                Cursor.state = Cursor.STATE.DEFAULT;
+            }
+            else
+            {
+                Cursor.state = Cursor.STATE.DISABLED;
+            }
         }
 
         public override void OnButtonClick()
@@ -110,7 +145,7 @@ namespace SliceEngine
         }
 
         private bool typing = false;
-        
+
         //string[] for listed things 0 = name, 1 = text
         private List<string[]> levelDialogues = new List<string[]>();
 
@@ -136,7 +171,7 @@ namespace SliceEngine
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
-                Bootstrap.Player.canInput = true;
+                //Bootstrap.Player.canInput = true;
                 dialogueIndex = 0;
                 levelDialogues.Clear();
                 SetTextBox("");
@@ -159,7 +194,7 @@ namespace SliceEngine
 
                 SliceLog.Log("Dialogue is empty");
                 dialogueIndex = 0;
-                for (int i = loader.FindRowIndex( "Level",level.ToString()); i > -1 ; i++)
+                for (int i = loader.FindRowIndex("Level", level.ToString()); i > -1; i++)
                 {
                     //SliceLog.Log("index is at" + i);
 
@@ -174,7 +209,7 @@ namespace SliceEngine
 
                     dialogueDone = false;
 
-                     levelDialogues.Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                    levelDialogues.Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
                 }
             }
 
@@ -251,7 +286,7 @@ namespace SliceEngine
             }
         }
 
-        public void  OpenTextBox()
+        public void OpenTextBox()
         {
             textBoxParentObject.SetActive(true);
             Cursor.state = Cursor.STATE.DISABLED;
@@ -268,10 +303,10 @@ namespace SliceEngine
         public void Initialize()
         {
             //console.writeline("HUD Ini called");
-            health = healthSliderObject.GetComponent<Slider>();      
+            health = healthSliderObject.GetComponent<Slider>();
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            LoadDialogues();
+            //LoadDialogues();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }

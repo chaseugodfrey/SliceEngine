@@ -14,11 +14,10 @@ namespace SliceEngine
 
         public int maxEnemies = 4;
         public List<GameObject> spawnPoints;
-        List<GameObject> remainingEnemies;
+        List<GameObject> remainingEnemies = new List<GameObject>();
 
         public bool begun = false;
         private int currentSpawnIndex = 0;
-
         public override void OnCreate()
         {
             progressionBarrier = FindGameObjectWithName("Arena_1_Barrier");
@@ -39,10 +38,13 @@ namespace SliceEngine
 
         public override void OnCollideEnter(uint other)
         {
+            if (begun) return;
+
             SliceLog.Log("OnCollideEnter triggered. Other ID: " + other);
 
             if (other == Bootstrap.Player.gameObject.mID)
             {
+                begun = true;
                 SliceLog.Log("Player collided. Beginning enemy spawn...");
 
                 for (int i = 0; i < maxEnemies; ++i)

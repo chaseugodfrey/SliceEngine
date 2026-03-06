@@ -38,7 +38,7 @@ namespace SliceEngine
             else
             {
                 SliceLog.Log(audioParameter);
-                AudioManager.SetCategoryVolume(ref audioParameter, value);
+                AudioManager.SetCategoryVolume(audioParameter, value);
             }
         }
     }

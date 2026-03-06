@@ -14,9 +14,9 @@ namespace SliceScript.Source.Core.Systems
             return FunctionCalls.Audio_GetCategoryVolume(category);
         }
 
-        public static void SetCategoryVolume(ref string category, float volume)
+        public static void SetCategoryVolume(string category, float volume)
         {
-            FunctionCalls.Audio_SetCategoryVolume(ref category, ref volume);
+            FunctionCalls.Audio_SetCategoryVolume(category, ref volume);
         }
 
         public static void SetMasterVolume(float volume)

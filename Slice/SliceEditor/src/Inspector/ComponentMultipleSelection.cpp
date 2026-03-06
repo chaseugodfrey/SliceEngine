@@ -63,4 +63,37 @@ namespace SliceEditor
 		}
 		return false;
 	}
+	std::array<bool,3> Vector3MultipleSelection(SelectionManager* selectionManager, glm::vec3 currentSelection, bool isMultiSelection, std::function<glm::vec3(Entity)> func)
+	{
+		std::array<bool,3> isSelectionDifferent = std::array<bool, 3>{ false,false,false };
+		if (isMultiSelection)
+		{
+			//Do the difference check (this one is for tags)
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+
+					glm::vec3 currentVec3 = func(currentEntity);
+
+					if (currentVec3.x != currentSelection.x)
+					{
+						isSelectionDifferent[0] = true;
+					}
+
+					if (currentVec3.y != currentSelection.y)
+					{
+						isSelectionDifferent[1] = true;
+					}
+
+					if (currentVec3.z != currentSelection.z)
+					{
+						isSelectionDifferent[2] = true;
+					}
+				}
+			}
+		}
+		return isSelectionDifferent;
+	}
 }
