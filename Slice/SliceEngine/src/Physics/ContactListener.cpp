@@ -35,7 +35,16 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 	GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(inBody2.GetUserData()));
 
 	//int test1 = static_cast<int>(inBody1.GetUserData());
-	//int test2 = static_cast<int>(inBody2.GetUserData());
+	//int test2 = static_cast<int>(inBody2.GetUserData())
+	if (!checkEntity1.HasComponent<ColliderShape>() || !checkEntity2.HasComponent<ColliderShape>())
+	{
+		std::string errorMsg = "Contact added between ";
+		errorMsg += std::to_string((unsigned int)checkEntity1.GetEntity());
+		errorMsg += " and ";
+		errorMsg += std::to_string((unsigned int)checkEntity2.GetEntity());
+		SLICE_LOG_ERROR(errorMsg);
+		return;
+	}
 
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
