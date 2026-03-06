@@ -19,15 +19,13 @@ namespace SliceEngine
         public List<float> healthPhasesList = new List<float>();
 
         //Attack Patterns
-        public List<int> attackPatterns1 = new List<int>(); // thsi will the first attack pattern before the next threshold
+        public List<int> stateList1 = new List<int>(); // thsi will the first attack pattern before the next threshold
 
-        public List<int> attackPatterns2 = new List<int>();
+        public List<int> stateList2 = new List<int>();
 
-        public List<int> attackPatterns3 = new List<int>();
+        public List<int> stateList3 = new List<int>();
 
-        public List<int> attackPatterns4 = new List<int>();
-
-        public List<Phase> phases = new List<Phase>();
+        public List<int> stateList4 = new List<int>();
 
         // unsure if i have to set it in oncreate on just through editor is fine, leaving comment here in case
         public GameObject player;
@@ -66,25 +64,25 @@ namespace SliceEngine
         {
             List<Phase> temp = new List<Phase>();
 
-            if((attackPatterns1.Count == 0)) 
+            if((stateList1.Count == 0)) 
             {
                 SliceLog.Log("Boss needs at least the first attack pattern");
                 return temp;
             }
 
-            temp.Add(new Phase(attackPatterns1, gameObject.mID, player.mID));
+            temp.Add(new Phase(stateList1, gameObject.mID, player.mID));
 
-            if (!(attackPatterns2.Count == 0))// not equal zero, just in case yall never see
+            if (!(stateList2.Count == 0))// not equal zero, just in case yall never see
             {
-                temp.Add(new Phase(attackPatterns2, gameObject.mID, player.mID));
+                temp.Add(new Phase(stateList2, gameObject.mID, player.mID));
             }
-            if (!(attackPatterns3.Count == 0))
+            if (!(stateList3.Count == 0))
             {
-                temp.Add(new Phase(attackPatterns3, gameObject.mID, player.mID));
+                temp.Add(new Phase(stateList3, gameObject.mID, player.mID));
             }
-            if (!(attackPatterns4.Count == 0))
+            if (!(stateList3.Count == 0))
             {
-                temp.Add(new Phase(attackPatterns4, gameObject.mID, player.mID));
+                temp.Add(new Phase(stateList3, gameObject.mID, player.mID));
             }
 
             return temp;
