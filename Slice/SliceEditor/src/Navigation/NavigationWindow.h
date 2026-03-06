@@ -5,6 +5,7 @@
 
 #include "../WindowManager/EditorWindow.h"
 #include "RecastNavmesh.h"
+#include "Systems/SceneSystem.h" 
 
 namespace SliceEditor
 {
@@ -21,6 +22,7 @@ namespace SliceEditor
 		~NavigationWindow() = default;
 		void Init() override;
 		void Draw() override final;
+		void ClearNavmeshFiles();
 	};
 }
 

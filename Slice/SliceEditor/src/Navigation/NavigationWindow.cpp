@@ -157,11 +157,32 @@ namespace SliceEditor
 		if (ImGui::Button("Clear"))
 		{
 			mCompiler.Clear();
+			ClearNavmeshFiles();
 		}
 
 		if (entity.empty())
 			ImGui::EndDisabled();
 
 		ImGui::End();
+	}
+
+	void NavigationWindow::ClearNavmeshFiles()
+	{
+		std::string currentSceneName = SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName();
+
+		std::filesystem::path navMeshPath = "Assets/NavMesh/" + currentSceneName + ".navmesh";
+		std::filesystem::path binPath = "Assets/NavMesh/" + currentSceneName + ".bin";
+
+		if (std::filesystem::exists(navMeshPath))
+		{
+			std::filesystem::remove(navMeshPath);
+			std::cout << "[NavMesh] Deleted old navmesh file: " << navMeshPath.string() << std::endl;
+		}
+
+		if (std::filesystem::exists(binPath))
+		{
+			std::filesystem::remove(binPath);
+			std::cout << "[NavMesh] Deleted old bin file: " << binPath.string() << std::endl;
+		}
 	}
 }
