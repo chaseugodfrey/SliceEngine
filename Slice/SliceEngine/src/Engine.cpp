@@ -329,7 +329,8 @@ namespace SliceEngine
 			);
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
-			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			rttr::value("Overlay", Canvas::Type::OVERLAY),
+			rttr::value("World Space", Canvas::Type::WORLD)
 			);
 	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
 		(
@@ -844,6 +845,10 @@ namespace SliceEngine
 			OnPlayStarted();
 		}
 
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		frm->EndSystem("Canvas");
+
 		// regular transform update
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
@@ -851,10 +856,6 @@ namespace SliceEngine
 		prefabSys.UpdateBasePrefabs(); 
 		frm->EndSystem("Transform");
 
-		// i shifted this to the end cause UI usually updates last(?) i think
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
 		frm->StartSystem("Particle System");
