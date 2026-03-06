@@ -46,8 +46,10 @@ namespace SliceEditor
 		size_t mCurrentClipIndex{ 0 };
 		size_t mCurrentEventIndex{ 0 };
 		size_t mCurrentKeyIndex{ 0 };
-		bool mOpenEventPopup;
+		bool mOpenEventPopup{};
 		bool mOpenEventOption{ false };
+		bool mOpenTrfOption{};
+		bool mOpenTrfEdit{};
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);

@@ -198,6 +198,7 @@ namespace SliceEngine
 		RENDER_BLUR			= 0x02,
 		RENDER_BLOOM		= 0x04,
 		RENDER_VIGNETTE		= 0x08,
+		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -233,6 +234,17 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+
+		float cloudsHeight{ -110.f };
+		float cloudsAmplitude{ 49.f };
+		float cloudsIntensity{ 0.3f };
+		float cloudsSmoothness{ 0.0027 };
+		float cloudsCutoff{ 0.167f };
+		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
+		float cloudsSecondCloudAmplitude{ 49.f };
+		float cloudsSecondCloudIntensity{ 0.3f };
+		float cloudsSecondCloudSmoothness{ 0.0027 };
+
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
@@ -253,8 +265,6 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthMaps{};
-		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -694,8 +704,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-
-		GUID Handle_Anims;
+		Handle<SliceEngineTypes::Anims> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 		SliceEngineTypes::Anims curr_anims;
@@ -759,9 +768,9 @@ namespace SliceEngine
 	struct Canvas
 	{
 		enum Type {
-			OVERLAY
+			OVERLAY,
 			//CAMERA
-			//WORLD
+			WORLD
 		};
 
 		bool componentEnabled{ true };
@@ -802,9 +811,9 @@ namespace SliceEngine
 		float final_width{ 100 }, final_height{ 100 };
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
-		void Update(Canvas const& ctx, RectTransform const& parent);
+		void Update(RectTransform const& parent);
 
-		glm::mat4 ToMatrix() const;
+		glm::mat4 ToMatrix() const noexcept;
 
 		RTTR_ENABLE();
 	};
@@ -813,7 +822,7 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
@@ -876,8 +885,7 @@ namespace SliceEngine
 			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
 			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
-
-		GUID sprite_transitions[Total_States]{
+		std::array<GUID, Total_States> sprite_transitions{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT

@@ -821,7 +821,7 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabComponentChild(childEntity, guid);
+				UpdatePrefabComponentChild(childEntity, guid, toRemove);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
@@ -851,7 +851,7 @@ namespace SliceEngine
 			while (childEntity != entt::null)
 			{
 				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
-				UpdatePrefabComponent(childEntity, guid);
+				UpdatePrefabComponentChild(childEntity, guid,toRemove);
 
 				auto& childSceneGraph = childGO.GetComponent<SceneGraph>();
 				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];

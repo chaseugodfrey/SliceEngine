@@ -53,6 +53,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::COLOR_DEADED_DEFAULT:
 				t->LoadColorTexture(1.f, 1.f, 1.f, 1.f);
 				break;
+			case DefaultResourceIDs::COLOR_NORMAL_DEFAULT:
+				t->LoadColorTexture(0.5f, 0.5f, 1.f, 1.f);
+				break;
 			default:
 				return nullptr;
 				break;
@@ -102,7 +105,8 @@ namespace SliceEngine
 	{
 		resource->DestroyCShader();	//calls glDeleteProgram
 		auto newResource = resource->LoadCShader(path);
-		resource->s = newResource.s;
+		resource->opaqueS = newResource.opaqueS;
+		resource->translucentS = newResource.translucentS;
 		resource->dataIn = newResource.dataIn;
 
 		std::string shdrGUID = path.substr(path.find_first_of('/') + 1);
@@ -114,7 +118,10 @@ namespace SliceEngine
 			{
 				auto mat = mgr.get<SliceEngineTypes::Material>(id);
 				if (mat.get()->shader.getGUID().GetGUID() == std::stoull(shdrGUID))
+				{
+					mat->isShaderUpdated = true;
 					mgr.ReloadResourceInPlace(id);
+				}
 			}
 		}
 		// safety check for default resource ID for material
@@ -228,7 +235,7 @@ namespace SliceEngine
 
 		materialToReload->color = loadedMaterialData.color;
 		materialToReload->isTranslucent = loadedMaterialData.isTranslucent;
-		//auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
+		auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
 		materialToReload->data.clear();
 
 		if (newShaderGUID != materialToReload->shader.getGUID())
@@ -236,11 +243,12 @@ namespace SliceEngine
 
 		for (auto& [name, data] : loadedMaterialData.data)
 		{
-			//if (oldData.contains(name))
-			//	materialToReload->data[name] = oldData[name];
-			//else
+			if (materialToReload->isShaderUpdated && oldData.contains(name))
+				materialToReload->data[name] = oldData[name];
+			else
 				materialToReload->data[name] = data;
 		}
+		materialToReload->isShaderUpdated = false;
 	}
 
 	//Model
@@ -272,6 +280,9 @@ namespace SliceEngine
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				m->LoadDefaultTerrain(100);
 				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				m->LoadDefaultLineModel();
@@ -328,6 +339,9 @@ namespace SliceEngine
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				resource->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				resource->LoadDefaultTerrain(100);
 				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				resource->LoadDefaultLineModel();
@@ -486,6 +500,25 @@ namespace SliceEngine
 	}
 
 	void Type<SliceEngineTypes::AnimationPackage>::Reload(SliceEngineTypes::AnimationPackage* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
+	//Anims Package
+	std::unique_ptr<SliceEngineTypes::Anims> Type<SliceEngineTypes::Anims>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto anim = std::make_unique<SliceEngineTypes::Anims>();
+		if (!anim->LoadAnimsResource(path)) {
+			return nullptr;
+		}
+		return anim;
+	}
+
+	void Type<SliceEngineTypes::Anims>::Destroy(SliceEngineTypes::Anims& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
+	}
+
+	void Type<SliceEngineTypes::Anims>::Reload(SliceEngineTypes::Anims* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
 

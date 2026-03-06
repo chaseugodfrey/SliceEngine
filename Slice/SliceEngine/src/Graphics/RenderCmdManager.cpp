@@ -14,6 +14,7 @@
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "CanvasSystem.h"
 #include "../Graphics/RenderManager.h" // --TODO-- Sus
 #include "Systems/PrefabSystem.h"
 #include "Systems/SceneSystem.h"
@@ -24,13 +25,13 @@
 
 // SSBOs
 // Textures			  0 - Custom Shaders (Deferred.frag)
-// Mat4,eID,texID,col 1 - Instanced.vert, Deferred.vert, debugOutline.vert, shadow.vert, pointShadow.vert (Deprecated: Deferred.frag)
+// Mat4,eID,col		  1 - Instanced.vert, Deferred.vert, debugOutline.vert, shadow.vert, pointShadow.vert (Deprecated: Deferred.frag)
 // uvec4			  2 - Custom Shaders (Deferred.frag)
 // Font				  3 - uiFont.vert
 
 // UBOs
 // Mat4[16]			  0 - Lighting.frag, Shadow.geom
-
+// light data		  1 - (Deferred.frag translucent)
 extern void _CheckGLError(const char* file, int line);
 
 #define CheckGLError() _CheckGLError(__FILE__, __LINE__)
@@ -76,6 +77,13 @@ namespace SliceEngine
 		}
 	}
 
+	void RenderCmdManager::Update(float dt)
+	{
+		time += dt;
+		while (time > maxTime)
+			time -= maxTime;
+	}
+
 	void RenderCmdManager::GatherDrawCalls()
 	{
 		renderCmds.clear();
@@ -88,7 +96,6 @@ namespace SliceEngine
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<renderEntity>(entt::exclude<InactiveEntity>); // renderEntity // visibleEntity
 		
-		//sScene->mCurrentState;
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
@@ -115,17 +122,18 @@ namespace SliceEngine
 
 			RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), rend.meshOffset, rend.skinned && !model.get()->is_static);
 
-			uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
-
-			//if (material->data.size() != material->shader.get()->dataIn.size()) // Weak error checking, removed
-			//	SliceEngine::Core::GetInstance()->GetResourceManager()->ReloadResourceInPlace(rend.materialHandle.getGUID());
-
-			RCK_Size key = (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) | (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+			RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 			BasicIDat data;
 			if (material->isTranslucent)
-				key = key | MRCK_TRANSCLUCENT;
+			{
+				uint8_t shdDet = GetShaderDetails(material->shader.get()->translucentS);
+				key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+			}
 			else
-				key = key | MRCK_OPAQUE;
+			{
+				uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
+				key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+			}
 			SetColor(data, material->color);
 
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
@@ -151,13 +159,12 @@ namespace SliceEngine
 		// Gather Particles
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
-			// --TODO-- IMPT: NOT MESH PARTILES WILL BREAK, Change particle Textures to rely fully on material for this
 			if (!ptx.isMeshParticle)
 			{
 				auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
+				// --MAYDO-- Currently hard set particles shader 
 				SliceEngineTypes::Material tempMat;
 				tempMat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
 				tempMat.color = ptx.colour;
@@ -168,23 +175,22 @@ namespace SliceEngine
 					else
 						tempMat.data[i.name] = i.baseData;
 				}
+				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 
-				uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->s);
-				RCK_Size key =
-					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
-					(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 				if (ptx.colour.a > 0.999f)
-					key = key | MRCK_OPAQUE;
+				{
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
+					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
 				else 
 				{
-					tempMat.isTranslucent = true;
-					key = key | MRCK_TRANSCLUCENT;
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->translucentS);
+					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
 
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
-				//data.blank = GetTextureDetails(ptx.textureID);
 				data.entityID = 0;
 				
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
@@ -197,8 +203,6 @@ namespace SliceEngine
 				}
 				else
 				{
-					SetAlpha(data, 1.f);
-					// --TODO--
 					AppendRenderCmd(renderCmds[key], data, &tempMat);
 					renderCmds[key].numVar =
 						static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
@@ -234,11 +238,7 @@ namespace SliceEngine
 					false
 				);
 
-				uint8_t shdDet = GetShaderDetails(material->shader.get()->s);
-
-				RCK_Size key =
-					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
-					(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
 
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
@@ -246,27 +246,94 @@ namespace SliceEngine
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
-				if (ptx.colour.a > 0.999f)
-					key |= MRCK_OPAQUE;
-				else
-					key |= MRCK_TRANSCLUCENT;
+				// --MAYDO-- Been told to turn opaque off
 
-				if (key & MRCK_TRANSCLUCENT)
+				//if (material->isTranslucent)
+				{
+					uint8_t shdDet = GetShaderDetails(material->shader.get()->translucentS);
+					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
+				//else
+				//{
+				//	uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
+				//	key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				//}
+
+				//if (key & MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, material);
 					translucentCmds.emplace_back(tc);
 				}
-				else
-				{
-					AppendRenderCmd(renderCmds[key], data, material);
-					renderCmds[key].numVar =
-						static_cast<uint32_t>(material->shader.get()->dataIn.size());
-				}
+				//else
+				//{
+				//	AppendRenderCmd(renderCmds[key], data, material);
+				//	renderCmds[key].numVar =
+				//		static_cast<uint32_t>(material->shader.get()->dataIn.size());
+				//}
 			}
 			
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
+
+
+		auto& canvas_sys = Core::GetInstance()->GetSystem<CanvasSystem>();
+		auto const& ui_entities = canvas_sys.Get_World_UI();
+
+		auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+
+		SliceEngineTypes::Material ui_mat;
+		ui_mat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+		ui_mat.data["texCol"] = DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+		for (Entity ui : ui_entities) {
+			auto const& tform = core->GetRegistry().get<Transform>(ui);
+			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
+				ui_mat.color = sprite->rgba;
+				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
+				ui_mat.isTranslucent = ui_mat.color.a > 0.999f;
+
+				RCK_ModelT mdlDet = GetModelDetails(
+					model.getGUID().GetGUID(),
+					0,
+					false
+				);
+				BasicIDat data;
+				data.mdlMtx = tform.transform;
+				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				SetColor(data, sprite->rgba);
+				data.entityID = (uint32_t)ui;
+
+				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+				if (ui_mat.color.a > 0.999f)
+				{
+					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->opaqueS);
+					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
+				else
+				{
+					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
+					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
+				if (key & MRCK_TRANSCLUCENT)
+				{
+					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, &ui_mat);
+					translucentCmds.emplace_back(tc);
+				}
+				else
+				{
+					AppendRenderCmd(renderCmds[key], data, &ui_mat);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(ui_mat.shader.get()->dataIn.size());
+				}
+			}
+			if (auto font = core->GetRegistry().try_get<FontRenderer>(ui)) {
+				//ill figure this out next time
+			}
+		}
+
+
+
 	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{
@@ -402,6 +469,8 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					GLint uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
 				}
 				RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 				ModelBasic& mdlRef = modelReferences[mdlID];
@@ -452,6 +521,10 @@ namespace SliceEngine
 			RCK_ModelT currMdlID = 0xFFFF;
 			glm::vec3 offsetDelta{};
 
+			glBindTextureUnit(2, Core::GetInstance()->GetRenderManager()->SkyboxIrradianceMap);
+			glBindTextureUnit(4, Core::GetInstance()->GetRenderManager()->mDirLightDepthMaps);
+			glBindTextureUnit(5, Core::GetInstance()->GetRenderManager()->mShadowCubeMapArr);
+
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
 			{
@@ -478,7 +551,27 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
-					GLint uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly"); 
+					GLint uniformLoc;
+					uniformLoc = glGetUniformLocation(mShader, "time");
+					glUniform1f(uniformLoc, time);
+					uniformLoc = glGetUniformLocation(mShader, "numLights");
+					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->numLightsFound);
+					
+					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
+					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->mNumCascadeShadow);
+					std::stringstream ss{};
+					for (int i = 0; i < Core::GetInstance()->GetRenderManager()->mNumCascadeShadow; ++i)
+					{
+						ss.str("");
+						ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+						uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
+						if (i == Core::GetInstance()->GetRenderManager()->mNumCascadeShadow - 1)
+							glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->mainDirLightFar);
+						else
+							glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->mainDirLightFar / Core::GetInstance()->GetRenderManager()->shadowCascadeLevels[i]);
+					}
+
+					uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
 					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
 					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
 					if (uniformLoc != -1)
@@ -512,7 +605,6 @@ namespace SliceEngine
 			break;
 		}
 		}
-		CheckGLError();
 	}
 
 	void RenderCmdManager::SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos)
@@ -561,7 +653,9 @@ namespace SliceEngine
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
 
-			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+			GLint uniformLoc = glGetUniformLocation(mShader, "time");
+			glUniform1f(uniformLoc, time);
+
 			data.entityID = static_cast<unsigned int>(entity);
 			glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat), &data);
 			glNamedBufferSubData(mEVBO, 0, sizeof(float) * material->data.size(), &ext);

@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../Input/InputSystem.h"
 
+#include <set>
+
 /*
 * Brief description of a canvas
 * 
@@ -60,12 +62,11 @@ namespace SliceEngine
 		void UpdateHierachy();
 		void DrawOverlay();
 
-		//
-		void ConstructWorldCanvas();
 
 		void Init();
 		void Release();
 
+		std::set<Entity> const& Get_World_UI() const;
 		/*
 		* fires a ray into the list of overlay canvases and finds the element that is hit
 		* bot left corner is 0,0
@@ -73,7 +74,7 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
+		void get_child_ui(Entity canvas, Entity parent, Entity node);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
@@ -85,6 +86,7 @@ namespace SliceEngine
 		unsigned int fbo{};
 		unsigned int raycast_tex{};
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
+		std::set<Entity> world_space_ui;
 
 		static constexpr unsigned int Font_Max_Instance = 200;
 
