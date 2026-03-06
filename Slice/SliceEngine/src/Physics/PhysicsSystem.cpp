@@ -94,12 +94,14 @@ namespace SliceEngine
 
 			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
-			mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
+			//mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
 
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
 
 			mRegistry->on_destroy<ColliderShape>().connect<&PhysicsSystem::OnColliderRemove>(this);
+
+			mRegistry->on_update<SliceEntity>().connect<&PhysicsSystem::OnSliceEntityModified>(this);
 
 			isInitialized = true;
 			SLICE_LOG("Physics System Initialized");
@@ -649,6 +651,28 @@ namespace SliceEngine
 		
 	}
 
+	void PhysicsSystem::OnSliceEntityModified(entt::registry& reg, entt::entity entity)
+	{
+		if (!reg.any_of<SliceEntity>(entity) || !reg.any_of<ColliderShape>(entity))
+		{
+			return;
+		}
+
+		auto& colliderShape = reg.get<ColliderShape>(entity);
+		auto& slice = reg.get<SliceEntity>(entity);
+
+		if (!physicsSystem->GetBodyInterface().IsAdded(colliderShape.bodyID))
+		{
+			return;
+		}
+
+		if (physicsSystem->GetBodyInterface().GetObjectLayer(colliderShape.bodyID) != slice.mLayer)
+		{
+			physicsSystem->GetBodyInterface().SetObjectLayer(colliderShape.bodyID, slice.mLayer);
+		}
+
+	}
+
 	void PhysicsSystem::UpdateShapeFromTransform(Entity entity)
 	{
 		auto& transform = mRegistry->get<Transform>(entity);
@@ -1023,6 +1047,16 @@ namespace SliceEngine
 			{
 				GameObject checkEntity1 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent1));
 				GameObject checkEntity2 = Core::GetInstance()->mFactory.GetGOByEntity(static_cast<Entity>(ent2));
+
+				if (!checkEntity1.HasComponent<ColliderShape>() || !checkEntity2.HasComponent<ColliderShape>())
+				{
+					std::string errorMsg = "Contact removed between ";
+					errorMsg += std::to_string((unsigned int)checkEntity1.GetEntity());
+					errorMsg += " and ";
+					errorMsg += std::to_string((unsigned int)checkEntity2.GetEntity());
+					SLICE_LOG_ERROR(errorMsg);
+					continue;
+				}
 
 				colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 				colliderShape2 = checkEntity2.GetComponent<ColliderShape>();

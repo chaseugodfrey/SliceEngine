@@ -73,7 +73,7 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
+		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Entity canvas, RectTransform const& parent, Entity node);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
