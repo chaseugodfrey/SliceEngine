@@ -23,6 +23,7 @@ namespace SliceEngine
 	public:
 
 		void InitState(SliceEngineTypes::AnimationPackage);
+		void InitState(SliceEngineTypes::Anims);
 		void InitState();
 		void CheckStates();
 		void UpdateState(float& CTime,float dt);

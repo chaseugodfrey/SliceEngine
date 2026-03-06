@@ -27,7 +27,7 @@ namespace SliceEditor
 		mTimeline.isPlaying = false;
 		mTimeline.isLoop = false;
 		mOpenEventPopup = false;
-		mSequencerFlags |= ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDeletion;
+		mSequencerFlags = ImGuiNeoSequencerFlags_EnableSelection | ImGuiNeoSequencerFlags_Selection_EnableDeletion | ImGuiNeoSequencerCol_ZoomBarSlider;
 	}
 
 	bool AnimationWindow::CheckForAnimator()
@@ -130,22 +130,24 @@ namespace SliceEditor
 		}
 
 		// add 0 check for size()
-		
-		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
-		AnimationPropertyGroup transformGroup;
 
-		transformGroup.name = name + " Transform";
-		transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-		transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+		if(!mCurrentAnimator->Handle_skeleton.IsValid())
+		{
+			//std::string name = SliceEngine::FactoryInstance.GetGOByEntity(entity).GetName();
+			//AnimationPropertyGroup transformGroup;
 
-		mPropertyGroups.push_back(transformGroup);
+			//transformGroup.name = name + " Transform";
+			//transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+			//transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+			//transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
 
-		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
-		auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entity);
+			//mPropertyGroups.push_back(transformGroup);
 
-		LoadPropertyGroup(entity, scene_graph);
-		
+			auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
+			auto& scene_graph = engine_reg.get<SliceEngine::SceneGraph>(entity);
+
+			LoadPropertyGroup(entity, scene_graph);
+		}
 	}
 
 	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIdx)
@@ -191,10 +193,25 @@ namespace SliceEditor
 
 		if (!mPropertyGroups.empty())
 		{
-			if (std::strcmp(mPropertyGroups[0].name.c_str(), "Events") == 0)
+			/*if (std::strcmp(mPropertyGroups[0].name.c_str(), "Events") == 0)
 			{
 				mPropertyGroups.erase(mPropertyGroups.begin());
 			}
+
+			for (auto& propGrp : mPropertyGroups)
+			{
+				if(std::strcmp(propGrp.name.c_str(), "Events") == 0)
+				{
+					std::erase_if(mPropertyGroups, [](AnimationPropertyGroup i) { return std::strcmp(i.name.c_str(), "Events") == 0; });
+				}
+
+				if (propGrp.name.find("Position") != std::string::npos)
+				{
+					std::erase_if(mPropertyGroups, [](AnimationPropertyGroup i) { return i.name.find("Position") != std::string::npos; });
+				}
+			}*/
+
+			mPropertyGroups.erase(mPropertyGroups.begin(),mPropertyGroups.end());
 		}
 
 		AnimationPropertyGroup EventGroup;
@@ -214,12 +231,30 @@ namespace SliceEditor
 		EventGroup.properties.push_back(AnimationProperty{ "Animation Event", eventFrames });
 
 		mPropertyGroups.insert(mPropertyGroups.begin(), EventGroup);
+
+		std::string name = SliceEngine::FactoryInstance.GetGOByEntity(tmpEnt).GetName();
+		AnimationPropertyGroup transformGroup;
+
+		transformGroup.name = name + " Transform";
+		std::vector <ImGui::FrameIndexType> trfFrames{};
+
+		if (mCurrentAnimator->curr_anims.animations.size() > 0)
+		{
+			for (const auto& [frame, trfs] : mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform)
+			{
+				trfFrames.push_back(static_cast<int32_t>(frame));
+			}
+		}
+
+		transformGroup.properties.push_back(AnimationProperty{ "Position.x", trfFrames });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.y", trfFrames });
+		transformGroup.properties.push_back(AnimationProperty{ "Position.z", trfFrames });
+
+		mPropertyGroups.push_back(transformGroup);
 	}
 
 	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
 	{
-		//bool hasChildren = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN] != entt::null;
-
 		auto& engine_reg = SliceEngine::Core::GetInstance()->GetRegistry();
 		auto child_entity = scene_graph.neighbours[SliceEngine::SceneGraph::DOWN];
 
@@ -234,9 +269,20 @@ namespace SliceEditor
 				AnimationPropertyGroup transformGroup;
 
 				transformGroup.name = name + " Transform";
-				transformGroup.properties.push_back(AnimationProperty{ "Position.x", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-				transformGroup.properties.push_back(AnimationProperty{ "Position.y", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
-				transformGroup.properties.push_back(AnimationProperty{ "Position.z", std::vector<ImGui::FrameIndexType>({0, 10, 20}) });
+
+				std::vector <ImGui::FrameIndexType> trfFrames{};
+
+				if (mCurrentAnimator->curr_anims.animations.size() > 0)
+				{
+					for(const auto& [frame,trfs] : mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform)
+					{
+						trfFrames.push_back(static_cast<int32_t>(frame));
+					}
+				}
+
+				transformGroup.properties.push_back(AnimationProperty{ "Position.x", trfFrames });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.y", trfFrames });
+				transformGroup.properties.push_back(AnimationProperty{ "Position.z", trfFrames });
 
 				mPropertyGroups.push_back(transformGroup);
 			}
@@ -442,7 +488,7 @@ namespace SliceEditor
 			{
 				if(clipSize > 0)
 				{
-					mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame) });
+					mCurrentAnimator->eventFrames.push_back(SliceEngine::SliceEngineTypes::AnimationKeyFrame{ scriptName,scriptFunc,static_cast<unsigned int>(mCurrentClipIndex),static_cast<unsigned int>(currentFrame)});
 					
 					if(isSkeleton)
 					{
@@ -510,12 +556,15 @@ namespace SliceEditor
 							Anims.SerializeAsset(targetAnimsPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
-							mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath];
+							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
 							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
 
 							newAnimsName = "";
 							targetAnimsPath = std::filesystem::current_path();
 							ImGui::CloseCurrentPopup();
+
+							if(mCurrentAnimator->curr_anims.animations.size() > 0)
+								LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 					ImGui::EndPopup();
@@ -576,7 +625,7 @@ namespace SliceEditor
 							mCurrentAnimator->curr_anims.animations.push_back(newAnim);
 							customAnimClips.push_back(newAnim);
 
-							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 							if (parentName)
 							{
 								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
@@ -588,8 +637,10 @@ namespace SliceEditor
 
 							newAnimName = "";
 							targetAnimPath = std::filesystem::current_path();
+							ImGui::CloseCurrentPopup();
+
+							LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
-						ImGui::CloseCurrentPopup();
 					}
 
 					ImGui::EndPopup();
@@ -599,7 +650,7 @@ namespace SliceEditor
 
 				if (ImGui::Button("Save"))
 				{
-					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims);
+					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 					if (animsFilePath.has_value())
 					{
 						AnimsData Anims{};
@@ -609,6 +660,15 @@ namespace SliceEditor
 					}
 
 					// also add for animations
+					for (auto& anim : mCurrentAnimator->curr_anims.animations)
+					{
+						std::string animFilePath = "Animations/" + anim.name + ".anim";
+
+						AnimData animData{};
+						animData.LoadAnimData(anim);
+
+						animData.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animFilePath);
+					}
 				}
 
 				if (clipSize == 0)
@@ -688,12 +748,10 @@ namespace SliceEditor
 				animationClipNames.push_back("No Animations");
 			}
 		}
-
 		else
 		{
 			animationClipNames.push_back("No Animations");
 		}
-
 
 		if (animationClipNames.size() == 1 && std::strcmp(animationClipNames[0].c_str(), "No Animations") == 0)
 		{
@@ -710,7 +768,16 @@ namespace SliceEditor
 
 		ImGui::EndGroup();
 
-		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame, { 0,0 }, mSequencerFlags))
+		// fixing the last element cut off byt setting the height,
+		float lineLayerHeight = 30.0f;
+		float totalHeight = mPropertyGroups.size() * 20.0f;
+		for (auto& group : mPropertyGroups) 
+		{
+			totalHeight += group.properties.size() * lineLayerHeight;
+		}
+		totalHeight += 50.0f;
+
+		if (ImGui::BeginNeoSequencer("Animation Sequencer", &currentFrame, &startFrame, &endFrame, { 0,totalHeight }, mSequencerFlags))
 		{			
 			for (auto& group : mPropertyGroups)
 			{
@@ -720,16 +787,29 @@ namespace SliceEditor
 					{
 						if (ImGui::BeginNeoTimelineEx(property.name.c_str(), &group.isOpen))
 						{
+							if (ImGui::IsItemHovered())
+							{
+								// if its a transform row
+								if (property.name.find("Position") != std::string::npos)
+								{
+									if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+									{
+										mOpenTrfOption = true;
+									}
+								}
+							}
+
+
 							for (auto& key : property.keys)
 							{
 								ImGui::NeoKeyframe(&key);
 
 								if (ImGui::IsNeoKeyframeHovered())
 								{
-									if(ImGui::IsNeoKeyframeRightClicked())
+									if (ImGui::IsNeoKeyframeRightClicked())
 									{
 										// only for animation events nibba
-										if(std::strcmp(property.name.c_str(),"Animation Event") == 0)
+										if (std::strcmp(property.name.c_str(), "Animation Event") == 0)
 										{
 											mOpenEventOption = true;
 											mCurrentKeyIndex = key;
@@ -745,17 +825,31 @@ namespace SliceEditor
 												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->eventFrames.begin(), it));
 											}
 										}
+
+										if (property.name.find("Position") != std::string::npos)
+										{
+											mOpenTrfEdit = true;
+											mCurrentKeyIndex = key;
+
+											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
+												{
+													return (x.first == static_cast<unsigned int>(key));
+												});
+
+											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), it));
+											}
+										}
+									}
 								}
-								}								
 							}
 							ImGui::EndNeoTimeLine();
 						}
 					}
-
 					ImGui::EndNeoGroup();
 				}
 			}
-
 			ImGui::EndNeoSequencer();
 		}
 
@@ -783,6 +877,49 @@ namespace SliceEditor
 					std::erase(mPropertyGroups[0].properties[0].keys, mCurrentKeyIndex);
 					//mPropertyGroups[0].properties[0].keys.erase(mPropertyGroups[0].properties[0].keys.begin() + mCurrentKeyIndex);
 					mOpenEventOption = false;
+				}
+
+				ImGui::EndPopup();
+			}
+		}
+
+		if (mOpenTrfEdit)
+		{
+			ImGui::OpenPopup("EditTrfRow_Popup");
+			if (ImGui::BeginPopup("EditTrfRow_Popup"))
+			{
+				if (ImGui::Selectable("Delete Key"))
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+
+					for (auto& propGrp : mPropertyGroups)
+					{
+						if (propGrp.name.find("Position") != std::string::npos)
+						{
+							for (auto& prop : propGrp.properties)
+							{
+								std::erase(prop.keys, mCurrentEventIndex);
+							}
+						}
+					}
+					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					mOpenTrfEdit = false;
+				}
+
+				ImGui::EndPopup();
+			}
+		}
+
+		if (mOpenTrfOption)
+		{
+			ImGui::OpenPopup("TrfRow_PopupOptions");
+			if (ImGui::BeginPopup("TrfRow_PopupOptions"))
+			{
+				if (ImGui::Selectable("Add Key"))
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					mOpenTrfOption = false;
 				}
 
 				ImGui::EndPopup();

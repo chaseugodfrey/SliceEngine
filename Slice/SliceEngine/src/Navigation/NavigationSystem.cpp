@@ -1,3 +1,20 @@
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ file:        NavigationSystem.cpp
+
+ author:	  Crystal Koh Qiao Wei
+
+ email:       k.crystalqiaowei@digipen.edu
+
+ brief:       Defines the NavigationSystem class and related structures for handling pathfinding
+			  and AI movement within the engine. This system manages the loading, rendering,
+			  and updating of Navigation Meshes (NavMesh), calculates paths, and updates
+			  NavAgent entities to navigate the environment.
+
+Copyright (C) 2025 DigiPen Institute of Technology.
+Reproduction or disclosure of this file or its contents without the prior written consent of
+DigiPen Institute of Technology is prohibited.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 #include "pch.h"
 #include "NavigationSystem.h"
 #include "../Core/Core.h"
@@ -95,7 +112,7 @@ namespace SliceEngine
 		navMeshDebugInfo = NavMeshUtilities::CreateDebugMesh(newNavMesh);
 	}
 
-	void NavigationSystem::LoadNavMeshFromFile(const std::string& filePath)
+	void NavigationSystem::LoadNavMeshFromFile(const std::string &filePath)
 	{
 		std::string path_to_load = filePath + ".bin";
 
@@ -114,7 +131,7 @@ namespace SliceEngine
 			SLICE_LOG("NavSystem: Loading specific navmesh from meta: " + path_to_load);
 		}
 
-		auto&& newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
+		auto &&newNavMesh = NavMeshUtilities::LoadNavMesh(path_to_load);
 		if (newNavMesh.has_value())
 		{
 			ClearNavMesh();
@@ -141,266 +158,102 @@ namespace SliceEngine
 	}
 	void NavigationSystem::EntityOnUpdate(entt::registry &reg, entt::entity entity, float dt)
 	{
-
-		if (!navMeshInstance)
-		{
-			//SLICE_LOG("No Nav Mesh Data detected.");
-			return;
-		}
+		if (!navMeshInstance) return;
 
 		auto &navMeshObj = navMeshInstance.value();
 		auto &agent = reg.get<NavAgent>(entity);
 		auto &transform = reg.get<Transform>(entity);
 
-		if (!agent.componentEnabled)
-			return;
+		if (!agent.componentEnabled) return;
 
-		//detourCrowd stuff
-		if (agent.crowdAgentID == -1)
+		InitializeAgent(agent, transform, navMeshObj);
+		UpdateAgentTarget(agent, navMeshObj);
+		ApplyAgentPhysics(reg, entity, agent, transform, navMeshObj);
+	}
+
+	// Initialize Detour Crowd Agent
+	void NavigationSystem::InitializeAgent(NavAgent &agent, const Transform &transform, NavMeshObj &navMeshObj)
+	{
+		if (agent.crowdAgentID != -1) return;
+
+		dtCrowdAgentParams ap;
+		memset(&ap, 0, sizeof(ap));
+		ap.radius = 1.0f;
+		ap.height = 2.0f;
+		ap.maxAcceleration = 8.0f;
+		ap.maxSpeed = agent.speed;
+		ap.collisionQueryRange = ap.radius * 12.0f;
+		ap.pathOptimizationRange = ap.radius * 30.0f;
+		ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS | DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE;
+		ap.obstacleAvoidanceType = 3;
+		ap.separationWeight = 2.0f;
+
+		float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
+		agent.crowdAgentID = navMeshObj.navMeshCrowd->addAgent(pos, &ap);
+	}
+
+	//Request New Path Target
+	void NavigationSystem::UpdateAgentTarget(NavAgent &agent, NavMeshObj &navMeshObj)
+	{
+		if (!agent.hasNewTarget || agent.crowdAgentID == -1) return;
+
+		float targetPos[3] = { agent.target.x, agent.target.y, agent.target.z };
+		float extents[3] = { 10.0f, 10.0f, 10.0f };
+		dtPolyRef targetRef;
+		float targetPosOnMesh[3];
+		dtQueryFilter filter;
+
+		navMeshObj.navMeshQuery->findNearestPoly(targetPos, extents, &filter, &targetRef, targetPosOnMesh);
+
+		if (targetRef)
 		{
-			dtCrowdAgentParams ap;
-			memset(&ap, 0, sizeof(ap));
-			ap.radius = 1.0f; // Agent Radius (Physics size)
-			ap.height = 2.0f;
-			ap.maxAcceleration = 8.0f;
-			ap.maxSpeed = agent.speed;
-			ap.collisionQueryRange = ap.radius * 12.0f;
-			ap.pathOptimizationRange = ap.radius * 30.0f;
-
-			ap.updateFlags = DT_CROWD_ANTICIPATE_TURNS | DT_CROWD_OPTIMIZE_VIS |
-				DT_CROWD_OPTIMIZE_TOPO | DT_CROWD_OBSTACLE_AVOIDANCE;
-			ap.obstacleAvoidanceType = 3;
-			ap.separationWeight = 2.0f;
-
-			float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
-			agent.crowdAgentID = navMeshObj.navMeshCrowd->addAgent(pos, &ap);
+			navMeshObj.navMeshCrowd->requestMoveTarget(agent.crowdAgentID, targetRef, targetPosOnMesh);
+			agent.hasNewTarget = false;
 		}
-		if (agent.hasNewTarget && agent.crowdAgentID != -1)
+	}
+
+	//Sync Physics & Detour Parameters
+	void NavigationSystem::ApplyAgentPhysics(entt::registry &reg, entt::entity entity, NavAgent &agent, Transform &transform, NavMeshObj &navMeshObj)
+	{
+		if (agent.crowdAgentID == -1) return;
+
+		// 1. Update Dynamic C# Parameters
+		dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
+		if (editableAg)
 		{
-			float targetPos[3] = { agent.target.x, agent.target.y, agent.target.z };
-			float extents[3] = { 10.0f, 10.0f, 10.0f };
-			dtPolyRef targetRef;
-			float targetPosOnMesh[3];
-			dtQueryFilter filter;
+			if (agent.speed <= 0.0f) agent.speed = 5.0f;
+			editableAg->params.maxSpeed = agent.speed;
+			editableAg->params.maxAcceleration = 20.0f;
+			editableAg->params.updateFlags |= DT_CROWD_SEPARATION;
+		}
 
-			// Find nearest polygon to target
-			navMeshObj.navMeshQuery->findNearestPoly(targetPos, extents, &filter, &targetRef, targetPosOnMesh);
+		// 2. Fetch Crowd Result and Apply to Physics
+		const dtCrowdAgent *ag = navMeshObj.navMeshCrowd->getAgent(agent.crowdAgentID);
+		if (ag && ag->active && ag->state == DT_CROWDAGENT_STATE_WALKING)
+		{
+			glm::vec3 desiredVel(ag->vel[0], ag->vel[1], ag->vel[2]);
 
-			if (targetRef)
+			auto rb = reg.try_get<RigidBody>(entity);
+			auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
+
+			if (rb)
 			{
-				//SLICE_LOG("Target Poly Found! Requesting move.");
-				// Tell Crowd Agent to move there
-				navMeshObj.navMeshCrowd->requestMoveTarget(agent.crowdAgentID, targetRef, targetPosOnMesh);
-				agent.hasNewTarget = false;
+				glm::vec3 currentPhysicsVel = physicsSys.GetLinearVelocity(entity);
+				JPH::Vec3 newVelocity(desiredVel.x, currentPhysicsVel.y, desiredVel.z); // Keep gravity
+				physicsSys.SetLinearVelocity(entity, newVelocity);
+
+				// Sync exact position back to crowd so it doesn't fight physics
+				float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
+				if (editableAg) memcpy(editableAg->npos, pos, sizeof(float) * 3);
 			}
 			else
 			{
-				//SLICE_LOG_ERROR("NavSystem: Could not find NavMesh polygon near target position!");
+				// Fallback if no physics attached
+				transform.position.x = ag->npos[0];
+				transform.position.y = ag->npos[1];
+				transform.position.z = ag->npos[2];
 			}
-		}
-		if (agent.crowdAgentID != -1)
-		{
-			// 1. UPDATE PARAMS FIRST
-			// Ensure C# changes (speed) propagate immediately.
-			dtCrowdAgent *editableAg = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
-			if (editableAg)
-			{
-				if (agent.speed <= 0.0f) agent.speed = 5.0f; // Safety
-				editableAg->params.maxSpeed = agent.speed;
-				editableAg->params.maxAcceleration = 20.0f; // High accel
-				// Ensure separation is enabled
-				editableAg->params.updateFlags |= DT_CROWD_SEPARATION;
-			}
-
-			// 2. READ STATE
-			const dtCrowdAgent *ag = navMeshObj.navMeshCrowd->getAgent(agent.crowdAgentID);
-			if (ag && ag->active)
-			{
-				if (ag->state == DT_CROWDAGENT_STATE_WALKING)
-				{
-					if (ag->ncorners > 0)
-					{
-						bool isNextOffMesh = (ag->cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION);
-
-						if (isNextOffMesh)
-						{
-							SLICE_LOG(std::string("Approaching OffMesh Link! Distance: {}") + std::to_string(glm::distance(transform.position, glm::vec3(ag->cornerVerts[0], ag->cornerVerts[1], ag->cornerVerts[2]))));
-						}
-					}
-					// Check if the next corner is an off-mesh connection
-					if (ag->ncorners > 0 && (ag->cornerFlags[0] & DT_STRAIGHTPATH_OFFMESH_CONNECTION))
-					{
-						// cornerVerts[0] is the Start of the link (where we are going now)
-						// cornerVerts[1] is the End of the link (where we need to jump to)
-						glm::vec3 endLinkPos(
-							ag->cornerVerts[3],
-							ag->cornerVerts[4],
-							ag->cornerVerts[5]
-						);
-
-						m_agentOffMeshTargets[agent.crowdAgentID] = endLinkPos;
-					}
-				}
-
-				// ---------------------------------------------------------
-				// 2. HANDLE OFF-MESH MOVEMENT
-				// ---------------------------------------------------------
-				if (ag->state == DT_CROWDAGENT_STATE_OFFMESH)
-				{
-					// Retrieve the cached target
-					glm::vec3 targetPos = transform.position; // Default fallback
-					if (m_agentOffMeshTargets.find(agent.crowdAgentID) != m_agentOffMeshTargets.end())
-					{
-						targetPos = m_agentOffMeshTargets[agent.crowdAgentID];
-					}
-
-					auto rb = reg.try_get<RigidBody>(entity);
-					auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
-
-					if (rb)
-					{
-						glm::vec3 currentPos = transform.position;
-						glm::vec3 dir = targetPos - currentPos;
-
-						// CHECK: Stop if we are close enough to the end
-						float dist = glm::length(dir);
-						if (dist < 0.5f)
-						{
-							// We reached the end. 
-							// DetourCrowd will automatically switch back to WALKING 
-							// once we update npos to be at the end.
-						}
-
-						// NORMALIZE THE VECTOR
-						if (dist > 0.001f)
-							dir = glm::normalize(dir);
-
-						// You might want a specific jump speed or arc here
-						float moveSpeed = 10.0f;
-
-						JPH::Vec3 newVelocity(dir.x * moveSpeed, dir.y * moveSpeed, dir.z * moveSpeed);
-						physicsSys.SetLinearVelocity(entity, newVelocity);
-
-						// Sync Physics pos back to Crowd Agent
-						float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
-						dtCrowdAgent *editableAg2 = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
-						if (editableAg2) memcpy(editableAg2->npos, pos, sizeof(float) * 3);
-					}
-					else
-					{
-						// Teleport if no physics
-						transform.position = targetPos;
-
-						// Sync immediately to complete the jump
-						float pos[3] = { targetPos.x, targetPos.y, targetPos.z };
-						dtCrowdAgent *editableAg3 = navMeshObj.navMeshCrowd->getEditableAgent(agent.crowdAgentID);
-						if (editableAg3) memcpy(editableAg3->npos, pos, sizeof(float) * 3);
-					}
-					return; // Skip standard walking update below
-				}
-
-				glm::vec3 desiredVel(ag->vel[0], ag->vel[1], ag->vel[2]);
-
-				// DEBUG: Print State and Velocity
-				// State 0: Invalid, 1: Walking, 2: Offmesh
-				// SLICE_LOG("Agent ID: {}, State: {}, Vel: ({}, {}, {}), SpeedParam: {}", 
-				//    agent.crowdAgentID, (int)ag->state, desiredVel.x, desiredVel.y, desiredVel.z, ag->params.maxSpeed);
-
-				auto rb = reg.try_get<RigidBody>(entity);
-				auto &physicsSys = SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PhysicsSystem>();
-
-
-				if (rb)
-				{
-					// 3. APPLY PHYSICS
-					glm::vec3 currentPhysicsVel = physicsSys.GetLinearVelocity(entity);
-
-					JPH::Vec3 newVelocity(
-						desiredVel.x,
-						currentPhysicsVel.y,
-						desiredVel.z
-					);
-
-					// Force wake up the body just in case
-					// physicsSys.ActivateBody(entity); // Use if available
-					physicsSys.SetLinearVelocity(entity, newVelocity);
-
-					// 4. SYNC BACK
-					float pos[3] = { transform.position.x, transform.position.y, transform.position.z };
-					if (editableAg)
-					{
-						memcpy(editableAg->npos, pos, sizeof(float) * 3);
-					}
-				}
-				else
-				{
-					// Fallback for non-physics objects
-					transform.position.x = ag->npos[0];
-					transform.position.y = ag->npos[1];
-					transform.position.z = ag->npos[2];
-				}
-			}
-			//}
-
-			//if (agent.hasNewTarget)
-			//{
-			//	SLICE_LOG_DEBUG("Agent computing path from {} to {}");
-			//	glm::vec3 start = transform.position;
-			//	glm::vec3 end = agent.target;
-
-			//	agent.currentPath.clear();
-			//	// to do : change this when we start using the nav mesh instance
-			//	//nav->FindPath(&start.x, &end.x, agent.currentPath);
-			//	if (NavMeshUtilities::FindPath(navMeshObj, &start.x, &end.x, agent.currentPath))
-			//	{
-			//		agent.hasNewTarget = false;
-			//		agent.currentPathIndex = 0;
-
-			//		// Clear old path
-			//		if (activePathDebugInfo.has_value())
-			//		{
-			//			auto &data = activePathDebugInfo.value().data;
-			//			if (data[0].vao) glDeleteVertexArrays(1, &data[0].vao);
-			//			if (data[0].vbo) glDeleteBuffers(1, &data[0].vbo);
-			//			activePathDebugInfo.reset();
-			//		}
-			//		// Create new path debug
-			//		activePathDebugInfo = std::make_optional<NavMeshDebugObj>(NavMeshUtilities::CreateDebugPathMesh(agent.currentPath));
-			//		// -----------------------------------------
-			//	}
-			//}
-
-			//if (!agent.currentPath.empty())
-			//{
-			//	glm::vec3 targetPt = agent.currentPath[agent.currentPathIndex];
-			//	glm::vec3 currentPos = transform.position;
-
-			//	glm::vec3 flatTarget(targetPt.x, 0.0f, targetPt.z);
-			//	glm::vec3 flatCurrent(currentPos.x, 0.0f, currentPos.z);
-
-			//	if (glm::distance(flatCurrent, flatTarget) < 0.01f)
-			//	{
-			//		if (glm::distance(currentPos, targetPt) < 0.15f)
-			//		{
-			//			agent.currentPathIndex++;
-			//			if (agent.currentPathIndex >= agent.currentPath.size())
-			//				agent.currentPath.clear();
-			//		}
-			//		return;
-			//	}
-
-			//	glm::vec3 dir = glm::normalize(flatTarget - flatCurrent);
-
-			//	glm::vec3 nextPos = currentPos + (dir * agent.speed * dt);
-
-			//	float height = 0.0f;
-			//	if (NavMeshUtilities::GetNavMeshHeightAtPos(navMeshObj, nextPos, height))
-			//	{
-			//		nextPos.y = height;
-			//	}
-
-			//	transform.position = nextPos;
-			//}
 		}
 	}
+
 }

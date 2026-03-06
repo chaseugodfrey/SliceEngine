@@ -567,6 +567,7 @@ namespace SliceEngine
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
 		.property("componentEnabled", &Animator::componentEnabled)
+		.property("Anims Pkg GUID", &Animator::Handle_Anims)
 		.property("eventFrames", &Animator::eventFrames);
 
 
@@ -586,8 +587,7 @@ namespace SliceEngine
 		.constructor<>()
 		.property("transition", &Button::transition)
 		.property("color_tints", &Button::color_transitions)
-		//.property("test_float", &Button::test)
-		//.property("test_float2", &Button::test2)
+		.property("sprite_state", &Button::sprite_transitions)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -598,8 +598,6 @@ namespace SliceEngine
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
 		.property("enabled", &Slider::componentEnabled);
-	//.property("colors", &Button::color_transitions)
-	//.property("sprites", &Button::sprite_transitions);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.constructor<>()
