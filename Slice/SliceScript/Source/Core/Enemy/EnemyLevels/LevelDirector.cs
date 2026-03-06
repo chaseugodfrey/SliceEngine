@@ -54,7 +54,7 @@ namespace SliceEngine
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
 
-            //Cursor.state = Cursor.STATE.DISABLED;
+            Cursor.state = Cursor.STATE.DISABLED;
 
             foreach (GameObject trigger in levelTriggers)
             {

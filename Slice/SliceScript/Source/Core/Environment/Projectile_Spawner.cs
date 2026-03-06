@@ -119,9 +119,9 @@ namespace SliceEngine
 
         private float count = 0f;
 
-        public override void OnUpdate(float dt)
+        public override void OnFixedUpdate(float dt)
         {
-            base.OnUpdate(dt);
+            base.OnFixedUpdate(dt);
 
 
             if (!active)
