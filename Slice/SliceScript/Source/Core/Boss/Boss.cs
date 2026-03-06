@@ -35,7 +35,7 @@ namespace SliceEngine
             health = new BossHealth(bossHealth);
 
 
-            List<Phase> temp = initializeAttackPatterns();
+            List<Phase> temp = initalizeStateList();
 
             phaseController = new PhaseController(healthPhasesList, temp);
             //phaseController.PhaseTrigger += HandlePhaseChange;
@@ -60,13 +60,13 @@ namespace SliceEngine
             phaseController.SetPhase(phase);
         }
 
-        public List<Phase> initializeAttackPatterns()
+        public List<Phase> initalizeStateList()
         {
             List<Phase> temp = new List<Phase>();
 
             if((stateList1.Count == 0)) 
             {
-                SliceLog.Log("Boss needs at least the first attack pattern");
+                SliceLog.Log("Boss needs at least a base state list for behaviour");
                 return temp;
             }
 
