@@ -87,6 +87,11 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
+    <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\Projectile.cs" />
+    <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
+    <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -106,8 +111,6 @@
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
     <Compile Include="Source\Core\Player\TestFixedBall.cs" />
-    <Compile Include="Source\Core\Projectile\Projectile.cs" />
-    <Compile Include="Source\Core\Projectile\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
@@ -148,8 +151,9 @@
     <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
-    <Compile Include="Source\L1ArenaSpawner.cs" />
     <Compile Include="Source\L2Controller.cs" />
+    <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
+    <Compile Include="Source\Level1\L1MovingPlatform.cs" />
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Old_Test_Player.cs" />
     <Compile Include="Source\Old_Test_Spawner.cs" />

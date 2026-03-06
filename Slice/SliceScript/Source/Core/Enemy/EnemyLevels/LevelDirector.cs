@@ -54,7 +54,7 @@ namespace SliceEngine
             //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
             //       levelTriggers.Add(trigger);
 
-            //Cursor.state = Cursor.STATE.DISABLED;
+            Cursor.state = Cursor.STATE.DISABLED;
 
             foreach (GameObject trigger in levelTriggers)
             {
@@ -271,7 +271,7 @@ namespace SliceEngine
             if (levels[currLevel].Has<BaseLevel>() && levels[currLevel].As<BaseLevel>().respawnPoint != null)
             {
                 ////SliceLog.Log("Teleporting player");
-                //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
+                Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().WorldPosition);
             }
 
         }
