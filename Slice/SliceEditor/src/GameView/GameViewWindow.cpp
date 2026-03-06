@@ -150,8 +150,12 @@ namespace SliceEditor
 
 	void GameViewWindow::UpdateGameMousePosition()
 	{
-
 		if (!mIsPlayMode)
+			return;
+
+		auto window = SliceEngine::Core::GetInstance()->GetWindow();
+
+		if (!glfwGetWindowAttrib(window, GLFW_FOCUSED))
 			return;
 
 		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
@@ -165,7 +169,6 @@ namespace SliceEditor
 		if (cursor_state == SliceEngine::CursorState::DISABLED)
 		{
 			int window_size_x, window_size_y;
-			auto window = SliceEngine::Core::GetInstance()->GetWindow();
 
 			glfwGetWindowSize(window, &window_size_x, &window_size_y);
 

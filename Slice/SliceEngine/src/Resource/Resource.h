@@ -38,6 +38,7 @@ namespace SliceEngine
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
+		constexpr uint64_t COLOR_NORMAL_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultNormalMap");
 
 		constexpr uint64_t FONT_BLANK_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFont");
 		constexpr uint64_t CSHADER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCShader");
@@ -134,7 +135,7 @@ namespace SliceEngine
 	template <>
 	struct Type<SliceEngineTypes::Material>
 	{
-		constexpr static inline uint64_t defaultResourceGUID = 10819322238111217941;
+		constexpr static inline uint64_t defaultResourceGUID = 9336273396156370476;
 
 		// for now load with file name directly
 		static std::unique_ptr<SliceEngineTypes::Material> Load(ResourceManager& resourceMgr, const std::string& path);

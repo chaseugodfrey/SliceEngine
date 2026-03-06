@@ -36,6 +36,7 @@ namespace SliceEngine
 		void CreateInstancingParams();
 		void CreateDeferredTextures();
 		void RegenerateSkybox();
+		void Update(float dt);
 		// Camera related functions
 		GameObject CreateCamera();
 		GameObject CreatePrefabCam();
@@ -77,6 +78,15 @@ namespace SliceEngine
 		// Colors
 		glm::vec4 mNavMeshDebugColor_Base{ 0.f, 0.f, 0.7f, 0.4f };
 		glm::vec4 mNavMeshDebugColor_Bounds{ 0.f, 0.2f, 0.25f, 0.85f };
+		// Light Textures (I expose them :p)
+		GLuint mDirLightDepthMaps{};
+		GLuint mShadowCubeMapArr{};
+		GLuint SkyboxIrradianceMap{};
+		int numLightsFound{};
+		float mainDirLightFar{};
+		#define mMaxPointLights 10
+		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
+		const float shadowCascadeLevels[4]{ 40.f, 15.f, 6.f, 2.4f };
 
 	private:
 		const float mBloomFilterMult = 0.001f;
@@ -84,7 +94,7 @@ namespace SliceEngine
 		const float mExposureMult = 0.1f;
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
-		const float mZBufferShadow = 175.f;
+		const float mZBufferShadow = 400.f;
 		const float mMinShadowSize = 20.f;
 		//const float zeroFiller[4]{ 0.f,0.f,0.f,0.f };
 		//const float oneFiller[4]{ 1.f,1.f,1.f,1.f };
@@ -92,8 +102,8 @@ namespace SliceEngine
 		const int mSkyboxIrrDim = 32;
 		const int mSkyboxDim = 1024;
 
-		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
-		const float shadowCascadeLevels[4] {50.f, 25.f, 10.f, 2.f};
+		const unsigned int DIRECTIONAL_SHADOW_DIMENSION = 512;
+		const unsigned int SHADOW_DIMENSION = 512;
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -117,7 +127,7 @@ namespace SliceEngine
 		enum FBOType : unsigned char
 		{
 			FB_NIL = 0,		// 0 Outs
-			FB_DEFERRED,	// 4 Outs
+			FB_DEFERRED,	// 5 Outs
 			FB_FINAL,		// 1 Out
 			FB_TOTAL		// NO BIND
 		};
@@ -180,6 +190,7 @@ namespace SliceEngine
 			GOUT_NOM,
 			GOUT_ID,
 			GOUT_ROUGH_METAL,
+			GOUT_EMISSION,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
 			GOUT_FINAL,
@@ -216,10 +227,21 @@ namespace SliceEngine
 			COLOR_ONLY,
 			ALL
 		};
+		struct LightDat
+		{
+			glm::vec3 pos;
+			//float hasShadow;
+			float uFarPlane;
+			glm::vec3 dir;
+			int type;
+			glm::vec4 col;
+			//glm::vec3 padding;
+		};
 #pragma endregion
 		FBOType mCurrFBO{ FB_TOTAL };
 		GLuint mFBO[FB_TOTAL]{};	// For drawing the scene onto a texture
 		GLuint mShadowUBO;
+		GLuint mLightUBO;
 		//GLuint mRBO;
 		GLuint pboIds[2]{};	// For Object Picking
 		GLuint pboIdx[2]{};
@@ -228,12 +250,14 @@ namespace SliceEngine
 		Entity mCurrentCamIDHover{};
 		unsigned int mIDHovered{};
 
+		LightDat lightData[mMaxPointLights + 1]{};
+
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<std::string, GLuint> mCurrShader;
 		RenderCmdManager renderQueue;
 
 		GLuint SkyboxMap{};
-		GLuint SkyboxIrradianceMap{};
+
 		GLuint mColAttachment[GOUT_TOTAL]{};
 		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;

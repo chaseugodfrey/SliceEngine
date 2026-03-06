@@ -95,6 +95,7 @@ namespace SliceEditor
 			{".gif", SelectionType::TEXTURE},
 			{".obj", SelectionType::MODEL},
 			{".fbx", SelectionType::MODEL},
+			{".glb", SelectionType::MODEL},
 			{".wav", SelectionType::AUDIO},
 			{".mp3", SelectionType::AUDIO},
 			{".ogg", SelectionType::AUDIO},
