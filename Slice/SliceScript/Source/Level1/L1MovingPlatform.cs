@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace SliceEngine
 {
-    public class MovingPlatform : SliceBehaviour
+    public class L1MovingPlatform : SliceBehaviour
     {
         public Transform go;
 
@@ -153,9 +153,21 @@ namespace SliceEngine
             {
                 if (other == Bootstrap.Player.gameObject.mID)
                 {
-                    isMoving = true;
+                    isMoving = true;                    
                 }
-            }            
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (isMoveOnContactWithPlayer)
+            {
+                if (other == Bootstrap.Player.gameObject.mID)
+                {
+                    isMoving = true;
+                    // need to set the player parent to the platform
+                }
+            }
         }
     }
 }
