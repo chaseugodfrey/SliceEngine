@@ -165,18 +165,27 @@ namespace SliceEngine
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
 				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
-				
-				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
-
-				if (ptx.colour.a > 0.999f)
+				SliceEngineTypes::Material tempMat;
+				tempMat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+				tempMat.color = ptx.colour;
+				for (auto& i : tempMat.shader.get()->dataIn)
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
-					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+					if (i.name == "texCol") // --TODO-- FR a temporary fix, plz change to material based
+						tempMat.data[i.name] = ptx.textureID;
+					else
+						tempMat.data[i.name] = i.baseData;
 				}
-				else
+
+				uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->s);
+				RCK_Size key =
+					(static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset) |
+					(static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
+				if (ptx.colour.a > 0.999f)
+					key = key | MRCK_OPAQUE;
+				else 
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
-					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+					tempMat.isTranslucent = true;
+					key = key | MRCK_TRANSCLUCENT;
 				}
 
 				BasicIDat data;
@@ -184,19 +193,22 @@ namespace SliceEngine
 				SetColor(data, ptx.colour);
 				//data.blank = GetTextureDetails(ptx.textureID);
 				data.entityID = 0;
-
+				
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
 				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, &tempMat);
 					translucentCmds.emplace_back(tc);
 				}
 				else
 				{
 					SetAlpha(data, 1.f);
 					// --TODO--
-					renderCmds[key].base.push_back(std::move(data));
+					AppendRenderCmd(renderCmds[key], data, &tempMat);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
 				}
 			}
 			else 
