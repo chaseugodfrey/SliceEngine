@@ -12,7 +12,7 @@ namespace SliceEngine
         //Classes handling different responsibility
         private BossHealth health;
         private PhaseController phaseController;
-        private AttackSetManager attackSetManager;
+        //private AttackSetManager attackSetManager;
 
         //Just some variables to set in the editor for the boss
         public float bossHealth = 10f;
@@ -35,19 +35,21 @@ namespace SliceEngine
         public override void OnCreate()
         {
             health = new BossHealth(bossHealth);
-            phaseController = new PhaseController(healthPhasesList);
-            phaseController.PhaseTrigger += HandlePhaseChange;
+
 
             List<Phase> temp = initializeAttackPatterns();
 
-            attackSetManager = new AttackSetManager(temp, healthPhasesList.Count);
+            phaseController = new PhaseController(healthPhasesList, temp);
+            //phaseController.PhaseTrigger += HandlePhaseChange;
+
+            //attackSetManager = new AttackSetManager(temp, healthPhasesList.Count);
 
             phaseController.StartFirstPhase();
         }
         public override void OnUpdate(float dt)
         {
-            phaseController.UpdatePhases(health.PercentageHealth());
-            attackSetManager.Update(dt);
+            phaseController.UpdateActivePhase(health.PercentageHealth());
+            phaseController.Update(dt);
             //if health below zero play death animation then delete entity?
 
 
@@ -57,7 +59,7 @@ namespace SliceEngine
         {
             //SliceLog.Log("Phase changed to " + phase);
             //uh ill think of how to do the attack manager might not need it
-            attackSetManager.SetPhase(phase);
+            phaseController.SetPhase(phase);
         }
 
         public List<Phase> initializeAttackPatterns()
