@@ -35,7 +35,7 @@ namespace SliceEngine
             health = new BossHealth(bossHealth);
 
 
-            List<Phase> temp = initalizeStateList();
+            List<Phase> temp = InitalizeStateList();
 
             phaseController = new PhaseController(healthPhasesList, temp);
             //phaseController.PhaseTrigger += HandlePhaseChange;
