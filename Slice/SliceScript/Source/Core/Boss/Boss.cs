@@ -80,9 +80,9 @@ namespace SliceEngine
             {
                 temp.Add(new Phase(stateList3, gameObject.mID, player.mID));
             }
-            if (!(stateList3.Count == 0))
+            if (!(stateList4.Count == 0))
             {
-                temp.Add(new Phase(stateList3, gameObject.mID, player.mID));
+                temp.Add(new Phase(stateList4, gameObject.mID, player.mID));
             }
 
             return temp;
