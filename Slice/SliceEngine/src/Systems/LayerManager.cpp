@@ -84,7 +84,7 @@ namespace SliceEngine
 
 		for (auto entity : view)
 		{
-			SetDefaultLayer(name, entity); // change to default but remove the layer
+			SetDefaultLayer(entity); // change to default but remove the layer
 		}
 
 		// inform jolt that this layer is gone so set its mask to 0
@@ -272,7 +272,7 @@ namespace SliceEngine
 	}
 
 	//rework change all to default layer instead of removing entirely
-	void LayerManager::SetDefaultLayer(std::string name, Entity entity)
+	void LayerManager::SetDefaultLayer(Entity entity)
 	{
 		auto entityGO = FactoryInstance.GetGOByEntity(entity);
 
@@ -295,7 +295,7 @@ namespace SliceEngine
 		//check if it is a physics body to update jolt body layer
 		if (entityGO.HasComponent<ColliderShape>())
 		{
-			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer[name]);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer["Default"]);
 		}
 
 	}
