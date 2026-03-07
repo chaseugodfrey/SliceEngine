@@ -40,7 +40,7 @@ namespace SliceEngine
 	void AnimatorSystem::UpdateAnimation(entt::registry& reg, entt::entity entity, Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
-		if (!animator.IsValid())
+		if (!animator.Handle_stateMachine.IsValid())
 		{
 			InitAnimatorEntity(reg, entity);
 		}
@@ -80,7 +80,7 @@ namespace SliceEngine
 		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
-			if (animator.is_bone) {
+			if (animator.Handle_skeleton.IsValid()) {
 				if(animator.curr_anim_pkg.animations.size() > 0)
 				{
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
@@ -220,7 +220,7 @@ namespace SliceEngine
 		{
 			Animator& animator = core->GetRegistry().get<Animator>(entity); 
 			
-			if (!animator.IsValid()) return;
+			if (!animator.Handle_stateMachine.IsValid()) return;
 
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 

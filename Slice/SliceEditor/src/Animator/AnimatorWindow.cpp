@@ -123,6 +123,7 @@ namespace SliceEditor
 			// if anim exists
 			if (anim)
 			{
+				tmpEnt = entity;
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
@@ -304,6 +305,8 @@ namespace SliceEditor
 		{
 			if (!mAnimatorData->empty())
 			{
+				bool shouldOpenModal = false;
+
 				//// Check for inputs for popups
 				/*for (auto& [id, node] : mAnimatorData->mStateNodes)
 				{
@@ -353,7 +356,33 @@ namespace SliceEditor
 				{
 					if (ImGui::Selectable("Create Node"))
 					{
+						/*static bool openCreateNode = true;*/
+						shouldOpenModal = true;
+					}
 
+					ImGui::EndPopup();
+				}
+
+				if (shouldOpenModal)
+				{
+					ImGui::OpenPopup("CreateNewNodeEditor_Popup");
+				}
+
+				if (ImGui::BeginPopupModal("CreateNewNodeEditor_Popup", nullptr))
+				{
+					static std::string createNode = "";
+					if (StringInputHeader(mRegistry, "State Name: ", "##newNodeAdd", createNode))
+					{
+
+					}
+
+					if (ImGui::Button("Add"))
+					{
+
+						CreateNode(createNode);
+
+						createNode = "";
+						ImGui::CloseCurrentPopup();
 					}
 
 					ImGui::EndPopup();
@@ -510,6 +539,9 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+
+
+		
 	}
 
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
@@ -582,10 +614,13 @@ namespace SliceEditor
 		mAnimatorData = nullptr;
 	}
 
-	void AnimatorWindow::CreateNode()
+	void AnimatorWindow::CreateNode(std::string newName)
 	{
-		mAnimatorData->create_state();
-		CheckForAnimator();
+		mAnimatorData->create_state(newName);
+
+		//auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+		//LoadDataFromAnimator(anim, tmpEnt);
+		//CheckForAnimator();
 	}
 
 	void AnimatorWindow::DeleteNode(uint16_t id)
