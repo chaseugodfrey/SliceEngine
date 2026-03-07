@@ -72,6 +72,9 @@
                 "followTransformRotation": true,
                 "friction": 0.5,
                 "gForce": 25.0,
+                "glow": false,
+                "glowIntensity": 2.700000047683716,
+                "glowValueType": 0,
                 "hasCollision": false,
                 "initialLifetimeType": 1,
                 "initialRotationType": 0,
@@ -81,6 +84,7 @@
                 "materialHandle": {
                     "GUID": "9336273396156370476"
                 },
+                "maxGlowIntensity": 0.0,
                 "maxParticleLifetime": 0.5,
                 "maxParticles": 100,
                 "maxRandomColour": [
@@ -101,6 +105,7 @@
                     0.0
                 ],
                 "maxRandomSpeed": 15.0,
+                "minGlowIntensity": 0.0,
                 "minParticleLifetime": 0.20000000298023224,
                 "minRandomColour": [
                     0.0,
@@ -255,12 +260,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 1048587,
                 "neighbours": [
                     0,
                     4294967295,
-                    4,
-                    11
+                    1048580,
+                    1048588
                 ]
             },
             "struct SliceEngine::SliceEntity": {
