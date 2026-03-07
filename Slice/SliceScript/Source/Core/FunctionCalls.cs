@@ -495,6 +495,32 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetSpeedMax(uint entityID, ref float maxSpeed);
 
+        // Post processing effects
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetGlow(uint entityID, out bool hasGLow);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetGlow(uint entityID, ref bool hasGlow);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetGlowIntensity(uint entityID, out float glowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetGlowIntensity(uint entityID, ref float glowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMinGlowIntensity(uint entityID, out float minGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMinGlowIntensity(uint entityID, ref float minGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMaxGlowIntensity(uint entityID, out float maxGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMaxGlowIntensity(uint entityID, ref float maxGlowIntensity);
+
         // Misc
 
         [MethodImpl(MethodImplOptions.InternalCall)]
