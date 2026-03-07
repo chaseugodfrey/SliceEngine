@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <random>
 #include "Systems/ParticleSystemManager.h"
+#include <Systems/LayerManager.h>
 #include "../Graphics/RenderManager.h"
 #include "../Graphics/CameraSystem.h"
 #include "../Serializer/JSONSerializer.h"
@@ -603,8 +604,10 @@ namespace SliceEngine
 
 		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false))
-		{			
+		auto core = SliceEngine::Core::GetInstance();
+		auto layer_manager = core->GetLayerManager();
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetMask(ps.particleLayer)))
+		{
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal
 			float upDot = glm::dot(n, glm::vec3(0, 1, 0)); // normal vs world up
