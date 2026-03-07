@@ -200,7 +200,7 @@ namespace SliceEngine
 		void SetNewSceneGraphLocation(Entity targetEntity, Entity leftEntity, Entity rightEntity);
 		void BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map);
 		void ClearGameObjects();
-		void UpdateTransformFromParent(Entity entity, Entity parent);
+		void UpdateTransformFromParent(Entity entity, Entity parent, Entity oldParent = entt::null);
 
 		bool CheckValidName(Entity entity);
 

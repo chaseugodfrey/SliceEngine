@@ -532,19 +532,33 @@ namespace SliceEngine
 		//++parent_scene_graph.child_count;
 		scene_graph.neighbours[SceneGraph::UP] = new_parent;
 
-		UpdateTransformFromParent(entity, new_parent);
+		UpdateTransformFromParent(entity, new_parent, prev_parent_entity);
 		return true;
 	}
 
-	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
+	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent, Entity oldParent)
 	{
+		if (!mRegistry.any_of<Transform>(entity) || !mRegistry.any_of<Transform>(parent))
+			return;
+
 		auto& tr = mRegistry.get<Transform>(entity);
 		auto& tr_par = mRegistry.get<Transform>(parent);
 
 		// Build the world transform matrix from the current position/rotation/scale
-		glm::mat4 worldTransform = glm::translate(glm::mat4(1.0f), tr.position) *
+		glm::mat4 localTransform = glm::translate(glm::mat4(1.0f), tr.position) *
 			glm::mat4_cast(tr.rotation) *
 			glm::scale(glm::mat4(1.0f), tr.scale);
+
+		glm::mat4 worldTransform;
+		if (oldParent != entt::null && mRegistry.any_of<Transform>(oldParent))
+		{
+			auto& tr_old_par = mRegistry.get<Transform>(oldParent);
+			worldTransform = tr_old_par.transform * localTransform;
+		}
+		else
+		{
+			worldTransform = localTransform;
+		}
 
 		// Convert world transform to local space relative to parent
 		auto mat = glm::inverse(tr_par.transform) * worldTransform;
