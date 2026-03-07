@@ -614,7 +614,7 @@ namespace SliceEngine
 		//Any more edge cases?
 	}
 
-	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
+	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent, Entity oldParent)
 	{
 		if (!mRegistry.any_of<Transform>(entity) || !mRegistry.any_of<Transform>(parent))
 			return;
