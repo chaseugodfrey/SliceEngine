@@ -536,7 +536,85 @@ namespace SliceEngine
 		return true;
 	}
 
-	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent, Entity oldParent)
+	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity, Entity parentEntity)
+	{
+
+		if (isDescendant(targetEntity, rightEntity))
+		{
+			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
+			return;
+		}
+
+		if (targetEntity == leftEntity)
+		{
+			SLICE_LOG_WARNING("Not changing SceneGraph at all");
+			return;
+		}
+		
+		//I think i can call SetParent here. Wait wtf i dont have the parent. NVM i have it now.
+		SetParent(targetEntity, parentEntity);
+
+		//Remove it from its current position no longer needed.
+		SceneGraphDelete(targetEntity);
+		auto& movedSceneGraph = mRegistry.get<SceneGraph>(targetEntity);
+
+		//It is the left most entity (Need to update parent's down and right's left)
+		if (leftEntity == entt::null)
+		{
+			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
+			//Check if parent is rootNode
+			if (destRightGraph.neighbours[SceneGraph::UP] == GetRootEntity())
+			{
+				//Update rootNode's down to target entity
+				mRegistry.get<SceneGraph>(GetRootEntity()).neighbours[SceneGraph::DOWN] = targetEntity;
+			}
+			else
+			{
+				auto& destRightParentGraph = mRegistry.get<SceneGraph>(destRightGraph.neighbours[SceneGraph::UP]);
+				//Update parent's down to target entity
+				destRightParentGraph.neighbours[SceneGraph::DOWN] = targetEntity;
+			}
+			//Update right entity's left to target entity
+			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
+
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destRightGraph.neighbours[SceneGraph::UP];
+		}
+
+		//It is the right most entity (Need to update left's right)
+		else if (rightEntity == entt::null)
+		{
+			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
+			//Update left entity's right to target entity
+			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
+
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
+		}
+		//It is between two entities
+		else
+		{
+			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
+			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
+
+			//Update right entity's left to target entity
+			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
+			//Update left entity's right to target entity
+			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
+
+			//Update the target entity itself (Remember to update its up too)
+			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
+			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
+			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
+		}
+
+		//Any more edge cases?
+	}
+
+	void GOFactory::UpdateTransformFromParent(Entity entity, Entity parent)
 	{
 		if (!mRegistry.any_of<Transform>(entity) || !mRegistry.any_of<Transform>(parent))
 			return;
@@ -593,81 +671,7 @@ namespace SliceEngine
 	}
 
 
-	void GOFactory::SetNewSceneGraphLocation(Entity targetEntity, Entity rightEntity, Entity leftEntity)
-	{
-
-		if (isDescendant(targetEntity, rightEntity))
-		{
-			SLICE_LOG_ERROR("Trying to set parent to a descendant entity, do not do it");
-			return;
-		}
-
-		if (targetEntity == leftEntity)
-		{
-			SLICE_LOG_WARNING("Not changing SceneGraph at all");
-			return;
-		}
-		//Remove it from its current position
-		SceneGraphDelete(targetEntity);
-
-		//Add it to the new position
-		auto& movedSceneGraph = mRegistry.get<SceneGraph>(targetEntity);
-		
-		//It is the left most entity (Need to update parent's down and right's left)
-		if (leftEntity == entt::null)
-		{
-			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
-			//Check if parent is rootNode
-			if(destRightGraph.neighbours[SceneGraph::UP] == GetRootEntity())
-			{
-				//Update rootNode's down to target entity
-				mRegistry.get<SceneGraph>(GetRootEntity()).neighbours[SceneGraph::DOWN] = targetEntity;
-			}
-			else
-			{
-				auto& destRightParentGraph = mRegistry.get<SceneGraph>(destRightGraph.neighbours[SceneGraph::UP]);
-				//Update parent's down to target entity
-				destRightParentGraph.neighbours[SceneGraph::DOWN] = targetEntity;
-			}
-			//Update right entity's left to target entity
-			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
-
-			//Update the target entity itself (Remember to update its up too)
-			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
-			movedSceneGraph.neighbours[SceneGraph::LEFT] = entt::null;
-			movedSceneGraph.neighbours[SceneGraph::UP] = destRightGraph.neighbours[SceneGraph::UP];
-		}
-
-		//It is the right most entity (Need to update left's right)
-		else if(rightEntity == entt::null)
-		{
-			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
-			//Update left entity's right to target entity
-			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
-
-			//Update the target entity itself (Remember to update its up too)
-			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
-			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
-		}
-		//It is between two entities
-		else
-		{
-			auto& destRightGraph = mRegistry.get<SceneGraph>(rightEntity);
-			auto& destLeftGraph = mRegistry.get<SceneGraph>(leftEntity);
-
-			//Update right entity's left to target entity
-			destRightGraph.neighbours[SceneGraph::LEFT] = targetEntity;
-			//Update left entity's right to target entity
-			destLeftGraph.neighbours[SceneGraph::RIGHT] = targetEntity;
-
-			//Update the target entity itself (Remember to update its up too)
-			movedSceneGraph.neighbours[SceneGraph::RIGHT] = rightEntity;
-			movedSceneGraph.neighbours[SceneGraph::LEFT] = leftEntity;
-			movedSceneGraph.neighbours[SceneGraph::UP] = destLeftGraph.neighbours[SceneGraph::UP];
-		}
-		
-		//Any more edge cases?
-	}
+	
 
 	void GOFactory::BuildSceneGraph(std::unordered_map<uint32_t, uint32_t> map)
 	{
