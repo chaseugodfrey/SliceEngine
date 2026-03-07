@@ -215,7 +215,7 @@ namespace SliceEngine
                     break;
 
 
-                    this.transform.LookAt(Bootstrap.Player.transform.Position, this.transform.Up);
+                    this.transform.LookAt(Bootstrap.Player.transform.Position, new Vector3(0,1,0));
 
                     if (count >= 1f / projPerSecond)
                     {
