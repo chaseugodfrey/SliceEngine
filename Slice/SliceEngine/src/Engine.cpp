@@ -300,6 +300,15 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("cloudsHeight", &Camera::cloudsHeight)
+		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
+		.property("cloudsIntensity", &Camera::cloudsIntensity)
+		.property("cloudsSmoothness", &Camera::cloudsSmoothness)
+		.property("cloudsCutoff", &Camera::cloudsCutoff)
+		.property("cloudsSecondOffset", &Camera::cloudsSecondCloudOffset)
+		.property("cloudsAmplitute", &Camera::cloudsSecondCloudAmplitude)
+		.property("cloudsIntensity", &Camera::cloudsSecondCloudIntensity)
+		.property("cloudsSmoothness", &Camera::cloudsSecondCloudSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("componentEnabled", &Camera::componentEnabled);
 
@@ -329,7 +338,8 @@ namespace SliceEngine
 			);
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
-			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			rttr::value("Overlay", Canvas::Type::OVERLAY),
+			rttr::value("World Space", Canvas::Type::WORLD)
 			);
 	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
 		(
@@ -423,10 +433,10 @@ namespace SliceEngine
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
 			);
 
-	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
+	rttr::registration::enumeration<ParticleSystem::RenderMode>(typeid(ParticleSystem::RenderMode).name())
 		(
-			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
-			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
+			rttr::value("BILLBOARD", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("MESH", ParticleSystem::RenderMode::MESH)
 			);
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
@@ -517,8 +527,15 @@ namespace SliceEngine
 		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
 		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
 
+		.property("glowValueType", &ParticleSystem::glowValueType)
+		.property("glow", &ParticleSystem::glow)
+		.property("glowIntensity", &ParticleSystem::glowIntensity)
+		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
+		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
+
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
+		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
@@ -558,6 +575,7 @@ namespace SliceEngine
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
 		.property("componentEnabled", &Animator::componentEnabled)
+		.property("Anims Pkg GUID", &Animator::Handle_Anims)
 		.property("eventFrames", &Animator::eventFrames);
 
 
@@ -577,8 +595,7 @@ namespace SliceEngine
 		.constructor<>()
 		.property("transition", &Button::transition)
 		.property("color_tints", &Button::color_transitions)
-		//.property("test_float", &Button::test)
-		//.property("test_float2", &Button::test2)
+		.property("sprite_state", &Button::sprite_transitions)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -589,8 +606,6 @@ namespace SliceEngine
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
 		.property("enabled", &Slider::componentEnabled);
-	//.property("colors", &Button::color_transitions)
-	//.property("sprites", &Button::sprite_transitions);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.constructor<>()
@@ -846,6 +861,10 @@ namespace SliceEngine
 			OnPlayStarted();
 		}
 
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		frm->EndSystem("Canvas");
+
 		// regular transform update
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
@@ -853,11 +872,6 @@ namespace SliceEngine
 		prefabSys.UpdateBasePrefabs(); 
 		frm->EndSystem("Transform");
 
-		// i shifted this to the end cause UI usually updates last(?) i think
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		sCanvas.ConstructWorldCanvas();
-		frm->EndSystem("Canvas");
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
 		frm->StartSystem("Particle System");
@@ -989,7 +1003,7 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			// sync matrices after physics
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-			sTransform.UpdateTransforms();
+		//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
 			// animation after logic and physics

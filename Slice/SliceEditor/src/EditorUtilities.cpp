@@ -342,7 +342,7 @@ namespace SliceEditor
 			else
 			{
 				auto& destSceneGraph = factory.GetGOByEntity(destination).GetComponent<SliceEngine::SceneGraph>();
-				factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT]);
+				factory.SetNewSceneGraphLocation(target, destination, destSceneGraph.neighbours[SliceEngine::SceneGraph::LEFT], destSceneGraph.neighbours[SliceEngine::SceneGraph::UP]);
 
 				if (history)
 				{

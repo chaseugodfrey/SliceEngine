@@ -59,6 +59,7 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::CAPSULE_DEFAULT] = std::to_string(DefaultResourceIDs::CAPSULE_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::CYLINDER_DEFAULT] = std::to_string(DefaultResourceIDs::CYLINDER_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::QUAD_DEFAULT] = std::to_string(DefaultResourceIDs::QUAD_DEFAULT);
+		mGUIDToResource[(GUID)DefaultResourceIDs::PLANE_DEFAULT] = std::to_string(DefaultResourceIDs::PLANE_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FRUSTRUM_DEFAULT] = std::to_string(DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::LINE_DEFAULT] = std::to_string(DefaultResourceIDs::LINE_DEFAULT);
 		

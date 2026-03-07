@@ -624,6 +624,7 @@ uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
+uniform float skyboxLightingPower = 1.0f;
 
 )"};
 			std::string fragStart{
@@ -739,7 +740,7 @@ void main(void){
 	{
 		nom = normalize(nom);
 
-        vec3 skyAmbient = texture(uSkyboxTex, nom).rgb;
+        vec3 skyAmbient = texture(uSkyboxTex, nom).rgb * skyboxLightingPower;
         fFragColor = vec4(dif.rgb * skyAmbient + emission, dif.a);
 
         // Copies lighting_Frag code
@@ -798,7 +799,7 @@ void main(void){
     {
         fFragColor = dif + vec4(emission, 0.0f);
     }
-	}
+}
 
 
 float GgxDistribution(float nDotH, float rough)

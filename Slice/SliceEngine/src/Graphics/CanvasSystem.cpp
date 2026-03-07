@@ -117,7 +117,9 @@ namespace SliceEngine {
 		glDeleteFramebuffers(1, &fbo);
 		CheckGLError();
 	}
-
+	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
+		return world_space_ui;
+	}
 	void CanvasSystem::UpdateHierachy() {
 		//list of pair of entity and what type of rendering - split into 2 funcs for now
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
@@ -129,9 +131,10 @@ namespace SliceEngine {
 		empty.final_height = target_height; empty.final_width = target_width;
 		empty.width = 0; empty.height = 0;
 
+		world_space_ui.clear();
 		for (auto entity : view) {
-			auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */canvas, empty, entity);
+			//auto const& canvas = mRegistry->get<Canvas>(entity);
+			get_child_ui(/*entities_to_draw, */entity, entity, entity);
 		}
 	}
 
@@ -171,17 +174,6 @@ namespace SliceEngine {
 
 		//clear the raycast buffer to entt null
 
-		/*
-		* Things to note:
-		* currently only the last camera that was added in scene view is used as camera,(GameViewWindow.cpp)
-		* this camera is the very first entity within the view(idk why its a stack)
-		*
-		* the camera that is used for editor is accessed via scene camera (SceneViewWindow.cpp)
-		* 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(go.GetEntity());
-				camObj = std::make_unique<SceneCamera>(go.GetEntity(), go, cam);
-		*
-		* for now just draw game camera, deal with scene view later
-		*/
 		auto core = SliceEngine::Core::GetInstance();
 
 		auto const& cam_sys = core->GetSystem<CameraSystem>();
@@ -250,10 +242,6 @@ namespace SliceEngine {
 		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-
-	void CanvasSystem::ConstructWorldCanvas() {
-		
 	}
 
 	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
@@ -455,47 +443,6 @@ namespace SliceEngine {
 
 					y_pen -= font_render.line_spacing * font_render.font_size;
 				}
-				/*
-				for (char ch : font_render.text) {
-					SliceEngineTypes::GlyphData const& glyph = font->glyph_datas.at(ch);
-
-					float x = x_pen + glyph.xoff * relative_scale;
-					float y = y_pen - glyph.yoff * relative_scale;
-					float w = glyph.w * relative_scale;
-					float h = glyph.h * relative_scale;
-
-					x_pen += glyph.advance * relative_scale;
-
-					if (w == 0) {
-						continue;
-					}
-
-					RectTransform temp_rect;
-					temp_rect.final_width = w;
-					temp_rect.final_height = h;
-					temp_rect.final_x = x;
-					temp_rect.final_y = y;
-
-					Font_Instance instance_data;
-
-					instance_data.model_to_ndc = temp_rect.ToMatrix();
-					SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
-					instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
-					//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
-					font_Instances[instance_count] = instance_data;
-					++instance_count;
-
-					if (instance_count >= Font_Max_Instance) {
-						glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * Font_Max_Instance, font_Instances);
-						CheckGLError();
-						glDrawElementsInstanced(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr, Font_Max_Instance);
-						CheckGLError();
-						instance_count = 0;
-					}
-				}
-				*/
-				//glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				//CheckGLError();
 
 				if (instance_count) {
 					glNamedBufferSubData(font_ssbo, 0, sizeof(Font_Instance) * instance_count, font_Instances);
@@ -615,7 +562,7 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Canvas const& ctx, RectTransform const& parent, Entity node) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node) {
 		/*
 		*	assumptions
 		*	all children have rect transform
@@ -625,20 +572,44 @@ namespace SliceEngine {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
-		rect.Update(ctx, parent);
+		auto const& p_rect = mRegistry->get<RectTransform>(parent);
+		rect.Update(p_rect);	//get position of rect relative to parent
+
+		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
+		if (ctx.canvas_type == Canvas::WORLD && node != parent) {
+			//update world pos?
+			//rotation of child is always 0
+			//scale of child is relative to immediate parent
+			//pos of child is child - parent
+			auto& c_tform = mRegistry->get<Transform>(node);
+			auto& p_tform = mRegistry->get<Transform>(parent);
+
+			c_tform.rotation = glm::identity<glm::quat>();
+			c_tform.eulerAnglesHint = glm::vec3();
+			c_tform.scale.x = rect.final_width / p_rect.final_width; 
+			c_tform.scale.y = rect.final_height / p_rect.final_height; 
+			c_tform.scale.z = 1.f;
+			c_tform.position.x = rect.final_x - p_rect.final_x;
+			c_tform.position.y = rect.final_y - p_rect.final_y;
+			c_tform.position.z = 0.f;
+
+			if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
+				world_space_ui.insert(node);
+			}
+		}
 
 
 		if (auto scene_graph = mRegistry->try_get<SceneGraph>(node)) {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */ctx, rect, child);
+				get_child_ui(/*entities_to_draw, */canvas_entity, node, child);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
 	}
 
-	glm::mat4 RectTransform::ToMatrix() const {
+	glm::mat4 RectTransform::ToMatrix() const noexcept {
 		return {
 			{final_width, 0.f, 0.f, 0.f},
 			{0.f, final_height, 0.f, 0.f},
@@ -646,7 +617,7 @@ namespace SliceEngine {
 			{final_x, final_y, 0.f, 1.f}
 		};
 	}
-	void RectTransform::Update(Canvas const& ctx, RectTransform const& parent) {
+	void RectTransform::Update(RectTransform const& parent) {
 		const float parent_x = parent.final_x;
 		const float parent_y = parent.final_y;
 		const float parent_width = parent.final_width;
@@ -656,13 +627,6 @@ namespace SliceEngine {
 
 		const float parent_left = parent_x - half_width;
 		const float parent_right = parent_x + half_width;
-
-		//if (old_hori != hori_pivot) {
-		//	old_hori = hori_pivot;
-		//}
-		//if (old_vert != vert_pivot) {
-		//	old_vert = vert_pivot;
-		//}
 
 		if (hori_pivot == HoriPivot::STRETCH_H) {
 			const float left_ref = parent_left + left;	//apply left pad
