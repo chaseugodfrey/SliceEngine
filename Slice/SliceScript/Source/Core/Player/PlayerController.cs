@@ -112,7 +112,7 @@ namespace SliceEngine
 
         public float fallTimeThreshold = 0.25f;
         float fallTimeTimer = 0.0f;
-        public float fallSpeed = 20.0f;
+        public float fallSpeed = 20.0f; //Not used
 
         // Movement
         Vector3 input;
