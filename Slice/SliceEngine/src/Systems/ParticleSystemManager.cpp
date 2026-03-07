@@ -12,6 +12,7 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include <random>
 #include "Systems/ParticleSystemManager.h"
+#include <Systems/LayerManager.h>
 #include "../Graphics/RenderManager.h"
 #include "../Graphics/CameraSystem.h"
 #include "../Serializer/JSONSerializer.h"
@@ -112,9 +113,10 @@ namespace SliceEngine
 		{
 			ps.renderData.reserve(ps.maxParticles);
 		}
-		catch (const std::bad_alloc&) 
+		catch (const std::bad_alloc& e) 
 		{
-			std::cerr << "Allocation failed!" << std::endl;
+			SLICE_LOG_ERROR("Particle System allocation failed:");
+			SLICE_LOG_ERROR(e.what());
 		}
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
@@ -243,8 +245,7 @@ namespace SliceEngine
 			// particle rotation
 			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
 
-			// combine rotations if face camera
-			
+			// combine rotations if face camera			
 			glm::quat baseRot = particleRot;
 			
 			// Rotation over time
@@ -277,7 +278,24 @@ namespace SliceEngine
 			}
 			else 
 			{
-				prp.textureID = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Texture>((GUID)ps.textureGUID.GetGUID()).get()->bindless_id;
+				prp.textureID = ps.textureGUID.GetGUID();
+			}
+
+			if (ps.glow)
+			{
+				if (ps.glowValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
+				{
+					std::uniform_real_distribution<float> distR(
+						std::min(ps.minGlowIntensity, ps.maxGlowIntensity),
+						std::max(ps.minGlowIntensity, ps.maxGlowIntensity)
+					);
+
+					prp.glowIntensity = distR(gen);
+				}
+				else
+				{
+					prp.glowIntensity = ps.glowIntensity;
+				}
 			}
 
 			ps.renderData.push_back(prp);
@@ -586,8 +604,10 @@ namespace SliceEngine
 
 		auto& physicsSystem = Core::GetInstance()->GetSystem<PhysicsSystem>();
 
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false))
-		{			
+		auto core = SliceEngine::Core::GetInstance();
+		auto layer_manager = core->GetLayerManager();
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetMask(ps.particleLayer)))
+		{
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal
 			float upDot = glm::dot(n, glm::vec3(0, 1, 0)); // normal vs world up
@@ -851,7 +871,7 @@ namespace SliceEngine
 	}
 #pragma endregion
 
-#pragma region helpers
+#pragma region Helper Functions
 	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias)
 	{
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
@@ -1029,5 +1049,113 @@ namespace SliceEngine
 
 		return localPoint;
 	}
-}
 #pragma endregion
+
+#pragma region Tests
+	void ParticleSystemManager::RunTests()
+	{
+		ParticleSystem ps{};
+
+		SLICE_LOG("Creation Test Begin..");
+		CreationTest(ps);
+		SLICE_LOG("Creation Test Ended.");
+
+		SLICE_LOG("Update Test Begin..");
+		UpdateTest(ps, 0.016f);
+		SLICE_LOG("Update Test Ended.");
+	}
+
+	void ParticleSystemManager::CreationTest(ParticleSystem& ps)
+	{
+		// Basic config
+		ps.maxParticles = 100;
+		ps.duration = 5.0f;
+		ps.isRepeating = false;
+		ps.emissionRate = 20.0f;
+		ps.lifetime = 2.0f;
+		ps.speed = 3.0f;
+		ps.shapeType = ParticleSystem::ShapeType::SPHERE;
+		ps.shapeRadius = 2.0f;
+		ps.spawnPos = glm::vec3(0.0f);
+
+		ps.scale = glm::vec3(1.0f);
+		ps.rotation = 0.0f;
+		ps.colour = glm::vec4(1.0f);
+
+		ps.initialLifetimeType = ParticleSystem::ValueType::CONSTANT;
+		ps.posValueType = ParticleSystem::ValueType::TWO_CONSTANTS;
+		ps.scaleType = ParticleSystem::ValueType::CONSTANT;
+		ps.speedValueType = ParticleSystem::ValueType::TWO_CONSTANTS;
+		ps.colourValueType = ParticleSystem::ValueType::CONSTANT;
+
+		// Size over lifetime test
+		ps.sizeOverLifetime = true;
+		ps.sizeMap.clear();
+		ps.sizeMap[0.0f] = glm::vec3(1.0f);
+		ps.sizeMap[1.0f] = glm::vec3(0.0f);
+
+		// Colour over lifetime test
+		ps.colourOverLifetime = true;
+		ps.colourLifetimeMap.clear();
+		ps.colourLifetimeMap[0.0f] = glm::vec4(1, 0, 0, 1);
+		ps.colourLifetimeMap[1.0f] = glm::vec4(0, 0, 1, 0);
+
+		// Velocity over lifetime
+		ps.velocityOverLifetime = true;
+		ps.velocityMap.clear();
+		ps.velocityMap[0.0f] = glm::vec3(1.0f);
+		ps.velocityMap[1.0f] = glm::vec3(0.5f);
+
+		InitializeSystem(ps);
+
+		if (ps.particles.size() != ps.maxParticles)
+			SLICE_LOG_ERROR("CreationTest FAILED: Particle pool size mismatch.");
+
+		if (ps.sizeMap.size() != 2)
+			SLICE_LOG_ERROR("CreationTest FAILED: Size map not copied correctly.");
+
+		if (ps.colourLifetimeMap.size() != 2)
+			SLICE_LOG_ERROR("CreationTest FAILED: Colour map not copied correctly.");
+
+		if (ps.velocityMap.size() != 2)
+			SLICE_LOG_ERROR("CreationTest FAILED: Velocity map not copied correctly.");
+
+		SLICE_LOG("CreationTest completed.");
+	}
+
+	void ParticleSystemManager::UpdateTest(ParticleSystem& ps, float fakeDt)
+	{
+		InitializeSystem(ps);
+
+		unsigned int numFrames = 60;
+
+		for (unsigned int i = 0; i < numFrames; ++i)
+		{
+			UpdateSystem(ps, fakeDt);
+		}
+
+		// Check some particles spawned
+		bool foundActive = false;
+		for (auto& p : ps.particles)
+		{
+			if (p.active)
+			{
+				foundActive = true;
+				break;
+			}
+		}
+
+		if (!foundActive)
+			SLICE_LOG_ERROR("UpdateTest FAILED: No active particles after updates.");
+
+		// Check render data
+		if (ps.renderData.empty())
+			SLICE_LOG_ERROR("UpdateTest FAILED: No render data generated.");
+
+		SLICE_LOG("UpdateTest completed.");
+	}
+
+#pragma endregion
+}
+
+

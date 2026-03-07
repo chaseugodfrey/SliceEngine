@@ -1978,6 +1978,33 @@ namespace SliceEditor
 					default:
 						break;
 				}
+				auto core = SliceEngine::Core::GetInstance();
+				auto layer_manager = core->GetLayerManager();
+				auto layer_name_list = layer_manager->GetLayerNameList();
+
+				ComboHeader(mRegistry, "Particle Layer", "##particle_layer", ps.particleLayer, layer_name_list);
+			}
+			if (ImGui::CollapsingHeader("Post-Processing Effects"))
+			{
+				BoolInputHeader(mRegistry, "Glow", "##Glow", ps.glow);
+				if (ps.glow)
+				{
+					switch (ps.glowValueType)
+					{
+					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+						DragFloatInputHeader(mRegistry, "GlowIntensity", "##glowIntensity", ps.glowIntensity, "%.2f", 0.0f, FLT_MAX);
+						break;
+
+					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+						DragFloatInputHeader(mRegistry, "minGlowIntensity", "##minGlowIntensity", ps.minGlowIntensity, "%.2f", 0.0f, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "maxGlowIntensity", "##maxGlowIntensity", ps.maxGlowIntensity, "%.2f", 0.0f, FLT_MAX);
+						break;
+					default:
+						break;
+					}
+					ImGui::SameLine();
+					ButtonValueTypePopup(ps.glowValueType, "glowValueType");
+				}
 			}
 
 			ImGui::TreePop();
