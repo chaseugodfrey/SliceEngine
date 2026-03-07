@@ -89,6 +89,9 @@
                     "followTransformRotation": true,
                     "friction": 0.5,
                     "gForce": 10.0,
+                    "glow": true,
+                    "glowIntensity": 15.0,
+                    "glowValueType": 0,
                     "hasCollision": false,
                     "initialLifetimeType": 1,
                     "initialRotationType": 0,
@@ -98,6 +101,7 @@
                     "materialHandle": {
                         "GUID": "9336273396156370476"
                     },
+                    "maxGlowIntensity": 0.0,
                     "maxParticleLifetime": 0.5,
                     "maxParticles": 100,
                     "maxRandomColour": [
@@ -118,6 +122,7 @@
                         0.0
                     ],
                     "maxRandomSpeed": 20.0,
+                    "minGlowIntensity": 0.0,
                     "minParticleLifetime": 0.20000000298023224,
                     "minRandomColour": [
                         0.0,
@@ -153,7 +158,7 @@
                     "rotateVelocity": [
                         0.0,
                         0.0,
-                        44.900001525878906
+                        1400.0
                     ],
                     "rotation": 0.0,
                     "scale": [
@@ -278,18 +283,18 @@
                     "velocitySeparateAxis": true
                 },
                 "struct SliceEngine::Prefab": {
-                    "prefabGUID": "12482338140631159793",
+                    "prefabGUID": "9395578411736956158",
                     "prefabHandle": {
-                        "GUID": "12482338140631159793"
+                        "GUID": "9395578411736956158"
                     },
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 11,
+                    "entity_id": 2097164,
                     "neighbours": [
                         0,
                         4294967295,
-                        3,
+                        2097162,
                         4294967295
                     ]
                 },
@@ -357,6 +362,9 @@
                     "followTransformRotation": true,
                     "friction": 0.8999999761581421,
                     "gForce": 1.100000023841858,
+                    "glow": false,
+                    "glowIntensity": 0.0,
+                    "glowValueType": 0,
                     "hasCollision": true,
                     "initialLifetimeType": 0,
                     "initialRotationType": 0,
@@ -366,6 +374,7 @@
                     "materialHandle": {
                         "GUID": ""
                     },
+                    "maxGlowIntensity": 0.0,
                     "maxParticleLifetime": 0.0,
                     "maxParticles": 200,
                     "maxRandomColour": [
@@ -386,6 +395,7 @@
                         0.0
                     ],
                     "maxRandomSpeed": 0.0,
+                    "minGlowIntensity": 0.0,
                     "minParticleLifetime": 0.0,
                     "minRandomColour": [
                         0.0,
@@ -474,12 +484,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 10,
+                    "entity_id": 2097155,
                     "neighbours": [
                         0,
                         4294967295,
-                        6,
-                        9
+                        2097159,
+                        2097156
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -560,12 +570,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 9,
+                    "entity_id": 2097156,
                     "neighbours": [
                         0,
                         4294967295,
-                        10,
-                        8
+                        2097155,
+                        2097157
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -647,12 +657,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 8,
+                    "entity_id": 2097157,
                     "neighbours": [
                         0,
                         4294967295,
-                        9,
-                        7
+                        2097156,
+                        2097158
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -879,6 +889,9 @@
                     "followTransformRotation": true,
                     "friction": 0.30000001192092896,
                     "gForce": 1.0,
+                    "glow": false,
+                    "glowIntensity": 0.0,
+                    "glowValueType": 0,
                     "hasCollision": true,
                     "initialLifetimeType": 0,
                     "initialRotationType": 0,
@@ -888,6 +901,7 @@
                     "materialHandle": {
                         "GUID": "9336273396156370476"
                     },
+                    "maxGlowIntensity": 0.0,
                     "maxParticleLifetime": 0.0,
                     "maxParticles": 1000,
                     "maxRandomColour": [
@@ -908,6 +922,7 @@
                         0.0
                     ],
                     "maxRandomSpeed": 0.0,
+                    "minGlowIntensity": 0.0,
                     "minParticleLifetime": 0.0,
                     "minRandomColour": [
                         0.0,
@@ -1080,12 +1095,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 7,
+                    "entity_id": 2097158,
                     "neighbours": [
                         0,
                         4294967295,
-                        8,
-                        5
+                        2097157,
+                        2097160
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1160,12 +1175,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 6,
+                    "entity_id": 2097159,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        10
+                        2097155
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1250,12 +1265,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 5,
+                    "entity_id": 2097160,
                     "neighbours": [
                         0,
                         4294967295,
-                        7,
-                        4
+                        2097158,
+                        2097161
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1320,12 +1335,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 4,
+                    "entity_id": 2097161,
                     "neighbours": [
                         0,
                         4294967295,
-                        5,
-                        3
+                        2097160,
+                        2097162
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1432,6 +1447,9 @@
                     "followTransformRotation": true,
                     "friction": 0.5,
                     "gForce": 25.0,
+                    "glow": false,
+                    "glowIntensity": 2.700000047683716,
+                    "glowValueType": 0,
                     "hasCollision": false,
                     "initialLifetimeType": 1,
                     "initialRotationType": 0,
@@ -1441,6 +1459,7 @@
                     "materialHandle": {
                         "GUID": "9336273396156370476"
                     },
+                    "maxGlowIntensity": 0.0,
                     "maxParticleLifetime": 0.5,
                     "maxParticles": 100,
                     "maxRandomColour": [
@@ -1461,6 +1480,7 @@
                         0.0
                     ],
                     "maxRandomSpeed": 15.0,
+                    "minGlowIntensity": 0.0,
                     "minParticleLifetime": 0.20000000298023224,
                     "minRandomColour": [
                         0.0,
@@ -1608,19 +1628,19 @@
                     "velocitySeparateAxis": true
                 },
                 "struct SliceEngine::Prefab": {
-                    "prefabGUID": "11559629331393526997",
+                    "prefabGUID": "11072686723690585521",
                     "prefabHandle": {
-                        "GUID": "11559629331393526997"
+                        "GUID": "11072686723690585521"
                     },
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3,
+                    "entity_id": 2097162,
                     "neighbours": [
                         0,
                         4294967295,
-                        4,
-                        11
+                        2097161,
+                        2097164
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {

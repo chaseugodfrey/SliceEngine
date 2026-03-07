@@ -292,9 +292,6 @@ namespace SliceEditor
         std::filesystem::path oldFilePath(renamedOld.filePath);
         std::filesystem::path newFilePath(renamedNew.filePath);
 
-        std::filesystem::path oldFilePath(renamedOld.filePath);
-        std::filesystem::path newFilePath(renamedNew.filePath);
-
         // Ensure we are dealing with the same file type
         if (oldFilePath.extension() != newFilePath.extension()) return;
 

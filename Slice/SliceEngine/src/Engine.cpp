@@ -527,6 +527,12 @@ namespace SliceEngine
 		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
 		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
 
+		.property("glowValueType", &ParticleSystem::glowValueType)
+		.property("glow", &ParticleSystem::glow)
+		.property("glowIntensity", &ParticleSystem::glowIntensity)
+		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
+		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
+
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
 		.property("renderMode", &ParticleSystem::renderMode)
