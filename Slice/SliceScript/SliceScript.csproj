@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -71,6 +69,7 @@
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
+    <Compile Include="Source\Core\Enemy\EnemyLevel2.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
@@ -114,6 +113,8 @@
     <Compile Include="Source\Core\Serializer\SliceCSV.cs" />
     <Compile Include="Source\Core\SliceBehaviour.cs" />
     <Compile Include="Source\Core\SliceLog.cs" />
+    <Compile Include="Source\Core\StateMachine\BaseState.cs" />
+    <Compile Include="Source\Core\StateMachine\StateMachine.cs" />
     <Compile Include="Source\Core\Systems\AudioManager.cs" />
     <Compile Include="Source\Core\Systems\Bootstrap.cs" />
     <Compile Include="Source\Core\Systems\Camera.cs" />
