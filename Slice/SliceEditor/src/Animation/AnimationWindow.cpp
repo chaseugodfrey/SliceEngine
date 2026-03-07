@@ -53,7 +53,6 @@ namespace SliceEditor
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
 			//tmpEnt = entity;
 			// if anim exists
-
 			
 
 			// the valid will fail cos if we add a animator component to something for non bone animation it will nvr hit the requirement of having valid skeleton
@@ -432,7 +431,9 @@ namespace SliceEditor
 					{
 						mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
 						mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
-						// why no reload??
+						auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+						if (anim)
+							LoadDataFromAnimator(anim, tmpEnt);
 					}
 				}
 			}
