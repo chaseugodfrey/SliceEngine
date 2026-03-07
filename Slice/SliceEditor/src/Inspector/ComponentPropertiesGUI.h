@@ -112,6 +112,8 @@ namespace SliceEditor
 
 	bool EntityInputHeader(Registry& reg, const char* property_label, const char* id, Entity& val);
 
+	bool LayerHeader(Registry& reg, std::string property_label, const char* id, uint32_t& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false);
+
 	// if need to pass in lambda
 	// example code:
 	//

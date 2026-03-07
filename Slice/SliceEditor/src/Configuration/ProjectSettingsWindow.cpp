@@ -291,6 +291,7 @@ namespace SliceEditor
 		//auto& maskMap = layerManager->collisionMask;
 		auto& layerMap = layerManager->indexToLayerName;
 		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
+		static std::string newLayerName;
 		
 		std::vector<std::string> layerNames{};
 		layerNames.reserve(layerMap.size());
@@ -390,6 +391,13 @@ namespace SliceEditor
 					ImGui::TableSetColumnIndex(0);
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(rowName.c_str());
+					ImGui::SameLine(100.f);
+					std::string removeLayerButton = "-##RemoveLayer" + rowName;
+					if (ImGui::Button(removeLayerButton.c_str()))
+					{
+						layerManager->RemoveLayer(rowName);
+					}
+					ImGui::SameLine();
 
 					// Row details
 					for (int col = 0; col < n - row; ++col)
@@ -415,6 +423,11 @@ namespace SliceEditor
 				ImGui::EndTable();
 			}
 
+			StringInputHeader(mRegistry, "New Layer Name: ", "##projSettingsLayerName", newLayerName);
+			if (ImGui::Button("Add Layer"))
+			{
+				layerManager->AddLayer(newLayerName);
+			}
 		}
 	}
 
