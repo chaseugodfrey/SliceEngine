@@ -160,7 +160,7 @@ namespace SliceEditor
 
 	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIdx)
 	{
-		endFrame = animClip.num_frames;
+		endFrame = animClip.duration * animClip.fps;
 		startFrame = 0;
 		currentFrame = 0;
 		mCurrentTime = 0;
@@ -194,7 +194,7 @@ namespace SliceEditor
 
 	void AnimationWindow::LoadDataFromSequenceClip(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIdx)
 	{
-		endFrame = animClip.num_frames;
+		endFrame = animClip.duration * animClip.fps;
 		startFrame = 0;
 		currentFrame = 0;
 		mCurrentTime = 0;
@@ -531,7 +531,6 @@ namespace SliceEditor
 
 			//Add the event to the eventFrames vector
 			
-			//TODO if currentFrame already has an event. Dont add another one
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
@@ -730,6 +729,33 @@ namespace SliceEditor
 
 				if (clipSize == 0)
 					ImGui::BeginDisabled();
+
+				//ImGui::SameLine();
+				float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
+
+				DragFloatInputHeader(mRegistry,"Duration:","##anim_duration", durationBuffer);
+
+				if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
+					customAnimClips[mCurrentClipIndex].duration = durationBuffer;
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				}
+
+				//ImGui::SameLine();
+
+				UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
+
+				DragUInt32InputHeader(mRegistry,"FPS:","##anim_frames", frameBuffer, "%u",0U,240U);
+
+				if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
+					customAnimClips[mCurrentClipIndex].fps = frameBuffer;
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				}
+
+
 			}
 		}
 
@@ -905,6 +931,7 @@ namespace SliceEditor
 										{
 											mOpenTrfEdit = true;
 											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 0;
 
 											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
 												{
@@ -914,6 +941,38 @@ namespace SliceEditor
 											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end())
 											{
 												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), it));
+											}
+										}
+										if (property.name.find("Rotation") != std::string::npos)
+										{
+											mOpenTrfEdit = true;
+											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 1;
+
+											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
+												{
+													return (x.first == static_cast<unsigned int>(key));
+												});
+
+											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin(), it));
+											}
+										}
+										if (property.name.find("Scale") != std::string::npos)
+										{
+											mOpenTrfEdit = true;
+											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 2;
+
+											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
+												{
+													return (x.first == static_cast<unsigned int>(key));
+												});
+
+											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin(), it));
 											}
 										}
 									}
@@ -961,6 +1020,11 @@ namespace SliceEditor
 		if (mOpenTrfEdit)
 		{
 			AnimatorSRTPopupEdit();
+		}
+
+		if (mOpenTrfEditKeyAttrib)
+		{
+			AnimatorSRTPopupEditKeyAttrib();
 		}
 
 		if (mOpenTrfOption)
@@ -1040,6 +1104,42 @@ namespace SliceEditor
 							UpdateTransform(anim, safe_time);
 							//UpdateBoneScene(tmpEnt);
 							//UpdateBones();
+						}
+					}
+
+					else
+					{
+						auto& anim = customAnimClips[mCurrentClipIndex];
+						if (anim.duration <= 0.0f)
+						{
+							mCurrentTime = 0.0f;
+						}
+						else
+						{
+							if (mCurrentTime > anim.duration)
+							{
+
+								if (!mTimeline.isLoop)
+								{
+									mTimeline.isPlaying = false;
+									currentFrame = startFrame;
+									mCurrentTime = 0.0f;
+									ret = true;
+								}
+								else
+								{
+									mTimeline.isPlaying = true;
+									mCurrentTime = std::fmod(mCurrentTime, anim.duration);
+
+								}
+							}
+						}
+
+						if (!ret)
+						{
+							float safe_time = std::min(mCurrentTime, anim.duration);
+							anim.UpdateTransforms(SliceEngine::Core::GetInstance()->GetRegistry(), tmpEnt, safe_time);
+							//UpdateTransform(anim, safe_time);
 						}
 					}
 				}
@@ -1140,23 +1240,29 @@ namespace SliceEditor
 	{
 		std::string propToDel{};
 
-
 		ImGui::OpenPopup("EditTrfRow_Popup");
 		if (ImGui::BeginPopup("EditTrfRow_Popup"))
 		{
+			if (ImGui::Selectable("Edit Key"))
+			{
+				mOpenTrfEditKeyAttrib = true;
+
+				mOpenTrfEdit = false;
+			}
+
 			if (ImGui::Selectable("Delete Key"))
 			{
 				switch (mOpenSRTVarEdit)
 				{
-				case 1:
+				case 0:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Position";
 					break;
-				case 2:
+				case 1:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
 					propToDel = "Rotation";
 					break;
-				case 3:
+				case 2:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
 					propToDel = "Scale";
 					break;
@@ -1176,6 +1282,47 @@ namespace SliceEditor
 				LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 				mOpenTrfEdit = false;
 				mOpenSRTVarEdit = -1;
+			}
+
+			ImGui::EndPopup();
+		}
+
+
+		
+	}
+	void AnimationWindow::AnimatorSRTPopupEditKeyAttrib()
+	{
+		ImGui::OpenPopup("EditSRT_PopUp");
+		if (ImGui::BeginPopupModal("EditSRT_PopUp", nullptr))
+		{
+			std::vector<std::pair<unsigned int, glm::vec3>>* attrib{ nullptr };
+			switch (mOpenSRTVarEdit)
+			{
+			case 0:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform;
+
+				break;
+			case 1:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation;
+
+				break;
+			case 2:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale;
+
+				break;
+			}
+
+
+			if (DragFloatInputHeader(mRegistry, "X: ", "##animX", (attrib->begin() + mCurrentEventIndex)->second.x)) {}
+			if (DragFloatInputHeader(mRegistry, "Y: ", "##animY", (attrib->begin() + mCurrentEventIndex)->second.y)) {}
+			if (DragFloatInputHeader(mRegistry, "Z: ", "##animZ", (attrib->begin() + mCurrentEventIndex)->second.z)) {}
+
+			if (ImGui::Button("Save Changes"))
+			{
+				mOpenTrfEditKeyAttrib = false;
+				mOpenSRTVarEdit = -1;
+				attrib = nullptr;
+				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();

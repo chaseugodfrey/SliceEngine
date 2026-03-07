@@ -130,9 +130,9 @@ namespace SliceEngine
 			//non bone animation
 			else 
 			{
-				if (animator.curr_anim_pkg.animations.size() > 0)
+				if (animator.curr_anims.animations.size() > 0)
 				{
-					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					auto& anim = animator.curr_anims.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 					if (anim.duration <= 0.0f)
 					{
 						animator.current_time = 0.0f;
@@ -173,11 +173,9 @@ namespace SliceEngine
 					}
 
 					// this has to  be my own not the skeleton 1
+					float safe_time = std::min(animator.current_time, anim.duration);
 
-
-					/*float safe_time = std::min(animator.current_time, anim.duration);
-
-					anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());*/
+					anim.UpdateTransforms(reg,entity, safe_time);
 				}
 			}
 		}

@@ -202,6 +202,83 @@ namespace SliceEngine
 			return true;
 		}
 
+		void Sequence::UpdateTransforms(entt::registry& reg,entt::entity& entity, float time)
+		{
+			Transform& comp = reg.get<Transform>(entity);
+
+			if (!initialised)
+			{
+				startPos = comp.position;
+				startScale = comp.scale;
+				startEuler = glm::degrees(glm::eulerAngles(comp.rotation));
+
+				initialised = true;
+			}
+
+			float wrappedTime = std::fmod(time * fps, (float)num_frames);
+
+			auto interpolate = [&](const std::vector<std::pair<unsigned int, glm::vec3>>& keys, glm::vec3 currentVal) -> glm::vec3
+				{
+					if (keys.empty()) return currentVal;
+
+					auto it1 = std::upper_bound(keys.begin(), keys.end(), wrappedTime,
+						[](float val, const std::pair<unsigned int, glm::vec3>& pair) {
+							return val < (float)pair.first;
+						});
+
+					glm::vec3 v0, v1;
+					float t = 0.0f;
+
+					if (it1 == keys.begin()) 
+					{
+						//v0 = currentVal;
+						//v1 = it1->second;
+						//t = (it1->first == 0) ? 1.0f : wrappedTime / (float)it1->first;
+
+						float t1 = (float)it1->first;
+						if (t1 > 0.0f) {
+							float t = wrappedTime / t1;
+							return glm::mix(currentVal, it1->second, t);
+						}
+						return it1->second;
+					}
+					if (it1 == keys.end()) 
+					{
+						/*v0 = keys.back().second;
+						v1 = currentVal;
+
+						float frameOfLastKey = (float)keys.back().first;
+						float timeSinceLastKey = wrappedTime - frameOfLastKey;
+						float timeUntilEnd = (float)num_frames - frameOfLastKey;
+
+						if (timeUntilEnd > 0.0f) {
+							t = timeSinceLastKey / timeUntilEnd;
+						}
+						else {
+							t = 1.0f;
+						}*/
+						return keys.back().second;
+					}
+					//else 
+					{
+
+						auto it0 = std::prev(it1);
+						v0 = it0->second;
+						v1 = it1->second;
+						t = (wrappedTime - (float)it0->first) / (float)(it1->first - it0->first);
+					}
+
+					return glm::mix(v0, v1, t);
+				};
+
+			// Update the components
+			comp.position = interpolate(transform, startPos);
+			comp.scale = interpolate(scale, startScale);
+
+			glm::vec3 finalEuler = interpolate(rotation, startEuler);
+			comp.rotation = glm::quat(glm::radians(finalEuler));
+		}
+
 
 		/*
 		* Animation Package

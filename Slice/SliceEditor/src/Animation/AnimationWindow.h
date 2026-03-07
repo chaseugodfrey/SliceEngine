@@ -52,6 +52,7 @@ namespace SliceEditor
 		int mOpenSRTVar{ -1 };
 		int mOpenSRTVarEdit{ -1 };
 		bool mOpenTrfEdit{};
+		bool mOpenTrfEditKeyAttrib{};
 
 		bool CheckForAnimator();
 		void LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity);
@@ -68,6 +69,7 @@ namespace SliceEditor
 
 		void AnimatorSRTPopup();
 		void AnimatorSRTPopupEdit();
+		void AnimatorSRTPopupEditKeyAttrib();
 
 		void UnLoadSequencePkgData(SequencePkgData& animsData, SliceEngine::SliceEngineTypes::SequencePackage& anims);
 

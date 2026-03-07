@@ -124,13 +124,20 @@ namespace SliceEngine
 		public:
 			std::string name{};
 			unsigned int fps{ 60 };
-			float duration{};
+			float duration{1.0f};
 			unsigned int num_frames{ 60 };
-			std::vector<std::pair<unsigned int ,glm::vec3>> transform;
-			std::vector<std::pair<unsigned int ,glm::vec3>> rotation;
-			std::vector<std::pair<unsigned int ,glm::vec3>> scale;
+			std::vector<std::pair<unsigned int, glm::vec3>> transform{};
+			std::vector<std::pair<unsigned int, glm::vec3>> rotation{};
+			std::vector<std::pair<unsigned int, glm::vec3>> scale{};
+
+			glm::vec3 startPos{};
+			glm::vec3 startEuler{};
+			glm::vec3 startScale{};
+
+			bool initialised{ false };
 
 			bool LoadAnimResource(std::string const&);
+			void UpdateTransforms(entt::registry& ,entt::entity& entity, float time);
 		};
 
 		class SequencePackage 
