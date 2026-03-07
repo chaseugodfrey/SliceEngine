@@ -353,8 +353,8 @@ namespace SliceEngine
                     }
                     if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle3") != 0))
                     {
-                        if (animator.SafeToChange("Attack3ToLoco"))
-                            animator.SetBool("Attack3ToLoco", true);
+                        if (animator.SafeToChange("AttackToIdle3"))
+                            animator.SetBool("AttackToIdle3", true);
                     }
                 }
                 else if (playerCurrentAttack == CurrentAttack.PlungeLand)
@@ -810,8 +810,8 @@ namespace SliceEngine
                         animator.SetBool("JumpLoop", true);
                     break;
                 case MovementState.DoubleJumping:
-                    if (animator.SafeToChange("AirDashStart") && (String.Compare(animator.GetCurrAnimName(), "AirDashStart") != 0))
-                        animator.SetBool("AirDashStart", true);
+                    if (animator.SafeToChange("DoubleJump") && (String.Compare(animator.GetCurrAnimName(), "DoubleJump") != 0))
+                        animator.SetBool("DoubleJump", true);
                     //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
@@ -823,13 +823,13 @@ namespace SliceEngine
                         animator.SetBool("Land", true);
                     break;
                 case MovementState.GroundDash:
-                    if (animator.SafeToChange("DashStart") && (String.Compare(animator.GetCurrAnimName(), "DashStart") != 0))
-                        animator.SetBool("DashStart", true);
+                    if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Dash") != 0))
+                        animator.SetBool("Dash", true);
                     break;
 
                 case MovementState.AirDash:
-                    if (animator.SafeToChange("DashStart") && (String.Compare(animator.GetCurrAnimName(), "DashStart") != 0))
-                        animator.SetBool("DashStart", true);
+                    if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Dash") != 0))
+                        animator.SetBool("Dash", true);
                     break;
 
                 case MovementState.Lunging:
