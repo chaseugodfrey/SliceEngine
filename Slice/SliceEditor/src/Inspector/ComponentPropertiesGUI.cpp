@@ -18,6 +18,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
 #include "Selection/SelectionManager.h"
+#include "Systems/LayerManager.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -1422,6 +1423,46 @@ namespace SliceEditor
 			ImGui::EndDragDropTarget();
 		}
 		return true;
+	}
+
+	bool LayerHeader(Registry& reg, std::string property_label, const char* id, uint32_t& selected, std::vector<std::string>& container, bool searchBar, bool selectionDifferent)
+	{
+		bool changed = false;
+		std::vector<std::string> containerCopy = container;
+		if (!property_label.empty())
+		{
+			ImGui::Text(property_label.c_str());
+			ImGui::SameLine();
+		}
+		if (selectionDifferent)
+		{
+			containerCopy.push_back("---");
+		}
+
+		float height = ImGui::GetFrameHeight();
+
+		if (ImGui::Button("+##newLayer", ImVec2(0, height)))
+		{
+			ImGui::OpenPopup("New Layer");
+		}
+
+		if (ImGui::BeginPopup("New Layer"))
+		{
+			static std::string newLayerName;
+			StringInputHeader(reg, "New Layer Name: ", "##newLayerName", newLayerName);
+			if (ImGui::Button("Add Layer"))
+			{
+				SliceEngine::Core::GetInstance()->GetLayerManager()->AddLayer(newLayerName);
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::SameLine(150.f);
+		ImGui::SetNextItemWidth(150.0f);
+
+		changed = ComboInput(reg, id, selected, containerCopy, searchBar, selectionDifferent);
+
+
+		return changed;
 	}
 
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
