@@ -49,6 +49,8 @@ namespace SliceEditor
 		bool mOpenEventPopup{};
 		bool mOpenEventOption{ false };
 		bool mOpenTrfOption{};
+		int mOpenSRTVar{ -1 };
+		int mOpenSRTVarEdit{ -1 };
 		bool mOpenTrfEdit{};
 
 		bool CheckForAnimator();
@@ -63,6 +65,9 @@ namespace SliceEditor
 		void UpdateBones();
 		void AnimatorEventPopup(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame);
 		void AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame);
+
+		void AnimatorSRTPopup();
+		void AnimatorSRTPopupEdit();
 
 		void UnLoadSequencePkgData(SequencePkgData& animsData, SliceEngine::SliceEngineTypes::SequencePackage& anims);
 

@@ -196,6 +196,8 @@ namespace SliceEngine
 			duration = ctrlJson["Duration"];
 			num_frames = ctrlJson["Number of Frames"];
 			transform = ctrlJson["Transforms"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+			rotation = ctrlJson["Rotations"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+			scale = ctrlJson["Scales"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
 
 			return true;
 		}

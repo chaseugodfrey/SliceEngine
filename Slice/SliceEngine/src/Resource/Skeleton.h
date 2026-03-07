@@ -127,6 +127,8 @@ namespace SliceEngine
 			float duration{};
 			unsigned int num_frames{ 60 };
 			std::vector<std::pair<unsigned int ,glm::vec3>> transform;
+			std::vector<std::pair<unsigned int ,glm::vec3>> rotation;
+			std::vector<std::pair<unsigned int ,glm::vec3>> scale;
 
 			bool LoadAnimResource(std::string const&);
 		};

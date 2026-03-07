@@ -501,6 +501,8 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCE;
 
 		std::vector<std::pair<unsigned int, glm::vec3>> transforms{};
+		std::vector<std::pair<unsigned int, glm::vec3>> rotation{};
+		std::vector<std::pair<unsigned int, glm::vec3>> scale{};
 		std::string name{};
 		unsigned int fps{};
 		float duration{};
@@ -543,6 +545,8 @@ namespace SliceEditor
 			metaJson["Duration"] = duration;
 			metaJson["Number of Frames"] = num_frames;
 			metaJson["Transforms"] = transforms;
+			metaJson["Rotations"] = rotation;
+			metaJson["Scales"] = scale;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -567,6 +571,8 @@ namespace SliceEditor
 			duration = assetJson["Duration"];
 			num_frames = assetJson["Number of Frames"];
 			transforms = assetJson["Transforms"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			rotation = assetJson["Rotations"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			scale = assetJson["Scales"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
 
 			return true;
 		}
@@ -579,6 +585,8 @@ namespace SliceEditor
 			num_frames = newAnim.num_frames;
 
 			transforms = newAnim.transform;
+			rotation = newAnim.rotation;
+			scale = newAnim.scale;
 		}
 
 		void UnLoadSequenceData(SliceEngine::SliceEngineTypes::Sequence& newAnim)
@@ -589,6 +597,8 @@ namespace SliceEditor
 			newAnim.num_frames = num_frames;
 
 			newAnim.transform = transforms;
+			newAnim.rotation = rotation;
+			newAnim.scale = scale;
 		}
 	};
 
