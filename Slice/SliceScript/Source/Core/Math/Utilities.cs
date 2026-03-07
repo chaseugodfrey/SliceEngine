@@ -97,6 +97,20 @@ namespace SliceEngine
             return true; // All points passed the check
         }
 
+        public static Vector3 GetShapeCenter(Vector3[] shapePoints, int numberOfCorners)
+        {
+            Vector3 sum = Vector3.Zero;
+
+            // Loop through only the points that make up the shape 
+            // (ignoring the final return trip to the original camera position)
+            for (int i = 0; i < numberOfCorners; i++)
+            {
+                sum += shapePoints[i];
+            }
+
+            return new Vector3(sum.x / numberOfCorners, sum.y / numberOfCorners, sum.z / numberOfCorners);
+        }
+
         /// <summary>
         /// Clamps a value between a minimum and maximum limit.
         /// </summary>
