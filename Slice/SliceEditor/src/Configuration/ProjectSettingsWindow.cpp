@@ -11,6 +11,7 @@
 #include <Audio/AudioManager.h>
 #include <Systems/LayerManager.h>
 #include <Systems/SceneSystem.h>
+#include <Graphics/RenderManager.h>
 
 namespace SliceEditor
 {
@@ -19,6 +20,7 @@ namespace SliceEditor
 		auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
 		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::AudioSettings>(), "Audio"));
 		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::PhysicsSettings>(), "Physics"));
+		mSettingsList.push_back(std::make_unique<SkyboxSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::SkyboxSettings>(), "Skybox"));
 		mSettingsList.push_back(std::make_unique<BuildSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::BuildSettings>(), "Build"));
 	}
 
@@ -289,6 +291,7 @@ namespace SliceEditor
 		//auto& maskMap = layerManager->collisionMask;
 		auto& layerMap = layerManager->indexToLayerName;
 		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
+		static std::string newLayerName;
 		
 		std::vector<std::string> layerNames{};
 		layerNames.reserve(layerMap.size());
@@ -388,6 +391,13 @@ namespace SliceEditor
 					ImGui::TableSetColumnIndex(0);
 					ImGui::AlignTextToFramePadding();
 					ImGui::TextUnformatted(rowName.c_str());
+					ImGui::SameLine(100.f);
+					std::string removeLayerButton = "-##RemoveLayer" + rowName;
+					if (ImGui::Button(removeLayerButton.c_str()))
+					{
+						layerManager->RemoveLayer(rowName);
+					}
+					ImGui::SameLine();
 
 					// Row details
 					for (int col = 0; col < n - row; ++col)
@@ -413,6 +423,39 @@ namespace SliceEditor
 				ImGui::EndTable();
 			}
 
+			StringInputHeader(mRegistry, "New Layer Name: ", "##projSettingsLayerName", newLayerName);
+			if (ImGui::Button("Add Layer"))
+			{
+				layerManager->AddLayer(newLayerName);
+			}
+		}
+	}
+
+	void SkyboxSettingsDisplay::DisplaySettings(ImVec2 size)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+
+		if (ImGui::CollapsingHeader("Skybox Properties"))
+		{
+			if (ImGui::IsItemHovered())
+			{
+				ImGui::SetTooltip("Skybox properties.");
+			}
+
+			float tempLightingPw = rm->skyboxData.lightingPower * 100.f;
+			if (DragFloatInputHeader(mRegistry, "Skybox Light Power", "##skybox_light_power", tempLightingPw, "%.3f", 0.f, FLT_MAX))
+				rm->skyboxData.lightingPower = tempLightingPw / 100.f;
+
+			if (DragColor3InputHeader(mRegistry, "Zenith Color", "##skybox_zenith_color", rm->skyboxData.zenithColor))
+				rm->skyboxData.isDirty = true;
+			if (DragColor3InputHeader(mRegistry, "Horizon Color", "##skybox_horizon_color", rm->skyboxData.horizonColor))
+				rm->skyboxData.isDirty = true;
+			if (DragColor3InputHeader(mRegistry, "Ground Color", "##skybox_ground_color", rm->skyboxData.groundColor))
+				rm->skyboxData.isDirty = true;
+			if (DragVec3InputHeader(mRegistry, "Sun Position", "##skybox_sun_position", rm->skyboxData.sunPos, -FLT_MAX, FLT_MAX))
+				rm->skyboxData.isDirty = true;
+			if (DragColor3InputHeader(mRegistry, "Sun Color", "##skybox_sun_color", rm->skyboxData.sunCol))
+				rm->skyboxData.isDirty = true;
 		}
 	}
 
