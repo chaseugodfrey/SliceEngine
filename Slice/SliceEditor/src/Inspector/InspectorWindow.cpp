@@ -121,7 +121,7 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(name);
 			};
 		
-		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
+		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x,false, func);
 
 		ImGui::Text("Entity ID: %d", entity);
 
@@ -151,7 +151,7 @@ namespace SliceEditor
 		//Do the different checks here for now.
 		//TODO: Move to a different file maybe
 		
-		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, true, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
 		{
 			//Multi-Selection Setting for Tags
 			if (isMultipleSelection)
