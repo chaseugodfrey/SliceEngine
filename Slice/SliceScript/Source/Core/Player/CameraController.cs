@@ -30,7 +30,7 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             Vector2 mouseDelta = Input.GetMouseDelta();
-            SliceLog.Log(mouseDelta.ToString());
+            //SliceLog.Log(mouseDelta.ToString());
             if (!LockCamera)
             {
                 float yawDelta = mouseDelta.x * sensitivity.x * dt;

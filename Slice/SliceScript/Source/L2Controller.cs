@@ -20,18 +20,15 @@ namespace SliceEngine
         // All of this is testing for now
         // I'm not sure whether it'll be in waves, or just checking for X enemies at all times
         // or just periodically spawn them
-        public int enemyWaves = 5;
-        public int enemiesPerWave = 3;
-        public int currWave = 0;
         public float timeBetweenWaves = 5.0f;
-        public bool waveDone = false;
         private bool spawningDone = false;
         private float waveTimer = 0.0f;
-        public List<GameObject> enemySpawnPoints = new List<GameObject>();
-        public List<GameObject> activeEnemies = new List<GameObject>();
+        public GameObject bossEnemy;
+       // public List<GameObject> enemySpawnPoints = new List<GameObject>();
+        //public List<GameObject> activeEnemies = new List<GameObject>();
 
         public string projectilePrefabPath;
-        public string enemyPrefabPath;
+        public string bossPrefabPath;
 
         public void Initialize()
         {
@@ -49,7 +46,7 @@ namespace SliceEngine
 
             debugTest();
 
-            Bootstrap.CameraController.LockCamera = true;
+            //Bootstrap.CameraController.LockCamera = true;
         }
 
         public void debugTest()
@@ -99,58 +96,37 @@ namespace SliceEngine
                 newProjectileEnemy.GetComponent<Transform>().Position = spawnPoint.GetComponent<Transform>().Position;
             }
 
-            if (!waveDone)
-            {               
-                if (!spawningDone)
-                {
-                    for(int i = 0; i < enemiesPerWave; i++)
-                    {
-                        GameObject spawnPoint = enemySpawnPoints[i];//GetAvailableSpawnPoint();
-                        if (spawnPoint == null)
-                        {
-                            continue;
-                        }
-                        GameObject newEnemy = CreateGameObject(enemyPrefabPath);
-                        activeEnemies.Add(newEnemy);
-                        newEnemy.GetComponent<Transform>().Position = spawnPoint.GetComponent<Transform>().Position;
-                    }
+            //if (!spawningDone)
+            //{
+              
 
-                    spawningDone = true;
-                }
-            }
-            else
-            {
-                waveTimer += dt;
-                if (waveTimer >= timeBetweenWaves)
-                {
-                    waveDone = false;
-                    spawningDone = false;
-                }
-            }
+            //    spawningDone = true;
+            //}
+
         }
 
-        GameObject GetAvailableSpawnPoint()
-        {
-            foreach(GameObject spawnPoint in enemySpawnPoints)
-            {
-                bool occupied = false;
-                foreach(GameObject enemy in activeEnemies)
-                {
-                    if (enemy.GetComponent<Transform>().Position.Distance(spawnPoint.GetComponent<Transform>().Position) < 2.0f)
-                    {
-                        // This spawn point is currently occupied, skip it
-                        occupied = true;
-                    }
-                }
+        //GameObject GetAvailableSpawnPoint()
+        //{
+        //    foreach(GameObject spawnPoint in enemySpawnPoints)
+        //    {
+        //        bool occupied = false;
+        //        foreach(GameObject enemy in activeEnemies)
+        //        {
+        //            if (enemy.GetComponent<Transform>().Position.Distance(spawnPoint.GetComponent<Transform>().Position) < 2.0f)
+        //            {
+        //                // This spawn point is currently occupied, skip it
+        //                occupied = true;
+        //            }
+        //        }
 
-                if (!occupied)
-                {
-                    return spawnPoint;
-                }
-            }
+        //        if (!occupied)
+        //        {
+        //            return spawnPoint;
+        //        }
+        //    }
 
-            return null;
-        }
+        //    return null;
+        //}
 
         public void OnProjectileEnemyDestroyed(GameObject projectileEnemy)
         {
@@ -159,20 +135,6 @@ namespace SliceEngine
                 GameObject spawnPoint = projectileEnemyToSpawnPoint[projectileEnemy];
                 spawnPointOccupied[spawnPoint] = false;
                 projectileEnemyToSpawnPoint.Remove(projectileEnemy);
-            }
-        }
-
-        public void OnEnemyDestroyed(GameObject enemy)
-        {
-            if (activeEnemies.Contains(enemy))
-            {
-                activeEnemies.Remove(enemy);
-            }
-
-            if (activeEnemies.Count == 0)
-            {
-                waveDone = true;
-                currWave++;
             }
         }
     }

@@ -14,7 +14,11 @@ namespace SliceEngine
         public int damage = 30;
         public GameObject generalHitbox;
         public Projectile_Spawner owner;
+        public bool destroyOnImpact = false;
+        public bool destroyOnPlayerImpact = false;
+        public float distanceBeforeDestroy = 10f;
 
+        private float distancetravelledCount = 0f;
         public void DamagePlayer(GameObject hit)
         {
 
@@ -24,24 +28,28 @@ namespace SliceEngine
             {
                 SliceLog.Log("Player is hit");
                 Bootstrap.Player.TakeDamage(damage);
-            }
 
-            Destroy();
+                if (destroyOnPlayerImpact)
+                {
+                    DestroyProj();
+                }
+            }
+            if (destroyOnImpact)
+            {
+                DestroyProj();
+            }
         }
-        /*
         public override void OnCreate()
         {
             base.OnCreate();
-
-            
         }
-        */
-
+        
         public void SetUp()
         {
             generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
             generalHitbox.As<GeneralHitbox>().TurnOn();
         }
+        
 
         public override void OnUpdate(float dt)
         {
@@ -54,10 +62,19 @@ namespace SliceEngine
 
             //push it forward based on speed
 
-            this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * speed * dt; 
+            float distanceTraveled = speed * dt;
+
+            this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * distanceTraveled;
+
+            distancetravelledCount += distanceTraveled;
+
+            if (distancetravelledCount >= distanceBeforeDestroy)
+            {
+                DestroyProj();
+            }
         }
 
-        public void Destroy()
+        public void DestroyProj()
         {
             if (owner != null)
             {

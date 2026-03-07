@@ -2,6 +2,7 @@ using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting.Channels;
 using System.Security.Permissions;
 
 
@@ -12,43 +13,45 @@ namespace SliceEngine
         public List<Projectile> allProjectiles = new List<Projectile>();
 
         public float projPerSecond = 4f;
-
         public float bulletSpeed = 1f;
-
         public Vector3 bulletScale = new Vector3(1);
-
         public int bulletDamage = 1;
+        public bool projDestroysOnImpact = true;
+        public float distanceBeforeDestroyBullet = 10f;
 
-        public int spawnStyle = 0;
+        public bool burstProjectiles = false;
+        public float burstRate = 0.1f;
+        public int burstCount = 3;
+
+        public float radialRandomInDegrees = 0f;
 
         public float spiralRate = 1f; // seconds for a rotation
-
         public Vector3 spiralAxis = new Vector3(0,1,0);
+
+        public string projectilePrefabName = "Projectile";
 
         public bool active = false;
 
         public int limit = 100;
+        public float rangeLimit = 10f;
 
-        public float RangeLimit = 10f;
-
+        public int spawnStyle = 0;
         private enum SpawnStyle { Straight, Spiral, Aim };
-
         private SpawnStyle currentStyle = SpawnStyle.Straight;
 
-        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed)
-        {
 
-            GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
-            Console.WriteLine("Creating bullet");
+        #region bullet creation
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
+        {
+            string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+            //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+            GameObject newBullet = CreateGameObject(prefabPath);
+
             Transform tempT = newBullet.GetComponent<Transform>();
-            Console.WriteLine($"Bullet transform: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
-            
+
             tempT.Position = startPos;
             tempT.Rotation = angle;
             tempT.Scale = scale;
-            Console.WriteLine($"Target transform: {startPos.ToString()}, {angle.ToString()}, {scale.ToString()}");
-
-            Console.WriteLine($"Bullet transform Part 2: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
 
             Projectile tempP = newBullet.As<Projectile>();
 
@@ -56,10 +59,10 @@ namespace SliceEngine
             tempP.speed = speed;
             tempP.owner = this;
             tempP.damage = bulletDamage;
+            tempP.distanceBeforeDestroy = distanceBeforeDestroy;
+            tempP.destroyOnImpact = destroyOnImpact;
 
             allProjectiles.Add(tempP);
-
-            Console.WriteLine($"Bullet transform Part 3: {tempT.Position.ToString()}, {tempT.Rotation.ToString()}, {tempT.Scale.ToString()}");
 
             if (allProjectiles.Count > limit)
             {
@@ -95,11 +98,41 @@ namespace SliceEngine
             }
         }
 
+        public void SpawnSetProjectile()
+        {
+            Transform T = this.GetComponent<Transform>();
+
+            CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+        }
+
+        public void SpawnInCircle(int number, float radius)
+        {
+            float degree = 360f / (float)number;
+
+            Transform T = this.GetComponent<Transform>();
+
+            Transform copiedT = new Transform(this.gameObject);
+
+            for (int i = 0; i< number; i++)
+            {
+                copiedT.Rotate(degree, T.Up);
+
+                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+            }
+        }
+
+        public void SpawnInBurst()
+        {
+
+        }
+
+        #endregion
+
         private float count = 0f;
 
-        public override void OnUpdate(float dt)
+        public override void OnFixedUpdate(float dt)
         {
-            base.OnUpdate(dt);
+            base.OnFixedUpdate(dt);
 
 
             if (!active)
@@ -121,16 +154,14 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        SpawnSetProjectile();
                     }
 
 
                     break;
                 case SpawnStyle.Aim:
 
-                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > RangeLimit)
+                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > rangeLimit)
                     break;
 
 
@@ -140,9 +171,7 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        SpawnSetProjectile();
                     }
 
                     break;
@@ -152,9 +181,7 @@ namespace SliceEngine
                     {
                         count -= 1 / projPerSecond;
 
-                        Transform T = this.GetComponent<Transform>();
-
-                        CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed);
+                        SpawnSetProjectile();
                     }
 
                     break;
