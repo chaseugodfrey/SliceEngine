@@ -618,15 +618,15 @@ namespace SliceEditor
 				}
 			}
 
+			
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 			auto const mdl = rend.modelHandle.get();
 			if (mdl) {
 				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8
 				DragUInt32InputHeader(mRegistry, "Mesh Index", "##mesh_index", temp, "Mesh: %u", 0, mdl->meshes.size() - 1);	//[min,max]
 				rend.meshOffset = temp;
 			}
-
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 
 			ImGui::TreePop();
 		}
