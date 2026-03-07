@@ -252,7 +252,7 @@ namespace SliceEngine
 			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
-		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(animator.Handle_Anims.getGUID());
+		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(animator.Handle_Anims.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{

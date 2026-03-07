@@ -692,10 +692,10 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-		Handle<SliceEngineTypes::Anims> Handle_Anims;
+		Handle<SliceEngineTypes::SequencePackage> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
-		SliceEngineTypes::Anims curr_anims;
+		SliceEngineTypes::SequencePackage curr_anims;
 		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 

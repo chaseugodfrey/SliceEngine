@@ -119,7 +119,7 @@ namespace SliceEngine
 			void unpack_data(char const* const buffer, uint64_t& offset);
 		};
 
-		class Anim
+		class Sequence
 		{
 		public:
 			std::string name{};
@@ -131,13 +131,13 @@ namespace SliceEngine
 			bool LoadAnimResource(std::string const&);
 		};
 
-		class Anims 
+		class SequencePackage 
 		{
 		public:
-			std::vector<Anim> animations{};
+			std::vector<Sequence> animations{};
 			std::string name{};
 
-			bool LoadAnimsResource(std::string const&);
+			bool LoadSequencePkgResource(std::string const&);
 		};
 
 	}

@@ -51,8 +51,10 @@ namespace SliceEditor
 
 			// check if first entity has animator component
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-			tmpEnt = entity;
+			//tmpEnt = entity;
 			// if anim exists
+
+			
 
 			// the valid will fail cos if we add a animator component to something for non bone animation it will nvr hit the requirement of having valid skeleton
 			if (anim /*&& anim->IsValid()*/)
@@ -65,9 +67,16 @@ namespace SliceEditor
 					
 					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+					return true;
 				}
 
-				return true;
+				if (tmpEnt != entity)
+				{
+					LoadDataFromAnimator(anim, entity);
+					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+					tmpEnt = entity;
+					return true;
+				}
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data
@@ -126,7 +135,7 @@ namespace SliceEditor
 				customAnimClips.push_back(anim);
 			}
 
-			LoadDataFromAnimClip(customAnimClips[0], mCurrentClipIndex);
+			LoadDataFromSequenceClip(customAnimClips[0], mCurrentClipIndex);
 		}
 
 		// add 0 check for size()
@@ -184,7 +193,7 @@ namespace SliceEditor
 		mPropertyGroups.insert(mPropertyGroups.begin(),EventGroup);
 	}
 
-	void AnimationWindow::LoadDataFromAnimClip(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIdx)
+	void AnimationWindow::LoadDataFromSequenceClip(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIdx)
 	{
 		endFrame = animClip.num_frames;
 		startFrame = 0;
@@ -413,12 +422,18 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("Animations"))
+			if (ImGui::AcceptDragDropPayload("SequencePackage"))
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animations"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					//TODO: Rayan does drop stuf f here.
+					mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
+					if (mCurrentAnimator->Handle_Anims.IsValid())
+					{
+						mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
+						mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
+						// why no reload??
+					}
 				}
 			}
 			ImGui::EndDragDropTarget();
@@ -461,7 +476,7 @@ namespace SliceEditor
 
 				else
 				{
-					LoadDataFromAnimClip(customAnimClips[mCurrentClipIndex], mCurrentClipIndex);
+					LoadDataFromSequenceClip(customAnimClips[mCurrentClipIndex], mCurrentClipIndex);
 
 					// update trf
 				}
@@ -517,7 +532,7 @@ namespace SliceEditor
 					}
 					else
 					{
-						LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 
 					}
 				}
@@ -564,28 +579,28 @@ namespace SliceEditor
 						if(!newAnimsName.empty())
 						{
 							targetAnimsPath = targetAnimsPath / newAnimsName;
-							if (targetAnimsPath.extension() != ".anims")
+							if (targetAnimsPath.extension() != ".seqpkg")
 							{
-								targetAnimsPath += ".anims";
+								targetAnimsPath += ".seqpkg";
 							}
 
 							// like this to save new resource?
 
-							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".anims";
+							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".seqpkg";
 
-							AnimsData Anims{};
+							SequencePkgData Anims{};
 							Anims.SerializeAsset(targetAnimsPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
-							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
-							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
+							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
+							UnLoadSequencePkgData(Anims, mCurrentAnimator->curr_anims);
 
 							newAnimsName = "";
 							targetAnimsPath = std::filesystem::current_path();
 							ImGui::CloseCurrentPopup();
 
 							if(mCurrentAnimator->curr_anims.animations.size() > 0)
-								LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+								LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 					ImGui::EndPopup();
@@ -626,18 +641,18 @@ namespace SliceEditor
 						if(!newAnimName.empty())
 						{
 							targetAnimPath = targetAnimPath / newAnimName;
-							if (targetAnimPath.extension() != ".anim")
+							if (targetAnimPath.extension() != ".seq")
 							{
-								targetAnimPath += ".anim";
+								targetAnimPath += ".seq";
 							}
 
-							SliceEngine::SliceEngineTypes::Anim newAnim{};
+							SliceEngine::SliceEngineTypes::Sequence newAnim{};
 							newAnim.name = newAnimName;
 
-							std::string relativeAnimPath = "Animations/" + newAnimName + ".anim";
+							std::string relativeAnimPath = "Animations/" + newAnimName + ".seq";
 
-							AnimData animData{};
-							animData.LoadAnimData(newAnim);
+							SequenceData animData{};
+							animData.LoadSequenceData(newAnim);
 							animData.SerializeAsset(targetAnimPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
@@ -650,7 +665,7 @@ namespace SliceEditor
 							if (parentName)
 							{
 								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
-								AnimsData parentPkg{};
+								SequencePkgData parentPkg{};
 								parentPkg.DeserializeAsset(parentPath);
 								parentPkg.animations.push_back(newAnim.name);
 								parentPkg.SerializeAsset(parentPath);
@@ -660,7 +675,7 @@ namespace SliceEditor
 							targetAnimPath = std::filesystem::current_path();
 							ImGui::CloseCurrentPopup();
 
-							LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+							LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 
@@ -674,8 +689,8 @@ namespace SliceEditor
 					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 					if (animsFilePath.has_value())
 					{
-						AnimsData Anims{};
-						Anims.LoadAnimsData(mCurrentAnimator->curr_anims);
+						SequencePkgData Anims{};
+						Anims.LoadSequencePkgData(mCurrentAnimator->curr_anims);
 
 						Anims.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animsFilePath.value());
 					}
@@ -683,10 +698,10 @@ namespace SliceEditor
 					// also add for animations
 					for (auto& anim : mCurrentAnimator->curr_anims.animations)
 					{
-						std::string animFilePath = "Animations/" + anim.name + ".anim";
+						std::string animFilePath = "Animations/" + anim.name + ".seq";
 
-						AnimData animData{};
-						animData.LoadAnimData(anim);
+						SequenceData animData{};
+						animData.LoadSequenceData(anim);
 
 						animData.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animFilePath);
 					}
@@ -784,7 +799,7 @@ namespace SliceEditor
 			if (isSkeleton)
 				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
 			else
-				LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 		}
 
 		ImGui::EndGroup();
@@ -923,7 +938,7 @@ namespace SliceEditor
 							}
 						}
 					}
-					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 					mOpenTrfEdit = false;
 				}
 
@@ -939,7 +954,7 @@ namespace SliceEditor
 				if (ImGui::Selectable("Add Key"))
 				{
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
-					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 					mOpenTrfOption = false;
 				}
 
@@ -1063,7 +1078,7 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 	}
-	void AnimationWindow::AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
+	void AnimationWindow::AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
 	{
 		if (ImGui::BeginPopupModal("AnimationEventPopup", nullptr))
 		{
@@ -1079,14 +1094,14 @@ namespace SliceEditor
 			{
 				//ImGui::NeoClearSelection();
 				mOpenEventPopup = false;
-				LoadDataFromAnimClip(animClip, animClipIndex);
+				LoadDataFromSequenceClip(animClip, animClipIndex);
 				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
 		}
 	}
-	void AnimationWindow::UnLoadAnimsData(AnimsData& animsData, SliceEngine::SliceEngineTypes::Anims& anims)
+	void AnimationWindow::UnLoadSequencePkgData(SequencePkgData& animsData, SliceEngine::SliceEngineTypes::SequencePackage& anims)
 	{
 		for (const auto& name : animsData.animations)
 		{
@@ -1095,11 +1110,11 @@ namespace SliceEditor
 			{
 				std::filesystem::path childPath = mRegistry.GetAssetManager().mAssetDirectory / "Animations" / name;
 
-				AnimData childAnim{};
+				SequenceData childAnim{};
 				childAnim.DeserializeAsset(childPath);
 
-				SliceEngine::SliceEngineTypes::Anim addAnim{};
-				childAnim.UnLoadAnimData(addAnim);
+				SliceEngine::SliceEngineTypes::Sequence addAnim{};
+				childAnim.UnLoadSequenceData(addAnim);
 
 				anims.animations.push_back(addAnim);
 			}

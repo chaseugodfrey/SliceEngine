@@ -121,7 +121,7 @@ namespace SliceEngine
 			memcpy(&this->neutral, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
 		}
 
-		bool Anims::LoadAnimsResource(std::string const& filename)
+		bool SequencePackage::LoadSequencePkgResource(std::string const& filename)
 		{
 			std::ifstream file(filename);
 			if (!file.is_open())
@@ -136,7 +136,7 @@ namespace SliceEngine
 			}
 			catch (nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Invalid Anims JSON file" + std::string(e.what()));
+				SLICE_LOG_ERROR("Invalid Sequence Pkg JSON file" + std::string(e.what()));
 
 				return false;
 			}
@@ -147,7 +147,7 @@ namespace SliceEngine
 
 			for (std::string anim : animationNames)
 			{
-				Anim tmpAnim{};
+				Sequence tmpAnim{};
 				tmpAnim.LoadAnimResource(anim);
 
 				animations.push_back(tmpAnim);
@@ -157,7 +157,7 @@ namespace SliceEngine
 			return true;
 		}
 
-		bool Anim::LoadAnimResource(std::string const& animName)
+		bool Sequence::LoadAnimResource(std::string const& animName)
 		{
 			std::filesystem::path animationsPath = std::filesystem::current_path();
 
@@ -167,9 +167,9 @@ namespace SliceEngine
 			}
 
 			animationsPath = animationsPath / animName;
-			if (animationsPath.extension() != ".anim")
+			if (animationsPath.extension() != ".seq")
 			{
-				animationsPath += ".anim";
+				animationsPath += ".seq";
 			}
 
 
