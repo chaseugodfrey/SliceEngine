@@ -198,11 +198,7 @@ namespace SliceEngine
 
             if (Bootstrap.Player != null)
             {
-                PlayerController playerController = Bootstrap.Player.GetComponent<PlayerController>();
-                if (playerController != null)
-                {
-                    playerController.SetPlayerLock(false); // Give control back
-                }
+                Bootstrap.Player.SetPlayerLock(false);
             }
             SliceLog.Log("Camera sequence complete. Control returned to player.");
         }

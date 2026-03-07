@@ -10,6 +10,7 @@ namespace SliceEngine
     {
         public override void OnCollideEnter(uint other)
         {
+            
             Bootstrap.CameraController.InitiateCameraMovement();
         }
     }
