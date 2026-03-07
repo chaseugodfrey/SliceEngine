@@ -156,7 +156,7 @@
                     1.0
                 ],
                 "orbitOverLifetime": false,
-                "renderMode": "Billboard",
+                "renderMode": 0,
                 "rotateOverLifetime": true,
                 "rotateSeparateAxis": false,
                 "rotateVelocity": [
@@ -210,11 +210,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097251,
+                "entity_id": 1048703,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048677,
+                    1048668,
                     4294967295
                 ]
             },
@@ -232,19 +232,19 @@
                 ],
                 "position": [
                     0.0,
-                    0.0,
-                    0.0
+                    1.4290001392364502,
+                    5.110502456773247e-07
                 ],
                 "rotation": [
-                    0.7071068286895752,
-                    -0.7071067094802856,
+                    0.70710688829422,
+                    -0.7071066498756409,
                     0.0,
                     0.0
                 ],
                 "scale": [
                     1.0,
-                    0.9999999403953552,
-                    0.9999999403953552
+                    0.9999998807907104,
+                    0.9999998807907104
                 ]
             }
         }
