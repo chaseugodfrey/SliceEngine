@@ -1978,6 +1978,11 @@ namespace SliceEditor
 					default:
 						break;
 				}
+				auto core = SliceEngine::Core::GetInstance();
+				auto layer_manager = core->GetLayerManager();
+				auto layer_name_list = layer_manager->GetLayerNameList();
+
+				ComboHeader(mRegistry, "Particle Layer", "##particle_layer", ps.particleLayer, layer_name_list);
 			}
 			if (ImGui::CollapsingHeader("Post-Processing Effects"))
 			{
