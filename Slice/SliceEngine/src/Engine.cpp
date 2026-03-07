@@ -433,10 +433,10 @@ namespace SliceEngine
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
 			);
 
-	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
+	rttr::registration::enumeration<ParticleSystem::RenderMode>(typeid(ParticleSystem::RenderMode).name())
 		(
-			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
-			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
+			rttr::value("BILLBOARD", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("MESH", ParticleSystem::RenderMode::MESH)
 			);
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
@@ -535,6 +535,7 @@ namespace SliceEngine
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
+		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
