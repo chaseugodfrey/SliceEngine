@@ -5,5 +5,6 @@
 #include "AudioSettings.h"
 #include "PhysicsSettings.h"
 #include "BuildSettings.h"
+#include "SkyboxSettings.h"
 
 #endif

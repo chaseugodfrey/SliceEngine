@@ -556,11 +556,14 @@ namespace SliceEngine
 					GLint uniformLoc;
 					uniformLoc = glGetUniformLocation(mShader, "time");
 					glUniform1f(uniformLoc, time);
+					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
+					glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
 					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->numLightsFound);
 					
 					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
 					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->mNumCascadeShadow);
+
 					std::stringstream ss{};
 					for (int i = 0; i < Core::GetInstance()->GetRenderManager()->mNumCascadeShadow; ++i)
 					{
