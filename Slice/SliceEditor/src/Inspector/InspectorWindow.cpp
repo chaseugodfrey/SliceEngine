@@ -188,9 +188,9 @@ namespace SliceEditor
 						if (selectedNode->type == SelectionType::ENTITY)
 						{
 							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& currentSlice)
+							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(currentEntity, [&](SliceEngine::SliceEntity& currentSlice)
 								{
-									currentSlice.mLayer = slice.mLayer;
+									currentSlice.mLayer = slicePatch.mLayer;
 								});
 						}
 					}
