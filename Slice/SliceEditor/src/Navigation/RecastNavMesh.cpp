@@ -100,59 +100,65 @@ namespace SliceEditor
 	}
 
 	// SINGULAR MODEL
-	bool RecastNavMesh::BuildFromModel(const SliceEngine::SliceEngineTypes::Model &model, const glm::mat4 &transform)
+	bool RecastNavMesh::BuildFromModel(Entity *entity)
 	{
+		if (!entity) return false;
+
+		auto go = SliceEngine::FactoryInstance.GetGOByEntity(*entity);
+
+		if (!go.HasComponent<SliceEngine::Renderer>() || !go.HasComponent<SliceEngine::Transform>())
+			return false;
+
+		SliceEngine::Renderer &renderer = go.GetComponent<SliceEngine::Renderer>();
+		if (!renderer.modelHandle.IsValid()) return false;
+		const auto *model = renderer.modelHandle.get();
+
+		const auto &transform = go.GetComponent<SliceEngine::Transform>();
+		glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
+			* glm::mat4_cast(transform.rotation)
+			* glm::scale(glm::mat4(1.0f), transform.scale);
+
+		bool isObstacle = false;
+		if (go.HasComponent<SliceEngine::NavObstacle>())
+		{
+			if (go.GetComponent<SliceEngine::NavObstacle>().isObstacle)
+			{
+				isObstacle = true;
+			}
+		}
+
 		config.walkableHeight = (int)ceilf(m_agentHeight / config.ch);
 		config.walkableClimb = (int)floorf(m_agentMaxClimb / config.ch);
 		config.walkableRadius = (int)ceilf(m_agentRadius / config.cs);
+
 		Clear();
 
 		std::vector<SliceEngine::SliceEngineTypes::Vertex> vertices;
 		std::vector<unsigned int> indices;
 
-		for (const auto &mesh : model.meshes)
-		{
-			for (const auto &v : mesh.vertices)
-				vertices.push_back(v);
-
-			for (const auto &ind : mesh.indices)
-				indices.push_back(ind);
-		}
+		size_t vertexOffset = 0;
+		CollectMeshDataFromNode(*model, model->rootNode, transformMatrix, vertices, indices, vertexOffset);
 
 		if (vertices.empty() || indices.empty())
 			return false;
 
 		std::vector<float> verts;
 		verts.reserve(vertices.size() * 3);
-
-		for (size_t i = 0; i < vertices.size(); ++i)
+		for (const auto &v : vertices)
 		{
-			const auto &v = vertices[i].position;
-
-			glm::vec4 worldPos = transform * glm::vec4(v.x, v.y, v.z, 1.0f);
-
-			verts.push_back(worldPos.x);
-			verts.push_back(worldPos.y);
-			verts.push_back(worldPos.z);
+			verts.push_back(v.position.x);
+			verts.push_back(v.position.y);
+			verts.push_back(v.position.z);
 		}
-
-		//std::cout << "Input vertex count: " << vertices.size() << std::endl;
-		//for (auto &v : verts)
-		//	std::cout << "(" << v << ")\n";
-		//std::cout << "indices.size(): " << indices.size() << std::endl;
-		//std::cout << "verts.size(): " << verts.size() << std::endl;
 
 		std::vector<int> recastIndices(indices.begin(), indices.end());
 
 		float bmin[3], bmax[3];
 		rcCalcBounds(verts.data(), (int)(verts.size() / 3), bmin, bmax);
 
-		//std::cout << "Bounds: (" << bmin[0] << "," << bmin[1] << "," << bmin[2] << ") to ("
-		//	<< bmax[0] << "," << bmax[1] << "," << bmax[2] << ")" << std::endl;
-
-		if (bmax[1] - bmin[1] < 0.01f)
+		if (bmax[1] - bmin[1] < 5.0f)
 		{
-			bmax[1] = bmin[1] + 0.01f;
+			bmax[1] = bmin[1] + 5.0f;
 		}
 
 		rcCalcGridSize(bmin, bmax, config.cs, &config.width, &config.height);
@@ -166,41 +172,90 @@ namespace SliceEditor
 
 		std::vector<unsigned char> areas(recastIndices.size() / 3, RC_WALKABLE_AREA);
 
+		// Mark based on slope
+		rcMarkWalkableTriangles(&ctx, config.walkableSlopeAngle,
+			verts.data(), (int)verts.size() / 3,
+			recastIndices.data(), (int)recastIndices.size() / 3,
+			areas.data());
+
+		// --- SMART SLOPE LOGIC ---
+		size_t numTris = recastIndices.size() / 3;
+		if (isObstacle)
+		{
+			for (size_t t = 0; t < numTris; ++t)
+			{
+				if (t < areas.size())
+					areas[t] = 60;
+			}
+		}
+		else
+		{
+			for (size_t t = 0; t < numTris; ++t)
+			{
+				int v0_idx = recastIndices[t * 3 + 0];
+				int v1_idx = recastIndices[t * 3 + 1];
+				int v2_idx = recastIndices[t * 3 + 2];
+
+				const float *v0 = &verts[v0_idx * 3];
+				const float *v1 = &verts[v1_idx * 3];
+				const float *v2 = &verts[v2_idx * 3];
+
+				float e0[3], e1[3], normal[3];
+				rcVsub(e0, v1, v0);
+				rcVsub(e1, v2, v0);
+				rcVcross(normal, e0, e1);
+				rcVnormalize(normal);
+
+				float slopeCos = normal[1];
+				float walkableThr = cosf(config.walkableSlopeAngle / 180.0f * RC_PI);
+
+				if (slopeCos < walkableThr)
+				{
+					if (t < areas.size()) areas[t] = RC_NULL_AREA;
+				}
+				else
+				{
+					if (t < areas.size()) areas[t] = RC_WALKABLE_AREA;
+				}
+			}
+		}
 
 		rcRasterizeTriangles(&ctx, verts.data(), (int)verts.size() / 3,
 			recastIndices.data(), areas.data(), (int)(recastIndices.size() / 3),
 			*heightfield, config.walkableClimb);
 
-		//std::cout << "Heightfield width: " << heightfield->width
-		//	<< " height: " << heightfield->height << std::endl;
-		int spanCount = 0;
-		for (int i = 0; i < heightfield->width * heightfield->height; ++i)
-		{
-			for (rcSpan *s = heightfield->spans[i]; s; s = s->next)
-			{
-				spanCount++;
-			}
-		}
-		//std::cout << "Heightfield span count: " << spanCount << std::endl;
-
-		//rcFilterLowHangingWalkableObstacles(&ctx, config.walkableClimb, *heightfield);
-		//rcFilterLedgeSpans(&ctx, config.walkableHeight, config.walkableClimb, *heightfield);
-		//rcFilterWalkableLowHeightSpans(&ctx, config.walkableHeight, *heightfield);
-
 		compactHeightfield = rcAllocCompactHeightfield();
 		if (!compactHeightfield) return false;
+
 		if (!rcBuildCompactHeightfield(&ctx, config.walkableHeight, config.walkableClimb, *heightfield, *compactHeightfield))
 			return false;
 
-		//std::cout << "Compact heightfield span count: " << compactHeightfield->spanCount << std::endl;
-		//std::cout << "Compact heightfield max region count: " << compactHeightfield->maxRegions << std::endl;
+		// remove the unwalkable part here
+		for (int i = 0; i < compactHeightfield->spanCount; ++i)
+		{
+			if (compactHeightfield->areas[i] == 60)
+			{
+				compactHeightfield->areas[i] = RC_NULL_AREA;
+			}
+		}
+
+		if (!rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield))
+		{
+			std::cerr << "ERROR: Failed to erode walkable area!" << std::endl;
+			return false;
+		}
+
 		if (!rcBuildDistanceField(&ctx, *compactHeightfield))
 			return false;
 
+		if (compactHeightfield->spanCount == 0)
+		{
+			std::cerr << "ERROR: Recast found ZERO walkable spans! Check your winding order or model size." << std::endl;
+			return false;
+		}
+
 		if (!rcBuildRegions(&ctx, *compactHeightfield, 0, config.minRegionArea, config.mergeRegionArea))
 			return false;
-
-		//std::cout << "Max region: " << compactHeightfield->maxRegions << std::endl;
 
 		if (compactHeightfield->maxRegions == 0)
 		{
@@ -208,20 +263,15 @@ namespace SliceEditor
 			return false;
 		}
 
-		rcErodeWalkableArea(&ctx, config.walkableRadius, *compactHeightfield);
-
 		contourSet = rcAllocContourSet();
 		if (!contourSet) return false;
 		if (!rcBuildContours(&ctx, *compactHeightfield, config.maxSimplificationError, config.maxEdgeLen, *contourSet))
 			return false;
-		//std::cout << "Contour count: " << contourSet->nconts << std::endl;
-
 
 		polyMesh = rcAllocPolyMesh();
 		if (!polyMesh) return false;
 		if (!rcBuildPolyMesh(&ctx, *contourSet, config.maxVertsPerPoly, *polyMesh))
 			return false;
-		//std::cout << "PolyMesh nverts: " << polyMesh->nverts << " npolys: " << polyMesh->npolys << std::endl;
 
 		detailMesh = rcAllocPolyMeshDetail();
 		rcBuildPolyMeshDetail(&ctx, *polyMesh, *compactHeightfield, config.detailSampleDist, config.detailSampleMaxError, *detailMesh);
@@ -235,7 +285,6 @@ namespace SliceEditor
 		}
 
 		std::ofstream objFile(debugPath);
-		//std::ofstream objFile("Resources/navmesh_debug.obj");
 		if (objFile.is_open())
 		{
 			for (int i = 0; i < detailMesh->nverts; ++i)
@@ -247,33 +296,23 @@ namespace SliceEditor
 			for (int i = 0; i < detailMesh->ntris; ++i)
 			{
 				const unsigned char *t = &detailMesh->tris[i * 4];
-				objFile << "f "
-					<< (int)t[0] + 1 << " "
-					<< (int)t[1] + 1 << " "
-					<< (int)t[2] + 1 << "\n";
+				objFile << "f " << (int)t[0] + 1 << " " << (int)t[1] + 1 << " " << (int)t[2] + 1 << "\n";
 			}
 
 			objFile.close();
 			std::cout << "NavMesh exported to " << debugPath << " (" << detailMesh->nverts
 				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;
-			/*std::cout << "NavMesh exported to navmesh_debug.obj (" << detailMesh->nverts
-				<< " verts, " << detailMesh->ntris << " tris)" << std::endl;*/
 		}
 		else
 		{
 			std::cout << "Failed to write " << debugPath << std::endl;
-			//std::cout << "Failed to write navmesh_debug.obj" << std::endl;
 		}
 
 		for (int i = 0; i < polyMesh->npolys; ++i)
 		{
-			if (polyMesh->areas[i] == RC_WALKABLE_AREA)
-			{
-				polyMesh->flags[i] = 1;
-			}
+			polyMesh->flags[i] = 1;
 		}
 
-		// Fill dtNavMeshCreateParams
 		dtNavMeshCreateParams params{};
 		memset(&params, 0, sizeof(params));
 		params.verts = polyMesh->verts;
@@ -288,6 +327,10 @@ namespace SliceEditor
 		params.detailVertsCount = detailMesh->nverts;
 		params.detailTris = detailMesh->tris;
 		params.detailTriCount = detailMesh->ntris;
+
+		params.walkableHeight = m_agentHeight;
+		params.walkableRadius = m_agentRadius;
+		params.walkableClimb = m_agentMaxClimb;
 		rcVcopy(params.bmin, polyMesh->bmin);
 		rcVcopy(params.bmax, polyMesh->bmax);
 
@@ -297,16 +340,14 @@ namespace SliceEditor
 
 		unsigned char *navData = nullptr;
 		int navDataSize = 0;
-		//std::cout << "verts: " << params.vertCount
-		//	<< " polys: " << params.polyCount
-		//	<< " nvp: " << params.nvp
-		//	<< " detailVerts: " << params.detailVertsCount
-		//	<< " detailTris: " << params.detailTriCount
-		//	<< std::endl;
-		if (!dtCreateNavMeshData(&params, &navData, &navDataSize)) return false;
 
-		// testing if can save into file, this is for detour to read
-		std::ofstream outFile("Resources/" + currentSceneName + ".bin", std::ios::binary);
+		if (!dtCreateNavMeshData(&params, &navData, &navDataSize))
+		{
+			SLICE_LOG_ERROR("Could not build Detour navmesh.");
+			return false;
+		}
+
+		std::ofstream outFile("Assets/NavMesh/" + currentSceneName + ".bin", std::ios::binary);
 		outFile.write(reinterpret_cast<const char *>(navData), navDataSize);
 		outFile.close();
 
@@ -322,7 +363,7 @@ namespace SliceEditor
 
 		dtCrowd *crowd = SliceEngine::NavMeshUtilities::InitCrowd(navMesh);
 
-		SliceEngine::NavMeshObj obj{ navMesh, navQuery,crowd };
+		SliceEngine::NavMeshObj obj{ navMesh, navQuery, crowd };
 		SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::NavigationSystem>().LoadNavMeshFromBake(obj);
 
 		navMesh = nullptr;
@@ -335,31 +376,6 @@ namespace SliceEditor
 	// maybe i adjust this to be model*
 	bool RecastNavMesh::BuildFromModel(const std::vector<Entity *> entities)
 	{
-
-		//if (!nodes.empty())
-		//{
-		//	auto &reg = SliceEngine::Core::GetInstance()->GetRegistry();
-		//	for (auto &node : nodes)
-		//	{
-		//		EntityNode *entity_node = static_cast<EntityNode *>(node);
-		//		auto renderer = reg.try_get<SliceEngine::Renderer>(entity_node->entity);
-		//		if (renderer)
-		//		{
-		//			if (renderer->modelHandle.IsValid())
-		//			{
-		//				const auto &transform = reg.get<SliceEngine::Transform>(entity_node->entity);
-		//				glm::mat4 transformMatrix = glm::translate(glm::mat4(1.0f), transform.position)
-		//					* glm::mat4_cast(transform.rotation)
-		//					* glm::scale(glm::mat4(1.0f), transform.scale);
-
-		//				transformMtxs.push_back(transformMatrix);
-		//				models.push_back(renderer->modelHandle.get());
-		//			}
-		//		}
-		//	}
-		//}
-		//auto core = SliceEngine::Core::GetInstance();
-
 		std::vector<SliceEngine::SliceEngineTypes::Model *> models{};
 		std::vector<glm::mat4> transformMtxs{};
 		std::vector<bool> isModelObstacle{};

@@ -392,6 +392,7 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
+                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;

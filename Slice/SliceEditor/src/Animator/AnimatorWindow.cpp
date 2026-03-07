@@ -660,7 +660,7 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("State not found in State Map.");
 			return;
 		}
-		StateNode sourceNode = mAnimatorData->mStateNodes.at(sourceId);
+		StateNode& sourceNode = mAnimatorData->mStateNodes.at(sourceId);
 		state_it = stateMap.find(sourceNode.name);
 		if (state_it == stateMap.end())
 		{
@@ -676,7 +676,7 @@ namespace SliceEditor
 		}
 
 		int targetId = mAnimatorData->mNameToStateID.at(targetState);
-		StateNode targetNode = mAnimatorData->mStateNodes.at(targetId);
+		StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
 		mAnimatorData->create_link(sourceNode, targetNode);
 
 		SliceEngine::SliceEngineTypes::State& sourceState = stateMap.at(sourceNode.name);
@@ -701,6 +701,8 @@ namespace SliceEditor
 
 		mAnimatorData->mStateMachineAsset->parameters.emplace(tmpParam);
 	
+
+		sourceNode.transitionIds.push_back(tmpTransition.id);
 	}
 
 	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
