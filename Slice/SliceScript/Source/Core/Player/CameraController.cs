@@ -48,7 +48,9 @@ namespace SliceEngine
                 //float deltaToApply = newPitch - pitch;
                 //pitch = newPitch;
 
-                transform.Rotate(clampedPitch, Vector3.Right);
+                transform.Rotate(clampedPitch - pitch, Vector3.Right);
+
+                pitch = clampedPitch;
 
             }
 
