@@ -457,6 +457,9 @@ namespace SliceEngine
 	void RenderManager::Update(float dt)
 	{
 		renderQueue.Update(dt);
+		mTime += dt;
+		if (mTime > 36000.f)
+			mTime -= 36000.f;
 	}
 
 	void RenderManager::Render()
@@ -543,6 +546,8 @@ namespace SliceEngine
 				RenderDebug(cam);
 			}
 			// Post Processings
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
+				RenderGroundCloud(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
 				RenderFog(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
@@ -1047,6 +1052,72 @@ namespace SliceEngine
 			}
 		}
 		
+		CheckGLError();
+	}
+	void RenderManager::RenderGroundCloud(Entity cam)
+	{
+		SetShader(ShaderPaths[S_CLOUDS]);
+		LoadSettings(GPS_TEST_TRANSLUCENT);
+		ForceCamNormalVP(cam);
+		BindCameraDepth(cam);
+		glDepthMask(GL_FALSE);
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+
+		auto& model = *Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::PLANE_DEFAULT).get();
+		auto& mdl = model.meshes[0];
+		glBindVertexArray(mdl.vao);
+
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTime");
+		glUniform1f(uniformLoc, mTime);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+		SetUniformVec3(uniformLoc, cameraPos);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
+		glUniform1f(uniformLoc, camera.cloudsAmplitude);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
+		glUniform1f(uniformLoc, camera.cloudsIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
+		glUniform1f(uniformLoc, camera.cloudsSmoothness);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsCutoff");
+		glUniform1f(uniformLoc, camera.cloudsCutoff);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
+		glUniform3f(uniformLoc, 0.f, camera.cloudsHeight, 0.f);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
+		glUniform1i(uniformLoc, numLightsFound);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
+		glUniform1i(uniformLoc, mNumCascadeShadow);
+		std::stringstream ss{};
+		for (int i = 0; i < mNumCascadeShadow; ++i)
+		{
+			ss.str("");
+			ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+			if (i == mNumCascadeShadow - 1)
+				glUniform1f(uniformLoc, mainDirLightFar);
+			else
+				glUniform1f(uniformLoc, mainDirLightFar / Core::GetInstance()->GetRenderManager()->shadowCascadeLevels[i]);
+		}
+
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+		// 2nd cloud
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
+		glUniform3f(uniformLoc, camera.cloudsSecondCloudOffset.x, camera.cloudsHeight + camera.cloudsSecondCloudOffset.y, camera.cloudsSecondCloudOffset.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsCutoff");
+		glUniform1f(uniformLoc, -1.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudAmplitude);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudIntensity);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
+		glUniform1f(uniformLoc, camera.cloudsSecondCloudSmoothness);
+
+		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+
+		glDepthMask(GL_TRUE);
 		CheckGLError();
 	}
 	void RenderManager::RenderFog(Entity cam)

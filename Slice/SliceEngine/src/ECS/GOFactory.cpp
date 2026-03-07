@@ -129,9 +129,13 @@ namespace SliceEngine
 	// Not Tested yet
 	GameObject GOFactory::CloneGO(GameObject const& go)
 	{
+		return CloneGO(go, entt::null);
+	}
+
+	GameObject GOFactory::CloneGO(GameObject const& go, Entity parentEntity)
+	{
 		Entity entity = mRegistry.create();
 		GameObject newGO(mRegistry, entity);
-
 
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
@@ -143,33 +147,46 @@ namespace SliceEngine
 		newGO.SetName(CreateName(go.GetName()));
 		newGO.AddComponent<SceneGraph>();
 		newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
-		SetParent(newGO.GetEntity());
-
-		//newGO.SetName(CreateName(go.GetName()));
 
 		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
 		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
-		//SetParent(newGO.GetEntity());
 
-		/*
-		
-				go.AddComponent<SliceEntity>();
-		go.GetComponent<SliceEntity>().mName = CreateName(name);
+		// need preserve transform if not it passes away
+		glm::vec3 pos{}, scl{};
+		glm::quat rot{};
 
-		//go.SetName(CreateName(name));
-		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
-		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
+		if (newGO.HasComponent<Transform>())
+		{
+			auto& tr = newGO.GetComponent<Transform>();
+			pos = tr.position;
+			rot = tr.rotation;
+			scl = tr.scale;
+		}
 
-		// Can add default components here like transform
-		//mRegistry.emplace_or_replace<Transform>(go);
-		go.AddComponent<Transform>();
-		// Every entity created will keep this flag for easy pulling
-		go.AddComponent<SceneGraph>();
-		go.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
-		SetParent(go.GetEntity());
+		SetParent(newGO.GetEntity(), parentEntity);
 
-		
-		*/
+		if (newGO.HasComponent<Transform>())
+		{
+			auto& tr = newGO.GetComponent<Transform>();
+			tr.position = pos;
+			tr.rotation = rot;
+			tr.scale = scl;
+		}
+
+		// clone children
+		if (go.HasComponent<SceneGraph>())
+		{
+			auto& sceneGraph = go.GetComponent<SceneGraph>();
+			Entity child = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (child != entt::null)
+			{
+				GameObject childGO = GetGOByEntity(child);
+				CloneGO(childGO, newGO.GetEntity());
+
+				auto& childSceneGraph = mRegistry.get<SceneGraph>(child);
+				child = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+		}
 
 		return newGO;
 	}

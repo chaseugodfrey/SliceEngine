@@ -655,6 +655,19 @@ namespace SliceEditor
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
 			DragFloatInputHeader(mRegistry, "Render Distance", "##distance", camObj->camera.far, "%.3f", camObj->camera.near, FLT_MAX, 0.1f);
+
+			bool isBloom = camObj->camera.postRenderToggles & SliceEngine::RENDER_TAG::RENDER_BLOOM;
+			ImGui::Text("Bloom");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
+				SetBit(camObj->camera.postRenderToggles, SliceEngine::RENDER_TAG::RENDER_BLOOM, isBloom);
+			if (isBloom)
+			{
+				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", camObj->camera.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", camObj->camera.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+			}
+
 			ImGui::EndPopup();
 		}
 	}
