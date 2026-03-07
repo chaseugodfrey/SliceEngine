@@ -281,6 +281,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
 				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				m->LoadDefaultTerrain(100);
+				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				m->LoadDefaultLineModel();
 				break;
@@ -336,6 +339,9 @@ namespace SliceEngine
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				resource->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				resource->LoadDefaultTerrain(100);
 				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				resource->LoadDefaultLineModel();

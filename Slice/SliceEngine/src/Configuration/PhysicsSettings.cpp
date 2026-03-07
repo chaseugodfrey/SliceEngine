@@ -37,6 +37,9 @@ namespace SliceEngine
 
 				auto& mask = layerManager->collisionMask[ptr->second];
 				std::from_chars(chunk.data(), chunk.data() + chunk.size(), mask, 16);
+
+				physicsSystem->SetCollisionMask(ptr->first, mask);
+
 				ptr++;
 			}
 		}
@@ -89,6 +92,12 @@ namespace SliceEngine
 
 	void PhysicsSettings::ApplySettings()
 	{
+		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
+		auto physicsSystem = &SliceEngine::Core::GetInstance()->GetSystem<PhysicsSystem>();
 
+		for (auto const& [index, name] : layerManager->indexToLayerName)
+		{
+			physicsSystem->SetCollisionMask(index, layerManager->collisionMask[name]);
+		}
 	}
 }

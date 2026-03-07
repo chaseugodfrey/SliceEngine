@@ -71,6 +71,10 @@ namespace SliceEngine
 		glm::vec3 RandomPointInCircle(ParticleSystem& ps);
 		glm::vec3 RandomPointInCube(ParticleSystem& ps);
 		glm::vec3 RandomPointInRect(ParticleSystem& ps);
+
+		void RunTests();
+		void CreationTest(ParticleSystem& ps);
+		void UpdateTest(ParticleSystem& ps, float fakeDt);
 	};
 }
 

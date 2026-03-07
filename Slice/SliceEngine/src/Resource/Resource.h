@@ -35,6 +35,7 @@ namespace SliceEngine
 		constexpr uint64_t CYLINDER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCylinder");
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
+		constexpr uint64_t PLANE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultPlane");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");

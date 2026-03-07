@@ -446,6 +446,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT] = "Cylinder";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT] = "Plane";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "White256";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT] = "NormalMap";
@@ -475,6 +476,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT);
@@ -1181,6 +1183,11 @@ namespace SliceEditor
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT;
 		assetEntry["name"] = "Quad";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT;
+		assetEntry["name"] = "Plane";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 

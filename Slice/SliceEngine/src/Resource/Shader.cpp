@@ -798,7 +798,7 @@ void main(void){
     {
         fFragColor = dif + vec4(emission, 0.0f);
     }
-	}
+}
 
 
 float GgxDistribution(float nDotH, float rough)

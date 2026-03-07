@@ -153,6 +153,7 @@ namespace SliceEngine
 		GameObject CreateGO(std::string name = "GameObject");
 		GameObject CreateUIGO(std::string name = "UI_GameObject");
 		GameObject CloneGO(GameObject const& go);
+		GameObject CloneGO(GameObject const& go, Entity parentEntity);
 		GameObject GetGOByEntity(Entity entity);
 		Entity GetEntityWithTag(std::string const& tag);
 		GameObject GetGOByName(std::string name);
