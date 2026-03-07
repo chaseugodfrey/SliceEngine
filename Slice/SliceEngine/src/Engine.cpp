@@ -535,6 +535,7 @@ namespace SliceEngine
 
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
 
+		.property("renderMode", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
