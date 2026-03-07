@@ -627,6 +627,75 @@ namespace SliceEngine
 			return;
 		}
 
+		void Model::LoadDefaultTerrain(int n)
+		{
+			meshes.resize(1);
+			auto& mesh = meshes[0];
+			auto& vertices = mesh.vertices;	vertices.clear();
+			auto& indices = mesh.indices;	indices.clear();
+
+			
+			int num_verts_per_side = n + 1;
+			vertices.reserve(num_verts_per_side * num_verts_per_side);
+			indices.reserve(n * n * 6);
+
+			// 1. Generate Vertices
+			for (int z = 0; z < num_verts_per_side; ++z) {
+				for (int x = 0; x < num_verts_per_side; ++x) {
+					Vertex v;
+
+					// Center the plane around (0,0,0) by subtracting n/2
+					float xPos = (float)x - (n / 2.0f);
+					float zPos = (float)z - (n / 2.0f);
+					v.position = { xPos, 0.0f, zPos };
+
+					// Normals point straight up
+					v.normal = { 0.0f, 1.0f, 0.0f };
+
+					// UVs from 0.0 to 1.0
+					v.uv = { (float)x / n, (float)z / n };
+
+					// Tangent along the X axis
+					v.tangent = { 1.0f, 0.0f, 0.0f };
+
+					vertices.push_back(v);
+				}
+			}
+
+			// 2. Generate Indices
+			for (int z = 0; z < n; ++z) {
+				for (int x = 0; x < n; ++x) {
+					// Calculate the 4 corner indices of the current quad
+					int row1 = z * num_verts_per_side;
+					int row2 = (z + 1) * num_verts_per_side;
+
+					int v0 = row1 + x;
+					int v1 = row1 + x + 1;
+					int v2 = row2 + x;
+					int v3 = row2 + x + 1;
+
+					// Triangle 1
+					indices.push_back(v0);
+					indices.push_back(v2);
+					indices.push_back(v1);
+
+					// Triangle 2
+					indices.push_back(v1);
+					indices.push_back(v2);
+					indices.push_back(v3);
+				}
+			}
+
+
+			mesh.setup_mesh();
+
+			rootNode.mesh_ref.resize(1);
+			rootNode.mesh_ref[0] = 0;
+			rootNode.children.clear();
+			name = "Terrain";
+			return;
+		}
+
 		void Model::LoadDefaultLineModel()
 		{
 			meshes.resize(1);

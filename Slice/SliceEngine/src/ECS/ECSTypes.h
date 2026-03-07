@@ -200,6 +200,7 @@ namespace SliceEngine
 		RENDER_BLUR			= 0x02,
 		RENDER_BLOOM		= 0x04,
 		RENDER_VIGNETTE		= 0x08,
+		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -235,6 +236,17 @@ namespace SliceEngine
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+
+		float cloudsHeight{ -110.f };
+		float cloudsAmplitude{ 49.f };
+		float cloudsIntensity{ 0.3f };
+		float cloudsSmoothness{ 0.0027 };
+		float cloudsCutoff{ 0.167f };
+		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
+		float cloudsSecondCloudAmplitude{ 49.f };
+		float cloudsSecondCloudIntensity{ 0.3f };
+		float cloudsSecondCloudSmoothness{ 0.0027 };
+
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
@@ -694,8 +706,7 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-
-		GUID Handle_Anims;
+		Handle<SliceEngineTypes::Anims> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
 		SliceEngineTypes::Anims curr_anims;

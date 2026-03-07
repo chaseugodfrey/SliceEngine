@@ -14,6 +14,7 @@
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
+#include "CanvasSystem.h"
 #include "../Graphics/RenderManager.h" // --TODO-- Sus
 #include "Systems/PrefabSystem.h"
 #include "Systems/SceneSystem.h"
@@ -165,17 +166,27 @@ namespace SliceEngine
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
 				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
-				
+				SliceEngineTypes::Material tempMat;
+				tempMat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+				tempMat.color = ptx.colour;
+				for (auto& i : tempMat.shader.get()->dataIn)
+				{
+					if (i.name == "texCol") // --TODO-- FR a temporary fix, plz change to material based
+						tempMat.data[i.name] = ptx.textureID;
+					else
+						tempMat.data[i.name] = i.baseData;
+				}
 				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 
 				if (ptx.colour.a > 0.999f)
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
 					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
 				else
 				{
-					uint8_t shdDet = GetShaderDetails(Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader").get()->opaqueS);
+					tempMat.isTranslucent = true;
+					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->translucentS);
 					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
 
@@ -190,13 +201,14 @@ namespace SliceEngine
 				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, &tempMat);
 					translucentCmds.emplace_back(tc);
 				}
 				else
 				{
-					SetAlpha(data, 1.f);
-					// --TODO--
-					renderCmds[key].base.push_back(std::move(data));
+					AppendRenderCmd(renderCmds[key], data, &tempMat);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
 				}
 			}
 			else 
@@ -237,7 +249,7 @@ namespace SliceEngine
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
-				if (ptx.colour.a > 0.999f)
+				if (material->isTranslucent)
 				{
 					uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
 					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
@@ -264,6 +276,65 @@ namespace SliceEngine
 			
 		}
 		Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms.clear();
+
+
+		auto& canvas_sys = Core::GetInstance()->GetSystem<CanvasSystem>();
+		auto const& ui_entities = canvas_sys.Get_World_UI();
+
+		auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+
+		SliceEngineTypes::Material ui_mat;
+		ui_mat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+		ui_mat.data["texCol"] = DefaultResourceIDs::COLOR_DEADED_DEFAULT;
+		for (Entity ui : ui_entities) {
+			auto const& tform = core->GetRegistry().get<Transform>(ui);
+			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
+				ui_mat.color = sprite->rgba;
+				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
+				ui_mat.isTranslucent = ui_mat.color.a > 0.999f;
+
+				RCK_ModelT mdlDet = GetModelDetails(
+					model.getGUID().GetGUID(),
+					0,
+					false
+				);
+				BasicIDat data;
+				data.mdlMtx = tform.transform;
+				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+				SetColor(data, sprite->rgba);
+				data.entityID = (uint32_t)ui;
+
+				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+				if (ui_mat.color.a > 0.999f)
+				{
+					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->opaqueS);
+					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
+				else
+				{
+					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
+					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				}
+				if (key & MRCK_TRANSCLUCENT)
+				{
+					TranslucentCmd tc{ key, data };
+					SingleExtAppend(tc.ext, &ui_mat);
+					translucentCmds.emplace_back(tc);
+				}
+				else
+				{
+					AppendRenderCmd(renderCmds[key], data, &ui_mat);
+					renderCmds[key].numVar =
+						static_cast<uint32_t>(ui_mat.shader.get()->dataIn.size());
+				}
+			}
+			if (auto font = core->GetRegistry().try_get<FontRenderer>(ui)) {
+				//ill figure this out next time
+			}
+		}
+
+
+
 	}
 	void RenderCmdManager::SortTranslucent(Entity camEntity)
 	{

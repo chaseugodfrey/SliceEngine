@@ -500,7 +500,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIM;
 
-		std::vector<glm::vec3> transforms{};
+		std::vector<std::pair<unsigned int, glm::vec3>> transforms{};
 		std::string name{};
 		unsigned int fps{};
 		float duration{};
@@ -566,7 +566,7 @@ namespace SliceEditor
 			fps = assetJson["FPS"];
 			duration = assetJson["Duration"];
 			num_frames = assetJson["Number of Frames"];
-			transforms = assetJson["Transforms"].get<std::vector<glm::vec3>>();
+			transforms = assetJson["Transforms"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
 
 			return true;
 		}
