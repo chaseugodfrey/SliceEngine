@@ -172,6 +172,8 @@ namespace SliceEngine
 				{
 					if (i.name == "texCol") // --TODO-- FR a temporary fix, plz change to material based
 						tempMat.data[i.name] = ptx.textureID;
+					else if (i.name == "EmissionIntensity")
+						tempMat.data[i.name] = ptx.glowIntensity;
 					else
 						tempMat.data[i.name] = i.baseData;
 				}

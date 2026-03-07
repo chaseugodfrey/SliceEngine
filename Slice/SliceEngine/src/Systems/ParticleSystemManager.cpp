@@ -280,6 +280,23 @@ namespace SliceEngine
 				prp.textureID = ps.textureGUID.GetGUID();
 			}
 
+			if (ps.glow)
+			{
+				if (ps.glowValueType == ParticleSystem::ValueType::TWO_CONSTANTS)
+				{
+					std::uniform_real_distribution<float> distR(
+						std::min(ps.minGlowIntensity, ps.maxGlowIntensity),
+						std::max(ps.minGlowIntensity, ps.maxGlowIntensity)
+					);
+
+					prp.glowIntensity = distR(gen);
+				}
+				else
+				{
+					prp.glowIntensity = ps.glowIntensity;
+				}
+			}
+
 			ps.renderData.push_back(prp);
 		}
 		particlesTransforms.insert(particlesTransforms.end(), ps.renderData.begin(), ps.renderData.end());
