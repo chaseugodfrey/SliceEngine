@@ -11,6 +11,7 @@
 #include <Audio/AudioManager.h>
 #include <Systems/LayerManager.h>
 #include <Systems/SceneSystem.h>
+#include <Graphics/RenderManager.h>
 
 namespace SliceEditor
 {
@@ -19,6 +20,7 @@ namespace SliceEditor
 		auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
 		mSettingsList.push_back(std::make_unique<AudioSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::AudioSettings>(), "Audio"));
 		mSettingsList.push_back(std::make_unique<PhysicsSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::PhysicsSettings>(), "Physics"));
+		mSettingsList.push_back(std::make_unique<SkyboxSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::SkyboxSettings>(), "Skybox"));
 		mSettingsList.push_back(std::make_unique<BuildSettingsDisplay>(mRegistry, *settingsManager->GetSettings<SliceEngine::BuildSettings>(), "Build"));
 	}
 
@@ -117,7 +119,7 @@ namespace SliceEditor
 				//float current_interval = entry.minInterval; // Assuming 'Interval' corresponds to minInterval
 				if (ImGui::TreeNodeEx(key.c_str(), ImGuiTreeNodeFlags_Framed))
 				{
-					
+
 					if (StringInputHeader(mRegistry, "Key", ("##key_" + key).c_str(), sfxName)) {}
 
 
@@ -206,8 +208,8 @@ namespace SliceEditor
 						entry.spatialBlend = 1.0f;
 						changeSpatial = false;
 					}
-					
-					
+
+
 					for (auto& clip : entry.AudioClips)
 					{
 						ImGui::PushID(&clip);
@@ -236,7 +238,7 @@ namespace SliceEditor
 					{
 						if (!entry.AudioClips.empty())
 						{
-							
+
 							audioSettings->RemoveAudioClip(entry.AudioClips);
 							hasChanged = true;
 
@@ -289,7 +291,8 @@ namespace SliceEditor
 		//auto& maskMap = layerManager->collisionMask;
 		auto& layerMap = layerManager->indexToLayerName;
 		auto& physicsSettings = static_cast<SliceEngine::PhysicsSettings&>(mSettings);
-		
+		static std::string newLayerName;
+
 		std::vector<std::string> layerNames{};
 		layerNames.reserve(layerMap.size());
 		for (auto& [index, layerName] : layerMap)
@@ -304,7 +307,7 @@ namespace SliceEditor
 				ImGui::SetTooltip("Optimization for layers. GameObject Layers in different Broad Phase layers will be filtered out to increase the optimization of collision detection.");
 			}
 
-			static std::vector<std::string> bplayer_to_name_list{  "Non-moving","Moving" };
+			static std::vector<std::string> bplayer_to_name_list{ "Non-moving","Moving" };
 
 			if (ImGui::BeginTable("##bplayer", 2, ImGuiTableFlags_Borders))
 			{
@@ -473,7 +476,7 @@ namespace SliceEditor
 				return false;
 
 			std::filesystem::path filepath = filename.value();
-			buildSettings.mSceneList.push_back({ filepath.stem().string(), handle});
+			buildSettings.mSceneList.push_back({ filepath.stem().string(), handle });
 			mSettings.isDirty = true;
 			return true;
 		}
@@ -495,11 +498,11 @@ namespace SliceEditor
 		auto table_width = ImVec2(size.x * .95f, size.y * 0.5f);
 		if (ImGui::BeginTable("##scene_table", 3, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_ScrollY, table_width))
 		{
-			ImGui::TableSetupColumn("ID", 
+			ImGui::TableSetupColumn("ID",
 				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed, 10);
-			ImGui::TableSetupColumn("Scene Name", 
+			ImGui::TableSetupColumn("Scene Name",
 				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthStretch);
-			ImGui::TableSetupColumn("Scene Name", 
+			ImGui::TableSetupColumn("Scene Name",
 				ImGuiTableColumnFlags_NoHide | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed, 20);
 
 			for (int i = 0; i < scene_list.size(); ++i)
@@ -511,7 +514,7 @@ namespace SliceEditor
 				ImGui::Text("%d", i);
 
 				auto file_name = assetManager.GetFilenameFromGUID(entry.handle.getGUID());
-				std::string buffer{"Invalid Scene"};
+				std::string buffer{ "Invalid Scene" };
 
 				if (file_name.has_value())
 					buffer = file_name.value();

@@ -98,6 +98,12 @@ namespace SliceEngine
 
 	void PhysicsSettings::ApplySettings()
 	{
+		auto layerManager = SliceEngine::Core::GetInstance()->GetLayerManager();
+		auto physicsSystem = &SliceEngine::Core::GetInstance()->GetSystem<PhysicsSystem>();
 
+		for (auto const& [index, name] : layerManager->indexToLayerName)
+		{
+			physicsSystem->SetCollisionMask(index, layerManager->collisionMask[name]);
+		}
 	}
 }
