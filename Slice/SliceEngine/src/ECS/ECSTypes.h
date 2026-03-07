@@ -674,6 +674,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 
 		// Internal
+		uint32_t particleLayer{ 0 };
 		std::vector<Particle> particles{};		// Main Storage of all particles
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
