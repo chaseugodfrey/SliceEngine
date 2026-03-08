@@ -549,7 +549,7 @@ namespace SliceEngine
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
-                moveDirInput *= 0.75f;
+                moveDirInput *= 0.5f;
             }
             else if (playerMovementState == MovementState.Lunging)
             {
@@ -574,7 +574,7 @@ namespace SliceEngine
                 rigidBody.Velocity = velTemp;
             }
 
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling)
             {
                 if (playerCombatState == CombatState.Attacking) return;
                 // Normal locomotion
