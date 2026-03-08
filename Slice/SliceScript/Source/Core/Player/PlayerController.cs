@@ -271,7 +271,6 @@ namespace SliceEngine
             }
             else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
             {
-                Console.WriteLine("Trying to execute attack");
                 RayCastHit hitInfo;
                 // Check if can plunge by raycasting down to see distance to ground
                 bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
@@ -300,17 +299,8 @@ namespace SliceEngine
                         }
 
                     }
-                    else
-                    {
-                        Console.WriteLine("Hitting something else");
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("Not hitting anything");
                 }
 
-                Console.WriteLine("Here testing");
 
                     //playerCombatState = CombatState.Attacking;
                     playerMovementState = MovementState.Plunging;
@@ -538,6 +528,8 @@ namespace SliceEngine
                 camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
                 camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             }
+
+            Console.WriteLine($" All the states: {playerMovementState.ToString()} and {playerCombatState.ToString()} and {playerCurrentAttack.ToString()}");
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
