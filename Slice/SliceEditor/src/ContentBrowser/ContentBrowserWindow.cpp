@@ -21,10 +21,13 @@ namespace SliceEditor
 {
 	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
 	{
+		mSearchBuffer[0] = '\0';
+		mSearchPrompt.clear();
 	}
 
 	void ContentBrowserWindow::Init()
 	{
+
 	}
 
 	void ContentBrowserWindow::Draw()
@@ -176,11 +179,34 @@ namespace SliceEditor
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
+		//Search feature yippeee
+		auto& buffer = mSearchBuffer;
+		auto& searchPrompt = mSearchPrompt;
+
+		if (ImGui::IsWindowAppearing())
+		{
+			ImGui::SetKeyboardFocusHere();
+			buffer[0] = '\0';
+			searchPrompt.clear();
+		}
+
+		std::string id = "##" + node.fileName;
+
+		if (ImGui::InputText(id.c_str(), buffer, IM_ARRAYSIZE(buffer)))
+		{
+			searchPrompt = buffer;
+		}
+
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
 			//Section for Folders
 			for (auto& [name, entry] : node.children)
 			{
+				if (!searchPrompt.empty() && name.find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
+
 				if (entry.isDirectory)
 				{
 					ImGui::PushID(&entry);
@@ -192,6 +218,11 @@ namespace SliceEditor
 			//Section for Files
 			for (auto& [name, entry] : node.children)
 			{
+
+				if (!searchPrompt.empty() && name.find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
 				if (!entry.isDirectory)
 				{
 					ImGui::PushID(&entry);
@@ -403,6 +434,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::SelectFolder(DirectoryNode& node)
 	{
 		mManager.selectedFolder = &node;
+		memset(mSearchBuffer, 0, sizeof(mSearchBuffer));
+		mSearchPrompt.clear();
 	}
 
 	void ContentBrowserWindow::RenameFilePopup(DirectoryNode& entry)
