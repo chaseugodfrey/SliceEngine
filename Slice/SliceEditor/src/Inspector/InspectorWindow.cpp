@@ -1347,6 +1347,7 @@ namespace SliceEditor
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						// hmm sussy
 					}
 				}
 				//Controller has been set, should be changable
