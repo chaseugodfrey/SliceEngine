@@ -710,7 +710,7 @@
                     "sourceState": "BackDash",
                     "targetState": "Idle"
                 },
-		{
+		        {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -724,7 +724,7 @@
                     "sourceState": "BackDash",
                     "targetState": "Walk"
                 },
-		{
+		        {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -737,6 +737,20 @@
                     "hasExitTime": false,
                     "sourceState": "BackDash",
                     "targetState": "JumpLoop"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Fall",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "BackDash",
+                    "targetState": "Fall"
                 }
             ]
         },

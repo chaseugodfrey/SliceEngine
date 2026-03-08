@@ -120,6 +120,7 @@ namespace SliceEngine
         public float moveAcceleration = 100.0f;
         public float moveDeceleration = 100.0f;
         public float rotationSpeed = 45.0f;
+        public float strafeMultiplier = 0.75f;
 
         // Dash
         public float dashDuration = 0.25f;
@@ -519,7 +520,7 @@ namespace SliceEngine
             if (playerCombatState != CombatState.Attacking)
                 attackResetTimer = (attackResetTimer <= attackRecoveryDuration) ? attackResetTimer + dt : 0.0f;
 
-            if (!grounded && rigidBody.Velocity.y < -2f) fallTimeTimer += dt;
+            if (!grounded) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
         }
         private void UpdateMovements(float dt)
@@ -549,7 +550,7 @@ namespace SliceEngine
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
-                moveDirInput *= 0.75f;
+                moveDirInput *= strafeMultiplier;
             }
             else if (playerMovementState == MovementState.Lunging)
             {
@@ -786,8 +787,10 @@ namespace SliceEngine
 
         void UpdateAnimator()
         {
+
             if (animator == null)
                 return;
+           // Console.WriteLine($"Current anim name {animator.GetCurrAnimName()}");
 
             if (movementStateChanged)
             {
@@ -823,13 +826,43 @@ namespace SliceEngine
                         animator.SetBool("Land", true);
                     break;
                 case MovementState.GroundDash:
-                    if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Dash") != 0))
-                        animator.SetBool("Dash", true);
+                    {
+                        bool hasInput = input.SquareMagnitude() > 0.0001f;
+                         if (hasInput)
+                        {
+                            // transition to forward dash instead of back dash
+                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                            {
+                                //Console.WriteLine("Setting it again");
+                                animator.SetBool("Dash", true);
+                            }
+                        }
+                        else
+                        {
+                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                                animator.SetBool("BackDash", true);
+                        }
+                    }
                     break;
 
                 case MovementState.AirDash:
-                    if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Dash") != 0))
-                        animator.SetBool("Dash", true);
+                    {
+                        bool hasInput = input.SquareMagnitude() > 0.0001f;
+                        if (hasInput)
+                        {
+                            // transition to forward dash instead of back dash
+                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                            { 
+                                Console.WriteLine("Setting it again");
+                                animator.SetBool("Dash", true);
+                            }
+                        }
+                        else
+                        {
+                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                                animator.SetBool("BackDash", true);
+                        }
+                    }
                     break;
 
                 case MovementState.Lunging:
