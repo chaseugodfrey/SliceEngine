@@ -30,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Systems/LayerManager.h>
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
+#include <Animator/AnimatorWindow.h>
 
 namespace SliceEditor
 {
@@ -1357,7 +1358,15 @@ namespace SliceEditor
 					{
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						if (animator.Handle_skeleton.IsValid())
+							animator.stateMachine.InitState(animator.curr_anim_pkg);
+						else
+							animator.stateMachine.InitState(animator.curr_anims);
+
+
+						OnAnimatorChangedEvent eventNow{};
+						eventNow.ent = entity;
+						EventManager::GetInstance()->Publish<OnAnimatorChangedEvent>(eventNow);
 					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);

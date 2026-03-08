@@ -17,6 +17,7 @@ namespace SliceEditor
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		//mAnimatorData = mSessionManager->GetAnimatorData();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &AnimatorWindow::ClearSelectionSubscribe>(this);
+		EventManager::GetInstance()->Subscribe<OnAnimatorChangedEvent,&AnimatorWindow::ReloadAnimatorData>(this);
 
 		//ImNodes::PushColorStyle(ImNodesCol_NodeBackground, )
 		//entryNode.id = 0;
@@ -134,7 +135,6 @@ namespace SliceEditor
 			}
 		}
 	}
-
 
 	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
 	{
@@ -406,6 +406,12 @@ namespace SliceEditor
 		//	
 		//}
 
+	}
+
+	void AnimatorWindow::ReloadAnimatorData(OnAnimatorChangedEvent e)
+	{
+		//auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(e.ent);
+		LoadDataFromAnimator(mCurrentAnimator,e.ent);
 	}
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
