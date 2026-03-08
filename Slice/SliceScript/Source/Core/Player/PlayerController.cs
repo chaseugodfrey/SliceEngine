@@ -279,40 +279,41 @@ namespace SliceEngine
                     Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
                 if (hit)
                 {
-                    //Console.WriteLine("It hit something");
+                    Console.WriteLine("It hit something");
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    Console.WriteLine($"obj hit: {objHit.mID} with tag {objHit.tag}");
                     if (objHit == null)
                     {
                         Console.WriteLine("Obj hit is null");
+                        //return;
                     }
                     // Only check distance if its a ground obj
                     else if (objHit.tag == "Ground")
                     {
+                        Console.WriteLine($"Hitting the ground with {hitInfo.distance}");
                         // if its too close to the ground then dont let it plunge
                         if (hitInfo.distance <= plungeMinDistance)
                         {
-                            //Console.WriteLine("Not high enough");
+                            Console.WriteLine("Not high enough");
+                            Console.WriteLine($"Distance : {hitInfo.distance}");
                             return;
                         }
-                        else
-                        {
-                            Console.WriteLine($"Distance : {hitInfo.distance}");
-                        }
+
                     }
                     else
                     {
-                        Console.WriteLine($"It hit smth that isnt ground: {objHit.mID}");
+                        Console.WriteLine("Hitting something else");
                     }
                 }
                 else
                 {
-                    Console.WriteLine("Not hitting");
+                    Console.WriteLine("Not hitting anything");
                 }
 
+                Console.WriteLine("Here testing");
 
-
-                playerCombatState = CombatState.Attacking;
-                playerMovementState = MovementState.Plunging;
+                    //playerCombatState = CombatState.Attacking;
+                    playerMovementState = MovementState.Plunging;
                 playerCurrentAttack = CurrentAttack.None;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
@@ -359,7 +360,10 @@ namespace SliceEngine
                     }
                 }
                 else if (playerCurrentAttack == CurrentAttack.PlungeLand)
-                {                    
+                {
+                    Console.WriteLine($"Input vector: {input.ToString()}");
+
+
                     if (input != Vector3.Zero)
                     {
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") != 0))
@@ -1093,13 +1097,15 @@ namespace SliceEngine
                 return false;
             }
 
-            if (playerCombatState == CombatState.Attacking)
+            //Console.WriteLine($"All the states: {playerCombatState.ToString()} and {playerMovementState.ToString()} and {playerCurrentAttack.ToString()}");
+
+            if (playerCombatState == CombatState.Attacking && playerCurrentAttack != CurrentAttack.PlungeLand)
             {
                 return false;
             }
 
             bool inputtable;
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+            if (playerMovementState == MovementState.Landing || playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
                 inputtable = true;
             }
