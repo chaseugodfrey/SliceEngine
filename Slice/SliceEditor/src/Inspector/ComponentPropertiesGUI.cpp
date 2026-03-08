@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../EditorCommonTypes.h"
 #include "Selection/SelectionManager.h"
 #include "Systems/LayerManager.h"
+#include "Configuration/ProjectSettingsManager.h"
+#include "Configuration/PhysicsSettings.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -1435,6 +1437,7 @@ namespace SliceEditor
 	{
 		bool changed = false;
 		std::vector<std::string> containerCopy = container;
+
 		if (!property_label.empty())
 		{
 			ImGui::Text(property_label.c_str());
@@ -1459,6 +1462,9 @@ namespace SliceEditor
 			if (ImGui::Button("Add Layer"))
 			{
 				SliceEngine::Core::GetInstance()->GetLayerManager()->AddLayer(newLayerName);
+				auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+				auto& physicsSettings = *settingsManager->GetSettings<SliceEngine::PhysicsSettings>();
+				physicsSettings.isDirty = true;
 			}
 			ImGui::EndPopup();
 		}

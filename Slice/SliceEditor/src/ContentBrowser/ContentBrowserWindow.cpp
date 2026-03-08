@@ -506,8 +506,8 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
-			case AssetType::Anims:
-				if (auto* data = static_cast<AnimsData*>(file.metaData.get()))
+			case AssetType::SequencePackage:
+				if (auto* data = static_cast<SequencePkgData*>(file.metaData.get()))
 				{
 					DisplayAnimsData(data);
 					//DisplayAudioData(data);
@@ -813,7 +813,7 @@ namespace SliceEditor
 		}
 	}
 
-	void ContentBrowserWindow::DisplayAnimsData(AnimsData* data)
+	void ContentBrowserWindow::DisplayAnimsData(SequencePkgData* data)
 	{
 		auto Label = [&](const char* text)
 			{

@@ -55,7 +55,7 @@ namespace SliceEditor
 		void DisplayFBXData(ModelData* data);
 		void DisplayMaterialData(MaterialData* data);
 		void DisplayAudioData(AudioData* data);
-		void DisplayAnimsData(AnimsData* data);
+		void DisplayAnimsData(SequencePkgData* data);
 		void DisplayFontData(FontMetaData* data);
 		
 	#pragma endregion

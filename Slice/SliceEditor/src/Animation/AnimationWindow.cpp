@@ -51,8 +51,9 @@ namespace SliceEditor
 
 			// check if first entity has animator component
 			auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(entity);
-			tmpEnt = entity;
+			//tmpEnt = entity;
 			// if anim exists
+			
 
 			// the valid will fail cos if we add a animator component to something for non bone animation it will nvr hit the requirement of having valid skeleton
 			if (anim /*&& anim->IsValid()*/)
@@ -65,9 +66,16 @@ namespace SliceEditor
 					
 					LoadDataFromAnimator(anim, entity);
 					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+					return true;
 				}
 
-				return true;
+				if (tmpEnt != entity)
+				{
+					LoadDataFromAnimator(anim, entity);
+					//mCurrentTransform = &SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(entity);
+					tmpEnt = entity;
+					return true;
+				}
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data
@@ -126,7 +134,7 @@ namespace SliceEditor
 				customAnimClips.push_back(anim);
 			}
 
-			LoadDataFromAnimClip(customAnimClips[0], mCurrentClipIndex);
+			LoadDataFromSequenceClip(customAnimClips[0], mCurrentClipIndex);
 		}
 
 		// add 0 check for size()
@@ -152,7 +160,7 @@ namespace SliceEditor
 
 	void AnimationWindow::LoadDataFromAnimationClip(SliceEngine::SliceEngineTypes::Animation& animClip, size_t animClipIdx)
 	{
-		endFrame = animClip.num_frames;
+		endFrame = animClip.duration * animClip.fps;
 		startFrame = 0;
 		currentFrame = 0;
 		mCurrentTime = 0;
@@ -184,33 +192,15 @@ namespace SliceEditor
 		mPropertyGroups.insert(mPropertyGroups.begin(),EventGroup);
 	}
 
-	void AnimationWindow::LoadDataFromAnimClip(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIdx)
+	void AnimationWindow::LoadDataFromSequenceClip(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIdx)
 	{
-		endFrame = animClip.num_frames;
+		endFrame = animClip.duration * animClip.fps;
 		startFrame = 0;
 		currentFrame = 0;
 		mCurrentTime = 0;
 
 		if (!mPropertyGroups.empty())
 		{
-			/*if (std::strcmp(mPropertyGroups[0].name.c_str(), "Events") == 0)
-			{
-				mPropertyGroups.erase(mPropertyGroups.begin());
-			}
-
-			for (auto& propGrp : mPropertyGroups)
-			{
-				if(std::strcmp(propGrp.name.c_str(), "Events") == 0)
-				{
-					std::erase_if(mPropertyGroups, [](AnimationPropertyGroup i) { return std::strcmp(i.name.c_str(), "Events") == 0; });
-				}
-
-				if (propGrp.name.find("Position") != std::string::npos)
-				{
-					std::erase_if(mPropertyGroups, [](AnimationPropertyGroup i) { return i.name.find("Position") != std::string::npos; });
-				}
-			}*/
-
 			mPropertyGroups.erase(mPropertyGroups.begin(),mPropertyGroups.end());
 		}
 
@@ -251,6 +241,44 @@ namespace SliceEditor
 		transformGroup.properties.push_back(AnimationProperty{ "Position.z", trfFrames });
 
 		mPropertyGroups.push_back(transformGroup);
+
+		AnimationPropertyGroup rotationGroup;
+
+		rotationGroup.name = name + " Rotation";
+		std::vector <ImGui::FrameIndexType> rotFrames{};
+
+		if (mCurrentAnimator->curr_anims.animations.size() > 0)
+		{
+			for (const auto& [frame, rot] : mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation)
+			{
+				rotFrames.push_back(static_cast<int32_t>(frame));
+			}
+		}
+
+		rotationGroup.properties.push_back(AnimationProperty{ "Rotation.x", rotFrames });
+		rotationGroup.properties.push_back(AnimationProperty{ "Rotation.y", rotFrames });
+		rotationGroup.properties.push_back(AnimationProperty{ "Rotation.z", rotFrames });
+
+		mPropertyGroups.push_back(rotationGroup);
+
+		AnimationPropertyGroup scaleGroup;
+
+		scaleGroup.name = name + " Scale";
+		std::vector <ImGui::FrameIndexType> scaleFrames{};
+
+		if (mCurrentAnimator->curr_anims.animations.size() > 0)
+		{
+			for (const auto& [frame, scale] : mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale)
+			{
+				scaleFrames.push_back(static_cast<int32_t>(frame));
+			}
+		}
+
+		scaleGroup.properties.push_back(AnimationProperty{ "Scale.x", scaleFrames });
+		scaleGroup.properties.push_back(AnimationProperty{ "Scale.y", scaleFrames });
+		scaleGroup.properties.push_back(AnimationProperty{ "Scale.z", scaleFrames });
+
+		mPropertyGroups.push_back(scaleGroup);
 	}
 
 	void AnimationWindow::LoadPropertyGroup(entt::entity entity, SliceEngine::SceneGraph& scene_graph)
@@ -413,12 +441,20 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("Animations"))
+			if (ImGui::AcceptDragDropPayload("SequencePackage"))
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("Animations"))
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
 				{
 					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					//TODO: Rayan does drop stuf f here.
+					mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
+					if (mCurrentAnimator->Handle_Anims.IsValid())
+					{
+						mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
+						mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
+						auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+						if (anim)
+							LoadDataFromAnimator(anim, tmpEnt);
+					}
 				}
 			}
 			ImGui::EndDragDropTarget();
@@ -461,7 +497,7 @@ namespace SliceEditor
 
 				else
 				{
-					LoadDataFromAnimClip(customAnimClips[mCurrentClipIndex], mCurrentClipIndex);
+					LoadDataFromSequenceClip(customAnimClips[mCurrentClipIndex], mCurrentClipIndex);
 
 					// update trf
 				}
@@ -495,7 +531,6 @@ namespace SliceEditor
 
 			//Add the event to the eventFrames vector
 			
-			//TODO if currentFrame already has an event. Dont add another one
 			bool frameHasEvent = false;
 			for (auto& event : mCurrentAnimator->eventFrames)
 			{
@@ -517,7 +552,7 @@ namespace SliceEditor
 					}
 					else
 					{
-						LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 
 					}
 				}
@@ -564,28 +599,28 @@ namespace SliceEditor
 						if(!newAnimsName.empty())
 						{
 							targetAnimsPath = targetAnimsPath / newAnimsName;
-							if (targetAnimsPath.extension() != ".anims")
+							if (targetAnimsPath.extension() != ".seqpkg")
 							{
-								targetAnimsPath += ".anims";
+								targetAnimsPath += ".seqpkg";
 							}
 
 							// like this to save new resource?
 
-							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".anims";
+							std::string relativeAnimsPath = "Animations/" + newAnimsName + ".seqpkg";
 
-							AnimsData Anims{};
+							SequencePkgData Anims{};
 							Anims.SerializeAsset(targetAnimsPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimsPath, nullptr, true);
-							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
-							UnLoadAnimsData(Anims, mCurrentAnimator->curr_anims);
+							mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimsPath]);
+							UnLoadSequencePkgData(Anims, mCurrentAnimator->curr_anims);
 
 							newAnimsName = "";
 							targetAnimsPath = std::filesystem::current_path();
 							ImGui::CloseCurrentPopup();
 
 							if(mCurrentAnimator->curr_anims.animations.size() > 0)
-								LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+								LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 					ImGui::EndPopup();
@@ -626,18 +661,18 @@ namespace SliceEditor
 						if(!newAnimName.empty())
 						{
 							targetAnimPath = targetAnimPath / newAnimName;
-							if (targetAnimPath.extension() != ".anim")
+							if (targetAnimPath.extension() != ".seq")
 							{
-								targetAnimPath += ".anim";
+								targetAnimPath += ".seq";
 							}
 
-							SliceEngine::SliceEngineTypes::Anim newAnim{};
+							SliceEngine::SliceEngineTypes::Sequence newAnim{};
 							newAnim.name = newAnimName;
 
-							std::string relativeAnimPath = "Animations/" + newAnimName + ".anim";
+							std::string relativeAnimPath = "Animations/" + newAnimName + ".seq";
 
-							AnimData animData{};
-							animData.LoadAnimData(newAnim);
+							SequenceData animData{};
+							animData.LoadSequenceData(newAnim);
 							animData.SerializeAsset(targetAnimPath);
 
 							mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
@@ -650,7 +685,7 @@ namespace SliceEditor
 							if (parentName)
 							{
 								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
-								AnimsData parentPkg{};
+								SequencePkgData parentPkg{};
 								parentPkg.DeserializeAsset(parentPath);
 								parentPkg.animations.push_back(newAnim.name);
 								parentPkg.SerializeAsset(parentPath);
@@ -660,7 +695,7 @@ namespace SliceEditor
 							targetAnimPath = std::filesystem::current_path();
 							ImGui::CloseCurrentPopup();
 
-							LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+							LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 
@@ -674,8 +709,8 @@ namespace SliceEditor
 					auto animsFilePath = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
 					if (animsFilePath.has_value())
 					{
-						AnimsData Anims{};
-						Anims.LoadAnimsData(mCurrentAnimator->curr_anims);
+						SequencePkgData Anims{};
+						Anims.LoadSequencePkgData(mCurrentAnimator->curr_anims);
 
 						Anims.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animsFilePath.value());
 					}
@@ -683,10 +718,10 @@ namespace SliceEditor
 					// also add for animations
 					for (auto& anim : mCurrentAnimator->curr_anims.animations)
 					{
-						std::string animFilePath = "Animations/" + anim.name + ".anim";
+						std::string animFilePath = "Animations/" + anim.name + ".seq";
 
-						AnimData animData{};
-						animData.LoadAnimData(anim);
+						SequenceData animData{};
+						animData.LoadSequenceData(anim);
 
 						animData.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animFilePath);
 					}
@@ -694,6 +729,33 @@ namespace SliceEditor
 
 				if (clipSize == 0)
 					ImGui::BeginDisabled();
+
+				//ImGui::SameLine();
+				float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
+
+				DragFloatInputHeader(mRegistry,"Duration:","##anim_duration", durationBuffer);
+
+				if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
+					customAnimClips[mCurrentClipIndex].duration = durationBuffer;
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				}
+
+				//ImGui::SameLine();
+
+				UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
+
+				DragUInt32InputHeader(mRegistry,"FPS:","##anim_frames", frameBuffer, "%u",0U,240U);
+
+				if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
+				{
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
+					customAnimClips[mCurrentClipIndex].fps = frameBuffer;
+					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				}
+
+
 			}
 		}
 
@@ -784,7 +846,7 @@ namespace SliceEditor
 			if (isSkeleton)
 				LoadDataFromAnimationClip(mCurrentAnimator->Handle_curr_anim_pkg.get()->animations[mCurrentClipIndex], mCurrentClipIndex);
 			else
-				LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 		}
 
 		ImGui::EndGroup();
@@ -816,6 +878,24 @@ namespace SliceEditor
 									if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
 									{
 										mOpenTrfOption = true;
+										mOpenSRTVar = 0;
+									}
+								}
+
+								if (property.name.find("Rotation") != std::string::npos)
+								{
+									if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+									{
+										mOpenTrfOption = true;
+										mOpenSRTVar = 1;
+									}
+								}
+								if (property.name.find("Scale") != std::string::npos)
+								{
+									if (ImGui::IsMouseClicked(ImGuiMouseButton_Right))
+									{
+										mOpenTrfOption = true;
+										mOpenSRTVar = 2;
 									}
 								}
 							}
@@ -851,6 +931,7 @@ namespace SliceEditor
 										{
 											mOpenTrfEdit = true;
 											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 0;
 
 											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
 												{
@@ -860,6 +941,38 @@ namespace SliceEditor
 											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.end())
 											{
 												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin(), it));
+											}
+										}
+										if (property.name.find("Rotation") != std::string::npos)
+										{
+											mOpenTrfEdit = true;
+											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 1;
+
+											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
+												{
+													return (x.first == static_cast<unsigned int>(key));
+												});
+
+											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin(), it));
+											}
+										}
+										if (property.name.find("Scale") != std::string::npos)
+										{
+											mOpenTrfEdit = true;
+											mCurrentKeyIndex = key;
+											mOpenSRTVarEdit = 2;
+
+											auto it = std::find_if(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin(), mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.end(), [&](const std::pair<unsigned int, glm::vec3>& x)
+												{
+													return (x.first == static_cast<unsigned int>(key));
+												});
+
+											if (it != mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.end())
+											{
+												mCurrentEventIndex = static_cast<int>(std::distance(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin(), it));
 											}
 										}
 									}
@@ -906,45 +1019,17 @@ namespace SliceEditor
 
 		if (mOpenTrfEdit)
 		{
-			ImGui::OpenPopup("EditTrfRow_Popup");
-			if (ImGui::BeginPopup("EditTrfRow_Popup"))
-			{
-				if (ImGui::Selectable("Delete Key"))
-				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+			AnimatorSRTPopupEdit();
+		}
 
-					for (auto& propGrp : mPropertyGroups)
-					{
-						if (propGrp.name.find("Position") != std::string::npos)
-						{
-							for (auto& prop : propGrp.properties)
-							{
-								std::erase(prop.keys, mCurrentEventIndex);
-							}
-						}
-					}
-					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
-					mOpenTrfEdit = false;
-				}
-
-				ImGui::EndPopup();
-			}
+		if (mOpenTrfEditKeyAttrib)
+		{
+			AnimatorSRTPopupEditKeyAttrib();
 		}
 
 		if (mOpenTrfOption)
 		{
-			ImGui::OpenPopup("TrfRow_PopupOptions");
-			if (ImGui::BeginPopup("TrfRow_PopupOptions"))
-			{
-				if (ImGui::Selectable("Add Key"))
-				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
-					LoadDataFromAnimClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
-					mOpenTrfOption = false;
-				}
-
-				ImGui::EndPopup();
-			}
+			AnimatorSRTPopup();
 		}
 
 		// only update when on window
@@ -1021,6 +1106,42 @@ namespace SliceEditor
 							//UpdateBones();
 						}
 					}
+
+					else
+					{
+						auto& anim = customAnimClips[mCurrentClipIndex];
+						if (anim.duration <= 0.0f)
+						{
+							mCurrentTime = 0.0f;
+						}
+						else
+						{
+							if (mCurrentTime > anim.duration)
+							{
+
+								if (!mTimeline.isLoop)
+								{
+									mTimeline.isPlaying = false;
+									currentFrame = startFrame;
+									mCurrentTime = 0.0f;
+									ret = true;
+								}
+								else
+								{
+									mTimeline.isPlaying = true;
+									mCurrentTime = std::fmod(mCurrentTime, anim.duration);
+
+								}
+							}
+						}
+
+						if (!ret)
+						{
+							float safe_time = std::min(mCurrentTime, anim.duration);
+							anim.UpdateTransforms(SliceEngine::Core::GetInstance()->GetRegistry(), tmpEnt, safe_time);
+							//UpdateTransform(anim, safe_time);
+						}
+					}
 				}
 			}
 		}
@@ -1063,7 +1184,7 @@ namespace SliceEditor
 			ImGui::EndPopup();
 		}
 	}
-	void AnimationWindow::AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Anim& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
+	void AnimationWindow::AnimatorEventPopupCustom(SliceEngine::SliceEngineTypes::Sequence& animClip, size_t animClipIndex, SliceEngine::SliceEngineTypes::AnimationKeyFrame& keyFrame)
 	{
 		if (ImGui::BeginPopupModal("AnimationEventPopup", nullptr))
 		{
@@ -1079,14 +1200,135 @@ namespace SliceEditor
 			{
 				//ImGui::NeoClearSelection();
 				mOpenEventPopup = false;
-				LoadDataFromAnimClip(animClip, animClipIndex);
+				LoadDataFromSequenceClip(animClip, animClipIndex);
 				ImGui::CloseCurrentPopup();
 			}
 
 			ImGui::EndPopup();
 		}
 	}
-	void AnimationWindow::UnLoadAnimsData(AnimsData& animsData, SliceEngine::SliceEngineTypes::Anims& anims)
+
+	void AnimationWindow::AnimatorSRTPopup()
+	{
+		ImGui::OpenPopup("TrfRow_PopupOptions");
+		if (ImGui::BeginPopup("TrfRow_PopupOptions"))
+		{
+			if (ImGui::Selectable("Add Key"))
+			{
+				switch (mOpenSRTVar)
+				{
+				case 0:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					break;
+				case 1:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					break;
+				case 2:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					break;
+				}
+				
+				LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				mOpenTrfOption = false;
+				mOpenSRTVar = -1;
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+	void AnimationWindow::AnimatorSRTPopupEdit()
+	{
+		std::string propToDel{};
+
+		ImGui::OpenPopup("EditTrfRow_Popup");
+		if (ImGui::BeginPopup("EditTrfRow_Popup"))
+		{
+			if (ImGui::Selectable("Edit Key"))
+			{
+				mOpenTrfEditKeyAttrib = true;
+
+				mOpenTrfEdit = false;
+			}
+
+			if (ImGui::Selectable("Delete Key"))
+			{
+				switch (mOpenSRTVarEdit)
+				{
+				case 0:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					propToDel = "Position";
+					break;
+				case 1:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
+					propToDel = "Rotation";
+					break;
+				case 2:
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
+					propToDel = "Scale";
+					break;
+				}
+				
+
+				for (auto& propGrp : mPropertyGroups)
+				{
+					if (propGrp.name.find(propToDel) != std::string::npos)
+					{
+						for (auto& prop : propGrp.properties)
+						{
+							std::erase(prop.keys, mCurrentEventIndex);
+						}
+					}
+				}
+				LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+				mOpenTrfEdit = false;
+				mOpenSRTVarEdit = -1;
+			}
+
+			ImGui::EndPopup();
+		}
+
+
+		
+	}
+	void AnimationWindow::AnimatorSRTPopupEditKeyAttrib()
+	{
+		ImGui::OpenPopup("EditSRT_PopUp");
+		if (ImGui::BeginPopupModal("EditSRT_PopUp", nullptr))
+		{
+			std::vector<std::pair<unsigned int, glm::vec3>>* attrib{ nullptr };
+			switch (mOpenSRTVarEdit)
+			{
+			case 0:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform;
+
+				break;
+			case 1:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation;
+
+				break;
+			case 2:
+				attrib = &mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale;
+
+				break;
+			}
+
+
+			if (DragFloatInputHeader(mRegistry, "X: ", "##animX", (attrib->begin() + mCurrentEventIndex)->second.x)) {}
+			if (DragFloatInputHeader(mRegistry, "Y: ", "##animY", (attrib->begin() + mCurrentEventIndex)->second.y)) {}
+			if (DragFloatInputHeader(mRegistry, "Z: ", "##animZ", (attrib->begin() + mCurrentEventIndex)->second.z)) {}
+
+			if (ImGui::Button("Save Changes"))
+			{
+				mOpenTrfEditKeyAttrib = false;
+				mOpenSRTVarEdit = -1;
+				attrib = nullptr;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+	void AnimationWindow::UnLoadSequencePkgData(SequencePkgData& animsData, SliceEngine::SliceEngineTypes::SequencePackage& anims)
 	{
 		for (const auto& name : animsData.animations)
 		{
@@ -1095,11 +1337,11 @@ namespace SliceEditor
 			{
 				std::filesystem::path childPath = mRegistry.GetAssetManager().mAssetDirectory / "Animations" / name;
 
-				AnimData childAnim{};
+				SequenceData childAnim{};
 				childAnim.DeserializeAsset(childPath);
 
-				SliceEngine::SliceEngineTypes::Anim addAnim{};
-				childAnim.UnLoadAnimData(addAnim);
+				SliceEngine::SliceEngineTypes::Sequence addAnim{};
+				childAnim.UnLoadSequenceData(addAnim);
 
 				anims.animations.push_back(addAnim);
 			}
