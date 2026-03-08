@@ -82,7 +82,7 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="name">Name of the layer</param>
 		/// <param name="entity">entity to modify</param>
-		void SetDefaultLayer(std::string name, Entity entity);
+		void SetDefaultLayer(Entity entity);
 
 		void AssignLayerInteraction(std::string first, std::string second, bool canInteract);
 

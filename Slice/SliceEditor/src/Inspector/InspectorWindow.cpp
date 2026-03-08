@@ -121,7 +121,7 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(name);
 			};
 		
-		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
+		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x,false, func);
 
 		ImGui::Text("Entity ID: %d", entity);
 
@@ -151,7 +151,7 @@ namespace SliceEditor
 		//Do the different checks here for now.
 		//TODO: Move to a different file maybe
 		
-		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, true, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
 		{
 			//Multi-Selection Setting for Tags
 			if (isMultipleSelection)
@@ -178,7 +178,7 @@ namespace SliceEditor
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
-			if (ComboHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
+			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
 			{
 				//Multi-Selection Setting for Layers
 				if (isMultipleSelection)
@@ -1347,6 +1347,7 @@ namespace SliceEditor
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						// hmm sussy
 					}
 				}
 				//Controller has been set, should be changable
@@ -1977,6 +1978,33 @@ namespace SliceEditor
 						break;	
 					default:
 						break;
+				}
+				auto core = SliceEngine::Core::GetInstance();
+				auto layer_manager = core->GetLayerManager();
+				auto layer_name_list = layer_manager->GetLayerNameList();
+
+				ComboHeader(mRegistry, "Particle Layer", "##particle_layer", ps.particleLayer, layer_name_list);
+			}
+			if (ImGui::CollapsingHeader("Post-Processing Effects"))
+			{
+				BoolInputHeader(mRegistry, "Glow", "##Glow", ps.glow);
+				if (ps.glow)
+				{
+					switch (ps.glowValueType)
+					{
+					case SliceEngine::ParticleSystem::ValueType::CONSTANT:
+						DragFloatInputHeader(mRegistry, "GlowIntensity", "##glowIntensity", ps.glowIntensity, "%.2f", 0.0f, FLT_MAX);
+						break;
+
+					case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
+						DragFloatInputHeader(mRegistry, "minGlowIntensity", "##minGlowIntensity", ps.minGlowIntensity, "%.2f", 0.0f, FLT_MAX);
+						DragFloatInputHeader(mRegistry, "maxGlowIntensity", "##maxGlowIntensity", ps.maxGlowIntensity, "%.2f", 0.0f, FLT_MAX);
+						break;
+					default:
+						break;
+					}
+					ImGui::SameLine();
+					ButtonValueTypePopup(ps.glowValueType, "glowValueType");
 				}
 			}
 

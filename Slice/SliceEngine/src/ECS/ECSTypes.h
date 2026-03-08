@@ -473,10 +473,10 @@ namespace SliceEngine
 	struct ParticleRenderPart
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
-		glm::vec4 colour{};
-
+		glm::vec4 colour{};		
 		GLuint64 textureID{};
 
+		float glowIntensity{};
 		bool isMeshParticle{false};
 
 		GUID modelGUID;
@@ -498,7 +498,7 @@ namespace SliceEngine
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
-		float duration{};                       // how long the system should last, 0.0f = forever					
+		float duration{5.0f};                       // how long the system should last, 0.0f = forever					
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
 		bool followTransformRotation{ true };
@@ -587,9 +587,9 @@ namespace SliceEngine
 
 		// Start Lifetime
 		ValueType initialLifetimeType{ CONSTANT };
-		float lifetime{};
-		float minParticleLifetime{};
-		float maxParticleLifetime{};
+		float lifetime{5.0f};
+		float minParticleLifetime{ 5.0f };
+		float maxParticleLifetime{ 5.0f };
 
 		// Start Rotation (1-D spins to reduce workload for a cosmetic system, referencing Unity3D)
 		ValueType initialRotationType{ CONSTANT };
@@ -649,6 +649,13 @@ namespace SliceEngine
 		glm::vec3 startOrbitVelocity{1.0f};
 		glm::vec3 endOrbitVelocity{0.f};
 
+		// Post processing
+		ValueType glowValueType{ CONSTANT };
+		bool glow{ false };
+		float glowIntensity{};
+		float minGlowIntensity{};
+		float maxGlowIntensity{};
+
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
 
@@ -667,6 +674,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 
 		// Internal
+		uint32_t particleLayer{ 0 };
 		std::vector<Particle> particles{};		// Main Storage of all particles
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -706,10 +714,10 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-		Handle<SliceEngineTypes::Anims> Handle_Anims;
+		Handle<SliceEngineTypes::SequencePackage> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
-		SliceEngineTypes::Anims curr_anims;
+		SliceEngineTypes::SequencePackage curr_anims;
 		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 

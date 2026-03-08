@@ -159,13 +159,12 @@ namespace SliceEngine
 		// Gather Particles
 		for (auto& ptx : Core::GetInstance()->GetSystem<ParticleSystemManager>().particlesTransforms)
 		{
-			// --TODO-- IMPT: NOT MESH PARTILES WILL BREAK, Change particle Textures to rely fully on material for this
 			if (!ptx.isMeshParticle)
 			{
 				auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 				RCK_ModelT mdlDet = GetModelDetails(model.getGUID().GetGUID(), 0, false);
-				// --TODO-- Currently hard set particles shader, also no materials functionality yet lol
+				// --MAYDO-- Currently hard set particles shader 
 				SliceEngineTypes::Material tempMat;
 				tempMat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
 				tempMat.color = ptx.colour;
@@ -173,6 +172,8 @@ namespace SliceEngine
 				{
 					if (i.name == "texCol") // --TODO-- FR a temporary fix, plz change to material based
 						tempMat.data[i.name] = ptx.textureID;
+					else if (i.name == "EmissionIntensity")
+						tempMat.data[i.name] = ptx.glowIntensity;
 					else
 						tempMat.data[i.name] = i.baseData;
 				}
@@ -183,9 +184,8 @@ namespace SliceEngine
 					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
 					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
-				else
+				else 
 				{
-					tempMat.isTranslucent = true;
 					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->translucentS);
 					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
@@ -193,9 +193,8 @@ namespace SliceEngine
 				BasicIDat data;
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
-				//data.blank = GetTextureDetails(ptx.textureID);
 				data.entityID = 0;
-
+				
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
 				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
@@ -249,29 +248,31 @@ namespace SliceEngine
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
 
-				if (material->isTranslucent)
-				{
-					uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
-					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
-				}
-				else
+				// --MAYDO-- Been told to turn opaque off
+
+				//if (material->isTranslucent)
 				{
 					uint8_t shdDet = GetShaderDetails(material->shader.get()->translucentS);
 					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
+				//else
+				//{
+				//	uint8_t shdDet = GetShaderDetails(material->shader.get()->opaqueS);
+				//	key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				//}
 
-				if (key & MRCK_TRANSCLUCENT)
+				//if (key & MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, material);
 					translucentCmds.emplace_back(tc);
 				}
-				else
-				{
-					AppendRenderCmd(renderCmds[key], data, material);
-					renderCmds[key].numVar =
-						static_cast<uint32_t>(material->shader.get()->dataIn.size());
-				}
+				//else
+				//{
+				//	AppendRenderCmd(renderCmds[key], data, material);
+				//	renderCmds[key].numVar =
+				//		static_cast<uint32_t>(material->shader.get()->dataIn.size());
+				//}
 			}
 			
 		}
@@ -555,11 +556,14 @@ namespace SliceEngine
 					GLint uniformLoc;
 					uniformLoc = glGetUniformLocation(mShader, "time");
 					glUniform1f(uniformLoc, time);
+					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
+					glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
 					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->numLightsFound);
 					
 					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
 					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->mNumCascadeShadow);
+
 					std::stringstream ss{};
 					for (int i = 0; i < Core::GetInstance()->GetRenderManager()->mNumCascadeShadow; ++i)
 					{
