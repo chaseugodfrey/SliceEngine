@@ -19,6 +19,11 @@ namespace SliceEngine
         public float rectangleWidth = 10f;
         public float cameraRotationSpeed = 10.0f;
         public float cameraTransitionSpeed = 5.0f;
+        public float shakeMagnitude = 0.5f;
+        public float shakeDuration = 0.2f;
+        private Vector3 shakeOffset = Vector3.Zero;
+        public Vector3 cameraOffset = new Vector3(0f, 2f, -5f); // 2 units up, 5 units back
+        public float smoothFollowSpeed = 10f;
         //private Vector2 lastMousePos;
 
         public override void OnCreate()
@@ -46,13 +51,28 @@ namespace SliceEngine
                 //       So I did this null check(27/12/2025)
                 if (Bootstrap.Player != null)
                 {
-                    transform.Position = Bootstrap.Player.transform.Position;
+                    Vector3 basePosition = Bootstrap.Player.transform.Position;
+
+                    // Transform the shake into the camera's current local view space
+                    // This ensures X is always "left/right" on your monitor
+                    Vector3 screenShake = transform.RotationQuat * shakeOffset;
+
+                    transform.Position = basePosition + screenShake;
                 }
                 //float deltaToApply = newPitch - pitch;
                 //pitch = newPitch;
 
-                transform.Rotate(clampedPitch, Vector3.Right);
+                transform.Rotate(clampedPitch - pitch, Vector3.Right);
 
+                pitch = clampedPitch;
+
+            }
+            else
+            {
+                if (shakeOffset != Vector3.Zero)
+                {
+                    transform.Position += shakeOffset;
+                }
             }
 
             //Vector2 mousePos = Input.GetMousePosition();
@@ -127,19 +147,18 @@ namespace SliceEngine
 
         private Vector3[] GenerateRectanglePath(Vector3[] points)
         {
-            // The last point in the array is originalCameraPosition. 
-            // The waypoints making up the line are everything before it.
+            
             int waypointCount = points.Length - 1;
 
             Vector3 startPoint = points[0];
             Vector3 endPoint = points[waypointCount - 1];
 
-            // 1. Get the forward direction of the line
+            
             Vector3 lineDir = (endPoint - startPoint);
-            if (lineDir.SquareMagnitude() < 0.0001f) return points; // Failsafe if points are identical
+            if (lineDir.SquareMagnitude() < 0.0001f) return points; 
             lineDir = lineDir.Normalize();
 
-            // 2. Find the perpendicular direction (Cross Product with Up)
+            
             Vector3 rightDir = Vector3.Cross(Vector3.Up, lineDir).Normalize();
 
             // Failsafe: if the line was perfectly vertical, cross product with Up returns 0
@@ -148,14 +167,14 @@ namespace SliceEngine
                 rightDir = Vector3.Cross(Vector3.Forward, lineDir).Normalize();
             }
 
-            // 3. Calculate the 4 corners
+           
             float halfWidth = rectangleWidth / 2f;
             Vector3 corner1 = startPoint + (rightDir * halfWidth);
             Vector3 corner2 = endPoint + (rightDir * halfWidth);
             Vector3 corner3 = endPoint - (rightDir * halfWidth);
             Vector3 corner4 = startPoint - (rightDir * halfWidth);
 
-            // 4. Return the 4 corners + the original camera position at the end
+            
             return new Vector3[] { corner1, corner2, corner3, corner4, points[points.Length - 1] };
         }
 
@@ -190,6 +209,32 @@ namespace SliceEngine
             }
 
             FinishCameraMovement();
+        }
+
+        public void Shake(float duration, float magnitude)
+        {
+            StartCoroutine(ShakeSequence(duration, magnitude));
+        }
+
+        private IEnumerator ShakeSequence(float duration, float magnitude)
+        {
+            float elapsed = 0f;
+
+            while (elapsed < duration)
+            {
+                
+                float x = SliceRandom.RangeFloat(-0.5f, 0.5f) * magnitude;
+                //float y = SliceRandom.RangeFloat(-1f, 1f) * magnitude;
+                //float z = SliceRandom.RangeFloat(-1f, 1f) * magnitude;
+
+                shakeOffset = new Vector3(x, 0f, 0f);
+
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            // Reset offset when finished
+            shakeOffset = Vector3.Zero;
         }
 
         private void FinishCameraMovement()
