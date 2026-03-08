@@ -17,6 +17,7 @@ namespace SliceEditor
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		//mAnimatorData = mSessionManager->GetAnimatorData();
 		EventManager::GetInstance()->Subscribe<ClearSelectionEvent, &AnimatorWindow::ClearSelectionSubscribe>(this);
+		EventManager::GetInstance()->Subscribe<OnAnimatorChangedEvent,&AnimatorWindow::ReloadAnimatorData>(this);
 
 		//ImNodes::PushColorStyle(ImNodesCol_NodeBackground, )
 		//entryNode.id = 0;
@@ -123,6 +124,7 @@ namespace SliceEditor
 			// if anim exists
 			if (anim)
 			{
+				tmpEnt = entity;
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
@@ -133,7 +135,6 @@ namespace SliceEditor
 			}
 		}
 	}
-
 
 	void AnimatorWindow::ClearSelectionSubscribe(ClearSelectionEvent e)
 	{
@@ -304,6 +305,8 @@ namespace SliceEditor
 		{
 			if (!mAnimatorData->empty())
 			{
+				bool shouldOpenModal = false;
+
 				//// Check for inputs for popups
 				/*for (auto& [id, node] : mAnimatorData->mStateNodes)
 				{
@@ -353,7 +356,33 @@ namespace SliceEditor
 				{
 					if (ImGui::Selectable("Create Node"))
 					{
+						/*static bool openCreateNode = true;*/
+						shouldOpenModal = true;
+					}
 
+					ImGui::EndPopup();
+				}
+
+				if (shouldOpenModal)
+				{
+					ImGui::OpenPopup("CreateNewNodeEditor_Popup");
+				}
+
+				if (ImGui::BeginPopupModal("CreateNewNodeEditor_Popup", nullptr))
+				{
+					static std::string createNode = "";
+					if (StringInputHeader(mRegistry, "State Name: ", "##newNodeAdd", createNode))
+					{
+
+					}
+
+					if (ImGui::Button("Add"))
+					{
+
+						CreateNode(createNode);
+
+						createNode = "";
+						ImGui::CloseCurrentPopup();
 					}
 
 					ImGui::EndPopup();
@@ -377,6 +406,12 @@ namespace SliceEditor
 		//	
 		//}
 
+	}
+
+	void AnimatorWindow::ReloadAnimatorData(OnAnimatorChangedEvent e)
+	{
+		//auto& animator = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Animator>(e.ent);
+		LoadDataFromAnimator(mCurrentAnimator,e.ent);
 	}
 
 	bool AnimatorWindow::CheckStateInput(StateNode* node)
@@ -510,6 +545,9 @@ namespace SliceEditor
 
 			ImGui::EndPopup();
 		}
+
+
+		
 	}
 
 	void AnimatorWindow::DrawTransitionLinkNode(TransitionLinkNode* node)
@@ -582,10 +620,13 @@ namespace SliceEditor
 		mAnimatorData = nullptr;
 	}
 
-	void AnimatorWindow::CreateNode()
+	void AnimatorWindow::CreateNode(std::string newName)
 	{
-		mAnimatorData->create_state();
-		CheckForAnimator();
+		mAnimatorData->create_state(newName);
+
+		//auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+		//LoadDataFromAnimator(anim, tmpEnt);
+		//CheckForAnimator();
 	}
 
 	void AnimatorWindow::DeleteNode(uint16_t id)
@@ -661,48 +702,67 @@ namespace SliceEditor
 			return;
 		}
 		StateNode& sourceNode = mAnimatorData->mStateNodes.at(sourceId);
-		state_it = stateMap.find(sourceNode.name);
-		if (state_it == stateMap.end())
+		if (std::strcmp(sourceNode.name.c_str(), "Entry") == 0)
 		{
-			SLICE_LOG_ERROR("State not found in State Map.");
-			return;
-		}
+			auto node_it = mAnimatorData->mNameToStateID.find(targetState);
+			if (node_it == mAnimatorData->mNameToStateID.end())
+			{
+				SLICE_LOG_ERROR("State not found in animator data.");
+				return;
+			}
 
-		auto node_it = mAnimatorData->mNameToStateID.find(targetState);
-		if (node_it == mAnimatorData->mNameToStateID.end())
+			int targetId = mAnimatorData->mNameToStateID.at(targetState);
+			StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
+			mAnimatorData->create_link(sourceNode, targetNode);
+
+			mAnimatorData->mStateMachineAsset.get()->entryState = targetState;
+		}
+		else
 		{
-			SLICE_LOG_ERROR("State not found in animator data.");
-			return;
+			state_it = stateMap.find(sourceNode.name);
+			if (state_it == stateMap.end())
+			{
+				SLICE_LOG_ERROR("State not found in State Map.");
+				return;
+			}
+
+
+			auto node_it = mAnimatorData->mNameToStateID.find(targetState);
+			if (node_it == mAnimatorData->mNameToStateID.end())
+			{
+				SLICE_LOG_ERROR("State not found in animator data.");
+				return;
+			}
+
+			int targetId = mAnimatorData->mNameToStateID.at(targetState);
+			StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
+			mAnimatorData->create_link(sourceNode, targetNode);
+
+			SliceEngine::SliceEngineTypes::State& sourceState = stateMap.at(sourceNode.name);
+			SliceEngine::SliceEngineTypes::Transition tmpTransition{};
+			SliceEngine::SliceEngineTypes::Condition tmpCondition{};
+
+			tmpCondition.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
+			tmpCondition.paramName = targetState;
+
+			tmpTransition.conditions.push_back(tmpCondition);
+			tmpTransition.entryTime = 0.0f;
+			tmpTransition.hasExitTime = false;
+			tmpTransition.exitTime = 1.0f;
+			tmpTransition.sourceState = sourceNode.name;
+			tmpTransition.targetState = targetState;
+			tmpTransition.id = static_cast<int>(mAnimatorData->mTransitionNodes.size() - 1);
+			sourceState.transitions.push_back(tmpTransition);
+
+			std::pair<std::string, rttr::variant> tmpParam{};
+			tmpParam.first = targetState;
+			tmpParam.second = false;
+
+			mAnimatorData->mStateMachineAsset->parameters.emplace(tmpParam);
+
+
+			sourceNode.transitionIds.push_back(tmpTransition.id);
 		}
-
-		int targetId = mAnimatorData->mNameToStateID.at(targetState);
-		StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
-		mAnimatorData->create_link(sourceNode, targetNode);
-
-		SliceEngine::SliceEngineTypes::State& sourceState = stateMap.at(sourceNode.name);
-		SliceEngine::SliceEngineTypes::Transition tmpTransition{};
-		SliceEngine::SliceEngineTypes::Condition tmpCondition{};
-
-		tmpCondition.op = SliceEngine::SliceEngineTypes::ComparisonOp::IsTrue;
-		tmpCondition.paramName = targetState;
-
-		tmpTransition.conditions.push_back(tmpCondition);
-		tmpTransition.entryTime = 0.0f;
-		tmpTransition.hasExitTime = false;
-		tmpTransition.exitTime = 1.0f;
-		tmpTransition.sourceState = sourceNode.name;
-		tmpTransition.targetState = targetState;
-		tmpTransition.id = static_cast<int>(mAnimatorData->mTransitionNodes.size()-1);
-		sourceState.transitions.push_back(tmpTransition);
-
-		std::pair<std::string, rttr::variant> tmpParam{};
-		tmpParam.first = targetState;
-		tmpParam.second = false;
-
-		mAnimatorData->mStateMachineAsset->parameters.emplace(tmpParam);
-	
-
-		sourceNode.transitionIds.push_back(tmpTransition.id);
 	}
 
 	bool AnimatorWindow::RemoveTransitionFromState(uint16_t id)
@@ -718,29 +778,39 @@ namespace SliceEditor
 		auto& state_node = mAnimatorData->mStateNodes.at(static_cast<const unsigned short>(transition_it->second.source_id));
 		
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
-		auto state_it = stateMap.find(state_node.name);
-
-		if (state_it == stateMap.end())
+		if (std::strcmp(state_node.name.c_str(), "Entry") == 0)
 		{
-			SLICE_LOG_ERROR("State name: " + state_node.name + " not found in " + mAnimatorData->mStateMachineAsset->assetName + ", transition not removed.");
-			return false;
-		}
+			mAnimatorData->mTransitionNodes.erase(transition_it);
+			mAnimatorData->mStateMachineAsset.get()->entryState = "";
 
-		auto& state = state_it->second;
-		
-		auto it = std::find_if(state.transitions.begin(), state.transitions.end(), [&](const auto& transition) { return transition.id == id;});
-		if (it == state.transitions.end())
+			return true;
+		}
+		else
 		{
-			SLICE_LOG_ERROR("Transition ID not found.");
-			return false;
+			auto state_it = stateMap.find(state_node.name);
+
+			if (state_it == stateMap.end())
+			{
+				SLICE_LOG_ERROR("State name: " + state_node.name + " not found in " + mAnimatorData->mStateMachineAsset->assetName + ", transition not removed.");
+				return false;
+			}
+
+			auto& state = state_it->second;
+
+			auto it = std::find_if(state.transitions.begin(), state.transitions.end(), [&](const auto& transition) { return transition.id == id; });
+			if (it == state.transitions.end())
+			{
+				SLICE_LOG_ERROR("Transition ID not found.");
+				return false;
+			}
+
+			state.transitions.erase(it);
+			auto it2 = std::find(state_node.transitionIds.begin(), state_node.transitionIds.end(), id);
+			state_node.transitionIds.erase(it2);
+
+			mAnimatorData->mTransitionNodes.erase(transition_it);
+
+			return true;
 		}
-
-		state.transitions.erase(it);
-		auto it2 = std::find(state_node.transitionIds.begin(), state_node.transitionIds.end(), id);
-		state_node.transitionIds.erase(it2);
-
-		mAnimatorData->mTransitionNodes.erase(transition_it);
-
-		return true;
 	}
 }

@@ -30,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Systems/LayerManager.h>
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
+#include <Animator/AnimatorWindow.h>
 
 namespace SliceEditor
 {
@@ -188,9 +189,9 @@ namespace SliceEditor
 						if (selectedNode->type == SelectionType::ENTITY)
 						{
 							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& currentSlice)
+							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(currentEntity, [&](SliceEngine::SliceEntity& currentSlice)
 								{
-									currentSlice.mLayer = slice.mLayer;
+									currentSlice.mLayer = slicePatch.mLayer;
 								});
 						}
 					}
@@ -1347,6 +1348,7 @@ namespace SliceEditor
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						// hmm sussy
 					}
 				}
 				//Controller has been set, should be changable
@@ -1356,7 +1358,15 @@ namespace SliceEditor
 					{
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						if (animator.Handle_skeleton.IsValid())
+							animator.stateMachine.InitState(animator.curr_anim_pkg);
+						else
+							animator.stateMachine.InitState(animator.curr_anims);
+
+
+						OnAnimatorChangedEvent eventNow{};
+						eventNow.ent = entity;
+						EventManager::GetInstance()->Publish<OnAnimatorChangedEvent>(eventNow);
 					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);

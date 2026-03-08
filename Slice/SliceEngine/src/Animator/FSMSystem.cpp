@@ -61,7 +61,7 @@ namespace SliceEngine
 			EFSM.stateCon = false;
 		}
 	}
-	void FSMSystem::InitState(SliceEngineTypes::Anims anims)
+	void FSMSystem::InitState(SliceEngineTypes::SequencePackage anims)
 	{
 		if (anims.animations.size() != 0)
 		{
