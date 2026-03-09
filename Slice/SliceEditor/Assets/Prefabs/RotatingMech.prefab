@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048750,
+                "entity_id": 1048687,
                 "neighbours": [
-                    0,
-                    1048758,
-                    1048771,
-                    1048668
+                    1048783,
+                    1048679,
+                    1048776,
+                    1048761
                 ]
             },
             "struct SliceEngine::Script": {
@@ -40,6 +40,30 @@
                         "Type": "float",
                         "Value": 50.0
                     },
+                    "bulletsPerCircle": {
+                        "Type": "int",
+                        "Value": 4
+                    },
+                    "burstCount": {
+                        "Type": "int",
+                        "Value": 3
+                    },
+                    "burstProjectiles": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "burstRatePerSecond": {
+                        "Type": "int",
+                        "Value": 10
+                    },
+                    "circle": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "circleRadius": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
                         "Value": 40.0
@@ -58,7 +82,11 @@
                     },
                     "projectilePrefabName": {
                         "Type": "std::string",
-                        "Value": "Projectile"
+                        "Value": "BallProjectile"
+                    },
+                    "radialRandomInDegrees": {
+                        "Type": "float",
+                        "Value": 0.0
                     },
                     "rangeLimit": {
                         "Type": "float",
@@ -97,7 +125,7 @@
                 "position": [
                     -19.137109756469727,
                     4.373044013977051,
-                    334.47161865234375
+                    -18.81622314453125
                 ],
                 "rotation": [
                     1.0,
@@ -135,10 +163,10 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048758,
+                "entity_id": 1048679,
                 "neighbours": [
-                    1048750,
-                    1048768,
+                    1048687,
+                    1048669,
                     4294967295,
                     4294967295
                 ]
@@ -177,7 +205,7 @@
     {
         "Visual Mesh_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "13119786379125821405",
+                "prefabGUID": "",
                 "prefabHandle": {
                     "GUID": ""
                 },
@@ -196,12 +224,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048768,
+                "entity_id": 1048669,
                 "neighbours": [
-                    1048758,
+                    1048679,
                     4294967295,
                     4294967295,
-                    2097339
+                    1048760
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -257,11 +285,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097339,
+                "entity_id": 1048760,
                 "neighbours": [
-                    1048758,
+                    1048679,
                     4294967295,
-                    1048768,
+                    1048669,
                     4294967295
                 ]
             },

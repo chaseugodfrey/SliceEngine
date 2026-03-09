@@ -195,7 +195,7 @@ namespace SliceEngine
 
         public void LookAt(Vector3 targetPosition, Vector3 up)
         {
-            Vector3 direction = targetPosition - Position;
+            Vector3 direction = targetPosition - WorldPosition;
 
             // Avoid zero-length direction
             if (direction.LengthSquared() < 1e-6f)

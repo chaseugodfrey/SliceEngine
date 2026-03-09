@@ -61,7 +61,7 @@ namespace SliceEngine
                 //pitch = newPitch;
 
                 transform.Rotate(clampedPitch - pitch, Vector3.Right);
-
+                
                 pitch = clampedPitch;
 
             }
