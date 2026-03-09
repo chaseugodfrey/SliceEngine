@@ -72,7 +72,9 @@ project "SliceTests"
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',
-        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"'
+        '{COPYFILE} "%{ThirdParty.MONO_DLL}" "%{cfg.targetdir}"',
+        -- run the tests immediately after build, no need to build and then run separately
+        'pushd "%{cfg.targetdir}" && "SliceTests.exe" && popd'
     }
 
     filter "configurations:EditorDebug"
