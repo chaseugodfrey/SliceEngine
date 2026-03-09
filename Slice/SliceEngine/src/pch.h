@@ -11,6 +11,11 @@ DigiPen Institute of Technology is prohibited.
 #ifndef PCH_H
 #define PCH_H
 
+// OpenGL headers must come before Windows.h to avoid conflicts
+#include <GL/glew.h>
+#define GLFW_INCLUDE_NONE
+#include <glfw3.h>
+
 #include <iostream>
 #include <filesystem>
 #include <fstream>
@@ -64,10 +69,6 @@ DigiPen Institute of Technology is prohibited.
 #undef max
 #undef name
 // external libs
-
-// glfw
- #include <GL/glew.h>
- #include <glfw3.h>
 
 // fmod
 // #include <fmod.hpp>
