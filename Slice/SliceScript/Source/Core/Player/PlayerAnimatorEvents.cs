@@ -60,13 +60,11 @@ namespace SliceEngine
         public static void PlayPlayerSFX(string type)
         {
             type = type.ToLower();
-            SliceLog.Log("wow");
 
             switch (type)
             {
                 case "land":
                     AudioSettings.PlaySFX("Land");
-                    SliceLog.Log("wow2");
                     break;
                 case "plunge":
                     AudioSettings.PlaySFX("Plunge");
@@ -79,6 +77,15 @@ namespace SliceEngine
                     break;
                 case "doublejump":
                     AudioSettings.PlaySFX("DoubleJump");
+                    break;
+                case "attack1":
+                    AudioSettings.PlaySFX("A1");
+                    break;
+                case "attack2":
+                    AudioSettings.PlaySFX("A2");
+                    break;
+                case "attack3":
+                    AudioSettings.PlaySFX("A3");
                     break;
             }
         }
