@@ -63,12 +63,18 @@ namespace SliceEngine
     {
         auto inputS = Core::GetInstance()->GetInputSystem();
 
+        // let input system handle delta
+
         inputS->SetMousePosition(xpos, ypos);
     }
     // track scroll offset
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset)
     {
         Core::GetInstance()->GetInputSystem()->SetScrollOffset(yoffset);
+    }
+    static void WindowResizeCallback(GLFWwindow* window, int width, int height)
+    {
+        Core::GetInstance()->GetInputSystem()->SetWindowDim(width, height);
     }
 #pragma endregion
 
@@ -156,15 +162,58 @@ namespace SliceEngine
         changedQueue.swap(nextFrameEdges);
         //std::cout << changedQueue.size() << std::endl;
         //mouseDelta = prevMousePos - currMousePos;
-        prevMousePos = currMousePos;
-        scrollDelta = 0.0f;
+        //prevMousePos = currMousePos;
+        //scrollDelta = 0.0f;
     }
 
     void InputSystem::UpdateCursorData()
     {
-        mouseDelta = prevMousePos - currMousePos;
-        prevMousePos = currMousePos;
+        // reset values
         scrollDelta = 0.0f;
+        mouseDelta = { 0.0f, 0.0f };
+
+        bool changeState = false;
+        if (currentCursorState == CursorState::DISABLED)
+        {
+            // handle change of cursor state case for prev state being not disabled
+            if (prevCursorState != CursorState::DISABLED)
+            {
+                changeState = true;
+            }
+
+            else
+            {
+
+            }
+
+            // ndc should always be in center
+            currMouseNDC = { 0.5f, 0.5f };
+        }
+
+        else
+        {
+            // handle change of cursor state case for prev state being disabled
+            if (prevCursorState != CursorState::DISABLED)
+            {
+
+            }
+
+            else
+            {
+                changeState = true;
+            }
+
+            // assume full screen (if any future issues, add some conversions)
+            glm::vec2 ratio = { currMousePos.x / windowDim.x, currMousePos.y / windowDim.y };
+            currMouseNDC = ratio;
+        }
+
+        // if there is a state change, don't calculate delta due to inconsistent value
+        if (!changeState)
+            mouseDelta = prevMousePos - currMousePos;
+
+        prevMousePos = currMousePos;
+        prevCursorState = currentCursorState;
     }
 
     // bind callbacks to window (if not already bound)
@@ -176,6 +225,7 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, MouseButtonCallback);
         glfwSetCursorPosCallback(windowRef, CursorPosCallback);
         glfwSetScrollCallback(windowRef, ScrollCallback);
+        glfwSetWindowSizeCallback(windowRef, WindowResizeCallback);
         callbacksBound = true;
     }
 
@@ -188,6 +238,7 @@ namespace SliceEngine
         glfwSetMouseButtonCallback(windowRef, nullptr);
         glfwSetCursorPosCallback(windowRef, nullptr);
         glfwSetScrollCallback(windowRef, nullptr);
+        glfwSetWindowSizeCallback(windowRef, nullptr);
         callbacksBound = false;
     }
 
@@ -306,12 +357,12 @@ namespace SliceEngine
         auto window = Core::GetInstance()->GetWindow();
         int newMode{};
         bool rawInput{};
-        switch (cursorState)
+        switch (currentCursorState)
         {
         case CursorState::DEFAULT: newMode = GLFW_CURSOR_NORMAL; break;
         case CursorState::HIDDEN: newMode = GLFW_CURSOR_HIDDEN; break;
         case CursorState::CONFINED: newMode = GLFW_CURSOR_CAPTURED; break;
-        case CursorState::DISABLED: 
+        case CursorState::DISABLED:
             if (mode == InputMode::Game)
             {
                 newMode = GLFW_CURSOR_DISABLED;
@@ -331,13 +382,13 @@ namespace SliceEngine
 
     void InputSystem::SetCursorState(CursorState state)
     {
-        cursorState = state;
+        currentCursorState = state;
         SetCursorState();
     }
 
     CursorState InputSystem::GetCursorState()
     {
-        return cursorState;
+        return currentCursorState;
     }
 
     void InputSystem::ResetCursorState()
@@ -374,6 +425,12 @@ namespace SliceEngine
     void InputSystem::SetScrollOffset(double offset)
     {
         scrollDelta = (float)offset;
+    }
+
+    void InputSystem::SetWindowDim(int width, int height)
+    {
+        windowDim.x = width;
+        windowDim.y = height;
     }
 
     void InputSystem::SetMouseNDC(double x, double y)

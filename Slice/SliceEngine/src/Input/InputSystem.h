@@ -53,8 +53,11 @@ namespace SliceEngine
 
         glm::vec2 currMousePos{ 0.0, 0.0 }; // reset mouse positions
         glm::vec2 prevMousePos{ 0.0, 0.0 };
+        glm::vec2 internalMousePos{ 0.0, 0.0 }; // for disabled cursor state use
         glm::vec2 mouseDelta{ 0.0, 0.0 };
         glm::vec2 currMouseNDC{ 0.0, 0.0 };
+
+
         float scrollDelta = 0.0f; // reset scroll delta
 
         // runtime control
@@ -70,13 +73,16 @@ namespace SliceEngine
         inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game; }
         inline bool allowGameMouse() const { return enabled && mode == InputMode::Game; }
 
-        CursorState cursorState{ CursorState::DEFAULT };
+        CursorState currentCursorState{ CursorState::DEFAULT };
+        CursorState prevCursorState{ CursorState::DEFAULT };
+
         void SetCursorState();
 
         // installation state for callbacks
         bool callbacksBound = false; // to prevent double-binding
 
     public:
+        glm::ivec2 windowDim{ 1920, 1080 };
 
         // func to convert keycode to string
         static const char* KeyNameFallback(int key);
@@ -88,9 +94,9 @@ namespace SliceEngine
         void UpdateCursorData(); // editor doesn't call this
 
         // queue 
-        size_t EventsThisFrame() const 
-        { 
-            return changedQueue.size(); 
+        size_t EventsThisFrame() const
+        {
+            return changedQueue.size();
         }
 
         // bind/unbind callbacks explicitly (instead of always on)
@@ -126,7 +132,6 @@ namespace SliceEngine
         glm::vec2 GetMouseNDC() const;
         double GetMouseX() const;
         double GetMouseY() const;
-        
 
         // cursor states
         void SetCursorState(CursorState state);
@@ -147,6 +152,7 @@ namespace SliceEngine
         void SetMousePosition(double x, double y);
         void SetMouseDelta(double x, double y);
         void SetScrollOffset(double offset);
+        void SetWindowDim(int width, int height);
         void SetMouseNDC(double x, double y);
     };
 }
