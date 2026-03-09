@@ -29,12 +29,12 @@ namespace SliceEngine
             {
                 case "true":
                     //Bootstrap.Player.canMove = false;
-                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.Attacking;
+                    Bootstrap.Player.PlayerCombatState = PlayerController.CombatState.Attacking;
                     //Console.WriteLine("Player is now attacking.");
                     break;
                 case "false":
                     //Bootstrap.Player.canMove = true;
-                    Bootstrap.Player.playerCombatState = PlayerController.CombatState.None;
+                    Bootstrap.Player.PlayerCombatState = PlayerController.CombatState.None;
                     //Console.WriteLine("Player is no longer attacking.");
                     break;
                 default:
