@@ -241,7 +241,7 @@ namespace SliceEngine
                     case 1:
                         StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[0].TurnOn()));
 
-                        AudioSettings.PlaySFX("A1");
+                        //AudioSettings.PlaySFX("A1");
 
                         playerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -251,7 +251,7 @@ namespace SliceEngine
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
-                            AudioSettings.PlaySFX("A2");
+                            //AudioSettings.PlaySFX("A2");
                         }
 
                         playerMovementState = MovementState.Lunging;
@@ -262,7 +262,7 @@ namespace SliceEngine
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
-                            AudioSettings.PlaySFX("A3");
+                           // AudioSettings.PlaySFX("A3");
                         }
                         break;
                     default:
