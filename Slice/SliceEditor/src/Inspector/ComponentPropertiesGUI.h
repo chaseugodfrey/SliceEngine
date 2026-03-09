@@ -61,9 +61,9 @@ namespace SliceEditor
 
 	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
 	
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
 	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
 	
@@ -111,6 +111,8 @@ namespace SliceEditor
 	bool GUIDDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::GUID& val, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr);
 
 	bool EntityInputHeader(Registry& reg, const char* property_label, const char* id, Entity& val);
+
+	bool LayerHeader(Registry& reg, std::string property_label, const char* id, uint32_t& selected, std::vector<std::string>& container, bool searchBar = false, bool selectionDifferent = false);
 
 	// if need to pass in lambda
 	// example code:

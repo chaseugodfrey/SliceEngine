@@ -61,6 +61,55 @@ namespace SliceEngine
 			EFSM.stateCon = false;
 		}
 	}
+	void FSMSystem::InitState(SliceEngineTypes::SequencePackage anims)
+	{
+		if (anims.animations.size() != 0)
+		{
+			EFSM.stateMap.reserve(anims.animations.size());
+			std::string anim_name;
+			SliceEngineTypes::State tmpState;
+
+			for (unsigned int i = 0; i < anims.animations.size(); i++)
+			{
+				int pos = (int)anims.animations[i].name.find("|");
+				std::string mapName = anims.animations[i].name.substr(pos + 1);
+				if (EFSM.stateMap.contains(mapName))
+				{
+					EFSM.stateMap[mapName].curr_anim_idx = i;
+					EFSM.stateMap[mapName].animationTime = anims.animations[i].duration;
+					EFSM.stateMap[mapName].fps = anims.animations[i].fps;
+					continue;
+				}
+
+				anim_name = anims.animations[i].name;
+				if (anim_name.empty())
+				{
+					anim_name = std::to_string(i);
+				}
+
+				tmpState.curr_anim_idx = i;
+				tmpState.stateName = anim_name;
+				tmpState.animationTime = anims.animations[i].duration;
+				tmpState.fps = anims.animations[i].fps;
+
+				EFSM.stateMap[anim_name] = tmpState;
+			}
+		}
+
+		if (EFSM.stateMap.size() == 0)
+		{
+			EFSM.currState = nullptr;
+			EFSM.anyState = nullptr;
+		}
+		else
+		{
+			EFSM.currState = &EFSM.stateMap[EFSM.entryState];
+			if (EFSM.stateMap.contains("AnyState"))
+				EFSM.anyState = &EFSM.stateMap["AnyState"];
+		}
+
+		EFSM.stateCon = false;
+	}
 	void FSMSystem::InitState()
 	{
 		EFSM.currState = &EFSM.stateMap[EFSM.entryState];

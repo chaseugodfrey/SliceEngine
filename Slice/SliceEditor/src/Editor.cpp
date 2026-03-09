@@ -319,6 +319,9 @@ namespace SliceEditor
 		case AssetType::Font:
 			file.metaData = std::make_unique<FontMetaData>();
 			break;
+		case AssetType::SequencePackage:
+			file.metaData = std::make_unique<SequencePkgData>();
+			break;
 		default:
 			SLICE_LOG_WARNING("File Type not supported in HandleDrop function yet: " + fileExt +". Letting Filewatcher handle.");
 			return;

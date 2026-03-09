@@ -86,6 +86,7 @@ namespace SliceEngine
 			void LoadDefaultLineModel();
 			void LoadDefaultFrustrumModel();
 			void LoadDefaultQuadModel();
+			void LoadDefaultTerrain(int n);
 			bool LoadModelResource(std::string const&);	//this one is new one
 			void DestroyModel();
 		};

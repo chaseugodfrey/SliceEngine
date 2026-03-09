@@ -1242,6 +1242,94 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
+	static void ParticleSystem_GetGlow(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().glow;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetGlow(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().glow = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().glowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetGlowIntensity (unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().glowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMinGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minGlowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMinGlowIntensity(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minGlowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMaxGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxGlowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMaxGlowIntensity(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxGlowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
 	static void ParticleSystem_GetTextureID(unsigned int entity, unsigned int* out)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
@@ -2937,6 +3025,15 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
+
+		ADD_INTERNAL_CALL(ParticleSystem_GetGlow);
+		ADD_INTERNAL_CALL(ParticleSystem_SetGlow);
+		ADD_INTERNAL_CALL(ParticleSystem_GetGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxGlowIntensity);
 
 		ADD_INTERNAL_CALL(ParticleSystem_GetTextureID);
 		ADD_INTERNAL_CALL(ParticleSystem_SetTextureID);

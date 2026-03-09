@@ -281,6 +281,9 @@ namespace SliceEngine
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				m->LoadDefaultQuadModel();
 				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				m->LoadDefaultTerrain(100);
+				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				m->LoadDefaultLineModel();
 				break;
@@ -336,6 +339,9 @@ namespace SliceEngine
 				break;
 			case DefaultResourceIDs::QUAD_DEFAULT:
 				resource->LoadDefaultQuadModel();
+				break;
+			case DefaultResourceIDs::PLANE_DEFAULT:
+				resource->LoadDefaultTerrain(100);
 				break;
 			case DefaultResourceIDs::LINE_DEFAULT:
 				resource->LoadDefaultLineModel();
@@ -494,6 +500,25 @@ namespace SliceEngine
 	}
 
 	void Type<SliceEngineTypes::AnimationPackage>::Reload(SliceEngineTypes::AnimationPackage* resource, ResourceManager& mgr, const std::string& path)
+	{
+	}
+
+	//Anims Package
+	std::unique_ptr<SliceEngineTypes::SequencePackage> Type<SliceEngineTypes::SequencePackage>::Load(ResourceManager& resourceMgr, const std::string& path)
+	{
+		auto anim = std::make_unique<SliceEngineTypes::SequencePackage>();
+		if (!anim->LoadSequencePkgResource(path)) {
+			return nullptr;
+		}
+		return anim;
+	}
+
+	void Type<SliceEngineTypes::SequencePackage>::Destroy(SliceEngineTypes::SequencePackage& resource, ResourceManager& resourceMgr)
+	{
+		//nothing to really delete too
+	}
+
+	void Type<SliceEngineTypes::SequencePackage>::Reload(SliceEngineTypes::SequencePackage* resource, ResourceManager& mgr, const std::string& path)
 	{
 	}
 

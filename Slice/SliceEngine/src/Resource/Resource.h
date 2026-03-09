@@ -35,6 +35,7 @@ namespace SliceEngine
 		constexpr uint64_t CYLINDER_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultCylinder");
 		constexpr uint64_t LINE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultLine");
 		constexpr uint64_t QUAD_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultQuad");
+		constexpr uint64_t PLANE_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultPlane");
 		constexpr uint64_t FRUSTRUM_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultFrustrum");
 		
 		constexpr uint64_t COLOR_DEADED_DEFAULT = SliceEngine::FNVHash::fnv1a("DefaultColorDEADED");
@@ -230,25 +231,25 @@ namespace SliceEngine
 	};
 
 	template <>
-	struct Type<SliceEngineTypes::Anims>
+	struct Type<SliceEngineTypes::SequencePackage>
 	{
 		constexpr static inline uint64_t defaultResourceGUID = 0;
 
-		static std::unique_ptr<SliceEngineTypes::Anims> Load(ResourceManager& resourceMgr, const std::string& path);
-		static void Destroy(SliceEngineTypes::Anims& resource, ResourceManager& resourceMgr);
+		static std::unique_ptr<SliceEngineTypes::SequencePackage> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::SequencePackage& resource, ResourceManager& resourceMgr);
 
-		static void Reload(SliceEngineTypes::Anims* resource, ResourceManager& mgr, const std::string& path);
+		static void Reload(SliceEngineTypes::SequencePackage* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
-	struct Type<SliceEngineTypes::Anim>
+	struct Type<SliceEngineTypes::Sequence>
 	{
 		constexpr static inline uint64_t defaultResourceGUID = 0;
 
-		static std::unique_ptr<SliceEngineTypes::Anim> Load(ResourceManager& resourceMgr, const std::string& path);
-		static void Destroy(SliceEngineTypes::Anim& resource, ResourceManager& resourceMgr);
+		static std::unique_ptr<SliceEngineTypes::Sequence> Load(ResourceManager& resourceMgr, const std::string& path);
+		static void Destroy(SliceEngineTypes::Sequence& resource, ResourceManager& resourceMgr);
 
-		static void Reload(SliceEngineTypes::Anim* resource, ResourceManager& mgr, const std::string& path);
+		static void Reload(SliceEngineTypes::Sequence* resource, ResourceManager& mgr, const std::string& path);
 	};
 
 	template <>
