@@ -653,6 +653,7 @@ namespace SliceEditor
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
+			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
@@ -670,6 +671,21 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			}
+
+			ImGui::Text("Godrays");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isGodray", &isGodray))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_GODRAY, isGodray);
+			}
+
+			if (isGodray)
+			{
+				DragFloatInputHeader(mRegistry, "Godray Radius", "##cam_god_ray_radius", cam.godRayFilterRadius, "%.f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Godray Strength", "##cam_god_ray_strength", cam.godRayStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Godray Exposure", "##cam_god_ray_exposure", cam.godRayExposure, "%.1f", 0.1f, 50.0f);
+			}
+
 
 			ImGui::Text("Fog");
 			ImGui::SameLine(150.0f);

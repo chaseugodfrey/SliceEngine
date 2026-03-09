@@ -178,6 +178,10 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_EMISSION], 1, GL_RGB16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgb-GodRay
+		glTextureStorage2D(mColAttachment[GOUT_GODRAY], 1, GL_RGB16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_GODRAY], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_GODRAY], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// unint_8 object to outline
 		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE], 1, GL_R8UI, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -485,6 +489,10 @@ namespace SliceEngine
 
 			renderQueue.SortTranslucent(cam);
 
+			// Just clear for godray only
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_GODRAY]);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
 			CalculateVP(cam);
 			SetShader(ShaderPaths[S_SHADOW]);
 			LinkFrameBufferSettings(FB_NIL, 0);
@@ -554,7 +562,9 @@ namespace SliceEngine
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
 				RenderFog(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
-				RenderBloom(cam);
+				RenderBloom(cam, false);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
+				RenderBloom(cam, true);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
 				RenderVignette(cam);
 
@@ -1153,7 +1163,7 @@ namespace SliceEngine
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
 	}
-	void RenderManager::RenderBloom(Entity cam)
+	void RenderManager::RenderBloom(Entity cam, bool specifallyGodRay)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
@@ -1161,7 +1171,10 @@ namespace SliceEngine
 		SetShader(ShaderPaths[S_BLOOM_SPLIT]);
 		LoadSettings(GPS_BLOOM);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
-		glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
+		if(specifallyGodRay)
+			glBindTextureUnit(1, mColAttachment[GOUT_GODRAY]);
+		else
+			glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1187,7 +1200,10 @@ namespace SliceEngine
 		LoadSettings(GPS_BLOOM);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
-		glUniform1f(uniformLoc, camera.bloomFilterRadius * mBloomFilterMult);
+		if (specifallyGodRay)
+			glUniform1f(uniformLoc, camera.godRayFilterRadius * mBloomFilterMult);
+		else
+			glUniform1f(uniformLoc, camera.bloomFilterRadius * mBloomFilterMult);
 
 		for (int i{ mMaxBloom - 1 }; i > 0; --i)
 		{
@@ -1206,7 +1222,10 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uBloomStrength");
-		glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
+		if (specifallyGodRay)
+			glUniform1f(uniformLoc, camera.godRayStrength * mBloomStrengthMult);
+		else
+			glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();

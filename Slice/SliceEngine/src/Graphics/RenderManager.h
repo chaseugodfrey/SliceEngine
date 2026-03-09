@@ -64,7 +64,7 @@ namespace SliceEngine
 		void RenderLighting(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
-		void RenderBloom(Entity cam);
+		void RenderBloom(Entity cam, bool specifallyGodRay);
 		void RenderVignette(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
@@ -187,6 +187,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
 		};
 
+		public:
 		enum GPU_OUT : unsigned char
 		{
 			GOUT_DIF = 0,
@@ -195,12 +196,14 @@ namespace SliceEngine
 			GOUT_ID,
 			GOUT_ROUGH_METAL,
 			GOUT_EMISSION,
+			GOUT_GODRAY,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
 			GOUT_FINAL,
 			GOUT_POST,
 			GOUT_TOTAL
 		};
+		private:
 		enum GPUSetting : unsigned char
 		{
 			GPS_ENABLE_CULL_FACE	= 0b0000'0001,
@@ -263,7 +266,9 @@ namespace SliceEngine
 
 		GLuint SkyboxMap{};
 
+		public:
 		GLuint mColAttachment[GOUT_TOTAL]{};
+		private:
 		GPU_OUT mCurrFinalColAttachment{ GOUT_FINAL };
 		std::vector<BloomMip> mBloomMips;
 		GPUSetting mCurrGPUSetting{ GPS_NONE };

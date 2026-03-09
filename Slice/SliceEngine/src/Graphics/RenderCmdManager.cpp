@@ -528,6 +528,9 @@ namespace SliceEngine
 			glBindTextureUnit(4, Core::GetInstance()->GetRenderManager()->mDirLightDepthMaps);
 			glBindTextureUnit(5, Core::GetInstance()->GetRenderManager()->mShadowCubeMapArr);
 
+			auto godRayShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/GodRays.cshader").get()->translucentS;
+			auto* rm = Core::GetInstance()->GetRenderManager();
+
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
 			{
@@ -552,31 +555,40 @@ namespace SliceEngine
 				{
 					mShader = thisShader;
 					glUseProgram(mShader);
-					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
-					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
-					Core::GetInstance()->GetRenderManager()->BindCameraDepth(mLastKnownCam);
+					rm->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+					rm->UpdateCamVP();
+					rm->BindCameraDepth(mLastKnownCam);
+
+					if (drawType == DrawType::DRAW_TRANSLUCENT)
+					{
+						if (thisShader == godRayShader)
+							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_GODRAY], 0);
+						else
+							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_EMISSION], 0);
+					}
+
 					GLint uniformLoc;
 					uniformLoc = glGetUniformLocation(mShader, "time");
 					if(uniformLoc != -1)
 						glUniform1f(uniformLoc, time);
 					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
-					glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower);
+					glUniform1f(uniformLoc, rm->skyboxData.lightingPower);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
-					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->numLightsFound);
+					glUniform1i(uniformLoc, rm->numLightsFound);
 					
 					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
-					glUniform1i(uniformLoc, Core::GetInstance()->GetRenderManager()->mNumCascadeShadow);
+					glUniform1i(uniformLoc, rm->mNumCascadeShadow);
 
 					std::stringstream ss{};
-					for (int i = 0; i < Core::GetInstance()->GetRenderManager()->mNumCascadeShadow; ++i)
+					for (int i = 0; i < rm->mNumCascadeShadow; ++i)
 					{
 						ss.str("");
 						ss << "cascadePlaneDist[" << std::to_string(i) << "]";
 						uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
-						if (i == Core::GetInstance()->GetRenderManager()->mNumCascadeShadow - 1)
-							glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->mainDirLightFar);
+						if (i == rm->mNumCascadeShadow - 1)
+							glUniform1f(uniformLoc, rm->mainDirLightFar);
 						else
-							glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->mainDirLightFar / Core::GetInstance()->GetRenderManager()->shadowCascadeLevels[i]);
+							glUniform1f(uniformLoc, rm->mainDirLightFar / rm->shadowCascadeLevels[i]);
 					}
 					auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
 
