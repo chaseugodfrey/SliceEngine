@@ -150,6 +150,23 @@ namespace SliceEngine
                 // save the original position before slamming
                 //originalPosition = owner.GetComponent<Transform>().Position;
 
+                // check if can slam 
+                RayCastHit hitInfo;
+                // Check if can plunge by raycasting down to see distance to environment layer objects
+                bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                
+                if (hit)
+                {
+                    GameObject objHit = owner.FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    if (objHit == null)
+                    {
+                        // no floor detected
+                        enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                        return;
+                    }
+
+                }
+
                 Console.WriteLine("Slamming");
                 owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
             }
@@ -263,7 +280,7 @@ namespace SliceEngine
             projectileState = new ProjectileState(this.gameObject);
 
             // start at intro state
-           // stateMachine.ChangeState(introState);
+            stateMachine.ChangeState(introState);
             // start at a random point first also
             currPoint = GetNextIdlePoint();
 
