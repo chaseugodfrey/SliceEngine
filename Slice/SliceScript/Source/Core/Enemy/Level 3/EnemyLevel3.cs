@@ -58,7 +58,7 @@ namespace SliceEngine
             }
         }
 
-        public void DamagePlayer(GameObject hit)
+        public override void DamagePlayer(GameObject hit)
         {
             Console.WriteLine("Damaging the player");
             if (hit.Has<PlayerController>())
@@ -79,7 +79,7 @@ namespace SliceEngine
             stateMachine.OnFixedUpdate(dt);
         }
 
-        public int GetNextIdlePoint()
+        public override int GetNextIdlePoint()
         {
             // if theres only 1 point, then itll unfortunately have to stay at 1 position
             if (idlePoints.Count == 1)
@@ -95,7 +95,7 @@ namespace SliceEngine
             return nextPoint;
         }
 
-        public IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
+        public override IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
         {
             float elapsedTime = 0.0f;
 
@@ -116,7 +116,7 @@ namespace SliceEngine
             OnMovementFinish();
         }
 
-        public void OnMovementFinish()
+        public  override void OnMovementFinish()
         {
             Console.WriteLine("Movement Finished");
             switch(stateMachine.currentState)
@@ -143,7 +143,7 @@ namespace SliceEngine
             }
         }
 
-        public void ToggleHitbox(bool flag)
+        public override void ToggleHitbox(bool flag)
         {
             Console.WriteLine("Toggle hitbox");
             if (flag)
