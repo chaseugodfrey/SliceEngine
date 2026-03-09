@@ -91,7 +91,18 @@ namespace SliceEngine
 				,GL_COLOR_ATTACHMENT4
 				,GL_COLOR_ATTACHMENT5
 			};
-			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers);
+		}
+
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO[FB_THREE]);
+
+			unsigned int drawBuffers[] = {
+				GL_COLOR_ATTACHMENT0
+				,GL_COLOR_ATTACHMENT1
+				,GL_COLOR_ATTACHMENT2
+			};
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers);
 		}
 
 		{
@@ -504,7 +515,7 @@ namespace SliceEngine
 			SetShader(ShaderPaths[S_SKYBOX_Light]);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			LoadSettings(GPS_SKYBOX_AMBIENT);
-			RenderSkyboxLighting();
+			RenderSkyboxLighting(cam);
 
 			SetShader(ShaderPaths[S_LIGHTING]);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -512,17 +523,20 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 			//----------------------------------------------------------------
-			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
+			LoadSettings(GPS_DEFAULT); // Does the ID part first
 			BindCameraDepth(cam);
 			if (cam == mCurrentCamIDHover) // Don't Draw into ID when drawing debugging onwards
 			{
-				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
+				//LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
+				LinkFrameBufferSettings(FB_THREE, 3, 0, mColAttachment[GOUT_ID], 0);
 				glDepthMask(GL_FALSE);
 				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY, cameraPos);
 				CheckGLError();
 			}
+			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
 			// When Drawing the Transparent part also writes into depth buffer
-			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LinkFrameBufferSettings(FB_THREE, 3, mColAttachment[mCurrFinalColAttachment], 0, mColAttachment[GOUT_EMISSION]);
 			//UpdateCamVP();
 			glDepthMask(GL_TRUE);
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
@@ -897,7 +911,7 @@ namespace SliceEngine
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 		CheckGLError();
 	}
-	void RenderManager::RenderSkyboxLighting()
+	void RenderManager::RenderSkyboxLighting(Entity cam)
 	{
 		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
@@ -906,6 +920,9 @@ namespace SliceEngine
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "skyboxLightingPower");
 		glUniform1f(uniformLoc, skyboxData.lightingPower);
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "willBloom");
+		glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
@@ -1144,6 +1161,7 @@ namespace SliceEngine
 		SetShader(ShaderPaths[S_BLOOM_SPLIT]);
 		LoadSettings(GPS_BLOOM);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1175,7 +1193,7 @@ namespace SliceEngine
 		{
 			glBindTextureUnit(0, mBloomMips[i].tex);
 			glViewport(0, 0, mBloomMips[i-1].intSize.x, mBloomMips[i-1].intSize.y);
-			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
+			LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[i-1].tex);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 

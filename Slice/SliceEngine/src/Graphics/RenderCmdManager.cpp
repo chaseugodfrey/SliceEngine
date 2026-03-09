@@ -99,6 +99,7 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
+			if (!rend.componentEnabled) return;
 			auto model = rend.modelHandle;
 			if (!model.IsValid()) return;
 			const SliceEngine::SliceEngineTypes::Material* material;
@@ -553,9 +554,11 @@ namespace SliceEngine
 					glUseProgram(mShader);
 					Core::GetInstance()->GetRenderManager()->ForceSetCustomShader(std::string("CUSTOM"), mShader);
 					Core::GetInstance()->GetRenderManager()->UpdateCamVP();
+					Core::GetInstance()->GetRenderManager()->BindCameraDepth(mLastKnownCam);
 					GLint uniformLoc;
 					uniformLoc = glGetUniformLocation(mShader, "time");
-					glUniform1f(uniformLoc, time);
+					if(uniformLoc != -1)
+						glUniform1f(uniformLoc, time);
 					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
 					glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
@@ -575,14 +578,17 @@ namespace SliceEngine
 						else
 							glUniform1f(uniformLoc, Core::GetInstance()->GetRenderManager()->mainDirLightFar / Core::GetInstance()->GetRenderManager()->shadowCascadeLevels[i]);
 					}
+					auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
+
+					uniformLoc = glGetUniformLocation(mShader, "willBloom");
+					glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
 
 					uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
 					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
 					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
 					if (uniformLoc != -1)
 					{
-						auto camm = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
-						glUniform1f(uniformLoc, camm.translucentSelectCutoff);
+						glUniform1f(uniformLoc, camera.translucentSelectCutoff);
 					}
 				}
 

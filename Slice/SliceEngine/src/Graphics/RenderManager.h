@@ -60,7 +60,7 @@ namespace SliceEngine
 		void RenderPointShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderSkybox();
-		void RenderSkyboxLighting();
+		void RenderSkyboxLighting(Entity cam);
 		void RenderLighting(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
@@ -128,7 +128,8 @@ namespace SliceEngine
 		enum FBOType : unsigned char
 		{
 			FB_NIL = 0,		// 0 Outs
-			FB_DEFERRED,	// 5 Outs
+			FB_DEFERRED,	// 6 Outs
+			FB_THREE,		// 3 Outs
 			FB_FINAL,		// 1 Out
 			FB_TOTAL		// NO BIND
 		};

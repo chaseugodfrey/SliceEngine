@@ -250,6 +250,7 @@ namespace SliceEngine
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
 		.property("meshOffset", &Renderer::meshOffset)
+		.property("castShadow", &Renderer::castShadow)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
 	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
