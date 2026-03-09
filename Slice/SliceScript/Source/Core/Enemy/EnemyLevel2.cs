@@ -323,7 +323,7 @@ namespace SliceEngine
 
         public GameObject generalHitbox;
 
-        uint collidedEntity = 0;
+        protected uint collidedEntity = 0;
 
         public override void OnCreate()
         {

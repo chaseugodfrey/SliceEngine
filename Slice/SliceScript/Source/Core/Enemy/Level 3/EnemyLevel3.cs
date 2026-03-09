@@ -35,7 +35,7 @@ namespace SliceEngine
 
         //public GameObject generalHitbox;
 
-        uint collidedEntity = 0;
+        //uint collidedEntity = 0;
 
         public override void OnCreate()
         {
