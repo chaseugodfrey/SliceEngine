@@ -36,8 +36,6 @@ extern void _CheckGLError(const char* file, int line);
 #define CheckGLError() _CheckGLError(__FILE__, __LINE__)
 
 // My Comments to (Ctrl + f): -TODO- MAYDO:
-// -TODO- Currently not using mat in the InstanceData struct (original intention is to keep track of which textures to use)
-// -TODO- Make Gather Render Commands, and then draw using these commands instead lol
 
 namespace SliceEngine
 {
@@ -217,10 +215,7 @@ namespace SliceEngine
 		// ----- Generates Skybox Texture -----
 		glGenTextures(1, &SkyboxMap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxMap);
-		//glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, srcInternalFmt, width, height);
-		for (u_int i{}; i < 6; ++i)
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, mSkyboxDim, mSkyboxDim, 0, GL_RGB, GL_FLOAT, NULL);
-			//glCopyImageSubData(faceTexID, GL_TEXTURE_2D, 0, 0, 0, 0, SkyboxMap, GL_TEXTURE_CUBE_MAP, 0, 0, 0, i, width, height, 1);
+		glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, GL_RGB16F, mSkyboxDim, mSkyboxDim);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -229,8 +224,7 @@ namespace SliceEngine
 		// Generates Skybox Irradiance Texture
 		glGenTextures(1, &SkyboxIrradianceMap);
 		glBindTexture(GL_TEXTURE_CUBE_MAP, SkyboxIrradianceMap);
-		for (u_int i{}; i < 6; ++i)
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB16F, mSkyboxIrrDim, mSkyboxIrrDim, 0, GL_RGB, GL_FLOAT, NULL);
+		glTexStorage2D(GL_TEXTURE_CUBE_MAP, 1, GL_RGB16F, mSkyboxIrrDim, mSkyboxIrrDim);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -238,6 +232,7 @@ namespace SliceEngine
 		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
 		glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		RegenerateSkybox();
 
 		glCreateTextures(GL_TEXTURE_2D_ARRAY, 1, &mDirLightDepthMaps);
 		glTextureStorage3D(mDirLightDepthMaps, 1, GL_DEPTH_COMPONENT32F, DIRECTIONAL_SHADOW_DIMENSION, DIRECTIONAL_SHADOW_DIMENSION, mNumCascadeShadow);
@@ -261,24 +256,34 @@ namespace SliceEngine
 		glTexStorage3D(GL_TEXTURE_CUBE_MAP_ARRAY, 1, GL_DEPTH_COMPONENT24, SHADOW_DIMENSION, SHADOW_DIMENSION, 6 * mMaxPointLights);
 		glBindTexture(GL_TEXTURE_CUBE_MAP_ARRAY, 0);
 
-		RegenerateSkybox();
 		CheckGLError();
 	}
 	void RenderManager::RegenerateSkybox()
 	{
 		auto& mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::CUBE_DEFAULT).get()->meshes[0];
 		glm::mat4 proj = glm::perspective(glm::radians(90.f), 1.f, 0.1f, 10.f);
-
+		
 		// ----- Generate Skybox -----
 		SetShader(ShaderPaths[S_SKY_GENERATE]);
-		LinkFrameBufferSettings(FB_FINAL, 0);
+		LinkFrameBufferSettings(FB_FINAL, 1, SkyboxMap);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 		LoadSettings(GPS_NONE); // Means just draw irregardlesss
 		glViewport(0, 0, mSkyboxDim, mSkyboxDim);
-
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glBindVertexArray(mdl.vao);
 		GLint uniformLoc;
 		// Skybox Settings
-
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "zenithColor");
+		glUniform4f(uniformLoc, skyboxData.zenithColor.r, skyboxData.zenithColor.g, skyboxData.zenithColor.b, 1.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "horizonColor");
+		glUniform4f(uniformLoc, skyboxData.horizonColor.r, skyboxData.horizonColor.g, skyboxData.horizonColor.b, 1.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "groundColor");
+		glUniform3f(uniformLoc, skyboxData.groundColor.r, skyboxData.groundColor.g, skyboxData.groundColor.b);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "sunPos");
+		auto nomSunPos = glm::normalize(skyboxData.sunPos);
+		glUniform3f(uniformLoc, nomSunPos.x, nomSunPos.y, nomSunPos.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "sunCol");
+		glUniform3f(uniformLoc, skyboxData.sunCol.r, skyboxData.sunCol.g, skyboxData.sunCol.b);
 
 		std::stringstream ss{};
 		for (size_t i{}; i < 6; ++i)
@@ -289,21 +294,19 @@ namespace SliceEngine
 			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 		}
-
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxMap, 0);
-		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
+		CheckGLError();
 
+		// --TODO-- CRYY, idk why the irridance map became no color if not regenerated ;w;
 
 		// ----- Use generated Map to generate irradiance map -----
 		SetShader(ShaderPaths[S_SKY_IRRADIANCE]);
-		//LinkFrameBufferSettings(FB_FINAL, 0);
-		//LoadSettings(GPS_NONE); // Means just draw irregardlesss
+		LinkFrameBufferSettings(FB_FINAL, 1, SkyboxIrradianceMap);
 		glViewport(0, 0, mSkyboxIrrDim, mSkyboxIrrDim);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glBindTextureUnit(0, SkyboxMap);
 		glBindVertexArray(mdl.vao);
 
-		
 		for (size_t i{}; i < 6; ++i)
 		{
 			glm::mat4 shadowMat{ proj * glm::lookAt(glm::vec3(0.f), mShadowCamDir[i].target, mShadowCamDir[i].up) };
@@ -312,11 +315,8 @@ namespace SliceEngine
 			uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 		}
-		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, SkyboxIrradianceMap, 0);
-		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
-		LinkFrameBufferSettings(FB_FINAL, 1, 0);
 		CheckGLError();
 	}
 #pragma endregion
@@ -449,6 +449,12 @@ namespace SliceEngine
 	{
 		ForceResetDefaultSettings();
 		renderQueue.GatherDrawCalls();
+		
+		if (skyboxData.isDirty)
+		{
+			RegenerateSkybox();
+			skyboxData.isDirty = false;
+		}
 
 		IDPick();
 
@@ -898,6 +904,9 @@ namespace SliceEngine
 		glBindTextureUnit(2, SkyboxIrradianceMap);
 		glBindTextureUnit(3, mColAttachment[GOUT_EMISSION]);
 
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "skyboxLightingPower");
+		glUniform1f(uniformLoc, skyboxData.lightingPower);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
 	}
@@ -1320,6 +1329,7 @@ namespace SliceEngine
 		if (fbo == FBOType::FB_TOTAL)
 		{
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			mCurrFBO = fbo;
 			return;
 		}
 		else if (fbo != mCurrFBO)

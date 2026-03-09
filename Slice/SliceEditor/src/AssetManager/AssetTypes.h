@@ -30,8 +30,8 @@ namespace SliceEditor
 		Skeleton,
 		Font,
 		Animation,
-		Anims,
-		Anim,
+		SequencePackage,
+		Sequence,
 		Audio,
 		Scene,
 		Shader,
@@ -104,8 +104,8 @@ namespace SliceEditor
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SKELETON = SliceEngine::FNVHash::fnv1a("Skeleton");
 		constexpr uint64_t ANIMATION = SliceEngine::FNVHash::fnv1a("Animation");
-		constexpr uint64_t ANIMS = SliceEngine::FNVHash::fnv1a("Anims");
-		constexpr uint64_t ANIM = SliceEngine::FNVHash::fnv1a("Anim");
+		constexpr uint64_t SEQUENCEPACKAGE = SliceEngine::FNVHash::fnv1a("SequencePackage");
+		constexpr uint64_t SEQUENCE = SliceEngine::FNVHash::fnv1a("Sequence");
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
@@ -424,9 +424,9 @@ namespace SliceEditor
 		}
 	};
 
-	struct AnimsData : public MetaData
+	struct SequencePkgData : public MetaData
 	{
-		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIMS;
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCEPACKAGE;
 
 		std::vector<std::string> animations;
 
@@ -487,7 +487,7 @@ namespace SliceEditor
 			return true;
 		}
 
-		void LoadAnimsData(const SliceEngine::SliceEngineTypes::Anims& newAnim)
+		void LoadSequencePkgData(const SliceEngine::SliceEngineTypes::SequencePackage& newAnim)
 		{
 			for (const auto& anim : newAnim.animations)
 			{
@@ -496,11 +496,13 @@ namespace SliceEditor
 		}
 	};
 
-	struct AnimData : public MetaData
+	struct SequenceData : public MetaData
 	{
-		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIM;
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCE;
 
 		std::vector<std::pair<unsigned int, glm::vec3>> transforms{};
+		std::vector<std::pair<unsigned int, glm::vec3>> rotation{};
+		std::vector<std::pair<unsigned int, glm::vec3>> scale{};
 		std::string name{};
 		unsigned int fps{};
 		float duration{};
@@ -543,6 +545,8 @@ namespace SliceEditor
 			metaJson["Duration"] = duration;
 			metaJson["Number of Frames"] = num_frames;
 			metaJson["Transforms"] = transforms;
+			metaJson["Rotations"] = rotation;
+			metaJson["Scales"] = scale;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -567,11 +571,13 @@ namespace SliceEditor
 			duration = assetJson["Duration"];
 			num_frames = assetJson["Number of Frames"];
 			transforms = assetJson["Transforms"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			rotation = assetJson["Rotations"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			scale = assetJson["Scales"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
 
 			return true;
 		}
 
-		void LoadAnimData(const SliceEngine::SliceEngineTypes::Anim& newAnim)
+		void LoadSequenceData(const SliceEngine::SliceEngineTypes::Sequence& newAnim)
 		{
 			name = newAnim.name;
 			fps = newAnim.fps;
@@ -579,9 +585,11 @@ namespace SliceEditor
 			num_frames = newAnim.num_frames;
 
 			transforms = newAnim.transform;
+			rotation = newAnim.rotation;
+			scale = newAnim.scale;
 		}
 
-		void UnLoadAnimData(SliceEngine::SliceEngineTypes::Anim& newAnim)
+		void UnLoadSequenceData(SliceEngine::SliceEngineTypes::Sequence& newAnim)
 		{
 			newAnim.name = name;
 			newAnim.fps = fps;
@@ -589,6 +597,8 @@ namespace SliceEditor
 			newAnim.num_frames = num_frames;
 
 			newAnim.transform = transforms;
+			newAnim.rotation = rotation;
+			newAnim.scale = scale;
 		}
 	};
 

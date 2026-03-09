@@ -121,7 +121,7 @@ namespace SliceEngine
 			memcpy(&this->neutral, buffer + offSet, sizeof(glm::mat4)); offSet += sizeof(glm::mat4);
 		}
 
-		bool Anims::LoadAnimsResource(std::string const& filename)
+		bool SequencePackage::LoadSequencePkgResource(std::string const& filename)
 		{
 			std::ifstream file(filename);
 			if (!file.is_open())
@@ -136,7 +136,7 @@ namespace SliceEngine
 			}
 			catch (nlohmann::json::parse_error& e)
 			{
-				SLICE_LOG_ERROR("Invalid Anims JSON file" + std::string(e.what()));
+				SLICE_LOG_ERROR("Invalid Sequence Pkg JSON file" + std::string(e.what()));
 
 				return false;
 			}
@@ -147,7 +147,7 @@ namespace SliceEngine
 
 			for (std::string anim : animationNames)
 			{
-				Anim tmpAnim{};
+				Sequence tmpAnim{};
 				tmpAnim.LoadAnimResource(anim);
 
 				animations.push_back(tmpAnim);
@@ -157,7 +157,7 @@ namespace SliceEngine
 			return true;
 		}
 
-		bool Anim::LoadAnimResource(std::string const& animName)
+		bool Sequence::LoadAnimResource(std::string const& animName)
 		{
 			std::filesystem::path animationsPath = std::filesystem::current_path();
 
@@ -167,9 +167,9 @@ namespace SliceEngine
 			}
 
 			animationsPath = animationsPath / animName;
-			if (animationsPath.extension() != ".anim")
+			if (animationsPath.extension() != ".seq")
 			{
-				animationsPath += ".anim";
+				animationsPath += ".seq";
 			}
 
 
@@ -196,8 +196,87 @@ namespace SliceEngine
 			duration = ctrlJson["Duration"];
 			num_frames = ctrlJson["Number of Frames"];
 			transform = ctrlJson["Transforms"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+			rotation = ctrlJson["Rotations"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+			scale = ctrlJson["Scales"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
 
 			return true;
+		}
+
+		void Sequence::UpdateTransforms(entt::registry& reg,entt::entity& entity, float time)
+		{
+			Transform& comp = reg.get<Transform>(entity);
+
+			if (!initialised)
+			{
+				startPos = comp.position;
+				startScale = comp.scale;
+				startEuler = glm::degrees(glm::eulerAngles(comp.rotation));
+
+				initialised = true;
+			}
+
+			float wrappedTime = std::fmod(time * fps, (float)num_frames);
+
+			auto interpolate = [&](const std::vector<std::pair<unsigned int, glm::vec3>>& keys, glm::vec3 currentVal) -> glm::vec3
+				{
+					if (keys.empty()) return currentVal;
+
+					auto it1 = std::upper_bound(keys.begin(), keys.end(), wrappedTime,
+						[](float val, const std::pair<unsigned int, glm::vec3>& pair) {
+							return val < (float)pair.first;
+						});
+
+					glm::vec3 v0, v1;
+					float t = 0.0f;
+
+					if (it1 == keys.begin()) 
+					{
+						//v0 = currentVal;
+						//v1 = it1->second;
+						//t = (it1->first == 0) ? 1.0f : wrappedTime / (float)it1->first;
+
+						float t1 = (float)it1->first;
+						if (t1 > 0.0f) {
+							float t = wrappedTime / t1;
+							return glm::mix(currentVal, it1->second, t);
+						}
+						return it1->second;
+					}
+					if (it1 == keys.end()) 
+					{
+						/*v0 = keys.back().second;
+						v1 = currentVal;
+
+						float frameOfLastKey = (float)keys.back().first;
+						float timeSinceLastKey = wrappedTime - frameOfLastKey;
+						float timeUntilEnd = (float)num_frames - frameOfLastKey;
+
+						if (timeUntilEnd > 0.0f) {
+							t = timeSinceLastKey / timeUntilEnd;
+						}
+						else {
+							t = 1.0f;
+						}*/
+						return keys.back().second;
+					}
+					//else 
+					{
+
+						auto it0 = std::prev(it1);
+						v0 = it0->second;
+						v1 = it1->second;
+						t = (wrappedTime - (float)it0->first) / (float)(it1->first - it0->first);
+					}
+
+					return glm::mix(v0, v1, t);
+				};
+
+			// Update the components
+			comp.position = interpolate(transform, startPos);
+			comp.scale = interpolate(scale, startScale);
+
+			glm::vec3 finalEuler = interpolate(rotation, startEuler);
+			comp.rotation = glm::quat(glm::radians(finalEuler));
 		}
 
 
