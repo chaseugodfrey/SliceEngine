@@ -1,6 +1,9 @@
 using SliceEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.PerformanceData;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Channels;
 using System.Security.Permissions;
@@ -12,6 +15,8 @@ namespace SliceEngine
     {
         public List<Projectile> allProjectiles = new List<Projectile>();
 
+        //Bullet controls
+        public string projectilePrefabName = "Projectile";
         public float projPerSecond = 4f;
         public float bulletSpeed = 1f;
         public Vector3 bulletScale = new Vector3(1);
@@ -19,20 +24,29 @@ namespace SliceEngine
         public bool projDestroysOnImpact = true;
         public float distanceBeforeDestroyBullet = 10f;
 
+        //Burst Controls
         public bool burstProjectiles = false;
-        public float burstRate = 0.1f;
+        public int burstRatePerSecond = 10;
         public int burstCount = 3;
 
+        //
+        public bool circle = false;
+        public int bulletsPerCircle = 4;
+        public float circleRadius = 1f;
+
+        //Random Radial
         public float radialRandomInDegrees = 0f;
 
+        //Spinning Controls
         public float spiralRate = 1f; // seconds for a rotation
         public Vector3 spiralAxis = new Vector3(0,1,0);
 
-        public string projectilePrefabName = "Projectile";
-
+        //
         public bool active = false;
 
         public int limit = 100;
+
+
         public float rangeLimit = 10f;
 
         public int spawnStyle = 0;
@@ -85,7 +99,6 @@ namespace SliceEngine
                 allProjectiles.RemoveAt(index);
                 temp.gameObject.Destroy();
             }
-
         }
 
         public void ClearBullets()
@@ -98,11 +111,20 @@ namespace SliceEngine
             }
         }
 
+
+
         public void SpawnSetProjectile()
         {
-            Transform T = this.GetComponent<Transform>();
+            if (circle)
+            {
+                SpawnInCircle(bulletsPerCircle, circleRadius);
+            }
+            else
+            {
+                Transform T = this.GetComponent<Transform>();
 
-            CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+            }
         }
 
         public void SpawnInCircle(int number, float radius)
@@ -121,9 +143,37 @@ namespace SliceEngine
             }
         }
 
-        public void SpawnInBurst()
+        public void SpawnInBurstCheck()
         {
+            if (burstProjectiles)
+            {
+                StartCoroutine(SpawnInBurstCoroutine());
+            }
+            else
+            {
+                SpawnSetProjectile();
+            }
+        }
 
+        IEnumerator SpawnInBurstCoroutine()
+        {
+            float count = 0f;
+            float rateInSeconds = 1f /  (float) burstRatePerSecond ;
+            int bulletsSpawned = 0;
+            while (active && bulletsSpawned < burstCount)
+            {
+                count += Time.fixedDeltaTime;
+                if (count >= rateInSeconds)
+                {
+                    count -= rateInSeconds;
+                    SpawnSetProjectile();
+                    bulletsSpawned++;
+                }
+
+                yield return new WaitForSeconds(Time.fixedDeltaTime);
+            }
+
+            yield break;
         }
 
         #endregion
@@ -154,24 +204,24 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        SpawnSetProjectile();
+                        SpawnInBurstCheck();
                     }
 
 
                     break;
                 case SpawnStyle.Aim:
 
-                    if ((this.transform.Position - Bootstrap.Player.transform.Position).Magnitude() > rangeLimit)
+                    if ((this.transform.WorldPosition - Bootstrap.Player.transform.WorldPosition).Magnitude() > rangeLimit)
                     break;
 
 
-                    this.transform.LookAt(Bootstrap.Player.transform.Position, new Vector3(0,1,0));
+                    this.transform.LookAt(Bootstrap.Player.transform.Position, this.transform.Up);
 
                     if (count >= 1f / projPerSecond)
                     {
                         count -= 1f / projPerSecond;
 
-                        SpawnSetProjectile();
+                        SpawnInBurstCheck();
                     }
 
                     break;
@@ -181,7 +231,7 @@ namespace SliceEngine
                     {
                         count -= 1 / projPerSecond;
 
-                        SpawnSetProjectile();
+                        SpawnInBurstCheck();
                     }
 
                     break;

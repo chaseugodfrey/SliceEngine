@@ -69,6 +69,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            return;
             //debugTest();
             foreach (GameObject spawnPoint in projectileSpawnPoints)
             {
