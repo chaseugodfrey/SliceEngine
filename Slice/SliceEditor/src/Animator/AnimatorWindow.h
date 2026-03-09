@@ -30,6 +30,7 @@ namespace SliceEditor
 
 		void CheckForAnimator();
 		void SaveAnimatorData();
+		void ReloadAnimatorData(OnAnimatorChangedEvent e);
 		void ClearData();
 
 		void CreateNode(std::string newNode);
