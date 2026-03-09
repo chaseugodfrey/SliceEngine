@@ -53,6 +53,7 @@ namespace SliceEngine
 
         glm::vec2 currMousePos{ 0.0, 0.0 }; // reset mouse positions
         glm::vec2 prevMousePos{ 0.0, 0.0 };
+		glm::vec2 internalMousePos{ 0.0, 0.0 }; // for disabled cursor state use
         glm::vec2 mouseDelta{ 0.0, 0.0 };
         glm::vec2 currMouseNDC{ 0.0, 0.0 };
 
@@ -72,19 +73,16 @@ namespace SliceEngine
         inline bool allowGameKeyboard() const { return enabled && mode == InputMode::Game; }
         inline bool allowGameMouse() const { return enabled && mode == InputMode::Game; }
 
-        CursorState cursorState{ CursorState::DEFAULT };
+        CursorState currentCursorState{ CursorState::DEFAULT };
+		CursorState prevCursorState{ CursorState::DEFAULT };
+
         void SetCursorState();
 
         // installation state for callbacks
         bool callbacksBound = false; // to prevent double-binding
 
     public:
-        // Temporary here, cuz i lazy to make functions for these (--TODO--)
-        bool mToCenterMousePosFromWindowDim{ true };
         glm::ivec2 windowDim{ 1920, 1080 };
-        glm::vec2 prevMouseInternalPos{ 0.0, 0.0 };
-        glm::vec2 currMouseInternalPos{ 0.0, 0.0 };
-        int lastMouseMode = GLFW_CURSOR_NORMAL;
 
         // func to convert keycode to string
         static const char* KeyNameFallback(int key);
