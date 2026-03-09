@@ -398,7 +398,7 @@ namespace SliceEngine
 				glm::mat4 local_tform;
 				//int parent = skeleton.bones[i].parentIndex;
 				if (keyframe.animated) {
-					auto const& local = keyframe.transforms[frame1];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
+					auto const& local = keyframe.transforms[frame0];//Transform::Blend(keyframe.transforms[frame0], keyframe.transforms[frame1], interp);
 					local_tform = local.ToMatrix();
 				}
 				else {
