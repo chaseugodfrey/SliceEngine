@@ -21,7 +21,7 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243170,
+                "entity_id": 1048598,
                 "neighbours": [
                     4294967295,
                     4294967295,
@@ -32,10 +32,6 @@
             "struct SliceEngine::Script": {
                 "scriptName": "SliceEngine.Projectile_Spawner",
                 "scriptableFieldMap": {
-                    "RangeLimit": {
-                        "Type": "float",
-                        "Value": 86.0
-                    },
                     "active": {
                         "Type": "bool",
                         "Value": true
@@ -56,13 +52,57 @@
                         "Type": "float",
                         "Value": 35.0
                     },
+                    "bulletsPerCircle": {
+                        "Type": "int",
+                        "Value": 4
+                    },
+                    "burstCount": {
+                        "Type": "int",
+                        "Value": 3
+                    },
+                    "burstProjectiles": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "burstRatePerSecond": {
+                        "Type": "int",
+                        "Value": 10
+                    },
+                    "circle": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "circleRadius": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "distanceBeforeDestroyBullet": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
                     "limit": {
                         "Type": "int",
-                        "Value": 1
+                        "Value": 10
+                    },
+                    "projDestroysOnImpact": {
+                        "Type": "bool",
+                        "Value": true
                     },
                     "projPerSecond": {
                         "Type": "float",
-                        "Value": 0.10000000149011612
+                        "Value": 0.5
+                    },
+                    "projectilePrefabName": {
+                        "Type": "std::string",
+                        "Value": "Projectile"
+                    },
+                    "radialRandomInDegrees": {
+                        "Type": "float",
+                        "Value": 0.0
+                    },
+                    "rangeLimit": {
+                        "Type": "float",
+                        "Value": 200.0
                     },
                     "spawnStyle": {
                         "Type": "int",

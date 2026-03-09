@@ -30,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Systems/LayerManager.h>
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
+#include <Animator/AnimatorWindow.h>
 
 namespace SliceEditor
 {
@@ -121,7 +122,7 @@ namespace SliceEditor
 				SliceEngine::FactoryInstance.GetGOByEntity(entity).SetName(name);
 			};
 		
-		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x, func);
+		StringInputHeader(mRegistry, "Name: ", "##name", editable_name, ImGui::GetContentRegionAvail().x,false, func);
 
 		ImGui::Text("Entity ID: %d", entity);
 
@@ -151,7 +152,7 @@ namespace SliceEditor
 		//Do the different checks here for now.
 		//TODO: Move to a different file maybe
 		
-		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
+		if (StringInputHeader(mRegistry, "Tag: ", "##tag", editable_tag, ImGui::GetContentRegionAvail().x, true, funcTag, StringMultipleSelection(selectionManager, editable_tag, isMultipleSelection)))
 		{
 			//Multi-Selection Setting for Tags
 			if (isMultipleSelection)
@@ -178,7 +179,7 @@ namespace SliceEditor
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
-			if (ComboHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
+			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
 			{
 				//Multi-Selection Setting for Layers
 				if (isMultipleSelection)
@@ -188,9 +189,9 @@ namespace SliceEditor
 						if (selectedNode->type == SelectionType::ENTITY)
 						{
 							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
-							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& currentSlice)
+							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(currentEntity, [&](SliceEngine::SliceEntity& currentSlice)
 								{
-									currentSlice.mLayer = slice.mLayer;
+									currentSlice.mLayer = slicePatch.mLayer;
 								});
 						}
 					}
@@ -1347,6 +1348,7 @@ namespace SliceEditor
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						// hmm sussy
 					}
 				}
 				//Controller has been set, should be changable
@@ -1356,7 +1358,15 @@ namespace SliceEditor
 					{
 						animator.stateMachine.EFSM.stateMap.clear();
 						animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
-						animator.stateMachine.InitState(animator.curr_anim_pkg);
+						if (animator.Handle_skeleton.IsValid())
+							animator.stateMachine.InitState(animator.curr_anim_pkg);
+						else
+							animator.stateMachine.InitState(animator.curr_anims);
+
+
+						OnAnimatorChangedEvent eventNow{};
+						eventNow.ent = entity;
+						EventManager::GetInstance()->Publish<OnAnimatorChangedEvent>(eventNow);
 					}
 
 					BoolInputHeader(mRegistry, "Playing: ", "##animIsPlaying", animator.timeline.isPlaying);

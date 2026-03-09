@@ -263,7 +263,7 @@ namespace SliceEngine
             projectileState = new ProjectileState(this.gameObject);
 
             // start at intro state
-            stateMachine.ChangeState(introState);
+           // stateMachine.ChangeState(introState);
             // start at a random point first also
             currPoint = GetNextIdlePoint();
 

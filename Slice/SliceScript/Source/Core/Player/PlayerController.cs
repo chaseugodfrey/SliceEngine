@@ -120,6 +120,7 @@ namespace SliceEngine
         public float moveAcceleration = 100.0f;
         public float moveDeceleration = 100.0f;
         public float rotationSpeed = 45.0f;
+        public float strafeMultiplier = 0.75f;
 
         // Dash
         public float dashDuration = 0.25f;
@@ -270,7 +271,6 @@ namespace SliceEngine
             }
             else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
             {
-                Console.WriteLine("Trying to execute attack");
                 RayCastHit hitInfo;
                 // Check if can plunge by raycasting down to see distance to ground
                 bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
@@ -278,40 +278,32 @@ namespace SliceEngine
                     Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
                 if (hit)
                 {
-                    //Console.WriteLine("It hit something");
+                    Console.WriteLine("It hit something");
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    Console.WriteLine($"obj hit: {objHit.mID} with tag {objHit.tag}");
                     if (objHit == null)
                     {
                         Console.WriteLine("Obj hit is null");
+                        //return;
                     }
                     // Only check distance if its a ground obj
                     else if (objHit.tag == "Ground")
                     {
+                        Console.WriteLine($"Hitting the ground with {hitInfo.distance}");
                         // if its too close to the ground then dont let it plunge
                         if (hitInfo.distance <= plungeMinDistance)
                         {
-                            //Console.WriteLine("Not high enough");
+                            Console.WriteLine("Not high enough");
+                            Console.WriteLine($"Distance : {hitInfo.distance}");
                             return;
                         }
-                        else
-                        {
-                            Console.WriteLine($"Distance : {hitInfo.distance}");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine($"It hit smth that isnt ground: {objHit.mID}");
+
                     }
                 }
-                else
-                {
-                    Console.WriteLine("Not hitting");
-                }
 
 
-
-                playerCombatState = CombatState.Attacking;
-                playerMovementState = MovementState.Plunging;
+                    //playerCombatState = CombatState.Attacking;
+                    playerMovementState = MovementState.Plunging;
                 playerCurrentAttack = CurrentAttack.None;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
@@ -353,12 +345,15 @@ namespace SliceEngine
                     }
                     if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle3") != 0))
                     {
-                        if (animator.SafeToChange("Attack3ToLoco"))
-                            animator.SetBool("Attack3ToLoco", true);
+                        if (animator.SafeToChange("AttackToIdle3"))
+                            animator.SetBool("AttackToIdle3", true);
                     }
                 }
                 else if (playerCurrentAttack == CurrentAttack.PlungeLand)
-                {                    
+                {
+                    Console.WriteLine($"Input vector: {input.ToString()}");
+
+
                     if (input != Vector3.Zero)
                     {
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") != 0))
@@ -519,7 +514,7 @@ namespace SliceEngine
             if (playerCombatState != CombatState.Attacking)
                 attackResetTimer = (attackResetTimer <= attackRecoveryDuration) ? attackResetTimer + dt : 0.0f;
 
-            if (!grounded && rigidBody.Velocity.y < -2f) fallTimeTimer += dt;
+            if (!grounded) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
         }
         private void UpdateMovements(float dt)
@@ -533,6 +528,8 @@ namespace SliceEngine
                 camForward.y = 0f; // Ignore vertical axis so it'll move parallel to ground
                 camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             }
+
+            Console.WriteLine($" All the states: {playerMovementState.ToString()} and {playerCombatState.ToString()} and {playerCurrentAttack.ToString()}");
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
@@ -549,7 +546,7 @@ namespace SliceEngine
             }
             else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
             {
-                moveDirInput *= 0.5f;
+                moveDirInput *= strafeMultiplier;
             }
             else if (playerMovementState == MovementState.Lunging)
             {
@@ -574,7 +571,7 @@ namespace SliceEngine
                 rigidBody.Velocity = velTemp;
             }
 
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling)
+            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
             {
                 if (playerCombatState == CombatState.Attacking) return;
                 // Normal locomotion
@@ -786,8 +783,10 @@ namespace SliceEngine
 
         void UpdateAnimator()
         {
+
             if (animator == null)
                 return;
+           // Console.WriteLine($"Current anim name {animator.GetCurrAnimName()}");
 
             if (movementStateChanged)
             {
@@ -810,8 +809,8 @@ namespace SliceEngine
                         animator.SetBool("JumpLoop", true);
                     break;
                 case MovementState.DoubleJumping:
-                    if (animator.SafeToChange("AirDashStart") && (String.Compare(animator.GetCurrAnimName(), "AirDashStart") != 0))
-                        animator.SetBool("AirDashStart", true);
+                    if (animator.SafeToChange("DoubleJump") && (String.Compare(animator.GetCurrAnimName(), "DoubleJump") != 0))
+                        animator.SetBool("DoubleJump", true);
                     //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
@@ -823,13 +822,43 @@ namespace SliceEngine
                         animator.SetBool("Land", true);
                     break;
                 case MovementState.GroundDash:
-                    if (animator.SafeToChange("DashStart") && (String.Compare(animator.GetCurrAnimName(), "DashStart") != 0))
-                        animator.SetBool("DashStart", true);
+                    {
+                        bool hasInput = input.SquareMagnitude() > 0.0001f;
+                         if (hasInput)
+                        {
+                            // transition to forward dash instead of back dash
+                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                            {
+                                //Console.WriteLine("Setting it again");
+                                animator.SetBool("Dash", true);
+                            }
+                        }
+                        else
+                        {
+                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                                animator.SetBool("BackDash", true);
+                        }
+                    }
                     break;
 
                 case MovementState.AirDash:
-                    if (animator.SafeToChange("DashStart") && (String.Compare(animator.GetCurrAnimName(), "DashStart") != 0))
-                        animator.SetBool("DashStart", true);
+                    {
+                        bool hasInput = input.SquareMagnitude() > 0.0001f;
+                        if (hasInput)
+                        {
+                            // transition to forward dash instead of back dash
+                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                            { 
+                                Console.WriteLine("Setting it again");
+                                animator.SetBool("Dash", true);
+                            }
+                        }
+                        else
+                        {
+                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                                animator.SetBool("BackDash", true);
+                        }
+                    }
                     break;
 
                 case MovementState.Lunging:
@@ -1060,13 +1089,15 @@ namespace SliceEngine
                 return false;
             }
 
-            if (playerCombatState == CombatState.Attacking)
+            //Console.WriteLine($"All the states: {playerCombatState.ToString()} and {playerMovementState.ToString()} and {playerCurrentAttack.ToString()}");
+
+            if (playerCombatState == CombatState.Attacking && playerCurrentAttack != CurrentAttack.PlungeLand)
             {
                 return false;
             }
 
             bool inputtable;
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+            if (playerMovementState == MovementState.Landing || playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
             {
                 inputtable = true;
             }

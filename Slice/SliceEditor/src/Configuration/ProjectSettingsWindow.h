@@ -36,6 +36,14 @@ namespace SliceEditor
 		void DisplaySettings(ImVec2 size) override;
 	};
 
+	struct SkyboxSettingsDisplay : BaseSettingsDisplay
+	{
+		ImGuiTableColumnFlags column_flags = ImGuiTableColumnFlags_AngledHeader | ImGuiTableColumnFlags_WidthFixed;
+
+		SkyboxSettingsDisplay(Registry& reg, SliceEngine::ProjectSettings& stg, std::string nm) : BaseSettingsDisplay(reg, stg, nm) {};
+		void DisplaySettings(ImVec2 size) override;
+	};
+
 	struct BuildSettingsDisplay : BaseSettingsDisplay
 	{
 	private:
@@ -51,6 +59,7 @@ namespace SliceEditor
 		{
 			AUDIO,
 			PHYSICS,
+			SKYBOX,
 			BUILD
 		} mCurrentSettingsIndex{};
 
