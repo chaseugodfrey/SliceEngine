@@ -53,8 +53,6 @@ namespace SliceEngine
                 {
                     Vector3 basePosition = Bootstrap.Player.transform.Position;
 
-                    // Transform the shake into the camera's current local view space
-                    // This ensures X is always "left/right" on your monitor
                     Vector3 screenShake = transform.RotationQuat * shakeOffset;
 
                     transform.Position = basePosition + screenShake;
