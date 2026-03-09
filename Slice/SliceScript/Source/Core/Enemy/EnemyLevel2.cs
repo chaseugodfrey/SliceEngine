@@ -17,9 +17,9 @@ namespace SliceEngine
         float timeToMove = 2.0f;
         bool moved = false;
 
-        public IntroState(GameObject owner) : base(owner)
+        public IntroState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
 
         public override void OnEnter()
@@ -46,9 +46,9 @@ namespace SliceEngine
         public int moves = 0;
 
 
-        public IdleState(GameObject owner) : base(owner)
+        public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
         public override void OnEnter()
         {
@@ -120,9 +120,9 @@ namespace SliceEngine
         public Vector3 originalPosition;
         float timer = 0.0f;
 
-        public SlamState(GameObject owner) : base(owner)
+        public SlamState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
 
         public override void OnEnter()
@@ -216,9 +216,9 @@ namespace SliceEngine
         public float distanceBeforeDestroyBullet = 90f;
         public int limit = 100;
 
-        public ProjectileState(GameObject owner) : base(owner)
+        public ProjectileState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
         public override void OnEnter()
         {
@@ -329,10 +329,10 @@ namespace SliceEngine
         {
             // Initialize state machine and states
             stateMachine = new StateMachine();
-            idleState = new IdleState(this.gameObject);
-            introState = new IntroState(this.gameObject);
-            slamState = new SlamState(this.gameObject);
-            projectileState = new ProjectileState(this.gameObject);
+            idleState = new IdleState(this.gameObject, this);
+            introState = new IntroState(this.gameObject, this);
+            slamState = new SlamState(this.gameObject, this);
+            projectileState = new ProjectileState(this.gameObject, this);
 
             // start at intro state
             stateMachine.ChangeState(introState);
