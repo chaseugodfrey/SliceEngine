@@ -176,10 +176,15 @@ namespace SliceEditor
 		// currently tags are unused
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
+		std::function<uint32_t(Entity)> funcLayer =
+			[](Entity e)
+			{
+				return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(e).mLayer;
+			};
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
-			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
+			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection, funcLayer)))
 			{
 				//Multi-Selection Setting for Layers
 				if (isMultipleSelection)
@@ -618,10 +623,56 @@ namespace SliceEditor
 					}
 				}
 			}
-
 			
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
+			std::function<SliceEngine::GUID(Entity)> modelFunc =
+				[](Entity e)
+				{
+					return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+				};
+			
+			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(currentEntity))
+							{
+								auto& currentRenderer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(currentEntity);
+								currentRenderer.modelHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Model>(rend.modelHandle.getGUID());
+							}
+						}
+					}
+				}
+			}
+
+			std::function<SliceEngine::GUID(Entity)> materialFunc =
+				[](Entity e)
+				{
+					return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+				};
+
+			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(currentEntity))
+							{
+								auto& currentRenderer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(currentEntity);
+								currentRenderer.materialHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Material>(rend.materialHandle.getGUID());
+							}
+						}
+					}
+				}
+			}
 			auto const mdl = rend.modelHandle.get();
 			if (mdl) {
 				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8

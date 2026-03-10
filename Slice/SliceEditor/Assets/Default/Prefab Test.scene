@@ -20,7 +20,6 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
-                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -111,7 +110,6 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
-                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -369,7 +367,6 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
-                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -440,7 +437,6 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
-                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -515,14 +511,13 @@
         {
             "Spawner": {
                 "struct SliceEngine::Renderer": {
-                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
                     },
                     "meshOffset": "0",
                     "model": {
-                        "GUID": "4412061832024819835"
+                        "GUID": "18229435044585338891"
                     },
                     "renderTag": "0",
                     "skinned": false
@@ -553,7 +548,7 @@
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 0,
+                    "mLayer": 5,
                     "mName": "Spawner",
                     "mTag": "default"
                 },
