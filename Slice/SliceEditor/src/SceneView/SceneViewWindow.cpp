@@ -554,7 +554,7 @@ namespace SliceEditor
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.scale, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();
