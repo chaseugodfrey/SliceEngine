@@ -2,66 +2,72 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node26"
+                "Node30"
             ]
         },
         "END_EMISSION": {
             "FinalNode3": [
-                "Node62"
+                "Node74"
             ]
         },
         "END_METALLIC": {
             "FinalNode0": [
-                "Node38"
+                "Node42"
             ]
         },
         "END_NORMAL": {
             "FinalNode4": [
-                "Node30"
+                "Node34"
             ]
         },
         "END_ROUGHNESS": {
             "FinalNode2": [
-                "Node42"
+                "Node46"
             ]
         },
         "Flip_Y_Vec2": {
-            "Node23": [
+            "Node27": [
                 "vUV"
             ]
         },
         "Multiply": {
-            "Node26": [
+            "Node30": [
                 "color",
-                "Node34"
+                "Node38"
+            ],
+            "Node74": [
+                "Node50",
+                "EmissionMult"
             ]
         },
         "sampleTexture": {
-            "Node30": [
-                "NormalMap",
-                "Node23"
-            ],
             "Node34": [
-                "albedo",
-                "Node23"
+                "NormalMap",
+                "Node27"
             ],
             "Node38": [
-                "MetallicMap",
-                "Node23"
+                "albedo",
+                "Node27"
             ],
             "Node42": [
-                "RoughnessMap",
-                "Node23"
+                "MetallicMap",
+                "Node27"
             ],
-            "Node62": [
+            "Node46": [
+                "RoughnessMap",
+                "Node27"
+            ],
+            "Node50": [
                 "EmissionMap",
-                "Node23"
+                "Node27"
             ]
         }
     },
     "Params": {
         "Bools": {},
-        "Floats": {},
+        "Floats": {
+            "EmissionMult": 1.0
+        },
         "Ints": {},
         "Textures": {
             "EmissionMap": 15644028420850910905,

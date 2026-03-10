@@ -585,6 +585,7 @@ layout (location=4) in mat3 TBN;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 layout (location=1) out uint fGID;
+layout (location=2) out vec4 fEmission;
 
 struct Light{
 	vec3 position;
@@ -625,6 +626,7 @@ uniform int cascadeCnt;
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
 uniform float skyboxLightingPower = 1.0f;
+uniform bool willBloom = false;
 
 )"};
 			std::string fragStart{
@@ -729,25 +731,26 @@ void main(void){
  
 	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
 		discard;
-    
+
     fGID = iDat[vInstance].entityID;
     if(translucentIDOnly == 1)
 		return;
     
     vec4 dif = fFragColor;
+    fEmission = vec4(emission, 1.0f);
    
 	if(any(notEqual(nom, vec3(0.0f))))
 	{
 		nom = normalize(nom);
 
         vec3 skyAmbient = texture(uSkyboxTex, nom).rgb * skyboxLightingPower;
-        fFragColor = vec4(dif.rgb * skyAmbient + emission, dif.a);
+        fFragColor = vec4(dif.rgb * skyAmbient, dif.a);
 
         // Copies lighting_Frag code
 		vec3 v = normalize(-vPos);
 		
 		int numDirectionalLight = 0;
-		for(int lightCnt = 0; lightCnt < maxLights; ++lightCnt)
+		for(int lightCnt = 0; lightCnt < numLights; ++lightCnt)
         {
 	    	if(uLight[lightCnt].type == isDirectional)
 	    	{
@@ -795,10 +798,8 @@ void main(void){
 
         }
 	}
-    else
-    {
-        fFragColor = dif + vec4(emission, 0.0f);
-    }
+	if(!willBloom)
+		fFragColor += vec4(emission, 0.0f);
 }
 
 

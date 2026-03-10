@@ -12,6 +12,8 @@ DigiPen Institute of Technology is prohibited.
 #include "EventManager.h"
 #include "Events.h"
 
+using namespace SliceEngine;
+
 /// <summary>
 /// Call all event registering here
 /// </summary>
