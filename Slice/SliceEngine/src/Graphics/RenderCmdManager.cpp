@@ -572,7 +572,7 @@ namespace SliceEngine
 					if(uniformLoc != -1)
 						glUniform1f(uniformLoc, time);
 					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
-					glUniform1f(uniformLoc, rm->skyboxData.lightingPower);
+					glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
 					glUniform1i(uniformLoc, rm->numLightsFound);
 					

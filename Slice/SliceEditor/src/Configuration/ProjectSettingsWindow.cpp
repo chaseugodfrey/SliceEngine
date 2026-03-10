@@ -445,9 +445,7 @@ namespace SliceEditor
 				ImGui::SetTooltip("Skybox properties.");
 			}
 
-			float tempLightingPw = rm->skyboxData.lightingPower * 100.f;
-			if (DragFloatInputHeader(mRegistry, "Skybox Light Power", "##skybox_light_power", tempLightingPw, "%.3f", 0.f, FLT_MAX))
-				rm->skyboxData.lightingPower = tempLightingPw / 100.f;
+			DragFloatInputHeader(mRegistry, "Skybox Light Power", "##skybox_light_power", rm->skyboxData.lightingPower, "%.3f", 0.f, FLT_MAX);
 
 			if (DragColor3InputHeader(mRegistry, "Zenith Color", "##skybox_zenith_color", rm->skyboxData.zenithColor))
 				rm->skyboxData.isDirty = true;
