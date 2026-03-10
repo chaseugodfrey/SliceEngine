@@ -17,6 +17,18 @@ namespace SliceEngine
         private List<string> _headers = new List<string>();
         private List<Dictionary<string, string>> _rows = new List<Dictionary<string, string>>();
 
+        public bool RemoveRow(int index)
+        {
+            if ( index >= _rows.Count)
+            {
+                return false;
+            }
+            
+            _rows.RemoveAt(index);
+
+            return true;
+        }
+
         public int RowCount => _rows.Count;
         public IReadOnlyList<string> Headers => _headers.AsReadOnly();
 

@@ -11,6 +11,7 @@ namespace SliceEngine
         //public GameObject HUDManager;
         public List<GameObject> triggerBox = new List<GameObject>();
         public int currIndex = 0;
+        public int scene = 0;
 
         public override void OnCreate()
         {
@@ -29,7 +30,7 @@ namespace SliceEngine
         {
             if (currIndex >= triggerBox.Count) return;
 
-            Bootstrap.HUDManager.As<HUD_Manager>().PlayDialogueForLevel(triggerBox[currIndex].As<LevelTutorial>().tutorialIndex);
+            Bootstrap.HUDManager.As<HUD_Manager>().PlayDialogueForLevel(triggerBox[currIndex].As<LevelTutorial>().tutorialIndex, scene);
             currIndex++;
         }
     }

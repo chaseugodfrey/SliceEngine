@@ -1786,14 +1786,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -1802,7 +1802,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -1830,7 +1830,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -1838,15 +1838,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -1858,10 +1858,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -1870,7 +1870,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -2111,14 +2111,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -2127,7 +2127,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -2155,7 +2155,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -2163,15 +2163,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -2183,10 +2183,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -2195,7 +2195,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -2436,14 +2436,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -2452,7 +2452,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -2480,7 +2480,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -2488,15 +2488,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -2508,10 +2508,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -2520,7 +2520,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -2761,14 +2761,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -2777,7 +2777,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -2805,7 +2805,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -2813,15 +2813,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -2833,10 +2833,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -2845,7 +2845,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -3086,23 +3086,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -3114,7 +3114,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -3130,7 +3130,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -3138,11 +3138,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -3154,14 +3154,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 140.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -3170,7 +3170,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -3411,23 +3411,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -3439,7 +3439,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -3455,7 +3455,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -3463,11 +3463,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -3479,14 +3479,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 140.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -3495,7 +3495,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -3736,23 +3736,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -3764,7 +3764,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -3780,7 +3780,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -3788,11 +3788,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -3804,14 +3804,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 140.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -3820,7 +3820,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -4061,23 +4061,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -4089,7 +4089,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -4105,7 +4105,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -4113,11 +4113,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -4129,14 +4129,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 140.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -4145,7 +4145,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -6131,6 +6131,10 @@
                             "Type": "std::string",
                             "Value": "Week 8 Level"
                         },
+                        "currentScene": {
+                            "Type": "int",
+                            "Value": 1
+                        },
                         "defeatObject": {
                             "Type": "SliceEngine::GameObject",
                             "Value": 262
@@ -7537,14 +7541,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -7553,7 +7557,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -7581,7 +7585,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -7589,15 +7593,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -7609,10 +7613,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -7621,7 +7625,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -7952,23 +7956,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -7980,7 +7984,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -7996,7 +8000,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -8004,11 +8008,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -8020,14 +8024,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 70.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -8036,7 +8040,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -8094,14 +8098,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -8110,7 +8114,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -8138,7 +8142,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -8146,15 +8150,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -8166,10 +8170,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -8178,7 +8182,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -8509,14 +8513,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -8525,7 +8529,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -8553,7 +8557,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -8561,15 +8565,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -8581,10 +8585,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -8593,7 +8597,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -11492,6 +11496,10 @@
                             "Type": "float",
                             "Value": 45.0
                         },
+                        "shieldDuration": {
+                            "Type": "float",
+                            "Value": 0.5
+                        },
                         "strafeMultiplier": {
                             "Type": "float",
                             "Value": 0.75
@@ -12902,23 +12910,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
-                                0.5,
+                                1.0,
                                 1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -12946,7 +12954,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 70.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -12958,11 +12966,11 @@
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 38.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -12977,7 +12985,7 @@
                             "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -12986,7 +12994,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 10.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -13434,27 +13442,27 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "position1": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
-                                22.951000213623047,
-                                27.319000244140625,
-                                -18.617000579833984
+                                0.0,
+                                0.0,
+                                0.0
                             ]
                         },
                         "position2": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
-                                -22.951000213623047,
-                                27.319000244140625,
-                                -18.617000579833984
+                                0.0,
+                                0.0,
+                                0.0
                             ]
                         },
                         "speed": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         },
                         "wait": {
                             "Type": "float",
@@ -13516,14 +13524,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -13532,7 +13540,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -13560,7 +13568,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -13568,15 +13576,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -13588,10 +13596,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -13600,7 +13608,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -17116,14 +17124,14 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -17132,7 +17140,7 @@
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -17160,7 +17168,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -17168,15 +17176,15 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 16.0
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
-                            "Value": "BallProjectile"
+                            "Value": "Projectile"
                         },
                         "radialRandomInDegrees": {
                             "Type": "float",
@@ -17188,10 +17196,10 @@
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 1
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -17200,7 +17208,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -19470,7 +19478,7 @@
                             "Value": false
                         },
                         "cameraOffset": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 2.0,
@@ -19502,10 +19510,10 @@
                             "Value": 1080.0
                         },
                         "sensitivity": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 10.0,
-                                15.0,
+                                8.0,
                                 0.0
                             ]
                         },
@@ -19522,7 +19530,7 @@
                             "Value": 10.0
                         },
                         "yClamp": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 -40.0,
                                 60.0,
@@ -21314,23 +21322,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -21342,7 +21350,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -21358,7 +21366,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -21366,11 +21374,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -21382,14 +21390,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 70.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -21398,7 +21406,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -21639,23 +21647,23 @@
                     "scriptableFieldMap": {
                         "active": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "bulletDamage": {
                             "Type": "int",
-                            "Value": 20
+                            "Value": 1
                         },
                         "bulletScale": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
-                                3.0
+                                1.0
                             ]
                         },
                         "bulletSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 1.0
                         },
                         "bulletsPerCircle": {
                             "Type": "int",
@@ -21667,7 +21675,7 @@
                         },
                         "burstProjectiles": {
                             "Type": "bool",
-                            "Value": true
+                            "Value": false
                         },
                         "burstRatePerSecond": {
                             "Type": "int",
@@ -21683,7 +21691,7 @@
                         },
                         "distanceBeforeDestroyBullet": {
                             "Type": "float",
-                            "Value": 40.0
+                            "Value": 10.0
                         },
                         "limit": {
                             "Type": "int",
@@ -21691,11 +21699,11 @@
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
-                            "Value": false
+                            "Value": true
                         },
                         "projPerSecond": {
                             "Type": "float",
-                            "Value": 0.20000000298023224
+                            "Value": 4.0
                         },
                         "projectilePrefabName": {
                             "Type": "std::string",
@@ -21707,14 +21715,14 @@
                         },
                         "rangeLimit": {
                             "Type": "float",
-                            "Value": 70.0
+                            "Value": 10.0
                         },
                         "spawnStyle": {
                             "Type": "int",
-                            "Value": 2
+                            "Value": 0
                         },
                         "spiralAxis": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 0.0,
                                 1.0,
@@ -21723,7 +21731,7 @@
                         },
                         "spiralRate": {
                             "Type": "float",
-                            "Value": 2.0
+                            "Value": 1.0
                         }
                     }
                 },
@@ -24201,15 +24209,15 @@
                     "scriptName": "SliceEngine.ScaleWiggleAnimation",
                     "scriptableFieldMap": {
                         "MaxWiggle": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 2.0,
                                 2.0,
-                                1.0
+                                2.0
                             ]
                         },
                         "MinWiggle": {
-                            "Type": "glm::vec3",
+                            "Type": "vec3",
                             "Value": [
                                 1.0,
                                 1.0,
@@ -24222,7 +24230,7 @@
                         },
                         "rate": {
                             "Type": "float",
-                            "Value": 20.0
+                            "Value": 1.0
                         }
                     }
                 },
