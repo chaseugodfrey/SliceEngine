@@ -88,7 +88,7 @@ namespace SliceEngine
 
             
 
-            SliceLog.Log("Cam dir is " + dir);
+            //SliceLog.Log("Cam dir is " + dir);
             float safeDist = 0f;
 
             if (Physics.SphereCast(transform.WorldPosition + new Vector3 (0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.GetMask("Environment"), QueryTriggerInteraction.Ignore))
@@ -96,17 +96,14 @@ namespace SliceEngine
 
                 // Place camera just before the surface using the sphere radius
                 safeDist = Utilities.Clamp<float>( Math.Max(hit.distance - collisionRadius, 0f), .2f, defaultCameraOffsetDist);
-                SliceLog.Log("safe dist is " + safeDist);
+                //SliceLog.Log("safe dist is " + safeDist);
                 cameraChild.GetComponent<Transform>().Position = defaultCameraOffset.Normalize() * safeDist;
 
-                //Bootstrap.HUDManager.OpenTextBox();
-                //Debug.Log($"Collision with {hit.collider.gameObject.name}, hitDist({hit.distance}) - collRad({collisionRadius}) = {hit.distance - collisionRadius} Safe dist at {safeDist}");
             }
             else
             {
                 cameraChild.GetComponent<Transform>().Position = defaultCameraOffset;
-                SliceLog.Log("Camera aint hitting shit");
-                //Bootstrap.HUDManager.CloseTextBox();
+                //SliceLog.Log("Camera aint hitting shit");
             }
 
 

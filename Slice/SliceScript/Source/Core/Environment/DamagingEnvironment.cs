@@ -17,7 +17,7 @@ namespace SliceEngine
 
         public void DamagePlayer(GameObject hit)
         {
-            SliceLog.Log("Damage player called for projectiles");
+            //SliceLog.Log("Damage player called for projectiles");
 
             if (hit.Has<PlayerController>() && hit.As<PlayerController>() == Bootstrap.Player)
             {

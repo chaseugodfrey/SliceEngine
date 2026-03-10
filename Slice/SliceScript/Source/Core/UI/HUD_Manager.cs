@@ -46,21 +46,21 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            base.OnUpdate(dt);
+            //base.OnUpdate(dt);
 
-            if (inputOpen)
-            {
-                if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
-                {
-                    enterPressed = true;
-                    PlayDialogueForLevel(currLevel, currentScene);
-                }
+            //if (inputOpen)
+            //{
+            //    if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
+            //    {
+            //        enterPressed = true;
+            //        PlayDialogueForLevel(currLevel, currentScene);
+            //    }
 
-                if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
-                {
-                    enterPressed = false;
-                }
-            }
+            //    if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
+            //    {
+            //        enterPressed = false;
+            //    }
+            //}
 
            
 
@@ -136,10 +136,10 @@ namespace SliceEngine
             //Load dialogues from a CSV
             // SliceLog.Log("Streaming Assets filepath: " + Application.streamingAssetsPath);
             string filePath = Application.GetFilePath("Dialogue.csv");
-            SliceLog.Log("App filepath: " + filePath);
+            SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
-            if (loader == null)
+            if (loader != null)
             {
                 //SliceLog.Log("Loader is empty");
                 //Maybe add a cull here for the scene
@@ -168,12 +168,8 @@ namespace SliceEngine
                     }
                     
                     allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
-
+                    SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
-            }
-            else
-            {
-                //SliceLog.Log("Load has this many rows" + loader.RowCount);
             }
 
         }
@@ -185,7 +181,7 @@ namespace SliceEngine
 
         private int dialogueIndex = 0;
 
-        public void PlayDialogueForLevel(int level, int scene)
+        public bool PlayDialogueForLevel(int level, int scene)
         {
 
 
@@ -194,7 +190,7 @@ namespace SliceEngine
             if (typing == true)
             {
                 typing = false;
-                return;
+                return true;
             }
 
             //Close dialogue box if it is the last line of the set
@@ -202,7 +198,7 @@ namespace SliceEngine
             {
                 // end of dialogue stack
                 // clear stack
-
+                SliceLog.Log("failed to find dialogue or out of range for the key: " + scene + "_" + level);
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
@@ -211,7 +207,7 @@ namespace SliceEngine
                 //levelDialogues.Clear();
                 SetTextBox("");
                 CloseTextBox();
-                return;
+                return false;
             }
 
             // Will tick dialogue up if it is already loaded, else will load fresh set and play
@@ -259,6 +255,7 @@ namespace SliceEngine
             SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
+            return true;
         }
 
         IEnumerator TypeText(string toType)
@@ -327,16 +324,20 @@ namespace SliceEngine
 
         public void OpenTextBox()
         {
+            SliceLog.Log("Open Text Box called");
             Bootstrap.Player.SetPlayerLock(true);
+            Bootstrap.CameraController.LockCamera = true;
             textBoxParentObject.SetActive(true);
             Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void CloseTextBox()
         {
+            SliceLog.Log("Open Text Box called");
             Bootstrap.Player.SetPlayerLock(false);
+            Bootstrap.CameraController.LockCamera = false;
             textBoxParentObject.SetActive(false);
-            Cursor.state = Cursor.STATE.DEFAULT;
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         #endregion
@@ -347,7 +348,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            //LoadDialogues();
+            LoadDialogues();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }

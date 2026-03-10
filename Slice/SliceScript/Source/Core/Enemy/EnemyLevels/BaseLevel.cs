@@ -22,6 +22,7 @@ namespace SliceEngine
 
         public int levelIndex = 0;
 
+        public bool willSpawn = false;
         // If it will constantlyy spawn once the total enemies drops below max
         public bool constantSpawning = false;
         public bool stopWhenCleared = true;
@@ -103,9 +104,14 @@ namespace SliceEngine
                 return;
             }
 
+            if (!willSpawn)
+            {
+                return;
+            }
+
             // SliceLog.Log("Base Level passed toggle level");
             timer += dt;
-            SliceLog.Log("Timer : " + timer);
+            // SliceLog.Log("Timer : " + timer);
             // when it reaches the last enemy point
             if (currPoint >= enemyPoints.Count)
             {
