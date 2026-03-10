@@ -619,15 +619,16 @@ namespace SliceEditor
 				}
 			}
 
+			
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
+			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
 			auto const mdl = rend.modelHandle.get();
 			if (mdl) {
 				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8
 				DragUInt32InputHeader(mRegistry, "Mesh Index", "##mesh_index", temp, "Mesh: %u", 0, mdl->meshes.size() - 1);	//[min,max]
 				rend.meshOffset = temp;
 			}
-
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
+			BoolInputHeader(mRegistry, "Cast Shadows", "##casts_shadow", rend.castShadow);
 
 			ImGui::TreePop();
 		}
@@ -654,6 +655,7 @@ namespace SliceEditor
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
+			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
@@ -671,6 +673,20 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			}
+
+			ImGui::Text("Godrays");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isGodray", &isGodray))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_GODRAY, isGodray);
+			}
+
+			if (isGodray)
+			{
+				DragFloatInputHeader(mRegistry, "Godray Radius", "##cam_god_ray_radius", cam.godRayFilterRadius, "%.f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Godray Strength", "##cam_god_ray_strength", cam.godRayStrength, "%.1f", 0.1f, FLT_MAX);
+			}
+
 
 			ImGui::Text("Fog");
 			ImGui::SameLine(150.0f);
@@ -2036,7 +2052,7 @@ namespace SliceEditor
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
-			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 1000.f);
 
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 

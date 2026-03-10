@@ -392,6 +392,9 @@ namespace SliceEngine {
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;
+			OnButtonHoverEvent hover_event;
+			hover_event.entity = button_entity;
+			EventManager::GetInstance()->Publish<OnButtonHoverEvent>(hover_event);
 			break;
 		case Click: {
 			button.state = Button::Pressed;

@@ -91,7 +91,18 @@ namespace SliceEngine
 				,GL_COLOR_ATTACHMENT4
 				,GL_COLOR_ATTACHMENT5
 			};
-			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers); // -TODO- Check if this part links the frame buffer or texture
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers);
+		}
+
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, mFBO[FB_THREE]);
+
+			unsigned int drawBuffers[] = {
+				GL_COLOR_ATTACHMENT0
+				,GL_COLOR_ATTACHMENT1
+				,GL_COLOR_ATTACHMENT2
+			};
+			glDrawBuffers(sizeof(drawBuffers) / sizeof(unsigned int), drawBuffers);
 		}
 
 		{
@@ -167,6 +178,10 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_EMISSION], 1, GL_RGB16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_EMISSION], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		// float_16 rgb-GodRay
+		glTextureStorage2D(mColAttachment[GOUT_GODRAY], 1, GL_RGB16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_GODRAY], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_GODRAY], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// unint_8 object to outline
 		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE], 1, GL_R8UI, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -491,6 +506,10 @@ namespace SliceEngine
 
 			renderQueue.SortTranslucent(cam);
 
+			// Just clear for godray only
+			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_GODRAY]);
+			ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
 			CalculateVP(cam);
 			SetShader(ShaderPaths[S_SHADOW]);
 			LinkFrameBufferSettings(FB_NIL, 0);
@@ -521,7 +540,7 @@ namespace SliceEngine
 			SetShader(ShaderPaths[S_SKYBOX_Light]);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 			LoadSettings(GPS_SKYBOX_AMBIENT);
-			RenderSkyboxLighting();
+			RenderSkyboxLighting(cam);
 
 			SetShader(ShaderPaths[S_LIGHTING]);
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
@@ -529,17 +548,20 @@ namespace SliceEngine
 			BindCameraDepth(cam);
 			RenderLighting(cam);
 			//----------------------------------------------------------------
-			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
+			LoadSettings(GPS_DEFAULT); // Does the ID part first
 			BindCameraDepth(cam);
 			if (cam == mCurrentCamIDHover) // Don't Draw into ID when drawing debugging onwards
 			{
-				LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
+				//LinkFrameBufferSettings(FB_DEFERRED, 6, 0, mColAttachment[GOUT_ID], 0, 0, 0, 0);
+				LinkFrameBufferSettings(FB_THREE, 3, 0, mColAttachment[GOUT_ID], 0);
 				glDepthMask(GL_FALSE);
 				renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY : RenderCmdManager::DrawType::DRAW_TRANSLUCENT_ID_ONLY, cameraPos);
 				CheckGLError();
 			}
+			LoadSettings(GPS_TEST_TRANSLUCENT); // Does the ID part first
 			// When Drawing the Transparent part also writes into depth buffer
-			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			//LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+			LinkFrameBufferSettings(FB_THREE, 3, mColAttachment[mCurrFinalColAttachment], 0, mColAttachment[GOUT_EMISSION]);
 			//UpdateCamVP();
 			glDepthMask(GL_TRUE);
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
@@ -557,7 +579,9 @@ namespace SliceEngine
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
 				RenderFog(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
-				RenderBloom(cam);
+				RenderBloom(cam, false);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
+				RenderBloom(cam, true);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
 				RenderVignette(cam);
 
@@ -914,7 +938,7 @@ namespace SliceEngine
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 		CheckGLError();
 	}
-	void RenderManager::RenderSkyboxLighting()
+	void RenderManager::RenderSkyboxLighting(Entity cam)
 	{
 		glBindTextureUnit(0, mColAttachment[GOUT_DIF]);
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
@@ -923,6 +947,9 @@ namespace SliceEngine
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "skyboxLightingPower");
 		glUniform1f(uniformLoc, skyboxData.lightingPower);
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "willBloom");
+		glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
@@ -1153,7 +1180,7 @@ namespace SliceEngine
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
 	}
-	void RenderManager::RenderBloom(Entity cam)
+	void RenderManager::RenderBloom(Entity cam, bool specifallyGodRay)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
@@ -1161,6 +1188,10 @@ namespace SliceEngine
 		SetShader(ShaderPaths[S_BLOOM_SPLIT]);
 		LoadSettings(GPS_BLOOM);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		if(specifallyGodRay)
+			glBindTextureUnit(1, mColAttachment[GOUT_GODRAY]);
+		else
+			glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1186,13 +1217,16 @@ namespace SliceEngine
 		LoadSettings(GPS_BLOOM);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFilterRadius");
-		glUniform1f(uniformLoc, camera.bloomFilterRadius * mBloomFilterMult);
+		if (specifallyGodRay)
+			glUniform1f(uniformLoc, camera.godRayFilterRadius * mBloomFilterMult);
+		else
+			glUniform1f(uniformLoc, camera.bloomFilterRadius * mBloomFilterMult);
 
 		for (int i{ mMaxBloom - 1 }; i > 0; --i)
 		{
 			glBindTextureUnit(0, mBloomMips[i].tex);
 			glViewport(0, 0, mBloomMips[i-1].intSize.x, mBloomMips[i-1].intSize.y);
-			LinkFrameBufferSettings(FBOType::FB_FINAL, 1, mBloomMips[i-1].tex);
+			LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[i-1].tex);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 
@@ -1205,7 +1239,10 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uBloomStrength");
-		glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
+		if (specifallyGodRay)
+			glUniform1f(uniformLoc, camera.godRayStrength * mBloomStrengthMult);
+		else
+			glUniform1f(uniformLoc, camera.bloomStrength * mBloomStrengthMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
