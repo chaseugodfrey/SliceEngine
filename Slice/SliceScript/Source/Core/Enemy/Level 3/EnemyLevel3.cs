@@ -202,5 +202,32 @@ namespace SliceEngine
                 }
             }
         }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            //source = source ?? gameObject;
+            if (source == null)
+            {
+                source = gameObject;
+            }
+            //Console.WriteLine("Enitity taking damage");
+            //Debug.Log($"{name} taking {amount} damage");
+
+            if (shield)
+            {
+                Console.WriteLine("LMAO have shield no damage for u");
+            }
+            else
+            {
+                this.currentHealth -= amount;
+            }
+                
+            if (this.currentHealth > 0) { OnDamaged(source); }
+            if (this.currentHealth <= 0)
+            {
+                currentHealth = 0; // Ensure health doesn't go below zero
+                OnDeath();
+            }
+        }
     }
 }
