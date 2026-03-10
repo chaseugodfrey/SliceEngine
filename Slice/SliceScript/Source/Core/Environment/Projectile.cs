@@ -13,7 +13,7 @@ namespace SliceEngine
         public float speed = 1.0f;
         public int damage = 30;
         public GameObject generalHitbox;
-        public Projectile_Spawner owner;
+        public GameObject owner;
         public bool destroyOnImpact = false;
         public bool destroyOnPlayerImpact = false;
         public float distanceBeforeDestroy = 10f;
@@ -78,7 +78,14 @@ namespace SliceEngine
         {
             if (owner != null)
             {
-                owner.DestroyBullet(this);
+                if (owner.Has<Projectile_Spawner>())
+                    owner.As<Projectile_Spawner>().DestroyBullet(this);
+                else if (owner.Has<EnemyLevel2>())
+                {
+                     owner.As<EnemyLevel2>().projectileState.DestroyBullet(this); 
+                }
+                else
+                    gameObject.Destroy();
             }
         }
     }

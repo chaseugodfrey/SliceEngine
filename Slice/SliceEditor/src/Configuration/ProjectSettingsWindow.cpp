@@ -28,7 +28,7 @@ namespace SliceEditor
 	{
 		ImVec2 window_size = ImVec2(800, 600);
 		ImGui::SetNextWindowSize(window_size);
-		bool isOpen;
+		bool isOpen =true;
 		if (ImGui::Begin("Project Settings Window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			//auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();
@@ -437,6 +437,7 @@ namespace SliceEditor
 	void SkyboxSettingsDisplay::DisplaySettings(ImVec2 size)
 	{
 		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		auto& skyboxSettings = static_cast<SliceEngine::SkyboxSettings&>(mSettings);
 
 		if (ImGui::CollapsingHeader("Skybox Properties"))
 		{
@@ -445,20 +446,21 @@ namespace SliceEditor
 				ImGui::SetTooltip("Skybox properties.");
 			}
 
-			float tempLightingPw = rm->skyboxData.lightingPower * 100.f;
-			if (DragFloatInputHeader(mRegistry, "Skybox Light Power", "##skybox_light_power", tempLightingPw, "%.3f", 0.f, FLT_MAX))
-				rm->skyboxData.lightingPower = tempLightingPw / 100.f;
+			if (DragFloatInputHeader(mRegistry, "Skybox Light Power", "##skybox_light_power", rm->skyboxData.lightingPower, "%.3f", 0.f, FLT_MAX))
+				skyboxSettings.isDirty = true;
 
 			if (DragColor3InputHeader(mRegistry, "Zenith Color", "##skybox_zenith_color", rm->skyboxData.zenithColor))
-				rm->skyboxData.isDirty = true;
+				rm->skyboxData.isDirty = skyboxSettings.isDirty = true;
 			if (DragColor3InputHeader(mRegistry, "Horizon Color", "##skybox_horizon_color", rm->skyboxData.horizonColor))
-				rm->skyboxData.isDirty = true;
+				rm->skyboxData.isDirty = skyboxSettings.isDirty = true;
 			if (DragColor3InputHeader(mRegistry, "Ground Color", "##skybox_ground_color", rm->skyboxData.groundColor))
-				rm->skyboxData.isDirty = true;
+				rm->skyboxData.isDirty = skyboxSettings.isDirty = true;
 			if (DragVec3InputHeader(mRegistry, "Sun Position", "##skybox_sun_position", rm->skyboxData.sunPos, -FLT_MAX, FLT_MAX))
-				rm->skyboxData.isDirty = true;
+				rm->skyboxData.isDirty = skyboxSettings.isDirty = true;
 			if (DragColor3InputHeader(mRegistry, "Sun Color", "##skybox_sun_color", rm->skyboxData.sunCol))
-				rm->skyboxData.isDirty = true;
+				rm->skyboxData.isDirty = skyboxSettings.isDirty = true;
+
+			
 		}
 	}
 

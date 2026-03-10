@@ -30,10 +30,19 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             timer += dt;
-            if (timeToMove >= 2.0f && !moved)
+            if (timer >= 2.0f && !moved)
             {
-                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
-                moved = true;
+
+                if (enemyController.startingPosition == null)
+                {
+                    SliceLog.Error("Starting position is null");
+                    moved = true;
+                }
+                else
+                {
+                    enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                    moved = true;
+                }
             }
         }
 
@@ -73,11 +82,11 @@ namespace SliceEngine
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                    // Console.WriteLine("Incrementing");
-                    // prob decide here if attack or no attack
-                    // im not sure how to attack yet for now
+                        //Console.WriteLine("Incrementing");
+                        // prob decide here if attack or no attack
+                        // im not sure how to attack yet for now
 
-                    // ill try this, % chance
+                        // ill try this, % chance
                         enemyController.movementTimer += dt;
                 }
 
@@ -99,11 +108,20 @@ namespace SliceEngine
                     {
                         // nth, itll just move down and move to a new waypoint
                         enemyController.movementTimer = 0.0f;
-                        enemyController.currPoint = enemyController.GetNextIdlePoint();
 
-                        enemyController.movementDone = false;
-                        // move to the random point
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                        if (enemyController.idlePoints.Count == 0)
+                        {
+                            SliceLog.Error("No idle points");
+                        }
+                        else
+                        {
+                            enemyController.currPoint = enemyController.GetNextIdlePoint();
+
+                            enemyController.movementDone = false;
+                            // move to the random point
+                            enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+
+                        }
                     }
 
                 }
@@ -150,6 +168,23 @@ namespace SliceEngine
                 // save the original position before slamming
                 //originalPosition = owner.GetComponent<Transform>().Position;
 
+                // check if can slam 
+                RayCastHit hitInfo;
+                // Check if can plunge by raycasting down to see distance to environment layer objects
+                bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                
+                if (hit)
+                {
+                    GameObject objHit = owner.FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    if (objHit == null)
+                    {
+                        // no floor detected
+                        enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                        return;
+                    }
+
+                }
+
                 Console.WriteLine("Slamming");
                 owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
             }
@@ -158,6 +193,7 @@ namespace SliceEngine
             if (onCooldown)
             {
                 timer += dt;
+                enemyController.canDamage = true;
 
                 if (timer >= 0.5f)
                 {
@@ -167,6 +203,7 @@ namespace SliceEngine
 
                 if (timer >= 2.0f)
                 {
+                    enemyController.canDamage = false;
                     onCooldown = false;
                     attacking = false;
                     reset = true;
@@ -191,6 +228,14 @@ namespace SliceEngine
         private float count = 0f;
         private float timer = 0f;
 
+        public string projectilePrefabName = "Projectile";
+        public float projPerSecond = 4f;
+        public float bulletSpeed = 40f;
+        public Vector3 bulletScale = new Vector3(1);
+        public int bulletDamage = 10;
+        public float distanceBeforeDestroyBullet = 90f;
+        public int limit = 100;
+
         public ProjectileState(GameObject owner) : base(owner)
         {
             enemyController = owner.As<EnemyLevel2>();
@@ -209,13 +254,13 @@ namespace SliceEngine
             timer += dt;
             count += dt;
             //Console.WriteLine($"count : {count}");
-            if (count >= 1f / enemyController.projPerSecond)
+            if (count >= 1f / projPerSecond)
             {
-                count -= 1f / enemyController.projPerSecond;
+                count -= 1f / projPerSecond;
 
                 Transform T = owner.GetComponent<Transform>();
                 //Console.WriteLine("SHooting boolet");
-                GameObject bullet = enemyController.CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), enemyController.bulletScale, enemyController.bulletSpeed, false, enemyController.distanceBeforeDestroyBullet);
+                GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false,distanceBeforeDestroyBullet);
                 
                 bullet.As<Projectile>().destroyOnPlayerImpact = true;
             }
@@ -225,11 +270,58 @@ namespace SliceEngine
                 enemyController.stateMachine.ChangeState(enemyController.idleState);
             }
         }
+
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
+        {
+            string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+            //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+            GameObject newBullet = owner.CreateGameObject(prefabPath);
+
+            Transform tempT = newBullet.GetComponent<Transform>();
+
+            tempT.Position = startPos;
+            tempT.Rotation = angle;
+            tempT.Scale = scale;
+
+            Projectile tempP = newBullet.As<Projectile>();
+
+            tempP.SetUp();
+            tempP.speed = speed;
+            tempP.owner = owner;
+            tempP.damage = bulletDamage;
+            tempP.distanceBeforeDestroy = distanceBeforeDestroy;
+            tempP.destroyOnImpact = destroyOnImpact;
+
+            allProjectiles.Add(tempP);
+
+            if (allProjectiles.Count > limit)
+            {
+                for (int i = 0; i < (allProjectiles.Count - limit); i++)
+                {
+                    DestroyBullet(allProjectiles[0]);
+                }
+            }
+
+            return newBullet;
+        }
+
+        public void DestroyBullet(Projectile toDestroy)
+        {
+            int index = allProjectiles.IndexOf(toDestroy);
+
+            if (index != -1)
+            {
+                Projectile temp = allProjectiles[index];
+                allProjectiles.RemoveAt(index);
+                temp.gameObject.Destroy();
+            }
+        }
+
     }
 
     #endregion
 
-    public class EnemyLevel2 : Projectile_Spawner
+    public class EnemyLevel2 : EnemyBase
     {
         public StateMachine stateMachine;
 
@@ -247,7 +339,7 @@ namespace SliceEngine
         public float movementTimer = 0.0f;
         public bool movementDone = false;
         public int damage = 20;
-        bool canDamage = false;
+        public bool canDamage = false;
 
         public GameObject generalHitbox;
 
@@ -283,6 +375,27 @@ namespace SliceEngine
                 Bootstrap.Player.TakeDamage(damage);
 
             }
+        }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            if (!canDamage)
+                return;
+
+            base.TakeDamage(amount, source);
+
+        }
+
+        public override void OnDeath()
+        {
+            // transition to the death state where it flies up
+        }
+
+        protected override void OnDamaged(GameObject source)
+        {
+            Console.WriteLine("OnDamage for enemyLevel2 called");
+            //CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
+
         }
 
         public override void OnUpdate(float dt)

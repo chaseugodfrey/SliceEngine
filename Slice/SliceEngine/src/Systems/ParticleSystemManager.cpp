@@ -606,7 +606,7 @@ namespace SliceEngine
 
 		auto core = SliceEngine::Core::GetInstance();
 		auto layer_manager = core->GetLayerManager();
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetMask(ps.particleLayer)))
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetCollisionMask(layer_manager->GetLayerName(ps.particleLayer))))
 		{
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal
