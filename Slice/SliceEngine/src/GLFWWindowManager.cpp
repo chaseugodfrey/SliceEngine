@@ -59,46 +59,45 @@ namespace SliceEngine
 
 	void GLFWWindowManager::FullScreenWindow()
 	{
-		
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
-
-			auto vidMode = glfwGetVideoMode(monitor);
-
-			glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
-
-			glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
-
-			glfwMakeContextCurrent(window);
 
 
-			isFullScreen = true;
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
+		auto vidMode = glfwGetVideoMode(monitor);
+
+		glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
+
+		glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+
+		glfwMakeContextCurrent(window);
+
+
+		isFullScreen = true;
 
 	}
 
 	void GLFWWindowManager::NonFullScreenWindow()
 	{
-		
 
-			GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
-			auto vidMode = glfwGetVideoMode(monitor);
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
-			glfwSetWindowMonitor(window, nullptr, 0, 25, vidMode->width, vidMode->height, vidMode->refreshRate);
+		auto vidMode = glfwGetVideoMode(monitor);
 
-			glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+		glfwSetWindowMonitor(window, nullptr, 0, 25, vidMode->width, vidMode->height, vidMode->refreshRate);
 
-			glfwSetWindowTitle(window, "Weight Of The Sky");
+		glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
 
-			glfwMakeContextCurrent(window);
+		glfwSetWindowTitle(window, "Weight Of The Sky");
 
-			isFullScreen = false;
-		
+		glfwMakeContextCurrent(window);
+
+		isFullScreen = false;
 	}
 
 	void GLFWWindowManager::CloseWindow()
 	{
-	
+
 		glfwDestroyWindow(window);
 		SLICE_LOG("Main Window Destroyed.");
 	}

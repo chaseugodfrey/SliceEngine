@@ -95,11 +95,6 @@ namespace SliceEngine
 		std::string navMeshBinPath;
 	};
 
-	struct OnSceneChangeEvent
-	{
-
-	};
-
 	struct OnSceneStopEvent
 	{
 		bool isSceneStopped;
@@ -148,6 +143,12 @@ namespace SliceEngine
 	{
 		Entity entity;
 	};
+
+	struct OnButtonHoverEvent
+	{
+		Entity entity;
+	};
+
 	struct OnButtonReleaseEvent
 	{
 		Entity entity;
@@ -156,6 +157,11 @@ namespace SliceEngine
 	{
 		Entity entity;
 		float value;
+	};
+
+	struct OnSceneChangeEvent
+	{
+
 	};
 
 	struct OnPrefabModifiedEvent
