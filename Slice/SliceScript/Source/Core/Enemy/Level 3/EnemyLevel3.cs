@@ -45,6 +45,7 @@ namespace SliceEngine
             introState = new IntroState(this.gameObject, this);
             slamState = new SlamState(this.gameObject, this);
             projectileState = new ProjectileState(this.gameObject, this);
+            shield = true;
 
             // start at intro state
             stateMachine.ChangeState(introState);
@@ -228,6 +229,12 @@ namespace SliceEngine
                 currentHealth = 0; // Ensure health doesn't go below zero
                 OnDeath();
             }
+        }
+
+        public void ShieldGeneratorDestroyed()
+        {
+            Console.WriteLine("Shield Generator Destroyeddddddd LMAO");
+            shield = false;
         }
     }
 }
