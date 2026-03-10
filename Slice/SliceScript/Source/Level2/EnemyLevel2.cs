@@ -94,7 +94,7 @@ namespace SliceEngine
                 {
                     float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                     // 40% chance to slam attack
-                    if (roll < 0.4f && moves != 0) // 75% chance for now cause testing
+                    if (roll < 0.9f) // 75% chance for now cause testing
                     {
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                     }
@@ -201,7 +201,7 @@ namespace SliceEngine
                     enemyController.ToggleHitbox(false);
                 }
 
-                if (timer >= 2.0f)
+                if (timer >= 10.0f)
                 {
                     enemyController.canDamage = false;
                     onCooldown = false;
@@ -319,6 +319,38 @@ namespace SliceEngine
 
     }
 
+    public class EndAnimationState : BaseState
+    {
+        EnemyLevel2 enemyController;
+
+        int numOfPoints;
+        public EndAnimationState(GameObject owner) : base(owner)
+        {
+            enemyController = owner.As<EnemyLevel2>();
+        }
+
+        public override void OnEnter()
+        {
+            numOfPoints = enemyController.LevelController.As<L2Controller>().projectileSpawnPoints.Count;
+        }
+
+        public override void OnFixedUpdate(float dt)
+        {
+            
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            
+        }
+
+        public override void OnExit()
+        {
+            
+        }
+
+    }
+
     #endregion
 
     public class EnemyLevel2 : EnemyBase
@@ -335,6 +367,7 @@ namespace SliceEngine
 
         // Where it will move to when idle
         public List<GameObject> idlePoints = new List<GameObject>();
+        public GameObject LevelController;
         public int currPoint = 0;
         public float movementCooldown = 5.0f;
         public float movementTimer = 0.0f;
@@ -366,6 +399,11 @@ namespace SliceEngine
                 generalHitbox.As<GeneralHitbox>().TurnOff();
             }
 
+            if (LevelController == null)
+            {
+                SliceLog.Error("Level controller isn't assigned");
+            }
+
             enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
         }
 
@@ -385,21 +423,24 @@ namespace SliceEngine
             //if (!canDamage)
             //    return;
 
+            Console.WriteLine($"Take Damage called for {amount}");
+
             base.TakeDamage(amount, source);
 
-            enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
 
         }
 
         public override void OnDeath()
         {
             // transition to the death state where it flies up
+            Console.WriteLine("Dying");
         }
 
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine("OnDamage for enemyLevel2 called");
+            Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
             //CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
 
         }
 
@@ -479,12 +520,12 @@ namespace SliceEngine
 
         public void ToggleHitbox(bool flag)
         {
-            Console.WriteLine("Toggle hitbox");
+            //Console.WriteLine("Toggle hitbox");
             if (flag)
             {
                 if (generalHitbox != null)
                 {
-                    Console.WriteLine("Turning on hit box");
+                    //Console.WriteLine("Turning on hit box");
                     generalHitbox.As<GeneralHitbox>().TurnOn();
                 }
             }
@@ -492,7 +533,7 @@ namespace SliceEngine
             {
                 if (generalHitbox != null)
                 {
-                    Console.WriteLine("Turning off hitbox");
+                    //Console.WriteLine("Turning off hitbox");
                     generalHitbox.As<GeneralHitbox>().TurnOff();
                 }
 
