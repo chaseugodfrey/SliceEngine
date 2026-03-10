@@ -495,6 +495,17 @@ namespace SliceEditor
 					}
 				}
 
+				auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+				// 1. Get the Inverse of the Parent World Matrix
+				glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+				// 2. Transform the manipulated world_tr into local space
+				// This gives us the exact local matrix relative to the parent
+				glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+				// 3. Decompose the matrix
+
 				glm::mat4 parentWorldTr{ 1 };
 				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
@@ -503,12 +514,25 @@ namespace SliceEditor
 
 				if (parentEntity != entt::null)
 				{
-					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+					/*auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
 					parentWorldTr = parentTr.transform;
-					world_tr *= glm::inverse(parentWorldTr);
-				}
+					world_tr *= glm::inverse(parentWorldTr);*/
 
-				glm::decompose(world_tr, scale, rot, translation, skew, persp);
+					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+					// 1. Get the Inverse of the Parent World Matrix
+					glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+					// 2. Transform the manipulated world_tr into local space
+					// This gives us the exact local matrix relative to the parent
+					glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+					glm::decompose(localMatrix, scale, rot, translation, skew, persp);
+				}
+				else
+				{
+					glm::decompose(world_tr, scale, rot, translation, skew, persp);
+				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
