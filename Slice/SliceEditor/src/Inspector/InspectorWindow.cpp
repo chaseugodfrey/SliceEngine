@@ -683,7 +683,6 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Godray Radius", "##cam_god_ray_radius", cam.godRayFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Godray Strength", "##cam_god_ray_strength", cam.godRayStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Godray Exposure", "##cam_god_ray_exposure", cam.godRayExposure, "%.1f", 0.1f, 50.0f);
 			}
 
 
@@ -2042,7 +2041,7 @@ namespace SliceEditor
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
 
-			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 10.f);
+			DragFloatInputHeader(mRegistry, "Intensity", "##intensity", light.intensity, "%.2f", 0.0f, 1000.f);
 
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 

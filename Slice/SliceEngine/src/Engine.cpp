@@ -300,7 +300,6 @@ namespace SliceEngine
 		.property("bloomExposure", &Camera::exposure)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
-		.property("godRayExposure", &Camera::godRayExposure)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)

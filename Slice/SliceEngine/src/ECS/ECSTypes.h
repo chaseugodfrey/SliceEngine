@@ -234,7 +234,6 @@ namespace SliceEngine
 		float exposure{ 10.f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
-		float godRayExposure{ 10.f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
