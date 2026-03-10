@@ -333,10 +333,16 @@ namespace SliceEngine
         float orbitTimer = 0.0f;
         float orbitRadius = 10.0f;
         float rotationSpeed = 2.0f;
-
+        float idleTime = 3.0f;
+        float idleTimer = 0.0f;
         int numOfPoints;
 
+        // this is only for the very first move to center the enemy back to starting point
         public bool moved = false;
+        // this is to prevent multiple MoveToPoitn coroutine calls.
+        public bool secondMoved = false;
+
+
 
         public DeathState(GameObject owner) : base(owner)
         {
@@ -348,7 +354,6 @@ namespace SliceEngine
 
             orbitingEnemies = enemyController.LevelController.As<L2Controller>().GetActiveProjectileEnemies();
             numOfPoints = orbitingEnemies.Count;
-            Vector3 ownerPos = owner.GetComponent<Transform>().Position;
 
             for (int i = 0; i < numOfPoints; ++i)
             {
@@ -362,7 +367,8 @@ namespace SliceEngine
 
                 orbitingEnemies[i].As<Projectile_Spawner>().active = false;
 
-                Vector3 worldTarget = ownerPos + targetLocalPos;
+                // move back to the starting position
+                Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().Position + targetLocalPos;
                 enemyController.StartCoroutine(MoveEnemy(orbitingEnemies[i], worldTarget, 3.0f));
             }
 
@@ -394,9 +400,11 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (enemyController.movementDone)
+            if (moved)
             {
                 orbitTimer += dt * rotationSpeed;
+
+                idleTimer += dt;
 
                 Vector3 center = owner.GetComponent<Transform>().Position;
                 for(int i = 0; i < numOfPoints; ++i)
@@ -407,7 +415,17 @@ namespace SliceEngine
                     float z = center.z + (float)Math.Sin(angle) * orbitRadius;
 
                     Transform enemyTransform = orbitingEnemies[i].GetComponent<Transform>();
-                    enemyTransform.Position = new Vector3(x, enemyTransform.Position.y, z);
+                    enemyTransform.Position = new Vector3(x, center.y, z);
+                }
+
+                // after letting it sit in the middle for awhile
+                // make it zoom up
+                // im just gonna throw a random +Y value to curent pos
+                if (idleTimer > idleTime && !secondMoved)
+                {
+                    secondMoved = true;
+                    // Move back to the starting point
+                    enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(0, 100f, 0), 5.0f));
                 }
 
             }
@@ -503,6 +521,9 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
+            // so the health bar drops to 0
+
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
             // transition to the death state where it flies up
             //Console.WriteLine("Dying");
             stateMachine.ChangeState(deathState);
@@ -591,7 +612,15 @@ namespace SliceEngine
                     break;
                 case DeathState _:
                     DeathState death = stateMachine.currentState as DeathState;
+                    // the initial move for going back to starting point
                     death.moved = true;
+
+                    // if secondMoved is true means this is when its done moving all the way up
+                    // can probably transition to end level, go to level 3 here or smth idk
+                    if (death.secondMoved)
+                    {
+
+                    }
 
                     break;
             }
