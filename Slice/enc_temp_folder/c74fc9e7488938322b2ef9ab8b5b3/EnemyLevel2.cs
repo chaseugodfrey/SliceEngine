@@ -82,11 +82,11 @@ namespace SliceEngine
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                        //Console.WriteLine("Incrementing");
-                        // prob decide here if attack or no attack
-                        // im not sure how to attack yet for now
+                     Console.WriteLine("Incrementing");
+                    // prob decide here if attack or no attack
+                    // im not sure how to attack yet for now
 
-                        // ill try this, % chance
+                    // ill try this, % chance
                         enemyController.movementTimer += dt;
                 }
 

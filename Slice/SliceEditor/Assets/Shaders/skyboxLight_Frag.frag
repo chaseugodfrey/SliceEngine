@@ -10,13 +10,17 @@ layout (binding = 2) uniform samplerCube uCubemapTex;
 layout (binding = 3) uniform sampler2D	uEmission;
 
 uniform float skyboxLightingPower = 1.0f;
+uniform bool willBloom = false;
 
 void main(void){
 	ivec2 p = ivec2(gl_FragCoord.xy);
 	vec3 nom = texelFetch(uNomTex, p, 0).xyz;
 	vec3 dif = texelFetch(uTex, p, 0).rgb;
 	vec3 ambient = texture(uCubemapTex, nom).rgb;
-	vec3 emission = texelFetch(uEmission, p, 0).rgb;
+	vec3 emission = vec3(0.0f);
+
+	if(!willBloom)
+		emission = texelFetch(uEmission, p, 0).rgb;
 
 	if(any(notEqual(nom, vec3(0.0f))))
 	{
