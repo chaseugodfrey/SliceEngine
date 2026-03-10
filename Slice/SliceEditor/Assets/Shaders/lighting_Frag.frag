@@ -212,8 +212,9 @@ vec3 gridSamplingDisk[20] = vec3[]
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 {
 	vec3 fragToLight = -l;
+	vec3 L = normalize(l);
 
-	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
 	float diskRadius = (1.0 + (viewDist / 20.0)) / 25.0;
 	
 	int samples = 20;

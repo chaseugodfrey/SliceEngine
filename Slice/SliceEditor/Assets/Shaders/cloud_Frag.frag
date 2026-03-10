@@ -37,7 +37,6 @@ const int isSpot 		= 2;
 const int maxLights = 10;
 const float roughness = 1.0f;
 const float metallic = 0.0f;
-const float transparancy = 0.25f;
 
 
 uniform mat4 V;
@@ -46,6 +45,7 @@ uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
 
 uniform float uCloudsCutoff;
+uniform vec4 uCloudsColor = vec4(1.f, 1.f, 1.f, 0.25f);
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights);
@@ -56,7 +56,7 @@ void main(void){
 	if(vRandNoise < uCloudsCutoff)
 		discard;
 	
-	vec4 dif = vec4(1.0f, 1.0f, 1.0f, transparancy);
+	vec4 dif = uCloudsColor;
 	vec3 nom = vNom;
 	if(any(notEqual(nom, vec3(0.0f))))
 	{

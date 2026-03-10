@@ -180,12 +180,12 @@ namespace SliceEngine
 				}
 				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset); // as long as number dun hit that high, shouldn't overload
 
-				if (ptx.colour.a > 0.999f)
-				{
-					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
-					key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
-				}
-				else 
+				//if (ptx.colour.a > 0.999f)
+				//{
+				//	uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->opaqueS);
+				//	key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+				//}
+				//else 
 				{
 					uint8_t shdDet = GetShaderDetails(tempMat.shader.get()->translucentS);
 					key = key | MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
@@ -198,18 +198,18 @@ namespace SliceEngine
 				
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
-				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, &tempMat);
 					translucentCmds.emplace_back(tc);
 				}
-				else
-				{
-					AppendRenderCmd(renderCmds[key], data, &tempMat);
-					renderCmds[key].numVar =
-						static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
-				}
+				//else
+				//{
+				//	AppendRenderCmd(renderCmds[key], data, &tempMat);
+				//	renderCmds[key].numVar =
+				//		static_cast<uint32_t>(tempMat.shader.get()->dataIn.size());
+				//}
 			}
 			else 
 			{
