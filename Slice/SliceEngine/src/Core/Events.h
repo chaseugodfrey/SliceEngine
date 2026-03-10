@@ -143,6 +143,12 @@ struct OnButtonClickEvent
 {
 	Entity entity;
 };
+
+struct OnButtonHoverEvent
+{
+	Entity entity;
+};
+
 struct OnButtonReleaseEvent
 {
 	Entity entity;

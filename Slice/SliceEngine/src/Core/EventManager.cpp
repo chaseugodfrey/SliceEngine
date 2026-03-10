@@ -43,6 +43,7 @@ void EventManager::SetupEventManager()
 
 	//ui events
 	RegisterEvent<OnButtonClickEvent>();
+	RegisterEvent<OnButtonHoverEvent>();
 	RegisterEvent<OnButtonReleaseEvent>();
 	RegisterEvent<OnSliderValueEvent>();
 
