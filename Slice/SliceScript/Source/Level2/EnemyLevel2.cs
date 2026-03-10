@@ -331,6 +331,7 @@ namespace SliceEngine
         public ProjectileState projectileState;
 
         public GameObject startingPosition;
+        public GameObject enemyHUD;
 
         // Where it will move to when idle
         public List<GameObject> idlePoints = new List<GameObject>();
@@ -364,6 +365,8 @@ namespace SliceEngine
                 generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
                 generalHitbox.As<GeneralHitbox>().TurnOff();
             }
+
+            enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
         }
 
         public void DamagePlayer(GameObject hit)
@@ -379,10 +382,12 @@ namespace SliceEngine
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
-            if (!canDamage)
-                return;
+            //if (!canDamage)
+            //    return;
 
             base.TakeDamage(amount, source);
+
+            enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
 
         }
 
