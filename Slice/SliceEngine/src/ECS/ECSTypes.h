@@ -243,10 +243,12 @@ namespace SliceEngine
 		float cloudsIntensity{ 0.3f };
 		float cloudsSmoothness{ 0.0027 };
 		float cloudsCutoff{ 0.167f };
+		glm::vec4 cloudsColor{ 1.f,1.f,1.f,0.25f };
 		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
 		float cloudsSecondCloudAmplitude{ 49.f };
 		float cloudsSecondCloudIntensity{ 0.3f };
 		float cloudsSecondCloudSmoothness{ 0.0027 };
+		glm::vec4 cloudsSecondColor{ 1.f,1.f,1.f,0.25f };
 
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};

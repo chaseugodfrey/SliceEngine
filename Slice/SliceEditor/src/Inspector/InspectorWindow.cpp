@@ -778,6 +778,7 @@ namespace SliceEditor
 			if (isGroundCloud)
 			{
 				DragFloatInputHeader(mRegistry, "Clouds Y Pos", "##cam_ground_clouds_height", cam.cloudsHeight, "%.1f", -FLT_MAX, FLT_MAX);
+				DragColor4InputHeader(mRegistry, "Clouds Color", "##cam_ground_clouds_color", cam.cloudsColor);
 				DragFloatInputHeader(mRegistry, "Clouds Amplitude", "##cam_ground_clouds_amplitude", cam.cloudsAmplitude, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Clouds Intensity", "##cam_ground_clouds_intensity", cam.cloudsIntensity, "%.1f", 0.0f, FLT_MAX);
 				float tempCutoff = cam.cloudsCutoff * 100.f;
@@ -787,6 +788,7 @@ namespace SliceEditor
 				if (DragFloatInputHeader(mRegistry, "Clouds Smoothness", "##cam_ground_clouds_smoothness", tempSmoothness, "%.1f", 0.0f, FLT_MAX))
 					cam.cloudsSmoothness = tempSmoothness / 10000.f;
 				DragVec3InputHeader(mRegistry, "Clouds Second", "##cam_secondCloudOffset", cam.cloudsSecondCloudOffset);
+				DragColor4InputHeader(mRegistry, "Clouds Color", "##cam_ground_second_clouds_color", cam.cloudsSecondColor);
 				DragFloatInputHeader(mRegistry, "Second Clouds Amplitude", "##cam_ground_second_clouds_amplitude", cam.cloudsSecondCloudAmplitude, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Second Clouds Intensity", "##cam_ground_second_clouds_intensity", cam.cloudsSecondCloudIntensity, "%.1f", 0.0f, FLT_MAX);
 				tempSmoothness = cam.cloudsSecondCloudSmoothness * 10000.f;

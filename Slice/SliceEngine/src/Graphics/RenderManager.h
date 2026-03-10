@@ -104,7 +104,7 @@ namespace SliceEngine
 		const int mSkyboxDim = 1024;
 
 		const unsigned int DIRECTIONAL_SHADOW_DIMENSION = 512;
-		const unsigned int SHADOW_DIMENSION = 512;
+		const unsigned int SHADOW_DIMENSION = 1024;
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -285,6 +285,7 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+		void GatherNearbyLights(Entity cam);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 
