@@ -375,7 +375,7 @@ namespace SliceEngine
 
         public void StartAttackRecovery()
         {
-            PlayerMovementState = MovementState.Idle;
+            //PlayerMovementState = MovementState.Idle;
             PlayerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
 
@@ -662,14 +662,13 @@ namespace SliceEngine
             {
                 if (PlayerCombatState == CombatState.Attacking || PlayerCombatState == CombatState.Recovery) return;
 
-                if (animator.GetCurrAnimName() == "AttackToIdle3") return;
+                //if (animator.GetCurrAnimName() == "AttackToIdle3") return;
                 // Normal locomotion
                 if (moveDirInput.SquareMagnitude() > 0.0001f)
                 {
                     Quaternion targetRot = Quaternion.LookRotation(moveDirInput, Vector3.Up);
                     float scaledRotSpeed = rotationSpeed;
                     transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRot, scaledRotSpeed * Time.deltaTime);
-                    
                 }
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 rigidBody.Velocity = new Vector3(horizontal.x, rigidBody.Velocity.y, horizontal.z);
@@ -810,7 +809,7 @@ namespace SliceEngine
                     }
                     break;
                 case CombatState.Recovery: 
-                    Console.WriteLine($"reset timer {attackResetTimer} vs {attackRecoveryDuration}");
+                    //Console.WriteLine($"reset timer {attackResetTimer} vs {attackRecoveryDuration}");
                     if (attackResetTimer >= attackRecoveryDuration)
                     {
                         PlayerCombatState = CombatState.None;
@@ -1210,7 +1209,6 @@ namespace SliceEngine
             {
                 inputtable = false;
             }
-            Console.WriteLine($"Is player taking inputs? {inputtable.ToString()}");
             return inputtable;
         }
 
