@@ -299,7 +299,7 @@ namespace SliceEngine
 		struct SkyboxDat
 		{
 			bool isDirty = true;
-			float lightingPower{ 1.f };
+			float lightingPower{ 100.f };
 			glm::vec3 zenithColor{ 0.733f, 0.87f, 1.0f };
 			glm::vec3 horizonColor{ 0.815f, 0.917f, 1.0f };
 			glm::vec3 groundColor{ 1.f,1.f, 1.0f };

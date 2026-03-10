@@ -2292,6 +2292,69 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region SKYBOX FUNCTIONS
+	static void Skybox_GetLightingPower(float* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower;
+	}
+	static void Skybox_GetZenithColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.zenithColor;
+	}
+	static void Skybox_GetHorizonColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.horizonColor;
+	}
+	static void Skybox_GetGroundColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.groundColor;
+	}
+	static void Skybox_GetSunDirection(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.sunPos;
+	}
+	static void Skybox_GetSunColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.sunCol;
+	}
+
+
+	static void Skybox_SetLightingPower(float* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+	}
+	static void Skybox_SetZenithColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.zenithColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetHorizonColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.horizonColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetGroundColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.groundColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetSunDirection(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.sunPos = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetSunColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.sunCol = *target;
+		rm->skyboxData.isDirty = true;
+	}
+#pragma endregion
+
 #pragma region CAMERA FUNCTIONS
 
 	static void Camera_SetMainCamera(unsigned int entityID)
@@ -3189,6 +3252,21 @@ namespace SliceEngine
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+
+		// Skybox
+		ADD_INTERNAL_CALL(Skybox_GetLightingPower);
+		ADD_INTERNAL_CALL(Skybox_GetZenithColor);
+		ADD_INTERNAL_CALL(Skybox_GetHorizonColor);
+		ADD_INTERNAL_CALL(Skybox_GetGroundColor);
+		ADD_INTERNAL_CALL(Skybox_GetSunDirection);
+		ADD_INTERNAL_CALL(Skybox_GetSunColor);
+
+		ADD_INTERNAL_CALL(Skybox_SetLightingPower);
+		ADD_INTERNAL_CALL(Skybox_SetZenithColor);
+		ADD_INTERNAL_CALL(Skybox_SetHorizonColor);
+		ADD_INTERNAL_CALL(Skybox_SetGroundColor);
+		ADD_INTERNAL_CALL(Skybox_SetSunDirection);
+		ADD_INTERNAL_CALL(Skybox_SetSunColor);
 
 		// Application
 		ADD_INTERNAL_CALL(Application_GetFilePath);
