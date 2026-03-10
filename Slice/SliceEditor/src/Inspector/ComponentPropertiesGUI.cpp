@@ -80,7 +80,9 @@ namespace SliceEditor
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::SliderFloat(id, &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SetNextItemWidth(100.f);
+
+		bool changed = ImGui::SliderFloat(id, &val, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;

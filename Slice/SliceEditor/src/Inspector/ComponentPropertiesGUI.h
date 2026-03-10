@@ -209,7 +209,7 @@ namespace SliceEditor
 	}
 
 	template <typename T>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr, bool selectionDifferent = false)
 	{
 		bool changed = false;
 		auto& assetManager = reg.GetAssetManager();
@@ -279,7 +279,7 @@ namespace SliceEditor
 				ImGui::SameLine(150.0f);
 			}
 
-			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true, selectionDifferent))
 			{
 				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
