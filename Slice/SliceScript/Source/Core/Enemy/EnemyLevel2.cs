@@ -30,10 +30,19 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             timer += dt;
-            if (timeToMove >= 2.0f && !moved)
+            if (timer >= 2.0f && !moved)
             {
-                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
-                moved = true;
+
+                if (enemyController.startingPosition == null)
+                {
+                    SliceLog.Error("Starting position is null");
+                    moved = true;
+                }
+                else
+                {
+                    enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                    moved = true;
+                }
             }
         }
 
