@@ -16,6 +16,8 @@ DigiPen Institute of Technology is prohibited.
 #ifndef COMPONENT_PROPERTIES_H
 #define COMPONENT_PROPERTIES_H
 #include <History/HistoryManager.h>
+#include <Selection/SelectionManager.h>
+#include "ComponentMultipleSelection.h"
 
 namespace SliceEditor
 {
@@ -209,11 +211,12 @@ namespace SliceEditor
 	}
 
 	template <typename T>
-	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr)
+	bool HandleDragDropInputHeader(Registry& reg, const char* property_label, const char* id, SliceEngine::Handle<T>& handle, const std::string asset_type, std::function<void(SliceEngine::GUID)> setFunc = nullptr, bool multiSelection = false, std::function<SliceEngine::GUID(Entity)> multiSelectFunc = nullptr)
 	{
 		bool changed = false;
 		auto& assetManager = reg.GetAssetManager();
 		auto mapPtr = assetManager.GetMapFromAssetType(asset_type);
+		auto selectionManager = reg.GetManager<SelectionManager>("Selection");
 
 		if (mapPtr != nullptr)
 		{
@@ -279,7 +282,7 @@ namespace SliceEditor
 				ImGui::SameLine(150.0f);
 			}
 
-			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true))
+			if (ComboHeader<int>(reg, "", id, selectedIndex, mapNames, true, GUIDMultipleSelection(selectionManager, currentGUID, multiSelection,multiSelectFunc)))
 			{
 				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
