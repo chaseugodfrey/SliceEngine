@@ -1102,6 +1102,8 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.cloudsCutoff);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
 		glUniform3f(uniformLoc, 0.f, camera.cloudsHeight, 0.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsColor");
+		glUniform4f(uniformLoc, camera.cloudsColor.r, camera.cloudsColor.g, camera.cloudsColor.b, camera.cloudsColor.a);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
 		glUniform1i(uniformLoc, numLightsFound);
@@ -1133,6 +1135,8 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.cloudsSecondCloudIntensity);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
 		glUniform1f(uniformLoc, camera.cloudsSecondCloudSmoothness);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsColor");
+		glUniform4f(uniformLoc, camera.cloudsSecondColor.r, camera.cloudsSecondColor.g, camera.cloudsSecondColor.b, camera.cloudsSecondColor.a);
 
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
@@ -1574,6 +1578,12 @@ namespace SliceEngine
 	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
 	{
 		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
+	}
+	void RenderManager::GatherNearbyLights(Entity cam)
+	{
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
+
+
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	//void RenderManager::LinkTransformInstancing(GUID guid)
