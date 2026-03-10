@@ -24,6 +24,8 @@ namespace SliceEngine
 
         private bool chasingTarget = true;
 
+        private bool shield = false;
+
         public void ChangeState(EnemyState newState)
         {
             state = newState;

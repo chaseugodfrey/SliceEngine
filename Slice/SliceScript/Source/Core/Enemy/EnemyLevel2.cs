@@ -44,7 +44,7 @@ namespace SliceEngine
     {
         EnemyLevel2 enemyController;
         public int moves = 0;
-
+        public bool firstPhase = true;
 
         public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
@@ -66,19 +66,19 @@ namespace SliceEngine
             }
         }
 
-        public override void OnUpdate(float dt)
+        public void FirstPhase(float dt)
         {
             if (owner != null)
             {
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                    // Console.WriteLine("Incrementing");
+                    //Console.WriteLine("Incrementing");
                     // prob decide here if attack or no attack
                     // im not sure how to attack yet for now
 
                     // ill try this, % chance
-                        enemyController.movementTimer += dt;
+                    enemyController.movementTimer += dt;
                 }
 
                 if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
@@ -87,7 +87,7 @@ namespace SliceEngine
                     // 40% chance to slam attack
                     if (roll < 0.4f && moves != 0) // 75% chance for now cause testing
                     {
-                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                        enemyController.stateMachine.ChangeState(enemyController.slamState);
                     }
                     else if (roll < 0.8f && roll > 0.4f)
                     {
@@ -99,15 +99,42 @@ namespace SliceEngine
                     {
                         // nth, itll just move down and move to a new waypoint
                         enemyController.movementTimer = 0.0f;
-                        enemyController.currPoint = enemyController.GetNextIdlePoint();
 
-                        enemyController.movementDone = false;
-                        // move to the random point
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                        if (enemyController.idlePoints.Count == 0)
+                        {
+                            SliceLog.Error("No idle points");
+                        }
+                        else
+                        {
+                            enemyController.currPoint = enemyController.GetNextIdlePoint();
+
+                            enemyController.movementDone = false;
+                            // move to the random point
+                            enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+
+                        }
                     }
 
                 }
             }
+        }
+
+        public void SecondPhase(float dt)
+        {
+            SliceLog.Console("Second phase updating");
+        }
+
+        public override void OnUpdate(float dt)
+        {
+           if(firstPhase)
+           {
+               FirstPhase(dt);
+           }
+           else
+           {
+               SecondPhase(dt);
+           }
+
         }
     }
 
