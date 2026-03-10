@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 namespace SliceEngine
 {
     #region States
+
     public class IntroState : BaseState
     {
         EnemyLevel2 enemyController;
@@ -54,7 +55,6 @@ namespace SliceEngine
     {
         EnemyLevel2 enemyController;
         public int moves = 0;
-        public bool firstPhase = true;
 
         public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
@@ -76,19 +76,19 @@ namespace SliceEngine
             }
         }
 
-        public void FirstPhase(float dt)
+        public override void OnUpdate(float dt)
         {
             if (owner != null)
             {
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                        //Console.WriteLine("Incrementing");
-                        // prob decide here if attack or no attack
-                        // im not sure how to attack yet for now
+                    //Console.WriteLine("Incrementing");
+                    // prob decide here if attack or no attack
+                    // im not sure how to attack yet for now
 
-                        // ill try this, % chance
-                        enemyController.movementTimer += dt;
+                    // ill try this, % chance
+                    enemyController.movementTimer += dt;
                 }
 
                 if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
@@ -127,24 +127,6 @@ namespace SliceEngine
 
                 }
             }
-        }
-
-        public void SecondPhase(float dt)
-        {
-            SliceLog.Console("Second phase updating");
-        }
-
-        public override void OnUpdate(float dt)
-        {
-           if(firstPhase)
-           {
-               FirstPhase(dt);
-           }
-           else
-           {
-               SecondPhase(dt);
-           }
-
         }
     }
 
