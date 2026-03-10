@@ -151,6 +151,7 @@ namespace SliceEngine
 		// UI Functions
 		MonoMethod* mOnClick = nullptr;			//this too
 		MonoMethod* mOnButtonClick{};
+		MonoMethod* mOnButtonHover{};
 		MonoMethod* mOnButtonRelease{};
 		MonoMethod* mOnSliderValue{};
 
@@ -236,6 +237,7 @@ namespace SliceEngine
 		void InvokeOnClick();
 
 		void InvokeButtonOnClick();
+		void InvokeButtonOnHover();
 		void InvokeButtonOnRelease();
 		void InvokeOnSliderValue(float);
 

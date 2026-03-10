@@ -25,6 +25,7 @@
                 "prefabID": 0
             },
             "struct SliceEngine::Renderer": {
+                "castShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "9336273396156370476"
@@ -57,10 +58,10 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048586,
+                "entity_id": 2097164,
                 "neighbours": [
                     4294967295,
-                    1048585,
+                    2097163,
                     4294967295,
                     4294967295
                 ]
@@ -122,6 +123,7 @@
                 "prefabID": 1
             },
             "struct SliceEngine::Renderer": {
+                "castShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "9336273396156370476"
@@ -154,9 +156,9 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048585,
+                "entity_id": 2097163,
                 "neighbours": [
-                    1048586,
+                    2097164,
                     4294967295,
                     4294967295,
                     4294967295
@@ -164,7 +166,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 4,
+                "mLayer": 0,
                 "mName": "NicTestPrefabChild",
                 "mTag": "default"
             },
