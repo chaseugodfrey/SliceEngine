@@ -106,7 +106,7 @@ namespace SliceEditor
 		// Check if any entities selected
 		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
-		if (selectionManager->mSelectionType != SelectionType::ENTITY)
+		if (!(selectionManager->mSelectionType == SelectionType::ENTITY || selectionManager->mSelectionType == SelectionType::PREFAB_ENTITY))
 			return;
 
 		auto& nodes = selectionManager->GetSelectedNodes();

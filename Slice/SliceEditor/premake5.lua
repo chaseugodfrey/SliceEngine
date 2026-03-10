@@ -58,7 +58,8 @@ project "SliceEditor"
     {
         "RTTR_DLL",
         "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
-        "JPH_ENABLE_ASSERTS"
+        "JPH_ENABLE_ASSERTS",
+        "GLFW_INCLUDE_NONE"
     }
 
     pchheader "pch.h"

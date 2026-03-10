@@ -82,12 +82,12 @@ namespace SliceEngine
                 // update movement for idle
                 if (enemyController.movementDone)
                 {
-                    //Console.WriteLine("Incrementing");
-                    // prob decide here if attack or no attack
-                    // im not sure how to attack yet for now
+                        //Console.WriteLine("Incrementing");
+                        // prob decide here if attack or no attack
+                        // im not sure how to attack yet for now
 
-                    // ill try this, % chance
-                    enemyController.movementTimer += dt;
+                        // ill try this, % chance
+                        enemyController.movementTimer += dt;
                 }
 
                 if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
@@ -211,6 +211,7 @@ namespace SliceEngine
             if (onCooldown)
             {
                 timer += dt;
+                enemyController.canDamage = true;
 
                 if (timer >= 0.5f)
                 {
@@ -220,6 +221,7 @@ namespace SliceEngine
 
                 if (timer >= 2.0f)
                 {
+                    enemyController.canDamage = false;
                     onCooldown = false;
                     attacking = false;
                     reset = true;
@@ -355,7 +357,7 @@ namespace SliceEngine
         public float movementTimer = 0.0f;
         public bool movementDone = false;
         public int damage = 20;
-        bool canDamage = false;
+        public bool canDamage = false;
 
         public GameObject generalHitbox;
 
@@ -391,6 +393,27 @@ namespace SliceEngine
                 Bootstrap.Player.TakeDamage(damage);
 
             }
+        }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            if (!canDamage)
+                return;
+
+            base.TakeDamage(amount, source);
+
+        }
+
+        public override void OnDeath()
+        {
+            // transition to the death state where it flies up
+        }
+
+        protected override void OnDamaged(GameObject source)
+        {
+            Console.WriteLine("OnDamage for enemyLevel2 called");
+            //CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
+
         }
 
         public override void OnUpdate(float dt)

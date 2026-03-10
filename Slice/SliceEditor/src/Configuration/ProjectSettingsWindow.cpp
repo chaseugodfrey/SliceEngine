@@ -28,7 +28,7 @@ namespace SliceEditor
 	{
 		ImVec2 window_size = ImVec2(800, 600);
 		ImGui::SetNextWindowSize(window_size);
-		bool isOpen;
+		bool isOpen =true;
 		if (ImGui::Begin("Project Settings Window", &isOpen, ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			//auto gSettings = SliceEngine::Core::GetInstance()->GetProjectSettingsService();

@@ -83,7 +83,6 @@
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevel2.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyLevels\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHitbox.cs" />
@@ -100,11 +99,13 @@
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Enemy\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Core\Enemy\Level 3\EnemyLevel3.cs" />
+    <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\Projectile.cs" />
     <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\ScaleWiggleAnimation.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />

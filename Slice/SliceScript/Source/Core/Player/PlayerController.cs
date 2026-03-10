@@ -36,7 +36,8 @@ namespace SliceEngine
             None,
             Attacking,
             Recovery,
-            Hitstun
+            Hitstun, 
+            Shielding
         }
 
         public enum CurrentAttack
@@ -54,10 +55,55 @@ namespace SliceEngine
             Cutscene
         }
 
-        public MovementState playerMovementState = MovementState.Idle;
-        public CombatState playerCombatState = CombatState.None;
-        public CurrentAttack playerCurrentAttack = CurrentAttack.None;
-        public ControlState playerControlState = ControlState.Gameplay;
+        private MovementState playerMovementState = MovementState.Idle;
+        private CombatState playerCombatState = CombatState.None;
+        private CurrentAttack playerCurrentAttack = CurrentAttack.None;
+        private ControlState playerControlState = ControlState.Gameplay;
+
+        public MovementState PlayerMovementState
+        {
+            get { return playerMovementState; }
+            set 
+            {
+                previousPlayerMovementState = playerMovementState;
+                playerMovementState = value;
+                OnMovementStateChange();
+            }
+        }
+        public CombatState PlayerCombatState
+        {
+            get { return playerCombatState; }
+            set
+            {
+                previousPlayerCombatState = playerCombatState;
+                playerCombatState = value;
+                OnCombatStateChange();
+            }
+        }
+        public CurrentAttack PlayerCurrentAttack
+        {
+            get { return playerCurrentAttack; }
+            set
+            {
+                previousPlayerCurrentAttack = playerCurrentAttack; 
+                playerCurrentAttack = value;
+                OnCurrentAttackChange();
+            }
+        }
+        public ControlState PlayerControlState
+        {
+            get { return playerControlState; }
+            set
+            {
+                previousPlayerControlState = playerControlState;
+                playerControlState = value;
+            }
+        }
+
+        private MovementState previousPlayerMovementState;
+        private CombatState previousPlayerCombatState;
+        private CurrentAttack previousPlayerCurrentAttack;
+        private ControlState previousPlayerControlState;
 
         // Internal References
         private CameraController camera;
@@ -70,15 +116,17 @@ namespace SliceEngine
         List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
         public List<String> attackHitboxNames = new List<String>();
         public List<int> attackDamageValues = new List<int>();
+        public List<float> attackDelay = new List<float>();
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
         float attackTimer = 0.0f;
         bool attackQueued;
+        public float shieldDuration = 0.5f;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
         public float attackRecoveryDuration = 0.5f;
-        public float attack1Delay, attack2Delay, attack3Delay;
+        //public float attack1Delay, attack2Delay, attack3Delay;
         private int attackCounter = 0;
 
         // Lunging (moving when attacking)
@@ -145,14 +193,14 @@ namespace SliceEngine
         public override void OnCreate()
         {
             InitializeInternalReferences();
-            InitializeAttacks();
+            InitializeHitboxes();
         }
 
         public override void OnUpdate(float dt)
         {
-            MovementState prevMoveState = playerMovementState;
-            CombatState prevCombatState = playerCombatState;
-            CurrentAttack prevAttack = playerCurrentAttack;
+            //MovementState prevMoveState = PlayerMovementState;
+            //CombatState prevCombatState = PlayerCombatState;
+            //CurrentAttack prevAttack = PlayerCurrentAttack;
 
             HandleInputs();
             GroundCheck();
@@ -163,23 +211,23 @@ namespace SliceEngine
             UpdateAnimator();
 
 
-            if (prevMoveState != playerMovementState)
-            {
-                SliceLog.Log(playerMovementState.ToString());
-                OnMovementStateChange();
-            }
+            //if (prevMoveState != PlayerMovementState)
+            //{
+            //    SliceLog.Log(PlayerMovementState.ToString());
+            //    OnMovementStateChange();
+            //}
 
-            if (prevCombatState != playerCombatState)
-            {
-                SliceLog.Log(playerCombatState.ToString());
-                OnCombatStateChange();
-            }
+            //if (prevCombatState != PlayerCombatState)
+            //{
+            //    SliceLog.Log(PlayerCombatState.ToString());
+            //    OnCombatStateChange();
+            //}
 
-            if (prevAttack != playerCurrentAttack)
-            {
-                SliceLog.Log(playerCurrentAttack.ToString());
-                OnCombatStateChange();
-            }
+            //if (prevAttack != PlayerCurrentAttack)
+            //{
+            //    SliceLog.Log(PlayerCurrentAttack.ToString());
+            //    OnCombatStateChange();
+            //}
         }
 
         public override void OnFixedUpdate(float dt)
@@ -191,16 +239,17 @@ namespace SliceEngine
         void OnMovementStateChange()
         {
             movementStateChanged = true;
+            Console.WriteLine($"[{Time.time}] Current movement state is {PlayerMovementState}");
         }
 
         void OnCombatStateChange()
         {
-
+            Console.WriteLine($"[{Time.time}] Current combat state is {PlayerCombatState}");
         }
 
         void OnCurrentAttackChange()
         {
-
+            Console.WriteLine($"[{Time.time}] Current attack state is {PlayerCurrentAttack}");
         }
 
         private void HandleInputs()
@@ -226,50 +275,54 @@ namespace SliceEngine
         #region Attacking
         private void ExecuteAttack()
         {
-            if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging && grounded)
+            if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && grounded && PlayerCombatState != CombatState.Shielding)
             {
-                playerCombatState = CombatState.Attacking;
+                PlayerCombatState = CombatState.Attacking;
 
                 // Ground attacking
-                playerCurrentAttack = CurrentAttack.GroundAttack;
+                PlayerCurrentAttack = CurrentAttack.GroundAttack;
                 attackCounter++;
                 if (attackCounter > 3) attackCounter = 1;
-                attackTimer = attackDuration[(int)playerCurrentAttack];
 
                 switch (attackCounter)
                 {
                     case 1:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[0].TurnOn()));
+                        attackTimer = attackDuration[0];
 
-                        AudioSettings.PlaySFX("A1");
+                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitboxes[0].TurnOn()));
 
-                        playerMovementState = MovementState.Lunging;
+                        //AudioSettings.PlaySFX("A1");
+
+                        PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
                     case 2:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[1].TurnOn()));
+                        attackTimer = attackDuration[1];
+
+                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitboxes[1].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
-                            AudioSettings.PlaySFX("A2");
+                            //AudioSettings.PlaySFX("A2");
                         }
 
-                        playerMovementState = MovementState.Lunging;
+                        PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
                     case 3:
-                        StartCoroutine(AttackDelay(attack1Delay, () => attackHitboxes[2].TurnOn()));
+                        attackTimer = attackDuration[2];
+                        StartCoroutine(AttackDelay(attackDelay[2], () => attackHitboxes[2].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
                         {
-                            AudioSettings.PlaySFX("A3");
+                           // AudioSettings.PlaySFX("A3");
                         }
                         break;
                     default:
                         break;
                 }
             }
-            else if (playerCombatState != CombatState.Attacking && playerMovementState != MovementState.Plunging)
+            else if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && PlayerCombatState != CombatState.Shielding)
             {
                 RayCastHit hitInfo;
                 // Check if can plunge by raycasting down to see distance to ground
@@ -278,7 +331,7 @@ namespace SliceEngine
                     Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
                 if (hit)
                 {
-                    Console.WriteLine("It hit something");
+                    //Console.WriteLine("It hit something");
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
                     Console.WriteLine($"obj hit: {objHit.mID} with tag {objHit.tag}");
                     if (objHit == null)
@@ -303,8 +356,8 @@ namespace SliceEngine
 
 
                     //playerCombatState = CombatState.Attacking;
-                    playerMovementState = MovementState.Plunging;
-                playerCurrentAttack = CurrentAttack.None;
+                    PlayerMovementState = MovementState.Plunging;
+                PlayerCurrentAttack = CurrentAttack.None;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                 {
@@ -322,7 +375,8 @@ namespace SliceEngine
 
         public void StartAttackRecovery()
         {
-            playerCombatState = CombatState.Recovery;
+            PlayerMovementState = MovementState.Idle;
+            PlayerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
 
             TurnOffHitboxes();
@@ -331,7 +385,7 @@ namespace SliceEngine
         {
             if (attackResetTimer >= attackRecoveryDuration)
             {
-                if (playerCurrentAttack == CurrentAttack.GroundAttack)
+                if (PlayerCurrentAttack == CurrentAttack.GroundAttack)
                 {
                     if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle1") != 0))
                     {
@@ -349,7 +403,7 @@ namespace SliceEngine
                             animator.SetBool("AttackToIdle3", true);
                     }
                 }
-                else if (playerCurrentAttack == CurrentAttack.PlungeLand)
+                else if (PlayerCurrentAttack == CurrentAttack.PlungeLand)
                 {
                     Console.WriteLine($"Input vector: {input.ToString()}");
 
@@ -361,7 +415,7 @@ namespace SliceEngine
                             if (animator.SafeToChange("PlungeToWalk"))
                                 animator.SetBool("PlungeToWalk", true);                            
                         }
-                        playerMovementState = MovementState.Walking;
+                        PlayerMovementState = MovementState.Walking;
                     }
                     else
                     {
@@ -370,11 +424,11 @@ namespace SliceEngine
                             if (animator.SafeToChange("PlungeToIdle"))
                                 animator.SetBool("PlungeToIdle", true);
                         }
-                        playerMovementState = MovementState.Idle;
+                        PlayerMovementState = MovementState.Idle;
                     }                    
                 }
 
-                playerCurrentAttack = CurrentAttack.None;
+                PlayerCurrentAttack = CurrentAttack.None;
                 attackCounter = 0;
             }
         }
@@ -413,14 +467,14 @@ namespace SliceEngine
         void EndAttackState()
         {
             attackTimer = 0f;
-            playerCurrentAttack = CurrentAttack.None;
+            PlayerCurrentAttack = CurrentAttack.None;
             attackQueued = false;
-            playerCombatState = CombatState.None;
+            PlayerCombatState = CombatState.None;
             attackResetTimer = 0.0f;
             TurnOffHitboxes();
 
             // Clear movement bursts
-            playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
+            PlayerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
 
         }
 
@@ -429,7 +483,7 @@ namespace SliceEngine
             attackQueued = true;
         }
 
-        private void InitializeAttacks()
+        private void InitializeHitboxes()
         {
             attackHitboxes.Clear();
             //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
@@ -467,6 +521,14 @@ namespace SliceEngine
             Console.WriteLine($"Found {attackHitboxes.Count} hitboxes");
             TurnOffHitboxes();
         }
+        private IEnumerator ShieldCoroutine()
+        {
+            PlayerCombatState = CombatState.Shielding;
+            Console.WriteLine("Shielding");
+            yield return new WaitForSeconds(shieldDuration);
+            PlayerCombatState = CombatState.None;
+            Console.WriteLine("Not shielding");
+        }
         private void InitializeInternalReferences()
         {
             playerModel = gameObject.FindGameObjectWithName("RootNode"); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RootNode");
@@ -484,6 +546,28 @@ namespace SliceEngine
             //console.writeline("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+        }
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            if (PlayerCombatState == CombatState.Shielding)
+            {
+                Console.WriteLine("Destroying projectile");
+                return;
+            }
+            //source = source ?? gameObject;
+            if (source == null)
+            {
+                source = gameObject;
+            }
+            Console.WriteLine("Enitity taking damage");
+            Console.WriteLine($"Player taking {amount} damage");
+            this.currentHealth -= amount;
+            if (this.currentHealth > 0) { OnDamaged(source); }
+            if (this.currentHealth <= 0)
+            {
+                currentHealth = 0; // Ensure health doesn't go below zero
+                OnDeath();
+            }
         }
 
         private bool isDead = false;
@@ -511,7 +595,7 @@ namespace SliceEngine
             jumpDurationTimer = (jumpDurationTimer > 0.0f) ? jumpDurationTimer - dt : 0.0f;
             jumpLandTimer = (jumpLandTimer > 0.0f) ? jumpLandTimer - dt : 0.0f;            
 
-            if (playerCombatState != CombatState.Attacking)
+            if (PlayerCombatState != CombatState.Attacking)
                 attackResetTimer = (attackResetTimer <= attackRecoveryDuration) ? attackResetTimer + dt : 0.0f;
 
             if (!grounded) fallTimeTimer += dt;
@@ -529,13 +613,13 @@ namespace SliceEngine
                 camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             }
 
-            Console.WriteLine($" All the states: {playerMovementState.ToString()} and {playerCombatState.ToString()} and {playerCurrentAttack.ToString()}");
+            //Console.WriteLine($" All the states: {PlayerMovementState.ToString()} and {PlayerCombatState.ToString()} and {PlayerCurrentAttack.ToString()}");
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
             Vector3 moveDirInput = camForward * input.z + camRight * input.x;
             float rawPlanarSpeed = moveDirInput.Magnitude() * movementSpeed;
 
-            if (playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+            if (PlayerMovementState == MovementState.GroundDash || PlayerMovementState == MovementState.AirDash)
             {
                 Dash();
 
@@ -544,11 +628,11 @@ namespace SliceEngine
                 rigidBody.Velocity = new Vector3(dashVel.x, yVel, dashVel.z);
 
             }
-            else if (playerMovementState == MovementState.Jumping || playerMovementState == MovementState.Falling)
+            else if (PlayerMovementState == MovementState.Jumping || PlayerMovementState == MovementState.Falling)
             {
                 moveDirInput *= strafeMultiplier;
             }
-            else if (playerMovementState == MovementState.Lunging)
+            else if (PlayerMovementState == MovementState.Lunging)
             {
                 Vector3 lungeDir = transform.Forward;
                 lungeDir.y = 0.0f;
@@ -556,7 +640,7 @@ namespace SliceEngine
                 Vector3 lungeVel = lungeDir * lungeSpeed;
                 rigidBody.Velocity = new Vector3(lungeVel.x, rigidBody.Velocity.y, lungeVel.z);
             }
-            else if (playerMovementState == MovementState.Plunging && !grounded)
+            else if (PlayerMovementState == MovementState.Plunging && !grounded)
             {
                 velTemp.x = 0.0f;
                 if (rigidBody.Velocity.y < -plungeTerminalVelocity)
@@ -571,9 +655,14 @@ namespace SliceEngine
                 rigidBody.Velocity = velTemp;
             }
 
-            if (playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping)
+            if (PlayerMovementState == MovementState.Idle 
+                || PlayerMovementState == MovementState.Walking 
+                || PlayerMovementState == MovementState.Falling 
+                || PlayerMovementState == MovementState.Jumping)
             {
-                if (playerCombatState == CombatState.Attacking) return;
+                if (PlayerCombatState == CombatState.Attacking || PlayerCombatState == CombatState.Recovery) return;
+
+                if (animator.GetCurrAnimName() == "AttackToIdle3") return;
                 // Normal locomotion
                 if (moveDirInput.SquareMagnitude() > 0.0001f)
                 {
@@ -600,61 +689,61 @@ namespace SliceEngine
         void UpdateStates()
         {
             //Console.WriteLine($"Current movement state: {playerMovementState.ToString()}");
-            switch (playerMovementState)
+            switch (PlayerMovementState)
             {
                 case MovementState.Idle:
                     if (!grounded && jumpDurationTimer <= 0.0f && fallTimeTimer > fallTimeThreshold)
                     {
-                        playerMovementState = MovementState.Falling;
+                        PlayerMovementState = MovementState.Falling;
                     }
                     else if (input != Vector3.Zero)
                     {
-                        playerMovementState = MovementState.Walking;
+                        PlayerMovementState = MovementState.Walking;
                     }
 
                     break;
                 case MovementState.Walking:
                     if (!grounded && jumpDurationTimer <= 0.0f && fallTimeTimer > fallTimeThreshold)
                     {
-                        playerMovementState = MovementState.Falling;
+                        PlayerMovementState = MovementState.Falling;
                     }
                     else if (input == Vector3.Zero)
                     {
-                        playerMovementState = MovementState.Idle;
+                        PlayerMovementState = MovementState.Idle;
                     }
                     break;
                 case MovementState.Jumping:
                     if (!grounded && jumpDurationTimer <= 0.0f && fallTimeTimer > fallTimeThreshold)
                     {
-                        playerMovementState = MovementState.Falling;
+                        PlayerMovementState = MovementState.Falling;
                     }
                     else if (grounded && jumpDurationTimer <= 0.0f)
                     {
-                        playerMovementState = MovementState.Idle;
+                        PlayerMovementState = MovementState.Idle;
                     }
                     break;
                 case MovementState.DoubleJumping:
                     if (!grounded && jumpDurationTimer <= 0.0f)
                     {
-                        playerMovementState = MovementState.Falling;
+                        PlayerMovementState = MovementState.Falling;
                     }
                     else if (grounded && jumpDurationTimer <= 0.0f)
                     {
-                        playerMovementState = MovementState.Idle;
+                        PlayerMovementState = MovementState.Idle;
                     }
                     break;
                 case MovementState.Falling:
                     if (grounded)
                     {
                         jumpLandTimer = jumpLandDuration;
-                        playerMovementState = MovementState.Landing;
+                        PlayerMovementState = MovementState.Landing;
                         fallTimeTimer = 0.0f;
                     }
                     break;
                 case MovementState.Landing:
-                    if (jumpLandTimer <= 0.0f && (playerCurrentAttack != CurrentAttack.PlungeLand))
+                    if (jumpLandTimer <= 0.0f && (PlayerCurrentAttack != CurrentAttack.PlungeLand))
                     {
-                        playerMovementState = input == Vector3.Zero ? MovementState.Idle : MovementState.Walking;
+                        PlayerMovementState = input == Vector3.Zero ? MovementState.Idle : MovementState.Walking;
                     }                    
                     break;
                 case MovementState.GroundDash:
@@ -665,7 +754,7 @@ namespace SliceEngine
                         vel.z *= 0.1f;
                         rigidBody.Velocity = vel;
                         attackHitboxes[dashArrayIndex].TurnOff();
-                        playerMovementState = MovementState.Idle;
+                        PlayerMovementState = MovementState.Idle;
                     }
                     break;
                 case MovementState.AirDash:
@@ -676,24 +765,24 @@ namespace SliceEngine
                         vel.z *= 0.1f;
                         rigidBody.Velocity = vel;
 
-                        Console.WriteLine($"Transitioning to falling from {playerMovementState.ToString()}");
+                        Console.WriteLine($"Transitioning to falling from {PlayerMovementState.ToString()}");
 
                         attackHitboxes[dashArrayIndex].TurnOff();
-                        playerMovementState = MovementState.Falling;
+                        PlayerMovementState = MovementState.Falling;
                     }
                     break;
                 case MovementState.Lunging:
                     if (lungeTimer <= 0.0f)
                     {
-                        Console.WriteLine("Changing movement state from lunging");
-                        playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
+                        //Console.WriteLine("Changing movement state from lunging");
+                        PlayerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
                 case MovementState.Plunging:
                     if (grounded)
                     {
-                        playerMovementState = MovementState.Landing;
-                        playerCurrentAttack = CurrentAttack.PlungeLand;
+                        PlayerMovementState = MovementState.Landing;
+                        PlayerCurrentAttack = CurrentAttack.PlungeLand;
                         attackTimer = plungeAttackDuration;
                     }
                     break;
@@ -704,26 +793,29 @@ namespace SliceEngine
                     break;
             }
 
-            switch (playerCombatState)
+            switch (PlayerCombatState)
             {
                 case CombatState.None:
-                    if (playerMovementState == MovementState.Lunging)
+                    if (PlayerMovementState == MovementState.Lunging)
                     {
-                        playerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
+                        PlayerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
                 case CombatState.Attacking:
                     if (attackTimer <= 0.0f)
                     {
-                        playerCombatState = CombatState.Recovery;
-                        attackResetTimer = 0.0f;
+                        //PlayerCombatState = CombatState.Recovery;
+                        //attackResetTimer = 0.0f;
+                        StartAttackRecovery();
                     }
                     break;
-                case CombatState.Recovery:
+                case CombatState.Recovery: 
+                    Console.WriteLine($"reset timer {attackResetTimer} vs {attackRecoveryDuration}");
                     if (attackResetTimer >= attackRecoveryDuration)
                     {
-                        playerCombatState = CombatState.None;
+                        PlayerCombatState = CombatState.None;
                     }
+
                     break;
                 case CombatState.Hitstun:
                     break;
@@ -731,12 +823,12 @@ namespace SliceEngine
                     break;
             }
 
-            switch (playerCurrentAttack)
+            switch (PlayerCurrentAttack)
             {
                 case CurrentAttack.PlungeLand:
                     if (attackTimer > 0.0f)
                     {
-                        playerCombatState = CombatState.Attacking;                        
+                        PlayerCombatState = CombatState.Attacking;                        
                     }
                     break;
 
@@ -794,14 +886,14 @@ namespace SliceEngine
                 movementStateChanged = false;
             }
 
-            switch (playerMovementState)
+            switch (PlayerMovementState)
             {
                 case MovementState.Idle:
                     if (animator.SafeToChange("Idle") && (String.Compare(animator.GetCurrAnimName(), "Idle") != 0))
                         animator.SetBool("Idle", true);
                     break;
                 case MovementState.Walking:
-                    if (animator.SafeToChange("Walk") && (String.Compare(animator.GetCurrAnimName(), "Walk") != 0))
+                    if (/*animator.SafeToChange("Walk") &&*/ (String.Compare(animator.GetCurrAnimName(), "Walk") != 0))
                         animator.SetBool("Walk", true);
                     break;
                 case MovementState.Jumping:
@@ -876,7 +968,7 @@ namespace SliceEngine
                     break;
             }
 
-            switch (playerCombatState)
+            switch (PlayerCombatState)
             {
                 case CombatState.None:
                     break;
@@ -890,7 +982,7 @@ namespace SliceEngine
                     break;
             }
 
-            switch (playerCurrentAttack)
+            switch (PlayerCurrentAttack)
             {
                 case CurrentAttack.None:
                     break;
@@ -944,6 +1036,11 @@ namespace SliceEngine
         private void HandleAttackInputs()
         {
             if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
+
+            if (Input.IsKeyPressed(Keys.KEY_E) 
+                && PlayerCombatState != CombatState.Shielding 
+                && PlayerCombatState != CombatState.Attacking 
+                && PlayerMovementState != MovementState.Plunging) StartCoroutine(ShieldCoroutine());
         }
 
         private void HandleJumpInputs()
@@ -959,7 +1056,7 @@ namespace SliceEngine
         private void TryJump()
         {
             // no jumping when attacking
-            if (playerCombatState != CombatState.None)
+            if (PlayerCombatState != CombatState.None)
                 return;
 
             if (jumpCounter < 2 && jumpCooldownTimer <= 0.0f)
@@ -967,11 +1064,11 @@ namespace SliceEngine
                 jumpCounter++;
                 jumpCooldownTimer = jumpCooldown;
                 jumpDurationTimer = jumpDuration;
-                Console.WriteLine($"jump Counter {jumpCounter} and movementState: {playerMovementState.ToString()}");
+                Console.WriteLine($"jump Counter {jumpCounter} and movementState: {PlayerMovementState.ToString()}");
                 if (jumpCounter == 1)
-                    playerMovementState = MovementState.Jumping;
+                    PlayerMovementState = MovementState.Jumping;
                 else
-                    playerMovementState = MovementState.DoubleJumping;
+                    PlayerMovementState = MovementState.DoubleJumping;
 
                 Jump();
             }
@@ -999,16 +1096,16 @@ namespace SliceEngine
                 dashCooldownTimer = dashCooldown;
                 dashDurationTimer = dashDuration;
 
-                Console.WriteLine($"Dashing now, prev state is : {playerMovementState.ToString()}");
+                Console.WriteLine($"Dashing now, prev state is : {PlayerMovementState.ToString()}");
 
                 if (grounded)
-                    playerMovementState = MovementState.GroundDash;
+                    PlayerMovementState = MovementState.GroundDash;
                 else
-                    playerMovementState = MovementState.AirDash;
+                    PlayerMovementState = MovementState.AirDash;
 
                 dashDir = ComputeFlatDashDir(true);
 
-                Console.WriteLine($"Dashing now, after state is : {playerMovementState.ToString()}");
+                Console.WriteLine($"Dashing now, after state is : {PlayerMovementState.ToString()}");
             }
         }
 
@@ -1044,7 +1141,7 @@ namespace SliceEngine
             grounded = (groundContactCount > 0); ;
             if (grounded)
             {
-                if (playerMovementState != MovementState.Jumping && playerMovementState != MovementState.Falling)
+                if (PlayerMovementState != MovementState.Jumping && PlayerMovementState != MovementState.Falling)
                     jumpCounter = 0;
                 //Console.WriteLine("Resetting jump counter");
             }
@@ -1084,20 +1181,28 @@ namespace SliceEngine
 
         bool IsTakingInputs()
         {
-            if (playerControlState != ControlState.Gameplay)
+            if (PlayerControlState != ControlState.Gameplay)
             {
                 return false;
             }
 
             //Console.WriteLine($"All the states: {playerCombatState.ToString()} and {playerMovementState.ToString()} and {playerCurrentAttack.ToString()}");
 
-            if (playerCombatState == CombatState.Attacking && playerCurrentAttack != CurrentAttack.PlungeLand)
+            if (PlayerCombatState == CombatState.Attacking
+                && PlayerCurrentAttack != CurrentAttack.PlungeLand)
             {
                 return false;
             }
+            else if (PlayerCombatState == CombatState.Recovery) return true; 
 
             bool inputtable;
-            if (playerMovementState == MovementState.Landing || playerMovementState == MovementState.Idle || playerMovementState == MovementState.Walking || playerMovementState == MovementState.Falling || playerMovementState == MovementState.Jumping || playerMovementState == MovementState.GroundDash || playerMovementState == MovementState.AirDash)
+            if (PlayerMovementState == MovementState.Landing 
+                || PlayerMovementState == MovementState.Idle 
+                || PlayerMovementState == MovementState.Walking 
+                || PlayerMovementState == MovementState.Falling 
+                || PlayerMovementState == MovementState.Jumping 
+                || PlayerMovementState == MovementState.GroundDash 
+                || PlayerMovementState == MovementState.AirDash)
             {
                 inputtable = true;
             }
@@ -1105,6 +1210,7 @@ namespace SliceEngine
             {
                 inputtable = false;
             }
+            Console.WriteLine($"Is player taking inputs? {inputtable.ToString()}");
             return inputtable;
         }
 
@@ -1141,7 +1247,7 @@ namespace SliceEngine
             if (lockPlayer)
             {
                 
-                playerControlState = ControlState.Cutscene;
+                PlayerControlState = ControlState.Cutscene;
 
                 
                 input = Vector3.Zero;
@@ -1149,13 +1255,13 @@ namespace SliceEngine
                 
                 if (grounded)
                 {
-                    playerMovementState = MovementState.Idle;
+                    PlayerMovementState = MovementState.Idle;
                 }
             }
             else
             {
                 // Return control to the player
-                playerControlState = ControlState.Gameplay;
+                PlayerControlState = ControlState.Gameplay;
             }
         }
         
