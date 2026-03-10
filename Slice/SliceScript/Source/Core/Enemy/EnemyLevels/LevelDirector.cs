@@ -28,6 +28,9 @@ namespace SliceEngine
 
         public bool isActive = false;
 
+        public string nextSceneToLoad = "";
+        public string currSceneToLoad = "";
+
         /// <summary>
         /// Initialize the levels and stuff
         /// </summary>
@@ -286,5 +289,14 @@ namespace SliceEngine
             Bootstrap.HUDManager.GameWinScreen();
         }
 
+        public void LoadNextLevel()
+        {
+            SceneManager.LoadScene(nextSceneToLoad);
+        }
+
+        public void RestartLevel()
+        {
+            SceneManager.LoadScene(currSceneToLoad);
+        }
     }
 }

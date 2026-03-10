@@ -202,6 +202,7 @@ namespace SliceEngine
             //CombatState prevCombatState = PlayerCombatState;
             //CurrentAttack prevAttack = PlayerCurrentAttack;
 
+
             HandleInputs();
             GroundCheck();
 

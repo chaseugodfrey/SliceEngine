@@ -47,11 +47,11 @@ namespace SliceEngine
         {
             if(buttonType == 1)
             {
-                Bootstrap.HUDManager.LoadNextLevel();
+                Bootstrap.LevelDirector.LoadNextLevel();
             }
             else
             {
-                Bootstrap.HUDManager.RestartLevel();
+                Bootstrap.LevelDirector.RestartLevel();
             }
         }
     }

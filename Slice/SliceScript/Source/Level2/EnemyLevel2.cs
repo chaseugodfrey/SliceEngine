@@ -18,9 +18,9 @@ namespace SliceEngine
         float timeToMove = 2.0f;
         bool moved = false;
 
-        public IntroState(GameObject owner) : base(owner)
+        public IntroState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
 
         public override void OnEnter()
@@ -54,11 +54,11 @@ namespace SliceEngine
     {
         EnemyLevel2 enemyController;
         public int moves = 0;
+        public bool firstPhase = true;
 
-
-        public IdleState(GameObject owner) : base(owner)
+        public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
         public override void OnEnter()
         {
@@ -76,7 +76,7 @@ namespace SliceEngine
             }
         }
 
-        public override void OnUpdate(float dt)
+        public void FirstPhase(float dt)
         {
             if (owner != null)
             {
@@ -97,7 +97,7 @@ namespace SliceEngine
                     // 40% chance to slam attack
                     if (roll < 0.9f) // 75% chance for now cause testing
                     {
-                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                        enemyController.stateMachine.ChangeState(enemyController.slamState);
                     }
                     else if (roll < 0.8f && roll > 0.4f)
                     {
@@ -128,6 +128,24 @@ namespace SliceEngine
                 }
             }
         }
+
+        public void SecondPhase(float dt)
+        {
+            SliceLog.Console("Second phase updating");
+        }
+
+        public override void OnUpdate(float dt)
+        {
+           if(firstPhase)
+           {
+               FirstPhase(dt);
+           }
+           else
+           {
+               SecondPhase(dt);
+           }
+
+        }
     }
 
     public class SlamState : BaseState
@@ -139,9 +157,9 @@ namespace SliceEngine
         public Vector3 originalPosition;
         float timer = 0.0f;
 
-        public SlamState(GameObject owner) : base(owner)
+        public SlamState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
 
         public override void OnEnter()
@@ -242,9 +260,9 @@ namespace SliceEngine
         public float distanceBeforeDestroyBullet = 90f;
         public int limit = 100;
 
-        public ProjectileState(GameObject owner) : base(owner)
+        public ProjectileState(GameObject owner, EnemyLevel2 controller) : base(owner)
         {
-            enemyController = owner.As<EnemyLevel2>();
+            enemyController = controller;
         }
         public override void OnEnter()
         {
@@ -466,7 +484,7 @@ namespace SliceEngine
 
         public GameObject generalHitbox;
 
-        uint collidedEntity = 0;
+        protected uint collidedEntity = 0;
 
         public override void OnCreate()
         {
@@ -496,7 +514,7 @@ namespace SliceEngine
             enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
         }
 
-        public void DamagePlayer(GameObject hit)
+        public virtual void DamagePlayer(GameObject hit)
         {
             Console.WriteLine("Damaging the player");
             if (hit.Has<PlayerController>())
@@ -547,7 +565,7 @@ namespace SliceEngine
             stateMachine.OnFixedUpdate(dt);
         }
 
-        public int GetNextIdlePoint()
+        public virtual int GetNextIdlePoint()
         {
             // if theres only 1 point, then itll unfortunately have to stay at 1 position
             if (idlePoints.Count == 1)
@@ -563,7 +581,7 @@ namespace SliceEngine
             return nextPoint;
         }
 
-        public IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
+        public virtual IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
         {
             float elapsedTime = 0.0f;
 
@@ -584,9 +602,7 @@ namespace SliceEngine
             OnMovementFinish();
         }
 
-
-
-        public void OnMovementFinish()
+        public virtual void OnMovementFinish()
         {
             Console.WriteLine("Movement Finished");
             switch(stateMachine.currentState)
@@ -626,7 +642,7 @@ namespace SliceEngine
             }
         }
 
-        public void ToggleHitbox(bool flag)
+        public virtual void ToggleHitbox(bool flag)
         {
             //Console.WriteLine("Toggle hitbox");
             if (flag)
