@@ -408,7 +408,10 @@ namespace SliceEngine
 
 				ModelBasic& mdlRef = modelReferences[id];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+				int meshOffset = mdlRef.meshOffset;
+				if (mdlRef.meshOffset >= mdl.get()->meshes.size())
+					meshOffset = 0;
+				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
 
 				//if (mdlRef.isSkin)
@@ -616,7 +619,10 @@ namespace SliceEngine
 					}
 					ModelBasic& mdlRef = modelReferences[currMdlID];
 					auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-					auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+					int meshOffset = mdlRef.meshOffset;
+					if (mdlRef.meshOffset >= mdl.get()->meshes.size())
+						meshOffset = 0;
+					auto& mesh = mdl.get()->meshes[meshOffset];
 					glBindVertexArray(mesh.vao);
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
