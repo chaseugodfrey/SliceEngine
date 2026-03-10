@@ -201,6 +201,7 @@ namespace SliceEngine
 		RENDER_BLOOM		= 0x04,
 		RENDER_VIGNETTE		= 0x08,
 		RENDER_GROUND_CLOUD = 0x10,
+		RENDER_GODRAY		= 0x20,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -233,6 +234,8 @@ namespace SliceEngine
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
 		float exposure{ 10.f };
+		float godRayFilterRadius{ 5.f };
+		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
@@ -714,10 +717,10 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
-		Handle<SliceEngineTypes::Anims> Handle_Anims;
+		Handle<SliceEngineTypes::SequencePackage> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
-		SliceEngineTypes::Anims curr_anims;
+		SliceEngineTypes::SequencePackage curr_anims;
 		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 

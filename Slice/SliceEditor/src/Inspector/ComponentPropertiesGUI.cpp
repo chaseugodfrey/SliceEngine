@@ -19,6 +19,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../EditorCommonTypes.h"
 #include "Selection/SelectionManager.h"
 #include "Systems/LayerManager.h"
+#include "Configuration/ProjectSettingsManager.h"
+#include "Configuration/PhysicsSettings.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -172,13 +174,19 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func, bool selectionDifferent)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, bool enterReturnsTrue, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		static std::string oldVal{};
 		std::string inputVal = val;
+		ImGuiInputTextFlags flags = ImGuiTextFlags_None;
 		if (selectionDifferent)
 		{
 			inputVal = "---";
+		}
+
+		if (enterReturnsTrue)
+		{
+			flags |= ImGuiInputTextFlags_EnterReturnsTrue;
 		}
 
 		if (width == 0.0f)
@@ -186,7 +194,7 @@ namespace SliceEditor
 
 		ImGui::SetNextItemWidth(width);
 
-		bool changed = ImGui::InputText(id, &inputVal,ImGuiInputTextFlags_EnterReturnsTrue);
+		bool changed = ImGui::InputText(id, &inputVal, flags);
 
 		if (ImGui::IsItemActivated())
 		{
@@ -280,12 +288,12 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func, bool selectionDifferent)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, bool enterReturnsTrue, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val, width, func,selectionDifferent) || changed;
+		changed = StringInput(reg, id, val, width,enterReturnsTrue, func,selectionDifferent) || changed;
 
 		return changed;
 	}
@@ -1429,6 +1437,7 @@ namespace SliceEditor
 	{
 		bool changed = false;
 		std::vector<std::string> containerCopy = container;
+
 		if (!property_label.empty())
 		{
 			ImGui::Text(property_label.c_str());
@@ -1453,6 +1462,9 @@ namespace SliceEditor
 			if (ImGui::Button("Add Layer"))
 			{
 				SliceEngine::Core::GetInstance()->GetLayerManager()->AddLayer(newLayerName);
+				auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+				auto& physicsSettings = *settingsManager->GetSettings<SliceEngine::PhysicsSettings>();
+				physicsSettings.isDirty = true;
 			}
 			ImGui::EndPopup();
 		}

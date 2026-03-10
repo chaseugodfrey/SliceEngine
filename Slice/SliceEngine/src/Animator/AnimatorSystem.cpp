@@ -40,7 +40,7 @@ namespace SliceEngine
 	void AnimatorSystem::UpdateAnimation(entt::registry& reg, entt::entity entity, Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
-		if (!animator.IsValid())
+		if (!animator.Handle_stateMachine.IsValid())
 		{
 			InitAnimatorEntity(reg, entity);
 		}
@@ -80,7 +80,7 @@ namespace SliceEngine
 		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
-			if (animator.is_bone) {
+			if (animator.Handle_skeleton.IsValid()) {
 				if(animator.curr_anim_pkg.animations.size() > 0)
 				{
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
@@ -130,9 +130,9 @@ namespace SliceEngine
 			//non bone animation
 			else 
 			{
-				if (animator.curr_anim_pkg.animations.size() > 0)
+				if (animator.curr_anims.animations.size() > 0)
 				{
-					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					auto& anim = animator.curr_anims.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 					if (anim.duration <= 0.0f)
 					{
 						animator.current_time = 0.0f;
@@ -173,11 +173,9 @@ namespace SliceEngine
 					}
 
 					// this has to  be my own not the skeleton 1
+					float safe_time = std::min(animator.current_time, anim.duration);
 
-
-					/*float safe_time = std::min(animator.current_time, anim.duration);
-
-					anim.UpdateTransforms(animator.final_tforms, safe_time, *animator.Handle_skeleton.get());*/
+					anim.UpdateTransforms(reg,entity, safe_time);
 				}
 			}
 		}
@@ -222,7 +220,7 @@ namespace SliceEngine
 		{
 			Animator& animator = core->GetRegistry().get<Animator>(entity); 
 			
-			if (!animator.IsValid()) return;
+			if (!animator.Handle_stateMachine.IsValid()) return;
 
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 
@@ -252,7 +250,7 @@ namespace SliceEngine
 			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
-		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Anims>(animator.Handle_Anims.getGUID());
+		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(animator.Handle_Anims.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
