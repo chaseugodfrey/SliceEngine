@@ -1045,22 +1045,22 @@ namespace SliceEngine
 				if (currPtLightIdx >= mMaxPointLights) continue;
 
 				float ptLightFar = lightData[currPtLightIdx + currDirLightIdx].uFarPlane;
-				if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
+				//if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
-				else
-					LoadSettings(GPS_SPE_ADDITION);
+				//else
+				//	LoadSettings(GPS_SPE_ADDITION);
 
-				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
-				M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
-				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+				//glm::mat4 M{ 1.f };
+				//M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
+				//M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
+				//uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
+				//glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
 				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "numDirLights");
 				glUniform1i(uniformLoc, currDirLightIdx);
 
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
 

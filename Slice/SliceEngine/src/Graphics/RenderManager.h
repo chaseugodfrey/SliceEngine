@@ -104,7 +104,7 @@ namespace SliceEngine
 		const int mSkyboxDim = 1024;
 
 		const unsigned int DIRECTIONAL_SHADOW_DIMENSION = 512;
-		const unsigned int SHADOW_DIMENSION = 512;
+		const unsigned int SHADOW_DIMENSION = 1024;
 		struct ShadowCamDir
 		{
 			glm::vec3 target;

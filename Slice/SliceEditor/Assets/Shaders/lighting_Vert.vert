@@ -25,8 +25,8 @@ const int isPoint 		= 1;
 const int isSpot 		= 2;
 
 void main(void){
-	if(uLight[lightIdx].type == isDirectional)
+	//if(uLight[lightIdx].type == isDirectional)
 		gl_Position = vec4(aVertexPosition * 2.0, 1.0);
-	else
-		gl_Position	= P * V * M * vec4(aVertexPosition, 1.0);
+	//else
+	//	gl_Position	= P * V * M * vec4(aVertexPosition, 1.0);
 }
