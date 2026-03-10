@@ -35,6 +35,17 @@ namespace SliceEngine
 
         }
 
+        public List<GameObject> GetActiveProjectileEnemies()
+        {
+            List<GameObject> enemies = new List<GameObject>();
+            foreach(var entry in projectileEnemyToSpawnPoint)
+            {
+                enemies.Add(entry.Key);
+            }
+
+            return enemies;
+        }
+
         public override void OnCreate()
         {
             spawnPointOccupied.Clear();
@@ -69,7 +80,6 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            return;
             //debugTest();
             foreach (GameObject spawnPoint in projectileSpawnPoints)
             {

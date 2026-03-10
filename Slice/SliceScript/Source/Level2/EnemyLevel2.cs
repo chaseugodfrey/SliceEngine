@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SliceEngine
@@ -319,19 +320,64 @@ namespace SliceEngine
 
     }
 
-    public class EndAnimationState : BaseState
+    public class DeathState : BaseState
     {
         EnemyLevel2 enemyController;
 
+        List<GameObject> orbitingEnemies;
+        float orbitTimer = 0.0f;
+        float orbitRadius = 15.0f;
+        float rotationSpeed = 2.0f;
+
         int numOfPoints;
-        public EndAnimationState(GameObject owner) : base(owner)
+
+        public bool moved = false;
+
+        public DeathState(GameObject owner) : base(owner)
         {
             enemyController = owner.As<EnemyLevel2>();
         }
 
         public override void OnEnter()
         {
-            numOfPoints = enemyController.LevelController.As<L2Controller>().projectileSpawnPoints.Count;
+
+            orbitingEnemies = enemyController.LevelController.As<L2Controller>().GetActiveProjectileEnemies();
+            numOfPoints = orbitingEnemies.Count;
+            Vector3 ownerPos = owner.GetComponent<Transform>().Position;
+
+            for (int i = 0; i < numOfPoints; ++i)
+            {
+                float angle = i * (2.0f * (float)Math.PI / numOfPoints);
+
+                Vector3 targetLocalPos = new Vector3(
+                    (float)Math.Cos(angle) * orbitRadius,
+                    0.0f,
+                    (float)Math.Sin(angle) * orbitRadius
+                    );
+
+                Vector3 worldTarget = ownerPos + targetLocalPos;
+                enemyController.StartCoroutine(MoveEnemy(orbitingEnemies[i], worldTarget, 3.0f));
+            }
+
+            // Move back to the starting point
+            enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+        }
+
+        public IEnumerator MoveEnemy(GameObject enemy, Vector3 targetPos, float duration)
+        {
+            float elapsedTime = 0.0f;
+            Transform enemyTransform = enemy.GetComponent<Transform>();
+            Vector3 startPos = enemyTransform.Position;
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = elapsedTime / duration;
+                enemyTransform.Position = Vector3.Lerp(startPos, targetPos, t);
+                yield return null;
+            }
+
+            enemyTransform.Position = targetPos;
         }
 
         public override void OnFixedUpdate(float dt)
@@ -341,6 +387,23 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (enemyController.movementDone)
+            {
+                orbitTimer += dt * rotationSpeed;
+
+                Vector3 center = owner.GetComponent<Transform>().Position;
+                for(int i = 0; i < numOfPoints; ++i)
+                {
+                    float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
+
+                    float x = center.x + (float)Math.Cos(angle) * orbitRadius;
+                    float z = center.z + (float)Math.Sin(angle) * orbitRadius;
+
+                    Transform enemyTransform = orbitingEnemies[i].GetComponent<Transform>();
+                    enemyTransform.Position = new Vector3(x, enemyTransform.Position.y, z);
+                }
+
+            }
             
         }
 
@@ -491,6 +554,8 @@ namespace SliceEngine
             OnMovementFinish();
         }
 
+
+
         public void OnMovementFinish()
         {
             Console.WriteLine("Movement Finished");
@@ -514,6 +579,11 @@ namespace SliceEngine
                         stateMachine.ChangeState(idleState);
                     }
                     //Console.WriteLine($"Original position: {slam.originalPosition.ToString()}");
+                    break;
+                case DeathState _:
+                    DeathState death = stateMachine.currentState as DeathState;
+                    death.moved = true;
+
                     break;
             }
         }
