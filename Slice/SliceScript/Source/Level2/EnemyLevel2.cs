@@ -218,6 +218,11 @@ namespace SliceEngine
             owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
             enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, originalPosition, 1.2f));
         }
+
+        public override void OnExit()
+        {
+            owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
+        }
     }
 
     public class ProjectileState : BaseState
@@ -326,7 +331,7 @@ namespace SliceEngine
 
         List<GameObject> orbitingEnemies;
         float orbitTimer = 0.0f;
-        float orbitRadius = 15.0f;
+        float orbitRadius = 10.0f;
         float rotationSpeed = 2.0f;
 
         int numOfPoints;
@@ -354,6 +359,8 @@ namespace SliceEngine
                     0.0f,
                     (float)Math.Sin(angle) * orbitRadius
                     );
+
+                orbitingEnemies[i].As<Projectile_Spawner>().active = false;
 
                 Vector3 worldTarget = ownerPos + targetLocalPos;
                 enemyController.StartCoroutine(MoveEnemy(orbitingEnemies[i], worldTarget, 3.0f));
@@ -424,6 +431,7 @@ namespace SliceEngine
         public IntroState introState;
         public SlamState slamState;
         public ProjectileState projectileState;
+        public DeathState deathState;
 
         public GameObject startingPosition;
         public GameObject enemyHUD;
@@ -450,7 +458,7 @@ namespace SliceEngine
             introState = new IntroState(this.gameObject);
             slamState = new SlamState(this.gameObject);
             projectileState = new ProjectileState(this.gameObject);
-
+            deathState = new DeathState(this.gameObject); 
             // start at intro state
             stateMachine.ChangeState(introState);
             // start at a random point first also
@@ -496,7 +504,8 @@ namespace SliceEngine
         public override void OnDeath()
         {
             // transition to the death state where it flies up
-            Console.WriteLine("Dying");
+            //Console.WriteLine("Dying");
+            stateMachine.ChangeState(deathState);
         }
 
         protected override void OnDamaged(GameObject source)
