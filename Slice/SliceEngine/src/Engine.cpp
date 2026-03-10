@@ -99,18 +99,9 @@ namespace SliceEngine
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
 
-	rttr::registration::class_<glm::vec3>("glm::vec3")
-		.constructor<>()(rttr::policy::ctor::as_object)
-		.property("x", &glm::vec3::x)
-		.property("y", &glm::vec3::y)
-		.property("z", &glm::vec3::z);
-	
-#pragma warning(push)
-#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
 	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
@@ -659,9 +650,40 @@ rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
-.property("prefabID", &Prefab::prefabID)
-.property("prefabGUID", &Prefab::prefabGUID)
-.property("prefabHandle", &Prefab::prefabHandle);
+		.property("prefabID", &Prefab::prefabID)
+		.property("prefabGUID", &Prefab::prefabGUID)
+		.property("prefabHandle", &Prefab::prefabHandle);
+
+	rttr::registration::class_<EntityCollide>("EntityCollide")
+		.constructor<>()
+		.property("firstEntity", &EntityCollide::firstEntity)
+		.property("secondEntity", &EntityCollide::secondEntity);
+
+	rttr::registration::class_<ColliderShapeAddedEvent>("ColliderShapeAdded")
+		.constructor<>()
+		.property("entity", &ColliderShapeAddedEvent::entity);
+
+	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
+		.constructor<>()
+		.property("entity", &RigidBodyAddedEvent::entity);
+
+	rttr::registration::class_<RigidBodyRemovedEvent>("RigidBodyRemoved")
+		.constructor<>()
+		.property("entity", &RigidBodyRemovedEvent::entity);
+
+	rttr::registration::class_<NetworkClientConnectEvent>("NetworkClientAdded")
+		.constructor<>()
+		.property("ip", &NetworkClientConnectEvent::ip)
+		.property("port", &NetworkClientConnectEvent::port);
+
+	rttr::registration::class_<NetworkBindPortEvent>("NetworkPortBinded")
+		.constructor<>()
+		.property("port", &NetworkBindPortEvent::port);
+
+	rttr::registration::class_<GONetworkEvent>("GONetworked")
+		.constructor<>()
+		.property("entity", &GONetworkEvent::entity)
+		.property("create", &GONetworkEvent::create);
 	}
 }
 #pragma endregion

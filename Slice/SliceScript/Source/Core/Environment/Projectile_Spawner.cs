@@ -71,7 +71,7 @@ namespace SliceEngine
 
             tempP.SetUp();
             tempP.speed = speed;
-            tempP.owner = this;
+            tempP.owner = gameObject;
             tempP.damage = bulletDamage;
             tempP.distanceBeforeDestroy = distanceBeforeDestroy;
             tempP.destroyOnImpact = destroyOnImpact;
