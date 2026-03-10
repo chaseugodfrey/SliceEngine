@@ -19,14 +19,8 @@
                         0.0
                     ]
                 },
-                "struct SliceEngine::Prefab": {
-                    "prefabGUID": "17506328418890192846",
-                    "prefabHandle": {
-                        "GUID": "17506328418890192846"
-                    },
-                    "prefabID": 1
-                },
                 "struct SliceEngine::Renderer": {
+                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -69,7 +63,7 @@
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 4,
+                    "mLayer": 0,
                     "mName": "NicTestPrefabChild",
                     "mTag": "default"
                 },
@@ -80,9 +74,9 @@
                         0.0
                     ],
                     "position": [
-                        1.8604121208190918,
-                        0.2489471435546875,
-                        2.1456422805786133
+                        3.0,
+                        3.0,
+                        3.0
                     ],
                     "rotation": [
                         1.0,
@@ -116,14 +110,8 @@
                         0.0
                     ]
                 },
-                "struct SliceEngine::Prefab": {
-                    "prefabGUID": "17506328418890192846",
-                    "prefabHandle": {
-                        "GUID": "17506328418890192846"
-                    },
-                    "prefabID": 0
-                },
                 "struct SliceEngine::Renderer": {
+                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -178,7 +166,7 @@
                     ],
                     "position": [
                         0.0,
-                        3.5186150074005127,
+                        2.0,
                         0.0
                     ],
                     "rotation": [
@@ -188,9 +176,9 @@
                         0.0
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
-                        1.0
+                        2.0,
+                        2.0,
+                        2.0
                     ]
                 }
             }
@@ -381,6 +369,7 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -451,6 +440,7 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -525,6 +515,7 @@
         {
             "Spawner": {
                 "struct SliceEngine::Renderer": {
+                    "castShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -585,7 +576,7 @@
                     ],
                     "scale": [
                         1.0,
-                        1.0,
+                        3.236517906188965,
                         1.0
                     ]
                 }
@@ -609,7 +600,7 @@
                     "cloudsSmoothness": 0.0027000000700354576,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 34,
+                    "depthTex": 36,
                     "far": 200.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -617,11 +608,13 @@
                         0.20000000298023224
                     ],
                     "fogIntensity": 0.03999999910593033,
+                    "godRayFilterRadius": 5.0,
+                    "godRayStrength": 0.4000000059604645,
                     "height": 1080,
                     "near": 0.009999999776482582,
                     "postRenderTag": "0",
                     "pov": 60.0,
-                    "textureID": 33,
+                    "textureID": 35,
                     "translucentSelectCutoff": 0.20000000298023224,
                     "vignetteCenter": [
                         0.5,

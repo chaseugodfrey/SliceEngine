@@ -749,6 +749,38 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_SetColor(uint entityID, ref Vector4 value);
 
+        // Skybox
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetLightingPower(out float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetZenithColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetHorizonColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetGroundColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetSunDirection(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetSunColor(out Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetLightingPower(ref float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetZenithColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetHorizonColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetGroundColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetSunDirection(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetSunColor(ref Vector3 value);
+
         //Entity active
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Entity_SetActive(uint entityID, bool active);
