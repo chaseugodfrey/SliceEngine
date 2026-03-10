@@ -158,10 +158,6 @@ namespace SliceEngine
 		return mWindowManager.GetWindow();
 	}
 
-	GLFWWindowManager* Core::GetWindowManager()
-	{
-		return &mWindowManager;
-	}
 
 	NetworkSystem* Core::GetNetwork()
 	{

@@ -813,7 +813,6 @@ namespace SliceEngine
 		}
 	}
 
-
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();

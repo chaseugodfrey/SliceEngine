@@ -8,6 +8,7 @@ namespace SliceEngine
     {
         public bool DialogueOnStart = false;
         public int currLevel = 0; // to sync with level director
+        public int currentScene = 0;
         public string nextSceneToLoad = "";
         public string currSceneToLoad = "";
 
@@ -52,7 +53,7 @@ namespace SliceEngine
                 if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
                 {
                     enterPressed = true;
-                    PlayDialogueForLevel(currLevel);
+                    PlayDialogueForLevel(currLevel, currentScene);
                 }
 
                 if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
@@ -136,6 +137,14 @@ namespace SliceEngine
             if (loader == null)
             {
                 //SliceLog.Log("Loader is empty");
+                //Maybe add a cull here for the scene
+                for (int i  = loader.RowCount -1 ; i > -1; i--)
+                {
+                    if (loader.GetValue<int>(i , "Scene") != currentScene)
+                    {
+                        loader.RemoveRow(i);
+                    }
+                }
             }
             else
             {
@@ -151,7 +160,7 @@ namespace SliceEngine
 
         private int dialogueIndex = 0;
 
-        public void PlayDialogueForLevel(int level)
+        public void PlayDialogueForLevel(int level, int scene)
         {
 
 
@@ -194,6 +203,8 @@ namespace SliceEngine
 
                 SliceLog.Log("Dialogue is empty");
                 dialogueIndex = 0;
+
+                //Loading from the list
                 for (int i = loader.FindRowIndex("Level", level.ToString()); i > -1; i++)
                 {
                     //SliceLog.Log("index is at" + i);
@@ -288,12 +299,14 @@ namespace SliceEngine
 
         public void OpenTextBox()
         {
+            Bootstrap.Player.SetPlayerLock(true);
             textBoxParentObject.SetActive(true);
             Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void CloseTextBox()
         {
+            Bootstrap.Player.SetPlayerLock(false);
             textBoxParentObject.SetActive(false);
             Cursor.state = Cursor.STATE.DEFAULT;
         }

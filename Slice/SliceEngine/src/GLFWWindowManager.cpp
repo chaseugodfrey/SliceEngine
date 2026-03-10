@@ -73,7 +73,6 @@ namespace SliceEngine
 
 		isFullScreen = true;
 
-
 	}
 
 	void GLFWWindowManager::NonFullScreenWindow()
@@ -93,7 +92,6 @@ namespace SliceEngine
 		glfwMakeContextCurrent(window);
 
 		isFullScreen = false;
-
 	}
 
 	void GLFWWindowManager::CloseWindow()
