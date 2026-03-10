@@ -12,6 +12,7 @@ namespace SliceEditor
 	{
 		SessionManager* mSessionManager = nullptr;
 		SliceEngine::Animator* mCurrentAnimator = nullptr;
+		entt::entity tmpEnt;
 
 		StateNode entryNode;
 		StateNode exitNode;
@@ -29,9 +30,10 @@ namespace SliceEditor
 
 		void CheckForAnimator();
 		void SaveAnimatorData();
+		void ReloadAnimatorData(OnAnimatorChangedEvent e);
 		void ClearData();
 
-		void CreateNode();
+		void CreateNode(std::string newNode);
 		void DeleteNode(uint16_t id);
 		void SelectNode(uint16_t id);
 		void SelectLink(uint16_t id);

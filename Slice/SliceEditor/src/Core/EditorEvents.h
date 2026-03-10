@@ -52,6 +52,11 @@ namespace SliceEditor
 
 	};
 
+	struct OnAnimatorChangedEvent
+	{
+		entt::entity ent;
+	};
+
 	struct ClearSelectionEvent
 	{
 		bool suppressHistory;

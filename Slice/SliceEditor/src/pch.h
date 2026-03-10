@@ -1,6 +1,10 @@
 #ifndef PCH_H
 #define PCH_H
 
+#include <GL/glew.h>
+#define GLFW_INCLUDE_NONE
+#include <glfw3.h>
+
 #include <iostream>
 #include <filesystem>
 #include <sstream>
@@ -58,10 +62,6 @@
 
 // external libs
 
-// glfw
- #include <glew.h>
- #include <glfw3.h>
-
 // fmod
 // #include <fmod.hpp>
 // #include <fmod_common.h>
@@ -113,6 +113,8 @@
 #include <Core/Core.h>
 #include <Core/EventManager.h>
 #include <Core/Events.h>
+
+using namespace SliceEngine;
 
 // Editor
 #include <EditorCommonTypes.h>

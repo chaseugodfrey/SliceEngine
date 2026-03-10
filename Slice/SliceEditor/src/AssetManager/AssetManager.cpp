@@ -240,11 +240,11 @@ namespace SliceEditor
 		case AssetType::Animation:
 			CompileFBXAsset(metaPath);
 			break;
-		case AssetType::Anims:
-			CompileAnimsAsset(static_cast<AnimsData*>(metaData));
+		case AssetType::SequencePackage:
+			CompileSequencePkgAsset(static_cast<SequencePkgData*>(metaData));
 			break;
-		case AssetType::Anim:
-			CompileAnimAsset(static_cast<AnimData*>(metaData));
+		case AssetType::Sequence:
+			CompileAnimAsset(static_cast<SequenceData*>(metaData));
 			break;
 		case AssetType::Model:
 		{
@@ -372,11 +372,11 @@ namespace SliceEditor
 		case AssetType::Controller:
 			metaData = std::make_unique<StateMachineData>();
 			break;
-		case AssetType::Anims:
-			metaData = std::make_unique<AnimsData>();
+		case AssetType::SequencePackage:
+			metaData = std::make_unique<SequencePkgData>();
 			break;
-		case AssetType::Anim:
-			metaData = std::make_unique<AnimData>();
+		case AssetType::Sequence:
+			metaData = std::make_unique<SequenceData>();
 			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
@@ -867,7 +867,7 @@ namespace SliceEditor
 		}
 	}	
 
-	void AssetManager::CompileAnimsAsset(AnimsData* metaData)
+	void AssetManager::CompileSequencePkgAsset(SequencePkgData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 
@@ -886,7 +886,7 @@ namespace SliceEditor
 		}
 	}	
 
-	void AssetManager::CompileAnimAsset(AnimData* metaData)
+	void AssetManager::CompileAnimAsset(SequenceData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 
