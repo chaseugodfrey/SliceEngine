@@ -288,12 +288,14 @@ namespace SliceEngine
 
         public void OpenTextBox()
         {
+            Bootstrap.Player.SetPlayerLock(true);
             textBoxParentObject.SetActive(true);
             Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void CloseTextBox()
         {
+            Bootstrap.Player.SetPlayerLock(false);
             textBoxParentObject.SetActive(false);
             Cursor.state = Cursor.STATE.DEFAULT;
         }
