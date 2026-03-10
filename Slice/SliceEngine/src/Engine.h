@@ -46,7 +46,6 @@ namespace SliceEngine
 
 		void Test();
 		void Init();
-		void WindowSizeSwitch();
 
 		void Update();
 		void SceneChangeEvent(const OnSceneChangeEvent& event);
