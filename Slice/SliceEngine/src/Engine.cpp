@@ -296,6 +296,8 @@ namespace SliceEngine
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
+		.property("godRayStrength", &Camera::godRayStrength)
+		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
@@ -337,7 +339,8 @@ namespace SliceEngine
 			);
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
-			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			rttr::value("Overlay", Canvas::Type::OVERLAY),
+			rttr::value("World Space", Canvas::Type::WORLD)
 			);
 	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
 		(
@@ -524,9 +527,13 @@ namespace SliceEngine
 		.property("orbitAxis", &ParticleSystem::orbitAxis)
 		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
 		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
-
+		.property("glowValueType", &ParticleSystem::glowValueType)
+		.property("glow", &ParticleSystem::glow)
+		.property("glowIntensity", &ParticleSystem::glowIntensity)
+		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
+		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
-
+		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
