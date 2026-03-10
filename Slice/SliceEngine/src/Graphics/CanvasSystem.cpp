@@ -132,6 +132,7 @@ namespace SliceEngine {
 		empty.width = 0; empty.height = 0;
 
 		world_space_ui.clear();
+		world_space_z = 0.f;
 		for (auto entity : view) {
 			//auto const& canvas = mRegistry->get<Canvas>(entity);
 			get_child_ui(/*entities_to_draw, */entity, entity, entity);
@@ -314,7 +315,7 @@ namespace SliceEngine {
 				auto const& font_render = mRegistry->get<FontRenderer>(element.first);
 
 				if (font_render.fontHandle.GetGUID() == DefaultResourceIDs::FONT_BLANK_DEFAULT) {
-					return;
+					continue;
 				}
 
 				//Use rect to format the font characters
@@ -575,26 +576,44 @@ namespace SliceEngine {
 		auto const& p_rect = mRegistry->get<RectTransform>(parent);
 		rect.Update(p_rect);	//get position of rect relative to parent
 
+		if (glm::epsilonEqual(rect.final_width, 0.f, FLT_EPSILON) ||
+			glm::epsilonEqual(rect.final_height, 0.f, FLT_EPSILON)) {
+			return;
+		}
+
 		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
-		if (ctx.canvas_type == Canvas::WORLD && node != parent) {
-			//update world pos?
-			//rotation of child is always 0
-			//scale of child is relative to immediate parent
-			//pos of child is child - parent
-			auto& c_tform = mRegistry->get<Transform>(node);
-			auto& p_tform = mRegistry->get<Transform>(parent);
+		if (ctx.canvas_type == Canvas::WORLD) {
 
-			c_tform.rotation = glm::identity<glm::quat>();
-			c_tform.eulerAnglesHint = glm::vec3();
-			c_tform.scale.x = rect.final_width / p_rect.final_width; 
-			c_tform.scale.y = rect.final_height / p_rect.final_height; 
-			c_tform.scale.z = 1.f;
-			c_tform.position.x = rect.final_x - p_rect.final_x;
-			c_tform.position.y = rect.final_y - p_rect.final_y;
-			c_tform.position.z = 0.f;
+			if (node == parent) {	//canvas
+				auto const& canvas_tform = mRegistry->get<Transform>(canvas_entity);
+				auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
+				//convert canvas space to world space
+				canvas_rect.scale_x = (1.f / canvas_rect.final_width) / canvas_tform.scale.x;
+				canvas_rect.scale_y = (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+			}
+			else {					//child of canvas
+				//update world pos?
+				//rotation of child is always 0
+				//scale of child is relative to immediate parent
+				//pos of child is child - parent
+				auto& c_tform = mRegistry->get<Transform>(node);
+				auto& p_tform = mRegistry->get<Transform>(parent);
 
-			if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
-				world_space_ui.insert(node);
+				c_tform.rotation = glm::identity<glm::quat>();
+				c_tform.eulerAnglesHint = glm::vec3();
+				c_tform.scale.x = rect.final_width / p_rect.final_width; 
+				c_tform.scale.y = rect.final_height / p_rect.final_height; 
+				c_tform.scale.z = 1.f;
+				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x;
+				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y;
+				c_tform.position.z = 0;// world_space_z;
+				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
+				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
+				//world_space_z += 0.0000001f;
+				if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
+					world_space_ui.insert(node);
+				}
+
 			}
 		}
 
