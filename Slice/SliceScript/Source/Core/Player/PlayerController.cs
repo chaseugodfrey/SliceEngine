@@ -283,11 +283,12 @@ namespace SliceEngine
                 PlayerCurrentAttack = CurrentAttack.GroundAttack;
                 attackCounter++;
                 if (attackCounter > 3) attackCounter = 1;
-                attackTimer = attackDuration[(int)PlayerCurrentAttack] + attackDelay[(int)PlayerCurrentAttack];
 
                 switch (attackCounter)
                 {
                     case 1:
+                        attackTimer = attackDuration[0];
+
                         StartCoroutine(AttackDelay(attackDelay[0], () => attackHitboxes[0].TurnOn()));
 
                         //AudioSettings.PlaySFX("A1");
@@ -296,6 +297,8 @@ namespace SliceEngine
                         lungeTimer = lungeDuration;
                         break;
                     case 2:
+                        attackTimer = attackDuration[1];
+
                         StartCoroutine(AttackDelay(attackDelay[1], () => attackHitboxes[1].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
@@ -307,6 +310,7 @@ namespace SliceEngine
                         lungeTimer = lungeDuration;
                         break;
                     case 3:
+                        attackTimer = attackDuration[2];
                         StartCoroutine(AttackDelay(attackDelay[2], () => attackHitboxes[2].TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
@@ -656,7 +660,9 @@ namespace SliceEngine
                 || PlayerMovementState == MovementState.Falling 
                 || PlayerMovementState == MovementState.Jumping)
             {
-                if (PlayerCombatState == CombatState.Attacking) return;
+                if (PlayerCombatState == CombatState.Attacking || PlayerCombatState == CombatState.Recovery) return;
+
+                if (animator.GetCurrAnimName() == "AttackToIdle3") return;
                 // Normal locomotion
                 if (moveDirInput.SquareMagnitude() > 0.0001f)
                 {
@@ -803,19 +809,13 @@ namespace SliceEngine
                         StartAttackRecovery();
                     }
                     break;
-                case CombatState.Recovery:
+                case CombatState.Recovery: 
+                    Console.WriteLine($"reset timer {attackResetTimer} vs {attackRecoveryDuration}");
                     if (attackResetTimer >= attackRecoveryDuration)
                     {
                         PlayerCombatState = CombatState.None;
                     }
-                    else
-                    {
-                        if (input.SquareMagnitude() >= 0.0001f)
-                        {
-                            PlayerCombatState = CombatState.None;
-                            PlayerMovementState = MovementState.Walking;
-                        }
-                    }
+
                     break;
                 case CombatState.Hitstun:
                     break;
