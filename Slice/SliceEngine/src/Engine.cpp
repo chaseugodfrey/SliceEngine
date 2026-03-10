@@ -102,6 +102,14 @@ namespace SliceEngine
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
 
+	rttr::registration::class_<glm::vec3>("glm::vec3")
+		.constructor<>()(rttr::policy::ctor::as_object)
+		.property("x", &glm::vec3::x)
+		.property("y", &glm::vec3::y)
+		.property("z", &glm::vec3::z);
+
+#pragma warning(push)
+#pragma warning(disable: 4189)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
 	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
@@ -175,7 +183,7 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
-	
+
 	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
 		.constructor<>()
 		.property("mTest", &InactiveEntity::mTest);
@@ -241,7 +249,6 @@ namespace SliceEngine
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
 		.property("meshOffset", &Renderer::meshOffset)
-		.property("castShadow", &Renderer::castShadow)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
 	rttr::registration::class_<AudioSource>(typeid(AudioSource).name())
@@ -413,7 +420,7 @@ namespace SliceEngine
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
 			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
@@ -520,15 +527,12 @@ namespace SliceEngine
 		.property("orbitAxis", &ParticleSystem::orbitAxis)
 		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
 		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
-
 		.property("glowValueType", &ParticleSystem::glowValueType)
 		.property("glow", &ParticleSystem::glow)
 		.property("glowIntensity", &ParticleSystem::glowIntensity)
 		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
 		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
-
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
-
 		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
@@ -653,40 +657,9 @@ rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
-		.property("prefabID", &Prefab::prefabID)
-		.property("prefabGUID", &Prefab::prefabGUID)
-		.property("prefabHandle", &Prefab::prefabHandle);
-
-	rttr::registration::class_<EntityCollide>("EntityCollide")
-		.constructor<>()
-		.property("firstEntity", &EntityCollide::firstEntity)
-		.property("secondEntity", &EntityCollide::secondEntity);
-
-	rttr::registration::class_<ColliderShapeAddedEvent>("ColliderShapeAdded")
-		.constructor<>()
-		.property("entity", &ColliderShapeAddedEvent::entity);
-
-	rttr::registration::class_<RigidBodyAddedEvent>("RigidBodyAdded")
-		.constructor<>()
-		.property("entity", &RigidBodyAddedEvent::entity);
-
-	rttr::registration::class_<RigidBodyRemovedEvent>("RigidBodyRemoved")
-		.constructor<>()
-		.property("entity", &RigidBodyRemovedEvent::entity);
-
-	rttr::registration::class_<NetworkClientConnectEvent>("NetworkClientAdded")
-		.constructor<>()
-		.property("ip", &NetworkClientConnectEvent::ip)
-		.property("port", &NetworkClientConnectEvent::port);
-
-	rttr::registration::class_<NetworkBindPortEvent>("NetworkPortBinded")
-		.constructor<>()
-		.property("port", &NetworkBindPortEvent::port);
-
-	rttr::registration::class_<GONetworkEvent>("GONetworked")
-		.constructor<>()
-		.property("entity", &GONetworkEvent::entity)
-		.property("create", &GONetworkEvent::create);
+.property("prefabID", &Prefab::prefabID)
+.property("prefabGUID", &Prefab::prefabGUID)
+.property("prefabHandle", &Prefab::prefabHandle);
 	}
 }
 #pragma endregion
@@ -699,7 +672,7 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-	namespace 
+	namespace
 	{
 		static bool isPlaying = false;
 	}
@@ -818,6 +791,30 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
+	void Engine::WindowSizeSwitch()
+	{
+		auto sInputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
+
+		if (sInputs->IsKeyDown(GLFW_KEY_RIGHT_ALT))
+		{
+			if (sInputs->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				if (windowManager->isFullScreen)
+				{
+					windowManager->NonFullScreenWindow();
+				}
+				else
+				{
+					windowManager->FullScreenWindow();
+				}
+			}
+
+		}
+	}
+
+
+
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
@@ -826,7 +823,7 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
-		
+
 		auto& sTransform = core->GetSystem<TransformSystem>();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sBone = core->GetSystem<BoneSystem>();
@@ -838,7 +835,7 @@ namespace SliceEngine
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 		(void)projSettingsManager;
-		(void)sParticleSystemManager;		
+		(void)sParticleSystemManager;
 
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -867,7 +864,7 @@ namespace SliceEngine
 		}
 
 		frm->StartSystem("Update Delta Time");
-		frm->updateDeltaTime(); 
+		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("Audio");
@@ -894,11 +891,16 @@ namespace SliceEngine
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
 		sTransform.UpdateTransforms();
-		prefabSys.UpdateBasePrefabs(); 
+		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
 
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
+		/*if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			OnPlayStarted();
+		}*/
+
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
@@ -1028,7 +1030,7 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			// sync matrices after physics
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-		//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
+			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
 			// animation after logic and physics
@@ -1044,7 +1046,7 @@ namespace SliceEngine
 		frm->StartSystem("Script");
 		gScriptSystem->OnUpdate((float)frm->getDeltaTime());
 		frm->EndSystem("Script");
-		
+
 		frm->StartSystem("Navigation System");
 		sNav.Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Navigation System");

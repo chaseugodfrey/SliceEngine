@@ -408,7 +408,10 @@ namespace SliceEngine
 
 				ModelBasic& mdlRef = modelReferences[id];
 				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-				auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+				int meshOffset = mdlRef.meshOffset;
+				if (mdlRef.meshOffset >= mdl.get()->meshes.size())
+					meshOffset = 0;
+				auto& mesh = mdl.get()->meshes[meshOffset];
 				glBindVertexArray(mesh.vao);
 
 				//if (mdlRef.isSkin)
@@ -572,7 +575,7 @@ namespace SliceEngine
 					if(uniformLoc != -1)
 						glUniform1f(uniformLoc, time);
 					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
-					glUniform1f(uniformLoc, rm->skyboxData.lightingPower);
+					glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
 					uniformLoc = glGetUniformLocation(mShader, "numLights");
 					glUniform1i(uniformLoc, rm->numLightsFound);
 					
@@ -616,7 +619,10 @@ namespace SliceEngine
 					}
 					ModelBasic& mdlRef = modelReferences[currMdlID];
 					auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)mdlRef.mdl);
-					auto& mesh = mdl.get()->meshes[mdlRef.meshOffset];
+					int meshOffset = mdlRef.meshOffset;
+					if (mdlRef.meshOffset >= mdl.get()->meshes.size())
+						meshOffset = 0;
+					auto& mesh = mdl.get()->meshes[meshOffset];
 					glBindVertexArray(mesh.vao);
 
 					SetModelSkinUniform(mShader, mdlRef.isSkin, dat.entityID);
