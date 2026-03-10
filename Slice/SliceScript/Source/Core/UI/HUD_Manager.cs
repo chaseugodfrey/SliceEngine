@@ -171,7 +171,6 @@ namespace SliceEngine
                     SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
-
         }
 
         private bool typing = false;

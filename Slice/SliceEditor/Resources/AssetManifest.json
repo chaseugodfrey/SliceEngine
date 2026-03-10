@@ -106,6 +106,11 @@
             "path": "Resources/17435409685680308052.controller"
         },
         {
+            "guid": 10656676371875731217,
+            "name": "Dylan/Environment Assets/Containers.fbx",
+            "path": "Resources/10656676371875731217.mdl"
+        },
+        {
             "guid": 15189273195680720916,
             "name": "Animations/test.seqpkg",
             "path": "Resources/15189273195680720916.seqpkg"
@@ -299,6 +304,11 @@
             "guid": 12169045122294778099,
             "name": "Models/Updated/Environment_Visual_P2.fbx",
             "path": "Resources/12169045122294778099.mdl"
+        },
+        {
+            "guid": 11965650020329806019,
+            "name": "Dylan/Environment Assets/Wires_M.fbx",
+            "path": "Resources/11965650020329806019.mdl"
         },
         {
             "guid": 9563528329987127914,
@@ -641,6 +651,86 @@
             "path": "Resources/14075981351213609543.scene"
         },
         {
+            "guid": 15457146124636775528,
+            "name": "Shaders/pointShadow.shader",
+            "path": "Resources/15457146124636775528.shader"
+        },
+        {
+            "guid": 13941575725759154454,
+            "name": "Dylan/Environment Assets/A2_Pipes.fbx",
+            "path": "Resources/13941575725759154454.mdl"
+        },
+        {
+            "guid": 18202326392139055252,
+            "name": "Dylan/Environment Assets/A2_Entrance.fbx",
+            "path": "Resources/18202326392139055252.mdl"
+        },
+        {
+            "guid": 13118389196530478506,
+            "name": "Dylan/Environment Assets/A3_Train Station_End.fbx",
+            "path": "Resources/13118389196530478506.mdl"
+        },
+        {
+            "guid": 11305069748574190869,
+            "name": "Dylan/Environment Assets/A3_Train Station_Start.fbx",
+            "path": "Resources/11305069748574190869.mdl"
+        },
+        {
+            "guid": 10481587528480518082,
+            "name": "Dylan/Environment Assets/Platform1.fbx",
+            "path": "Resources/10481587528480518082.mdl"
+        },
+        {
+            "guid": 13767192816225290262,
+            "name": "Dylan/Environment Assets/A3_Tunnels.fbx",
+            "path": "Resources/13767192816225290262.mdl"
+        },
+        {
+            "guid": 14839280712818060999,
+            "name": "Dylan/Environment Assets/A4_Cargo.fbx",
+            "path": "Resources/14839280712818060999.mdl"
+        },
+        {
+            "guid": 10482285589553102895,
+            "name": "Dylan/Environment Assets/A4_Pipes.fbx",
+            "path": "Resources/10482285589553102895.mdl"
+        },
+        {
+            "guid": 9402868621044949570,
+            "name": "Shaders/skybox_Vert.vert",
+            "path": "Resources/9402868621044949570.vert"
+        },
+        {
+            "guid": 9910841942380384348,
+            "name": "Models/Modular_Environment/BrokenBridge3.fbx",
+            "path": "Resources/9910841942380384348.mdl"
+        },
+        {
+            "guid": 17252748523279415740,
+            "name": "Fonts/Roboto-VariableFont.ttf",
+            "path": "Resources/17252748523279415740.fnt"
+        },
+        {
+            "guid": 9411221139573997626,
+            "name": "Dylan/Environment Assets/A4_Wires.fbx",
+            "path": "Resources/9411221139573997626.mdl"
+        },
+        {
+            "guid": 11123960638445412492,
+            "name": "Shaders/skyboxIrr.shader",
+            "path": "Resources/11123960638445412492.shader"
+        },
+        {
+            "guid": 15988034323396602812,
+            "name": "Models/Updated/Environment_MeshCollider_2.skl",
+            "path": "Resources/15988034323396602812.skl"
+        },
+        {
+            "guid": 14739684932445338633,
+            "name": "Dylan/Environment Assets/Beams.fbx",
+            "path": "Resources/14739684932445338633.mdl"
+        },
+        {
             "guid": 14474920984947933644,
             "name": "Material/Explosion.mat",
             "path": "Resources/14474920984947933644.mat"
@@ -659,6 +749,11 @@
             "guid": 16983590390400700094,
             "name": "Dylan/Environment Assets/DoublePipe.fbx",
             "path": "Resources/16983590390400700094.mdl"
+        },
+        {
+            "guid": 14941793656830322641,
+            "name": "Dylan/Environment Assets/External Pipes.fbx",
+            "path": "Resources/14941793656830322641.mdl"
         },
         {
             "guid": 9988858468053178508,
@@ -691,14 +786,24 @@
             "path": "Resources/15374122388797591212.mdl"
         },
         {
-            "guid": 10481587528480518082,
-            "name": "Dylan/Environment Assets/Platform1.fbx",
-            "path": "Resources/10481587528480518082.mdl"
-        },
-        {
             "guid": 16752549707848748451,
             "name": "Dylan/Environment Assets/Platform2.fbx",
             "path": "Resources/16752549707848748451.mdl"
+        },
+        {
+            "guid": 10697254268588545613,
+            "name": "Prefabs/Text.prefab",
+            "path": "Resources/10697254268588545613.prefab"
+        },
+        {
+            "guid": 17084868993414741854,
+            "name": "Prefabs/lightTheSecondPrefabTest_1.prefab",
+            "path": "Resources/17084868993414741854.prefab"
+        },
+        {
+            "guid": 18149929912659213674,
+            "name": "Dylan/Environment Assets/StackedContainers_Blocker.fbx",
+            "path": "Resources/18149929912659213674.mdl"
         },
         {
             "guid": 16233866524882921744,
@@ -719,6 +824,41 @@
             "guid": 15522966485421401643,
             "name": "Dylan/Environment Assets/StartRoof.fbx",
             "path": "Resources/15522966485421401643.mdl"
+        },
+        {
+            "guid": 14031586730247189489,
+            "name": "Shaders/fullScreen_Vert.vert",
+            "path": "Resources/14031586730247189489.vert"
+        },
+        {
+            "guid": 15753721967437039897,
+            "name": "Shaders/debugLine_Vert.vert",
+            "path": "Resources/15753721967437039897.vert"
+        },
+        {
+            "guid": 13912214859485212332,
+            "name": "Dylan/InvisibleMat.mat",
+            "path": "Resources/13912214859485212332.mat"
+        },
+        {
+            "guid": 11375246718170446546,
+            "name": "Prefabs/Column_1.prefab",
+            "path": "Resources/11375246718170446546.prefab"
+        },
+        {
+            "guid": 11447130267523023024,
+            "name": "Dylan/Particles/smokeTex.png",
+            "path": "Resources/11447130267523023024.dds"
+        },
+        {
+            "guid": 13781540877947589117,
+            "name": "Shaders/shadow_Frag.frag",
+            "path": "Resources/13781540877947589117.frag"
+        },
+        {
+            "guid": 9968018859147317142,
+            "name": "Dylan/Particles/smokeTex2.png",
+            "path": "Resources/9968018859147317142.dds"
         },
         {
             "guid": 17882015253966645802,
@@ -804,21 +944,6 @@
             "guid": 13441197947458580501,
             "name": "Fonts/JetBrainsMono-Light.ttf",
             "path": "Resources/13441197947458580501.fnt"
-        },
-        {
-            "guid": 9402868621044949570,
-            "name": "Shaders/skybox_Vert.vert",
-            "path": "Resources/9402868621044949570.vert"
-        },
-        {
-            "guid": 9910841942380384348,
-            "name": "Models/Modular_Environment/BrokenBridge3.fbx",
-            "path": "Resources/9910841942380384348.mdl"
-        },
-        {
-            "guid": 17252748523279415740,
-            "name": "Fonts/Roboto-VariableFont.ttf",
-            "path": "Resources/17252748523279415740.fnt"
         },
         {
             "guid": 10125292758465881867,
@@ -1441,16 +1566,6 @@
             "path": "Resources/10530496994636550591.mdl"
         },
         {
-            "guid": 11123960638445412492,
-            "name": "Shaders/skyboxIrr.shader",
-            "path": "Resources/11123960638445412492.shader"
-        },
-        {
-            "guid": 15988034323396602812,
-            "name": "Models/Updated/Environment_MeshCollider_2.skl",
-            "path": "Resources/15988034323396602812.skl"
-        },
-        {
             "guid": 9584680298831036432,
             "name": "Models/Updated/Environment_MeshCollider_3.skl",
             "path": "Resources/9584680298831036432.skl"
@@ -1601,6 +1716,11 @@
             "path": "Resources/10343062698504463641.navmesh"
         },
         {
+            "guid": 14813101075597165677,
+            "name": "Prefabs/Smoke.prefab",
+            "path": "Resources/14813101075597165677.prefab"
+        },
+        {
             "guid": 16498560271133684401,
             "name": "NavMesh/NewScene.bin",
             "path": "Resources/16498560271133684401.bin"
@@ -1701,11 +1821,6 @@
             "path": "Resources/17023561938162725187.prefab"
         },
         {
-            "guid": 11375246718170446546,
-            "name": "Prefabs/Column_1.prefab",
-            "path": "Resources/11375246718170446546.prefab"
-        },
-        {
             "guid": 17035423744017174956,
             "name": "Shaders/skyboxGeneration_Vert.vert",
             "path": "Resources/17035423744017174956.vert"
@@ -1764,16 +1879,6 @@
             "guid": 16719948259139700223,
             "name": "Prefabs/Level Director.prefab",
             "path": "Resources/16719948259139700223.prefab"
-        },
-        {
-            "guid": 10697254268588545613,
-            "name": "Prefabs/Text.prefab",
-            "path": "Resources/10697254268588545613.prefab"
-        },
-        {
-            "guid": 17084868993414741854,
-            "name": "Prefabs/lightTheSecondPrefabTest_1.prefab",
-            "path": "Resources/17084868993414741854.prefab"
         },
         {
             "guid": 16954564583038452490,
@@ -1861,11 +1966,6 @@
             "path": "Resources/11325377455967218854.prefab"
         },
         {
-            "guid": 15096470678969999859,
-            "name": "Prefabs/Smoke.prefab",
-            "path": "Resources/15096470678969999859.prefab"
-        },
-        {
             "guid": 11802157215255510639,
             "name": "[05]New_Environment/EnvironmentP1.fbx",
             "path": "Resources/11802157215255510639.mdl"
@@ -1931,16 +2031,6 @@
             "path": "Resources/10810511840858761130.vert"
         },
         {
-            "guid": 14031586730247189489,
-            "name": "Shaders/fullScreen_Vert.vert",
-            "path": "Resources/14031586730247189489.vert"
-        },
-        {
-            "guid": 15753721967437039897,
-            "name": "Shaders/debugLine_Vert.vert",
-            "path": "Resources/15753721967437039897.vert"
-        },
-        {
             "guid": 12824181597489364058,
             "name": "Shaders/debugOutlineBlur_Frag.frag",
             "path": "Resources/12824181597489364058.frag"
@@ -1981,19 +2071,9 @@
             "path": "Resources/17094478662332462709.shader"
         },
         {
-            "guid": 15457146124636775528,
-            "name": "Shaders/pointShadow.shader",
-            "path": "Resources/15457146124636775528.shader"
-        },
-        {
             "guid": 10014890641284040322,
             "name": "Shaders/pointShadow_Frag.frag",
             "path": "Resources/10014890641284040322.frag"
-        },
-        {
-            "guid": 13781540877947589117,
-            "name": "Shaders/shadow_Frag.frag",
-            "path": "Resources/13781540877947589117.frag"
         },
         {
             "guid": 14285044838440524560,
@@ -2239,6 +2319,11 @@
             "guid": 18000196669969852959,
             "name": "[97]Scenes/M4 Level 1.temp",
             "path": "Resources/18000196669969852959.scene"
+        },
+        {
+            "guid": 16404187584909447731,
+            "name": "[97]Scenes/M5 Level 1 Dylan.scene",
+            "path": "Resources/16404187584909447731.scene"
         },
         {
             "guid": 13929045248473250792,
