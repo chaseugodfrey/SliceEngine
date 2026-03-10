@@ -929,7 +929,7 @@ namespace SliceEngine
 		glBindTextureUnit(3, mColAttachment[GOUT_EMISSION]);
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "skyboxLightingPower");
-		glUniform1f(uniformLoc, skyboxData.lightingPower);
+		glUniform1f(uniformLoc, skyboxData.lightingPower / 100.f);
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "willBloom");
 		glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
