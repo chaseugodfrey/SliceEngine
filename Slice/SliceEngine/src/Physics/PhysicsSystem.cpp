@@ -44,7 +44,7 @@ namespace SliceEngine
 		SLICE_LOG("Physics System Shutdown");
 	}
 
-	bool PhysicsSystem::Initialize( size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints, JPH::uint threadCount)
+	bool PhysicsSystem::Initialize( size_t tempAllocatorSize, JPH::uint maxBodies, JPH::uint numBodyMutex, JPH::uint maxContactConstraints)
 	{
 		if (isInitialized)
 		{
@@ -52,14 +52,14 @@ namespace SliceEngine
 		}
 		try
 		{
-			if (threadCount == 0)
-			{
-				threadCount = std::thread::hardware_concurrency() - 1;
-				if (threadCount == 0)
-				{
-					threadCount = 2;  // Fallback if hardware_concurrency() returns 0
-				}
-			}
+			//if (threadCount == 0)
+			//{
+			//	threadCount = std::thread::hardware_concurrency() - 1;
+			//	if (threadCount == 0)
+			//	{
+			//		threadCount = 2;  // Fallback if hardware_concurrency() returns 0
+			//	}
+			//}
 
 			//Jolt uses function pointers for memory allocation, sets up the function pointers Jolt uses internally.
 			JPH::RegisterDefaultAllocator();
@@ -76,7 +76,7 @@ namespace SliceEngine
 
 			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(tempAllocatorSize);
 
-			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
+			jobSystem = std::make_unique<JPH::JobSystemSingleThreaded>(JPH::cMaxPhysicsJobs);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
 			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
