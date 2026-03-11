@@ -569,7 +569,7 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec4 fMetalRoughData;
+layout (location=4) out vec3 fMetalRoughLightData;
 layout (location=5) out vec3 fEmission;
 )"};
 			std::string translucentInOuts{
@@ -589,7 +589,6 @@ layout (location=2) out vec4 fEmission;
 
 struct Light{
 	vec3 position;
-	//float hasShadow;
 	float uFarPlane;
 	vec3 direction;
 	int type;
@@ -602,7 +601,7 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
@@ -637,8 +636,8 @@ struct BasicIDat
 {
 	mat4 mdlMtx;
 	uint entityID;
-	uint textureID; 
-	uint tex2ID;
+	uint isIgnoreLights; 
+	uint empty2;
 	uint col;
 };
 
@@ -704,7 +703,7 @@ void main(void){
 	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughData.xy = vec2(roughness, metallic);
+	fMetalRoughLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
 })" };
 
 			std::string translucentFragEnd{
@@ -739,7 +738,7 @@ void main(void){
     vec4 dif = fFragColor;
     fEmission = vec4(emission, 1.0f);
    
-	if(any(notEqual(nom, vec3(0.0f))))
+	if(any(notEqual(nom, vec3(0.0f))) && iDat[vInstance].isIgnoreLights == 0)
 	{
 		nom = normalize(nom);
 

@@ -30,6 +30,7 @@ namespace SliceEngine
 			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			temp.color = glm::vec4(1.f);
 			temp.isTranslucent = false;
+			temp.isIgnoreLighting = false;
 
 			// filepath to material.mat in resource folder
 			std::ifstream file(filepath);
@@ -63,6 +64,9 @@ namespace SliceEngine
 
 			if (materialJson.contains("translucency"))
 				temp.isTranslucent = materialJson["translucency"];
+
+			if (materialJson.contains("ignoreLights"))
+				temp.isIgnoreLighting = materialJson["ignoreLights"];
 
 			for (auto& i : temp.shader.get()->dataIn)
 			{
@@ -115,6 +119,7 @@ namespace SliceEngine
 			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
 			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			isTranslucent = false;
+			isIgnoreLighting = false;
 			for (auto& i : shader.get()->dataIn)
 				data[i.name] = i.baseData;
 		 }
