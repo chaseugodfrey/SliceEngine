@@ -177,9 +177,9 @@ namespace SliceEditor
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
 		std::function<uint32_t(Entity)> funcLayer =
-			[](Entity e)
+			[&](Entity e)
 			{
-				return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(e).mLayer;
+				return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(e).mLayer;
 			};
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
@@ -625,9 +625,9 @@ namespace SliceEditor
 			}
 			
 			std::function<SliceEngine::GUID(Entity)> modelFunc =
-				[](Entity e)
+				[&](Entity e)
 				{
-					return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
 				};
 			
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
@@ -650,9 +650,9 @@ namespace SliceEditor
 			}
 
 			std::function<SliceEngine::GUID(Entity)> materialFunc =
-				[](Entity e)
+				[&](Entity e)
 				{
-					return SliceEngine::Core().GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
 				};
 
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
