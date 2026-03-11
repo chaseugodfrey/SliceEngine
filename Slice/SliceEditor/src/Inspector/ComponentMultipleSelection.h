@@ -24,7 +24,9 @@ namespace SliceEditor
 
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
-	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection);
+	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection, std::function<uint32_t(Entity)> func);
+
+	bool GUIDMultipleSelection(SelectionManager* selectionManager, SliceEngine::GUID currentSelection, bool isMultiSelection, std::function<SliceEngine::GUID(Entity)> func);
 
 	std::array<bool, 3> Vector3MultipleSelection(SelectionManager* selectionManager, glm::vec3 currentSelection, bool isMultiSelection, std::function<glm::vec3(Entity)> func);
 

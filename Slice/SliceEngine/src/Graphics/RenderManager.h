@@ -104,7 +104,7 @@ namespace SliceEngine
 		const int mSkyboxDim = 1024;
 
 		const unsigned int DIRECTIONAL_SHADOW_DIMENSION = 512;
-		const unsigned int SHADOW_DIMENSION = 512;
+		const unsigned int SHADOW_DIMENSION = 1024;
 		struct ShadowCamDir
 		{
 			glm::vec3 target;
@@ -285,6 +285,7 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+		void GatherNearbyLights(Entity cam);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 
@@ -294,7 +295,7 @@ namespace SliceEngine
 		struct SkyboxDat
 		{
 			bool isDirty = true;
-			float lightingPower{ 1.f };
+			float lightingPower{ 100.f };
 			glm::vec3 zenithColor{ 0.733f, 0.87f, 1.0f };
 			glm::vec3 horizonColor{ 0.815f, 0.917f, 1.0f };
 			glm::vec3 groundColor{ 1.f,1.f, 1.0f };

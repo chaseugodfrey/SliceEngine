@@ -153,11 +153,12 @@ namespace SliceEditor
 			DebugDrawTogglePopup();
 			ImGui::SameLine();
 		}
-		std::stringstream ss;
-		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
-		ImGui::Button(ss.str().c_str()); //Speed Display
-		ImGui::PopItemFlag(); //End of Set Disabled
+		ImGui::Text("Camera Speed: ");
+		ImGui::SameLine();
+		SliderFloatInput(mRegistry, "##sceneCamSpeed", mCameraSpeed, "%.3f", 0.f, 5.f);
+		//ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		//ImGui::Button(ss.str().c_str()); //Speed Display
+		//ImGui::PopItemFlag(); //End of Set Disabled
 		//Debug Drawing Settings:
 		ImGui::EndGroup();
 
@@ -495,6 +496,17 @@ namespace SliceEditor
 					}
 				}
 
+				auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+				// 1. Get the Inverse of the Parent World Matrix
+				glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+				// 2. Transform the manipulated world_tr into local space
+				// This gives us the exact local matrix relative to the parent
+				glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+				// 3. Decompose the matrix
+
 				glm::mat4 parentWorldTr{ 1 };
 				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
@@ -503,12 +515,25 @@ namespace SliceEditor
 
 				if (parentEntity != entt::null)
 				{
-					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+					/*auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
 					parentWorldTr = parentTr.transform;
-					world_tr *= glm::inverse(parentWorldTr);
-				}
+					world_tr *= glm::inverse(parentWorldTr);*/
 
-				glm::decompose(world_tr, scale, rot, translation, skew, persp);
+					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+					// 1. Get the Inverse of the Parent World Matrix
+					glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+					// 2. Transform the manipulated world_tr into local space
+					// This gives us the exact local matrix relative to the parent
+					glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+					glm::decompose(localMatrix, scale, rot, translation, skew, persp);
+				}
+				else
+				{
+					glm::decompose(world_tr, scale, rot, translation, skew, persp);
+				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
@@ -554,7 +579,7 @@ namespace SliceEditor
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.scale, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();

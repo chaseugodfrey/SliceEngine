@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #include "ComponentPropertiesGUI.h"
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
-#include "Selection/SelectionManager.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/ProjectSettingsManager.h"
 #include "Configuration/PhysicsSettings.h"
@@ -80,7 +79,9 @@ namespace SliceEditor
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::SliderFloat(id, &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SetNextItemWidth(100.f);
+
+		bool changed = ImGui::SliderFloat(id, &val, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
