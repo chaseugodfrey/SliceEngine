@@ -470,7 +470,7 @@ namespace SliceEngine
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
 
-		.property("shapeScale", &ParticleSystem::rectScale)
+		.property("rectScale", &ParticleSystem::rectScale)
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
 		.property("shapeScale", &ParticleSystem::shapeScale)
