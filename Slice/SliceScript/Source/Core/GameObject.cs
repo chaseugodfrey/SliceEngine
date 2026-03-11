@@ -150,12 +150,12 @@ namespace SliceEngine
         {
             if (mID != 0)
             {
-                SliceLog.Log("Enemy dying with id: " + mID);
+                //SliceLog.Log("GameObject dying with id: " + mID);
                 FunctionCalls.Destroy(mID);
                 CoroutineManager.EntityDestroyed(mID);
                 return;
             }
-            SliceLog.Log("Killing an enemy with 0 id");
+            //SliceLog.Log("Killing an Gameobject with 0 id");
             
             //mID = 0;
         }

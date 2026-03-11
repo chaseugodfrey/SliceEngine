@@ -81,7 +81,6 @@
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyLevel2.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
@@ -141,6 +140,7 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
     <Compile Include="Source\Core\UI\GameSettings.cs" />
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
@@ -168,10 +168,12 @@
     <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
-    <Compile Include="Source\L2Controller.cs" />
     <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
+    <Compile Include="Source\Level2\EnemyHUD.cs" />
+    <Compile Include="Source\Level2\EnemyLevel2.cs" />
+    <Compile Include="Source\Level2\L2Controller.cs" />
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Old_Test_Player.cs" />
     <Compile Include="Source\Old_Test_Spawner.cs" />

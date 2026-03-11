@@ -1,0 +1,600 @@
+[
+    {
+        "A4_Environment": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048876,
+                "neighbours": [
+                    0,
+                    1048649,
+                    1048875,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Environment",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Beam_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14739684932445338633"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048649,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    4294967295,
+                    1048648
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Beam_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    807.0885620117188,
+                    93.3239974975586,
+                    -529.693359375
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "Beam_2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14739684932445338633"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048648,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048649,
+                    1048647
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Beam_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    897.4678344726563,
+                    93.3239974975586,
+                    -529.693359375
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Wires_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9411221139573997626"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048647,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048648,
+                    1048646
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Wires_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    829.84326171875,
+                    97.56900024414063,
+                    -508.5820007324219
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Wires_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9411221139573997626"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048646,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048647,
+                    1048645
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Wires_1_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    919.1458129882813,
+                    97.56900024414063,
+                    -508.5820007324219
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Pipes": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10482285589553102895"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048645,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048646,
+                    1048644
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Pipes",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    785.3732299804688,
+                    89.8077392578125,
+                    -528.4898681640625
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Pipes_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10482285589553102895"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048644,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048645,
+                    1048643
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Pipes_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    946.9505004882813,
+                    89.8077392578125,
+                    -528.4898681640625
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Pipes_2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10482285589553102895"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048643,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048644,
+                    1048867
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Pipes_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    861.1123657226563,
+                    89.8077392578125,
+                    -528.4898681640625
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "A4_Wires": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9411221139573997626"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048867,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048643,
+                    1048866
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A4_Wires",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    970.2139892578125,
+                    97.56900024414063,
+                    -508.5820007324219
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "Beam": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 9
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9336273396156370476"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14739684932445338633"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048866,
+                "neighbours": [
+                    1048876,
+                    4294967295,
+                    1048867,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Beam",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    988.9967041015625,
+                    93.3239974975586,
+                    -529.693359375
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999999523162842,
+                    0.7999999523162842
+                ]
+            }
+        }
+    }
+]

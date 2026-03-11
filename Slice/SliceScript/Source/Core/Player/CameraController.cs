@@ -22,9 +22,17 @@ namespace SliceEngine
         public float shakeMagnitude = 0.5f;
         public float shakeDuration = 0.2f;
         private Vector3 shakeOffset = Vector3.Zero;
-        public Vector3 cameraOffset = new Vector3(0f, 2f, -5f); // 2 units up, 5 units back
+
+        public GameObject cameraChild;
+        public float collisionCheckOffset = 1f;
+        private Vector3 defaultCameraOffset = new Vector3(0f, 0f, 0f);
+        private float defaultCameraOffsetDist = 0f;
+        public Vector3 cameraOffset = new Vector3(0f, 2f, -5f); // 2 units up, 5 units back 
         public float smoothFollowSpeed = 10f;
         //private Vector2 lastMousePos;
+
+        public float collisionRadius = 0.25f;
+
 
         public override void OnCreate()
         {
@@ -34,6 +42,9 @@ namespace SliceEngine
         public void Initialize()
         {
             //Console.WriteLine("CameraCont Ini called");
+
+            defaultCameraOffset = cameraChild.GetComponent<Transform>().Position;
+            defaultCameraOffsetDist = defaultCameraOffset.Magnitude();
         }
         public override void OnUpdate(float dt)
         {
@@ -72,6 +83,29 @@ namespace SliceEngine
                     transform.Position += shakeOffset;
                 }
             }
+
+            Vector3 dir = cameraChild.GetComponent<Transform>().WorldPosition - this.transform.WorldPosition;
+
+            
+
+            //SliceLog.Log("Cam dir is " + dir);
+            float safeDist = 0f;
+
+            if (Physics.SphereCast(transform.WorldPosition + new Vector3 (0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.GetMask("Environment"), QueryTriggerInteraction.Ignore))
+            {
+
+                // Place camera just before the surface using the sphere radius
+                safeDist = Utilities.Clamp<float>( Math.Max(hit.distance - collisionRadius, 0f), .2f, defaultCameraOffsetDist);
+                //SliceLog.Log("safe dist is " + safeDist);
+                cameraChild.GetComponent<Transform>().Position = defaultCameraOffset.Normalize() * safeDist;
+
+            }
+            else
+            {
+                cameraChild.GetComponent<Transform>().Position = defaultCameraOffset;
+                //SliceLog.Log("Camera aint hitting shit");
+            }
+
 
             //Vector2 mousePos = Input.GetMousePosition();
             //Console.WriteLine("Mouse Position: X=" + mousePos.x + " Y=" + mousePos.y);

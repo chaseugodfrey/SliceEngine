@@ -1062,22 +1062,22 @@ namespace SliceEngine
 				if (currPtLightIdx >= mMaxPointLights) continue;
 
 				float ptLightFar = lightData[currPtLightIdx + currDirLightIdx].uFarPlane;
-				if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
+				//if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
 					LoadSettings(GPS_ADDITION);
-				else
-					LoadSettings(GPS_SPE_ADDITION);
+				//else
+				//	LoadSettings(GPS_SPE_ADDITION);
 
-				glm::mat4 M{ 1.f };
-				M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
-				M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
-				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
+				//glm::mat4 M{ 1.f };
+				//M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
+				//M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
+				//uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
+				//glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
 				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
 				uniformLoc = glGetUniformLocation(mCurrShader.second, "numDirLights");
 				glUniform1i(uniformLoc, currDirLightIdx);
 
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::SPHERE_DEFAULT);
+				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 				auto& mesh = mdl.get()->meshes[0];
 				glBindVertexArray(mesh.vao);
 
@@ -1119,6 +1119,8 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.cloudsCutoff);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudOffset");
 		glUniform3f(uniformLoc, 0.f, camera.cloudsHeight, 0.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsColor");
+		glUniform4f(uniformLoc, camera.cloudsColor.r, camera.cloudsColor.g, camera.cloudsColor.b, camera.cloudsColor.a);
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
 		glUniform1i(uniformLoc, numLightsFound);
@@ -1150,6 +1152,8 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.cloudsSecondCloudIntensity);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsSmoothness");
 		glUniform1f(uniformLoc, camera.cloudsSecondCloudSmoothness);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsColor");
+		glUniform4f(uniformLoc, camera.cloudsSecondColor.r, camera.cloudsSecondColor.g, camera.cloudsSecondColor.b, camera.cloudsSecondColor.a);
 
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
@@ -1621,6 +1625,12 @@ namespace SliceEngine
 	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
 	{
 		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
+	}
+	void RenderManager::GatherNearbyLights(Entity cam)
+	{
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
+
+
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	//void RenderManager::LinkTransformInstancing(GUID guid)
