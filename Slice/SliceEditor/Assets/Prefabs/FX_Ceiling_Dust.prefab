@@ -1,6 +1,6 @@
 [
     {
-        "Ceiling_Dust": {
+        "FX_Ceiling_Dust": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -219,18 +219,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 22020388,
+                "entity_id": 37748798,
                 "neighbours": [
                     0,
                     4294967295,
-                    23069059,
-                    4294967295
+                    40894616,
+                    37748799
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Ceiling_Dust",
+                "mName": "FX_Ceiling_Dust",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {

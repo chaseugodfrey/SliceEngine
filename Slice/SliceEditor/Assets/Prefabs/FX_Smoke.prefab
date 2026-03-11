@@ -1,6 +1,6 @@
 [
     {
-        "Smoke": {
+        "FX_Smoke": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -282,18 +282,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 28311555,
+                "entity_id": 36700203,
                 "neighbours": [
                     0,
                     4294967295,
-                    28311736,
-                    4194490
+                    36700216,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Smoke",
+                "mName": "FX_Smoke",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {

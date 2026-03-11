@@ -1,6 +1,6 @@
 [
     {
-        "Bloodsplatter": {
+        "FX_Bloodsplatter": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -135,7 +135,8 @@
                     1.0
                 ],
                 "orbitOverLifetime": false,
-                "renderMode": "Billboard",
+                "particleLayer": 0,
+                "renderMode": 0,
                 "rotateOverLifetime": true,
                 "rotateSeparateAxis": false,
                 "rotateVelocity": [
@@ -260,18 +261,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048587,
+                "entity_id": 37748799,
                 "neighbours": [
                     0,
                     4294967295,
-                    1048580,
-                    1048588
+                    37748798,
+                    52429246
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Bloodsplatter",
+                "mName": "FX_Bloodsplatter",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
