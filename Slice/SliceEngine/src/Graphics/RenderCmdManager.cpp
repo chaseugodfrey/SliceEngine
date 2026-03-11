@@ -393,7 +393,7 @@ namespace SliceEngine
 		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
 		glm::vec3 camFront, camRight, camUp, camPos;
-		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
+		glm::mat3 camRot = glm::mat3_cast(camT.GetWorldRotation());
 		Core::GetInstance()->GetRenderManager()->GetCameraAxis(camRot, camFront, camRight, camUp);
 		camPos = camT.GetWorldPosition() - lastTranslucentOffset;
 

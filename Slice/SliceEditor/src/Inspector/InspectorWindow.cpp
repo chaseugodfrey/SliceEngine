@@ -357,7 +357,7 @@ namespace SliceEditor
 		{
 			auto& rect = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RectTransform>(entity);
 
-			DisplayComponentHeader<SliceEngine::RectTransform>(entity, false);
+			DisplayComponentHeader<SliceEngine::RectTransform>(entity, true);
 
 			static std::vector<std::string> hori_enums{ "Left", "Center", "Right", "Stretch" };
 			static std::vector<std::string> vert_enums{ "Top", "Middle", "Bottom", "Stretch" };
@@ -391,7 +391,7 @@ namespace SliceEditor
 		{
 			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
 			//glm::vec3 rgb;
@@ -418,7 +418,7 @@ namespace SliceEditor
 		{
 			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
 
@@ -457,7 +457,7 @@ namespace SliceEditor
 		{
 			auto& canvas = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Canvas>(entity);
 
-			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
+			DisplayComponentHeader<SliceEngine::Canvas>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
@@ -477,7 +477,7 @@ namespace SliceEditor
 		{
 			auto& button = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Button>(entity);
 
-			DisplayComponentHeader<SliceEngine::Button>(entity, false);
+			DisplayComponentHeader<SliceEngine::Button>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
