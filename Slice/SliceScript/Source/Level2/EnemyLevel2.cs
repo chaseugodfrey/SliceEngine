@@ -97,6 +97,8 @@ namespace SliceEngine
         {
             EnemyLevel2 enemyController;
             public int moves = 0;
+            // ray cast doesnt work that well if the user runs out of the ring so ill do distance from starting point instead
+            public float distanceFromStarting = 50.0f;
 
             public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
             {
@@ -145,6 +147,14 @@ namespace SliceEngine
                         // 40% chance to slam attack
                         if (roll < 0.9f) // 75% chance for now cause testing
                         {
+                            if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
+                            {
+                                // if its too far from the center
+                                // then transition to shooting instead
+                                enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                                return;
+                            }
+
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                         }
                         else if (roll < 0.8f && roll > 0.4f)
@@ -185,6 +195,7 @@ namespace SliceEngine
             public bool attacking = false;
             public bool reset = false;
             public Vector3 originalPosition;
+
             float timer = 0.0f;
 
             public SlamState(GameObject owner, EnemyLevel2 controller) : base(owner)
@@ -217,22 +228,23 @@ namespace SliceEngine
                     // save the original position before slamming
                     //originalPosition = owner.GetComponent<Transform>().Position;
 
-                    // check if can slam 
-                    RayCastHit hitInfo;
-                    // Check if can plunge by raycasting down to see distance to environment layer objects
-                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                    //// check if can slam 
+                    //RayCastHit hitInfo;
+                    //// Check if can plunge by raycasting down to see distance to environment layer objects
+                    //bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
 
-                    if (hit)
-                    {
-                        GameObject objHit = owner.FindGameObjectWithID(hitInfo.transform.gameObject.mID);
-                        if (objHit == null)
-                        {
-                            // no floor detected
-                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
-                            return;
-                        }
+                    //if (hit)
+                    //{
+                    //    GameObject objHit = owner.FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                    //    if (objHit == null)
+                    //    {
+                    //        // no floor detected
+                    //        enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                    //        return;
+                    //    }
 
-                    }
+                    //}
+
 
                     Console.WriteLine("Slamming");
                     owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
