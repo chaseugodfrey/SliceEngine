@@ -623,6 +623,11 @@ namespace SliceEditor
 								LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
+
+					if (ImGui::Button("Cancel"))
+					{
+						ImGui::CloseCurrentPopup();
+					}
 					ImGui::EndPopup();
 				}
 				ImGui::BeginDisabled();
@@ -697,6 +702,11 @@ namespace SliceEditor
 
 							LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
+					}
+
+					if (ImGui::Button("Cancel"))
+					{
+						ImGui::CloseCurrentPopup();
 					}
 
 					ImGui::EndPopup();
@@ -1181,6 +1191,11 @@ namespace SliceEditor
 				ImGui::CloseCurrentPopup();
 			}
 
+			if (ImGui::Button("Cancel"))
+			{
+				ImGui::CloseCurrentPopup();
+			}
+
 			ImGui::EndPopup();
 		}
 	}
@@ -1201,6 +1216,11 @@ namespace SliceEditor
 				//ImGui::NeoClearSelection();
 				mOpenEventPopup = false;
 				LoadDataFromSequenceClip(animClip, animClipIndex);
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Cancel"))
+			{
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -1322,6 +1342,11 @@ namespace SliceEditor
 				mOpenTrfEditKeyAttrib = false;
 				mOpenSRTVarEdit = -1;
 				attrib = nullptr;
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (ImGui::Button("Cancel"))
+			{
 				ImGui::CloseCurrentPopup();
 			}
 

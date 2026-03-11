@@ -17,7 +17,6 @@ DigiPen Institute of Technology is prohibited.
 #include "ComponentPropertiesGUI.h"
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
-#include "Selection/SelectionManager.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/ProjectSettingsManager.h"
 #include "Configuration/PhysicsSettings.h"

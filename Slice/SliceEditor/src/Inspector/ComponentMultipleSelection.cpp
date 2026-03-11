@@ -41,7 +41,7 @@ namespace SliceEditor
 		return false;
 	}
 
-	bool ComboMultipleSelection(SelectionManager* selectionManager,uint32_t currentSelection, bool isMultiSelection)
+	bool ComboMultipleSelection(SelectionManager* selectionManager,uint32_t currentSelection, bool isMultiSelection,std::function<uint32_t(Entity)> func)
 	{
 		if (isMultiSelection)
 		{
@@ -52,9 +52,9 @@ namespace SliceEditor
 				{
 					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
 
-					uint32_t currentLayer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(currentEntity).mLayer;
+					uint32_t currentuInt32_t = func(currentEntity);
 
-					if (currentLayer != currentSelection)
+					if (currentuInt32_t != currentSelection)
 					{
 						return true;
 					}
@@ -63,6 +63,35 @@ namespace SliceEditor
 		}
 		return false;
 	}
+
+	bool GUIDMultipleSelection(SelectionManager* selectionManager, SliceEngine::GUID currentSelection, bool isMultiSelection, std::function<SliceEngine::GUID(Entity)> func)
+	{
+		if (!func)
+		{
+			return false;
+		}
+
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+
+					SliceEngine::GUID currentGUID = func(currentEntity);
+
+					if (currentGUID != currentSelection)
+					{
+						return true;
+					}
+				}
+			}
+		}
+
+		return false;
+	}
+
 	std::array<bool,3> Vector3MultipleSelection(SelectionManager* selectionManager, glm::vec3 currentSelection, bool isMultiSelection, std::function<glm::vec3(Entity)> func)
 	{
 		std::array<bool,3> isSelectionDifferent = std::array<bool, 3>{ false,false,false };

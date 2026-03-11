@@ -176,10 +176,15 @@ namespace SliceEditor
 		// currently tags are unused
 		/*int tag = 0;
 		std::vector<std::string> tags {"unused"};*/
+		std::function<uint32_t(Entity)> funcLayer =
+			[&](Entity e)
+			{
+				return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(e).mLayer;
+			};
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
-			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection)))
+			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection, funcLayer)))
 			{
 				//Multi-Selection Setting for Layers
 				if (isMultipleSelection)
@@ -618,10 +623,56 @@ namespace SliceEditor
 					}
 				}
 			}
-
 			
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model");
-			HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr);
+			std::function<SliceEngine::GUID(Entity)> modelFunc =
+				[&](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+				};
+			
+			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(currentEntity))
+							{
+								auto& currentRenderer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(currentEntity);
+								currentRenderer.modelHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Model>(rend.modelHandle.getGUID());
+							}
+						}
+					}
+				}
+			}
+
+			std::function<SliceEngine::GUID(Entity)> materialFunc =
+				[&](Entity e)
+				{
+					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+				};
+
+			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
+			{
+				if (isMultipleSelection)
+				{
+					for (auto selectedNode : selectionManager->GetSelectedNodes())
+					{
+						if (selectedNode->type == SelectionType::ENTITY)
+						{
+							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+							if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(currentEntity))
+							{
+								auto& currentRenderer = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(currentEntity);
+								currentRenderer.materialHandle = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Material>(rend.materialHandle.getGUID());
+							}
+						}
+					}
+				}
+			}
 			auto const mdl = rend.modelHandle.get();
 			if (mdl) {
 				uint32_t temp = rend.meshOffset; //cant be bothered with a uint8
@@ -727,6 +778,7 @@ namespace SliceEditor
 			if (isGroundCloud)
 			{
 				DragFloatInputHeader(mRegistry, "Clouds Y Pos", "##cam_ground_clouds_height", cam.cloudsHeight, "%.1f", -FLT_MAX, FLT_MAX);
+				DragColor4InputHeader(mRegistry, "Clouds Color", "##cam_ground_clouds_color", cam.cloudsColor);
 				DragFloatInputHeader(mRegistry, "Clouds Amplitude", "##cam_ground_clouds_amplitude", cam.cloudsAmplitude, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Clouds Intensity", "##cam_ground_clouds_intensity", cam.cloudsIntensity, "%.1f", 0.0f, FLT_MAX);
 				float tempCutoff = cam.cloudsCutoff * 100.f;
@@ -736,6 +788,7 @@ namespace SliceEditor
 				if (DragFloatInputHeader(mRegistry, "Clouds Smoothness", "##cam_ground_clouds_smoothness", tempSmoothness, "%.1f", 0.0f, FLT_MAX))
 					cam.cloudsSmoothness = tempSmoothness / 10000.f;
 				DragVec3InputHeader(mRegistry, "Clouds Second", "##cam_secondCloudOffset", cam.cloudsSecondCloudOffset);
+				DragColor4InputHeader(mRegistry, "Clouds Color", "##cam_ground_second_clouds_color", cam.cloudsSecondColor);
 				DragFloatInputHeader(mRegistry, "Second Clouds Amplitude", "##cam_ground_second_clouds_amplitude", cam.cloudsSecondCloudAmplitude, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Second Clouds Intensity", "##cam_ground_second_clouds_intensity", cam.cloudsSecondCloudIntensity, "%.1f", 0.0f, FLT_MAX);
 				tempSmoothness = cam.cloudsSecondCloudSmoothness * 10000.f;
