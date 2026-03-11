@@ -17,7 +17,7 @@ uniform int lightIdx;
 
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 
 const int isDirectional = 0;
