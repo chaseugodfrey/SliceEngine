@@ -29,14 +29,18 @@ namespace SliceEngine
         {
             if (lightPos == null) return;
 
+            
             timeAccumulator += dt * speed;
 
+            
             float distance = maxValue - minValue;
 
-            float bounce = Utilities.PingPong(timeAccumulator, distance);
+            
+            float pingPongValue = Utilities.PingPong(timeAccumulator, distance);
 
+            
             Vector3 pos = lightPos.Position;
-            pos.y = minValue + bounce;
+            pos.x = minValue + pingPongValue;
             lightPos.Position = pos;
         }
     }
