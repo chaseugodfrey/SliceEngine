@@ -873,7 +873,8 @@ namespace SliceEngine
 
 		struct Token {
 			//std::string text{};
-			const char* pos{};
+			//const char* pos{};
+			unsigned int pos{};
 			float size{};
 			unsigned int char_cnt{};
 		};
