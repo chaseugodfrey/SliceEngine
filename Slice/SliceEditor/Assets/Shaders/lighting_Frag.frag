@@ -2,7 +2,6 @@
 //lighting_Frag
 struct Light{
 	vec3 position;
-	//float hasShadow;
 	float uFarPlane;
 	vec3 direction;
 	int type;
@@ -38,10 +37,9 @@ uniform int cascadeCnt;
 layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D 	uNomTex;
-layout (binding = 3) uniform sampler2D 	uRoughMetalTex;
+layout (binding = 3) uniform sampler2D 	uRoughMetalLightTex;
 layout (binding = 4) uniform sampler2DArray uShadowTex;			// Only for shadow mapping (spot / directional light)
 layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap; // Only for shadow mapping (point light)
-// if doing instance rendering, save bindings 12~15 // could lower to 13~15
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
@@ -56,11 +54,12 @@ void main(void){
 	vec3 wPos = texelFetch(uPosTex, p, 0).xyz;// In World Space
 	vec3 nom = texelFetch(uNomTex, p, 0).xyz;
 	vec4 dif = texelFetch(uTex, p, 0);
-	vec4 roughMetal = texelFetch(uRoughMetalTex, p, 0);
+	vec2 roughMetal = texelFetch(uRoughMetalLightTex, p, 0).xy;
+	float toUseLight =  texelFetch(uRoughMetalLightTex, p, 0).z;
 
 	fFragColor = vec4(0.0);
 
-	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON)
+	if(any(notEqual(nom, vec3(0.0f))) && abs(dif.a) > EPSILON && toUseLight < 0.5f)
 	{
 		nom = normalize(nom);
 		vec3 v = normalize(-wPos);
