@@ -301,35 +301,51 @@ namespace SliceEditor
 
 #pragma region Normal Script Functions
 
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val)
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static std::string oldVal{};
+		std::string valCopy = val;
 
-		bool changed = ImGui::InputText(id, &val);
+		if (selectionDifferent)
+		{
+			valCopy = "---";
+		}
+
+		bool changed = ImGui::InputText(id, &valCopy);
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (oldVal != val)
+			if (oldVal != valCopy)
 			{
 				std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+				val = valCopy;
 			}
 		}
 
 		return changed;
 	}
 
-	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max, bool selectionDifferent)
 	{
 
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static float oldVal{};
+
+		if (selectionDifferent)
+		{
+
+			format = "---";
+
+		}
 
 		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
@@ -348,13 +364,19 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val)
+	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static bool oldVal{};
 
 		bool changed = ImGui::Checkbox(id, &val);
+
+		if (selectionDifferent)
+		{
+			ImGui::SameLine();
+			ImGui::Text("***");
+		}
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -371,11 +393,16 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max)
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static int oldVal{};
+
+		if (selectionDifferent)
+		{
+			format = "---";
+		}
 
 		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format);
 
@@ -450,12 +477,13 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val, bool selectionDifferent)
 	{
 		static SliceEngine::GameObject oldVal{};
 
 		bool changed = false;
 		std::string propertyLabelID = property_label;
+		std::string goName;
 
 		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
@@ -474,15 +502,20 @@ namespace SliceEditor
 		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
 		{
-			std::string empty = " ";
-			ImGui::InputText(id, &empty,ImGuiInputTextFlags_ReadOnly);
+			goName = " ";
 		}
 		else
 		{
 			//wtf is this bs
-			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
-			ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
+			goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
 		}
+
+		if (selectionDifferent)
+		{
+			goName = "---";
+		}
+
+		ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
 		//ImGui::EndDisabled();
 
 		if (ImGui::BeginDragDropTarget())
@@ -1512,7 +1545,12 @@ namespace SliceEditor
 		}
 
 		bool resultX = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, formatX.c_str(), min, max, 0.1f, selectionDifferent[0]);
-		changed = resultX || changed;
+		bool triggerX = resultX;
+		if (selectionDifferent[0] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerX = true;
+		}
+		changed = triggerX || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
@@ -1523,7 +1561,12 @@ namespace SliceEditor
 		}
 
 		bool resultY = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, formatY.c_str(), min, max, 0.1f, selectionDifferent[1]);
-		changed = resultY || changed;
+		bool triggerY = resultY;
+		if (selectionDifferent[1] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerY = true;
+		}
+		changed = triggerY || changed;
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
 		std::string formatZ = "Z: %.3f";
@@ -1533,14 +1576,20 @@ namespace SliceEditor
 		}
 
 		bool resultZ = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, formatZ.c_str(), min, max, 0.1f, selectionDifferent[2]);
-		changed = resultZ || changed;
+		bool triggerZ = resultZ;
+		if (selectionDifferent[2] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerZ = true;
+		}
+		changed = triggerZ || changed;
+
 
 		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
 		if (changedAxis)
 		{
-			(*changedAxis)[0] = resultX;
-			(*changedAxis)[1] = resultY;
-			(*changedAxis)[2] = resultZ;
+			(*changedAxis)[0] = triggerX;
+			(*changedAxis)[1] = triggerY;
+			(*changedAxis)[2] = triggerZ;
 		}
 
 		return changed;
