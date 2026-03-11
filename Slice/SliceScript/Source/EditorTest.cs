@@ -10,17 +10,22 @@ namespace SliceEngine
     {
         //public bool boolTest = false;
         public GameObject GOtest;
-        //private float t = 0.0f;
+        public float floatTest = 0.0f;
+        public string stringTest;
+        public int intTest = 0;
+        public bool boolTest = true;
         //public Prefab prefabObj = new Prefab();
 
         //public List<int> intList = new List<int>();
-        public List<GameObject> goListTest = new List<GameObject>();
+        //public List<GameObject> goListTest = new List<GameObject>();
         //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
             if(Input.IsKeyPressed(Keys.KEY_O))
             {
-                Input.SetCursorState(Cursor.STATE.DEFAULT); 
+                //Input.SetCursorState(Cursor.STATE.DEFAULT);
+
+                SliceLog.Console(floatTest + "from " + GOtest.mID);
             }
         }
 
@@ -40,14 +45,14 @@ namespace SliceEngine
             SliceLog.Console("On Disable");
         }
 
-        public override void OnCollideEnter(uint other)
-        {
-            SliceLog.Console("Collide enter with", other);
-        }
+        //public override void OnCollideEnter(uint other)
+        //{
+        //    SliceLog.Console("Collide enter with", other);
+        //}
 
-        public override void OnCollideStay(uint other)
-        {
-            SliceLog.Console("Collide stay with", other);
-        }
+        //public override void OnCollideStay(uint other)
+        //{
+        //    SliceLog.Console("Collide stay with", other);
+        //}
     }
 }

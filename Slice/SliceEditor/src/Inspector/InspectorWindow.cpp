@@ -627,7 +627,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> modelFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					if(SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 			
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
@@ -652,7 +659,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> materialFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
@@ -1005,6 +1019,9 @@ namespace SliceEditor
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+
 
 		if (ImGui::TreeNodeEx("Script", mBaseFlags))
 		{
@@ -1295,9 +1312,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f", 0.0f,0.0f, ScriptFloatMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if(isMultipleSelection)
+									{
+										ScriptFloatMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}

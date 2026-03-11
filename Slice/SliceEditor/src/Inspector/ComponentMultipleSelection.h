@@ -24,6 +24,8 @@ namespace SliceEditor
 
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
+	bool ScriptFloatMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection, bool isMultiSelection);
+
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection, std::function<uint32_t(Entity)> func);
 
 	bool GUIDMultipleSelection(SelectionManager* selectionManager, SliceEngine::GUID currentSelection, bool isMultiSelection, std::function<SliceEngine::GUID(Entity)> func);
@@ -32,6 +34,11 @@ namespace SliceEditor
 
 	//std::array<bool, 3> RotationMultipleSelection(SelectionManager* selectionManager, glm::quat currentRot, glm::vec3 currentHint, bool isMultiSelection, std::function<glm::vec3(Entity)> func);
 
+#pragma region Multi-Setting Functions
+
+	void ScriptFloatMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection);
+
+#pragma endregion
 
 }
 

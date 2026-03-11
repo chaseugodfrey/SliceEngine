@@ -67,7 +67,7 @@ namespace SliceEditor
 
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
-	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f, bool selectionDifferent = false);
 	
 	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val);
 
@@ -286,7 +286,7 @@ namespace SliceEditor
 			{
 				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-				changed = (handle.getGUID() != newGUID);
+				changed = (handle.getGUID() != newGUID) || multiSelection;
 				if (changed)
 				{
 					if (!setFunc)
