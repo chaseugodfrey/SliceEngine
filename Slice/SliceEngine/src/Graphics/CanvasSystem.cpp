@@ -226,18 +226,14 @@ namespace SliceEngine {
 
 		glDrawBuffers(2, render_targets);
 		CheckGLError();
-		for (auto entity : overlay_canvas) {
-			render_ui_overlay(entity, main_cam, entities_to_draw);
-		}
+
+		render_ui_overlay(main_cam, entities_to_draw);
 		CheckGLError();
 
 		glClearTexImage(raycast_tex, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &null_eid);
 		CheckGLError();
-		//glDrawBuffers(1, render_eid);
-		CheckGLError();
-		for (auto entity : overlay_canvas) {
-			render_ui_eids(entity, main_cam, entities_to_draw);
-		}
+
+		render_ui_eids(main_cam, entities_to_draw);
 		CheckGLError();
 
 		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
@@ -245,7 +241,7 @@ namespace SliceEngine {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
+	void CanvasSystem::render_ui_overlay(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
 		}
@@ -256,9 +252,9 @@ namespace SliceEngine {
 		auto const& rm = core->GetResourceManager();
 
 		auto& cam = core->GetRegistry().get<SliceEngine::Camera>(camera);
-		auto& canv_rect = core->GetRegistry().get<SliceEngine::RectTransform>(canvas);
-		float cam_canv_width = (float)cam.width / canv_rect.final_width;
-		float cam_canv_height = (float)cam.height / canv_rect.final_height;
+
+		float cam_canv_width = (float)cam.width / target_width;
+		float cam_canv_height = (float)cam.height / target_height;
 
 		//map canvas width/height to camera width/height
 		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>()
@@ -270,10 +266,6 @@ namespace SliceEngine {
 		CheckGLError();
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-		/*uniform_loc = glGetUniformLocation(shader, "raycast");
-		glUniform1ui(uniform_loc, canv.graphic_raycastable);
-		glBindTextureUnit(1, raycast_tex);
-		CheckGLError();*/
 
 		//Get quad
 		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
@@ -287,8 +279,6 @@ namespace SliceEngine {
 				glUseProgram(shader);
 				uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-				/*uniform_loc = glGetUniformLocation(shader, "raycast");
-				glUniform1ui(uniform_loc, canv.graphic_raycastable);*/
 				CheckGLError();
 			}
 
@@ -457,7 +447,7 @@ namespace SliceEngine {
 		CheckGLError();
 	}
 
-	void CanvasSystem::render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
+	void CanvasSystem::render_ui_eids(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
 		}
@@ -466,11 +456,15 @@ namespace SliceEngine {
 		auto const& rm = core->GetResourceManager();
 
 		auto& cam = core->GetRegistry().get<SliceEngine::Camera>(camera);
-		auto const& canv = core->GetRegistry().get<Canvas>(canvas);
 
-		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / cam.width, 2.f / cam.height, 1.f });
+		float cam_canv_width = (float)cam.width / target_width;
+		float cam_canv_height = (float)cam.height / target_height;
 
-		uint64_t shader_guid = 0; elements[0].second;
+		//map canvas width/height to camera width/height
+		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>()
+			, glm::vec3{ 2.f * cam_canv_width / cam.width, 2.f * cam_canv_height / cam.height, 1.f });
+
+		uint64_t shader_guid = 0; 
 		GLuint shader = 0;
 		CheckGLError();
 		int uniform_loc = 0;
@@ -493,8 +487,6 @@ namespace SliceEngine {
 				glUseProgram(shader);
 				uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-				uniform_loc = glGetUniformLocation(shader, "raycast");
-				glUniform1ui(uniform_loc, canv.graphic_raycastable);
 				CheckGLError();
 			}
 

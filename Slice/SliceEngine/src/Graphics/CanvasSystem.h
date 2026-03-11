@@ -78,8 +78,8 @@ namespace SliceEngine
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
-		void render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
-		void render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_overlay(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_eids(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 
 
 		//k i realised how render manager uses fbo now
