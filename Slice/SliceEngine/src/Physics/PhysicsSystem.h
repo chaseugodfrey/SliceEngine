@@ -26,6 +26,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/CollisionCollector.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Core/JobSystemSingleThreaded.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -52,7 +53,8 @@ namespace SliceEngine
 	private:
 
 		std::unique_ptr<JPH::PhysicsSystem> physicsSystem;
-		std::unique_ptr<JPH::JobSystemThreadPool> jobSystem;
+		//std::unique_ptr<JPH::JobSystemThreadPool> jobSystem;
+		std::unique_ptr<JPH::JobSystemSingleThreaded> jobSystem;
 		std::unique_ptr<BPLayerInterfaceImpl> broadphaseLayerInterface;
 		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
@@ -116,7 +118,7 @@ namespace SliceEngine
 		~PhysicsSystem();
 
 		// may be redundant might remove return bool and change to void
-		bool Initialize(size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024, JPH::uint threadCount = 0);
+		bool Initialize(size_t tempAllocatorSize = TEN_MB, JPH::uint maxBodies = 65536, JPH::uint numBodyMutex = 0, JPH::uint maxContactConstraint = 1024);
 
 		bool IsInitialized() const;
 
