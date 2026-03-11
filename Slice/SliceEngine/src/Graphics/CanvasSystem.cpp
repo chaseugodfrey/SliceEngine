@@ -135,7 +135,7 @@ namespace SliceEngine {
 		world_space_z = 0.f;
 		for (auto entity : view) {
 			//auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */entity, entity, entity);
+			get_child_ui(/*entities_to_draw, */entity, entity, entity, empty);
 		}
 	}
 
@@ -563,7 +563,7 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect) {
 		/*
 		*	assumptions
 		*	all children have rect transform
@@ -573,7 +573,8 @@ namespace SliceEngine {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
-		auto const& p_rect = mRegistry->get<RectTransform>(parent);
+		//auto const& p_rect = mRegistry->get<RectTransform>(parent);
+		//if(parent != node)
 		rect.Update(p_rect);	//get position of rect relative to parent
 
 		if (glm::epsilonEqual(rect.final_width, 0.f, FLT_EPSILON) ||
@@ -622,7 +623,7 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */canvas_entity, node, child);
+				get_child_ui(/*entities_to_draw, */canvas_entity, node, child, rect);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
