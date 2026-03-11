@@ -45,7 +45,7 @@ namespace SliceEngine {
 
 			for (size_t pos = 0; pos < font_text.size(); ++pos) {
 				FontRenderer::Token token{};
-				token.pos = &font_text[pos];
+				token.pos = pos;
 
 				const char* pattern = " \n\t";
 				switch (font_text[pos]) {
@@ -226,18 +226,14 @@ namespace SliceEngine {
 
 		glDrawBuffers(2, render_targets);
 		CheckGLError();
-		for (auto entity : overlay_canvas) {
-			render_ui_overlay(entity, main_cam, entities_to_draw);
-		}
+
+		render_ui_overlay(main_cam, entities_to_draw);
 		CheckGLError();
 
 		glClearTexImage(raycast_tex, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, &null_eid);
 		CheckGLError();
-		//glDrawBuffers(1, render_eid);
-		CheckGLError();
-		for (auto entity : overlay_canvas) {
-			render_ui_eids(entity, main_cam, entities_to_draw);
-		}
+
+		render_ui_eids(main_cam, entities_to_draw);
 		CheckGLError();
 
 		glDisable(GL_BLEND);	//idk ngl why this needs to be here, means i need to predict the settings(?)
@@ -245,7 +241,7 @@ namespace SliceEngine {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	void CanvasSystem::render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
+	void CanvasSystem::render_ui_overlay(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
 		}
@@ -256,9 +252,9 @@ namespace SliceEngine {
 		auto const& rm = core->GetResourceManager();
 
 		auto& cam = core->GetRegistry().get<SliceEngine::Camera>(camera);
-		auto& canv_rect = core->GetRegistry().get<SliceEngine::RectTransform>(canvas);
-		float cam_canv_width = (float)cam.width / canv_rect.final_width;
-		float cam_canv_height = (float)cam.height / canv_rect.final_height;
+
+		float cam_canv_width = (float)cam.width / target_width;
+		float cam_canv_height = (float)cam.height / target_height;
 
 		//map canvas width/height to camera width/height
 		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>()
@@ -270,10 +266,6 @@ namespace SliceEngine {
 		CheckGLError();
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-		/*uniform_loc = glGetUniformLocation(shader, "raycast");
-		glUniform1ui(uniform_loc, canv.graphic_raycastable);
-		glBindTextureUnit(1, raycast_tex);
-		CheckGLError();*/
 
 		//Get quad
 		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
@@ -287,8 +279,6 @@ namespace SliceEngine {
 				glUseProgram(shader);
 				uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-				/*uniform_loc = glGetUniformLocation(shader, "raycast");
-				glUniform1ui(uniform_loc, canv.graphic_raycastable);*/
 				CheckGLError();
 			}
 
@@ -320,7 +310,7 @@ namespace SliceEngine {
 
 				//Use rect to format the font characters
 				unsigned int instance_count = 0;
-				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
+				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle).get();
 
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
@@ -330,7 +320,7 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "relative_scale");
 				glUniform1f(uniform_loc, relative_scale);
 
-				glBindTextureUnit(0, font.get()->atlas_texture);
+				glBindTextureUnit(0, font->atlas_texture);
 
 				CheckGLError();
 
@@ -345,9 +335,11 @@ namespace SliceEngine {
 				float current_width = 0.f;
 				Line temp_line{};
 
+				const std::string& text = font_render.text;
+
 				for (auto const& token : font_render.token_list) {
 					assert(token.char_cnt > 0);
-					if (*token.pos == '\n') {	//if token is a line break
+					if (text[token.pos] == '\n') {	//if token is a line break
 						temp_line.token_count++;
 						temp_line.line_width = current_width;
 						lines.push_back(temp_line);
@@ -400,7 +392,7 @@ namespace SliceEngine {
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
 						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
 						for (unsigned int ch_it = 0; ch_it < curr_token.char_cnt; ++ch_it) {
-							char ch = *(curr_token.pos + ch_it);
+							char ch = text[curr_token.pos + ch_it];
 							if (ch == '\n') {
 								continue;
 							}
@@ -426,7 +418,7 @@ namespace SliceEngine {
 							Font_Instance instance_data;
 
 							instance_data.model_to_ndc = temp_rect.ToMatrix();
-							SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
+							SliceEngineTypes::Atlas_UV uv = font->atlas_uvs.at(ch);
 							instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
 							//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
 							font_Instances[instance_count] = instance_data;
@@ -457,7 +449,7 @@ namespace SliceEngine {
 		CheckGLError();
 	}
 
-	void CanvasSystem::render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
+	void CanvasSystem::render_ui_eids(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements) {
 		if (elements.empty()) {
 			return;
 		}
@@ -466,11 +458,15 @@ namespace SliceEngine {
 		auto const& rm = core->GetResourceManager();
 
 		auto& cam = core->GetRegistry().get<SliceEngine::Camera>(camera);
-		auto const& canv = core->GetRegistry().get<Canvas>(canvas);
 
-		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>(), glm::vec3{ 2.f / cam.width, 2.f / cam.height, 1.f });
+		float cam_canv_width = (float)cam.width / target_width;
+		float cam_canv_height = (float)cam.height / target_height;
 
-		uint64_t shader_guid = 0; elements[0].second;
+		//map canvas width/height to camera width/height
+		glm::mat4 canvas_to_ndc = glm::scale(glm::identity<glm::mat4>()
+			, glm::vec3{ 2.f * cam_canv_width / cam.width, 2.f * cam_canv_height / cam.height, 1.f });
+
+		uint64_t shader_guid = 0; 
 		GLuint shader = 0;
 		CheckGLError();
 		int uniform_loc = 0;
@@ -493,8 +489,6 @@ namespace SliceEngine {
 				glUseProgram(shader);
 				uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
-				uniform_loc = glGetUniformLocation(shader, "raycast");
-				glUniform1ui(uniform_loc, canv.graphic_raycastable);
 				CheckGLError();
 			}
 
