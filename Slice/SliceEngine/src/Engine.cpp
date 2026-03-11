@@ -436,7 +436,7 @@ namespace SliceEngine
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
 			);
 
-	rttr::registration::enumeration<ParticleSystem::RenderMode>(typeid(ParticleSystem::RenderMode).name())
+	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
 		(
 			rttr::value("BILLBOARD", ParticleSystem::RenderMode::BILLBOARD),
 			rttr::value("MESH", ParticleSystem::RenderMode::MESH)
@@ -470,10 +470,10 @@ namespace SliceEngine
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
 
-		.property("shapeRadius", &ParticleSystem::rectScale)
+		.property("shapeScale", &ParticleSystem::rectScale)
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
-		.property("shapeRadius", &ParticleSystem::shapeScale)
+		.property("shapeScale", &ParticleSystem::shapeScale)
 
 		.property("axis", &ParticleSystem::axis)
 
