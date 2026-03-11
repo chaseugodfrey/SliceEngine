@@ -1,0 +1,50 @@
+{
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node21"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "0"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "0"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "0"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "0"
+            ]
+        },
+        "Multiply": {
+            "Node21": [
+                "Node29",
+                "color"
+            ]
+        },
+        "sampleTexture": {
+            "Node29": [
+                "texCol",
+                "vUV"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {},
+        "Ints": {},
+        "Textures": {
+            "texCol": 17753361635269803423
+        },
+        "Uints": {}
+    }
+}

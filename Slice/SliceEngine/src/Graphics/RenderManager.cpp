@@ -170,8 +170,8 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_DIF], 1, GL_RGBA16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DIF], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// float_16 rg-Roughness + a-Metalic
-		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RG16F, maxWidth, maxHeight);
+		// float_16 rgb-Roughness + Metalic + isIgnoreLighting
+		glTextureStorage2D(mColAttachment[GOUT_ROUGH_METAL], 1, GL_RGB16F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_ROUGH_METAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_16 rgb-Emission
@@ -944,6 +944,7 @@ namespace SliceEngine
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
 		glBindTextureUnit(2, SkyboxIrradianceMap);
 		glBindTextureUnit(3, mColAttachment[GOUT_EMISSION]);
+		glBindTextureUnit(4, mColAttachment[GOUT_ROUGH_METAL]);
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "skyboxLightingPower");
 		glUniform1f(uniformLoc, skyboxData.lightingPower / 100.f);

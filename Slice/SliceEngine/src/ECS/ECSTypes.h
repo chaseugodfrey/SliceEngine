@@ -825,6 +825,9 @@ namespace SliceEngine
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
 
+		//scales used for world space transformation only
+		float scale_x{}, scale_y{};
+
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(RectTransform const& parent);
 
@@ -866,11 +869,12 @@ namespace SliceEngine
 		float font_size;
 		float line_spacing;	//multiplier of font_size
 		
-		std::string text{"Hello World\nNew Line"};
+		std::string text{"Hello World"};
 
 		struct Token {
 			//std::string text{};
-			const char* pos{};
+			//const char* pos{};
+			unsigned int pos{};
 			float size{};
 			unsigned int char_cnt{};
 		};
