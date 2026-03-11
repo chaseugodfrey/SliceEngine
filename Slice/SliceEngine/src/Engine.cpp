@@ -954,6 +954,14 @@ namespace SliceEngine
 			sScene->WriteTempFile();
 		}
 
+		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			sAudio->SetCategoryPause(0, false);
+			sAudio->SetCategoryPause(1, false);
+		}
+
+		sScene->mCurrentState = SceneState::PLAY_SCENE;
+
 		if (!isPlaying)
 		{
 			SliceEngine::gScriptSystem->OnStart();
@@ -962,14 +970,6 @@ namespace SliceEngine
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
-
-		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
-		{
-			sAudio->SetCategoryPause(0, false);
-			sAudio->SetCategoryPause(1, false);
-		}
-
-		sScene->mCurrentState = SceneState::PLAY_SCENE;
 	}
 
 	void Engine::OnStopStart()
