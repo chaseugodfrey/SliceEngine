@@ -1,4 +1,5 @@
-﻿using SliceEngine;
+﻿using System;
+using SliceEngine;
 using SliceScript.Source.Core.Systems;
 
 namespace SliceEngine
@@ -10,7 +11,10 @@ namespace SliceEngine
 
         private MainMenuController mainController;
         private GameSettings gameSettingsController;
+        private UIAnimation uiAnimController;
         private AudioSource btnAudio;
+        public GameObject uiAnimObj;
+        
 
         public override void OnCreate()
         {
@@ -33,10 +37,37 @@ namespace SliceEngine
             {
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
+
+            //GameObject startRect = FindGameObjectWithName("OverlayGameRect");
+            //if (startRect != null)
+            //{
+            //    testTrans = startRect.GetComponent<RectTransform>();
+
+            //}
+
+            if (uiAnimObj != null)
+            {
+                uiAnimController = uiAnimObj.As<UIAnimation>();
+
+            }
+            
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            
+            
         }
 
         public override void OnButtonClick()
         {
+            if(uiAnimController!=null)
+            {
+                
+                uiAnimController.ButtonClickAnim();
+
+            }
+
             if (mainController != null)
             {
                 if (buttonType == 0) mainController.StartGame(sceneToLoad);
@@ -44,6 +75,7 @@ namespace SliceEngine
                 else if (buttonType == 2) mainController.QuitGame();
                 else if (buttonType == 3) mainController.CloseSettings();
                 else if (buttonType == 4) mainController.BackToMenu();
+                else if (buttonType == 5) SliceLog.Log("Test") ;
             }
 
             // --- GAME SCENE ACTIONS ---
@@ -69,13 +101,31 @@ namespace SliceEngine
             }
         }
 
-        public override void OnButtonRelease()
+        public override void OnButtonHover()
         {
-
-            if (btnAudio != null)
+            if(uiAnimController != null)
             {
-                btnAudio.Play();
+            
+                uiAnimController.ButtonHoverState(true);
+
             }
         }
+
+        public override void OnButtonExitHover()
+        {
+            if (uiAnimController != null)
+            {
+
+                uiAnimController.ButtonHoverState(false);
+
+            }
+        }
+
+        public override void OnButtonRelease()
+        {
+            
+        }
+
+        
     }
 }
