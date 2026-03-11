@@ -96,6 +96,21 @@ namespace SliceEngine
             }
         }
 
+        public void ResetButton()
+        {
+            if (clickedRectObj != null)
+            {
+                clickedRectObj.SetActive(false);
+            }
+
+            if (frontText != null && backText != null)
+            {
+                frontText.Colour = (new Vector4(0.8f, 0.8f, 0.8f, 1.0f));
+                backText.Colour = (new Vector4(0.8f, 0.8f, 0.8f, 0.5f));
+
+            }
+        }
+
         public void ButtonHoverState(bool state)
         {
             if(state)

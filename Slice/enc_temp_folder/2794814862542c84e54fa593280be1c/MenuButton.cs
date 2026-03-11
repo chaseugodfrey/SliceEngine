@@ -70,36 +70,12 @@ namespace SliceEngine
 
             if (mainController != null)
             {
-                if (buttonType == 0)
-                {
-                    mainController.StartGame(sceneToLoad);
-                }
-                else if (buttonType == 1)
-                {
-                    mainController.OpenSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
-
-                    }
-                }
-                else if (buttonType == 2)
-                {
-                    mainController.QuitGame();
-                }
-                else if (buttonType == 3)
-                {
-                    mainController.CloseSettings();
-                }
-                else if (buttonType == 4)
-                {
-                    mainController.BackToMenu();
-                }
-                else if (buttonType == 5)
-                {
-                    SliceLog.Log("Test");
-                }
+                if (buttonType == 0) mainController.StartGame(sceneToLoad);
+                else if (buttonType == 1) mainController.OpenSettings();
+                else if (buttonType == 2) mainController.QuitGame();
+                else if (buttonType == 3) mainController.CloseSettings();
+                else if (buttonType == 4) mainController.BackToMenu();
+                else if (buttonType == 5) SliceLog.Log("Test") ;
             }
 
             // --- GAME SCENE ACTIONS ---
@@ -147,7 +123,13 @@ namespace SliceEngine
 
         public override void OnButtonRelease()
         {
-            
+            SliceLog.Log("Meow");
+            if (uiAnimController != null)
+            {
+
+                uiAnimController.ResetButton();
+
+            }
         }
 
         
