@@ -3,7 +3,6 @@ layout (location=0)	in vec2				vTexCoord;
 
 
 layout (binding = 0) uniform sampler2D tex2d;
-uniform bool raycast;		//from canvas
 uniform float alphaThresh;	//from sprite renderer
 uniform unsigned int entity;//from sprite renderer
 uniform bool raycast_target;//from sprite renderer
@@ -15,7 +14,7 @@ void main(void){
 
 	vec4 texture_color = texture(tex2d, vTexCoord);
 	
-	bool set_raycast = raycast && raycast_target && (texture_color.a >= alphaThresh);
+	bool set_raycast = raycast_target && (texture_color.a >= alphaThresh);
 
 	if(!set_raycast) {
 		discard;
