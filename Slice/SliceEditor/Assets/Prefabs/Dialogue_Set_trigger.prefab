@@ -1,0 +1,76 @@
+[
+    {
+        "Dialogue_Set_trigger": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    92,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.DialogueTriggerBox",
+                "scriptableFieldMap": {
+                    "setOfThisTrigger": {
+                        "Type": "int",
+                        "Value": 0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 6,
+                "mName": "Dialogue_Set_trigger",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.9722368717193604,
+                    -3.857029914855957,
+                    0.3195624351501465
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    12.171625137329102,
+                    2.3899078369140625,
+                    12.43810749053955
+                ]
+            }
+        }
+    }
+]
