@@ -96,9 +96,6 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
-    <Compile Include="Source\Core\Enemy\Level 3\ShieldGeneratorManager.cs" />
-    <Compile Include="Source\Core\Enemy\Level 3\EnemyLevel3.cs" />
-    <Compile Include="Source\Core\Enemy\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
@@ -140,6 +137,7 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
     <Compile Include="Source\Core\UI\GameSettings.cs" />
@@ -168,6 +166,9 @@
     <Compile Include="Source\Examples\TestSprite.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
+    <Compile Include="Source\Level 3\EnemyLevel3.cs" />
+    <Compile Include="Source\Level 3\ShieldGenerator.cs" />
+    <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />
     <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
