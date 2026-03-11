@@ -58,6 +58,7 @@ namespace SliceEngine
             public int bulletDamage = 10;
             public float distanceBeforeDestroyBullet = 90f;
             public int limit = 100;
+            public bool shieldFade = false;
 
             public StasisState(GameObject owner, EnemyLevel3 controller) : base(owner)
             {
@@ -66,6 +67,7 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 Console.WriteLine("Entering stasis state");
+                enemyController.shield = true;
                 count = 0f;
             }
 
@@ -82,12 +84,51 @@ namespace SliceEngine
                     bullet.As<Projectile>().destroyOnPlayerImpact = true;
                 }
 
+                if (enemyController.shieldObject == null)
+                {
+                    SliceLog.Error("Shield Object not assigned");
+                    return;
+                }
+
                 // once it can be damaged, meaning the shields are down
                 // then transition to idle and continue the same behaviour as level 2
                 if (enemyController.canDamage)
                 {
-                    enemyController.stateMachine.ChangeState(enemyController.idleState);
+                    if (enemyController.shield == false)
+                        enemyController.stateMachine.ChangeState(enemyController.idleState);
+                    else if (shieldFade == false)
+                    {
+                        Console.WriteLine("Starting coroutine to fade out shield");
+                        enemyController.StartCoroutine(FadeOutShield(3.0f));
+                        shieldFade = true;
+                    }
+
                 }
+            }
+
+            public IEnumerator FadeOutShield(float duration)
+            {
+                float elapsedTime = 0.0f;
+                Vector4 col = enemyController.shieldObject.GetComponent<Renderer>().GetColor();
+                Vector4 targetCol = col;
+                targetCol.w = 0.0f;
+                Console.WriteLine("Start of fade out shield");
+                while (elapsedTime < duration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = elapsedTime / duration;
+
+                    //                    enemyTransform.Position = Vector3.Lerp(startPos, targetPos, t);
+                    enemyController.shieldObject.GetComponent<Renderer>().SetColor(Vector4.Lerp(col, targetCol, t));
+                    Console.WriteLine($"Current color of shield : {enemyController.shieldObject.GetComponent<Renderer>().GetColor()}");
+                    yield return null;
+                }
+
+                Console.WriteLine("End of Fade out shield");
+
+                enemyController.shieldObject.GetComponent<Renderer>().SetColor(targetCol);
+                enemyController.shield = false;
+                shieldFade = true;
             }
 
             public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
@@ -465,6 +506,7 @@ namespace SliceEngine
         public bool canDamage = false;
         public bool grounded = false;
         public GameObject generalHitbox;
+        public GameObject shieldObject;
         protected uint collidedEntity = 0;
 
         public override void OnCreate()
@@ -484,6 +526,11 @@ namespace SliceEngine
             {
                 generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
                 generalHitbox.As<GeneralHitbox>().TurnOff();
+            }
+
+            if (shieldObject == null)
+            {
+                SliceLog.Error("Shield object not assigned!");
             }
 
             if (LevelController == null)
@@ -518,7 +565,15 @@ namespace SliceEngine
             enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
         }
 
-        public override void OnUpdate(float dt) => stateMachine.OnUpdate(dt);
+        public override void OnUpdate(float dt)
+        {
+            if (shieldObject == null)
+            {
+                SliceLog.Error("Shield object not assigned!");
+            }
+
+            stateMachine.OnUpdate(dt);
+        }
         public override void OnFixedUpdate(float dt) => stateMachine.OnFixedUpdate(dt);
 
         public virtual int GetNextIdlePoint()
