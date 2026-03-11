@@ -15,6 +15,8 @@ DigiPen Institute of Technology is prohibited.
 #include <pch.h>
 #include "ComponentMultipleSelection.h"
 #include "Selection/SelectionManager.h"
+#include <Scripting/ScriptSystem.h>
+#include <Scripting/ScriptObject.h>
 
 namespace SliceEditor
 {
@@ -125,4 +127,350 @@ namespace SliceEditor
 		}
 		return isSelectionDifferent;
 	}
+
+#pragma region Script Variables Difference Check
+
+	bool ScriptFloatMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection, bool isMultiSelection)
+	{
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<float>(scriptVarName);
+
+					//Difference check
+					if (currentVal != currentSelection)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ScriptIntMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, int currentSelection, bool isMultiSelection)
+	{
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<int>(scriptVarName);
+
+					//Difference check
+					if (currentVal != currentSelection)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ScriptBoolMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, bool currentSelection, bool isMultiSelection)
+	{
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<bool>(scriptVarName);
+
+					//Difference check
+					if (currentVal != currentSelection)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ScriptStringMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::string currentSelection, bool isMultiSelection)
+	{
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<std::string>(scriptVarName);
+
+					//Difference check
+					if (currentVal != currentSelection)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	bool ScriptGameObjMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection, bool isMultiSelection)
+	{
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<SliceEngine::GameObject>(scriptVarName);
+
+					//Difference check
+					if (currentVal.GetEntity() != currentSelection.GetEntity())
+					{
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+#pragma endregion
+
+#pragma region Multi-Setting Fucntions
+
+	void ScriptFloatMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<float>(scriptVarName);
+
+				if (currentVal != currentSelection)
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+	void ScriptIntMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, int currentSelection)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<int>(scriptVarName);
+
+				if (currentVal != currentSelection)
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+	void ScriptBoolMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, bool currentSelection)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<bool>(scriptVarName);
+
+				if (currentVal != currentSelection)
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+	void ScriptStringMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::string currentSelection)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<std::string>(scriptVarName);
+
+				if (currentVal != currentSelection)
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<SliceEngine::GameObject>(scriptVarName);
+
+				if (currentVal.GetEntity() != currentSelection.GetEntity())
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+#pragma endregion
 }
