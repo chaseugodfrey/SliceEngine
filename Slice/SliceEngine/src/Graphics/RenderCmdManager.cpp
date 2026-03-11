@@ -138,8 +138,8 @@ namespace SliceEngine
 			SetColor(data, material->color);
 
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
-			//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 			data.entityID = static_cast<unsigned int>(entity);
+			data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 			if (rend.castShadow && !isPrefab)
 				shadowRenderCmds[mdlDet].push_back(data);
@@ -248,6 +248,7 @@ namespace SliceEngine
 				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
+				data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 				// --MAYDO-- Been told to turn opaque off
 

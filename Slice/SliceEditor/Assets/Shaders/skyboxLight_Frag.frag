@@ -8,6 +8,7 @@ layout (binding = 0) uniform sampler2D 	uTex;
 layout (binding = 1) uniform sampler2D 	uNomTex;
 layout (binding = 2) uniform samplerCube uCubemapTex;
 layout (binding = 3) uniform sampler2D	uEmission;
+layout (binding = 4) uniform sampler2D 	uRoughMetalLightTex;
 
 uniform float skyboxLightingPower = 1.0f;
 uniform bool willBloom = false;
@@ -19,15 +20,15 @@ void main(void){
 	vec3 ambient = texture(uCubemapTex, nom).rgb;
 	vec3 emission = vec3(0.0f);
 
+	float toUseLight =  texelFetch(uRoughMetalLightTex, p, 0).z;
+
 	if(!willBloom)
 		emission = texelFetch(uEmission, p, 0).rgb;
 
-	if(any(notEqual(nom, vec3(0.0f))))
+	fFragColor = vec4(dif, 1.0);
+	
+	if(any(notEqual(nom, vec3(0.0f))) && toUseLight < 0.5f)
 	{
 		fFragColor = vec4(dif * ambient * skyboxLightingPower + emission, 1.0);
-	}
-	else // skybox part hahas oops
-	{
-		fFragColor = vec4(dif, 1.0);
 	}
 }
