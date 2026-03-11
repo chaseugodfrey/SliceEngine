@@ -1453,11 +1453,8 @@ namespace SliceEngine
 		colliderShape.bodyID = body->GetID();
 		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
-		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
+		//SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
 		physicsSystem->OptimizeBroadPhase();
-
-
-
 	}
 
 	void PhysicsSystem::StepWorld(float dt)

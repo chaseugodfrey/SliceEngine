@@ -46,21 +46,21 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            base.OnUpdate(dt);
+            //base.OnUpdate(dt);
 
-            if (inputOpen)
-            {
-                if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
-                {
-                    enterPressed = true;
-                    PlayDialogueForLevel(currLevel, currentScene);
-                }
+            //if (inputOpen)
+            //{
+            //    if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
+            //    {
+            //        enterPressed = true;
+            //        PlayDialogueForLevel(currLevel, currentScene);
+            //    }
 
-                if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
-                {
-                    enterPressed = false;
-                }
-            }
+            //    if (Input.IsKeyReleased(Keys.KEY_F) && enterPressed == true)
+            //    {
+            //        enterPressed = false;
+            //    }
+            //}
 
            
 
@@ -85,15 +85,15 @@ namespace SliceEngine
 
         }
 
-        public void LoadNextLevel()
-        {
-            SceneManager.LoadScene(nextSceneToLoad);
-        }
+        //public void LoadNextLevel()
+        //{
+        //    SceneManager.LoadScene(nextSceneToLoad);
+        //}
 
-        public void RestartLevel()
-        {
-            SceneManager.LoadScene(currSceneToLoad);
-        }
+        //public void RestartLevel()
+        //{
+        //    SceneManager.LoadScene(currSceneToLoad);
+        //}
 
         public void GameLoseScreen()
         {
@@ -126,70 +126,91 @@ namespace SliceEngine
         }
 
         private SliceCSV loader = new SliceCSV();
+        //Each entry currently needs name and text and index
+        //Each set should have the index 
+
+        //                Set      
+        private Dictionary<string, List<string[]>> allDialogues = new Dictionary<string, List<string[]>>();
         public void LoadDialogues()
         {
             //Load dialogues from a CSV
             // SliceLog.Log("Streaming Assets filepath: " + Application.streamingAssetsPath);
             string filePath = Application.GetFilePath("Dialogue.csv");
-            SliceLog.Log("App filepath: " + filePath);
+            SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
-            if (loader == null)
+            if (loader != null)
             {
                 //SliceLog.Log("Loader is empty");
                 //Maybe add a cull here for the scene
-                for (int i  = loader.RowCount -1 ; i > -1; i--)
+
+                //for (int i  = loader.RowCount -1 ; i > -1; i--)
+                //{
+                //    if (loader.GetValue<int>(i , "Scene") != currentScene)
+                //    {
+                //        loader.RemoveRow(i);
+                //    }
+                //}
+
+
+                //Sorts and adds them to the specified sets
+
+                for (int i = 0; i < loader.RowCount; i++)
                 {
-                    if (loader.GetValue<int>(i , "Scene") != currentScene)
+                    string sceneval = loader.GetValue(i, "Scene");
+                    string setval = loader.GetValue(i, "Set");
+                    string combinedKey = sceneval + "_" + setval;
+
+                    if (!allDialogues.ContainsKey(combinedKey))
                     {
-                        loader.RemoveRow(i);
+                        allDialogues.Add(combinedKey, new List<string[]>());
+
                     }
+                    
+                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                    SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
-            else
-            {
-                //SliceLog.Log("Load has this many rows" + loader.RowCount);
-            }
-
         }
 
         private bool typing = false;
 
         //string[] for listed things 0 = name, 1 = text
-        private List<string[]> levelDialogues = new List<string[]>();
+        //private List<string[]> levelDialogues = new List<string[]>();
 
         private int dialogueIndex = 0;
 
-        public void PlayDialogueForLevel(int level, int scene)
+        public bool PlayDialogueForLevel(int level, int scene)
         {
+
 
 
             // Skip to display full line when type writer effect is playing.
             if (typing == true)
             {
                 typing = false;
-                return;
+                return true;
             }
 
             //Close dialogue box if it is the last line of the set
-            if (levelDialogues.Count == dialogueIndex + 1)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1)
             {
                 // end of dialogue stack
                 // clear stack
-
+                SliceLog.Log("failed to find dialogue or out of range for the key: " + scene + "_" + level);
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
                 //Bootstrap.Player.canInput = true;
                 dialogueIndex = 0;
-                levelDialogues.Clear();
+                //levelDialogues.Clear();
                 SetTextBox("");
                 CloseTextBox();
-                return;
+                return false;
             }
 
             // Will tick dialogue up if it is already loaded, else will load fresh set and play
-            if (levelDialogues.Count > 0)
+            if (allDialogues[scene + "_" + level].Count > 0)
             {
                 // dialogues is not empty
                 //  tick up number
@@ -204,16 +225,17 @@ namespace SliceEngine
                 SliceLog.Log("Dialogue is empty");
                 dialogueIndex = 0;
 
+                /*
                 //Loading from the list
-                for (int i = loader.FindRowIndex("Level", level.ToString()); i > -1; i++)
+                for (int i = loader.FindRowIndex("Set", level.ToString()); i > -1; i++)
                 {
                     //SliceLog.Log("index is at" + i);
 
-                    if (loader.GetValue(i, "Level") != level.ToString())
+                    if (loader.GetValue(i, "Set") != level.ToString())
                     {
                         break;
                     }
-                    else if (int.Parse(loader.GetValue(i, "Level")) < currLevel)
+                    else if (int.Parse(loader.GetValue(i, "Set")) < currLevel)
                     {
                         break;
                     }
@@ -222,15 +244,17 @@ namespace SliceEngine
 
                     levelDialogues.Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
                 }
+                */
             }
 
 
             OpenTextBox();
             typing = true;
-            StartCoroutine(TypeText(levelDialogues[dialogueIndex][1]));
-            SetName(levelDialogues[dialogueIndex][0]);
+            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1]));
+            SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
+            return true;
         }
 
         IEnumerator TypeText(string toType)
@@ -299,16 +323,20 @@ namespace SliceEngine
 
         public void OpenTextBox()
         {
+            SliceLog.Log("Open Text Box called");
             Bootstrap.Player.SetPlayerLock(true);
+            Bootstrap.CameraController.LockCamera = true;
             textBoxParentObject.SetActive(true);
             Cursor.state = Cursor.STATE.DISABLED;
         }
 
         public void CloseTextBox()
         {
+            SliceLog.Log("Open Text Box called");
             Bootstrap.Player.SetPlayerLock(false);
+            Bootstrap.CameraController.LockCamera = false;
             textBoxParentObject.SetActive(false);
-            Cursor.state = Cursor.STATE.DEFAULT;
+            Cursor.state = Cursor.STATE.DISABLED;
         }
 
         #endregion
@@ -319,7 +347,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();
             victory = victoryObject.GetComponent<SpriteRenderer>();
             defeat = defeatObject.GetComponent<SpriteRenderer>();
-            //LoadDialogues();
+            LoadDialogues();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }

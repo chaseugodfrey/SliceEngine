@@ -1,0 +1,464 @@
+[
+    {
+        "A1_Lights": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048686,
+                "neighbours": [
+                    0,
+                    1048722,
+                    1048687,
+                    1048671
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "A1_Lights",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Start": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.9045888185501099,
+                    0.8796250224113464,
+                    0.7854017615318298
+                ],
+                "componentEnabled": true,
+                "intensity": 3000.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048722,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    4294967295,
+                    1048860
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Start",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    5.862933158874512,
+                    282.7929992675781,
+                    1.1920928955078125e-07
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Under": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.38701194524765015,
+                    0.4332503378391266,
+                    0.47296684980392456
+                ],
+                "componentEnabled": true,
+                "intensity": 1000.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048860,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048722,
+                    1048709
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Under",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    271.8162841796875,
+                    -118.33560943603516,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Dam_1": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.6583210229873657,
+                    0.7113962173461914,
+                    0.8000909090042114
+                ],
+                "componentEnabled": true,
+                "intensity": 500.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048709,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048860,
+                    1048708
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Dam_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    415.5343933105469,
+                    144.4063720703125,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Dam_2": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.6583210229873657,
+                    0.7113962173461914,
+                    0.8000909090042114
+                ],
+                "componentEnabled": true,
+                "intensity": 500.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048708,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048709,
+                    1048707
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Dam_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    415.5343933105469,
+                    144.4063720703125,
+                    -13.932794570922852
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Dam_3": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.6583210229873657,
+                    0.7113962173461914,
+                    0.8000909090042114
+                ],
+                "componentEnabled": true,
+                "intensity": 500.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048707,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048708,
+                    1048706
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Dam_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    415.5343933105469,
+                    144.4063720703125,
+                    -26.34465789794922
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Dam_4": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.6583210229873657,
+                    0.7113962173461914,
+                    0.8000909090042114
+                ],
+                "componentEnabled": true,
+                "intensity": 500.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048706,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048707,
+                    1048699
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Dam_4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    415.5343933105469,
+                    144.4063720703125,
+                    13.71821403503418
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    },
+    {
+        "Light_Dam_5": {
+            "struct SliceEngine::Light": {
+                "color": [
+                    0.6583210229873657,
+                    0.7113962173461914,
+                    0.8000909090042114
+                ],
+                "componentEnabled": true,
+                "intensity": 500.0,
+                "type": "Point"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048699,
+                "neighbours": [
+                    1048686,
+                    4294967295,
+                    1048706,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Light_Dam_5",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    415.5343933105469,
+                    144.4063720703125,
+                    25.977081298828125
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    30.0,
+                    30.0,
+                    30.0
+                ]
+            }
+        }
+    }
+]

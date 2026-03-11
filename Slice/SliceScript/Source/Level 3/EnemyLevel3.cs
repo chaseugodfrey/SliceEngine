@@ -1,0 +1,668 @@
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace SliceEngine
+{
+    public class EnemyLevel3 : EnemyBase
+    {
+        #region States
+
+        public class IntroState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            float timer = 0.0f;
+            bool moved = false;
+
+            public IntroState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+
+            public override void OnEnter() { }
+
+            public override void OnUpdate(float dt)
+            {
+                timer += dt;
+                if (timer >= 2.0f && !moved)
+                {
+                    if (enemyController.startingPosition == null)
+                    {
+                        SliceLog.Error("Starting position is null");
+                        moved = true;
+                    }
+                    else
+                    {
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                        moved = true;
+                    }
+                }
+            }
+        }
+
+        public class StasisState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            public List<Projectile> allProjectiles = new List<Projectile>();
+            private float count = 0f;
+            private float timer = 0f;
+
+            public string projectilePrefabName = "Projectile";
+            public float projPerSecond = 4f;
+            public float bulletSpeed = 40f;
+            public Vector3 bulletScale = new Vector3(1);
+            public int bulletDamage = 10;
+            public float distanceBeforeDestroyBullet = 90f;
+            public int limit = 100;
+            public bool shieldFade = false;
+
+            public StasisState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+            public override void OnEnter()
+            {
+                Console.WriteLine("Entering stasis state");
+                enemyController.shield = true;
+                count = 0f;
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
+                count += dt;
+
+                if (count >= 1f / projPerSecond)
+                {
+                    count -= 1f / projPerSecond;
+                    Transform T = owner.GetComponent<Transform>();
+                    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
+                    bullet.As<Projectile>().destroyOnPlayerImpact = true;
+                }
+
+                if (enemyController.shieldObject == null)
+                {
+                    SliceLog.Error("Shield Object not assigned");
+                    return;
+                }
+
+                // once it can be damaged, meaning the shields are down
+                // then transition to idle and continue the same behaviour as level 2
+                if (enemyController.canDamage)
+                {
+                    if (enemyController.shield == false)
+                        enemyController.stateMachine.ChangeState(enemyController.idleState);
+                    else if (shieldFade == false)
+                    {
+                        Console.WriteLine("Starting coroutine to fade out shield");
+                        enemyController.StartCoroutine(FadeOutShield(3.0f));
+                        shieldFade = true;
+                    }
+
+                }
+            }
+
+            public IEnumerator FadeOutShield(float duration)
+            {
+                float elapsedTime = 0.0f;
+                Vector4 col = enemyController.shieldObject.GetComponent<Renderer>().GetColor();
+                Vector4 targetCol = col;
+                targetCol.w = 0.0f;
+                Console.WriteLine("Start of fade out shield");
+                while (elapsedTime < duration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = elapsedTime / duration;
+
+                    //                    enemyTransform.Position = Vector3.Lerp(startPos, targetPos, t);
+                    enemyController.shieldObject.GetComponent<Renderer>().SetColor(Vector4.Lerp(col, targetCol, t));
+                    Console.WriteLine($"Current color of shield : {enemyController.shieldObject.GetComponent<Renderer>().GetColor()}");
+                    yield return null;
+                }
+
+                Console.WriteLine("End of Fade out shield");
+
+                enemyController.shieldObject.GetComponent<Renderer>().SetColor(targetCol);
+                enemyController.shield = false;
+                shieldFade = true;
+            }
+
+            public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
+            {
+                string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+                GameObject newBullet = owner.CreateGameObject(prefabPath);
+                Transform tempT = newBullet.GetComponent<Transform>();
+
+                tempT.Position = startPos;
+                tempT.Rotation = angle;
+                tempT.Scale = scale;
+
+                Projectile tempP = newBullet.As<Projectile>();
+                tempP.SetUp();
+                tempP.speed = speed;
+                tempP.owner = owner;
+                tempP.damage = bulletDamage;
+                tempP.distanceBeforeDestroy = distanceBeforeDestroy;
+                tempP.destroyOnImpact = destroyOnImpact;
+
+                allProjectiles.Add(tempP);
+
+                if (allProjectiles.Count > limit)
+                {
+                    for (int i = 0; i < (allProjectiles.Count - limit); i++)
+                    {
+                        DestroyBullet(allProjectiles[0]);
+                    }
+                }
+                return newBullet;
+            }
+
+            public void DestroyBullet(Projectile toDestroy)
+            {
+                int index = allProjectiles.IndexOf(toDestroy);
+                if (index != -1)
+                {
+                    Projectile temp = allProjectiles[index];
+                    allProjectiles.RemoveAt(index);
+                    temp.gameObject.Destroy();
+                }
+            }
+
+
+        }
+
+        public class IdleState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            public int moves = 0;
+
+            public IdleState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+
+            public override void OnEnter()
+            {
+                Console.WriteLine("Idle state entered");
+                if (enemyController.stateMachine.prevState is SlamState)
+                {
+                    moves = 0;
+                    enemyController.movementTimer = enemyController.movementCooldown;
+                }
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                if (owner != null)
+                {
+                    if (enemyController.movementDone)
+                    {
+                        enemyController.movementTimer += dt;
+                    }
+
+                    if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
+                    {
+                        float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
+                        if (roll < 0.9f)
+                        {
+                            enemyController.stateMachine.ChangeState(enemyController.slamState);
+                        }
+                        else if (roll < 0.8f && roll > 0.4f)
+                        {
+                            Console.WriteLine("pew pew pew");
+                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                        }
+                        else
+                        {
+                            enemyController.movementTimer = 0.0f;
+                            if (enemyController.idlePoints.Count == 0)
+                            {
+                                SliceLog.Error("No idle points");
+                            }
+                            else
+                            {
+                                enemyController.currPoint = enemyController.GetNextIdlePoint();
+                                enemyController.movementDone = false;
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public class SlamState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            public bool onCooldown = false;
+            public bool attacking = false;
+            public bool reset = false;
+            public Vector3 originalPosition;
+            float timer = 0.0f;
+
+            public SlamState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+
+            public override void OnEnter()
+            {
+                Console.WriteLine("Entering slam state");
+                onCooldown = false;
+                attacking = false;
+                reset = false;
+                timer = 0.0f;
+
+                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
+                targetPos.y = owner.GetComponent<Transform>().Position.y;
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                if (enemyController.movementDone && !attacking)
+                {
+                    attacking = true;
+                    RayCastHit hitInfo;
+                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+
+                    if (hit)
+                    {
+                        GameObject objHit = owner.FindGameObjectWithID(hitInfo.transform.gameObject.mID);
+                        if (objHit == null)
+                        {
+                            enemyController.stateMachine.ChangeState(enemyController.projectileState);
+                            return;
+                        }
+                    }
+
+                    Console.WriteLine("Slamming");
+                    owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+                }
+
+                if (onCooldown)
+                {
+                    timer += dt;
+                    enemyController.grounded = true;
+
+                    if (timer >= 0.5f)
+                    {
+                        enemyController.ToggleHitbox(false);
+                    }
+
+                    if (timer >= 10.0f)
+                    {
+                        enemyController.grounded = false;
+                        onCooldown = false;
+                        attacking = false;
+                        reset = true;
+                        ResetPosition();
+                    }
+                }
+            }
+
+            public void ResetPosition()
+            {
+                owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, originalPosition, 1.2f));
+            }
+
+            public override void OnExit()
+            {
+                owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
+            }
+        }
+
+        public class ProjectileState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            public List<Projectile> allProjectiles = new List<Projectile>();
+            public float stateDuration = 5.0f;
+            private float count = 0f;
+            private float timer = 0f;
+
+            public string projectilePrefabName = "Projectile";
+            public float projPerSecond = 4f;
+            public float bulletSpeed = 40f;
+            public Vector3 bulletScale = new Vector3(1);
+            public int bulletDamage = 10;
+            public float distanceBeforeDestroyBullet = 90f;
+            public int limit = 100;
+
+            public ProjectileState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+
+            public override void OnEnter()
+            {
+                Console.WriteLine("Entering projectile state");
+                timer = 0f;
+                count = 0f;
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
+                timer += dt;
+                count += dt;
+
+                if (count >= 1f / projPerSecond)
+                {
+                    count -= 1f / projPerSecond;
+                    Transform T = owner.GetComponent<Transform>();
+                    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
+                    bullet.As<Projectile>().destroyOnPlayerImpact = true;
+                }
+
+                if (timer >= stateDuration)
+                {
+                    enemyController.stateMachine.ChangeState(enemyController.idleState);
+                }
+            }
+
+            public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
+            {
+                string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+                GameObject newBullet = owner.CreateGameObject(prefabPath);
+                Transform tempT = newBullet.GetComponent<Transform>();
+
+                tempT.Position = startPos;
+                tempT.Rotation = angle;
+                tempT.Scale = scale;
+
+                Projectile tempP = newBullet.As<Projectile>();
+                tempP.SetUp();
+                tempP.speed = speed;
+                tempP.owner = owner;
+                tempP.damage = bulletDamage;
+                tempP.distanceBeforeDestroy = distanceBeforeDestroy;
+                tempP.destroyOnImpact = destroyOnImpact;
+
+                allProjectiles.Add(tempP);
+
+                if (allProjectiles.Count > limit)
+                {
+                    for (int i = 0; i < (allProjectiles.Count - limit); i++)
+                    {
+                        DestroyBullet(allProjectiles[0]);
+                    }
+                }
+                return newBullet;
+            }
+
+            public void DestroyBullet(Projectile toDestroy)
+            {
+                int index = allProjectiles.IndexOf(toDestroy);
+                if (index != -1)
+                {
+                    Projectile temp = allProjectiles[index];
+                    allProjectiles.RemoveAt(index);
+                    temp.gameObject.Destroy();
+                }
+            }
+        }
+
+        // death state will need to be changed
+        public class DeathState : BaseState
+        {
+            EnemyLevel3 enemyController;
+            List<GameObject> orbitingEnemies;
+            float orbitTimer = 0.0f;
+            float orbitRadius = 10.0f;
+            float rotationSpeed = 2.0f;
+            float idleTime = 3.0f;
+            float idleTimer = 0.0f;
+            int numOfPoints;
+            public bool moved = false;
+            public bool secondMoved = false;
+
+            public DeathState(GameObject owner, EnemyLevel3 controller) : base(owner)
+            {
+                enemyController = controller;
+            }
+
+            public override void OnEnter()
+            {
+                // Note: Ensure L2Controller access is still valid for Level 3 logic
+                orbitingEnemies = enemyController.LevelController.As<L2Controller>().GetActiveProjectileEnemies();
+                numOfPoints = orbitingEnemies.Count;
+
+                for (int i = 0; i < numOfPoints; ++i)
+                {
+                    float angle = i * (2.0f * (float)Math.PI / numOfPoints);
+                    Vector3 targetLocalPos = new Vector3((float)Math.Cos(angle) * orbitRadius, 0.0f, (float)Math.Sin(angle) * orbitRadius);
+                    orbitingEnemies[i].As<Projectile_Spawner>().active = false;
+                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().Position + targetLocalPos;
+                    enemyController.StartCoroutine(MoveEnemy(orbitingEnemies[i], worldTarget, 3.0f));
+                }
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+            }
+
+            public IEnumerator MoveEnemy(GameObject enemy, Vector3 targetPos, float duration)
+            {
+                float elapsedTime = 0.0f;
+                Transform enemyTransform = enemy.GetComponent<Transform>();
+                Vector3 startPos = enemyTransform.Position;
+
+                while (elapsedTime < duration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = elapsedTime / duration;
+                    enemyTransform.Position = Vector3.Lerp(startPos, targetPos, t);
+                    yield return null;
+                }
+                enemyTransform.Position = targetPos;
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                if (moved)
+                {
+                    orbitTimer += dt * rotationSpeed;
+                    idleTimer += dt;
+                    Vector3 center = owner.GetComponent<Transform>().Position;
+                    for (int i = 0; i < numOfPoints; ++i)
+                    {
+                        float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
+                        float x = center.x + (float)Math.Cos(angle) * orbitRadius;
+                        float z = center.z + (float)Math.Sin(angle) * orbitRadius;
+                        Transform enemyTransform = orbitingEnemies[i].GetComponent<Transform>();
+                        enemyTransform.Position = new Vector3(x, center.y, z);
+                    }
+
+                    if (idleTimer > idleTime && !secondMoved)
+                    {
+                        secondMoved = true;
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(0, 100f, 0), 5.0f));
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        public StateMachine stateMachine;
+        public IdleState idleState;
+        public IntroState introState;
+        public SlamState slamState;
+        public ProjectileState projectileState;
+        public DeathState deathState;
+        public StasisState stasisState;
+
+        public GameObject startingPosition;
+        public GameObject enemyHUD;
+        public List<GameObject> idlePoints = new List<GameObject>();
+        public GameObject LevelController;
+        public int currPoint = 0;
+        public float movementCooldown = 5.0f;
+        public float movementTimer = 0.0f;
+        public bool movementDone = false;
+        public int damage = 20;
+        public bool canDamage = false;
+        public bool grounded = false;
+        public GameObject generalHitbox;
+        public GameObject shieldObject;
+        protected uint collidedEntity = 0;
+
+        public override void OnCreate()
+        {
+            stateMachine = new StateMachine();
+            idleState = new IdleState(this.gameObject, this);
+            introState = new IntroState(this.gameObject, this);
+            slamState = new SlamState(this.gameObject, this);
+            projectileState = new ProjectileState(this.gameObject, this);
+            deathState = new DeathState(this.gameObject, this);
+            stasisState = new StasisState(this.gameObject, this);
+
+            stateMachine.ChangeState(introState);
+            currPoint = GetNextIdlePoint();
+
+            if (generalHitbox != null)
+            {
+                generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+                generalHitbox.As<GeneralHitbox>().TurnOff();
+            }
+
+            if (shieldObject == null)
+            {
+                SliceLog.Error("Shield object not assigned!");
+            }
+
+            if (LevelController == null)
+            {
+                SliceLog.Error("Level controller isn't assigned");
+            }
+
+            enemyHUD.As<EnemyHUD>().SetHealth(currentHealth / maxHealth);
+        }
+
+        public virtual void DamagePlayer(GameObject hit)
+        {
+            if (hit.Has<PlayerController>())
+            {
+                Bootstrap.Player.TakeDamage(damage);
+            }
+        }
+
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            base.TakeDamage(amount, source);
+        }
+
+        public override void OnDeath()
+        {
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+            stateMachine.ChangeState(deathState);
+        }
+
+        protected override void OnDamaged(GameObject source)
+        {
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            if (shieldObject == null)
+            {
+                SliceLog.Error("Shield object not assigned!");
+            }
+
+            stateMachine.OnUpdate(dt);
+        }
+        public override void OnFixedUpdate(float dt) => stateMachine.OnFixedUpdate(dt);
+
+        public virtual int GetNextIdlePoint()
+        {
+            if (idlePoints.Count == 1) return 0;
+            int nextPoint = SliceRandom.RangeInt(0, idlePoints.Count);
+            while (nextPoint == currPoint)
+            {
+                nextPoint = SliceRandom.RangeInt(0, idlePoints.Count);
+            }
+            return nextPoint;
+        }
+
+        public virtual IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
+        {
+            float elapsedTime = 0.0f;
+            Transform transform = this.gameObject.GetComponent<Transform>();
+            movementDone = false;
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = elapsedTime / duration;
+                transform.Position = Vector3.Lerp(startPos, targetPos, t);
+                yield return null;
+            }
+
+            movementDone = true;
+            transform.Position = targetPos;
+            OnMovementFinish();
+        }
+
+        public virtual void OnMovementFinish()
+        {
+            switch (stateMachine.currentState)
+            {
+                case IdleState idle:
+                    idle.moves++;
+                    break;
+                case IntroState _:
+                    stateMachine.ChangeState(stasisState);
+                    break;
+                case SlamState slam:
+                    slam.originalPosition = transform.Position;
+                    if (slam.reset) stateMachine.ChangeState(idleState);
+                    break;
+                case DeathState death:
+                    death.moved = true;
+                    break;
+            }
+        }
+
+        public virtual void ToggleHitbox(bool flag)
+        {
+            if (generalHitbox != null)
+            {
+                if (flag) generalHitbox.As<GeneralHitbox>().TurnOn();
+                else generalHitbox.As<GeneralHitbox>().TurnOff();
+            }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            if (collidedEntity == 0)
+            {
+                collidedEntity = other;
+                if (stateMachine.currentState is SlamState slam)
+                {
+                    if (!slam.onCooldown && slam.attacking)
+                    {
+                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        ToggleHitbox(true);
+                        slam.onCooldown = true;
+                    }
+                }
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (collidedEntity == other)
+            {
+                collidedEntity = 0;
+            }
+        }
+   
+        public void ShieldGeneratorDestroyed()
+        {
+            canDamage = true;
+        }
+    }
+}
