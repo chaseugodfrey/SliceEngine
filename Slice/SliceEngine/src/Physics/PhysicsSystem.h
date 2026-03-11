@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision/CollisionCollector.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Core/JobSystemSingleThreaded.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -52,6 +53,7 @@ namespace SliceEngine
 
 		std::unique_ptr<JPH::PhysicsSystem> physicsSystem;
 		std::unique_ptr<JPH::JobSystemThreadPool> jobSystem;
+		//std::unique_ptr<JPH::JobSystemSingleThreaded> jobSystem;
 		std::unique_ptr<BPLayerInterfaceImpl> broadphaseLayerInterface;
 		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
@@ -73,7 +75,7 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
-		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+		void OnColliderModified(entt::registry& reg, entt::entity entity);
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
