@@ -153,11 +153,12 @@ namespace SliceEditor
 			DebugDrawTogglePopup();
 			ImGui::SameLine();
 		}
-		std::stringstream ss;
-		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
-		ImGui::Button(ss.str().c_str()); //Speed Display
-		ImGui::PopItemFlag(); //End of Set Disabled
+		ImGui::Text("Camera Speed: ");
+		ImGui::SameLine();
+		SliderFloatInput(mRegistry, "##sceneCamSpeed", mCameraSpeed, "%.3f", 0.f, 5.f);
+		//ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		//ImGui::Button(ss.str().c_str()); //Speed Display
+		//ImGui::PopItemFlag(); //End of Set Disabled
 		//Debug Drawing Settings:
 		ImGui::EndGroup();
 

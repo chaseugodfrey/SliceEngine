@@ -74,7 +74,7 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(Entity canvas, Entity parent, Entity node);
+		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
@@ -87,6 +87,7 @@ namespace SliceEngine
 		unsigned int raycast_tex{};
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
 		std::set<Entity> world_space_ui;
+		float world_space_z{};
 
 		static constexpr unsigned int Font_Max_Instance = 200;
 

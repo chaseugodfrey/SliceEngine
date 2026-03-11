@@ -245,10 +245,12 @@ namespace SliceEngine
 		float cloudsIntensity{ 0.3f };
 		float cloudsSmoothness{ 0.0027 };
 		float cloudsCutoff{ 0.167f };
+		glm::vec4 cloudsColor{ 1.f,1.f,1.f,0.25f };
 		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
 		float cloudsSecondCloudAmplitude{ 49.f };
 		float cloudsSecondCloudIntensity{ 0.3f };
 		float cloudsSecondCloudSmoothness{ 0.0027 };
+		glm::vec4 cloudsSecondColor{ 1.f,1.f,1.f,0.25f };
 
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
@@ -823,6 +825,9 @@ namespace SliceEngine
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
 
+		//scales used for world space transformation only
+		float scale_x{}, scale_y{};
+
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(RectTransform const& parent);
 
@@ -864,7 +869,7 @@ namespace SliceEngine
 		float font_size;
 		float line_spacing;	//multiplier of font_size
 		
-		std::string text{"Hello World\nNew Line"};
+		std::string text{"Hello World"};
 
 		struct Token {
 			//std::string text{};
