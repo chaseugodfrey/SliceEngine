@@ -31,6 +31,7 @@ namespace SliceEngine
 
 			glm::vec4 color;
 			bool isTranslucent;
+			bool isIgnoreLighting;
 			bool isShaderUpdated;
 			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float, uint64_t>> data;
 
