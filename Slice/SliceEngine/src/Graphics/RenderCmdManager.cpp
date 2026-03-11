@@ -283,17 +283,18 @@ namespace SliceEngine
 		auto& canvas_sys = Core::GetInstance()->GetSystem<CanvasSystem>();
 		auto const& ui_entities = canvas_sys.Get_World_UI();
 
-		auto model = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+		auto rm = Core::GetInstance()->GetResourceManager();
+		auto model = rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 
 		SliceEngineTypes::Material ui_mat;
-		ui_mat.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/particles.cshader");
+		ui_mat.shader = rm->get<SliceEngineTypes::CustomShader>("CustomShader/sprite_ui.cshader");
 		ui_mat.data["texCol"] = DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 		for (Entity ui : ui_entities) {
 			auto const& tform = core->GetRegistry().get<Transform>(ui);
 			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
 				ui_mat.color = sprite->rgba;
 				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
-				ui_mat.isTranslucent = ui_mat.color.a > 0.999f;
+				ui_mat.isTranslucent = ui_mat.color.a < 0.999f;
 
 				RCK_ModelT mdlDet = GetModelDetails(
 					model.getGUID().GetGUID(),
@@ -332,6 +333,55 @@ namespace SliceEngine
 			}
 			if (auto font = core->GetRegistry().try_get<FontRenderer>(ui)) {
 				//ill figure this out next time
+				if (font->fontHandle.GetGUID() == DefaultResourceIDs::FONT_BLANK_DEFAULT) {
+					continue;
+				}
+
+				//auto const& rect = core->GetRegistry().get<RectTransform>(ui);
+				//auto const& font_res = rm->get<SliceEngineTypes::Font_Data>(font->fontHandle);
+				////for now dont worry about sdf, just treat it like a normal texture
+				//glm::vec4 color = font->rgba;
+				//float relative_scale = font->font_size / font_res->font_size;
+
+				////fit into a line
+				//struct Line {
+				//	unsigned char token_count;
+				//	float line_width{};
+				//};
+				//std::vector<Line> lines{};
+				//float total_width = (float)rect.final_width;
+				//float current_width = 0.f;
+				//Line temp_line{};
+
+				//for (auto const& token : font->token_list) {
+				//	assert(token.char_cnt > 0);
+				//	if (*token.pos == '\n') {	//if token is a line break
+				//		temp_line.token_count++;
+				//		temp_line.line_width = current_width;
+				//		lines.push_back(temp_line);
+
+				//		current_width = 0;
+				//		temp_line.token_count = 0;
+				//	}
+				//	else if (current_width + token.size > total_width) {	//next token cant fit, carry over
+				//		temp_line.line_width = current_width;
+				//		lines.push_back(temp_line);
+
+				//		current_width = token.size;
+				//		temp_line.token_count = 1;
+				//	}
+				//	else {	//token can fit, append to current line
+				//		temp_line.token_count++;
+				//		current_width += token.size;
+				//	}
+				//}
+				//if (temp_line.token_count) {	//any left over carried over tokens
+				//	temp_line.line_width = current_width;
+				//	lines.push_back(temp_line);
+				//}
+
+				//float left = -0.5f; float right = 0.5f;
+				//float top = 0.5f;
 			}
 		}
 
@@ -343,7 +393,7 @@ namespace SliceEngine
 		mLastKnownCam = camEntity;
 		auto& camT = Core::GetInstance()->GetRegistry().get<Transform>(camEntity);
 		glm::vec3 camFront, camRight, camUp, camPos;
-		glm::mat3 camRot = glm::mat3_cast(camT.rotation);
+		glm::mat3 camRot = glm::mat3_cast(camT.GetWorldRotation());
 		Core::GetInstance()->GetRenderManager()->GetCameraAxis(camRot, camFront, camRight, camUp);
 		camPos = camT.GetWorldPosition() - lastTranslucentOffset;
 

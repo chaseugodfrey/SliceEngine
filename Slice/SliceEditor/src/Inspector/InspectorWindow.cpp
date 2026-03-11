@@ -2257,7 +2257,13 @@ namespace SliceEditor
 					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Animator>(entity);
 				}
 			}
-
+			if (!selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Rect Transform"))
+				{
+					reg.emplace<SliceEngine::RectTransform>(entity);
+				}
+			}
 			if (!selectedGO.HasComponent<SliceEngine::SpriteRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
 			{
 				if (ImGui::Selectable("Add Sprite"))
