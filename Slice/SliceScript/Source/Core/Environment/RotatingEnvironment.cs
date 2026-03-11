@@ -12,6 +12,7 @@ namespace SliceEngine
     {
         public bool active = false;
         public float spiralRate = 1f; // seconds for a rotation
+        public Vector3 spiralAxis = new Vector3(0, 1, 0);
 
         public override void OnCreate()
         {
@@ -27,7 +28,7 @@ namespace SliceEngine
 
             //push it forward based on speed
 
-            this.transform.Rotate((360f / spiralRate) * dt, transform.Up);
+            this.transform.Rotate((360f / spiralRate) * dt, spiralAxis);
 
             //this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * speed * dt; 
         }
