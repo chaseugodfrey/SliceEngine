@@ -2497,6 +2497,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->fullPath);
 		}
+
+		if (BoolInputHeader(mRegistry, "Ignore Lights", "##mat_ignore_lights", mat.isIgnoreLighting))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
 		{
