@@ -61,7 +61,7 @@ namespace SliceEditor
 
 	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val);
 
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val, bool selectionDifferent);
 	
 	bool StringInput(Registry& reg, const char* id, std::string& val, float width, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
@@ -71,7 +71,7 @@ namespace SliceEditor
 	
 	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val);
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0, bool selectionDifferent = false);
 
 	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
 

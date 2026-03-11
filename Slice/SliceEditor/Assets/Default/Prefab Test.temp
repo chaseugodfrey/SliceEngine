@@ -52,9 +52,9 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145732,
+                    "entity_id": 11,
                     "neighbours": [
-                        3145733,
+                        10,
                         4294967295,
                         4294967295,
                         4294967295
@@ -142,11 +142,11 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145733,
+                    "entity_id": 10,
                     "neighbours": [
                         0,
-                        3145732,
-                        3145736,
+                        11,
+                        7,
                         4294967295
                     ]
                 },
@@ -225,9 +225,9 @@
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145734,
+                    "entity_id": 9,
                     "neighbours": [
-                        3145735,
+                        8,
                         4294967295,
                         4294967295,
                         4294967295
@@ -321,12 +321,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145735,
+                    "entity_id": 8,
                     "neighbours": [
                         0,
-                        3145734,
-                        3145739,
-                        3145736
+                        9,
+                        4,
+                        7
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -391,12 +391,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145736,
+                    "entity_id": 7,
                     "neighbours": [
                         0,
                         4294967295,
-                        3145735,
-                        3145733
+                        8,
+                        10
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -481,12 +481,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145737,
+                    "entity_id": 6,
                     "neighbours": [
                         0,
                         4294967295,
-                        3145738,
-                        3145740
+                        5,
+                        3
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -494,7 +494,7 @@
                     "scriptableFieldMap": {
                         "GOtest": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 3145737
+                            "Value": 6
                         },
                         "boolTest": {
                             "Type": "bool",
@@ -506,11 +506,11 @@
                         },
                         "intTest": {
                             "Type": "int",
-                            "Value": 0
+                            "Value": 5
                         },
                         "stringTest": {
                             "Type": "std::string",
-                            "Value": ""
+                            "Value": "gideon"
                         }
                     }
                 },
@@ -560,12 +560,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145738,
+                    "entity_id": 5,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        3145737
+                        6
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -573,7 +573,7 @@
                     "scriptableFieldMap": {
                         "GOtest": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 3145738
+                            "Value": 5
                         },
                         "boolTest": {
                             "Type": "bool",
@@ -581,7 +581,7 @@
                         },
                         "floatTest": {
                             "Type": "float",
-                            "Value": 7.5
+                            "Value": 0.0
                         },
                         "intTest": {
                             "Type": "int",
@@ -589,7 +589,7 @@
                         },
                         "stringTest": {
                             "Type": "std::string",
-                            "Value": ""
+                            "Value": "gideon"
                         }
                     }
                 },
@@ -682,12 +682,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145739,
+                    "entity_id": 4,
                     "neighbours": [
                         0,
                         4294967295,
-                        3145740,
-                        3145735
+                        3,
+                        8
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -772,12 +772,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145740,
+                    "entity_id": 3,
                     "neighbours": [
                         0,
                         4294967295,
-                        3145737,
-                        3145739
+                        6,
+                        4
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {

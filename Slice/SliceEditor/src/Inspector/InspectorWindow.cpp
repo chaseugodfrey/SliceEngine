@@ -1332,6 +1332,10 @@ namespace SliceEditor
 								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptBoolMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1343,9 +1347,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str, ScriptStringMultipleSelection(selectionManager, script.scriptName, it.second.mName, str, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									if (isMultipleSelection)
+									{
+										ScriptStringMultiSet(selectionManager, script.scriptName, it.second.mName, str);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1357,9 +1365,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%d", 0,0, ScriptIntMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptIntMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}

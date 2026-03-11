@@ -301,23 +301,32 @@ namespace SliceEditor
 
 #pragma region Normal Script Functions
 
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val)
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static std::string oldVal{};
+		std::string valCopy = val;
 
-		bool changed = ImGui::InputText(id, &val);
+		if (selectionDifferent)
+		{
+			valCopy = "---";
+		}
+
+		bool changed = ImGui::InputText(id, &valCopy);
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (oldVal != val)
+			if (oldVal != valCopy)
 			{
 				std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+				val = valCopy;
 			}
 		}
 
@@ -378,11 +387,16 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max)
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static int oldVal{};
+
+		if (selectionDifferent)
+		{
+			format = "---";
+		}
 
 		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format);
 

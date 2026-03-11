@@ -11,7 +11,7 @@ namespace SliceEngine
         //public bool boolTest = false;
         public GameObject GOtest;
         public float floatTest = 0.0f;
-        public string stringTest;
+        public string stringTest = "test";
         public int intTest = 0;
         public bool boolTest = true;
         //public Prefab prefabObj = new Prefab();
@@ -24,8 +24,12 @@ namespace SliceEngine
             if(Input.IsKeyPressed(Keys.KEY_O))
             {
                 //Input.SetCursorState(Cursor.STATE.DEFAULT);
-
-                SliceLog.Console(floatTest + "from " + GOtest.mID);
+                SliceLog.Console(floatTest + " Float from " + GOtest.mID);
+                SliceLog.Console(intTest + " Int from " + GOtest.mID);
+                SliceLog.Console(boolTest + " Bool from " + GOtest.mID);
+                SliceLog.Console(stringTest + " String from " + GOtest.mID);
+                SliceLog.Console("Entity " + GOtest.mID + " variables:");
+                SliceLog.Console("\n");
             }
         }
 
