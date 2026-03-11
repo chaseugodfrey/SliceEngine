@@ -45,7 +45,7 @@ namespace SliceEngine {
 
 			for (size_t pos = 0; pos < font_text.size(); ++pos) {
 				FontRenderer::Token token{};
-				token.pos = &font_text[pos];
+				token.pos = pos;
 
 				const char* pattern = " \n\t";
 				switch (font_text[pos]) {
@@ -310,7 +310,7 @@ namespace SliceEngine {
 
 				//Use rect to format the font characters
 				unsigned int instance_count = 0;
-				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle);
+				auto const& font = rm->get<SliceEngineTypes::Font_Data>(font_render.fontHandle).get();
 
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(font_render.rgba));
@@ -320,7 +320,7 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "relative_scale");
 				glUniform1f(uniform_loc, relative_scale);
 
-				glBindTextureUnit(0, font.get()->atlas_texture);
+				glBindTextureUnit(0, font->atlas_texture);
 
 				CheckGLError();
 
@@ -335,9 +335,11 @@ namespace SliceEngine {
 				float current_width = 0.f;
 				Line temp_line{};
 
+				const std::string& text = font_render.text;
+
 				for (auto const& token : font_render.token_list) {
 					assert(token.char_cnt > 0);
-					if (*token.pos == '\n') {	//if token is a line break
+					if (text[token.pos] == '\n') {	//if token is a line break
 						temp_line.token_count++;
 						temp_line.line_width = current_width;
 						lines.push_back(temp_line);
@@ -390,7 +392,7 @@ namespace SliceEngine {
 					for (size_t tok = 0; tok < line.token_count; ++tok, ++tokens_cnt) {
 						FontRenderer::Token const& curr_token = font_render.token_list[tokens_cnt];
 						for (unsigned int ch_it = 0; ch_it < curr_token.char_cnt; ++ch_it) {
-							char ch = *(curr_token.pos + ch_it);
+							char ch = text[curr_token.pos + ch_it];
 							if (ch == '\n') {
 								continue;
 							}
@@ -416,7 +418,7 @@ namespace SliceEngine {
 							Font_Instance instance_data;
 
 							instance_data.model_to_ndc = temp_rect.ToMatrix();
-							SliceEngineTypes::Atlas_UV uv = font.get()->atlas_uvs.at(ch);
+							SliceEngineTypes::Atlas_UV uv = font->atlas_uvs.at(ch);
 							instance_data.atlas_uv = { uv.u_start,uv.u_end,uv.v_start,uv.v_end };
 							//instance_data.atlas_uv = { 0.f,1.f,0.f,1.f };
 							font_Instances[instance_count] = instance_data;
