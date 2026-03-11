@@ -76,7 +76,7 @@ namespace SliceEngine
 
 			tempAllocator = std::make_unique<JPH::TempAllocatorImpl>(tempAllocatorSize);
 
-			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs);
+			jobSystem = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, threadCount);
 
 			broadphaseLayerInterface = std::make_unique<BPLayerInterfaceImpl>();
 			objectVsBroadphaseLayerFilter = std::make_unique<ObjectVsBroadPhaseLayerFilterImpl>(broadphaseLayerInterface.get());
@@ -95,6 +95,7 @@ namespace SliceEngine
 			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
 			//mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
+			mRegistry->on_update<ColliderShape>().connect<&PhysicsSystem::OnColliderModified>(this);
 
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
@@ -242,31 +243,31 @@ namespace SliceEngine
 	}
 
 	// componeent enable check
-	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
+	void PhysicsSystem::OnColliderModified(entt::registry& reg, entt::entity entity)
 	{
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (!checkEntity.HasComponent<ColliderShape>())
 			return;
 
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
-		auto& transform = mRegistry->get<Transform>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
 		//auto& slice = mRegistry->get<SliceEntity>(event.entity);
 
 		if(colliderShape.shape == nullptr)
 			return;
 
-		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(entity))
 		{
 			if (colliderShape.bodyID.IsInvalid())
 			{
-				CreateJoltBody(event.entity);
+				CreateJoltBody(entity);
 			}
 		}
-		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(entity))
 		{
 			if (!colliderShape.bodyID.IsInvalid())
 			{
-				DeleteJoltBody(event.entity);
+				DeleteJoltBody(entity);
 			}
 		}
 
@@ -321,9 +322,9 @@ namespace SliceEngine
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
 				// end debug later delete
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -382,9 +383,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -443,9 +444,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -508,9 +509,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -1538,7 +1539,7 @@ namespace SliceEngine
 		// Subscribe to the RigidBodyRemovedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 
-		eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
+		//eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
 
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
 

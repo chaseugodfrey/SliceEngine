@@ -75,7 +75,7 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
-		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+		void OnColliderModified(entt::registry& reg, entt::entity entity);
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
