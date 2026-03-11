@@ -58,7 +58,7 @@ namespace SliceEngine
                     }
                     else
                     {
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
                         moved = true;
                     }
                 }
@@ -84,7 +84,7 @@ namespace SliceEngine
                     float x = center.x + (float)Math.Cos(angle) * (orbitRadius * 6);
                     float z = center.z + (float)Math.Sin(angle) * (orbitRadius * 6);
 
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(x, 0f, z);
+                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(x, 0f, z);
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 1.5f));
                 }
             }
@@ -415,12 +415,12 @@ namespace SliceEngine
                     enemyController.projectileShooters[i].As<Projectile_Spawner>().active = false;
 
                     // move back to the starting position
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().Position + targetLocalPos;
+                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + targetLocalPos;
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 3.0f));
                 }
 
                 // Move back to the starting point
-                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position, 3.0f));
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
             }
 
             public override void OnFixedUpdate(float dt)
