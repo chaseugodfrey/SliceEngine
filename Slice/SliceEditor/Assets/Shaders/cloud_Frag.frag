@@ -1,11 +1,5 @@
 #version 460 core
 //cloud_Frag
-layout (location=0) in vec3 vPos;
-layout (location=1) in vec3 vNom;
-layout (location=2) in float vRandNoise;
-
-layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
-
 struct Light{
 	vec3 position;
 	float uFarPlane;
@@ -14,13 +8,19 @@ struct Light{
 	vec4 color; // rgb + intensity
 };
 
+layout (location=0) in vec3 vPos;
+layout (location=1) in vec3 vNom;
+layout (location=2) in float vRandNoise;
+
+layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
+
 layout (std140, binding = 0) uniform lightSpaceBlock
 {
 	mat4 lightSpaceMtx[16];
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
