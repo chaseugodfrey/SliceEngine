@@ -29,7 +29,7 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;

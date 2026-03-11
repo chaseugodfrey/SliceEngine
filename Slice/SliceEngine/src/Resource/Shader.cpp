@@ -601,7 +601,7 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
@@ -738,7 +738,7 @@ void main(void){
     vec4 dif = fFragColor;
     fEmission = vec4(emission, 1.0f);
    
-	if(any(notEqual(nom, vec3(0.0f))) && iDat[vInstance].isIgnoreLights != 0)
+	if(any(notEqual(nom, vec3(0.0f))) && iDat[vInstance].isIgnoreLights == 0)
 	{
 		nom = normalize(nom);
 
