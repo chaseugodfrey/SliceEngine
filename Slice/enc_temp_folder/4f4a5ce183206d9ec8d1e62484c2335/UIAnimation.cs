@@ -18,7 +18,7 @@ namespace SliceEngine
         public string textToShow = "";
 
         public GameObject rectObj;
-        public GameObject glitchRectObj;
+        public GameObject clickedRectObj;
         public GameObject frontTextObj;
         public GameObject backTextObj;
 
@@ -38,7 +38,6 @@ namespace SliceEngine
             if (rectObj != null)
             {
                 rectTransform = rectObj.GetComponent<RectTransform>();
-                spriteTrans = rectObj.GetComponent<SpriteRenderer>();
             }
 
             if (frontTextObj != null)
@@ -75,6 +74,35 @@ namespace SliceEngine
                 rectTransform.Right = (int)currentVal;
             }
 
+            if (clickedRectObj != null)
+            {
+                // Only allow flickering if we are in the 'hover' state
+                if (isHovering)
+                {
+                    // Probability check: 15% chance to be visible this frame
+                    // This creates the high-speed "flicker" effect
+                    bool shouldFlicker = SliceRandom.ValueFloat() > 0.95f;
+                    clickedRectObj.SetActive(shouldFlicker);
+
+                    if (shouldFlicker)
+                    {
+                        RectTransform ghostTrans = clickedRectObj.GetComponent<RectTransform>();
+                        if (ghostTrans != null)
+                        {
+                            // Apply a random horizontal offset to create the "split"
+                            float splitX = (SliceRandom.ValueFloat() - 0.5f) * 30f;
+                            ghostTrans.Right = rectTransform.Right + (int)splitX;
+                        }
+                    }
+                }
+                else
+                {
+                    // Ensure it's hidden when not hovering
+                    clickedRectObj.SetActive(false);
+                }
+            }
+
+
             if (frontText != null && !string.IsNullOrEmpty(textToShow) && backText != null)
             {
                 // Calculate how many characters to show based on the timer
@@ -94,98 +122,42 @@ namespace SliceEngine
                 backText.Text_val = displayStr;
             }
 
-            if (glitchRectObj != null)
+            if (useGlitch && animationTimer > 0.1f && animationTimer < 0.9f)
             {
-                
-                if (isHovering)
+                // 1. Create a random displacement for the "ghost" text
+                if (SliceRandom.ValueFloat() > 0.85f) // Frequency of the flicker
                 {
+                    float offsetX = (SliceRandom.ValueFloat() - 0.5f) * 20f;
+                    float offsetY = (SliceRandom.ValueFloat() - 0.5f) * 10f;
 
-                    bool shouldFlicker = SliceRandom.ValueFloat() > 0.98f;
-                    glitchRectObj.SetActive(shouldFlicker);
-
-                    
-                    int charactersToShow = (int)(animationTimer * textToShow.Length);
-                    string displayStr = textToShow.Substring(0, charactersToShow);
-
-                    if (shouldFlicker)
+                    // Shift the back text object if it has a RectTransform
+                    RectTransform backTrans = backTextObj.GetComponent<RectTransform>();
+                    if (backTrans != null)
                     {
-                        // --- SYNCED CONTENT GLITCH ---
-                        // Add multiple random characters during the flicker burst
-                        string glitchChars = "X/#_01";
-                        for (int i = 0; i < 2; i++)
-                        {
-                            int charIndex = (int)(SliceRandom.ValueFloat() * glitchChars.Length);
-                            displayStr += glitchChars[charIndex];
-                        }
-
-                        // --- SYNCED POSITION GLITCH ---
-                        RectTransform ghostTrans = glitchRectObj.GetComponent<RectTransform>();
-                        RectTransform textGhostTrans = backTextObj.GetComponent<RectTransform>();
-
-                        int direction = (int)(SliceRandom.ValueFloat() * 4);
-                        int offset = 15;
-
-                        // Apply directional logic to both Rect and Text Ghost
-                        ApplyDirectionalOffset(ghostTrans, rectTransform, direction, offset);
-                        ApplyDirectionalOffset(textGhostTrans, null, direction, 10); 
-
-                        if (backText != null) backText.Colour = new Vector4(1.0f, 0.0f, 0.3f, 0.8f);
-                    }
-                    else
-                    {
-                        // Standard typewriter glitch (single char during reveal)
-                        if (useGlitch && charactersToShow < textToShow.Length)
-                        {
-                            displayStr += "X/#_01"[(int)(SliceRandom.ValueFloat() * 6)];
-                        }
-
-                        // Reset back text position and color
-                        ResetGhostPosition(backTextObj.GetComponent<RectTransform>());
-                        if (backText != null) backText.Colour = new Vector4(0.8f, 0.8f, 0.8f, 0.5f);
+                        // We use small offsets to create the "split" effect
+                        backTrans.Right = (int)offsetX;
+                        // Assuming your engine has a Top/Y offset
+                        // backTrans.Top = (int)offsetY; 
                     }
 
-                    // Apply final strings
-                    if (frontText != null) frontText.Text_val = displayStr;
-                    if (backText != null) backText.Text_val = displayStr;
+                    // 2. Flicker the color to a "glitch" hue (e.g., cyan or magenta)
+                    if (backText != null)
+                        backText.Colour = new Vector4(1.0f, 0.0f, 0.3f, 0.8f); // Cyberpunk Pink
+                }
+                else
+                {
+                    // Reset to default shadow state
+                    if (backText != null)
+                        backText.Colour = new Vector4(0.8f, 0.8f, 0.8f, 0.5f);
                 }
             }
-
-
-            
-
-            
-        }
-
-        private void ResetGhostPosition(RectTransform ghostTrans)
-        {
-            if (ghostTrans == null) return;
-
-            
-            ghostTrans.Left = 0;
-            ghostTrans.Right = 0;
-
-            ghostTrans.Pos_Y = 0;
-        }
-
-        private void ApplyDirectionalOffset(RectTransform trans, RectTransform reference, int dir, int amt)
-        {
-            if (trans == null) return;
-            // If reference is null, we assume we are offsetting from 0 (like backText)
-            int baseR = (reference != null) ? reference.Right : 0;
-            int baseY = (reference != null) ? reference.Pos_Y : 0;
-
-            if (dir == 0) trans.Left = (reference != null ? reference.Left : 0) - amt;
-            else if (dir == 1) trans.Right = baseR - amt;
-            else if (dir == 2) trans.Pos_Y = baseY - amt;
-            else if (dir == 3) trans.Pos_Y = baseY + amt;
         }
 
         public void ButtonClickAnim()
         {
-            useGlitch = false;
-            if (rectObj != null)
+            if (clickedRectObj != null)
             {
-                spriteTrans.Colour = (new Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+                clickedRectObj.SetActive(true);
             }
 
             if (frontText != null && backText != null)
@@ -198,10 +170,9 @@ namespace SliceEngine
 
         public void ResetButton()
         {
-            useGlitch = true;
-            if (rectObj != null)
+            if (clickedRectObj != null)
             {
-                spriteTrans.Colour = (new Vector4(0.3f, 0.3f, 0.3f, 0.1f));
+                clickedRectObj.SetActive(false);
             }
 
             if (frontText != null && backText != null)
