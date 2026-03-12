@@ -177,6 +177,9 @@ namespace SliceEngine
         float dashCooldownTimer = 0.0f;
         public int dashArrayIndex = 3;
 
+        // VFX 
+        public string hitPrefabName;
+
         public float dashSpeed = 20.0f;
         Vector3 dashDir = Vector3.Zero;
         public float iFrameDuration = 0.2f;
@@ -547,6 +550,14 @@ namespace SliceEngine
             //console.writeline("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+            
+            Transform vfxTransform = SpawnVFX(hitPrefabName).GetComponent<Transform>();
+            vfxTransform.Position = transform.Position;
+            vfxTransform.RotationQuat = Quaternion.LookRotation((source.As<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
+        }
+        private GameObject SpawnVFX(string path)
+        {
+            return CreateGameObject("Prefabs/" + path + ".prefab");
         }
         public override void TakeDamage(int amount, GameObject source = null)
         {
