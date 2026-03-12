@@ -1389,14 +1389,19 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+								std::array<bool, 3> changedAxis{ false,false,false };
 								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data,"%.3f",0.1f,0.0f,0.0f, ScriptVector3MultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), &changedAxis))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptVector3MultiSet(selectionManager, script.scriptName, it.second.mName, data, changedAxis);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}

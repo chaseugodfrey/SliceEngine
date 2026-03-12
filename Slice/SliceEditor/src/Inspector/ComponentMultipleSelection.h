@@ -24,6 +24,8 @@ namespace SliceEditor
 
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
+	std::array<bool, 3> ScriptVector3MultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, bool isMultiSelection);
+
 	bool ScriptFloatMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection, bool isMultiSelection);
 
 	bool ScriptIntMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, int currentSelection, bool isMultiSelection);
@@ -51,6 +53,8 @@ namespace SliceEditor
 	void ScriptBoolMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, bool currentSelection);
 
 	void ScriptStringMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::string currentSelection);
+
+	void ScriptVector3MultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, std::array<bool, 3>& changedAxis);
 
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection);
 
