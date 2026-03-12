@@ -53,7 +53,7 @@ namespace SliceEngine
             {
                 
 
-                fanBladeRotation.Rotate(60.0f*dt, new Vector3(1.0f,0.0f,0.0f)); 
+                fanBladeRotation.Rotate(80.0f*dt, new Vector3(1.0f,0.0f,0.0f)); 
 
             }
         }
