@@ -747,10 +747,22 @@ namespace SliceEngine
 
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_SetColor(uint entityID, ref Vector4 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_GetColorEmission(uint entityID, out Vector4 color);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_SetColorEmission(uint entityID, ref Vector4 value);
 
         // Skybox
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

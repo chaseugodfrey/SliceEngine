@@ -227,7 +227,7 @@ namespace SliceEngine
 	struct Camera
 	{
 		int width{ 1920 }, height{ 1080 };
-		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
+		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };

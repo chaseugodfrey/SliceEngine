@@ -124,7 +124,7 @@ namespace SliceEngine
 		void AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat);
 		void SetColor(BasicIDat& dat, const glm::vec4& color, bool isFirst = true);
 
-		const float minDistTranslucent = -1.f;
+		const float minDistTranslucent = -100.f;
 		const int mEVBOSafetyMult = 2;
 		const float maxTime = 3600.f;
 		GLuint mEVBO{};
