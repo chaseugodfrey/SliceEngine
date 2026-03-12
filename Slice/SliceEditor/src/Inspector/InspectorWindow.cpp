@@ -2084,6 +2084,7 @@ namespace SliceEditor
 				switch (ps.renderMode)
 				{
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
+						BoolInputHeader(mRegistry, "Ignore Lights", "##ignoreLighting", ps.ignoreLights);
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
 						break;					
