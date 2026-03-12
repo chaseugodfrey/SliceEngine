@@ -443,7 +443,7 @@ namespace SliceEngine
             if (enemy != null)
             {
                 Console.WriteLine($"Attacking enemy in attack 1");
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
             }
         }
         private void Attack2(GameObject target)
@@ -452,7 +452,7 @@ namespace SliceEngine
             if (enemy != null)
             {
                 Console.WriteLine($"Attacking enemy in attack 2");
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
             }
         }
         private void Attack3(GameObject target)
@@ -460,7 +460,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
             }
         }
         private IEnumerator AttackDelay(float delay, Action action)
@@ -550,13 +550,23 @@ namespace SliceEngine
             //console.writeline("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
-            
-            Transform vfxTransform = SpawnVFX(hitPrefabName).GetComponent<Transform>();
+
+            GameObject vfx = SpawnVFX(hitPrefabName);
+            SliceLog.Log("Returned");
+
+            Transform vfxTransform = vfx.GetComponent<Transform>();
+            SliceLog.Log("Getting Transform");
+
             vfxTransform.Position = transform.Position;
-            vfxTransform.RotationQuat = Quaternion.LookRotation((source.As<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
+            SliceLog.Log("Set");
+
+            vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
+            SliceLog.Log("Rotating");
         }
         private GameObject SpawnVFX(string path)
         {
+            SliceLog.Log("Spawning VFX");
+
             return CreateGameObject("Prefabs/" + path + ".prefab");
         }
         public override void TakeDamage(int amount, GameObject source = null)
@@ -1141,7 +1151,7 @@ namespace SliceEngine
             EnemyBase enemy = target?.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[dashArrayIndex]);
+                enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
                 dashDurationTimer = 0f;
                 Console.WriteLine("Dealing damage using dash");
             }
