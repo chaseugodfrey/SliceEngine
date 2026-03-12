@@ -421,7 +421,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max)
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		
 		static glm::vec3 oldVal{};
@@ -430,7 +430,20 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		//changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+
+		bool resultX = ImGui::DragFloat((id + "_x"s).c_str(), &val.x, 0.1f, min, max, formatX.c_str());
+		bool triggerX = resultX;
+		if (selectionDifferent[0] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerX = true;
+		}
+		changed = triggerX || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -445,7 +458,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_y"s).c_str(), &val.y, inc, min, max, format);
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+
+		bool resultY = ImGui::DragFloat((id + "_y"s).c_str(), &val.y, 0.1f, min, max, formatY.c_str());
+		bool triggerY = resultY;
+		if (selectionDifferent[1] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerY = true;
+		}
+		changed = triggerY || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -460,8 +485,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_z"s).c_str(), &val.z, inc, min, max, format);
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
 
+		bool resultZ = ImGui::DragFloat((id + "_z"s).c_str(), &val.z, 0.1f, min, max,formatZ.c_str());
+		bool triggerZ = resultZ;
+		if (selectionDifferent[2] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerZ = true;
+		}
+		changed = triggerZ || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -472,6 +508,14 @@ namespace SliceEditor
 				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
+		}
+
+		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = triggerX;
+			(*changedAxis)[1] = triggerY;
+			(*changedAxis)[2] = triggerZ;
 		}
 
 		return changed;

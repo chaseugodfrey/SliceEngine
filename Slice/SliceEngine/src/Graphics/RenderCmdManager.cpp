@@ -99,11 +99,11 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
-			if (!rend.componentEnabled) return;
+			if (!rend.componentEnabled) continue;
 			auto model = rend.modelHandle;
-			if (!model.IsValid()) return;
+			if (!model.IsValid()) continue;
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE || core->GetSceneSystem()->mCurrentState == SceneState::PAUSE_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
 			{
 				if (!rend.materialInstance.shader.IsValid())
 					rend.materialInstance = *(rend.materialHandle.get());
@@ -136,10 +136,11 @@ namespace SliceEngine
 				key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 			}
 			SetColor(data, material->color);
+			SetColor(data, material->color2, false);
 
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
 			data.entityID = static_cast<unsigned int>(entity);
-			data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
+			data.notLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 			if (rend.castShadow && !isPrefab)
 				shadowRenderCmds[mdlDet].push_back(data);
@@ -195,7 +196,7 @@ namespace SliceEngine
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
-				data.isLightAffected = ptx.isIgnoreLights;
+				data.notLightAffected = ptx.isIgnoreLights;
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
 				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
@@ -248,7 +249,7 @@ namespace SliceEngine
 				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
-				data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
+				data.notLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 				// --MAYDO-- Been told to turn opaque off
 
@@ -603,66 +604,68 @@ namespace SliceEngine
 				const auto& id = i.id;
 				auto& dat = i.base;
 
-				// Change Shader
-				auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
-				if (thisShader != mShader)
-				{
-					mShader = thisShader;
-					glUseProgram(mShader);
-					rm->ForceSetCustomShader(std::string("CUSTOM"), mShader);
-					rm->UpdateCamVP();
-					rm->BindCameraDepth(mLastKnownCam);
-
-					if (drawType == DrawType::DRAW_TRANSLUCENT)
-					{
-						if (thisShader == godRayShader)
-							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_GODRAY], 0);
-						else
-							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_EMISSION], 0);
-					}
-
-					GLint uniformLoc;
-					uniformLoc = glGetUniformLocation(mShader, "time");
-					if(uniformLoc != -1)
-						glUniform1f(uniformLoc, time);
-					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
-					glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
-					uniformLoc = glGetUniformLocation(mShader, "numLights");
-					glUniform1i(uniformLoc, rm->numLightsFound);
-					
-					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
-					glUniform1i(uniformLoc, rm->mNumCascadeShadow);
-
-					std::stringstream ss{};
-					for (int i = 0; i < rm->mNumCascadeShadow; ++i)
-					{
-						ss.str("");
-						ss << "cascadePlaneDist[" << std::to_string(i) << "]";
-						uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
-						if (i == rm->mNumCascadeShadow - 1)
-							glUniform1f(uniformLoc, rm->mainDirLightFar);
-						else
-							glUniform1f(uniformLoc, rm->mainDirLightFar / rm->shadowCascadeLevels[i]);
-					}
-					auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
-
-					uniformLoc = glGetUniformLocation(mShader, "willBloom");
-					glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
-
-					uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
-					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
-					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
-					if (uniformLoc != -1)
-					{
-						glUniform1f(uniformLoc, camera.translucentSelectCutoff);
-					}
-				}
-
-				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
-
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
 				{
+
+					// Change Shader
+					auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
+					if (thisShader != mShader)
+					{
+						mShader = thisShader;
+						glUseProgram(mShader);
+						rm->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+						rm->UpdateCamVP();
+						rm->BindCameraDepth(mLastKnownCam);
+
+						if (drawType == DrawType::DRAW_TRANSLUCENT)
+						{
+							if (thisShader == godRayShader)
+								glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_GODRAY], 0);
+							else
+								glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_EMISSION], 0);
+						}
+
+						GLint uniformLoc;
+						uniformLoc = glGetUniformLocation(mShader, "time");
+						if (uniformLoc != -1)
+							glUniform1f(uniformLoc, time);
+						uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
+						glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
+						uniformLoc = glGetUniformLocation(mShader, "numLights");
+						glUniform1i(uniformLoc, rm->numLightsFound);
+
+						uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
+						glUniform1i(uniformLoc, rm->mNumCascadeShadow);
+
+						std::stringstream ss{};
+						for (int i = 0; i < rm->mNumCascadeShadow; ++i)
+						{
+							ss.str("");
+							ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+							uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
+							if (i == rm->mNumCascadeShadow - 1)
+								glUniform1f(uniformLoc, rm->mainDirLightFar);
+							else
+								glUniform1f(uniformLoc, rm->mainDirLightFar / rm->shadowCascadeLevels[i]);
+						}
+						auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
+
+						uniformLoc = glGetUniformLocation(mShader, "willBloom");
+						glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
+
+						uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
+						glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
+						uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
+						if (uniformLoc != -1)
+						{
+							glUniform1f(uniformLoc, camera.translucentSelectCutoff);
+						}
+					}
+
+					ShiftTransformMtx(dat.mdlMtx, offsetDelta);
+
+
 					RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 					if (mdlID != currMdlID)
 					{
@@ -717,7 +720,7 @@ namespace SliceEngine
 		case DrawType::DRAW_OPAQUE:
 		{
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE || core->GetSceneSystem()->mCurrentState == SceneState::PAUSE_SCENE)
 			{
 				if (!rend.materialInstance.shader.IsValid()) // --TODO-- Again, this shouldn't happen
 					rend.materialInstance = *(rend.materialHandle.get());
@@ -730,6 +733,7 @@ namespace SliceEngine
 			data.mdlMtx = transform.transform;
 			ShiftTransformMtx(data.mdlMtx, -relPos);
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
+			SetColor(data, glm::vec4(material->color2.r, material->color2.g, material->color2.b, 1.f), false);
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
 
@@ -900,14 +904,14 @@ namespace SliceEngine
 			}
 		}
 	}
-	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color)
+	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color, bool isFirst)
 	{
-		dat.col = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
+		if(isFirst)
+			dat.col = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
 				  static_cast<uint32_t>(color.b * 0xFF) << 8 | static_cast<uint32_t>(color.a * 0xFF);
-	}
-	void RenderCmdManager::SetAlpha(BasicIDat& dat, float alpha)
-	{
-		dat.col = (dat.col & 0xFFFF'FF00) | static_cast<uint32_t>(alpha * 0xFF);
+		else
+			dat.col2 = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
+				  static_cast<uint32_t>(color.b * 0xFF) << 8 | static_cast<uint32_t>(color.a * 0xFF);
 	}
 #pragma endregion
 }
