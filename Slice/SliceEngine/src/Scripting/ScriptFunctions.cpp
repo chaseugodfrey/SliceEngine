@@ -2881,6 +2881,26 @@ namespace SliceEngine
 			*color = renderer.materialInstance.color;
 		}
 	}
+	static void Material_SetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.materialInstance.color2 = *color;
+		}
+	}
+	static void Material_GetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*color = renderer.materialInstance.color2;
+		}
+	}
 #pragma endregion
 
 #pragma region Application
@@ -3265,6 +3285,8 @@ namespace SliceEngine
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+		ADD_INTERNAL_CALL(Material_SetColorEmission);
+		ADD_INTERNAL_CALL(Material_GetColorEmission);
 
 		// Skybox
 		ADD_INTERNAL_CALL(Skybox_GetLightingPower);
