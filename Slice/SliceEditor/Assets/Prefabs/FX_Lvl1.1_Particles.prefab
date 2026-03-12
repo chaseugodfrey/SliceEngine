@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 199229698,
+                "entity_id": 225443891,
                 "neighbours": [
                     0,
-                    199229700,
-                    195035308,
+                    225443888,
+                    232784046,
                     4294967295
                 ]
             },
@@ -345,12 +345,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 199229700,
+                "entity_id": 225443888,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
                     4294967295,
-                    186646841
+                    238026848
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -681,12 +681,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 186646841,
+                "entity_id": 238026848,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    199229700,
-                    186646765
+                    225443888,
+                    238026858
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -777,7 +777,7 @@
                 "coneArc": 90.0,
                 "destroyOnExpire": false,
                 "duration": 5.0,
-                "emissionRate": 30.0,
+                "emissionRate": 25.0,
                 "endOrbitVelocity": [
                     0.10000000149011612,
                     0.10000000149011612,
@@ -791,7 +791,7 @@
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": true,
-                "initialLifetimeType": 0,
+                "initialLifetimeType": 1,
                 "initialRotationType": 0,
                 "isLocalSpace": false,
                 "isRepeating": true,
@@ -810,18 +810,18 @@
                 ],
                 "maxRandomRotation": 0.0,
                 "maxRandomScale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.6000000238418579,
+                    0.6000000238418579,
+                    0.6000000238418579
                 ],
                 "maxRandomSpawnPos": [
                     400.0,
-                    100.0,
+                    80.0,
                     100.0
                 ],
                 "maxRandomSpeed": 1.0,
                 "minGlowIntensity": 0.0,
-                "minParticleLifetime": 5.0,
+                "minParticleLifetime": 1.0,
                 "minRandomColour": [
                     0.0,
                     0.0,
@@ -830,24 +830,24 @@
                 ],
                 "minRandomRotation": 0.0,
                 "minRandomScale": [
-                    1.0,
-                    1.0,
-                    1.0
+                    0.30000001192092896,
+                    0.30000001192092896,
+                    0.30000001192092896
                 ],
                 "minRandomSpawnPos": [
                     -400.0,
-                    -100.0,
+                    -80.0,
                     -100.0
                 ],
-                "minRandomSpeed": 1.0,
+                "minRandomSpeed": -1.0,
                 "modelHandle": {
                     "GUID": ""
                 },
                 "numBursts": 0,
                 "orbitAxis": [
-                    0.0,
-                    0.0,
-                    0.10000000149011612
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    1.0
                 ],
                 "orbitOverLifetime": true,
                 "particleLayer": 0,
@@ -869,7 +869,7 @@
                     0.5,
                     0.5
                 ],
-                "scaleType": 0,
+                "scaleType": 1,
                 "shapeRadius": 0.10000000149011612,
                 "shapeScale": [
                     1.0,
@@ -915,8 +915,8 @@
                     0.0
                 ],
                 "spawnPosValueType": 1,
-                "speed": 0.10000000149011612,
-                "speedValueType": 0,
+                "speed": 5.0,
+                "speedValueType": 1,
                 "sphereArc": 180.0,
                 "startOrbitVelocity": [
                     0.10000000149011612,
@@ -940,12 +940,12 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 186646765,
+                "entity_id": 238026858,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    186646841,
-                    199229705
+                    238026848,
+                    225443883
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1276,12 +1276,12 @@
                 "prefabID": 4
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 199229705,
+                "entity_id": 225443883,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    186646765,
-                    186646752
+                    238026858,
+                    239075441
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1550,12 +1550,12 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 186646752,
+                "entity_id": 239075441,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    199229705,
-                    199229709
+                    225443883,
+                    225443880
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1886,12 +1886,12 @@
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 199229709,
+                "entity_id": 225443880,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    186646752,
-                    199229733
+                    239075441,
+                    225443871
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -2222,11 +2222,11 @@
                 "prefabID": 7
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 199229733,
+                "entity_id": 225443871,
                 "neighbours": [
-                    199229698,
+                    225443891,
                     4294967295,
-                    199229709,
+                    225443880,
                     4294967295
                 ]
             },
