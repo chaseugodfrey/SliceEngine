@@ -459,7 +459,7 @@ namespace SliceEngine
                     if (idleTimer > idleTime && !secondMoved)
                     {
                         secondMoved = true;
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(0, 100f, 0), 5.0f));
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
                 }
             }
