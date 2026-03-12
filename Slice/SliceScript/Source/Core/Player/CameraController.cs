@@ -29,6 +29,11 @@ namespace SliceEngine
         private float defaultCameraOffsetDist = 0f;
         public Vector3 cameraOffset = new Vector3(0f, 2f, -5f); // 2 units up, 5 units back 
         public float smoothFollowSpeed = 10f;
+
+        public GameObject followTarget;
+        public Vector3 followOffset = new Vector3(0f, 2f, -5f);
+        public float followPositionSmoothness = 5f;
+        public float followRotationSmoothness = 5f;
         //private Vector2 lastMousePos;
 
         public float collisionRadius = 0.25f;
@@ -48,6 +53,12 @@ namespace SliceEngine
         }
         public override void OnUpdate(float dt)
         {
+            if (followTarget != null)
+            {
+                UpdateFollow(dt);
+                return;
+            }
+
             Vector2 mouseDelta = Input.GetMouseDelta();
             //SliceLog.Log(mouseDelta.ToString());
             if (!LockCamera)
@@ -278,6 +289,28 @@ namespace SliceEngine
                 Bootstrap.Player.SetPlayerLock(false);
             }
             SliceLog.Log("Camera sequence complete. Control returned to player.");
+        }
+   
+        public void SetFollowTarget(GameObject target)
+        {
+            followTarget = target;
+            LockCamera = true;
+        }
+
+        private void UpdateFollow(float dt)
+        {
+            if (followTarget == null) return;
+
+            Vector3 targetPos = followTarget.GetComponent<Transform>().WorldPosition + followOffset;
+            transform.Position = Utilities.Lerp(transform.Position, targetPos, followPositionSmoothness * dt);
+
+            Vector3 lookDir = (followTarget.GetComponent<Transform>().WorldPosition - transform.WorldPosition);
+            if (lookDir.SquareMagnitude() > 0.001f)
+            {
+                lookDir = lookDir.Normalize();
+                Quaternion targetRotation = Quaternion.LookRotation(lookDir, Vector3.Up);
+                transform.RotationQuat = Quaternion.Slerp(transform.RotationQuat, targetRotation, followRotationSmoothness * dt);
+            }
         }
     }
 }
