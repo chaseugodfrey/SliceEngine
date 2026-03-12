@@ -244,6 +244,10 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": []
+                        },
                         "floatTest": {
                             "Type": "float",
                             "Value": 0.0
@@ -440,22 +444,6 @@
         },
         {
             "ScriptTestChanged": {
-                "struct SliceEngine::ColliderShape": {
-                    "boxData": {
-                        "scale": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ]
-                    },
-                    "componentEnabled": true,
-                    "isTrigger": false,
-                    "offSet": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                },
                 "struct SliceEngine::Renderer": {
                     "componentEnabled": true,
                     "material": {
@@ -467,26 +455,6 @@
                     },
                     "renderTag": "0",
                     "skinned": false
-                },
-                "struct SliceEngine::RigidBody": {
-                    "CollisionDetection": "",
-                    "angularDamping": 0.05000000074505806,
-                    "freezePosition": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "freezeRotation": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "friction": 0.5,
-                    "gravityFactor": 1.0,
-                    "isKinematic": false,
-                    "linearDamping": 0.05000000074505806,
-                    "mass": 1.0,
-                    "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 6,
@@ -507,6 +475,14 @@
                         "boolTest": {
                             "Type": "bool",
                             "Value": false
+                        },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": [
+                                1.0,
+                                2.0,
+                                4.0
+                            ]
                         },
                         "floatTest": {
                             "Type": "float",
@@ -594,6 +570,14 @@
                         "boolTest": {
                             "Type": "bool",
                             "Value": true
+                        },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": [
+                                6.0,
+                                7.0,
+                                8.0
+                            ]
                         },
                         "floatTest": {
                             "Type": "float",

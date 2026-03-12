@@ -359,6 +359,70 @@ namespace SliceEditor
 	}
 #pragma endregion
 
+#pragma region Script List Difference Check
+
+	std::vector<bool> ScriptFloatListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList ,bool isMultiSelection)
+	{
+		std::vector<bool> elementDiffs;
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentList = scriptRef->GetListFieldValue<float>(scriptVarName);
+
+					//Compare this list and the "main" list
+					size_t maxSize = std::max(currentList.size(), originalList.size());
+					if (elementDiffs.size() < maxSize)
+					{
+						elementDiffs.resize(maxSize, false); //Set everything to false first.
+					}
+
+					//Difference check per element
+					for (size_t i = 0; i < maxSize; ++i)
+					{
+						bool currentMissing = i >= currentList.size(); //This means the currentList has less variables than the "main"
+						bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one
+
+						if (currentMissing || originalMissing)
+						{
+							//elementDiffs[i] = true; //Idk do i need to set it as diff??? or just ignore it TBC
+							continue;
+						}
+
+						if (currentList[i] != originalList[i])
+						{
+							elementDiffs[i] = true;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			elementDiffs.resize(originalList.size(), false);
+		}
+		return elementDiffs;
+	}
+
+#pragma endregion
+
 #pragma region Multi-Setting Fucntions
 
 	void ScriptFloatMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection)

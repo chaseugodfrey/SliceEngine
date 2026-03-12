@@ -994,7 +994,7 @@ namespace SliceEditor
 		return changed;
 	}
 	
-	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<float > oldList{};
@@ -1011,6 +1011,12 @@ namespace SliceEditor
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
 				ImGui::SetNextItemWidth(200.0f);
+
+				if (elementDiffs[idx])
+				{
+					format = "---";
+				}
+
 				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
 
 				if (ImGui::IsItemActivated())
