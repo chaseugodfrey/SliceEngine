@@ -241,7 +241,7 @@ namespace SliceEngine
                     {
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
-                            SliceLog.Log("passed the check on preaim");
+                            //SliceLog.Log("passed the check on preaim");
                             AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
 
                             a.active = false;
