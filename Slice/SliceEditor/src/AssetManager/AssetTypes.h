@@ -199,7 +199,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::BC7 };
+		CompressionFormat cmp_format{ CompressionFormat::BC3 };
 		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
