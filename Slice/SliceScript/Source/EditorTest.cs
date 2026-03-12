@@ -14,11 +14,12 @@ namespace SliceEngine
         public string stringTest = "test";
         public int intTest = 0;
         public bool boolTest = true;
+        public Vector3 vec3test;
+
         //public Prefab prefabObj = new Prefab();
 
         //public List<int> intList = new List<int>();
         //public List<GameObject> goListTest = new List<GameObject>();
-        //public Vector3 vec3test;
         public override void OnUpdate(float dt)
         {
             if(Input.IsKeyPressed(Keys.KEY_O))
