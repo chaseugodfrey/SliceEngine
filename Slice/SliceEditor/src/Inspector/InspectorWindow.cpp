@@ -2507,6 +2507,11 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->fullPath);
 		}
+
+		if (DragColor4InputHeader(mRegistry, "Material Emission Colour", "##mat_emission_color", mat.color2))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
 		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
 		for (auto& i : shdr.get()->dataIn)
 		{
