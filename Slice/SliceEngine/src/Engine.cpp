@@ -436,7 +436,7 @@ namespace SliceEngine
 			rttr::value("TWO_CONSTANTS", ParticleSystem::ValueType::TWO_CONSTANTS)
 			);
 
-	rttr::registration::enumeration<ParticleSystem::RenderMode>(typeid(ParticleSystem::RenderMode).name())
+	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
 		(
 			rttr::value("BILLBOARD", ParticleSystem::RenderMode::BILLBOARD),
 			rttr::value("MESH", ParticleSystem::RenderMode::MESH)
@@ -470,10 +470,10 @@ namespace SliceEngine
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
 
-		.property("shapeRadius", &ParticleSystem::rectScale)
+		.property("rectScale", &ParticleSystem::rectScale)
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
-		.property("shapeRadius", &ParticleSystem::shapeScale)
+		.property("shapeScale", &ParticleSystem::shapeScale)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -535,6 +535,7 @@ namespace SliceEngine
 		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
 		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+		.property("ignoreLights", &ParticleSystem::ignoreLights)
 		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
@@ -952,6 +953,14 @@ namespace SliceEngine
 			sScene->WriteTempFile();
 		}
 
+		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			sAudio->SetCategoryPause(0, false);
+			sAudio->SetCategoryPause(1, false);
+		}
+
+		sScene->mCurrentState = SceneState::PLAY_SCENE;
+
 		if (!isPlaying)
 		{
 			SliceEngine::gScriptSystem->OnStart();
@@ -960,14 +969,6 @@ namespace SliceEngine
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
-
-		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
-		{
-			sAudio->SetCategoryPause(0, false);
-			sAudio->SetCategoryPause(1, false);
-		}
-
-		sScene->mCurrentState = SceneState::PLAY_SCENE;
 	}
 
 	void Engine::OnStopStart()
