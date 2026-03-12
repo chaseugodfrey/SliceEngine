@@ -99,11 +99,11 @@ namespace SliceEngine
 		for (auto entity : view)
 		{
 			auto& rend = core->GetRegistry().get<Renderer>(entity);
-			if (!rend.componentEnabled) return;
+			if (!rend.componentEnabled) continue;
 			auto model = rend.modelHandle;
-			if (!model.IsValid()) return;
+			if (!model.IsValid()) continue;
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE || core->GetSceneSystem()->mCurrentState == SceneState::PAUSE_SCENE) // --TODO-- IDK why this part also needs error check, this shouldn't happen
 			{
 				if (!rend.materialInstance.shader.IsValid())
 					rend.materialInstance = *(rend.materialHandle.get());
@@ -720,7 +720,7 @@ namespace SliceEngine
 		case DrawType::DRAW_OPAQUE:
 		{
 			const SliceEngine::SliceEngineTypes::Material* material;
-			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+			if (core->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE || core->GetSceneSystem()->mCurrentState == SceneState::PAUSE_SCENE)
 			{
 				if (!rend.materialInstance.shader.IsValid()) // --TODO-- Again, this shouldn't happen
 					rend.materialInstance = *(rend.materialHandle.get());
