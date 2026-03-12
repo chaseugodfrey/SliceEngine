@@ -53,7 +53,7 @@ namespace SliceEngine
             settingsBackBGPopup = FindGameObjectWithName("PopupBG_1");
             settingsFrontTitleBGPopup = FindGameObjectWithName("TitleTextFrontBG");
             settingsBackTitleBGPopup = FindGameObjectWithName("TitleTextBackBG");
-            settingsSliders = FindGameObjectWithName("SettingsSliders");
+            settingsSliders = FindGameObjectWithName("SettingsSlider");
             closeSettingsButton = FindGameObjectWithName("CloseSettings");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
             frontTitleObj = FindGameObjectWithName("FrontTitleText");
@@ -84,54 +84,71 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if(openSettings)
+            if (openSettings || animationTimer > 0f)
             {
-
-                animationTimer += Time.deltaTime / duration;
+                // 1. Directional Timer Logic
+                if (openSettings)
+                    animationTimer += Time.deltaTime / duration;
+                else
+                    animationTimer -= Time.deltaTime / duration;
 
                 animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);
 
-                //Console.WriteLine($"{animationTimer}");
+                // 2. STAGE 1: Background & Title BG (0.0 to 0.5 range)
+                // Use InverseLerp to create a progress factor specifically for this window
+                float bgProgress = Utilities.InverseLerp(0f, 0.5f, animationTimer);
 
-                if(settingsFrontBgTrans != null)
+                if (settingsFrontBgTrans != null)
                 {
-                    float currentVal = Utilities.SmoothStep(defaultHeight, finalHeight, animationTimer);
-                    float currentFrontTitleBGWidth = Utilities.SmoothStep(defaultFrontTitleBGWidth, finalFrontTitleBGWidth, animationTimer);
-                    float currentBackTitleBGWidth = Utilities.SmoothStep(defaultBackTitleBGWidth, finalBackTitleBGWidth, animationTimer);
+                    float currentVal = Utilities.SmoothStep(defaultHeight, finalHeight, bgProgress);
+                    float currentFrontTitleBGWidth = Utilities.SmoothStep(defaultFrontTitleBGWidth, finalFrontTitleBGWidth, bgProgress);
+                    float currentBackTitleBGWidth = Utilities.SmoothStep(defaultBackTitleBGWidth, finalBackTitleBGWidth, bgProgress);
+
                     settingsFrontBgTrans.Height = (int)currentVal;
                     settingsBackBgTrans.Height = (int)currentVal;
                     settingsFrontTitleBgTrans.Right = (int)currentFrontTitleBGWidth;
                     settingsBackTitleBgTrans.Right = (int)currentBackTitleBGWidth;
 
-                    //Console.WriteLine($"{settingsBgTrans.Height}");
-                    if (settingsBackBgTrans.Height == finalHeight && settingsBackBgTrans.Pos_X != backBGFinalXPos)
+                    // Subtle position offset for back BG if needed
+                    if (bgProgress >= 1f && settingsBackBgTrans.Pos_X != backBGFinalXPos)
                     {
-                        float currentPosX = Utilities.SmoothStep(settingsBackBgTrans.Pos_X, backBGFinalXPos, 0.5f);
-                        float currentPosY = Utilities.SmoothStep(settingsBackBgTrans.Pos_Y, backBGFinalYPos, 0.5f);
-
-                        settingsBackBgTrans.Pos_X = (int)currentPosX;
-                        settingsBackBgTrans.Pos_Y = (int)currentPosY;
+                        settingsBackBgTrans.Pos_X = (int)Utilities.SmoothStep(settingsBackBgTrans.Pos_X, backBGFinalXPos, 0.5f);
+                        settingsBackBgTrans.Pos_Y = (int)Utilities.SmoothStep(settingsBackBgTrans.Pos_Y, backBGFinalYPos, 0.5f);
                     }
                 }
 
-                if (frontText != null && !string.IsNullOrEmpty(textToShow) && backText != null)
+                // 3. STAGE 2: Title Text Typewriter (0.5 to 1.0 range)
+                // textProgress will stay at 0 until animationTimer exceeds 0.5
+                float textProgress = Utilities.InverseLerp(0.5f, 1.0f, animationTimer);
+
+                if (frontText != null && backText != null && !string.IsNullOrEmpty(textToShow))
                 {
-                    int charactersToShow = (int)(animationTimer * textToShow.Length);
-                    string displayStr = textToShow.Substring(0, charactersToShow);
+                    int charactersToShow = (int)(textProgress * textToShow.Length);
+                    string currentStr = textToShow.Substring(0, charactersToShow);
 
-                    // Add a random character at the end during reveal
-                    if (useGlitch && charactersToShow > 0 && charactersToShow < textToShow.Length)
-                    {
-                        string glitchChars = "X/#_01";
-                        int charIndex = (int)(SliceRandom.ValueFloat() * glitchChars.Length);
-                        displayStr += glitchChars[charIndex];
-                    }
-
-                    frontText.Text_val = displayStr;
-                    backText.Text_val = displayStr;
+                    frontText.Text_val = currentStr;
+                    backText.Text_val = currentStr;
                 }
 
-                
+                // 4. UI Element Visibility (Only at full completion)
+                if (animationTimer >= 1.0f && openSettings)
+                {
+                    if (settingsSliders != null) settingsSliders.SetActive(true);
+                    if (closeSettingsButton != null) closeSettingsButton.SetActive(true);
+                }
+                else
+                {
+                    // Hide immediately if we aren't at the end of the sequence
+                    if (settingsSliders != null) settingsSliders.SetActive(false);
+                    if (closeSettingsButton != null) closeSettingsButton.SetActive(false);
+                }
+
+                // 5. Deactivation Logic
+                if (animationTimer <= 0f && !openSettings)
+                {
+                    if (settingsPopup != null) settingsPopup.SetActive(false);
+                    if (MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
+                }
             }
         }
 
@@ -171,8 +188,9 @@ namespace SliceEngine
 
         public void CloseSettings()
         {
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+            //if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
+            openSettings = false;
         }
 
 

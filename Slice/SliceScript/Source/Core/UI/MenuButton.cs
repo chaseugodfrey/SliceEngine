@@ -100,6 +100,12 @@ namespace SliceEngine
                 else if (buttonType == 3)
                 {
                     mainController.CloseSettings();
+                    if (uiAnimController != null)
+                    {
+                        uiAnimController.ButtonHoverState(false);
+                        uiAnimController.ResetButton();
+
+                    }
                 }
                 else if (buttonType == 4)
                 {
