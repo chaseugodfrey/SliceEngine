@@ -51,8 +51,12 @@ namespace SliceEngine
         private bool preaiming = false;
         public bool preAimRandom = false;
         public string aiminglinePrefabName = "PreAim";
+
         public GameObject preAimObject;
 
+        //Shooting Effects
+        public string shootFXPrefabName1 = "FX_Firing1";
+        public string shootFXPrefabName2 = "FX_Firing2";
         //
         public bool active = false;
 
@@ -67,15 +71,16 @@ namespace SliceEngine
         #region bullet creation
         public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
         {
-            string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+            string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";            
+
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
-            GameObject newBullet = CreateGameObject(prefabPath);
+            GameObject newBullet = CreateGameObject(prefabPath);            
 
             Transform tempT = newBullet.GetComponent<Transform>();
 
             tempT.Position = startPos;
             tempT.Rotation = angle;
-            tempT.Scale = scale;
+            tempT.Scale = scale;            
 
             Projectile tempP = newBullet.As<Projectile>();
 
@@ -95,6 +100,23 @@ namespace SliceEngine
                     DestroyBullet(allProjectiles[0]);
                 }
             }
+
+            if (currentStyle != SpawnStyle.Spiral)
+            {
+                string fxPrefabPath = "Prefabs/" + shootFXPrefabName1 + ".prefab";
+
+                GameObject firingEffect = CreateGameObject(fxPrefabPath);
+                Transform tempT2 = firingEffect.GetComponent<Transform>();
+                tempT2.Position = startPos;
+            }
+            //else
+            //{
+            //    string fxPrefabPath = "Prefabs/" + shootFXPrefabName2 + ".prefab";
+
+            //    GameObject firingEffect = CreateGameObject(fxPrefabPath);
+            //    Transform tempT2 = firingEffect.GetComponent<Transform>();
+            //    tempT2.Position = startPos;
+            //}
 
             return newBullet;
         }

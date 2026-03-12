@@ -298,6 +298,7 @@ namespace SliceEngine
             private float timer = 0f;
 
             public string projectilePrefabName = "Projectile";
+            public string shootFXPrefabName = "FX_Firing1";
             public float projPerSecond = 4f;
             public float bulletSpeed = 40f;
             public Vector3 bulletScale = new Vector3(1);
@@ -343,14 +344,20 @@ namespace SliceEngine
             public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
             {
                 string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+                string fxPrefabPath = "Prefabs/" + shootFXPrefabName + ".prefab";
+
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
                 GameObject newBullet = owner.CreateGameObject(prefabPath);
+                GameObject firingEffect = owner.CreateGameObject(fxPrefabPath);
 
                 Transform tempT = newBullet.GetComponent<Transform>();
+                Transform tempT2 = firingEffect.GetComponent<Transform>();
 
                 tempT.Position = startPos;
                 tempT.Rotation = angle;
                 tempT.Scale = scale;
+
+                tempT2.Position = startPos;           
 
                 Projectile tempP = newBullet.As<Projectile>();
 
