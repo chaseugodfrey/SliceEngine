@@ -1,6 +1,6 @@
 [
     {
-        "FX_Lvl1.2_Particles": {
+        "FX_Lvl1_2_Particles": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,18 +9,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 262144350,
+                "entity_id": 31457566,
                 "neighbours": [
                     0,
-                    263192591,
-                    247464291,
-                    264241434
+                    31457582,
+                    24117585,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Lvl1.2_Particles",
+                "mName": "FX_Lvl1_2_Particles",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -49,7 +49,7 @@
         }
     },
     {
-        "FX_Smoke": {
+        "FX_Smoke_2": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -345,18 +345,18 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 263192591,
+                "entity_id": 31457582,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
                     4294967295,
-                    263192811
+                    31457584
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Smoke",
+                "mName": "FX_Smoke_2",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -385,7 +385,7 @@
         }
     },
     {
-        "FX_Sparks": {
+        "FX_Sparks_3": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -681,18 +681,18 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 263192811,
+                "entity_id": 31457584,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    263192591,
-                    263192841
+                    31457582,
+                    31457604
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Sparks",
+                "mName": "FX_Sparks_3",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -721,7 +721,7 @@
         }
     },
     {
-        "FX_Floating_Dust": {
+        "FX_Floating_Dust_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -940,18 +940,18 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 263192841,
+                "entity_id": 31457604,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    263192811,
-                    263192937
+                    31457584,
+                    31457610
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Floating_Dust",
+                "mName": "FX_Floating_Dust_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -980,7 +980,7 @@
         }
     },
     {
-        "FX_Sparks_1": {
+        "FX_Sparks_1_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -1276,18 +1276,18 @@
                 "prefabID": 4
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 263192937,
+                "entity_id": 31457610,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    263192841,
-                    263192957
+                    31457604,
+                    31457613
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Sparks_1",
+                "mName": "FX_Sparks_1_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1316,7 +1316,7 @@
         }
     },
     {
-        "FX_Snow": {
+        "FX_Snow_5": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -1557,18 +1557,18 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 263192957,
+                "entity_id": 31457613,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    263192937,
-                    264241225
+                    31457610,
+                    31457640
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Snow",
+                "mName": "FX_Snow_5",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1597,7 +1597,7 @@
         }
     },
     {
-        "FX_Smoke_1": {
+        "FX_Smoke_1_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -1893,18 +1893,18 @@
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 264241225,
+                "entity_id": 31457640,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    263192957,
-                    264241247
+                    31457613,
+                    31457666
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Smoke_1",
+                "mName": "FX_Smoke_1_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -1933,7 +1933,7 @@
         }
     },
     {
-        "FX_Sparks_2": {
+        "FX_Sparks_2_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -2229,18 +2229,18 @@
                 "prefabID": 7
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 264241247,
+                "entity_id": 31457666,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    264241225,
-                    264241313
+                    31457640,
+                    32505978
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Sparks_2",
+                "mName": "FX_Sparks_2_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2269,7 +2269,7 @@
         }
     },
     {
-        "FX_Snow_1": {
+        "FX_Snow_1_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -2503,18 +2503,18 @@
                 "prefabID": 8
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 264241313,
+                "entity_id": 32505978,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    264241247,
-                    264241319
+                    31457666,
+                    32506090
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Snow_1",
+                "mName": "FX_Snow_1_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2543,7 +2543,7 @@
         }
     },
     {
-        "FX_Snow_2": {
+        "FX_Snow_2_2": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -2784,18 +2784,18 @@
                 "prefabID": 9
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 264241319,
+                "entity_id": 32506090,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    264241313,
-                    264241408
+                    32505978,
+                    32506163
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Snow_2",
+                "mName": "FX_Snow_2_2",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -2824,7 +2824,7 @@
         }
     },
     {
-        "FX_Snow_3": {
+        "FX_Snow_3_1": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -3065,18 +3065,18 @@
                 "prefabID": 10
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 264241408,
+                "entity_id": 32506163,
                 "neighbours": [
-                    262144350,
+                    31457566,
                     4294967295,
-                    264241319,
-                    4294967295
+                    32506090,
+                    32506214
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_Snow_3",
+                "mName": "FX_Snow_3_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -3094,6 +3094,280 @@
                     0.7071068286895752,
                     0.0,
                     -0.7071067094802856,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    0.9999999403953552
+                ]
+            }
+        }
+    },
+    {
+        "FX_Snow_1_1_1": {
+            "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": true,
+                "axis": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "bounceDampening": 0.6000000238418579,
+                "bounciness": 0.0,
+                "bursts": [],
+                "colorValueType": 0,
+                "colour": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "colourLifetimeMap": {
+                    "0.000000": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.4901960790157318
+                    ],
+                    "0.900000": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.4901960790157318
+                    ],
+                    "1.000000": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.0
+                    ]
+                },
+                "colourMapIntermediary": [
+                    [
+                        0.0,
+                        [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.4901960790157318
+                        ]
+                    ],
+                    [
+                        0.8999999761581421,
+                        [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.4901960790157318
+                        ]
+                    ],
+                    [
+                        1.0,
+                        [
+                            1.0,
+                            1.0,
+                            1.0,
+                            0.0
+                        ]
+                    ]
+                ],
+                "colourOverLifetime": true,
+                "coneArc": 20.0,
+                "destroyOnExpire": false,
+                "duration": 5.0,
+                "emissionRate": 10.0,
+                "endOrbitVelocity": [
+                    0.10000000149011612,
+                    0.0,
+                    0.10000000149011612
+                ],
+                "followTransformRotation": true,
+                "friction": 0.8999999761581421,
+                "gForce": 0.5,
+                "glow": false,
+                "glowIntensity": 3.299999952316284,
+                "glowValueType": 0,
+                "hasCollision": false,
+                "ignoreLights": true,
+                "initialLifetimeType": 0,
+                "initialRotationType": 0,
+                "isLocalSpace": false,
+                "isRepeating": true,
+                "lifetime": 5.0,
+                "materialHandle": {
+                    "GUID": ""
+                },
+                "maxGlowIntensity": 0.0,
+                "maxParticleLifetime": 5.0,
+                "maxParticles": 200,
+                "maxRandomColour": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "maxRandomRotation": 0.0,
+                "maxRandomScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "maxRandomSpawnPos": [
+                    0.0,
+                    10.0,
+                    50.0
+                ],
+                "maxRandomSpeed": 1.0,
+                "minGlowIntensity": 0.0,
+                "minParticleLifetime": 5.0,
+                "minRandomColour": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "minRandomRotation": 0.0,
+                "minRandomScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "minRandomSpawnPos": [
+                    0.0,
+                    -10.0,
+                    -50.0
+                ],
+                "minRandomSpeed": 1.0,
+                "modelHandle": {
+                    "GUID": ""
+                },
+                "numBursts": 0,
+                "orbitAxis": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "orbitOverLifetime": true,
+                "particleLayer": 0,
+                "rectScale": [
+                    1.0,
+                    1.0
+                ],
+                "renderMode": 0,
+                "rotateOverLifetime": false,
+                "rotateSeparateAxis": false,
+                "rotateVelocity": [
+                    0.0,
+                    0.0,
+                    45.0
+                ],
+                "rotation": 0.0,
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "scaleType": 0,
+                "shapeRadius": 0.10000000149011612,
+                "shapeScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "shapeType": "CONE",
+                "sizeMap": {
+                    "0.000000": [
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "1.000000": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "sizeMapIntermediary": [
+                    [
+                        0.0,
+                        [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    ],
+                    [
+                        1.0,
+                        [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    ]
+                ],
+                "sizeOverLifetime": true,
+                "sizeSeparateAxis": false,
+                "spawnPos": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "spawnPosValueType": 1,
+                "speed": 5.0,
+                "speedValueType": 0,
+                "sphereArc": 180.0,
+                "startOrbitVelocity": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ],
+                "stickiness": 0.0,
+                "textureGUID": "11697903386653029786",
+                "textureHandle": {
+                    "GUID": ""
+                },
+                "velocityMapIntermediary": [],
+                "velocityOverLifetime": false,
+                "velocitySeparateAxis": false
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 11
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 32506214,
+                "neighbours": [
+                    31457566,
+                    4294967295,
+                    32506163,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "FX_Snow_1_1_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    90.0,
+                    0.0
+                ],
+                "position": [
+                    -65.08477783203125,
+                    17.702922821044922,
+                    -392.1078796386719
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    0.0,
+                    0.7071067690849304,
                     0.0
                 ],
                 "scale": [
