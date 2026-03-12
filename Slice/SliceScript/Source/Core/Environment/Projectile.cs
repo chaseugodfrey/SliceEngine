@@ -27,7 +27,7 @@ namespace SliceEngine
             if (hit.Has<PlayerController>() && hit.As<PlayerController>() == Bootstrap.Player)
             {
                 SliceLog.Log("Player is hit");
-                Bootstrap.Player.TakeDamage(damage);
+                Bootstrap.Player.TakeDamage(damage, this.gameObject);
 
                 if (destroyOnPlayerImpact)
                 {
