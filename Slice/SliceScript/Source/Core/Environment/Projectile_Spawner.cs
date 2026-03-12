@@ -44,7 +44,9 @@ namespace SliceEngine
         //Aiming Controls
         public float aimVerticalOffset = 1f;
         public bool preaim = true;
-        public float preAimFlickerRate = .1f;
+        public float preAimFlickerRate = 10f;
+        public float preaimMinAlpha = .3f;
+        public float preaimMaxAlpha = 1f;
         public float preAimPercentage = .2f; //percantage of the 
         private bool preaiming = false;
         public string aiminglinePrefabName = "PreAimLine";
@@ -239,11 +241,18 @@ namespace SliceEngine
                     float calc = 1f / projPerSecond;
 
                     // Find the charging up time
-                    if (preaiming == false && count >= (calc * preAimPercentage))
+                    if (preaiming == false && count >= (calc * (1f - preAimPercentage)))
                     {
                         //start Preaiming
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a =  preAimObject.GetComponent<AlphaWiggleAnimation>();
 
-                        //spawn a prefab?
+                            a.active = true;
+                            a.rate = preAimFlickerRate;
+                            a.MinWiggle = preaimMinAlpha;
+                            a.MaxWiggle = preaimMaxAlpha;
+                        }
                         //flicker
                     }
 
@@ -251,6 +260,13 @@ namespace SliceEngine
                     if (count >= 1f / projPerSecond)
                     {
                         count -= 1f / projPerSecond;
+
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.GetComponent<AlphaWiggleAnimation>();
+
+                            a.Reset();
+                        }
 
                         SpawnInBurstCheck();
                     }

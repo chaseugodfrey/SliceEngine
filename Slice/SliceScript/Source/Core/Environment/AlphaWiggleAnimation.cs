@@ -29,6 +29,18 @@ namespace SliceEngine
             storedRenderer = rendererObject.GetComponent<Renderer>();
         }
 
+        public void Reset()
+        {
+            active = false;
+
+            Vector4 color = storedRenderer.GetColor();
+
+            color.w = MaxWiggle;
+
+            storedRenderer.SetColor(color);
+
+        }
+
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
