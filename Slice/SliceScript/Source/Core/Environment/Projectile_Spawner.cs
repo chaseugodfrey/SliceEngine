@@ -51,7 +51,7 @@ namespace SliceEngine
         private bool preaiming = false;
         public bool preAimRandom = false;
         public string aiminglinePrefabName = "PreAim";
-        private GameObject preAimObject;
+        public GameObject preAimObject;
 
         //
         public bool active = false;
