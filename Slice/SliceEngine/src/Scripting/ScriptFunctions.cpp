@@ -2053,6 +2053,18 @@ namespace SliceEngine
 		return 0;
 	}
 
+	static void Entity_SetParent(unsigned int entity, unsigned int parent)
+	{
+		if (entity != entt::null && parent != entt::null)
+		{
+			FactoryInstance.SetParent((Entity)entity, (Entity)parent);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Invalid entity ID(s) provided to SetParent.");
+		}
+	}
+
 	static unsigned int CloneGO(MonoString* GoName)
 	{
 		std::string cStrName = MonoToString(GoName);
@@ -2869,6 +2881,26 @@ namespace SliceEngine
 			*color = renderer.materialInstance.color;
 		}
 	}
+	static void Material_SetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.materialInstance.color2 = *color;
+		}
+	}
+	static void Material_GetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*color = renderer.materialInstance.color2;
+		}
+	}
 #pragma endregion
 
 #pragma region Application
@@ -2958,6 +2990,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
+		ADD_INTERNAL_CALL(Entity_SetParent);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -3252,6 +3285,8 @@ namespace SliceEngine
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+		ADD_INTERNAL_CALL(Material_SetColorEmission);
+		ADD_INTERNAL_CALL(Material_GetColorEmission);
 
 		// Skybox
 		ADD_INTERNAL_CALL(Skybox_GetLightingPower);

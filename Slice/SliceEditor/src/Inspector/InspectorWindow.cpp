@@ -184,6 +184,12 @@ namespace SliceEditor
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
+			if(slicePatch.mLayer >= layer_name_list.size())
+			{
+				SLICE_LOG_WARNING("why u deletus fetus the physics asset");
+				layer_manager->AssignLayer("Default", entity); //in case the physics asset was deleted
+			}
+
 			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection, funcLayer)))
 			{
 				//Multi-Selection Setting for Layers
@@ -196,6 +202,11 @@ namespace SliceEditor
 							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
 							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(currentEntity, [&](SliceEngine::SliceEntity& currentSlice)
 								{
+									if (currentSlice.mLayer >= layer_name_list.size())
+									{
+										SLICE_LOG_WARNING("why u deletus fetus the physics asset");
+										layer_manager->AssignLayer("Default", currentEntity); //in case the physics asset was deleted
+									}
 									currentSlice.mLayer = slicePatch.mLayer;
 								});
 						}
@@ -2084,6 +2095,7 @@ namespace SliceEditor
 				switch (ps.renderMode)
 				{
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
+						BoolInputHeader(mRegistry, "Ignore Lights", "##ignoreLighting", ps.ignoreLights);
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
 						break;					
@@ -2541,6 +2553,11 @@ namespace SliceEditor
 		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
+
+		if (DragColor4InputHeader(mRegistry, "Material Emission Colour", "##mat_emission_color", mat.color2))
 		{
 			mat.SerializeAsset(node->fullPath);
 		}
