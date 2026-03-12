@@ -2055,6 +2055,18 @@ namespace SliceEngine
 		return 0;
 	}
 
+	static void Entity_SetParent(unsigned int entity, unsigned int parent)
+	{
+		if (entity != entt::null && parent != entt::null)
+		{
+			FactoryInstance.SetParent((Entity)entity, (Entity)parent);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Invalid entity ID(s) provided to SetParent.");
+		}
+	}
+
 	static unsigned int CloneGO(MonoString* GoName)
 	{
 		std::string cStrName = MonoToString(GoName);
@@ -2946,6 +2958,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
+		ADD_INTERNAL_CALL(Entity_SetParent);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);

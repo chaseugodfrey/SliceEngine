@@ -575,6 +575,9 @@ namespace SliceEngine
         internal extern static uint Entity_FindEntityWithID(uint id);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_SetParent(uint id, uint parent);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
