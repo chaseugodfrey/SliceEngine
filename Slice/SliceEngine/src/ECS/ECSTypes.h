@@ -481,6 +481,7 @@ namespace SliceEngine
 
 		float glowIntensity{};
 		bool isMeshParticle{false};
+		bool isIgnoreLights{ false };
 
 		GUID modelGUID;
 		GUID materialGUID;
@@ -669,6 +670,7 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		bool alwaysFaceCamera{ true };
+		bool ignoreLights{ false };
 
 		GUID textureGUID;
 

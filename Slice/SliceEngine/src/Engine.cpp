@@ -535,6 +535,7 @@ namespace SliceEngine
 		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
 		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
+		.property("ignoreLights", &ParticleSystem::ignoreLights)
 		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
