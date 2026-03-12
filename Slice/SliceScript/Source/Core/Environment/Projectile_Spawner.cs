@@ -187,24 +187,24 @@ namespace SliceEngine
 
         private float count = 0f;
 
-        //public override void OnCreate()
-        //{
-        //    base.OnCreate();
+        public override void OnCreate()
+        {
+            base.OnCreate();
 
-        //    currentStyle = (SpawnStyle)spawnStyle;
+            currentStyle = (SpawnStyle)spawnStyle;
 
-        //    if (currentStyle == SpawnStyle.Aim)
-        //    {
-        //        string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
-        //        //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
-        //        preAimObject = CreateGameObject(aimingPrefabPath);
-        //        preAimObject.SetParent(this.gameObject);
-        //        Transform T = preAimObject.GetComponent<Transform>();
-        //        T.Position = new Vector3(0);
-        //        T.Rotation = new Vector3(0);
-        //        //preAim.
-        //    }
-        //}
+            if (currentStyle == SpawnStyle.Aim)
+            {
+                string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
+                //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+                preAimObject = CreateGameObject(aimingPrefabPath);
+                preAimObject.SetParent(this.gameObject);
+                Transform T = preAimObject.GetComponent<Transform>();
+                T.Position = new Vector3(0);
+                T.Rotation = new Vector3(0);
+                //preAim.
+            }
+        }
 
         public override void OnFixedUpdate(float dt)
         {
@@ -250,17 +250,17 @@ namespace SliceEngine
                     {
                         preaiming = true;
                         //start Preaiming
-                        //if (preAimObject.Has<AlphaWiggleAnimation>())
-                        //{
-                        //    SliceLog.Log("passed the check on preaim");
-                        //    AlphaWiggleAnimation a =  preAimObject.As<AlphaWiggleAnimation>();
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            SliceLog.Log("passed the check on preaim");
+                            AlphaWiggleAnimation a =  preAimObject.As<AlphaWiggleAnimation>();
 
-                        //    a.active = true;
-                        //    a.rate = preAimFlickerRate;
-                        //    a.MinWiggle = preaimMinAlpha;
-                        //    a.MaxWiggle = preaimMaxAlpha;
-                        //    a.random = preAimRandom;
-                        //}
+                            a.active = true;
+                            a.rate = preAimFlickerRate;
+                            a.MinWiggle = preaimMinAlpha;
+                            a.MaxWiggle = preaimMaxAlpha;
+                            a.random = preAimRandom;
+                        }
                         //flicker
                     }
 
@@ -269,15 +269,15 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        //if (preAimObject.Has<AlphaWiggleAnimation>())
-                        //{
-                        //    SliceLog.Log("passed the check on reset");
-                        //    AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            SliceLog.Log("passed the check on reset");
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
 
-                        //    preaiming = false;
+                            preaiming = false;
 
-                        //    a.Reset();
-                        //}
+                            a.Reset();
+                        }
 
                         SpawnInBurstCheck();
                     }

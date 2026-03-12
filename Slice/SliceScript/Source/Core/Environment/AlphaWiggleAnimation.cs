@@ -70,10 +70,12 @@ namespace SliceEngine
                 else if (lowerAlpha)
                 {
                     color.w = MaxWiggle;
+                    lowerAlpha = false;
                 }
-                else
+                else if (!lowerAlpha)
                 {
                     color.w = MinWiggle;
+                    lowerAlpha = true;
                 }
 
                     storedRenderer.SetColor(color);
