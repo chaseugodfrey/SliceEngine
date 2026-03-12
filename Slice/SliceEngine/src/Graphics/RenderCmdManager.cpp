@@ -604,66 +604,68 @@ namespace SliceEngine
 				const auto& id = i.id;
 				auto& dat = i.base;
 
-				// Change Shader
-				auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
-				if (thisShader != mShader)
-				{
-					mShader = thisShader;
-					glUseProgram(mShader);
-					rm->ForceSetCustomShader(std::string("CUSTOM"), mShader);
-					rm->UpdateCamVP();
-					rm->BindCameraDepth(mLastKnownCam);
-
-					if (drawType == DrawType::DRAW_TRANSLUCENT)
-					{
-						if (thisShader == godRayShader)
-							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_GODRAY], 0);
-						else
-							glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_EMISSION], 0);
-					}
-
-					GLint uniformLoc;
-					uniformLoc = glGetUniformLocation(mShader, "time");
-					if(uniformLoc != -1)
-						glUniform1f(uniformLoc, time);
-					uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
-					glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
-					uniformLoc = glGetUniformLocation(mShader, "numLights");
-					glUniform1i(uniformLoc, rm->numLightsFound);
-					
-					uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
-					glUniform1i(uniformLoc, rm->mNumCascadeShadow);
-
-					std::stringstream ss{};
-					for (int i = 0; i < rm->mNumCascadeShadow; ++i)
-					{
-						ss.str("");
-						ss << "cascadePlaneDist[" << std::to_string(i) << "]";
-						uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
-						if (i == rm->mNumCascadeShadow - 1)
-							glUniform1f(uniformLoc, rm->mainDirLightFar);
-						else
-							glUniform1f(uniformLoc, rm->mainDirLightFar / rm->shadowCascadeLevels[i]);
-					}
-					auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
-
-					uniformLoc = glGetUniformLocation(mShader, "willBloom");
-					glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
-
-					uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
-					glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
-					uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
-					if (uniformLoc != -1)
-					{
-						glUniform1f(uniformLoc, camera.translucentSelectCutoff);
-					}
-				}
-
-				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
-
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
 				{
+
+					// Change Shader
+					auto thisShader = static_cast<GLuint>(shaderList.at(static_cast<uint8_t>((id & MRCK_SHADER) >> RCK_ShaderOffset)));
+					if (thisShader != mShader)
+					{
+						mShader = thisShader;
+						glUseProgram(mShader);
+						rm->ForceSetCustomShader(std::string("CUSTOM"), mShader);
+						rm->UpdateCamVP();
+						rm->BindCameraDepth(mLastKnownCam);
+
+						if (drawType == DrawType::DRAW_TRANSLUCENT)
+						{
+							if (thisShader == godRayShader)
+								glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_GODRAY], 0);
+							else
+								glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, rm->mColAttachment[rm->GOUT_EMISSION], 0);
+						}
+
+						GLint uniformLoc;
+						uniformLoc = glGetUniformLocation(mShader, "time");
+						if (uniformLoc != -1)
+							glUniform1f(uniformLoc, time);
+						uniformLoc = glGetUniformLocation(mShader, "skyboxLightingPower");
+						glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
+						uniformLoc = glGetUniformLocation(mShader, "numLights");
+						glUniform1i(uniformLoc, rm->numLightsFound);
+
+						uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
+						glUniform1i(uniformLoc, rm->mNumCascadeShadow);
+
+						std::stringstream ss{};
+						for (int i = 0; i < rm->mNumCascadeShadow; ++i)
+						{
+							ss.str("");
+							ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+							uniformLoc = glGetUniformLocation(mShader, ss.str().c_str());
+							if (i == rm->mNumCascadeShadow - 1)
+								glUniform1f(uniformLoc, rm->mainDirLightFar);
+							else
+								glUniform1f(uniformLoc, rm->mainDirLightFar / rm->shadowCascadeLevels[i]);
+						}
+						auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mLastKnownCam);
+
+						uniformLoc = glGetUniformLocation(mShader, "willBloom");
+						glUniform1i(uniformLoc, static_cast<GLint>(camera.postRenderToggles & RENDER_BLOOM));
+
+						uniformLoc = glGetUniformLocation(mShader, "translucentIDOnly");
+						glUniform1i(uniformLoc, (drawType == DrawType::DRAW_TRANSLUCENT_ID_ONLY || drawType == DrawType::DRAW_PREFAB_TRANSLUCENT_ID_ONLY) ? 1 : 0);
+						uniformLoc = glGetUniformLocation(mShader, "translucentSelectThreshold");
+						if (uniformLoc != -1)
+						{
+							glUniform1f(uniformLoc, camera.translucentSelectCutoff);
+						}
+					}
+
+					ShiftTransformMtx(dat.mdlMtx, offsetDelta);
+
+
 					RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 					if (mdlID != currMdlID)
 					{
