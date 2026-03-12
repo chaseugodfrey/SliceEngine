@@ -130,6 +130,54 @@ namespace SliceEditor
 
 #pragma region Script Variables Difference Check
 
+	std::array<bool, 3> ScriptVector3MultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, bool isMultiSelection)
+	{
+		std::array<bool, 3> isSelectionDifferent = std::array<bool, 3>{ false,false,false };
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentVal = scriptRef->GetFieldValue<glm::vec3>(scriptVarName);
+
+					//Difference check
+
+					if (currentVal.x != currentSelection.x)
+					{
+						isSelectionDifferent[0] = true;
+					}
+
+					if (currentVal.y != currentSelection.y)
+					{
+						isSelectionDifferent[1] = true;
+					}
+
+					if (currentVal.z != currentSelection.z)
+					{
+						isSelectionDifferent[2] = true;
+					}
+				}
+			}
+		}
+		return isSelectionDifferent;
+	}
+
 	bool ScriptFloatMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, float currentSelection, bool isMultiSelection)
 	{
 		if (isMultiSelection)
@@ -435,6 +483,55 @@ namespace SliceEditor
 				if (currentVal != currentSelection)
 				{
 					scriptRef->SetFieldValue(scriptVarName, currentSelection);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+	void ScriptVector3MultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, std::array<bool,3>& changedAxis)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentVal = scriptRef->GetFieldValue<glm::vec3>(scriptVarName);
+
+				//Copy the value to set here:
+				glm::vec3 currentValCopy = currentVal;
+
+				if (changedAxis[0])
+				{
+					currentValCopy.x = currentSelection.x;
+				}
+
+				if (changedAxis[1])
+				{
+					currentValCopy.y = currentSelection.y;
+				}
+
+				if (changedAxis[2])
+				{
+					currentValCopy.z = currentSelection.z;
+				}
+				if(currentValCopy != currentVal)
+				{
+					scriptRef->SetFieldValue(scriptVarName, currentValCopy);
 					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
 				}
 			}
