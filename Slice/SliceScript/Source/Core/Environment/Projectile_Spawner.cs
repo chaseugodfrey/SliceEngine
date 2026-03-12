@@ -238,7 +238,16 @@ namespace SliceEngine
                 case SpawnStyle.Aim:
 
                     if ((this.transform.WorldPosition - Bootstrap.Player.transform.WorldPosition).Magnitude() > rangeLimit)
-                    break;
+                    {
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            SliceLog.Log("passed the check on preaim");
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+
+                            a.active = false;
+                        }
+                        break;
+                    }
 
 
                     this.transform.LookAt(Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset,0), new Vector3(0,1,0));
