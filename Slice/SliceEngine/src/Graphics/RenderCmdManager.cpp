@@ -196,7 +196,7 @@ namespace SliceEngine
 				data.mdlMtx = ptx.transform;
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
-				data.isLightAffected = ptx.isIgnoreLights;
+				data.notLightAffected = ptx.isIgnoreLights;
 				//shadowRenderCmds[mdlDet].emplace_back(ShadowInstanceData(data.mdlMtx));
 
 				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
