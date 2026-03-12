@@ -19,7 +19,7 @@ struct BasicIDat
 	mat4 mdlMtx;
 	uint entityID;
 	uint isIgnoreLights; 
-	uint empty2;
+	uint col2;
 	uint col;
 };
 

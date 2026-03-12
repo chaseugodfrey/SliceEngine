@@ -34,6 +34,10 @@ namespace SliceEngine {
             glTexParameteri(Target, GL_TEXTURE_SWIZZLE_G, Format.Swizzles[1]);
             glTexParameteri(Target, GL_TEXTURE_SWIZZLE_B, Format.Swizzles[2]);
             glTexParameteri(Target, GL_TEXTURE_SWIZZLE_A, Format.Swizzles[3]);
+            glTexParameteri(Target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(Target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(Target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(Target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
             glm::tvec3<GLsizei> const Extent(Texture.extent());
             GLsizei const FaceTotal = static_cast<GLsizei>(Texture.layers() * Texture.faces());

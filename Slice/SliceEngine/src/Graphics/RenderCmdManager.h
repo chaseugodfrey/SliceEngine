@@ -38,8 +38,8 @@ namespace SliceEngine
 		{
 			glm::mat4 mdlMtx;
 			uint32_t entityID;
-			uint32_t isLightAffected;
-			uint32_t blank2;
+			uint32_t notLightAffected;
+			uint32_t col2;
 			uint32_t col;
 		};
 	private:
@@ -122,8 +122,7 @@ namespace SliceEngine
 
 		void SingleExtAppend(std::vector<glm::uvec4>& cmd, const SliceEngineTypes::Material* mat);
 		void AppendRenderCmd(RenderCmd& rc, BasicIDat& dat, const SliceEngineTypes::Material* mat);
-		void SetColor(BasicIDat& dat, const glm::vec4& color);
-		void SetAlpha(BasicIDat& dat, float alpha);
+		void SetColor(BasicIDat& dat, const glm::vec4& color, bool isFirst = true);
 
 		const float minDistTranslucent = -1.f;
 		const int mEVBOSafetyMult = 2;

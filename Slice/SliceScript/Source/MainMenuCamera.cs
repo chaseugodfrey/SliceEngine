@@ -6,27 +6,56 @@ namespace SliceEngine
 {
     public class MainMenuCamera : SliceBehaviour
     {
-        Transform camTrans;
-        Vector3 Value;
-        GameObject rainEmitter;
-        Transform rain;
+        private Transform lightPos;
+        private Transform fanBladeRotation;
+        public float minValue = 0f;
+        public float maxValue = 0f;
+        public float speed = 2.0f;
+        public float currAngle = 0f;
+
+        private float timeAccumulator = 0f;
 
         public override void OnCreate()
         {
-            camTrans = GetComponent<Transform>();
-            rainEmitter = FindGameObjectWithName("Cube_1");
-            rain = rainEmitter.GetComponent<Transform>();
+            GameObject lightObj = FindGameObjectWithName("MovingLight");
+            GameObject fanBladeObj = FindGameObjectWithName("FanBlades");
 
 
-            Value = new Vector3(0, 0, 1);
-        
+            if(lightObj != null)
+            {
+                lightPos = lightObj.GetComponent<Transform>();
+            }
+
+            if (fanBladeObj != null)
+            {
+                fanBladeRotation = fanBladeObj.GetComponent<Transform>();
+            }
+
         }
 
         public override void OnUpdate(float dt)
         {
+            if (lightPos == null)
+            {
+                return;
+            }
 
-            camTrans.Position += Value * dt;
-            rain.Position += Value * dt;
+            timeAccumulator += dt * speed;
+
+            float distance = maxValue - minValue;
+
+            float bounce = Utilities.PingPong(timeAccumulator, distance);
+
+            Vector3 pos = lightPos.Position;
+            pos.y = minValue + bounce;
+            lightPos.Position = pos;
+            if(fanBladeRotation != null)
+            {
+                
+
+                fanBladeRotation.Rotate(60.0f*dt, new Vector3(1.0f,0.0f,0.0f)); 
+
+            }
         }
     }
 }

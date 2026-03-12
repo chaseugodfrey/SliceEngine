@@ -48,7 +48,7 @@ namespace SliceBuild
 
 		//SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
 
-		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &Application::QuitGameEvent>(this);
+		EventManager::GetInstance()->Subscribe<SliceEngine::OnGameStopEvent, &Application::QuitGameEvent>(this);
 	}
 
 	void Application::Run()
@@ -94,7 +94,7 @@ namespace SliceBuild
 		engine.Exit();
 	}
 
-	void Application::QuitGameEvent(OnGameStopEvent e)
+	void Application::QuitGameEvent(SliceEngine::OnGameStopEvent e)
 	{
 		glfwSetWindowShouldClose(SliceEngine::Core::GetInstance()->GetWindow(), GLFW_TRUE);
 	}
