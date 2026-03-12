@@ -279,6 +279,7 @@ namespace SliceEngine
 			else 
 			{
 				prp.textureID = ps.textureGUID.GetGUID();
+				prp.isIgnoreLights = ps.ignoreLights;
 			}
 
 			if (ps.glow)

@@ -42,29 +42,32 @@ namespace SliceEngine
                 {
                     shooter.As<Projectile_Spawner>().active = false;
                 }
-
+                // start at the starting point
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
             }
 
             public override void OnUpdate(float dt)
             {
                 timer += dt;
-                if (timer >= 2.0f && !moved)
+                if (timer >= 5.0f && !moved)
                 {
+                    moved = true;
+                    enemyController.stateMachine.ChangeState(enemyController.idleState);
 
-                    if (enemyController.startingPosition == null)
-                    {
-                        SliceLog.Error("Starting position is null");
-                        moved = true;
-                    }
-                    else
-                    {
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
-                        moved = true;
-                    }
+                    //if (enemyController.startingPosition == null)
+                    //{
+                    //    SliceLog.Error("Starting position is null");
+                    //    moved = true;
+                    //}
+                    //else
+                    //{
+                    //    //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
+                    //    moved = true;
+                    //}
                 }
 
                 orbitTimer += dt * rotationSpeed;
-                Vector3 center = owner.GetComponent<Transform>().Position;
+                Vector3 center = owner.GetComponent<Transform>().WorldPosition;
                 for (int i = 0; i < numOfPoints; ++i)
                 {
                     float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
@@ -77,14 +80,14 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                Vector3 center = owner.GetComponent<Transform>().Position;
+                Vector3 center = owner.GetComponent<Transform>().WorldPosition;
                 for (int i = 0; i < numOfPoints; ++i)
                 {
                     float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
-                    float x = center.x + (float)Math.Cos(angle) * (orbitRadius * 6);
-                    float z = center.z + (float)Math.Sin(angle) * (orbitRadius * 6);
+                    float x = (float)Math.Cos(angle) * (orbitRadius * 6);
+                    float z = (float)Math.Sin(angle) * (orbitRadius * 6);
 
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(x, 0f, z);
+                    Vector3 worldTarget = center + new Vector3(x, 0f, z);
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 1.5f));
                 }
             }
@@ -459,7 +462,7 @@ namespace SliceEngine
                     if (idleTimer > idleTime && !secondMoved)
                     {
                         secondMoved = true;
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(0, 100f, 0), 5.0f));
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
                 }
             }
@@ -636,7 +639,7 @@ namespace SliceEngine
         {
             float elapsedTime = 0.0f;
             Transform enemyTransform = enemy.GetComponent<Transform>();
-            Vector3 startPos = enemyTransform.Position;
+            Vector3 startPos = enemyTransform.WorldPosition;
 
             while (elapsedTime < duration)
             {
@@ -665,7 +668,6 @@ namespace SliceEngine
                     break;
                 case IntroState _:
                     Console.WriteLine("Changing to idle State");
-                    stateMachine.ChangeState(idleState);
                     break;
                 case SlamState _:
                     SlamState slam = stateMachine.currentState as SlamState;
