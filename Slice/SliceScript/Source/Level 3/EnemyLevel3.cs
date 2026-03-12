@@ -79,14 +79,14 @@ namespace SliceEngine
             public override void OnExit()
             {
                 // on exitt, disperse them to surround the arena
-                Vector3 center = owner.GetComponent<Transform>().Position;
+                Vector3 center = owner.GetComponent<Transform>().WorldPosition;
                 for (int i = 0; i < numOfPoints; ++i)
                 {
                     float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
-                    float x = center.x + (float)Math.Cos(angle) * (orbitRadius * 6);
-                    float z = center.z + (float)Math.Sin(angle) * (orbitRadius * 6);
+                    float x =(float)Math.Cos(angle) * (orbitRadius * 6);
+                    float z = (float)Math.Sin(angle) * (orbitRadius * 6);
 
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().Position + new Vector3(x, 0f, z);
+                    Vector3 worldTarget = center + new Vector3(x, 0f, z);
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 1.5f));
                 }
             }
