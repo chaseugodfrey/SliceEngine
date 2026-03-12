@@ -276,6 +276,11 @@
             "path": "Resources/10957655571049264411.controller"
         },
         {
+            "guid": 15350944272377642126,
+            "name": "Dylan/Materials/A4GateWalls.mat",
+            "path": "Resources/15350944272377642126.mat"
+        },
+        {
             "guid": 12706701987083786906,
             "name": "Audio/SingleHit_Slime_1.wav",
             "path": "Resources/12706701987083786906.wav"
@@ -656,14 +661,14 @@
             "path": "Resources/9708768305466397841.scene"
         },
         {
-            "guid": 12441352583622415433,
-            "name": "Default/Player_m5.fbx",
-            "path": "Resources/12441352583622415433.mdl"
-        },
-        {
             "guid": 16904515665355675604,
             "name": "Shaders/instanced_Vert.vert",
             "path": "Resources/16904515665355675604.vert"
+        },
+        {
+            "guid": 12441352583622415433,
+            "name": "Default/Player_m5.fbx",
+            "path": "Resources/12441352583622415433.mdl"
         },
         {
             "guid": 17494253650054626361,
@@ -786,14 +791,14 @@
             "path": "Resources/10928377499747973308.dds"
         },
         {
-            "guid": 11579872575918078574,
-            "name": "Dylan/Environment Assets/L3_ArenaBridge.fbx",
-            "path": "Resources/11579872575918078574.mdl"
-        },
-        {
             "guid": 17110333050588629967,
             "name": "Shaders/lighting_Frag.frag",
             "path": "Resources/17110333050588629967.frag"
+        },
+        {
+            "guid": 11579872575918078574,
+            "name": "Dylan/Environment Assets/L3_ArenaBridge.fbx",
+            "path": "Resources/11579872575918078574.mdl"
         },
         {
             "guid": 16062045437016382453,
@@ -901,11 +906,6 @@
             "path": "Resources/16474366934197411389.mdl"
         },
         {
-            "guid": 17094478662332462709,
-            "name": "Shaders/lighting.shader",
-            "path": "Resources/17094478662332462709.shader"
-        },
-        {
             "guid": 15190848894687479863,
             "name": "Dylan/A4Cargo_Base2048.jpg",
             "path": "Resources/15190848894687479863.dds"
@@ -924,6 +924,91 @@
             "guid": 10933882404783559696,
             "name": "Dylan/A4Cargo_Roughness2048.jpg",
             "path": "Resources/10933882404783559696.dds"
+        },
+        {
+            "guid": 15693686281543589710,
+            "name": "Dylan/A4Gate_Base2048_1.png",
+            "path": "Resources/15693686281543589710.dds"
+        },
+        {
+            "guid": 11440013707961504769,
+            "name": "Dylan/A4GateWalls_Base2048.png",
+            "path": "Resources/11440013707961504769.dds"
+        },
+        {
+            "guid": 12570677495392260031,
+            "name": "Dylan/A4GateWalls_Normal2048.png",
+            "path": "Resources/12570677495392260031.dds"
+        },
+        {
+            "guid": 17198371508955884240,
+            "name": "Fonts/InstrumentSans.ttf",
+            "path": "Resources/17198371508955884240.fnt"
+        },
+        {
+            "guid": 12803053135415813240,
+            "name": "Dylan/A4GateWalls_Roughness2048.png",
+            "path": "Resources/12803053135415813240.dds"
+        },
+        {
+            "guid": 16081622355544045829,
+            "name": "Models/Updated/Environment_MeshCollider_1.animpkg",
+            "path": "Resources/16081622355544045829.animpkg"
+        },
+        {
+            "guid": 10676356412925554156,
+            "name": "Prefabs/05_Final Dash.prefab",
+            "path": "Resources/10676356412925554156.prefab"
+        },
+        {
+            "guid": 15573945439928962767,
+            "name": "Dylan/A4GateWalls_UV.fbx",
+            "path": "Resources/15573945439928962767.mdl"
+        },
+        {
+            "guid": 14595893197640915217,
+            "name": "Dylan/Dam2Mat.mat",
+            "path": "Resources/14595893197640915217.mat"
+        },
+        {
+            "guid": 17766334169761362764,
+            "name": "Dylan/A4Gate_Base2048.png",
+            "path": "Resources/17766334169761362764.dds"
+        },
+        {
+            "guid": 12356863102511132377,
+            "name": "Dylan/A4Gate_Normal2048.png",
+            "path": "Resources/12356863102511132377.dds"
+        },
+        {
+            "guid": 12151694488898209434,
+            "name": "[05]New_Environment/Environment-BackgroundTowers.skl",
+            "path": "Resources/12151694488898209434.skl"
+        },
+        {
+            "guid": 17054670082036803627,
+            "name": "Dylan/Materials/CargoMat.mat",
+            "path": "Resources/17054670082036803627.mat"
+        },
+        {
+            "guid": 14398956356898289746,
+            "name": "Editor/AnimatorIcon.png",
+            "path": "Resources/14398956356898289746.dds"
+        },
+        {
+            "guid": 12180505711780853116,
+            "name": "Dylan/A4Gate_Roughness2048.png",
+            "path": "Resources/12180505711780853116.dds"
+        },
+        {
+            "guid": 16752549707848748451,
+            "name": "Dylan/Environment Assets/Platform2.fbx",
+            "path": "Resources/16752549707848748451.mdl"
+        },
+        {
+            "guid": 13251885846447629338,
+            "name": "Dylan/A4Gate_UV.fbx",
+            "path": "Resources/13251885846447629338.mdl"
         },
         {
             "guid": 11961280493110372868,
@@ -1006,21 +1091,6 @@
             "path": "Resources/17513981912391304005.prefab"
         },
         {
-            "guid": 16081622355544045829,
-            "name": "Models/Updated/Environment_MeshCollider_1.animpkg",
-            "path": "Resources/16081622355544045829.animpkg"
-        },
-        {
-            "guid": 10676356412925554156,
-            "name": "Prefabs/05_Final Dash.prefab",
-            "path": "Resources/10676356412925554156.prefab"
-        },
-        {
-            "guid": 14595893197640915217,
-            "name": "Dylan/Dam2Mat.mat",
-            "path": "Resources/14595893197640915217.mat"
-        },
-        {
             "guid": 10123821133417236134,
             "name": "Dylan/Dam2_1.fbx",
             "path": "Resources/10123821133417236134.mdl"
@@ -1054,11 +1124,6 @@
             "guid": 10591484839576402843,
             "name": "Dylan/Dam2_Roughness4096.jpg",
             "path": "Resources/10591484839576402843.dds"
-        },
-        {
-            "guid": 11781681736823817965,
-            "name": "Shaders/lighting_Vert.vert",
-            "path": "Resources/11781681736823817965.vert"
         },
         {
             "guid": 11215049951472660298,
@@ -1106,11 +1171,6 @@
             "path": "Resources/9735481051535127949.scene"
         },
         {
-            "guid": 15457146124636775528,
-            "name": "Shaders/pointShadow.shader",
-            "path": "Resources/15457146124636775528.shader"
-        },
-        {
             "guid": 18202326392139055252,
             "name": "Dylan/Environment Assets/A2_Entrance.fbx",
             "path": "Resources/18202326392139055252.mdl"
@@ -1129,6 +1189,11 @@
             "guid": 12514898875216908929,
             "name": "Dylan/Environment Assets/A3_Train Station_End.fbx",
             "path": "Resources/12514898875216908929.mdl"
+        },
+        {
+            "guid": 9470015030739110137,
+            "name": "Dylan/Materials/A4Gate.mat",
+            "path": "Resources/9470015030739110137.mat"
         },
         {
             "guid": 11179260096828166705,
@@ -1426,11 +1491,6 @@
             "path": "Resources/10481587528480518082.mdl"
         },
         {
-            "guid": 16752549707848748451,
-            "name": "Dylan/Environment Assets/Platform2.fbx",
-            "path": "Resources/16752549707848748451.mdl"
-        },
-        {
             "guid": 16233866524882921744,
             "name": "Shaders/instanced_Frag.frag",
             "path": "Resources/16233866524882921744.frag"
@@ -1506,21 +1566,6 @@
             "path": "Resources/17716027878404322278.prefab"
         },
         {
-            "guid": 12151694488898209434,
-            "name": "[05]New_Environment/Environment-BackgroundTowers.skl",
-            "path": "Resources/12151694488898209434.skl"
-        },
-        {
-            "guid": 17054670082036803627,
-            "name": "Dylan/Materials/CargoMat.mat",
-            "path": "Resources/17054670082036803627.mat"
-        },
-        {
-            "guid": 14398956356898289746,
-            "name": "Editor/AnimatorIcon.png",
-            "path": "Resources/14398956356898289746.dds"
-        },
-        {
             "guid": 12564939983032945792,
             "name": "Dylan/Materials/DarkGrey.mat",
             "path": "Resources/12564939983032945792.mat"
@@ -1559,11 +1604,6 @@
             "guid": 11447130267523023024,
             "name": "Dylan/Particles/smokeTex.png",
             "path": "Resources/11447130267523023024.dds"
-        },
-        {
-            "guid": 13781540877947589117,
-            "name": "Shaders/shadow_Frag.frag",
-            "path": "Resources/13781540877947589117.frag"
         },
         {
             "guid": 9968018859147317142,
@@ -1681,11 +1721,6 @@
             "path": "Resources/18400379806743012927.dds"
         },
         {
-            "guid": 13117561941172401132,
-            "name": "Shaders/shadow.shader",
-            "path": "Resources/13117561941172401132.shader"
-        },
-        {
             "guid": 10105107416661838055,
             "name": "Editor/FontIcon.png",
             "path": "Resources/10105107416661838055.dds"
@@ -1714,11 +1749,6 @@
             "guid": 11157093864669200623,
             "name": "Environment_Engine_Bake.fbx",
             "path": "Resources/11157093864669200623.mdl"
-        },
-        {
-            "guid": 17198371508955884240,
-            "name": "Fonts/InstrumentSans.ttf",
-            "path": "Resources/17198371508955884240.fnt"
         },
         {
             "guid": 13441197947458580501,
@@ -2191,14 +2221,14 @@
             "path": "Resources/17605643715968058785.mdl"
         },
         {
-            "guid": 14081284289416937532,
-            "name": "Models/Modular_Environment/FloorSide.fbx",
-            "path": "Resources/14081284289416937532.mdl"
-        },
-        {
             "guid": 16453345830123164686,
             "name": "Shaders/pointShadow_Vert.vert",
             "path": "Resources/16453345830123164686.vert"
+        },
+        {
+            "guid": 14081284289416937532,
+            "name": "Models/Modular_Environment/FloorSide.fbx",
+            "path": "Resources/14081284289416937532.mdl"
         },
         {
             "guid": 11713083497097507036,
@@ -2541,9 +2571,9 @@
             "path": "Resources/15693169380790416219.prefab"
         },
         {
-            "guid": 11302584260314464016,
-            "name": "Prefabs/FX_Lvl1.2_Particles.prefab",
-            "path": "Resources/11302584260314464016.prefab"
+            "guid": 15122590101143900104,
+            "name": "Prefabs/Player.prefab",
+            "path": "Resources/15122590101143900104.prefab"
         },
         {
             "guid": 16954564583038452490,
@@ -2551,9 +2581,9 @@
             "path": "Resources/16954564583038452490.geom"
         },
         {
-            "guid": 15122590101143900104,
-            "name": "Prefabs/Player.prefab",
-            "path": "Resources/15122590101143900104.prefab"
+            "guid": 11302584260314464016,
+            "name": "Prefabs/FX_Lvl1.2_Particles.prefab",
+            "path": "Resources/11302584260314464016.prefab"
         },
         {
             "guid": 16966764703423134549,
@@ -2721,9 +2751,34 @@
             "path": "Resources/14127415488162852360.shader"
         },
         {
+            "guid": 17094478662332462709,
+            "name": "Shaders/lighting.shader",
+            "path": "Resources/17094478662332462709.shader"
+        },
+        {
+            "guid": 11781681736823817965,
+            "name": "Shaders/lighting_Vert.vert",
+            "path": "Resources/11781681736823817965.vert"
+        },
+        {
+            "guid": 15457146124636775528,
+            "name": "Shaders/pointShadow.shader",
+            "path": "Resources/15457146124636775528.shader"
+        },
+        {
             "guid": 10014890641284040322,
             "name": "Shaders/pointShadow_Frag.frag",
             "path": "Resources/10014890641284040322.frag"
+        },
+        {
+            "guid": 13117561941172401132,
+            "name": "Shaders/shadow.shader",
+            "path": "Resources/13117561941172401132.shader"
+        },
+        {
+            "guid": 13781540877947589117,
+            "name": "Shaders/shadow_Frag.frag",
+            "path": "Resources/13781540877947589117.frag"
         },
         {
             "guid": 14285044838440524560,
