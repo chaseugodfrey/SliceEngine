@@ -49,7 +49,8 @@ namespace SliceEngine
         public float preaimMaxAlpha = 1f;
         public float preAimPercentage = .2f; //percantage of the 
         private bool preaiming = false;
-        public string aiminglinePrefabName = "PreAimLine";
+        public bool preAimRandom = false;
+        public string aiminglinePrefabName = "PreAim";
         private GameObject preAimObject;
 
         //
@@ -197,6 +198,10 @@ namespace SliceEngine
                 string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
                 preAimObject = CreateGameObject(aimingPrefabPath);
+                preAimObject.SetParent(this.gameObject);
+                Transform T = preAimObject.GetComponent<Transform>();
+                T.Position = new Vector3(0);
+                T.Rotation = new Vector3(0);
                 //preAim.
             }
         }
@@ -243,15 +248,17 @@ namespace SliceEngine
                     // Find the charging up time
                     if (preaiming == false && count >= (calc * (1f - preAimPercentage)))
                     {
+                        preaiming = true;
                         //start Preaiming
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
-                            AlphaWiggleAnimation a =  preAimObject.GetComponent<AlphaWiggleAnimation>();
+                            AlphaWiggleAnimation a =  preAimObject.As<AlphaWiggleAnimation>();
 
                             a.active = true;
                             a.rate = preAimFlickerRate;
                             a.MinWiggle = preaimMinAlpha;
                             a.MaxWiggle = preaimMaxAlpha;
+                            a.random = preAimRandom;
                         }
                         //flicker
                     }
@@ -263,7 +270,9 @@ namespace SliceEngine
 
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
-                            AlphaWiggleAnimation a = preAimObject.GetComponent<AlphaWiggleAnimation>();
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+
+                            preaiming = false;
 
                             a.Reset();
                         }
