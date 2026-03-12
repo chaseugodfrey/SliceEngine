@@ -39,6 +39,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = false;
+                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
@@ -122,6 +123,8 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
+                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+
                 }
 
             }
@@ -254,6 +257,8 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
+                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+
                 }
             }
 
@@ -496,27 +501,44 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                // Note: Ensure L2Controller access is still valid for Level 3 logic
+                // start cutscene
+                Bootstrap.Player.SetPlayerLock(true);
+
+                /*
+                                //// Note: Ensure L2Controller access is still valid for Level 3 logic
+                                //
+
+                                //for (int i = 0; i < numOfPoints; ++i)
+                                //{
+                                //    float angle = i * (2.0f * (float)Math.PI / numOfPoints);
+
+                                //    Vector3 targetLocalPos = new Vector3(
+                                //        (float)Math.Cos(angle) * orbitRadius,
+                                //        0.0f,
+                                //        (float)Math.Sin(angle) * orbitRadius
+                                //        );
+
+                                //    enemyController.projectileShooters[i].As<Projectile_Spawner>().active = false;
+
+                                //    // move back to the starting position
+                                //    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + targetLocalPos;
+                                //    enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 3.0f));
+                                //}
+                                // Move back to the starting point
+                */
+                
+                Bootstrap.CameraController.SetFollowTarget(owner);
+
+                
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, owner.GetComponent<Transform>().WorldPosition + new Vector3(0, 20.0f, 0), 4.0f));
                 numOfPoints = enemyController.projectileShooters.Count;
-
-                for (int i = 0; i < numOfPoints; ++i)
+                for (int i = 0; i < numOfPoints; i++)
                 {
-                    float angle = i * (2.0f * (float)Math.PI / numOfPoints);
-
-                    Vector3 targetLocalPos = new Vector3(
-                        (float)Math.Cos(angle) * orbitRadius,
-                        0.0f,
-                        (float)Math.Sin(angle) * orbitRadius
-                        );
-
-                    enemyController.projectileShooters[i].As<Projectile_Spawner>().active = false;
-
-                    // move back to the starting position
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + targetLocalPos;
-                    enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 3.0f));
+                    // destroy projectile shooters
+                    enemyController.projectileShooters[i].Destroy();
                 }
-                // Move back to the starting point
-                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
+
+                enemyController.projectileShooters.Clear();
             }
 
 
@@ -525,22 +547,22 @@ namespace SliceEngine
             {
                 if (moved)
                 {
-                    orbitTimer += dt * rotationSpeed;
+                    //orbitTimer += dt * rotationSpeed;
                     idleTimer += dt;
-                    Vector3 center = owner.GetComponent<Transform>().Position;
-                    for (int i = 0; i < numOfPoints; ++i)
-                    {
-                        float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
-                        float x = center.x + (float)Math.Cos(angle) * orbitRadius;
-                        float z = center.z + (float)Math.Sin(angle) * orbitRadius;
-                        Transform enemyTransform = enemyController.projectileShooters[i].GetComponent<Transform>();
-                        enemyTransform.Position = new Vector3(x, center.y, z);
-                    }
+                    //Vector3 center = owner.GetComponent<Transform>().Position;
+                    //for (int i = 0; i < numOfPoints; ++i)
+                    //{
+                    //    float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
+                    //    float x = center.x + (float)Math.Cos(angle) * orbitRadius;
+                    //    float z = center.z + (float)Math.Sin(angle) * orbitRadius;
+                    //    Transform enemyTransform = enemyController.projectileShooters[i].GetComponent<Transform>();
+                    //    enemyTransform.Position = new Vector3(x, center.y, z);
+                    //}
 
                     if (idleTimer > idleTime && !secondMoved)
                     {
                         secondMoved = true;
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
+                        //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
                 }
             }

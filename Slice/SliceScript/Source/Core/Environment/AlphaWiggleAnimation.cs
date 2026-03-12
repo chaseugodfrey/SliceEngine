@@ -28,7 +28,6 @@ namespace SliceEngine
         {
             base.OnCreate();
 
-            storedRenderer = rendererObject.GetComponent<Renderer>();
         }
 
         public void Reset()
@@ -46,10 +45,26 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
+
+            if (storedRenderer == null)
+            {
+                storedRenderer = rendererObject.GetComponent<Renderer>();
+            }
+
             if (!active)
             {
+                Console.WriteLine($"render object id: {rendererObject.mID}");
+                if (storedRenderer != null)
+                {
+                    Console.WriteLine("Setting renderer collor");
+                    Vector4 color = storedRenderer.GetColor();
+                    color.w = 0.0f;
+                    storedRenderer.SetColor(color);
+                }
                 return;
             }
+
+
 
             count += dt;
 
@@ -70,10 +85,12 @@ namespace SliceEngine
                 else if (lowerAlpha)
                 {
                     color.w = MaxWiggle;
+                    lowerAlpha = false;
                 }
-                else
+                else if (!lowerAlpha)
                 {
                     color.w = MinWiggle;
+                    lowerAlpha = true;
                 }
 
                     storedRenderer.SetColor(color);
