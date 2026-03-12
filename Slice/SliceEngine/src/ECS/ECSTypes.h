@@ -483,6 +483,7 @@ namespace SliceEngine
 
 		float glowIntensity{};
 		bool isMeshParticle{false};
+		bool isIgnoreLights{ false };
 
 		GUID modelGUID;
 		GUID materialGUID;
@@ -671,6 +672,7 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		bool alwaysFaceCamera{ true };
+		bool ignoreLights{ false };
 
 		GUID textureGUID;
 
@@ -873,7 +875,8 @@ namespace SliceEngine
 
 		struct Token {
 			//std::string text{};
-			const char* pos{};
+			//const char* pos{};
+			unsigned int pos{};
 			float size{};
 			unsigned int char_cnt{};
 		};

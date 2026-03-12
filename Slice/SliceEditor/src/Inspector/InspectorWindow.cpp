@@ -357,7 +357,7 @@ namespace SliceEditor
 		{
 			auto& rect = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RectTransform>(entity);
 
-			DisplayComponentHeader<SliceEngine::RectTransform>(entity, false);
+			DisplayComponentHeader<SliceEngine::RectTransform>(entity, true);
 
 			static std::vector<std::string> hori_enums{ "Left", "Center", "Right", "Stretch" };
 			static std::vector<std::string> vert_enums{ "Top", "Middle", "Bottom", "Stretch" };
@@ -391,7 +391,7 @@ namespace SliceEditor
 		{
 			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
 			//glm::vec3 rgb;
@@ -418,7 +418,7 @@ namespace SliceEditor
 		{
 			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
 
@@ -457,7 +457,7 @@ namespace SliceEditor
 		{
 			auto& canvas = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Canvas>(entity);
 
-			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
+			DisplayComponentHeader<SliceEngine::Canvas>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
@@ -477,7 +477,7 @@ namespace SliceEditor
 		{
 			auto& button = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Button>(entity);
 
-			DisplayComponentHeader<SliceEngine::Button>(entity, false);
+			DisplayComponentHeader<SliceEngine::Button>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
@@ -627,7 +627,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> modelFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					if(SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 			
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
@@ -652,7 +659,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> materialFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
@@ -1005,6 +1019,9 @@ namespace SliceEditor
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+
 
 		if (ImGui::TreeNodeEx("Script", mBaseFlags))
 		{
@@ -1295,9 +1312,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f", 0.0f,0.0f, ScriptFloatMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if(isMultipleSelection)
+									{
+										ScriptFloatMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1308,9 +1329,13 @@ namespace SliceEditor
 									{
 										sp->SetFieldValue(name, val);
 									};
-								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptBoolMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptBoolMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1322,9 +1347,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str, ScriptStringMultipleSelection(selectionManager, script.scriptName, it.second.mName, str, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									if (isMultipleSelection)
+									{
+										ScriptStringMultiSet(selectionManager, script.scriptName, it.second.mName, str);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1336,9 +1365,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%d", 0,0, ScriptIntMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptIntMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1366,9 +1399,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptGameObjMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptGameObjMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -2047,6 +2084,7 @@ namespace SliceEditor
 				switch (ps.renderMode)
 				{
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
+						BoolInputHeader(mRegistry, "Ignore Lights", "##ignoreLighting", ps.ignoreLights);
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
 						break;					
@@ -2494,6 +2532,11 @@ namespace SliceEditor
 		}
 
 		if (BoolInputHeader(mRegistry, "Is Translucent", "##mat_Translucency", mat.isTranslucent))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
+
+		if (BoolInputHeader(mRegistry, "Ignore Lights", "##mat_ignore_lights", mat.isIgnoreLighting))
 		{
 			mat.SerializeAsset(node->fullPath);
 		}
