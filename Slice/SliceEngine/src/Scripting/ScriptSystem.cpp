@@ -491,6 +491,8 @@ namespace SliceEngine
             if (!scriptComponent.componentEnabled)
                 continue;
 
+            if (entityConstructed.contains(id))
+				continue;
 
             scriptRef->InvokeOnConstruct((unsigned int)id);
         }
@@ -500,6 +502,9 @@ namespace SliceEngine
             //continue if disabled
             auto& scriptComponent = mRegistry->get<Script>(id);
             if (!scriptComponent.componentEnabled)
+                continue;
+
+            if (entityConstructed.contains(id))
                 continue;
 
             scriptRef->InvokeOnAwake();
@@ -513,9 +518,14 @@ namespace SliceEngine
             if (!scriptComponent.componentEnabled)
                 continue;
 
+            if (entityConstructed.contains(id))
+                continue;
+
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
         }
+
+        entityConstructed.clear();
     }
 
     void ScriptSystem::OnUpdate(float dt)
@@ -1037,30 +1047,23 @@ namespace SliceEngine
             std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
             mEntityInstances[entity] = instance;
 
-
-            // Update the variables in script instance with variables 
             // in the script component
             UpdateScriptVariables(entity);
 
-            //if (scriptComponent.scriptName == "SliceEngine.Spawner" && tempFlagToTestScriptListShit == false)
-            //{ 
-            //    tempFlagToTestScriptListShit = true;
-            //// jus testing if add list field value worked
-            //    // i need test if serializing it works first
-            //    mEntityInstances[entity]->AddListFieldValue("testList", 2.0f);
-            //}
-
             // idk incase it isnt populated the first time
             UpdateScriptComponent(entity);
-            // Check if an entity is created on runtime
-            // if it is then we have to invoke the construct and oncreate
-            // but again after M1 
 
             // for now we just invoke the moment it has been added
-            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE || Core::GetInstance()->GetSceneSystem()->mNextState == SceneState::PLAY_SCENE)
             {
+                if (Core::GetInstance()->GetSceneSystem()->mNextState == SceneState::PLAY_SCENE)
+                {
+					entityConstructed.insert(entity);
+                }
                // entityToInit.insert(entity);
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+
+
                 mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
 
