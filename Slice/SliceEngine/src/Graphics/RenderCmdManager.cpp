@@ -136,10 +136,11 @@ namespace SliceEngine
 				key = key | MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 			}
 			SetColor(data, material->color);
+			SetColor(data, material->color2, false);
 
 			data.mdlMtx = Core::GetInstance()->mFactory.mRegistry.get<Transform>(entity).transform;
 			data.entityID = static_cast<unsigned int>(entity);
-			data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
+			data.notLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 			if (rend.castShadow && !isPrefab)
 				shadowRenderCmds[mdlDet].push_back(data);
@@ -248,7 +249,7 @@ namespace SliceEngine
 				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, ptx.colour);
 				data.entityID = 0;
-				data.isLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
+				data.notLightAffected = static_cast<uint32_t>(material->isIgnoreLighting);
 
 				// --MAYDO-- Been told to turn opaque off
 
@@ -730,6 +731,7 @@ namespace SliceEngine
 			data.mdlMtx = transform.transform;
 			ShiftTransformMtx(data.mdlMtx, -relPos);
 			SetColor(data, glm::vec4(material->color.r, material->color.g, material->color.b, 1.f));
+			SetColor(data, glm::vec4(material->color2.r, material->color2.g, material->color2.b, 1.f), false);
 			std::vector<glm::uvec4> ext;
 			SingleExtAppend(ext, material);
 
@@ -900,14 +902,14 @@ namespace SliceEngine
 			}
 		}
 	}
-	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color)
+	void RenderCmdManager::SetColor(BasicIDat& dat, const glm::vec4& color, bool isFirst)
 	{
-		dat.col = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
+		if(isFirst)
+			dat.col = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
 				  static_cast<uint32_t>(color.b * 0xFF) << 8 | static_cast<uint32_t>(color.a * 0xFF);
-	}
-	void RenderCmdManager::SetAlpha(BasicIDat& dat, float alpha)
-	{
-		dat.col = (dat.col & 0xFFFF'FF00) | static_cast<uint32_t>(alpha * 0xFF);
+		else
+			dat.col2 = static_cast<uint32_t>(color.r * 0xFF) << 24 | static_cast<uint32_t>(color.g * 0xFF) << 16 | 
+				  static_cast<uint32_t>(color.b * 0xFF) << 8 | static_cast<uint32_t>(color.a * 0xFF);
 	}
 #pragma endregion
 }

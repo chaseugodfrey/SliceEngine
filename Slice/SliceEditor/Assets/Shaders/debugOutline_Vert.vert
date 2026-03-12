@@ -7,7 +7,7 @@ struct BasicIDat
 	mat4 mdlMtx;
 	uint entityID;
 	uint textureID; 
-	uint tex2ID;
+	uint col2;
 	uint col;
 };
 uniform mat4 uPV; // Shadow Transform Matrix
