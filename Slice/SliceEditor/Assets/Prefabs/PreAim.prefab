@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 320,
+                "entity_id": 269,
                 "neighbours": [
                     0,
-                    321,
-                    319,
+                    270,
+                    268,
                     4294967295
                 ]
             },
@@ -32,13 +32,17 @@
                         "Type": "bool",
                         "Value": true
                     },
+                    "random": {
+                        "Type": "bool",
+                        "Value": false
+                    },
                     "rate": {
                         "Type": "float",
                         "Value": 1.0
                     },
                     "rendererObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 321
+                        "Value": 270
                     }
                 }
             },
@@ -95,9 +99,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 321,
+                "entity_id": 270,
                 "neighbours": [
-                    320,
+                    269,
                     4294967295,
                     4294967295,
                     4294967295
