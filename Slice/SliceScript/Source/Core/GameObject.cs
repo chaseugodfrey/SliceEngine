@@ -137,6 +137,11 @@ namespace SliceEngine
             return new GameObject(entityID);
         }
 
+        public void SetParent(GameObject parent)
+        {
+            FunctionCalls.Entity_SetParent(mID, parent.mID);
+        }
+
         public GameObject FindGameObjectWithID(uint id)
         {
             uint entityID = FunctionCalls.Entity_FindEntityWithID(id);

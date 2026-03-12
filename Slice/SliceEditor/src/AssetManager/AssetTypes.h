@@ -199,13 +199,13 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::BC3 };
-		MipMapFilter mip_filter{ MipMapFilter::NONE };
+		CompressionFormat cmp_format{ CompressionFormat::BC7 };
+		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
 		UsageType usage_type{ UsageType::COLOR };
 
-		float comp_quality{ 0.5f };
+		float comp_quality{ 1.f };
 		bool generateMips{ true };
 		unsigned char mip_count{ 8 };
 		bool hasAlpha{ true };
