@@ -6,7 +6,7 @@
                 "struct SliceEngine::Renderer": {
                     "componentEnabled": true,
                     "material": {
-                        "GUID": "15718099568150114455"
+                        "GUID": "12052541654358869986"
                     },
                     "meshOffset": "0",
                     "model": {
@@ -87,7 +87,7 @@
                         },
                         "rendererObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 4294967295
+                            "Value": 321
                         }
                     }
                 },
@@ -104,9 +104,9 @@
                         0.0
                     ],
                     "position": [
-                        0.0,
-                        0.0,
-                        0.0
+                        -0.44925928115844727,
+                        9.13958740234375,
+                        493.4767150878906
                     ],
                     "rotation": [
                         1.0,
@@ -3104,6 +3104,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -3151,6 +3159,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -3429,6 +3457,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -3476,6 +3512,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -7664,7 +7720,7 @@
                         73,
                         217,
                         85,
-                        90
+                        4294967295
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -7673,6 +7729,14 @@
                         "active": {
                             "Type": "bool",
                             "Value": true
+                        },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
                         },
                         "bulletDamage": {
                             "Type": "int",
@@ -7721,6 +7785,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -11381,6 +11465,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -11428,6 +11520,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -12007,6 +12119,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -12054,6 +12174,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -16388,6 +16528,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -16435,6 +16583,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -16883,6 +17051,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -16930,6 +17106,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -17012,10 +17208,10 @@
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 90,
                     "neighbours": [
-                        73,
+                        0,
                         87,
-                        218,
-                        4294967295
+                        74,
+                        73
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -17024,6 +17220,14 @@
                         "active": {
                             "Type": "bool",
                             "Value": true
+                        },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAim"
                         },
                         "bulletDamage": {
                             "Type": "int",
@@ -17072,6 +17276,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -17126,7 +17350,7 @@
                     "position": [
                         -0.44925928115844727,
                         9.13958740234375,
-                        3.17803955078125
+                        493.4767150878906
                     ],
                     "rotation": [
                         1.0,
@@ -17433,6 +17657,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -17480,6 +17712,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -18390,7 +18642,7 @@
                         0,
                         86,
                         98,
-                        73
+                        90
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -18431,7 +18683,7 @@
                     "neighbours": [
                         0,
                         80,
-                        74,
+                        90,
                         145
                     ]
                 },
@@ -20960,6 +21212,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -21007,6 +21267,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -21285,6 +21565,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -21332,6 +21620,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -21610,6 +21918,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -21657,6 +21973,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -21935,6 +22271,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -21982,6 +22326,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -22253,6 +22617,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -22300,6 +22672,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -22588,6 +22980,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -22635,6 +23035,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -22927,6 +23347,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -22974,6 +23402,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",
@@ -23262,6 +23710,14 @@
                             "Type": "bool",
                             "Value": true
                         },
+                        "aimVerticalOffset": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "aiminglinePrefabName": {
+                            "Type": "std::string",
+                            "Value": "PreAimLine"
+                        },
                         "bulletDamage": {
                             "Type": "int",
                             "Value": 20
@@ -23309,6 +23765,26 @@
                         "limit": {
                             "Type": "int",
                             "Value": 100
+                        },
+                        "preAimFlickerRate": {
+                            "Type": "float",
+                            "Value": 10.0
+                        },
+                        "preAimPercentage": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "preaim": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "preaimMaxAlpha": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "preaimMinAlpha": {
+                            "Type": "float",
+                            "Value": 0.30000001192092896
                         },
                         "projDestroysOnImpact": {
                             "Type": "bool",

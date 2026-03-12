@@ -1,6 +1,6 @@
 [
     {
-        "Sparks": {
+        "FX_Sparks": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -150,7 +150,8 @@
                     1.0
                 ],
                 "orbitOverLifetime": false,
-                "renderMode": "Billboard",
+                "particleLayer": 0,
+                "renderMode": 0,
                 "rotateOverLifetime": true,
                 "rotateSeparateAxis": false,
                 "rotateVelocity": [
@@ -288,18 +289,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097164,
+                "entity_id": 52429246,
                 "neighbours": [
                     0,
                     4294967295,
-                    2097162,
-                    4294967295
+                    37748799,
+                    37748801
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Sparks",
+                "mName": "FX_Sparks",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {

@@ -1,0 +1,58 @@
+{
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node57"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node110"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "MetallicMap"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "NormalMap"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "RoughnessMap"
+            ]
+        },
+        "Multiply": {
+            "Node110": [
+                "color",
+                "Node61"
+            ],
+            "Node57": [
+                "color",
+                "albedo"
+            ],
+            "Node61": [
+                "EmissionMap",
+                "EmissionMult"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "EmissionMult": 1.0
+        },
+        "Ints": {},
+        "Textures": {
+            "EmissionMap": 15644028420850910905,
+            "MetallicMap": 11697903386653029786,
+            "NormalMap": 15800990347539648889,
+            "RoughnessMap": 11697903386653029786,
+            "albedo": 11697903386653029786
+        },
+        "Uints": {}
+    }
+}

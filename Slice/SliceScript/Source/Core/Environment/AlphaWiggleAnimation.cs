@@ -18,6 +18,8 @@ namespace SliceEngine
         private Renderer storedRenderer;
         public float MaxWiggle = 1f;
         public float MinWiggle = 1f;
+        public bool random = false;
+        private bool lowerAlpha = false;
         //public float floatingAmp = 10f;
         //public float floatingFreq = 10f;
         private float count = 0f;
@@ -61,9 +63,20 @@ namespace SliceEngine
 
                 Vector4 color = storedRenderer.GetColor();
 
-                color.w = SliceRandom.RangeFloat(MinWiggle, MaxWiggle);
+                if (random)
+                {
+                    color.w = SliceRandom.RangeFloat(MinWiggle, MaxWiggle);
+                }
+                else if (lowerAlpha)
+                {
+                    color.w = MaxWiggle;
+                }
+                else
+                {
+                    color.w = MinWiggle;
+                }
 
-                storedRenderer.SetColor(color);
+                    storedRenderer.SetColor(color);
             }
         }
     }
