@@ -110,6 +110,7 @@ namespace SliceEngine
                 else if (buttonType == 4)
                 {
                     mainController.BackToMenu();
+
                 }
                 else if (buttonType == 5)
                 {
@@ -123,14 +124,32 @@ namespace SliceEngine
                 if (buttonType == 5) // Resume
                 {
                     gameSettingsController.ResumeGame();
+                    if (uiAnimController != null)
+                    {
+                        uiAnimController.ButtonHoverState(false);
+                        uiAnimController.ResetButton();
+
+                    }
                 }
                 else if (buttonType == 1) // Open Settings (Sub-menu)
                 {
                     gameSettingsController.OpenSubSettings();
+                    if (uiAnimController != null)
+                    {
+                        uiAnimController.ButtonHoverState(false);
+                        uiAnimController.ResetButton();
+
+                    }
                 }
                 else if (buttonType == 3) // Close Settings (Back button inside popup)
                 {
                     gameSettingsController.CloseSubSettings();
+                    if (uiAnimController != null)
+                    {
+                        uiAnimController.ButtonHoverState(false);
+                        uiAnimController.ResetButton();
+
+                    }
                 }
             }
 

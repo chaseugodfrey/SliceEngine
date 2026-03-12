@@ -10,6 +10,17 @@ namespace SliceEngine
             gameObject = entity;
         }
 
+        public void SetCastShadow(bool castShadow)
+        {
+            FunctionCalls.Renderer_SetCastShadow(gameObject.mID, castShadow);
+        }
+        public bool GetCastShadow()
+        {
+            bool castShadows;
+            FunctionCalls.Renderer_GetCastShadow(gameObject.mID, out castShadows);
+            return castShadows;
+        }
+
         public void SetColor(Vector4 color)
         {
             FunctionCalls.Material_SetColor(gameObject.mID, ref color);
