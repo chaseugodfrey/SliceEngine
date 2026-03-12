@@ -31,6 +31,7 @@ namespace SliceEngine
 
         public override void OnSliderValue(float value)
         {
+            
             if (audioParameter == "Master")
             {
                 AudioManager.SetMasterVolume(value);

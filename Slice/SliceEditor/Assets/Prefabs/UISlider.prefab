@@ -1,0 +1,307 @@
+[
+    {
+        "UISlider": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 28,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 902,
+                "pos_y": 0,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 459
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097249,
+                "neighbours": [
+                    2097175,
+                    2097178,
+                    2097176,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.VolumeSlider",
+                "scriptableFieldMap": {
+                    "audioParameter": {
+                        "Type": "std::string",
+                        "Value": "Master"
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "UISlider",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Slider": {
+                "Axis": "X_Axis",
+                "Direction": "Positive",
+                "enabled": true,
+                "fill": 2097250,
+                "handle": 2097251,
+                "value": 0.0
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "18346345988154168254"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Image": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 100,
+                "hori_pivot": "Stretch",
+                "left": -14,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": -13,
+                "top": -1,
+                "vert_pivot": "Stretch",
+                "width": 394
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097178,
+                "neighbours": [
+                    2097249,
+                    4294967295,
+                    4294967295,
+                    2097250
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Image",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": false,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "18346345988154168254"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "fill": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 5,
+                "height": 100,
+                "hori_pivot": "Stretch",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": 230,
+                "top": 6,
+                "vert_pivot": "Stretch",
+                "width": 100
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097250,
+                "neighbours": [
+                    2097249,
+                    4294967295,
+                    2097178,
+                    2097251
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "fill",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": false,
+                "rgba": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "texture": "11697903386653029786"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "handle": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 65,
+                "hori_pivot": "Left",
+                "left": 0,
+                "pos_x": 229,
+                "pos_y": 0,
+                "right": 0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 12
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097251,
+                "neighbours": [
+                    2097249,
+                    4294967295,
+                    2097250,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "handle",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": false,
+                "rgba": [
+                    0.19999998807907104,
+                    0.19999998807907104,
+                    0.19999998807907104,
+                    1.0
+                ],
+                "texture": "11697903386653029786"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

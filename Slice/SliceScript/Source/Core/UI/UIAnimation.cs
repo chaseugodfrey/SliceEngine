@@ -201,7 +201,7 @@ namespace SliceEngine
             useGlitch = true;
             if (rectObj != null)
             {
-                spriteTrans.Colour = (new Vector4(0.3f, 0.3f, 0.3f, 0.1f));
+                spriteTrans.Colour = (new Vector4(0.3f, 0.3f, 0.3f, 1.0f));
             }
 
             if (frontText != null && backText != null)

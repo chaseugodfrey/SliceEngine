@@ -12,9 +12,12 @@ namespace SliceEngine
         private MainMenuController mainController;
         private GameSettings gameSettingsController;
         private UIAnimation uiAnimController;
+        
         private AudioSource btnAudio;
         public GameObject uiAnimObj;
         
+
+
 
         public override void OnCreate()
         {
@@ -38,6 +41,8 @@ namespace SliceEngine
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
 
+            
+
             //GameObject startRect = FindGameObjectWithName("OverlayGameRect");
             //if (startRect != null)
             //{
@@ -50,7 +55,9 @@ namespace SliceEngine
                 uiAnimController = uiAnimObj.As<UIAnimation>();
 
             }
+
             
+
         }
 
         public override void OnUpdate(float dt)
@@ -83,6 +90,8 @@ namespace SliceEngine
                         uiAnimController.ResetButton();
 
                     }
+
+                  
                 }
                 else if (buttonType == 2)
                 {
