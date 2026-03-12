@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 232,
+                "entity_id": 7340161,
                 "neighbours": [
-                    249,
-                    320,
-                    104,
-                    4294967295
+                    0,
+                    7340162,
+                    7340166,
+                    7340201
                 ]
             },
             "struct SliceEngine::Script": {
@@ -82,7 +82,7 @@
                     },
                     "projectilePrefabName": {
                         "Type": "std::string",
-                        "Value": "Projectile"
+                        "Value": "AimProjectile"
                     },
                     "radialRandomInDegrees": {
                         "Type": "float",
@@ -123,9 +123,9 @@
                     0.0
                 ],
                 "position": [
-                    -0.44925928115844727,
-                    9.13958740234375,
-                    3.17803955078125
+                    723.7747192382813,
+                    41.958778381347656,
+                    -200.84742736816406
                 ],
                 "rotation": [
                     1.0,
@@ -145,7 +145,7 @@
         "AimingMechMesh": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 1,
-                "skeleton_root": 319
+                "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -155,10 +155,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 320,
+                "entity_id": 7340162,
                 "neighbours": [
-                    232,
-                    321,
+                    7340161,
+                    7340163,
                     4294967295,
                     4294967295
                 ]
@@ -198,7 +198,7 @@
         "Shooter": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 2,
-                "skeleton_root": 319
+                "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -220,12 +220,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 321,
+                "entity_id": 7340163,
                 "neighbours": [
-                    320,
+                    7340162,
                     4294967295,
                     4294967295,
-                    322
+                    7340225
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -263,7 +263,7 @@
         "Core": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 3,
-                "skeleton_root": 319
+                "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -285,12 +285,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 322,
+                "entity_id": 7340225,
                 "neighbours": [
-                    320,
+                    7340162,
                     4294967295,
-                    321,
-                    327
+                    7340163,
+                    7340172
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -328,7 +328,7 @@
         "Wings": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 8,
-                "skeleton_root": 319
+                "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -350,11 +350,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 327,
+                "entity_id": 7340172,
                 "neighbours": [
-                    320,
+                    7340162,
                     4294967295,
-                    322,
+                    7340225,
                     4294967295
                 ]
             },
