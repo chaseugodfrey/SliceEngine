@@ -252,6 +252,7 @@ namespace SliceEngine
                         //start Preaiming
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
+                            SliceLog.Log("passed the check on preaim");
                             AlphaWiggleAnimation a =  preAimObject.As<AlphaWiggleAnimation>();
 
                             a.active = true;
@@ -270,6 +271,7 @@ namespace SliceEngine
 
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
+                            SliceLog.Log("passed the check on reset");
                             AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
 
                             preaiming = false;
