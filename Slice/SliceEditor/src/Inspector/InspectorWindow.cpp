@@ -528,6 +528,9 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::Slider::Axis>(mRegistry, "Axis", "##slideraxis", slider.axis, axis_enums);
 			ComboHeader<SliceEngine::Slider::Direction>(mRegistry, "Direction", "##sliderdirection", slider.direction, direction_enums);
 
+			EntityInputHeader(mRegistry, "Fill", "##sliderfill", slider.fill);
+			EntityInputHeader(mRegistry, "Handle", "##sliderhandle", slider.handle);
+
 			float new_val = slider.GetValue();
 			if (SliderFloatInputHeader(mRegistry, "Value", "##sliderVal", new_val, "%.1f", 0.0, 1.0)) {
 				slider.SetValue(new_val, entity);
