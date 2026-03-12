@@ -29,7 +29,7 @@ namespace SliceEngine
         public int burstRatePerSecond = 10;
         public int burstCount = 3;
 
-        //
+        //Circle controls
         public bool circle = false;
         public int bulletsPerCircle = 4;
         public float circleRadius = 1f;
@@ -41,12 +41,19 @@ namespace SliceEngine
         public float spiralRate = 1f; // seconds for a rotation
         public Vector3 spiralAxis = new Vector3(0,1,0);
 
+        //Aiming Controls
+        public float aimVerticalOffset = 1f;
+        public bool preaim = true;
+        public float preAimFlickerRate = .1f;
+        public float preAimPercentage = .2f; //percantage of the 
+        private bool preaiming = false;
+        public string aiminglinePrefabName = "PreAimLine";
+        private GameObject preAimObject;
+
         //
         public bool active = false;
 
         public int limit = 100;
-
-
         public float rangeLimit = 10f;
 
         public int spawnStyle = 0;
@@ -111,8 +118,6 @@ namespace SliceEngine
             }
         }
 
-
-
         public void SpawnSetProjectile()
         {
             if (circle)
@@ -175,10 +180,24 @@ namespace SliceEngine
 
             yield break;
         }
-
         #endregion
 
         private float count = 0f;
+
+        public override void OnCreate()
+        {
+            base.OnCreate();
+
+            currentStyle = (SpawnStyle)spawnStyle;
+
+            if (currentStyle == SpawnStyle.Aim)
+            {
+                string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
+                //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+                preAimObject = CreateGameObject(aimingPrefabPath);
+                //preAim.
+            }
+        }
 
         public override void OnFixedUpdate(float dt)
         {
@@ -215,7 +234,19 @@ namespace SliceEngine
                     break;
 
 
-                    this.transform.LookAt(Bootstrap.Player.transform.Position, new Vector3(0,1,0));
+                    this.transform.LookAt(Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset,0), new Vector3(0,1,0));
+
+                    float calc = 1f / projPerSecond;
+
+                    // Find the charging up time
+                    if (preaiming == false && count >= (calc * preAimPercentage))
+                    {
+                        //start Preaiming
+
+                        //spawn a prefab?
+                        //flicker
+                    }
+
 
                     if (count >= 1f / projPerSecond)
                     {
