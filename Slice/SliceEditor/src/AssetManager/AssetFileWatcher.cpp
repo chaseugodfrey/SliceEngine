@@ -178,13 +178,7 @@ namespace SliceEditor
             std::string originalFileName = addEvent.filePath.stem().string();
             //Get the extension of the asset
             std::string originalExt = addEvent.filePath.extension().string();
-            std::string parentDirectory;
-
-            auto it = am.mSupportedAssetTypes.find(originalExt);
-            if (it != am.mSupportedAssetTypes.end())
-            {
-                parentDirectory = it->second.second;
-            }
+            std::string parentDirectory = addEvent.filePath.parent_path().filename().string();
 
             std::string assetName = parentDirectory + "/" + originalFileName + originalExt;
 

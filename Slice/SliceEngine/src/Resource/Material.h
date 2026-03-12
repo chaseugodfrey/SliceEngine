@@ -30,6 +30,7 @@ namespace SliceEngine
 			Handle<CustomShader> shader;
 
 			glm::vec4 color;
+			glm::vec4 color2;
 			bool isTranslucent;
 			bool isIgnoreLighting;
 			bool isShaderUpdated;

@@ -28,7 +28,7 @@ namespace SliceEngine
 			//temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
 			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
-			temp.color = glm::vec4(1.f);
+			temp.color = temp.color2 = glm::vec4(1.f);
 			temp.isTranslucent = false;
 			temp.isIgnoreLighting = false;
 
@@ -61,6 +61,9 @@ namespace SliceEngine
 
 			if (materialJson.contains("color") && materialJson["color"].is_array() && materialJson["color"].size() == 4) // cause color is a vec 4
 				glm::from_json(materialJson["color"], temp.color);
+
+			if (materialJson.contains("color2") && materialJson["color2"].is_array() && materialJson["color2"].size() == 4) // cause color is a vec 4
+				glm::from_json(materialJson["color2"], temp.color2);
 
 			if (materialJson.contains("translucency"))
 				temp.isTranslucent = materialJson["translucency"];
@@ -117,7 +120,7 @@ namespace SliceEngine
 			//albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			//albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
 			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
-			color = glm::vec4(1.f, 1.f, 1.f, 1.f);
+			color = color2 = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			isTranslucent = false;
 			isIgnoreLighting = false;
 			for (auto& i : shader.get()->dataIn)
