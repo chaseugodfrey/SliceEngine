@@ -21,12 +21,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 270,
+                "entity_id": 26214436,
                 "neighbours": [
                     0,
-                    271,
-                    267,
-                    4294967295
+                    26214437,
+                    26214431,
+                    24117628
                 ]
             },
             "struct SliceEngine::Script": {
@@ -50,7 +50,11 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 271
+                        "Value": 26214437
+                    },
+                    "owner": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
                     },
                     "speed": {
                         "Type": "float",
@@ -71,8 +75,8 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.0,
+                    11.39339828491211,
+                    22.57146644592285,
                     0.0
                 ],
                 "rotation": [
@@ -111,12 +115,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 271,
+                "entity_id": 26214437,
                 "neighbours": [
-                    270,
+                    26214436,
                     4294967295,
                     4294967295,
-                    4294967295
+                    16777451
                 ]
             },
             "struct SliceEngine::Script": {
@@ -149,6 +153,100 @@
                     1.0,
                     1.0,
                     1.0
+                ]
+            }
+        }
+    },
+    {
+        "Inner Mesh": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9919909892102733493"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15944074647628756543"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 16777451,
+                "neighbours": [
+                    26214436,
+                    4294967295,
+                    26214437,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Projectile",
+                "scriptableFieldMap": {
+                    "damage": {
+                        "Type": "int",
+                        "Value": 30
+                    },
+                    "destroyOnImpact": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "destroyOnPlayerImpact": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "distanceBeforeDestroy": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "generalHitbox": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 26214437
+                    },
+                    "owner": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "speed": {
+                        "Type": "float",
+                        "Value": 1.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Inner Mesh",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.6000000238418579,
+                    0.6000000238418579,
+                    0.6000000238418579
                 ]
             }
         }
