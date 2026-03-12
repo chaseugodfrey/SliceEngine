@@ -10,7 +10,14 @@
                 ],
                 "bounceDampening": 0.0,
                 "bounciness": 0.0,
-                "bursts": [],
+                "bursts": [
+                    [
+                        1,
+                        10,
+                        0.10000000149011612,
+                        0.0
+                    ]
+                ],
                 "colorValueType": 0,
                 "colour": [
                     1.0,
@@ -71,7 +78,7 @@
                 "coneArc": 30.0,
                 "destroyOnExpire": true,
                 "duration": 5.0,
-                "emissionRate": 5.0,
+                "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     0.0,
                     0.0,
@@ -94,7 +101,7 @@
                     "GUID": "9336273396156370476"
                 },
                 "maxGlowIntensity": 0.0,
-                "maxParticleLifetime": 10.0,
+                "maxParticleLifetime": 5.0,
                 "maxParticles": 300,
                 "maxRandomColour": [
                     0.0,
@@ -115,7 +122,7 @@
                 ],
                 "maxRandomSpeed": 20.0,
                 "minGlowIntensity": 0.0,
-                "minParticleLifetime": 5.0,
+                "minParticleLifetime": 2.0,
                 "minRandomColour": [
                     0.0,
                     0.0,
@@ -137,7 +144,7 @@
                 "modelHandle": {
                     "GUID": "15944074647628756543"
                 },
-                "numBursts": 0,
+                "numBursts": 1,
                 "orbitAxis": [
                     0.0,
                     0.0,
@@ -289,12 +296,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 23068860,
+                "entity_id": 42991640,
                 "neighbours": [
-                    23069015,
+                    42991648,
                     4294967295,
                     4294967295,
-                    23069016
+                    54526290
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -310,9 +317,9 @@
                     0.0
                 ],
                 "position": [
-                    56.663352966308594,
-                    59.26152420043945,
-                    -66.37782287597656
+                    118.84307098388672,
+                    18.846330642700195,
+                    -68.42534637451172
                 ],
                 "rotation": [
                     1.0,
