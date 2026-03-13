@@ -269,7 +269,7 @@ namespace SliceEngine
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
 		.property("playPreview", &AudioSource::playPreview)
-		.property("enablePathfinding", &AudioSource::enablePathfinding)
+		//.property("enablePathfinding", &AudioSource::enablePathfinding)
 		.property("directOcclusion", &AudioSource::directOcclusion)
 		.property("reverbOcclusion", &AudioSource::reverbOcclusion)
 		.property("componentEnabled", &AudioSource::componentEnabled);

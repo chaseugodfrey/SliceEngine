@@ -13,13 +13,13 @@ namespace SliceEngine
         public GameObject player;
         public override void OnCreate()
         {
-            player = FindGameObjectsWithTag("Player")[0];
+            //player = FindGameObjectsWithTag("Player")[0];
         }
 
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            player.As<PlayerController>().StartAttackRecovery();
+            //player.As<PlayerController>().StartAttackRecovery();
         }
         public void SetAttacking(string state)
         {
