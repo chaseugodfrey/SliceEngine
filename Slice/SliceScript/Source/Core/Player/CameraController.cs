@@ -21,7 +21,9 @@ namespace SliceEngine
         public float cameraTransitionSpeed = 5.0f;
         public float shakeMagnitude = 0.5f;
         public float shakeDuration = 0.2f;
+
         private Vector3 shakeOffset = Vector3.Zero;
+        private Quaternion actual_cam_quat = Quaternion.Identity;
 
         public GameObject cameraChild;
         public float collisionCheckOffset = 1f;
@@ -50,6 +52,7 @@ namespace SliceEngine
 
             defaultCameraOffset = cameraChild.GetComponent<Transform>().Position;
             defaultCameraOffsetDist = defaultCameraOffset.Magnitude();
+            actual_cam_quat = transform.RotationQuat;
         }
         public override void OnUpdate(float dt)
         {
@@ -65,9 +68,20 @@ namespace SliceEngine
             {
                 float yawDelta = mouseDelta.x * sensitivity.x * dt;
                 float pitchDelta = mouseDelta.y * sensitivity.y * dt;
-                transform.Rotate(yawDelta, Vector3.Up, true);
 
+                //apply yaw rotation
+                Quaternion yaw_quat = Quaternion.FromAxisAngle(Vector3.Up, yawDelta);
+                actual_cam_quat = (yaw_quat * actual_cam_quat).Normalize();
+                //apply pitch rotation
                 float clampedPitch = Utilities.Clamp(pitch + pitchDelta, yClamp.x, yClamp.y);
+                Quaternion pitch_quat = Quaternion.FromAxisAngle(Vector3.Right, clampedPitch - pitch);
+                actual_cam_quat = (actual_cam_quat * pitch_quat).Normalize();
+                pitch = clampedPitch;
+                //apply camera shake
+                //set camera's rotation
+                transform.RotationQuat = actual_cam_quat * Quaternion.FromEuler(shakeOffset);
+                //  Console.Write("helloooo");
+
 
                 //Hafiz: Idk why Bootstrap.Player was null and crashing when I merged into working
                 //       So I did this null check(27/12/2025)
@@ -75,16 +89,13 @@ namespace SliceEngine
                 {
                     Vector3 basePosition = Bootstrap.Player.transform.Position;
 
-                    Vector3 screenShake = transform.RotationQuat * shakeOffset;
+                    Vector3 screenShake = transform.RotationQuat * Vector3.Zero;
 
                     transform.Position = basePosition + screenShake;
                 }
                 //float deltaToApply = newPitch - pitch;
                 //pitch = newPitch;
 
-                transform.Rotate(clampedPitch - pitch, Vector3.Right);
-                
-                pitch = clampedPitch;
 
             }
             else
@@ -97,16 +108,16 @@ namespace SliceEngine
 
             Vector3 dir = cameraChild.GetComponent<Transform>().WorldPosition - this.transform.WorldPosition;
 
-            
+
 
             //SliceLog.Log("Cam dir is " + dir);
             float safeDist = 0f;
 
-            if (Physics.SphereCast(transform.WorldPosition + new Vector3 (0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.GetMask("Environment"), QueryTriggerInteraction.Ignore))
+            if (Physics.SphereCast(transform.WorldPosition + new Vector3(0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.GetMask("Environment"), QueryTriggerInteraction.Ignore))
             {
 
                 // Place camera just before the surface using the sphere radius
-                safeDist = Utilities.Clamp<float>( Math.Max(hit.distance - collisionRadius, 0f), .2f, defaultCameraOffsetDist);
+                safeDist = Utilities.Clamp<float>(Math.Max(hit.distance - collisionRadius, 0f), .2f, defaultCameraOffsetDist);
                 //SliceLog.Log("safe dist is " + safeDist);
                 cameraChild.GetComponent<Transform>().Position = defaultCameraOffset.Normalize() * safeDist;
 
@@ -149,7 +160,7 @@ namespace SliceEngine
 
             LockCamera = true;
 
-            if(Bootstrap.Player != null)
+            if (Bootstrap.Player != null)
             {
                 Bootstrap.Player.SetPlayerLock(true);
             }
@@ -190,18 +201,18 @@ namespace SliceEngine
 
         private Vector3[] GenerateRectanglePath(Vector3[] points)
         {
-            
+
             int waypointCount = points.Length - 1;
 
             Vector3 startPoint = points[0];
             Vector3 endPoint = points[waypointCount - 1];
 
-            
+
             Vector3 lineDir = (endPoint - startPoint);
-            if (lineDir.SquareMagnitude() < 0.0001f) return points; 
+            if (lineDir.SquareMagnitude() < 0.0001f) return points;
             lineDir = lineDir.Normalize();
 
-            
+
             Vector3 rightDir = Vector3.Cross(Vector3.Up, lineDir).Normalize();
 
             // Failsafe: if the line was perfectly vertical, cross product with Up returns 0
@@ -210,14 +221,14 @@ namespace SliceEngine
                 rightDir = Vector3.Cross(Vector3.Forward, lineDir).Normalize();
             }
 
-           
+
             float halfWidth = rectangleWidth / 2f;
             Vector3 corner1 = startPoint + (rightDir * halfWidth);
             Vector3 corner2 = endPoint + (rightDir * halfWidth);
             Vector3 corner3 = endPoint - (rightDir * halfWidth);
             Vector3 corner4 = startPoint - (rightDir * halfWidth);
 
-            
+
             return new Vector3[] { corner1, corner2, corner3, corner4, points[points.Length - 1] };
         }
 
@@ -265,12 +276,12 @@ namespace SliceEngine
 
             while (elapsed < duration)
             {
-                
-                float x = SliceRandom.RangeFloat(-0.5f, 0.5f) * magnitude;
-                //float y = SliceRandom.RangeFloat(-1f, 1f) * magnitude;
-                //float z = SliceRandom.RangeFloat(-1f, 1f) * magnitude;
+                //ideally use perlin noise but this shld be fine for now
+                float x = SliceRandom.RangeFloat(-1.0f, 1.0f) * magnitude;
+                float y = SliceRandom.RangeFloat(-1.0f, 1.0f) * magnitude;
+                float z = SliceRandom.RangeFloat(-1.0f, 1.0f) * magnitude;
 
-                shakeOffset = new Vector3(x, 0f, 0f);
+                shakeOffset = new Vector3(x, y, z);
 
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -279,6 +290,7 @@ namespace SliceEngine
             // Reset offset when finished
             shakeOffset = Vector3.Zero;
         }
+
 
         private void FinishCameraMovement()
         {
@@ -290,7 +302,7 @@ namespace SliceEngine
             }
             SliceLog.Log("Camera sequence complete. Control returned to player.");
         }
-   
+
         public void SetFollowTarget(GameObject target)
         {
             followTarget = target;
