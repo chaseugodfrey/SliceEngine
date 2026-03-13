@@ -201,7 +201,7 @@ namespace SliceEngine
 
                                 enemyController.movementDone = false;
                                 // move to the random point
-                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().WorldPosition, 3.0f));
 
                             }
                         }
@@ -757,7 +757,7 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;
