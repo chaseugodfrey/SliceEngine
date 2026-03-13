@@ -613,9 +613,8 @@ namespace SliceEngine
         protected override void OnDamaged(GameObject source)
         {
             Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
-            //CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
+            CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
             enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
-
         }
 
         public override void OnUpdate(float dt)
@@ -767,7 +766,7 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
+                        CreateGameObject("Prefabs/FX_TheBallSlam.prefab").GetComponent<Transform>().Position = transform.Position;
                         AudioSettings.PlaySFX("Smash");
                         Bootstrap.CameraController.Shake(0.2f, 4.0f);
                         ToggleHitbox(true);
