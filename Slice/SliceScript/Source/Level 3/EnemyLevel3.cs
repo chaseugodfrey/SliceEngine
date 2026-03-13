@@ -153,7 +153,11 @@ namespace SliceEngine
                 if (enemyController.canDamage)
                 {
                     if (enemyController.shield == false)
+                    {
+                        Console.WriteLine("Going to idle");
                         enemyController.stateMachine.ChangeState(enemyController.idleState);
+
+                    }
                     else if (shieldFade == false)
                     {
                         Console.WriteLine("Starting coroutine to fade out shield");
@@ -230,6 +234,10 @@ namespace SliceEngine
                 }
             }
 
+            public override void OnExit()
+            {
+                enemyController.movementDone = true;
+            }
 
         }
 
@@ -260,6 +268,11 @@ namespace SliceEngine
                     shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
 
                 }
+
+                if (enemyController.stateMachine.prevState is StasisState)
+                {
+                    enemyController.movementDone = true;
+                }
             }
 
             public override void OnUpdate(float dt)
@@ -274,7 +287,7 @@ namespace SliceEngine
                     if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
-                        if (roll < 0.9f)
+                        if (roll < 0.4f)
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -301,7 +314,7 @@ namespace SliceEngine
                             {
                                 enemyController.currPoint = enemyController.GetNextIdlePoint();
                                 enemyController.movementDone = false;
-                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().WorldPosition, 3.0f));
                             }
                         }
                     }
