@@ -43,10 +43,13 @@ namespace SliceEngine
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+                Console.WriteLine($"STarting pos: {enemyController.startingPosition.GetComponent<Transform>().WorldPosition.ToString()}");
             }
 
             public override void OnUpdate(float dt)
             {
+
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
                 timer += dt;
                 if (timer >= 5.0f && !moved)
                 {
@@ -574,6 +577,7 @@ namespace SliceEngine
 
                     if (idleTimer > idleTime && !secondMoved)
                     {
+                        Bootstrap.LevelDirector.LoadNextLevel();
                         secondMoved = true;
                         //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
