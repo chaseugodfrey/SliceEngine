@@ -201,6 +201,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+
+
             //MovementState prevMoveState = PlayerMovementState;
             //CombatState prevCombatState = PlayerCombatState;
             //CurrentAttack prevAttack = PlayerCurrentAttack;

@@ -236,8 +236,8 @@ namespace SliceEngine
                 timer = 0.0f;
 
                 // move to the player fast
-                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
-                targetPos.y = owner.GetComponent<Transform>().Position.y;
+                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().WorldPosition;
+                targetPos.y = owner.GetComponent<Transform>().WorldPosition.y;
                 enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
                 //ToggleHitbox(true);
             }
@@ -425,7 +425,7 @@ namespace SliceEngine
             // this is to prevent multiple MoveToPoitn coroutine calls.
             public bool secondMoved = false;
 
-
+            
 
             public DeathState(GameObject owner, EnemyLevel2 controller) : base(owner)
             {
@@ -717,7 +717,7 @@ namespace SliceEngine
                     // can probably transition to end level, go to level 3 here or smth idk
                     if (death.secondMoved)
                     {
-
+                        Bootstrap.LevelDirector.LoadNextLevel();
                     }
 
                     break;

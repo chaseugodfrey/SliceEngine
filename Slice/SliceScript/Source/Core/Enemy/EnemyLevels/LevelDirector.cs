@@ -132,12 +132,13 @@ namespace SliceEngine
                 //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
                 //SliceLog.Log("Teleporting player");
                 //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+                RestartLevel();
             }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
                 //SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
-                TriggerNextLevel(Bootstrap.Player.gameObject);
+                //TriggerNextLevel(Bootstrap.Player.gameObject);
             }
 
             if (currLevel > levels.Count)
