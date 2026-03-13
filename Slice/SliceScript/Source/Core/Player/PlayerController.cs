@@ -644,6 +644,17 @@ namespace SliceEngine
                 camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             }
 
+            if (animator.GetCurrAnimName() == "Walk")
+            {
+                // GetComponent<AudioSource>().IsMute = false;
+                GetComponent<AudioSource>().Play();
+            }
+            else
+            {
+                GetComponent<AudioSource>().Stop();
+               // GetComponent<AudioSource>().IsMute = true;
+
+            }
             //Console.WriteLine($" All the states: {PlayerMovementState.ToString()} and {PlayerCombatState.ToString()} and {PlayerCurrentAttack.ToString()}");
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
@@ -692,6 +703,7 @@ namespace SliceEngine
                 || PlayerMovementState == MovementState.Jumping)
             {
                 if (PlayerCombatState == CombatState.Attacking || PlayerCombatState == CombatState.Recovery) return;
+
 
                 //if (animator.GetCurrAnimName() == "AttackToIdle3") return;
                 // Normal locomotion
