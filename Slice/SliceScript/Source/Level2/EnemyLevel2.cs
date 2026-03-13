@@ -50,6 +50,9 @@ namespace SliceEngine
 
             public override void OnUpdate(float dt)
             {
+
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+
                 //timer += dt;
                 //if (timer >= 5.0f && !moved)
                 //{

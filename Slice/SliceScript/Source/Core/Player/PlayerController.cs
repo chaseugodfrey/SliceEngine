@@ -446,6 +446,7 @@ namespace SliceEngine
             {
                 Console.WriteLine($"Attacking enemy in attack 1");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private void Attack2(GameObject target)
@@ -455,6 +456,7 @@ namespace SliceEngine
             {
                 Console.WriteLine($"Attacking enemy in attack 2");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private void Attack3(GameObject target)
@@ -463,6 +465,7 @@ namespace SliceEngine
             if (enemy != null)
             {
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private IEnumerator AttackDelay(float delay, Action action)
