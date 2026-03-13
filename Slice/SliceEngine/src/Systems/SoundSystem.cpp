@@ -232,7 +232,7 @@ namespace SliceEngine
 			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
 		}
 
-		audioManager->SetListenerAttributes(worldPos, right, forward, up);
+		audioManager->SetListenerAttributes(worldPos, velocity, forward, up);
 
 	}
 
@@ -263,7 +263,7 @@ namespace SliceEngine
 			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
 		}
 
-		audioManager->SetListenerAttributes(worldPos, right, forward, up);
+		audioManager->SetListenerAttributes(worldPos, velocity, forward, up);
 	}
 #pragma endregion
 
