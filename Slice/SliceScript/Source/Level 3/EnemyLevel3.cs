@@ -371,7 +371,7 @@ namespace SliceEngine
                     }
 
                     Console.WriteLine("Slamming");
-                    owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+                    owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
                 }
 
                 if (onCooldown)
@@ -782,6 +782,8 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
+                        AudioSettings.PlaySFX("Smash");
+                        Bootstrap.CameraController.Shake(0.2f, 4.0f);
                         CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
                         ToggleHitbox(true);
                         slam.onCooldown = true;
