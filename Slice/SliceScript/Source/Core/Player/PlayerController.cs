@@ -553,6 +553,10 @@ namespace SliceEngine
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
+            AudioSettings.PlaySFX("PlayerHit");
+
+            Bootstrap.CameraController.Shake(0.1f, 1f);
+
             GameObject vfx = SpawnVFX(hitPrefabName);
             SliceLog.Log("Returned");
 

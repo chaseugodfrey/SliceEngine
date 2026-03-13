@@ -87,6 +87,20 @@
         },
         {
             "AudioClips": [
+                12356409060795031376
+            ],
+            "isSpatial": false,
+            "key": "DoubleJump",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
                 15125514244222615558
             ],
             "isSpatial": false,
@@ -101,16 +115,18 @@
         },
         {
             "AudioClips": [
-                12356409060795031376
+                10305650555020226811,
+                15218661569640235272,
+                16799327444022259943
             ],
             "isSpatial": false,
-            "key": "DoubleJump",
+            "key": "PlayerHit",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 0.699999988079071,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
             "volumeRollOff": 0
         },
         {
@@ -161,6 +177,20 @@
             ],
             "isSpatial": true,
             "key": "EnemyProjectile",
+            "maxDistance": 30.0,
+            "maxInstances": 4,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                11243930446659405203
+            ],
+            "isSpatial": false,
+            "key": "PlayerHitLazer",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
