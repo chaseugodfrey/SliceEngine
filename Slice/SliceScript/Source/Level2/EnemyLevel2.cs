@@ -171,7 +171,7 @@ namespace SliceEngine
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                         // 40% chance to slam attack
-                        if (roll < 0.4f) 
+                        if (roll < 0.6f) 
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -183,7 +183,7 @@ namespace SliceEngine
 
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                         }
-                        else if (roll < 0.8f && roll > 0.4f)
+                        else if (roll < 0.8f && roll > 0.6f)
                         {
                             // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
                             Console.WriteLine("pew pew pew");
@@ -273,7 +273,7 @@ namespace SliceEngine
 
 
                     Console.WriteLine("Slamming");
-                    owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+                    owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
                 }
 
                 // onCooldown means it already hit the floor
@@ -761,6 +761,8 @@ namespace SliceEngine
                     if (!slam.onCooldown && slam.attacking)
                     {
                         CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
+                        AudioSettings.PlaySFX("Smash");
+                        Bootstrap.CameraController.Shake(0.2f, 4.0f);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;
