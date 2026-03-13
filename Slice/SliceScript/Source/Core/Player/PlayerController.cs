@@ -27,7 +27,8 @@ namespace SliceEngine
             GroundDash,
             AirDash,
             Lunging,
-            Plunging,
+            MovingPlunge,
+            AttackingPlunge,
             Dead
         }
 
@@ -139,7 +140,7 @@ namespace SliceEngine
         public float plungeTerminalVelocity = 40.0f;
         public float plungeAttackDuration = 0.25f;
         public float plungeRecoveryDuration = 0.25f;
-        public float plungeMinDistance = 2.0f;
+        public float plungeMinDistance = 3.0f;
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
@@ -281,7 +282,11 @@ namespace SliceEngine
         #region Attacking
         private void ExecuteAttack()
         {
-            if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && grounded && PlayerCombatState != CombatState.Shielding)
+            if (PlayerCombatState != CombatState.Attacking 
+                && PlayerMovementState != MovementState.MovingPlunge 
+                && PlayerMovementState != MovementState.AttackingPlunge
+                && PlayerCombatState != CombatState.Shielding
+                && grounded)
             {
                 PlayerCombatState = CombatState.Attacking;
 
@@ -328,47 +333,38 @@ namespace SliceEngine
                         break;
                 }
             }
-            else if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && PlayerCombatState != CombatState.Shielding)
+            else if (PlayerCombatState != CombatState.Attacking
+                && PlayerMovementState != MovementState.MovingPlunge
+                && PlayerMovementState != MovementState.AttackingPlunge
+                && PlayerCombatState != CombatState.Shielding)
             {
                 RayCastHit hitInfo;
+                
                 // Check if can plunge by raycasting down to see distance to ground
                 bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
                 if (hit)
-                    Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
-                if (hit)
                 {
-                    //Console.WriteLine("It hit something");
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
-                    Console.WriteLine($"obj hit: {objHit.mID} with tag {objHit.tag}");
-                    if (objHit == null)
+
+                    if (objHit != null && objHit.tag == "Ground")
                     {
-                        Console.WriteLine("Obj hit is null");
-                        //return;
-                    }
-                    // Only check distance if its a ground obj
-                    else if (objHit.tag == "Ground")
-                    {
-                        Console.WriteLine($"Hitting the ground with {hitInfo.distance}");
-                        // if its too close to the ground then dont let it plunge
                         if (hitInfo.distance <= plungeMinDistance)
                         {
+                            PlayerMovementState = MovementState.MovingPlunge;
+                            PlayerCurrentAttack = CurrentAttack.None;
                             Console.WriteLine("Not high enough");
-                            Console.WriteLine($"Distance : {hitInfo.distance}");
                             return;
                         }
-
                     }
                 }
 
-
-                    //playerCombatState = CombatState.Attacking;
-                    PlayerMovementState = MovementState.Plunging;
+                PlayerMovementState = MovementState.AttackingPlunge;
                 PlayerCurrentAttack = CurrentAttack.None;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                 {
                     AudioSettings.PlaySFX("Plunge");
-                }               
+                }
             }
         }
         private void TurnOffHitboxes()
@@ -419,7 +415,9 @@ namespace SliceEngine
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") != 0))
                         {
                             if (animator.SafeToChange("PlungeToWalk"))
-                                animator.SetBool("PlungeToWalk", true);                            
+                            {
+                                animator.SetBool("PlungeToWalk", true);
+                            }
                         }
                         PlayerMovementState = MovementState.Walking;
                     }
@@ -428,7 +426,9 @@ namespace SliceEngine
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") != 0))
                         {
                             if (animator.SafeToChange("PlungeToIdle"))
+                            {
                                 animator.SetBool("PlungeToIdle", true);
+                            }
                         }
                         PlayerMovementState = MovementState.Idle;
                     }                    
@@ -682,7 +682,9 @@ namespace SliceEngine
                 Vector3 lungeVel = lungeDir * lungeSpeed;
                 rigidBody.Velocity = new Vector3(lungeVel.x, rigidBody.Velocity.y, lungeVel.z);
             }
-            else if (PlayerMovementState == MovementState.Plunging && !grounded)
+            else if ((PlayerMovementState == MovementState.MovingPlunge 
+                || PlayerMovementState == MovementState.AttackingPlunge)
+                && !grounded)
             {
                 velTemp.x = 0.0f;
                 if (rigidBody.Velocity.y < -plungeTerminalVelocity)
@@ -820,12 +822,20 @@ namespace SliceEngine
                         PlayerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
-                case MovementState.Plunging:
+                case MovementState.MovingPlunge:
+                    if (grounded)
+                    {
+                        PlayerMovementState = MovementState.Landing;
+                        PlayerCurrentAttack = CurrentAttack.None;
+                    }
+                    break;
+                case MovementState.AttackingPlunge:
                     if (grounded)
                     {
                         PlayerMovementState = MovementState.Landing;
                         PlayerCurrentAttack = CurrentAttack.PlungeLand;
                         attackTimer = plungeAttackDuration;
+                        CreateGameObject("Prefabs/FX_PlayerSlam.prefab").GetComponent<Transform>().Position = transform.Position;
                     }
                     break;
                 case MovementState.Dead:
@@ -870,8 +880,8 @@ namespace SliceEngine
                 case CurrentAttack.PlungeLand:
                     if (attackTimer > 0.0f)
                     {
-                        PlayerCombatState = CombatState.Attacking;                        
-                    }
+                        PlayerCombatState = CombatState.Attacking;
+                    }                    
                     break;
 
                 default:
@@ -998,7 +1008,12 @@ namespace SliceEngine
                 case MovementState.Lunging:
                     break;
 
-                case MovementState.Plunging:
+                case MovementState.MovingPlunge:
+                    if (animator.SafeToChange("Plunge") && (String.Compare(animator.GetCurrAnimName(), "Plunge") != 0))
+                        animator.SetBool("Plunge", true);
+                    break;
+
+                case MovementState.AttackingPlunge:
                     if (animator.SafeToChange("Plunge") && (String.Compare(animator.GetCurrAnimName(), "Plunge") != 0))
                         animator.SetBool("Plunge", true);
                     break;
@@ -1057,7 +1072,9 @@ namespace SliceEngine
                     break;
                 case CurrentAttack.PlungeLand:
                     if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") != 0)
+                    {
                         animator.SetBool("PlungeLand", true);
+                    }
                     break;
                 default:
                     break;
@@ -1082,7 +1099,10 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) 
                 && PlayerCombatState != CombatState.Shielding 
                 && PlayerCombatState != CombatState.Attacking 
-                && PlayerMovementState != MovementState.Plunging) StartCoroutine(ShieldCoroutine());
+                && PlayerMovementState != MovementState.MovingPlunge
+                && PlayerMovementState != MovementState.AttackingPlunge
+                ) 
+                StartCoroutine(ShieldCoroutine());
         }
 
         private void HandleJumpInputs()
