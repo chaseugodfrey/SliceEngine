@@ -60,7 +60,6 @@ namespace SliceEngine
 	void GLFWWindowManager::FullScreenWindow()
 	{
 
-
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
 
 		auto vidMode = glfwGetVideoMode(monitor);

@@ -13,13 +13,13 @@ namespace SliceEngine
         public GameObject player;
         public override void OnCreate()
         {
-            player = FindGameObjectsWithTag("Player")[0];
+            //player = FindGameObjectsWithTag("Player")[0];
         }
 
         public void AttackRecovery(string str)
         {
             //Console.WriteLine("Attack recovery started.");
-            player.As<PlayerController>().StartAttackRecovery();
+            //player.As<PlayerController>().StartAttackRecovery();
         }
         public void SetAttacking(string state)
         {
@@ -59,6 +59,7 @@ namespace SliceEngine
         }
         public static void PlayPlayerSFX(string type)
         {
+            SliceLog.Log("Playing sfx called");
             type = type.ToLower();
 
             switch (type)
@@ -86,6 +87,9 @@ namespace SliceEngine
                     break;
                 case "attack3":
                     AudioSettings.PlaySFX("A3");
+                    break;
+                case "damage":
+                    AudioSettings.PlaySFX("PlayerHit");
                     break;
             }
         }

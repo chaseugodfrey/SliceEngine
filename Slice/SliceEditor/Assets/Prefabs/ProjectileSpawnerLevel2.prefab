@@ -2,9 +2,9 @@
     {
         "ProjectileSpawnerLevel2": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14913263396184968829",
+                "prefabGUID": "15145462514056472296",
                 "prefabHandle": {
-                    "GUID": "14913263396184968829"
+                    "GUID": "15145462514056472296"
                 },
                 "prefabID": 0
             },
@@ -21,7 +21,7 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048598,
+                "entity_id": 1048780,
                 "neighbours": [
                     4294967295,
                     4294967295,
@@ -35,6 +35,14 @@
                     "active": {
                         "Type": "bool",
                         "Value": true
+                    },
+                    "aimVerticalOffset": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "aiminglinePrefabName": {
+                        "Type": "std::string",
+                        "Value": "PreAim"
                     },
                     "bulletDamage": {
                         "Type": "int",
@@ -50,7 +58,7 @@
                     },
                     "bulletSpeed": {
                         "Type": "float",
-                        "Value": 35.0
+                        "Value": 65.0
                     },
                     "bulletsPerCircle": {
                         "Type": "int",
@@ -83,6 +91,34 @@
                     "limit": {
                         "Type": "int",
                         "Value": 10
+                    },
+                    "preAimFlickerRate": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "preAimObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "preAimPercentage": {
+                        "Type": "float",
+                        "Value": 0.20000000298023224
+                    },
+                    "preAimRandom": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "preaim": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "preaimMaxAlpha": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "preaimMinAlpha": {
+                        "Type": "float",
+                        "Value": 0.30000001192092896
                     },
                     "projDestroysOnImpact": {
                         "Type": "bool",

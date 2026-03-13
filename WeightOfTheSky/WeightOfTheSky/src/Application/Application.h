@@ -6,7 +6,11 @@
 
 #include <Systems/SceneSystem.h>
 
-struct OnGameStopEvent;
+namespace SliceEngine
+{
+	struct OnGameStopEvent;
+
+}
 
 namespace SliceBuild
 {
@@ -15,7 +19,7 @@ namespace SliceBuild
 		SliceEngine::Engine engine;
 
 	public:
-		void QuitGameEvent(OnGameStopEvent e);
+		void QuitGameEvent(SliceEngine::OnGameStopEvent e);
 		void Init();
 		void Run();
 		void Exit();

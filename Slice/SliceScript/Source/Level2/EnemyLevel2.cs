@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,6 +42,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = false;
+                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
@@ -48,23 +50,26 @@ namespace SliceEngine
 
             public override void OnUpdate(float dt)
             {
-                timer += dt;
-                if (timer >= 5.0f && !moved)
-                {
-                    moved = true;
-                    enemyController.stateMachine.ChangeState(enemyController.idleState);
 
-                    //if (enemyController.startingPosition == null)
-                    //{
-                    //    SliceLog.Error("Starting position is null");
-                    //    moved = true;
-                    //}
-                    //else
-                    //{
-                    //    //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
-                    //    moved = true;
-                    //}
-                }
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+
+                //timer += dt;
+                //if (timer >= 5.0f && !moved)
+                //{
+                //    moved = true;
+                //    //enemyController.stateMachine.ChangeState(enemyController.idleState);
+
+                //    //if (enemyController.startingPosition == null)
+                //    //{
+                //    //    SliceLog.Error("Starting position is null");
+                //    //    moved = true;
+                //    //}
+                //    //else
+                //    //{
+                //    //    //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
+                //    //    moved = true;
+                //    //}
+                //}
 
                 orbitTimer += dt * rotationSpeed;
                 Vector3 center = owner.GetComponent<Transform>().WorldPosition;
@@ -90,6 +95,8 @@ namespace SliceEngine
                     Vector3 worldTarget = center + new Vector3(x, 0f, z);
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 1.5f));
                 }
+
+                enemyController.movementDone = true;
             }
             // transitions when movement is done in onMovementFinished in EnemyLevel2 
         }
@@ -102,7 +109,9 @@ namespace SliceEngine
             public int moves = 0;
             // ray cast doesnt work that well if the user runs out of the ring so ill do distance from starting point instead
             public float distanceFromStarting = 50.0f;
-
+            float timer = 0.0f;
+            float timeToMove = 2.0f;
+            public bool frozen = true;
             public IdleState(GameObject owner, EnemyLevel2 controller) : base(owner)
             {
                 enemyController = controller;
@@ -122,9 +131,11 @@ namespace SliceEngine
                     //enemyController.movementDone = false;
                 }
 
+
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
+                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
                 }
 
             }
@@ -134,7 +145,7 @@ namespace SliceEngine
                 if (owner != null)
                 {
                     // update movement for idle
-                    if (enemyController.movementDone)
+                    if (enemyController.movementDone && !frozen)
                     {
                         //Console.WriteLine("Incrementing");
                         // prob decide here if attack or no attack
@@ -144,11 +155,23 @@ namespace SliceEngine
                         enemyController.movementTimer += dt;
                     }
 
+                    // very first instance
+                    if (frozen)
+                    {
+                        timer += dt;
+                        if(timer > timeToMove)
+                        {
+                            frozen = false;
+                        }
+
+                    }
+
+
                     if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                         // 40% chance to slam attack
-                        if (roll < 0.9f) // 75% chance for now cause testing
+                        if (roll < 0.4f) 
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -181,7 +204,7 @@ namespace SliceEngine
 
                                 enemyController.movementDone = false;
                                 // move to the random point
-                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().WorldPosition, 3.0f));
 
                             }
                         }
@@ -216,8 +239,8 @@ namespace SliceEngine
                 timer = 0.0f;
 
                 // move to the player fast
-                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
-                targetPos.y = owner.GetComponent<Transform>().Position.y;
+                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().WorldPosition;
+                targetPos.y = owner.GetComponent<Transform>().WorldPosition.y;
                 enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
                 //ToggleHitbox(true);
             }
@@ -412,7 +435,7 @@ namespace SliceEngine
             // this is to prevent multiple MoveToPoitn coroutine calls.
             public bool secondMoved = false;
 
-
+            
 
             public DeathState(GameObject owner, EnemyLevel2 controller) : base(owner)
             {
@@ -560,7 +583,7 @@ namespace SliceEngine
             if (hit.Has<PlayerController>())
             {
                 Console.WriteLine("Player hit");
-                Bootstrap.Player.TakeDamage(damage);
+                Bootstrap.Player.TakeDamage(damage, gameObject);
 
             }
         }
@@ -603,6 +626,16 @@ namespace SliceEngine
         public override void OnFixedUpdate(float dt)
         {
             stateMachine.OnFixedUpdate(dt);
+        }
+
+        public void TriggerState(string state)
+        {
+            switch(state)
+            {
+                case "Idle":
+                    stateMachine.ChangeState(idleState);
+                    break;
+            }
         }
 
         public virtual int GetNextIdlePoint()
@@ -694,7 +727,7 @@ namespace SliceEngine
                     // can probably transition to end level, go to level 3 here or smth idk
                     if (death.secondMoved)
                     {
-
+                        Bootstrap.LevelDirector.LoadNextLevel();
                     }
 
                     break;
@@ -734,7 +767,7 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;

@@ -45,6 +45,22 @@
         },
         {
             "AudioClips": [
+                10718644567249144634,
+                12510399732508655228,
+                13440781433114437033
+            ],
+            "isSpatial": false,
+            "key": "SwordHit",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
                 9385656686377290189
             ],
             "isSpatial": false,
@@ -129,6 +145,22 @@
         },
         {
             "AudioClips": [
+                10305650555020226811,
+                15218661569640235272,
+                16799327444022259943
+            ],
+            "isSpatial": false,
+            "key": "PlayerHit",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
                 9481060356522622619
             ],
             "isSpatial": false,
@@ -153,6 +185,34 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.20000000298023224,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                13552891661274492760
+            ],
+            "isSpatial": true,
+            "key": "EnemyProjectile",
+            "maxDistance": 30.0,
+            "maxInstances": 4,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                11243930446659405203
+            ],
+            "isSpatial": false,
+            "key": "PlayerHitLazer",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
             "volumeRollOff": 0
         }
     ]
