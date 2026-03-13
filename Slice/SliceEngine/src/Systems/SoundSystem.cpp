@@ -20,6 +20,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/RenderManager.h"
+#include "Navigation/NavigationSystem.h"
 
 
 namespace SliceEngine
@@ -39,7 +40,7 @@ namespace SliceEngine
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f, 0.f, 0.f }; // Placeholder for physics velocity
 
-
+		
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
 			if (!audioComp.channel && audioComp.playOnAwake)
@@ -62,7 +63,7 @@ namespace SliceEngine
 			audioManager->StopSound(audioComp.channel);
 			audioComp.channel = nullptr;
 		}
-
+		
 		if (audioComp.previewChannel)
 		{
 			audioManager->StopSound(audioComp.previewChannel);
@@ -79,9 +80,25 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f ,0.f,0.f };
-
+		glm::vec3 audioWorldPos = transform.GetWorldPosition();
+		//SLICE_LOG("transform world pos: (" + std::to_string(audioWorldPos.x) + "," + std::to_string(audioWorldPos.y) +"," + std::to_string(audioWorldPos.z) + ")");
 		if (!audioComp.componentEnabled) // if not enabled do not need to update entity
 			return;
+
+
+		
+
+		if (audioComp.channel != nullptr)
+		{
+			bool isPlaying = false;
+			FMOD_RESULT res = audioComp.channel->isPlaying(&isPlaying);
+
+			
+			if (res != FMOD_OK || !isPlaying)
+			{
+				audioComp.channel = nullptr;
+			}
+		}
 
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -95,15 +112,33 @@ namespace SliceEngine
 
 			if ((audioComp.channel == nullptr && audioComp.playOnAwake == true))
 			{
-
-				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+				audioComp.channel = audioManager->PlaySound(audioComp, audioWorldPos, entityVel);
 
 			}
 
 			if (audioComp.channel && audioComp.spatialBlend > 0.0f)
 			{
-				audioManager->SetSound3DPosition(audioComp.channel, audioComp.spatialBlend, transform.position, entityVel);
+				glm::vec3 listenerPos, lVel, lForward, lUp;
+				audioManager->Get3DListenerAttributes(listenerPos, lVel, lForward, lUp);
+
+				// Calculate the actual distance between the listener and this audio source
+				float distance = glm::distance(listenerPos, audioWorldPos);
+
+				// Debug Log: Check if this value is changing as you move
+				//SLICE_LOG("Distance to Sound: " + std::to_string(distance));
+
+				FMOD_RESULT res = audioComp.channel->set3DAttributes(
+					(FMOD_VECTOR*)&audioWorldPos,
+					(FMOD_VECTOR*)&entityVel
+				);
+
+				if (res != FMOD_OK)
+				{
+					SLICE_LOG_ERROR("FMOD Error updating 3D Position: " + std::to_string(res));
+				}
 			}
+
+			
 		}
 
 		if (sceneSystem->mCurrentState == SceneState::DEFAULT)
@@ -120,7 +155,7 @@ namespace SliceEngine
 
 			if (audioComp.previewChannel && audioComp.spatialBlend > 0.0f)
 			{
-				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, entityVel);
+				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, audioWorldPos, entityVel);
 			}
 
 			if (audioComp.channel && !audioManager->IsChannelPlaying(audioComp.channel))
@@ -128,7 +163,7 @@ namespace SliceEngine
 				audioComp.channel = nullptr;
 			}
 		}
-
+		
 	}
 
 	void AudioSourceSystem::ComponentUpdate(entt::registry& reg, entt::entity entity)
@@ -137,24 +172,24 @@ namespace SliceEngine
 		auto& audioComp = reg.get<AudioSource>(entity);
 		//auto& transform = reg.get<Transform>(entity);
 		glm::vec3 entityVel = { 0.f ,0.f,0.f };
-
+			
 		if (!audioComp.componentEnabled)
 		{
 			if (audioComp.channel)
 			{
-
+				
 				audioManager->StopSound(audioComp.channel);
 				audioComp.channel = nullptr;
 			}
 
 			if (audioComp.previewChannel)
 			{
-
+			
 				audioManager->StopSound(audioComp.previewChannel);
 				audioComp.previewChannel = nullptr;
 			}
 		}
-
+		
 		if (audioComp.channel != nullptr)
 		{
 			audioManager->UpdateChannelFromComponent(audioComp.channel, audioComp);
@@ -175,19 +210,29 @@ namespace SliceEngine
 
 	void AudioListenerSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
-
+		
 		auto audioManager = Core::GetInstance()->GetAudioManager();
 		auto renderManager = Core::GetInstance()->GetRenderManager();
 
 
 		auto& transform = reg.get<Transform>(entity);
-		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
-		glm::vec3 up, forward, right;
-		glm::vec3 vel(0.f);
+		glm::vec3 worldPos = transform.GetWorldPosition();
+		glm::vec3 velocity(0.f);
 
-		GameObject camera = FactoryInstance.GetGOByEntity(entity);
-		renderManager->GetCameraAxis(camera, forward, right, up);
-		audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
+		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
+		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));
+
+		
+		auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		if (cameraOpt.has_value() && cameraOpt.value() == entity)
+		{
+			
+			GameObject cameraObj = FactoryInstance.GetGOByEntity(entity);
+			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
+		}
+
+		audioManager->SetListenerAttributes(worldPos, right, forward, up);
 
 	}
 
@@ -202,29 +247,28 @@ namespace SliceEngine
 		auto renderManager = Core::GetInstance()->GetRenderManager();
 
 		auto& transform = reg.get<Transform>(entity);
-		auto& audioListener = reg.get<AudioListener>(entity);
+		glm::vec3 worldPos = transform.GetWorldPosition();
+		glm::vec3 velocity(0.f);
 
-		if (!audioListener.componentEnabled)
-			return;
+		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
+		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
+		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));
 
-		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
-		glm::vec3 up, forward, right;
-		glm::vec3 vel(0.f);
 
-		auto& camera = Core::GetInstance()->GetRenderManager()->GetGameCamera();
-		if (camera.has_value())
+		auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		if (cameraOpt.has_value() && cameraOpt.value() == entity)
 		{
-			GameObject cameraObj = FactoryInstance.GetGOByEntity(camera.value());
-			auto& cameraTrans = reg.get<Transform>(camera.value());
-			renderManager->GetCameraAxis(cameraObj, forward, right, up);
-			audioManager->SetListenerAttributes(cameraTrans.position, vel, forward, up);
 
+			GameObject cameraObj = FactoryInstance.GetGOByEntity(entity);
+			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
 		}
+
+		audioManager->SetListenerAttributes(worldPos, right, forward, up);
 	}
 #pragma endregion
 
 	void SoundSystem::Update(float dt)
 	{
-
+		
 	}
 }
