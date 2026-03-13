@@ -87,20 +87,6 @@
         },
         {
             "AudioClips": [
-                15125514244222615558
-            ],
-            "isSpatial": false,
-            "key": "Land",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 1.0,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
                 12356409060795031376
             ],
             "isSpatial": false,
@@ -115,15 +101,15 @@
         },
         {
             "AudioClips": [
-                13612963309126088302
+                15125514244222615558
             ],
             "isSpatial": false,
-            "key": "Dash",
+            "key": "Land",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
-            "spatialBlend": 1.0,
+            "spatialBlend": 0.0,
             "volume": 1.0,
             "volumeRollOff": 0
         },
@@ -135,6 +121,20 @@
             ],
             "isSpatial": false,
             "key": "PlayerHit",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                13612963309126088302
+            ],
+            "isSpatial": false,
+            "key": "Dash",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -177,9 +177,9 @@
             ],
             "isSpatial": true,
             "key": "EnemyProjectile",
-            "maxDistance": 30.0,
+            "maxDistance": 85.5,
             "maxInstances": 4,
-            "minDistance": 1.0,
+            "minDistance": 27.799999237060547,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.4000000059604645,

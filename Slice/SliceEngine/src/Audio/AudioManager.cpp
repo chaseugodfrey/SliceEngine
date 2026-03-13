@@ -38,7 +38,7 @@ namespace SliceEngine
 			return;
 		}
 
-		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, nullptr);
+		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_3D_RIGHTHANDED, nullptr);
 		if (result != FMOD_OK)
 		{
 			SLICE_LOG_ERROR("FMOD System initialization failed");
