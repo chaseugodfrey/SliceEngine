@@ -108,7 +108,7 @@ namespace SliceEngine
             {
                 //console.writeline("Enabled");
                 _enabled = true;
-                animator.SetBool("Open", true);
+                animator?.SetBool("Open", true);
                 Bootstrap.LevelDirector.LoadNextLevel();
             }
         }
