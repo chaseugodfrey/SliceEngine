@@ -8,6 +8,10 @@
 
 namespace SliceBuild
 {
+	namespace
+	{
+		bool temp = false;
+	}
 	//Time class for physics simulation or any other system that uses fixeddt
 	void EnableMemoryLeakChecking(int breakAlloc = -1)
 	{
@@ -72,9 +76,17 @@ namespace SliceBuild
 
 			engine.WindowSizeSwitch();
 
-			if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::DEFAULT)
+			// force it to update the engine one more time before setting to play
+			if (temp)
 			{
-				SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+				if (SliceEngine::Core::GetInstance()->GetSceneSystem()->mCurrentState == SliceEngine::SceneState::DEFAULT)
+				{
+					SliceEngine::Core::GetInstance()->GetSceneSystem()->mNextState = SliceEngine::SceneState::PLAY_SCENE;
+				}
+			}
+			if (!temp)
+			{
+				temp = true;
 			}
 			/*if (SliceEngine::Core::GetInstance()->GetSceneSystem()->GetCurrentSceneName() == "17531386095546160316") 
 			{
