@@ -215,8 +215,9 @@ namespace SliceEngine
 		if (camera.has_value())
 		{
 			GameObject cameraObj = FactoryInstance.GetGOByEntity(camera.value());
+			auto& cameraTrans = reg.get<Transform>(camera.value());
 			renderManager->GetCameraAxis(cameraObj, forward, right, up);
-			audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+			audioManager->SetListenerAttributes(cameraTrans.position, vel, forward, up);
 
 		}
 	}
