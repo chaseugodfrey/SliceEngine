@@ -994,7 +994,7 @@ namespace SliceEditor
 		return changed;
 	}
 	
-	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs)
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs, std::vector<bool>& changedVals)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<float > oldList{};
@@ -1008,20 +1008,25 @@ namespace SliceEditor
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
 
+				//To check each entry if it was changed, push_back a false first.
+				changedVals.push_back(false); //it should correspond to idx
+
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
 				ImGui::SetNextItemWidth(200.0f);
 
+				std::string formatCopy = format;
 				if (elementDiffs[idx])
 				{
-					format = "---";
+					formatCopy = "---";
 				}
 
-				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
+				changedVals[idx] = ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, formatCopy.c_str());
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
 
+				changed = changedVals[idx] || changed;
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc,"Edit", std::string(property_label), oldList, list);
@@ -1045,7 +1050,8 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, 0.0f, idx);
+				editFunc("Add", std::string(property_label), list, list[idx-1], idx);
+				changedVals.push_back(true); // Push back a new modified value
 
 				// record in history
 				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);

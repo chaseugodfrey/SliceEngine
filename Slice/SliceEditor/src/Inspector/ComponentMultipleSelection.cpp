@@ -602,6 +602,69 @@ namespace SliceEditor
 		}
 	}
 
+	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList,std::vector<bool>& changedVars)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentList = scriptRef->GetListFieldValue<float>(scriptVarName);
+				//Referring to the same script entity
+				if (currentList == originalList)
+				{
+					continue;
+				}
+
+				//Copy the value to set here:
+				std::vector<float> currentListCopy = currentList;
+
+				//Check vector sizes.
+				size_t maxSize = std::max(currentList.size(), originalList.size());
+
+				size_t safeBounds = std::max(maxSize, changedVars.size());
+
+				for (size_t i = 0; i < safeBounds; ++i)
+				{
+					bool currentMissing = i >= currentListCopy.size(); //This means the currentList has less variables than the "main"
+					bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one
+
+					if (currentMissing) //Means we added a new variable
+					{
+						scriptRef->AddListFieldValue(scriptVarName, currentListCopy[i - 1]);
+						continue;
+					}
+
+					if (changedVars[i])
+					{
+						currentListCopy[i] = originalList[i];
+					}
+				}
+
+				if (currentListCopy != currentList)
+				{
+					scriptRef->SetListField(scriptVarName, currentListCopy);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
+
+
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection)
 	{
 		for (auto selectedNode : selectionManager->GetSelectedNodes())
