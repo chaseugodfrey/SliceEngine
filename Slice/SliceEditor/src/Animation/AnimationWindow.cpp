@@ -741,31 +741,32 @@ namespace SliceEditor
 					ImGui::BeginDisabled();
 
 				//ImGui::SameLine();
-				float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
-
-				DragFloatInputHeader(mRegistry,"Duration:","##anim_duration", durationBuffer);
-
-				if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+				if (mCurrentAnimator->curr_anims.animations.size() > 0)
 				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
-					customAnimClips[mCurrentClipIndex].duration = durationBuffer;
-					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
+
+					DragFloatInputHeader(mRegistry, "Duration:", "##anim_duration", durationBuffer);
+
+					if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+					{
+						mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
+						customAnimClips[mCurrentClipIndex].duration = durationBuffer;
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
+
+					//ImGui::SameLine();
+
+					UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
+
+					DragUInt32InputHeader(mRegistry, "FPS:", "##anim_frames", frameBuffer, "%u", 0U, 240U);
+
+					if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
+					{
+						mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
+						customAnimClips[mCurrentClipIndex].fps = frameBuffer;
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
 				}
-
-				//ImGui::SameLine();
-
-				UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
-
-				DragUInt32InputHeader(mRegistry,"FPS:","##anim_frames", frameBuffer, "%u",0U,240U);
-
-				if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
-				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
-					customAnimClips[mCurrentClipIndex].fps = frameBuffer;
-					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
-				}
-
-
 			}
 		}
 
@@ -1276,14 +1277,17 @@ namespace SliceEditor
 				{
 				case 0:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Position";
 					break;
 				case 1:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
+					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Rotation";
 					break;
 				case 2:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
+					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Scale";
 					break;
 				}
@@ -1342,6 +1346,7 @@ namespace SliceEditor
 				mOpenTrfEditKeyAttrib = false;
 				mOpenSRTVarEdit = -1;
 				attrib = nullptr;
+				customAnimClips[mCurrentClipIndex] = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex];
 				ImGui::CloseCurrentPopup();
 			}
 
