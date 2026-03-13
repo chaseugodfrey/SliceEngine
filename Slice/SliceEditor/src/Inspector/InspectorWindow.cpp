@@ -528,6 +528,9 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::Slider::Axis>(mRegistry, "Axis", "##slideraxis", slider.axis, axis_enums);
 			ComboHeader<SliceEngine::Slider::Direction>(mRegistry, "Direction", "##sliderdirection", slider.direction, direction_enums);
 
+			EntityInputHeader(mRegistry, "Fill", "##sliderfill", slider.fill);
+			EntityInputHeader(mRegistry, "Handle", "##sliderhandle", slider.handle);
+
 			float new_val = slider.GetValue();
 			if (SliderFloatInputHeader(mRegistry, "Value", "##sliderVal", new_val, "%.1f", 0.0, 1.0)) {
 				slider.SetValue(new_val, entity);
@@ -1389,14 +1392,19 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+								std::array<bool, 3> changedAxis{ false,false,false };
 								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data,"%.3f",0.1f,0.0f,0.0f, ScriptVector3MultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), &changedAxis))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptVector3MultiSet(selectionManager, script.scriptName, it.second.mName, data, changedAxis);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
