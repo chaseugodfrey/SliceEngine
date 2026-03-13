@@ -87,20 +87,6 @@
         },
         {
             "AudioClips": [
-                12356409060795031376
-            ],
-            "isSpatial": false,
-            "key": "DoubleJump",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 0.699999988079071,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
                 15125514244222615558
             ],
             "isSpatial": false,
@@ -115,12 +101,24 @@
         },
         {
             "AudioClips": [
-                10305650555020226811,
-                15218661569640235272,
-                16799327444022259943
+                12356409060795031376
             ],
             "isSpatial": false,
-            "key": "PlayerHit",
+            "key": "DoubleJump",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.699999988079071,
+            "volumeRollOff": 0
+        },
+        {
+            "AudioClips": [
+                13612963309126088302
+            ],
+            "isSpatial": false,
+            "key": "Dash",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -131,10 +129,12 @@
         },
         {
             "AudioClips": [
-                13612963309126088302
+                10305650555020226811,
+                15218661569640235272,
+                16799327444022259943
             ],
             "isSpatial": false,
-            "key": "Dash",
+            "key": "PlayerHit",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -182,7 +182,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.4000000059604645,
             "volumeRollOff": 0
         },
         {
