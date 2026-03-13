@@ -123,10 +123,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (!isActive)
-                return;
-
-            if (Input.IsKeyPressed(Keys.KEY_P))
+            if (Input.IsKeyPressed(Keys.KEY_CURLYBRACKET_OPEN))
             {
                 //Vector3 loc = levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position;
                 //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
@@ -135,11 +132,15 @@ namespace SliceEngine
                 RestartLevel();
             }
 
-            if (Input.IsKeyPressed(Keys.KEY_L))
+            if (Input.IsKeyPressed(Keys.KEY_CURLYBRACKET_CLOSE))
             {
                 //SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
                 //TriggerNextLevel(Bootstrap.Player.gameObject);
+                LoadNextLevel();
             }
+
+            if (!isActive)
+                return;
 
             if (currLevel > levels.Count)
             {
