@@ -61,7 +61,7 @@ namespace SliceEditor
 				// if current animator is null or mismatch
 				// ignore if anim == mCurrentAnimator
 				// either case, return true
-				if (!mCurrentAnimator || anim != mCurrentAnimator)
+				if (!mCurrentAnimator)
 				{	
 					
 					LoadDataFromAnimator(anim, entity);
@@ -741,31 +741,35 @@ namespace SliceEditor
 					ImGui::BeginDisabled();
 
 				//ImGui::SameLine();
-				float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
-
-				DragFloatInputHeader(mRegistry,"Duration:","##anim_duration", durationBuffer);
-
-				if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+				//float durationBuffer = 0.f;
+				if (mCurrentAnimator->curr_anims.animations.size() > 0)
 				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
-					customAnimClips[mCurrentClipIndex].duration = durationBuffer;
-					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					float durationBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration;
+
+
+					DragFloatInputHeader(mRegistry, "Duration:", "##anim_duration", durationBuffer);
+
+					if (std::abs(durationBuffer - mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration) > FLT_EPSILON)
+					{
+						mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].duration = durationBuffer;
+						customAnimClips[mCurrentClipIndex].duration = durationBuffer;
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
+
+					//ImGui::SameLine();
+
+					UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
+
+					DragUInt32InputHeader(mRegistry, "FPS:", "##anim_frames", frameBuffer, "%u", 0U, 240U);
+
+					if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
+					{
+						mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
+						customAnimClips[mCurrentClipIndex].fps = frameBuffer;
+						LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
+					}
+
 				}
-
-				//ImGui::SameLine();
-
-				UINT32 frameBuffer = mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps;
-
-				DragUInt32InputHeader(mRegistry,"FPS:","##anim_frames", frameBuffer, "%u",0U,240U);
-
-				if (std::abs(static_cast<int>(frameBuffer) - static_cast<int>(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps)) > 0)
-				{
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].fps = frameBuffer;
-					customAnimClips[mCurrentClipIndex].fps = frameBuffer;
-					LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
-				}
-
-
 			}
 		}
 
