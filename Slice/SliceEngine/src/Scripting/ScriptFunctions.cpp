@@ -1889,6 +1889,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1896,7 +1897,6 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
 		{
@@ -2861,6 +2861,27 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Material
+	static void Renderer_SetCastShadow(uint32_t entityID, bool castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.castShadow = castShadow;
+		}
+	}
+	static void Renderer_GetCastShadow(uint32_t entityID, bool* castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*castShadow = renderer.castShadow;
+		}
+	}
+
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -3281,6 +3302,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
+
+		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);

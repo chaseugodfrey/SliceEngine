@@ -11,17 +11,23 @@ namespace SliceEngine
     {
         private GameObject settingsPanel;
         private GameObject settingsPopup;
+        private SettingsBorderAnimation borderAnim;
 
         private bool isPauseMenuOpen = false;
         private bool isSubSettingsOpen = false;
 
         public override void OnCreate()
         {
-            settingsPanel = FindGameObjectWithName("Game Settings");
+            settingsPanel = FindGameObjectWithName("GameSettings");
             settingsPopup = FindGameObjectWithName("Settings_Popup");
 
             if (settingsPanel != null) settingsPanel.SetActive(false);
-            if (settingsPopup != null) settingsPopup.SetActive(false);
+            if (settingsPopup != null)
+            {
+                // Access the script we just built
+                borderAnim = settingsPopup.As<SettingsBorderAnimation>();
+                settingsPopup.SetActive(false);
+            }
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
@@ -76,24 +82,35 @@ namespace SliceEngine
 
         public void OpenSubSettings()
         {
-            // Hide Pause Menu, Show Settings
-            if (settingsPanel != null) settingsPanel.SetActive(false);
-            if (settingsPopup != null) settingsPopup.SetActive(true);
+
+            //if (settingsPanel != null) settingsPanel.SetActive(false);
+            //if (settingsPopup != null) settingsPopup.SetActive(true);
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(true);
+            }
+            
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = true;
+            Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
 
         public void CloseSubSettings()
         {
             // Hide Settings, Show Pause Menu
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            if (settingsPanel != null) settingsPanel.SetActive(true);
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+            //if (settingsPanel != null) settingsPanel.SetActive(true);
+
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(false);
+            }
 
             isSubSettingsOpen = false;
             isPauseMenuOpen = true;
 
-            Bootstrap.HUDManager.CursorChecking(Cursor.state);
+            //Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
     }
 }

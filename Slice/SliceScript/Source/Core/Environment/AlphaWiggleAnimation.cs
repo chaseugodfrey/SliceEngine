@@ -53,10 +53,8 @@ namespace SliceEngine
 
             if (!active)
             {
-                Console.WriteLine($"render object id: {rendererObject.mID}");
                 if (storedRenderer != null)
                 {
-                    Console.WriteLine("Setting renderer collor");
                     Vector4 color = storedRenderer.GetColor();
                     color.w = 0.0f;
                     storedRenderer.SetColor(color);

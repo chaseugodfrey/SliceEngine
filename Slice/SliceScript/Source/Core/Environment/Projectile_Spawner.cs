@@ -67,6 +67,8 @@ namespace SliceEngine
         #region bullet creation
         public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
         {
+            AudioSettings.PlaySFX("EnemyProjectile", transform.WorldPosition);
+
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
             GameObject newBullet = CreateGameObject(prefabPath);
@@ -241,7 +243,7 @@ namespace SliceEngine
                     {
                         if (preAimObject.Has<AlphaWiggleAnimation>())
                         {
-                            SliceLog.Log("passed the check on preaim");
+                            //SliceLog.Log("passed the check on preaim");
                             AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
 
                             a.active = false;

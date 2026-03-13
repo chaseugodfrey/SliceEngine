@@ -35,7 +35,7 @@ namespace SliceEngine {
 		if (axis == X_Axis) {
 			handle_pos = (int)(rect.final_width * value);
 
-			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
 			
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				handle_rect.vert_pivot = RectTransform::MIDDLE;
@@ -51,7 +51,7 @@ namespace SliceEngine {
 				}
 			}
 
-			if (fill != entt::null && reg.any_of<RectTransform>(fill)) {
+			if (fill != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(fill)) {
 			
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
@@ -72,7 +72,7 @@ namespace SliceEngine {
 		else {
 			handle_pos = (int)(rect.final_height * value);
 
-			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
 		
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				//ensure that handle's settings r fixed
@@ -89,7 +89,7 @@ namespace SliceEngine {
 				}
 			}
 
-			if (fill != entt::null && reg.any_of<RectTransform>(fill)) {
+			if (fill != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(fill)) {
 		
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;

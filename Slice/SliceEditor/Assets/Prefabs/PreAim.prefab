@@ -2,18 +2,18 @@
     {
         "PreAim": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "17158419429946634021",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "17158419429946634021"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 25166247,
+                "entity_id": 203,
                 "neighbours": [
-                    0,
-                    25166224,
-                    32506241,
+                    4294967295,
+                    204,
+                    4294967295,
                     4294967295
                 ]
             },
@@ -42,7 +42,7 @@
                     },
                     "rendererObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 25166224
+                        "Value": 204
                     }
                 }
             },
@@ -80,9 +80,9 @@
     {
         "Mesh_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "17158419429946634021",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "17158419429946634021"
                 },
                 "prefabID": 1
             },
@@ -99,9 +99,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 25166224,
+                "entity_id": 204,
                 "neighbours": [
-                    25166247,
+                    203,
                     4294967295,
                     4294967295,
                     4294967295
@@ -133,7 +133,7 @@
                 "scale": [
                     1.0,
                     1.0,
-                    300.0
+                    500.0
                 ]
             }
         }
