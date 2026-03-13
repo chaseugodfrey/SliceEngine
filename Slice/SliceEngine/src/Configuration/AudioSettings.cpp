@@ -475,6 +475,9 @@ namespace SliceEngine
             if (FactoryInstance.SetParent(newAudioObject.GetEntity(), audioManagerObject.GetEntity()))
             {
                 AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
+                Transform& audioPos = newAudioObject.GetComponent<Transform>();
+
+                audioPos.position = position;
 
                 audioComp.soundGUID = clipGUID;
 
@@ -517,6 +520,9 @@ namespace SliceEngine
         else
         {
             AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
+            Transform& audioPos = audioObject.GetComponent<Transform>();
+
+            audioPos.position = position;
 
             //auto& transform = audioObject.GetComponent<Transform>();
 
