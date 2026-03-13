@@ -136,6 +136,7 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\BossStateTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
@@ -144,9 +145,9 @@
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
-    <Compile Include="Source\Core\UI\UIBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />

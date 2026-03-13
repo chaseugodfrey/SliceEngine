@@ -201,6 +201,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+
+
             //MovementState prevMoveState = PlayerMovementState;
             //CombatState prevCombatState = PlayerCombatState;
             //CurrentAttack prevAttack = PlayerCurrentAttack;
@@ -550,6 +552,10 @@ namespace SliceEngine
             //console.writeline("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+
+            AudioSettings.PlaySFX("PlayerHit");
+
+            Bootstrap.CameraController.Shake(0.1f, 1f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
             SliceLog.Log("Returned");

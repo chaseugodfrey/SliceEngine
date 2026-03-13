@@ -201,7 +201,7 @@ namespace SliceEngine
 
                                 enemyController.movementDone = false;
                                 // move to the random point
-                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().WorldPosition, 3.0f));
 
                             }
                         }
@@ -236,8 +236,8 @@ namespace SliceEngine
                 timer = 0.0f;
 
                 // move to the player fast
-                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
-                targetPos.y = owner.GetComponent<Transform>().Position.y;
+                Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().WorldPosition;
+                targetPos.y = owner.GetComponent<Transform>().WorldPosition.y;
                 enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
                 //ToggleHitbox(true);
             }
@@ -425,7 +425,7 @@ namespace SliceEngine
             // this is to prevent multiple MoveToPoitn coroutine calls.
             public bool secondMoved = false;
 
-
+            
 
             public DeathState(GameObject owner, EnemyLevel2 controller) : base(owner)
             {
@@ -717,7 +717,7 @@ namespace SliceEngine
                     // can probably transition to end level, go to level 3 here or smth idk
                     if (death.secondMoved)
                     {
-
+                        Bootstrap.LevelDirector.LoadNextLevel();
                     }
 
                     break;
@@ -757,7 +757,7 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;

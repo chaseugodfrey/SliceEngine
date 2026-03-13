@@ -123,22 +123,24 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (!isActive)
-                return;
-
-            if (Input.IsKeyPressed(Keys.KEY_P))
+            if (Input.IsKeyPressed(Keys.KEY_O))
             {
                 //Vector3 loc = levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position;
                 //SliceLog.Log($"x: {loc.x}, y: {loc.y}, z: {loc.z}");
                 //SliceLog.Log("Teleporting player");
                 //Bootstrap.Player.TeleportPlayer(levels[currLevel].As<BaseLevel>().respawnPoint.GetComponent<Transform>().Position);
+                RestartLevel();
             }
 
-            if (Input.IsKeyPressed(Keys.KEY_L))
+            if (Input.IsKeyPressed(Keys.KEY_P))
             {
                 //SliceLog.Log("LEVEL DIRECTOR DEBUG TRIGGERED");
-                TriggerNextLevel(Bootstrap.Player.gameObject);
+                //TriggerNextLevel(Bootstrap.Player.gameObject);
+                LoadNextLevel();
             }
+
+            if (!isActive)
+                return;
 
             if (currLevel > levels.Count)
             {
