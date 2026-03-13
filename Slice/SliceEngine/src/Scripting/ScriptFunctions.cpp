@@ -1889,6 +1889,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1896,7 +1897,6 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
 		{
