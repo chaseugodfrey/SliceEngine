@@ -29,6 +29,9 @@ namespace SliceEngine
                 SliceLog.Log("Player is hit");
                 Bootstrap.Player.TakeDamage(damage, this.gameObject);
 
+
+                AudioSettings.PlaySFX("PlayerHitLazer");
+
                 if (destroyOnPlayerImpact)
                 {
                     DestroyProj();

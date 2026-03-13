@@ -488,13 +488,17 @@ namespace SliceEngine
 
                 
 
-                //bool isSFXPlaying = false;
+                bool isSFXPlaying = false;
 
-                /*if (audioComp.channel)
-                    audioComp.channel->isPlaying(&isSFXPlaying);*/
+                if (audioComp.channel)
+                    audioComp.channel->isPlaying(&isSFXPlaying);
 
-                //if (audioComp.channel == nullptr || !isSFXPlaying)
-                audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+                if (audioComp.channel == nullptr || !isSFXPlaying)
+                {
+                
+                    audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+                }
                 /*if (audioComp.channel)
                 {
                 
@@ -520,13 +524,17 @@ namespace SliceEngine
 
             //bool isSFXPlaying = false;
 
-            //bool isSFXPlaying = false;
+            bool isSFXPlaying = false;
 
-                /*if (audioComp.channel)
-                    audioComp.channel->isPlaying(&isSFXPlaying);*/
+            if (audioComp.channel)
+                audioComp.channel->isPlaying(&isSFXPlaying);
 
-                    //if (audioComp.channel == nullptr || !isSFXPlaying)
-            audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+            if (audioComp.channel == nullptr || !isSFXPlaying)
+            {
+            
+                audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+            }
             /*if (audioComp.channel)
             {
 
