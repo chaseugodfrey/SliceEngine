@@ -36,6 +36,8 @@ namespace SliceEditor
 
 	bool ScriptGameObjMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection, bool isMultiSelection);
 
+	std::vector<bool> ScriptFloatListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, bool isMultiSelection);
+
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection, std::function<uint32_t(Entity)> func);
 
 	bool GUIDMultipleSelection(SelectionManager* selectionManager, SliceEngine::GUID currentSelection, bool isMultiSelection, std::function<SliceEngine::GUID(Entity)> func);
@@ -55,6 +57,8 @@ namespace SliceEditor
 	void ScriptStringMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::string currentSelection);
 
 	void ScriptVector3MultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, std::array<bool, 3>& changedAxis);
+
+	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<bool>& changedVars);
 
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection);
 
