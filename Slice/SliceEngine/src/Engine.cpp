@@ -444,6 +444,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
+		.property("initialDelay", &ParticleSystem::initialDelay)
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
@@ -474,6 +475,7 @@ namespace SliceEngine
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
 		.property("shapeScale", &ParticleSystem::shapeScale)
+		.property("innerShapeRadius", &ParticleSystem::innerShapeRadius)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -491,6 +493,11 @@ namespace SliceEngine
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+
+		.property("isRotation3D", &ParticleSystem::isRotation3D)
+		.property("rotation3D", &ParticleSystem::rotation3DHint)
+		.property("minRandomRotation3D", &ParticleSystem::minRotation3DHint)
+		.property("maxRandomRotation3D", &ParticleSystem::maxRotation3DHint)
 
 		.property("spawnPosValueType", &ParticleSystem::posValueType)
 		.property("spawnPos", &ParticleSystem::spawnPos)
