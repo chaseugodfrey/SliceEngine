@@ -1179,7 +1179,7 @@ namespace SliceEditor
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
 								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
-
+								std::vector<bool> changedVars;
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
 										if (std::strcmp(funcToExec, "Edit") == 0)
@@ -1196,10 +1196,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f",0.1f, 0.f,0.f, ScriptFloatListElementDifferent(selectionManager, script.scriptName, it.second.mName, data,isMultipleSelection), changedVars))
 								{
 									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<float>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptFloatListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 

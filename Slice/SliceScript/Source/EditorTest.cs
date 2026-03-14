@@ -15,6 +15,7 @@ namespace SliceEngine
         public int intTest = 0;
         public bool boolTest = true;
         public Vector3 vec3test;
+        public List<float> floatList = new List<float>();
 
         //public Prefab prefabObj = new Prefab();
 
