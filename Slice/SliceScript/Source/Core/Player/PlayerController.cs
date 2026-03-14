@@ -1171,8 +1171,8 @@ namespace SliceEngine
 
                 FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
                 FXDash.GetComponent<Transform>().Position = transform.Position;
-                FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
                 FXDash.SetParent(gameObject);
+                FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
 
                 Console.WriteLine($"Dashing now, after state is : {PlayerMovementState.ToString()}");
             }

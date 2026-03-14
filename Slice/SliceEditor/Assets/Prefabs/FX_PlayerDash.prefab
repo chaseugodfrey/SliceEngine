@@ -10,7 +10,14 @@
                 ],
                 "bounceDampening": 0.6000000238418579,
                 "bounciness": 0.0,
-                "bursts": [],
+                "bursts": [
+                    [
+                        1,
+                        15,
+                        0.009999999776482582,
+                        0.0
+                    ]
+                ],
                 "colorValueType": 0,
                 "colour": [
                     1.0,
@@ -71,7 +78,7 @@
                 "coneArc": 0.0,
                 "destroyOnExpire": true,
                 "duration": 0.15000000596046448,
-                "emissionRate": 200.0,
+                "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     1.0,
                     1.0,
@@ -150,7 +157,7 @@
                 "modelHandle": {
                     "GUID": "12441352583622415433"
                 },
-                "numBursts": 0,
+                "numBursts": 1,
                 "orbitAxis": [
                     1.0,
                     1.0,
@@ -265,12 +272,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 23068719,
+                "entity_id": 12583248,
                 "neighbours": [
                     0,
                     4294967295,
-                    27263196,
-                    42991968
+                    15728941,
+                    26214429
                 ]
             },
             "struct SliceEngine::SliceEntity": {
