@@ -945,6 +945,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -962,6 +963,7 @@ namespace SliceEngine
 
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();

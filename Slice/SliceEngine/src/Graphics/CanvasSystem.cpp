@@ -120,12 +120,12 @@ namespace SliceEngine {
 	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
 		return world_space_ui;
 	}
-	void CanvasSystem::UpdateHierachy() {
-		//list of pair of entity and what type of rendering - split into 2 funcs for now
-		//std::vector<std::pair<Entity, int>> entities_to_draw;
+
+	//if force updates regardless of inactive
+	void CanvasSystem::UpdateHierachy(bool force) {
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
+		auto view = core->GetRegistry().view<canvasEntity>();
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
 		empty.final_height = target_height; empty.final_width = target_width;
@@ -134,8 +134,7 @@ namespace SliceEngine {
 		world_space_ui.clear();
 		world_space_z = 0.f;
 		for (auto entity : view) {
-			//auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */entity, entity, entity, empty);
+			get_child_ui(entity, entity, entity, empty, force);
 		}
 	}
 
@@ -557,13 +556,13 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect, bool force) {
 		/*
 		*	assumptions
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node) || mRegistry->any_of<InactiveEntity>(node)) {
+		if (!mRegistry->any_of<RectTransform>(node) || (!force && mRegistry->any_of<InactiveEntity>(node))) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
@@ -617,7 +616,7 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */canvas_entity, node, child, rect);
+				get_child_ui(/*entities_to_draw, */canvas_entity, node, child, rect, force);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
