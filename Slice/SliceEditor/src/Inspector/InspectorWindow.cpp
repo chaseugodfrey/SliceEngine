@@ -1178,7 +1178,7 @@ namespace SliceEditor
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
 								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
-
+								std::vector<bool> changedVars;
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
 										if (std::strcmp(funcToExec, "Edit") == 0)
@@ -1195,10 +1195,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f",0.1f, 0.f,0.f, ScriptFloatListElementDifferent(selectionManager, script.scriptName, it.second.mName, data,isMultipleSelection), changedVars))
 								{
 									scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<float>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptFloatListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 
@@ -1597,25 +1602,28 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				// Initial Delay
+				DragFloatInputHeader(mRegistry, "Initial Delay", "##initialDelay", ps.initialDelay, "%.2f", 0.0f, 100.f);
+
 				// Duration
-				DragFloatInputHeader(mRegistry, "Duration", "##duration", ps.duration, "%.1f", 0.0f, 100.f);
+				DragFloatInputHeader(mRegistry, "Duration", "##duration", ps.duration, "%.2f", 0.0f, 100.f);
 				
 				// Looping
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
-				// Follow Parent Transform
-				BoolInputHeader(mRegistry, "Follow Parent Rotation", "##followParentRotation", ps.followTransformRotation);
+				// Follow GameObject Transform
+				BoolInputHeader(mRegistry, "Follow Transform Rotation", "##followTransformRotation", ps.followTransformRotation);
 
 				// Start Speed
 				switch (ps.speedValueType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.2f", 0.0f);
 					break;
 
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.1f", 0.0f);
-					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.2f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.2f", 0.0f);
 					break;
 				default:
 					break;
@@ -1627,11 +1635,11 @@ namespace SliceEditor
 				switch (ps.initialLifetimeType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Start Lifetime", "##startLifetime", ps.lifetime, "%.1f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Start Lifetime", "##startLifetime", ps.lifetime, "%.2f", 0.0f, 0.f);
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Lifetime", "##minLifetime", ps.minParticleLifetime, "%.1f", 0.0f, 0.f);
-					DragFloatInputHeader(mRegistry, "Max Lifetime", "##maxLifetime", ps.maxParticleLifetime, "%.1f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Min Lifetime", "##minLifetime", ps.minParticleLifetime, "%.2f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Max Lifetime", "##maxLifetime", ps.maxParticleLifetime, "%.2f", 0.0f, 0.f);
 					break;
 				default:
 					break;
@@ -1684,7 +1692,7 @@ namespace SliceEditor
 					}
 					else 
 					{
-						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.1f", 0.0f, 360.f);
+						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.2f", 0.0f, 360.f);
 					}					
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
@@ -1695,8 +1703,8 @@ namespace SliceEditor
 					}
 					else 
 					{
-						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "&.1f", 0.f, 360.f);
-						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "%.2f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "%.2f", 0.f, 360.f);
 					}					
 					break;
 				default:
@@ -1723,16 +1731,16 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.colourValueType, "colour");
 
 				// Gravity
-				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
+				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.2f", 0.0f, 100.f);
 
 				// Collision
 				BoolInputHeader(mRegistry, "Has Collision", "##hasCollision", ps.hasCollision);
 				if (ps.hasCollision)
 				{
-					DragFloatInputHeader(mRegistry, "Friction", "##frictionModifier", ps.friction, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "Bounciness", "##bouncinessModifier", ps.bounciness, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "BounceDampening", "##bounceDampening", ps.bounceDampening, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "Stickiness", "##stickinessModifier", ps.stickiness, "%.1f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Friction", "##frictionModifier", ps.friction, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Bounciness", "##bouncinessModifier", ps.bounciness, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "BounceDampening", "##bounceDampening", ps.bounceDampening, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Stickiness", "##stickinessModifier", ps.stickiness, "%.2f", 0.0f, 1.0f);
 				}
 
 				// Max Particles
@@ -1754,18 +1762,21 @@ namespace SliceEditor
 				switch (ps.shapeType)
 				{
 				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
-					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.2f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerSphereRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
-					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.2f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerConeRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CUBE:
 					DragVec3InputHeader(mRegistry, "Scale", "##cubeScale", ps.shapeScale);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CIRCLE:
-					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerCircleRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::RECT:					
 					DragVec2InputHeader(mRegistry, "Scale", "##rectScale", ps.rectScale);
