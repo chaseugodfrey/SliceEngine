@@ -557,6 +557,10 @@ namespace SliceEditor
 
 					GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
 
+					static std::vector<std::string> soundCategoryTypes{ "SFX", "BGM", "UI"};
+
+					ComboHeader<SliceEngine::AudioSource::Category>(mRegistry, "Sound Category", "##soundCategory", as.category, soundCategoryTypes);
+
 					DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
 					BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
 					BoolInputHeader(mRegistry, "Play On Awake", "##playOnAwake", as.playOnAwake);
