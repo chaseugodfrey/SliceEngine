@@ -2060,20 +2060,20 @@ namespace SliceEditor
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string velocityX = ("##velocityMap_X" + std::to_string(counter));
-								modified |= DragFloatInput(mRegistry, velocityX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, velocityX.c_str(), value.x, "%.2f", -FLT_MAX, FLT_MAX);
 
 								ImGui::TableNextColumn();
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string velocityY = ("##velocityMap_Y" + std::to_string(counter));
-								modified |= DragFloatInput(mRegistry, velocityY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, velocityY.c_str(), value.y, "%.2f", -FLT_MAX, FLT_MAX);
 							}
 
 							ImGui::TableNextColumn();
 							ImGui::SetNextItemWidth(itemWidth);
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 							std::string velocityZ = ("##velocityMap_Z" + std::to_string(counter));
-							modified |= DragFloatInput(mRegistry, velocityZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
+							modified |= DragFloatInput(mRegistry, velocityZ.c_str(), value.z, "%.2f", -FLT_MAX, FLT_MAX);
 
 							++counter;
 						}
@@ -2121,7 +2121,7 @@ namespace SliceEditor
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
-						break;	
+						break;
 					default:
 						break;
 				}
