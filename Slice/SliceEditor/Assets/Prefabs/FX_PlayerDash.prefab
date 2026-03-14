@@ -23,16 +23,10 @@
                     1.0,
                     1.0,
                     1.0,
-                    1.0
+                    0.19607843458652496
                 ],
                 "colourLifetimeMap": {
                     "0.000000": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        0.0
-                    ],
-                    "0.200000": [
                         1.0,
                         1.0,
                         1.0,
@@ -48,15 +42,6 @@
                 "colourMapIntermediary": [
                     [
                         0.0,
-                        [
-                            1.0,
-                            1.0,
-                            1.0,
-                            0.0
-                        ]
-                    ],
-                    [
-                        0.20000000298023224,
                         [
                             1.0,
                             1.0,
@@ -105,7 +90,7 @@
                 },
                 "maxGlowIntensity": 0.0,
                 "maxParticleLifetime": 5.0,
-                "maxParticles": 200,
+                "maxParticles": 20,
                 "maxRandomColour": [
                     1.0,
                     0.0,
@@ -195,14 +180,9 @@
                     0.0,
                     0.0
                 ],
-                "shapeType": "CONE",
+                "shapeType": "RECT",
                 "sizeMap": {
                     "0.000000": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "0.200000": [
                         0.0,
                         0.0,
                         1.0
@@ -210,20 +190,12 @@
                     "1.000000": [
                         0.0,
                         0.0,
-                        0.0
+                        1.2000000476837158
                     ]
                 },
                 "sizeMapIntermediary": [
                     [
                         0.0,
-                        [
-                            0.0,
-                            0.0,
-                            0.0
-                        ]
-                    ],
-                    [
-                        0.20000000298023224,
                         [
                             0.0,
                             0.0,
@@ -235,11 +207,11 @@
                         [
                             0.0,
                             0.0,
-                            0.0
+                            1.2000000476837158
                         ]
                     ]
                 ],
-                "sizeOverLifetime": false,
+                "sizeOverLifetime": true,
                 "sizeSeparateAxis": false,
                 "spawnPos": [
                     0.0,
@@ -272,12 +244,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 33554730,
+                "entity_id": 33554557,
                 "neighbours": [
                     0,
                     4294967295,
-                    48234575,
-                    66060434
+                    33554730,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
