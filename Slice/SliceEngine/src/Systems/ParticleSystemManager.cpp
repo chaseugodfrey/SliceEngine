@@ -253,13 +253,18 @@ namespace SliceEngine
 			else
 			{
 				transformMatrix = glm::translate(transformMatrix, p.position);
-			}
+			}			
+
+			// combine with system rotation
+			glm::quat systemRot = glm::quat(glm::radians(ps.rotation3DHint));
+			if (ps.parentTransform)
+				systemRot = ps.parentTransform->rotation * systemRot;
 
 			// particle rotation
-			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
+			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
 
-			// combine rotations if face camera			
-			glm::quat baseRot = particleRot;
+			// combine rotations if face camera
+			glm::quat baseRot = systemRot * particleRot;
 			
 			// Rotation over time
 			if (ps.rotateOverLifetime)
@@ -606,7 +611,7 @@ namespace SliceEngine
 			glm::vec3 velocityMul = VelocityOverLifetime(p, ps, dt);
 			p.position += p.velocity * velocityMul * dt;
 		}
-		else 
+		else
 		{
 			p.position += p.velocity * dt;
 		}

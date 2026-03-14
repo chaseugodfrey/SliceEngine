@@ -178,7 +178,7 @@ namespace SliceEngine
         float dashCooldownTimer = 0.0f;
         public int dashArrayIndex = 3;
 
-        GameObject FX_dash;
+        GameObject FXDash;
 
         // VFX 
         public string hitPrefabName;
@@ -238,9 +238,10 @@ namespace SliceEngine
             //    OnCombatStateChange();
             //}
 
-            if (FX_dash != null)
+            if (FXDash != null)
             {
-                FX_dash.GetComponent<Transform>().Position = transform.Position;
+                Transform t = FXDash.GetComponent<Transform>();
+                t.Position = transform.Position;
             }
         }
 
@@ -1174,9 +1175,9 @@ namespace SliceEngine
 
                 dashDir = ComputeFlatDashDir(true);
 
-                FX_dash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
-                FX_dash.GetComponent<Transform>().Position = transform.Position;
-
+                FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
+                FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
 
                 Console.WriteLine($"Dashing now, after state is : {PlayerMovementState.ToString()}");
             }
