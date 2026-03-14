@@ -32,6 +32,8 @@ namespace SliceEngine
 
                 AudioSettings.PlaySFX("PlayerHitLazer");
 
+                CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
+
                 if (destroyOnPlayerImpact)
                 {
                     DestroyProj();
