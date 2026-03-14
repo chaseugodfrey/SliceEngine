@@ -438,7 +438,7 @@ namespace SliceEngine
 		//3D effects
 		float dopplerLevel = 1.0f;
 		float spread = 1.0f;
-		VolumeRollOff volumeRollOff = Logarithmic;
+		VolumeRollOff volumeRollOff = Linear;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
