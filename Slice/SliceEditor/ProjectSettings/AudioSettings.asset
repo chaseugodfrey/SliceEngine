@@ -12,7 +12,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -26,7 +26,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.10000000149011612,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -41,7 +41,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -57,7 +57,7 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 1.0,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -71,7 +71,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -85,7 +85,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.6000000238418579,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -99,7 +99,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 1.0,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -113,7 +113,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 1.0,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -127,7 +127,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.20000000298023224,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -143,7 +143,7 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.6000000238418579,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -157,7 +157,7 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.5,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -171,7 +171,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -185,7 +185,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.20000000298023224,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -193,13 +193,13 @@
             ],
             "isSpatial": true,
             "key": "EnemyProjectile",
-            "maxDistance": 30.0,
+            "maxDistance": 300.0,
             "maxInstances": 10,
-            "minDistance": 1.0,
+            "minDistance": 10.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.5,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -213,21 +213,7 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.4000000059604645,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                11944477452832270171
-            ],
-            "isSpatial": false,
-            "key": "Run",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.10000000149011612,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -241,7 +227,7 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.4000000059604645,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         }
     ]
 }

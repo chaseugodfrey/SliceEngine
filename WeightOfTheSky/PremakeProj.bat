@@ -22,8 +22,10 @@ if %errorlevel% neq 0 (echo Premake Slice failed & pause & exit /b %errorlevel%)
 
 :: 2. Clean and Build Slice (EditorRelease)
 echo --- Cleaning and Building Slice (EditorRelease) ---
-%MSBUILD_EXE% Slice.sln /t:Clean /p:Configuration=EditorRelease /p:Platform=x64
-%MSBUILD_EXE% Slice.sln /t:Build /p:Configuration=EditorRelease /p:Platform=x64
+%MSBUILD_EXE% Slice.sln /t:SliceEngine:Clean /p:Configuration=EditorRelease /p:Platform=x64
+%MSBUILD_EXE% Slice.sln /t:SliceEngine /p:Configuration=EditorRelease /p:Platform=x64
+%MSBUILD_EXE% Slice.sln /t:SliceScript:Clean /p:Configuration=EditorRelease /p:Platform=x64
+%MSBUILD_EXE% Slice.sln /t:SliceScript /p:Configuration=EditorRelease /p:Platform=x64
 if %errorlevel% neq 0 (echo Build Slice failed & pause & exit /b %errorlevel%)
 popd
 
