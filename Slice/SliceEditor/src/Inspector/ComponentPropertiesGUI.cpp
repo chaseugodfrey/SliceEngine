@@ -142,7 +142,21 @@ namespace SliceEditor
 	{
 		static uint32_t oldVal{};
 
+		std::string minusButton = std::string("-") + id;
+		std::string plusButton = std::string("+")+ id;
+
+		if (ImGui::Button(minusButton.c_str()))
+		{
+			if(val != min)
+			{
+				val -= 1.0f;
+			}
+		}
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(100.f);
 		bool changed = ImGui::DragScalar(id, ImGuiDataType_U32, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SameLine();
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -156,6 +170,13 @@ namespace SliceEditor
 			}
 		}
 
+		if (ImGui::Button(plusButton.c_str()))
+		{
+			if(val != max)
+			{
+				val += 1.0f;
+			}
+		}
 		return changed;
 	}
 
