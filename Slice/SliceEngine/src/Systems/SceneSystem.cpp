@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "SceneSystem.h"
 #include "Configuration/ProjectSettingsManager.h"
 #include "Configuration/BuildSettings.h"
+#include "../Scripting/ScriptSystem.h"
 
 namespace SliceEngine
 {
@@ -65,13 +66,15 @@ namespace SliceEngine
 			OnSceneChangeEvent ChangeEvent;
 			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
 
-			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
-			{
-				mCurrentState = SceneState::DEFAULT;
-			}
+			//if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			//{
+			//	mCurrentState = SceneState::DEFAULT;
+			//}
+
+
 		}
 
-
+		gScriptSystem->isChangingScene = true;
 
 		UnloadCurrentScene();
 
@@ -119,6 +122,15 @@ namespace SliceEngine
 
 		}
 
+		/* NOTE FOR WRITING SCRIPTS:
+		If a script that is ran from deserializing scene
+		creates an object on create
+		and that object references something in the scene
+		it might crash cause on awake and oncreate might not have ran yet
+		*/
+		gScriptSystem->isChangingScene = false;
+
+		gScriptSystem->UpdateScripts();
 
 		return true;
 	}

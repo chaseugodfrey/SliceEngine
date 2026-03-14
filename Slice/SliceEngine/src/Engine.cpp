@@ -368,7 +368,7 @@ namespace SliceEngine
 	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
 		(
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
-			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+			rttr::value("Linear", AudioSource::VolumeRollOff::Linear)
 		);
 	rttr::registration::enumeration<AudioSource::Category>("Category")
 		(
@@ -870,11 +870,7 @@ namespace SliceEngine
 		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("Audio");
-		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		sAudio->Update();
-		frm->EndSystem("Audio");
+		
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -896,6 +892,12 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Audio");
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		sAudio->Update();
+		frm->EndSystem("Audio");
 
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
