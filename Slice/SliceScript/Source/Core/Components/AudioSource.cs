@@ -11,9 +11,10 @@ namespace SliceEngine
 
     public class AudioSource : Component
     {
-        public AudioSource(GameObject gameObject)
+        public AudioSource() { }
+        public AudioSource(GameObject entity)
         {
-
+            gameObject = entity;
         }
 
         public enum VolumeRollOff
@@ -110,23 +111,23 @@ namespace SliceEngine
             set { FunctionCalls.Audio_SetMute(gameObject.mID, value); }
         }
 
-        public Audio audio
-        {
+        //public Audio audio
+        //{
 
 
-            get
-            {
-                //Console.WriteLine($"Entity ID:{Entity.mID}");
-                string audioName = FunctionCalls.Audio_GetSoundName(gameObject.mID);
-                return new Audio(audioName);
-            }
-            //set
-            //{
-            //    //Console.WriteLine($"Entity ID:{Entity.mID}");
+        //    get
+        //    {
+        //        //Console.WriteLine($"Entity ID:{Entity.mID}");
+        //        string audioName = FunctionCalls.Audio_GetSoundName(gameObject.mID);
+        //        return new Audio(audioName);
+        //    }
+        //    //set
+        //    //{
+        //    //    //Console.WriteLine($"Entity ID:{Entity.mID}");
 
-            //    FunctionCalls.Audio_SetSoundName(Entity.mID, ref value);
-            //}
-        }
+        //    //    FunctionCalls.Audio_SetSoundName(Entity.mID, ref value);
+        //    //}
+        //}
 
     }
 
