@@ -1073,9 +1073,6 @@ namespace SliceEngine
 			cos(phi)
 		);
 
-		float inner = glm::clamp(ps.innerShapeRadius, 0.0f, ps.shapeRadius);
-		float outer = ps.shapeRadius;
-
 		float r = cbrt(
 			ps.inner3 +
 			w * (ps.outer3 - ps.inner3)
