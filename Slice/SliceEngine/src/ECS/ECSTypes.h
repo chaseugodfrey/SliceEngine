@@ -418,8 +418,7 @@ namespace SliceEngine
 		{
 			SFX,
 			BGM,
-			UI,
-			EditorSounds
+			UI
 		};
 		//std::string soundName;
 		bool componentEnabled{ true };

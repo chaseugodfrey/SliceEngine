@@ -262,6 +262,7 @@ namespace SliceEngine
 		.property("stereoPan", &AudioSource::stereoPan)
 		.property("spatialBlend", &AudioSource::spatialBlend)
 		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("category", &AudioSource::category)
 		.property("spread", &AudioSource::spread)
 		.property("minDistance", &AudioSource::minDistance)
 		.property("maxDistance", &AudioSource::maxDistance)
@@ -269,7 +270,6 @@ namespace SliceEngine
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
 		.property("playPreview", &AudioSource::playPreview)
-		//.property("enablePathfinding", &AudioSource::enablePathfinding)
 		.property("directOcclusion", &AudioSource::directOcclusion)
 		.property("reverbOcclusion", &AudioSource::reverbOcclusion)
 		.property("componentEnabled", &AudioSource::componentEnabled);
@@ -374,8 +374,7 @@ namespace SliceEngine
 		(
 			rttr::value("SFX", AudioSource::Category::SFX),
 			rttr::value("BGM", AudioSource::Category::BGM),
-			rttr::value("UI", AudioSource::Category::UI),
-			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+			rttr::value("UI", AudioSource::Category::UI)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
