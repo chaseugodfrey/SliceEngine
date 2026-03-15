@@ -418,8 +418,7 @@ namespace SliceEngine
 		{
 			SFX,
 			BGM,
-			UI,
-			EditorSounds
+			UI
 		};
 		//std::string soundName;
 		bool componentEnabled{ true };
@@ -438,7 +437,7 @@ namespace SliceEngine
 		//3D effects
 		float dopplerLevel = 1.0f;
 		float spread = 1.0f;
-		VolumeRollOff volumeRollOff = Logarithmic;
+		VolumeRollOff volumeRollOff = Linear;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
@@ -504,7 +503,8 @@ namespace SliceEngine
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
-		float duration{5.0f};                       // how long the system should last, 0.0f = forever					
+		float duration{5.0f};                // how long the system should last, 0.0f = forever					
+		float initialDelay{};
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
 		bool followTransformRotation{ true };
@@ -581,7 +581,11 @@ namespace SliceEngine
 		// Shape-Shared params
 		float shapeRadius{ 0.1f };
 		glm::vec3 shapeScale{ 1.0f };
+		float innerShapeRadius{ 0.0f };
 
+		// Shape params that doesnt need to be saved
+		float inner3{};
+		float outer3{};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -690,6 +694,7 @@ namespace SliceEngine
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
 		bool isActive{ true };
+		float delayTimer{};
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};

@@ -1,27 +1,6 @@
 [
     {
         "BallProjectile": {
-            "struct SliceEngine::AudioSource": {
-                "componentEnabled": true,
-                "currentVolume": 0.10000000149011612,
-                "directOcclusion": 0.0,
-                "dopplerLevel": 1.0,
-                "isLoop": false,
-                "isMute": false,
-                "isPaused": false,
-                "maxDistance": 500.0,
-                "minDistance": 1.0,
-                "pitch": 1.0,
-                "playOnAwake": true,
-                "playPreview": false,
-                "priority": 128,
-                "reverbOcclusion": 0.0,
-                "soundGUID": "13552891661274492760",
-                "spatialBlend": 1.0,
-                "spread": 100.5,
-                "stereoPan": 0.0,
-                "volumeRollOff": "Logarithmic"
-            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "16434417904281556449",
                 "prefabHandle": {
@@ -42,10 +21,10 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048673,
+                "entity_id": 264,
                 "neighbours": [
                     4294967295,
-                    1048672,
+                    265,
                     4294967295,
                     4294967295
                 ]
@@ -71,7 +50,7 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048672
+                        "Value": 265
                     },
                     "owner": {
                         "Type": "SliceEngine::GameObject",
@@ -136,12 +115,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048672,
+                "entity_id": 265,
                 "neighbours": [
-                    1048673,
+                    264,
                     4294967295,
                     4294967295,
-                    1048671
+                    266
                 ]
             },
             "struct SliceEngine::Script": {
@@ -200,11 +179,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048671,
+                "entity_id": 266,
                 "neighbours": [
-                    1048673,
+                    264,
                     4294967295,
-                    1048672,
+                    265,
                     4294967295
                 ]
             },
@@ -229,7 +208,7 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 1048672
+                        "Value": 265
                     },
                     "owner": {
                         "Type": "SliceEngine::GameObject",

@@ -1,6 +1,6 @@
 [
     {
-        "FX_GroundSlamParticle": {
+        "FX_PlayerSlam": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": true,
                 "axis": [
@@ -12,16 +12,10 @@
                 "bounciness": 1.0,
                 "bursts": [
                     [
-                        50,
+                        30,
                         1,
                         0.0,
                         0.0
-                    ],
-                    [
-                        25,
-                        1,
-                        0.0,
-                        0.05000000074505806
                     ]
                 ],
                 "colorValueType": 0,
@@ -34,20 +28,20 @@
                 "colourLifetimeMap": {
                     "0.000000": [
                         1.0,
-                        0.7803921103477478,
+                        0.6976743936538696,
                         0.0,
-                        1.0
+                        0.7843137383460999
                     ],
                     "0.500000": [
-                        0.8274509906768799,
-                        0.7372549176216125,
-                        0.40392157435417175,
-                        0.800000011920929
+                        1.0,
+                        0.8415159583091736,
+                        0.25581395626068115,
+                        0.7333333492279053
                     ],
                     "1.000000": [
-                        1.0,
-                        1.0,
-                        1.0,
+                        0.9906976819038391,
+                        0.7636247873306274,
+                        0.23961058259010315,
                         0.0
                     ]
                 },
@@ -56,26 +50,26 @@
                         0.0,
                         [
                             1.0,
-                            0.7803921103477478,
+                            0.6976743936538696,
                             0.0,
-                            1.0
+                            0.7843137383460999
                         ]
                     ],
                     [
                         0.5,
                         [
-                            0.8274509906768799,
-                            0.7372549176216125,
-                            0.40392157435417175,
-                            0.800000011920929
+                            1.0,
+                            0.8415159583091736,
+                            0.25581395626068115,
+                            0.7333333492279053
                         ]
                     ],
                     [
                         1.0,
                         [
-                            1.0,
-                            1.0,
-                            1.0,
+                            0.9906976819038391,
+                            0.7636247873306274,
+                            0.23961058259010315,
                             0.0
                         ]
                     ]
@@ -92,12 +86,13 @@
                 ],
                 "followTransformRotation": true,
                 "friction": 0.5,
-                "gForce": 17.0,
+                "gForce": 15.0,
                 "glow": true,
-                "glowIntensity": 15.0,
+                "glowIntensity": 7.5,
                 "glowValueType": 0,
                 "hasCollision": true,
-                "initialLifetimeType": 0,
+                "ignoreLights": true,
+                "initialLifetimeType": 1,
                 "initialRotationType": 0,
                 "isLocalSpace": false,
                 "isRepeating": false,
@@ -106,7 +101,7 @@
                     "GUID": ""
                 },
                 "maxGlowIntensity": 0.0,
-                "maxParticleLifetime": 0.0,
+                "maxParticleLifetime": 1.0,
                 "maxParticles": 200,
                 "maxRandomColour": [
                     0.0,
@@ -125,9 +120,9 @@
                     0.0,
                     0.0
                 ],
-                "maxRandomSpeed": 10.0,
+                "maxRandomSpeed": 11.0,
                 "minGlowIntensity": 0.0,
-                "minParticleLifetime": 0.0,
+                "minParticleLifetime": 0.5,
                 "minRandomColour": [
                     0.0,
                     0.0,
@@ -145,18 +140,22 @@
                     0.0,
                     0.0
                 ],
-                "minRandomSpeed": 5.0,
+                "minRandomSpeed": 8.0,
                 "modelHandle": {
                     "GUID": ""
                 },
-                "numBursts": 2,
+                "numBursts": 1,
                 "orbitAxis": [
                     0.0,
                     0.0,
                     1.0
                 ],
                 "orbitOverLifetime": false,
-                "particleLayer": 0,
+                "particleLayer": 7,
+                "rectScale": [
+                    1.0,
+                    1.0
+                ],
                 "renderMode": 0,
                 "rotateOverLifetime": true,
                 "rotateSeparateAxis": false,
@@ -172,7 +171,9 @@
                     0.10000000149011612
                 ],
                 "scaleType": 0,
-                "shapeRadius": [
+                "shapeRadius": 0.5,
+                "shapeScale": [
+                    1.0,
                     1.0,
                     1.0
                 ],
@@ -199,9 +200,25 @@
                 "textureHandle": {
                     "GUID": ""
                 },
-                "velocityMapIntermediary": [],
-                "velocityOverLifetime": false,
-                "velocitySeparateAxis": false
+                "velocityMap": {
+                    "0.000000": [
+                        2.0,
+                        1.0,
+                        2.0
+                    ]
+                },
+                "velocityMapIntermediary": [
+                    [
+                        0.0,
+                        [
+                            2.0,
+                            1.0,
+                            2.0
+                        ]
+                    ]
+                ],
+                "velocityOverLifetime": true,
+                "velocitySeparateAxis": true
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -211,18 +228,18 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 36700216,
+                "entity_id": 358613626,
                 "neighbours": [
                     0,
                     4294967295,
-                    37748801,
-                    36700203
+                    267387542,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
-                "mName": "FX_GroundSlamParticle",
+                "mLayer": 8,
+                "mName": "FX_PlayerSlam",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -233,8 +250,8 @@
                 ],
                 "position": [
                     0.0,
-                    1.4290001392364502,
-                    5.110502456773247e-07
+                    32.05585479736328,
+                    2.9503327823476866e-05
                 ],
                 "rotation": [
                     0.70710688829422,
@@ -244,8 +261,8 @@
                 ],
                 "scale": [
                     1.0,
-                    0.9999998211860657,
-                    0.9999998211860657
+                    0.9999991059303284,
+                    0.9999991059303284
                 ]
             }
         }

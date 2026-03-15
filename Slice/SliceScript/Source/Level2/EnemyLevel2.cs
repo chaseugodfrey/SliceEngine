@@ -171,7 +171,7 @@ namespace SliceEngine
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                         // 40% chance to slam attack
-                        if (roll < 0.4f) 
+                        if (roll < 0.6f) 
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -183,7 +183,7 @@ namespace SliceEngine
 
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                         }
-                        else if (roll < 0.8f && roll > 0.4f)
+                        else if (roll < 0.8f && roll > 0.6f)
                         {
                             // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
                             Console.WriteLine("pew pew pew");
@@ -273,7 +273,7 @@ namespace SliceEngine
 
 
                     Console.WriteLine("Slamming");
-                    owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+                    owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
                 }
 
                 // onCooldown means it already hit the floor
@@ -321,6 +321,7 @@ namespace SliceEngine
             private float timer = 0f;
 
             public string projectilePrefabName = "Projectile";
+            public string shootFXPrefabName = "FX_Firing1";
             public float projPerSecond = 4f;
             public float bulletSpeed = 40f;
             public Vector3 bulletScale = new Vector3(1);
@@ -366,14 +367,20 @@ namespace SliceEngine
             public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
             {
                 string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+                string fxPrefabPath = "Prefabs/" + shootFXPrefabName + ".prefab";
+
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
                 GameObject newBullet = owner.CreateGameObject(prefabPath);
+                GameObject firingEffect = owner.CreateGameObject(fxPrefabPath);
 
                 Transform tempT = newBullet.GetComponent<Transform>();
+                Transform tempT2 = firingEffect.GetComponent<Transform>();
 
                 tempT.Position = startPos;
                 tempT.Rotation = angle;
                 tempT.Scale = scale;
+
+                tempT2.Position = startPos;           
 
                 Projectile tempP = newBullet.As<Projectile>();
 
@@ -606,9 +613,8 @@ namespace SliceEngine
         protected override void OnDamaged(GameObject source)
         {
             Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
-            //CreateGameObject("Prefabs/Bloodsplatter.prefab").GetComponent<Transform>().Position = transform.Position;
+            CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
             enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
-
         }
 
         public override void OnUpdate(float dt)
@@ -760,7 +766,9 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 1.5f, 0);
+                        CreateGameObject("Prefabs/FX_TheBallSlam.prefab").GetComponent<Transform>().Position = transform.Position;
+                        AudioSettings.PlaySFX("Smash");
+                        Bootstrap.CameraController.Shake(0.2f, 4.0f);
                         ToggleHitbox(true);
                         //slam.ToggleHitbox(true);
                         slam.onCooldown = true;

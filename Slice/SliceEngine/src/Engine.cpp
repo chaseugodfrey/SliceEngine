@@ -262,6 +262,7 @@ namespace SliceEngine
 		.property("stereoPan", &AudioSource::stereoPan)
 		.property("spatialBlend", &AudioSource::spatialBlend)
 		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("category", &AudioSource::category)
 		.property("spread", &AudioSource::spread)
 		.property("minDistance", &AudioSource::minDistance)
 		.property("maxDistance", &AudioSource::maxDistance)
@@ -368,14 +369,13 @@ namespace SliceEngine
 	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
 		(
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
-			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+			rttr::value("Linear", AudioSource::VolumeRollOff::Linear)
 		);
 	rttr::registration::enumeration<AudioSource::Category>("Category")
 		(
 			rttr::value("SFX", AudioSource::Category::SFX),
 			rttr::value("BGM", AudioSource::Category::BGM),
-			rttr::value("UI", AudioSource::Category::UI),
-			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+			rttr::value("UI", AudioSource::Category::UI)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
@@ -444,6 +444,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
+		.property("initialDelay", &ParticleSystem::initialDelay)
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
@@ -474,6 +475,7 @@ namespace SliceEngine
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
 		.property("shapeScale", &ParticleSystem::shapeScale)
+		.property("innerShapeRadius", &ParticleSystem::innerShapeRadius)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -491,6 +493,11 @@ namespace SliceEngine
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+
+		.property("isRotation3D", &ParticleSystem::isRotation3D)
+		.property("rotation3D", &ParticleSystem::rotation3DHint)
+		.property("minRandomRotation3D", &ParticleSystem::minRotation3DHint)
+		.property("maxRandomRotation3D", &ParticleSystem::maxRotation3DHint)
 
 		.property("spawnPosValueType", &ParticleSystem::posValueType)
 		.property("spawnPos", &ParticleSystem::spawnPos)
@@ -868,11 +875,7 @@ namespace SliceEngine
 		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("Audio");
-		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		sAudio->Update();
-		frm->EndSystem("Audio");
+		
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -894,6 +897,12 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Audio");
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		sAudio->Update();
+		frm->EndSystem("Audio");
 
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
@@ -943,6 +952,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -960,6 +970,7 @@ namespace SliceEngine
 
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
