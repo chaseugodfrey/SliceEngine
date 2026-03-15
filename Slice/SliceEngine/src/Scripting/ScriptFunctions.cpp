@@ -30,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
+#include "../Systems/FramerateManager.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4002)
@@ -2931,6 +2932,11 @@ namespace SliceEngine
 		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTimeScale(timeScale);
 	}
 
+	static float Time_GetDeltaTimeUnscaled()
+	{
+		return SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+	}
+
 #pragma region Application
 
 	static MonoString* Application_GetFilePath()
@@ -2998,9 +3004,9 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
 
 		// Time
+		ADD_INTERNAL_CALL(Time_GetDeltaTimeUnscaled);
 		ADD_INTERNAL_CALL(Time_SetTimeScale);
 		ADD_INTERNAL_CALL(Time_GetTimeScale);
-	
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);

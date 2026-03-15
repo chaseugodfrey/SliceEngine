@@ -16,6 +16,16 @@ namespace SliceEngine
         [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Unity-style lowercase naming for familiarity")]
         public static float time { get; private set; }
 
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Unity-style lowercase naming for familiarity")]
+        public static float deltaTimeUnscaled 
+        {
+            get
+            {
+                return FunctionCalls.Time_GetDeltaTimeUnscaled();
+            }
+        }
+
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Unity-style lowercase naming for familiarity")]
         public static float timeScale
         {
             get
@@ -37,7 +47,6 @@ namespace SliceEngine
         // public static float timeScale = 1.0f;
 
         //public static float scaledDeltaTime => deltaTime * timeScale;
-        public static float unscaledDeltaTime => deltaTime;
         public static float fps => deltaTime > 0 ? 1f / deltaTime : 0f;
 
         public void OnCreate()
