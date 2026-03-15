@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -60,7 +58,7 @@
     <Compile Include="Source\Core\Boss\PhaseController.cs" />
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
-    <Compile Include="Source\Core\Components\AudioComponent.cs" />
+    <Compile Include="Source\Core\Components\AudioSource.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
@@ -96,6 +94,7 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
+    <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
@@ -137,16 +136,21 @@
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\BossStateTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\EnemyDialogueTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\KillPlayerTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
     <Compile Include="Source\Core\UI\GameSettings.cs" />
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
-    <Compile Include="Source\Core\UI\UIBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
@@ -170,6 +174,7 @@
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
     <Compile Include="Source\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />
+    <Compile Include="Source\Level1\IntroController.cs" />
     <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
@@ -179,6 +184,7 @@
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Old_Test_Player.cs" />
     <Compile Include="Source\Old_Test_Spawner.cs" />
+    <Compile Include="Source\ParticleSpawner.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>

@@ -967,7 +967,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack1Damage);
+                enemy.TakeDamage(attack1Damage, this.gameObject);
                 //console.writeline("Hit enemy");
             }
             //console.writeline("Attack 1 executed");
@@ -977,7 +977,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack2Damage);
+                enemy.TakeDamage(attack2Damage, this.gameObject);
                 //console.writeline("Hit enemy");
             }
             //console.writeline("Attack 2 executed");
@@ -987,7 +987,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attack3Damage);
+                enemy.TakeDamage(attack3Damage, this.gameObject);
                 //console.writeline("Hit enemy");
             }
             //console.writeline("Attack 3 executed");

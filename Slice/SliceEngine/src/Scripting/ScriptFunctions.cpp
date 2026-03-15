@@ -238,7 +238,7 @@ namespace SliceEngine
 
 	static int Input_GetCursorState()
 	{
-		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCurrCursorState());
 	}
 
 	static void Input_SetCursorState(int lockState)
@@ -1718,6 +1718,11 @@ namespace SliceEngine
 		}
 	}
 
+	static void Audio_StopAllSound()
+	{
+		Core::GetInstance()->GetAudioManager()->StopAllSound();
+	}
+
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -1889,6 +1894,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1896,7 +1902,6 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
 		{
@@ -1941,16 +1946,28 @@ namespace SliceEngine
 		return false;
 	}
 
-	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	//{
-	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	{
+		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-	//	std::string str = MonoToString(string);
+		std::string str = MonoToString(string);
 
-	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-	//	audio.soundName = str;
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+		//audio.soundName = str;
+		
+		auto audioSettings = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>();
+		auto entry = audioSettings->GetSFXEntry(str);
+		if (entry && !entry->AudioClips.empty())
+		{
+			audio.soundGUID = entry->AudioClips[0]; // For now just use the first clip in the group
+			audio.currentVolume = entry->volume;
+			audio.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+			audio.minDistance = entry->minDistance;
+			audio.maxDistance = entry->maxDistance;
+			audio.volumeRollOff = entry->volumeRollOff;
+		}
 
-	//}
+	}
 
 
 #pragma endregion
@@ -2063,6 +2080,11 @@ namespace SliceEngine
 		{
 			SLICE_LOG_ERROR("Invalid entity ID(s) provided to SetParent.");
 		}
+	}
+
+	static bool Entity_IsValid(unsigned int entity)
+	{
+		return FactoryInstance.mRegistry.valid((Entity)entity);
 	}
 
 	static unsigned int CloneGO(MonoString* GoName)
@@ -2333,7 +2355,7 @@ namespace SliceEngine
 
 	static void Skybox_SetLightingPower(float* target)
 	{
-		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+		SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
 	}
 	static void Skybox_SetZenithColor(glm::vec3* target)
 	{
@@ -3012,6 +3034,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
 		ADD_INTERNAL_CALL(Entity_SetParent);
+		ADD_INTERNAL_CALL(Entity_IsValid);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -3199,9 +3222,10 @@ namespace SliceEngine
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+		ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);

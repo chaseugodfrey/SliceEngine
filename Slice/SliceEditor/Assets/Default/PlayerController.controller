@@ -391,6 +391,34 @@
                     "hasExitTime": false,
                     "sourceState": "JumpLoop",
                     "targetState": "Land"
+                },
+                 {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "JumpLoop",
+                    "targetState": "Walk"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "JumpLoop",
+                    "targetState": "Idle"
                 }
             ]
         },
@@ -418,7 +446,7 @@
                     "sourceState": "DoubleJump",
                     "targetState": "Plunge"
                 },
-		{
+		        {
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
@@ -427,10 +455,38 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
                     "sourceState": "DoubleJump",
                     "targetState": "Land"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
+                    "sourceState": "Fall",
+                    "targetState": "Walk"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
+                    "sourceState": "Fall",
+                    "targetState": "Idle"
                 }
             ]
         },
@@ -625,10 +681,38 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
+                    "exitTime": 0.0,
                     "hasExitTime": false,
                     "sourceState": "Fall",
                     "targetState": "Land"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
+                    "sourceState": "Fall",
+                    "targetState": "Walk"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
+                    "sourceState": "Fall",
+                    "targetState": "Idle"
                 }
             ]
         },

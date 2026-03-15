@@ -1,10 +1,32 @@
 [
     {
         "ProjectileSpawnerLevel2": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.20000000298023224,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 285.29998779296875,
+                "minDistance": 40.099998474121094,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "13552891661274492760",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14913263396184968829",
+                "prefabGUID": "15145462514056472296",
                 "prefabHandle": {
-                    "GUID": "14913263396184968829"
+                    "GUID": "15145462514056472296"
                 },
                 "prefabID": 0
             },
@@ -21,7 +43,7 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048598,
+                "entity_id": 47186282,
                 "neighbours": [
                     4294967295,
                     4294967295,
@@ -35,6 +57,14 @@
                     "active": {
                         "Type": "bool",
                         "Value": true
+                    },
+                    "aimVerticalOffset": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "aiminglinePrefabName": {
+                        "Type": "std::string",
+                        "Value": "PreAim"
                     },
                     "bulletDamage": {
                         "Type": "int",
@@ -50,7 +80,7 @@
                     },
                     "bulletSpeed": {
                         "Type": "float",
-                        "Value": 35.0
+                        "Value": 100.0
                     },
                     "bulletsPerCircle": {
                         "Type": "int",
@@ -84,6 +114,34 @@
                         "Type": "int",
                         "Value": 10
                     },
+                    "preAimFlickerRate": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "preAimObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "preAimPercentage": {
+                        "Type": "float",
+                        "Value": 0.20000000298023224
+                    },
+                    "preAimRandom": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "preaim": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "preaimMaxAlpha": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "preaimMinAlpha": {
+                        "Type": "float",
+                        "Value": 0.30000001192092896
+                    },
                     "projDestroysOnImpact": {
                         "Type": "bool",
                         "Value": true
@@ -94,7 +152,7 @@
                     },
                     "projectilePrefabName": {
                         "Type": "std::string",
-                        "Value": "Projectile"
+                        "Value": "AimProjectile"
                     },
                     "radialRandomInDegrees": {
                         "Type": "float",
@@ -103,6 +161,14 @@
                     "rangeLimit": {
                         "Type": "float",
                         "Value": 200.0
+                    },
+                    "shootFXPrefabName1": {
+                        "Type": "std::string",
+                        "Value": "FX_Firing1"
+                    },
+                    "shootFXPrefabName2": {
+                        "Type": "std::string",
+                        "Value": "FX_Firing2"
                     },
                     "spawnStyle": {
                         "Type": "int",

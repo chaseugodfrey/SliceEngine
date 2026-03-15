@@ -119,13 +119,13 @@ namespace SliceEngine
         internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string Audio_GetSoundName(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
@@ -181,8 +181,8 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetMute(uint entityID);
 
-        //[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetSoundName(uint entityID, string audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyPressed(Keys key);
@@ -580,6 +580,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_SetParent(uint id, uint parent);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_IsValid(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);

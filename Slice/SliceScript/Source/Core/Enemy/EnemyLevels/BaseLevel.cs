@@ -81,12 +81,19 @@ namespace SliceEngine
 
         public void TriggerMovingNextLevelEvent()
         {
-            MovingToNextLevelEvent();
+            if (MovingToNextLevelEvent != null)
+            {
+                MovingToNextLevelEvent();
+            }
         }
 
         public void TriggerLevelCompleteEvent()
         {
-            LevelCompleteEvent();
+            if (LevelCompleteEvent != null)
+            {
+                LevelCompleteEvent();
+
+            }
         }
 
         public virtual void UpdateLevel(float dt)

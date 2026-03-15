@@ -110,6 +110,7 @@ namespace SliceEngine
 
 #pragma warning(push)
 #pragma warning(disable: 4189)
+#pragma warning(disable: 26444)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
 	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
@@ -118,6 +119,7 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
+#pragma warning(pop)
 #pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
@@ -262,6 +264,7 @@ namespace SliceEngine
 		.property("stereoPan", &AudioSource::stereoPan)
 		.property("spatialBlend", &AudioSource::spatialBlend)
 		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("category", &AudioSource::category)
 		.property("spread", &AudioSource::spread)
 		.property("minDistance", &AudioSource::minDistance)
 		.property("maxDistance", &AudioSource::maxDistance)
@@ -269,7 +272,6 @@ namespace SliceEngine
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
 		.property("playPreview", &AudioSource::playPreview)
-		.property("enablePathfinding", &AudioSource::enablePathfinding)
 		.property("directOcclusion", &AudioSource::directOcclusion)
 		.property("reverbOcclusion", &AudioSource::reverbOcclusion)
 		.property("componentEnabled", &AudioSource::componentEnabled);
@@ -368,14 +370,13 @@ namespace SliceEngine
 	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
 		(
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
-			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+			rttr::value("Linear", AudioSource::VolumeRollOff::Linear)
 		);
 	rttr::registration::enumeration<AudioSource::Category>("Category")
 		(
 			rttr::value("SFX", AudioSource::Category::SFX),
 			rttr::value("BGM", AudioSource::Category::BGM),
-			rttr::value("UI", AudioSource::Category::UI),
-			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+			rttr::value("UI", AudioSource::Category::UI)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
@@ -444,6 +445,7 @@ namespace SliceEngine
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
+		.property("initialDelay", &ParticleSystem::initialDelay)
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
@@ -474,6 +476,7 @@ namespace SliceEngine
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
 		.property("shapeScale", &ParticleSystem::shapeScale)
+		.property("innerShapeRadius", &ParticleSystem::innerShapeRadius)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -491,6 +494,11 @@ namespace SliceEngine
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+
+		.property("isRotation3D", &ParticleSystem::isRotation3D)
+		.property("rotation3D", &ParticleSystem::rotation3DHint)
+		.property("minRandomRotation3D", &ParticleSystem::minRotation3DHint)
+		.property("maxRandomRotation3D", &ParticleSystem::maxRotation3DHint)
 
 		.property("spawnPosValueType", &ParticleSystem::posValueType)
 		.property("spawnPos", &ParticleSystem::spawnPos)
@@ -822,16 +830,16 @@ namespace SliceEngine
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
-		auto sInputs = core->GetInputSystem();
+		//auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
 
 		auto& sTransform = core->GetSystem<TransformSystem>();
-		auto& sAnimator = core->GetSystem<AnimatorSystem>();
-		auto& sBone = core->GetSystem<BoneSystem>();
+		//auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		//auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
-		auto& sButton = core->GetSystem<ButtonSystem>();
-		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
+		//auto& sButton = core->GetSystem<ButtonSystem>();
+		//auto& sSlider = core->GetSystem<SliderSystem>();
+		//auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
@@ -868,11 +876,7 @@ namespace SliceEngine
 		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("Audio");
-		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		sAudio->Update();
-		frm->EndSystem("Audio");
+		
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -894,6 +898,12 @@ namespace SliceEngine
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Audio");
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		sAudio->Update();
+		frm->EndSystem("Audio");
 
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
@@ -926,7 +936,6 @@ namespace SliceEngine
 		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
 		sAudio->StopAllSound();
@@ -944,6 +953,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -961,6 +971,7 @@ namespace SliceEngine
 
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
@@ -989,7 +1000,6 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sScene = core->GetSceneSystem();
 
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sAudio->SetCategoryPause(0, true);
 		sAudio->SetCategoryPause(1, true);

@@ -31,7 +31,7 @@ namespace SliceEditor
 	{
 		mIsPlayMode = true;
 		mRequestToFocus = true;
-		mLastCursorState = SliceEngine::Core::GetInstance()->GetInputSystem()->GetCursorState();
+		mLastCursorState = SliceEngine::Core::GetInstance()->GetInputSystem()->GetCurrCursorState();
 	}
 
 	void GameViewWindow::OnStop(OnStopEvent e)
@@ -159,12 +159,15 @@ namespace SliceEditor
 			return;
 
 		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
-		auto cursor_state = inputSystem->GetCursorState();
+		auto cursor_state = inputSystem->GetCurrCursorState();
+		auto cursor_state_prev = inputSystem->GetPrevCursorState();
 		auto mouse_pos = ImGui::GetIO().MousePos;
 
 		auto relative_mouse_pos = mouse_pos - mGameScreen.topLeft;
 		auto percentage_x = relative_mouse_pos.x / mGameScreen.size.x;
 		auto percentage_y = relative_mouse_pos.y / mGameScreen.size.y;
+
+		mGameMouseDelta = { 0.f, 0.f };
 
 		if (cursor_state == SliceEngine::CursorState::DISABLED)
 		{
@@ -172,14 +175,24 @@ namespace SliceEditor
 
 			glfwGetWindowSize(window, &window_size_x, &window_size_y);
 
-			auto delta = mouse_pos - center;
-			ImVec2 ratio = { window_size_x / mGameScreen.size.x,  window_size_y / mGameScreen.size.y };
+			if (cursor_state_prev != SliceEngine::CursorState::DISABLED)
+			{
 
-			mGameMouseDelta = { delta.x * ratio.x, delta.y * ratio.y };
+			}
+
+			else
+			{
+				auto delta = mouse_pos - center;
+				ImVec2 ratio = { window_size_x / mGameScreen.size.x,  window_size_y / mGameScreen.size.y };
+
+				mGameMouseDelta = { delta.x * ratio.x, delta.y * ratio.y };
+			}
+
 			mGameMousePosition = mGameScreen.center;
 			mGameMouseNDC = { 0.5f, 0.5f };
 			mInternalMousePosition += mGameMouseDelta;
 
+			// centering actual mouse position
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
 			ImGui::GetIO().MousePos = center;
 
@@ -195,7 +208,17 @@ namespace SliceEditor
 		{
 			ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
 
-			mGameMouseDelta = new_mouse_pos - mGameMousePosition;
+			if (cursor_state_prev != SliceEngine::CursorState::DISABLED)
+			{
+
+			}
+
+			else
+			{
+				mGameMouseDelta = new_mouse_pos - mGameMousePosition;
+
+			}
+
 			mGameMousePosition = new_mouse_pos;
 			mGameMouseNDC = { percentage_x, percentage_y };
 		}
@@ -227,7 +250,7 @@ namespace SliceEditor
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				ImGui::SetWindowFocus(NULL);
-				mLastCursorState = inputSystem->GetCursorState();
+				mLastCursorState = inputSystem->GetCurrCursorState();
 				inputSystem->SetCursorState(SliceEngine::CursorState::DEFAULT);
 			}
 

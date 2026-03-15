@@ -43,10 +43,13 @@ namespace SliceEngine
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+                Console.WriteLine($"STarting pos: {enemyController.startingPosition.GetComponent<Transform>().WorldPosition.ToString()}");
             }
 
             public override void OnUpdate(float dt)
             {
+
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
                 timer += dt;
                 if (timer >= 5.0f && !moved)
                 {
@@ -153,7 +156,11 @@ namespace SliceEngine
                 if (enemyController.canDamage)
                 {
                     if (enemyController.shield == false)
+                    {
+                        Console.WriteLine("Going to idle");
                         enemyController.stateMachine.ChangeState(enemyController.idleState);
+
+                    }
                     else if (shieldFade == false)
                     {
                         Console.WriteLine("Starting coroutine to fade out shield");
@@ -230,6 +237,10 @@ namespace SliceEngine
                 }
             }
 
+            public override void OnExit()
+            {
+                enemyController.movementDone = true;
+            }
 
         }
 
@@ -260,6 +271,11 @@ namespace SliceEngine
                     shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
 
                 }
+
+                if (enemyController.stateMachine.prevState is StasisState)
+                {
+                    enemyController.movementDone = true;
+                }
             }
 
             public override void OnUpdate(float dt)
@@ -274,7 +290,7 @@ namespace SliceEngine
                     if (enemyController.movementTimer >= enemyController.movementCooldown && enemyController.movementDone)
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
-                        if (roll < 0.9f)
+                        if (roll < 0.4f)
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -301,7 +317,7 @@ namespace SliceEngine
                             {
                                 enemyController.currPoint = enemyController.GetNextIdlePoint();
                                 enemyController.movementDone = false;
-                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().Position, 3.0f));
+                                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, enemyController.idlePoints[enemyController.currPoint].GetComponent<Transform>().WorldPosition, 3.0f));
                             }
                         }
                     }
@@ -355,7 +371,7 @@ namespace SliceEngine
                     }
 
                     Console.WriteLine("Slamming");
-                    owner.GetComponent<RigidBody>().gravityFactor = 2.0f;
+                    owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
                 }
 
                 if (onCooldown)
@@ -561,6 +577,7 @@ namespace SliceEngine
 
                     if (idleTimer > idleTime && !secondMoved)
                     {
+                        Bootstrap.LevelDirector.LoadNextLevel();
                         secondMoved = true;
                         //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
@@ -765,8 +782,11 @@ namespace SliceEngine
                 {
                     if (!slam.onCooldown && slam.attacking)
                     {
-                        CreateGameObject("Prefabs/GroundSlamParticleFX.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        CreateGameObject("Prefabs/FX_TheBallSlam.prefab").GetComponent<Transform>().Position = transform.Position;
+                        AudioSettings.PlaySFX("Smash");
+                        Bootstrap.CameraController.Shake(0.2f, 4.0f);
                         ToggleHitbox(true);
+                        //slam.ToggleHitbox(true);
                         slam.onCooldown = true;
                     }
                 }

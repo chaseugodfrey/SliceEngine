@@ -79,10 +79,26 @@ namespace SliceEngine
 		auto sceneSystem = Core::GetInstance()->GetSceneSystem();
 		auto& audioComp = reg.get<AudioSource>(entity);
 		auto& transform = reg.get<Transform>(entity);
-		glm::vec3 entityVel = { 0.f ,0.f,0.f};
-
+		glm::vec3 entityVel = { 0.f ,0.f,0.f };
+		glm::vec3 audioWorldPos = transform.GetWorldPosition();
+		//SLICE_LOG("transform world pos: (" + std::to_string(audioWorldPos.x) + "," + std::to_string(audioWorldPos.y) +"," + std::to_string(audioWorldPos.z) + ")");
 		if (!audioComp.componentEnabled) // if not enabled do not need to update entity
 			return;
+
+
+		
+
+		if (audioComp.channel != nullptr)
+		{
+			bool isPlaying = false;
+			FMOD_RESULT res = audioComp.channel->isPlaying(&isPlaying);
+
+			
+			if (res != FMOD_OK || !isPlaying)
+			{
+				audioComp.channel = nullptr;
+			}
+		}
 
 		if (sceneSystem->mCurrentState == SceneState::PLAY_SCENE)
 		{
@@ -96,77 +112,33 @@ namespace SliceEngine
 
 			if ((audioComp.channel == nullptr && audioComp.playOnAwake == true))
 			{
-				
-				audioComp.channel = audioManager->PlaySound(audioComp, transform.position, entityVel);
+				audioComp.channel = audioManager->PlaySound(audioComp, audioWorldPos, entityVel);
 
 			}
 
 			if (audioComp.channel && audioComp.spatialBlend > 0.0f)
 			{
-				audioManager->SetSound3DPosition(audioComp.channel, audioComp.spatialBlend, transform.position, entityVel);
+				glm::vec3 listenerPos, lVel, lForward, lUp;
+				audioManager->Get3DListenerAttributes(listenerPos, lVel, lForward, lUp);
 
-				if (audioComp.enablePathfinding)
+				// Calculate the actual distance between the listener and this audio source
+				//float distance = glm::distance(listenerPos, audioWorldPos);
+
+				// Debug Log: Check if this value is changing as you move
+				//SLICE_LOG("Distance to Sound: " + std::to_string(distance));
+
+				FMOD_RESULT res = audioComp.channel->set3DAttributes(
+					(FMOD_VECTOR*)&audioWorldPos,
+					(FMOD_VECTOR*)&entityVel
+				);
+
+				if (res != FMOD_OK)
 				{
-					glm::vec3 listenerPos(0.f);
-					bool listenerFound = false;
-					auto listenerView = reg.view<AudioListener, Transform>();
-					for (auto listenerEntity : listenerView)
-					{
-						auto& listenerComp = reg.get<AudioListener>(listenerEntity);
-						if (listenerComp.componentEnabled)
-						{
-							listenerPos = reg.get<Transform>(listenerEntity).position;
-							listenerFound = true;
-							break;
-						}
-					}
-
-					if (listenerFound)
-					{
-						auto& navSystem = Core::GetInstance()->GetSystem<NavigationSystem>();
-						auto& navMeshOpt = navSystem.GetNavMeshObj();
-						if (navMeshOpt)
-						{
-							std::vector<glm::vec3> path;
-							if (NavMeshUtilities::FindPath(*navMeshOpt, &transform.position.x, &listenerPos.x, path))
-							{
-								float pathLength = 0.f;
-								if (!path.empty())
-								{
-									pathLength += glm::distance(transform.position, path[0]);
-									for (size_t i = 0; i < path.size() - 1; ++i)
-									{
-										pathLength += glm::distance(path[i], path[i + 1]);
-									}
-									pathLength += glm::distance(path.back(), listenerPos);
-								}
-								else
-								{
-									pathLength = glm::distance(transform.position, listenerPos);
-								}
-
-								float directDist = glm::distance(transform.position, listenerPos);
-								float occlusion = 0.0f;
-								if (pathLength > directDist + 0.1f && directDist > 0.1f)
-								{
-									// More aggressive muffle: reach full occlusion when path is 1.5x direct distance
-									occlusion = glm::clamp((pathLength - directDist) / (directDist * 0.5f), 0.0f, 1.0f);
-								}
-								audioComp.directOcclusion = occlusion;
-								audioComp.reverbOcclusion = occlusion * 0.5f;
-								audioManager->SetOcclusion(audioComp.channel, occlusion, occlusion * 0.5f);
-							}
-							else
-							{
-								// No path found: fully occluded
-								audioComp.directOcclusion = 1.0f;
-								audioComp.reverbOcclusion = 0.5f;
-								audioManager->SetOcclusion(audioComp.channel, 1.0f, 0.5f);
-							}
-						}
-					}
+					SLICE_LOG_ERROR("FMOD Error updating 3D Position: " + std::to_string(res));
 				}
 			}
+
+			
 		}
 
 		if (sceneSystem->mCurrentState == SceneState::DEFAULT)
@@ -183,68 +155,7 @@ namespace SliceEngine
 
 			if (audioComp.previewChannel && audioComp.spatialBlend > 0.0f)
 			{
-				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, transform.position, entityVel);
-
-				if (audioComp.enablePathfinding)
-				{
-					glm::vec3 listenerPos(0.f);
-					bool listenerFound = false;
-					auto listenerView = reg.view<AudioListener, Transform>();
-					for (auto listenerEntity : listenerView)
-					{
-						auto& listenerComp = reg.get<AudioListener>(listenerEntity);
-						if (listenerComp.componentEnabled)
-						{
-							listenerPos = reg.get<Transform>(listenerEntity).position;
-							listenerFound = true;
-							break;
-						}
-					}
-
-					if (listenerFound)
-					{
-						auto& navSystem = Core::GetInstance()->GetSystem<NavigationSystem>();
-						auto& navMeshOpt = navSystem.GetNavMeshObj();
-						if (navMeshOpt)
-						{
-							std::vector<glm::vec3> path;
-							if (NavMeshUtilities::FindPath(*navMeshOpt, &transform.position.x, &listenerPos.x, path))
-							{
-								float pathLength = 0.f;
-								if (!path.empty())
-								{
-									pathLength += glm::distance(transform.position, path[0]);
-									for (size_t i = 0; i < path.size() - 1; ++i)
-									{
-										pathLength += glm::distance(path[i], path[i + 1]);
-									}
-									pathLength += glm::distance(path.back(), listenerPos);
-								}
-								else
-								{
-									pathLength = glm::distance(transform.position, listenerPos);
-								}
-
-								float directDist = glm::distance(transform.position, listenerPos);
-								float occlusion = 0.0f;
-								if (pathLength > directDist + 0.1f && directDist > 0.1f)
-								{
-									// More aggressive muffle: reach full occlusion when path is 1.5x direct distance
-									occlusion = glm::clamp((pathLength - directDist) / (directDist * 0.5f), 0.0f, 1.0f);
-								}
-								audioComp.directOcclusion = occlusion;
-								audioComp.reverbOcclusion = occlusion * 0.5f;
-								audioManager->SetOcclusion(audioComp.previewChannel, occlusion, occlusion * 0.5f);
-							}
-							else
-							{
-								audioComp.directOcclusion = 1.0f;
-								audioComp.reverbOcclusion = 0.5f;
-								audioManager->SetOcclusion(audioComp.previewChannel, 1.0f, 0.5f);
-							}
-						}
-					}
-				}
+				audioManager->SetSound3DPosition(audioComp.previewChannel, audioComp.spatialBlend, audioWorldPos, entityVel);
 			}
 
 			if (audioComp.channel && !audioManager->IsChannelPlaying(audioComp.channel))
@@ -301,18 +212,28 @@ namespace SliceEngine
 	{
 		
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 
 		auto& transform = reg.get<Transform>(entity);
-		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
-		glm::vec3 up, forward, right;
-		glm::vec3 vel(0.f);
+		glm::vec3 worldPos = transform.GetWorldPosition();
+		glm::vec3 velocity(0.f);
 
-		GameObject camera = FactoryInstance.GetGOByEntity(entity);
-		renderManager->GetCameraAxis(camera, forward, right, up);
-		audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
+		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
+		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));
+
 		
+		auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		if (cameraOpt.has_value() && cameraOpt.value() == entity)
+		{
+			
+			GameObject cameraObj = FactoryInstance.GetGOByEntity(entity);
+			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
+		}
+
+		audioManager->SetListenerAttributes(worldPos, velocity, forward, up);
+
 	}
 
 	void AudioListenerSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -323,21 +244,26 @@ namespace SliceEngine
 	void AudioListenerSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 		auto& transform = reg.get<Transform>(entity);
-		auto& audioListener = reg.get<AudioListener>(entity);
+		glm::vec3 worldPos = transform.GetWorldPosition();
+		glm::vec3 velocity(0.f);
 
-		if (!audioListener.componentEnabled)
-			return;
+		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
+		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
+		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));
 
-		//glm::vec3 entityVel = Core::GetInstance()->GetSystem<PhysicsSystem>().GetLinearVelocity(entity);
-		glm::vec3 up, forward, right;
-		glm::vec3 vel( 0.f);
 
-		GameObject camera = FactoryInstance.GetGOByEntity(entity);
-		renderManager->GetCameraAxis(camera, forward, right, up);
-		audioManager->SetListenerAttributes(transform.position, vel, forward, up);
+		auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		if (cameraOpt.has_value() && cameraOpt.value() == entity)
+		{
+
+			GameObject cameraObj = FactoryInstance.GetGOByEntity(entity);
+			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
+		}
+
+		audioManager->SetListenerAttributes(worldPos, velocity, forward, up);
 	}
 #pragma endregion
 

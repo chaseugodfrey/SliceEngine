@@ -13,7 +13,7 @@ namespace SliceEngine
             slider = GetComponent<Slider>();
             if (slider != null)
             {
-                slider.SetValue(Camera.Exposure);
+                slider.SetValue(Camera.Exposure * 0.1f);
             }
         }
 

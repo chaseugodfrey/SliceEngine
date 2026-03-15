@@ -38,12 +38,14 @@ namespace SliceEngine
 			return;
 		}
 
-		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, nullptr);
+		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_3D_RIGHTHANDED, nullptr);
 		if (result != FMOD_OK)
 		{
 			SLICE_LOG_ERROR("FMOD System initialization failed");
 			return;
 		}
+
+		mSoundSystem->set3DSettings(1.0f, 0.01f, 1.0f);
 
 		/*for (int i{}; i < 4; i++)
 		{
@@ -115,11 +117,6 @@ namespace SliceEngine
 			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
 			break;
 		};
-		case 3:
-		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
-			break;
-		};
 
 		}
 
@@ -131,17 +128,21 @@ namespace SliceEngine
 
 		FMOD_MODE loopMode = audioComp.isLoop ? FMOD_LOOP_NORMAL : FMOD_LOOP_OFF;
 		FMOD_MODE finalMode;
-		if (audioComp.spatialBlend == 0.0f)
+		const float epsilon = 1e-5f;
+
+		
+		if (audioComp.spatialBlend < epsilon)
 		{
 			finalMode = FMOD_2D | loopMode;
+			channel->setMode(finalMode);
 		}
 		else
 		{
-			finalMode = FMOD_3D | loopMode;
-			if (audioComp.volumeRollOff == AudioSource::VolumeRollOff::Linear)
+			finalMode = FMOD_3D | loopMode | FMOD_3D_LINEARROLLOFF;
+			/*if (audioComp.volumeRollOff == 1)
 			{
 				finalMode |= FMOD_3D_LINEARROLLOFF;
-			}
+			}*/
 			channel->setMode(finalMode);
 			SetSpatialBlend(channel, audioComp.spatialBlend);
 			FMOD_VECTOR soundPosition = Vec3ToFMODVec3(soundPos);
@@ -200,6 +201,26 @@ namespace SliceEngine
 		}
 
 		return previewChannel;
+	}
+
+	void AudioManager::Get3DListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up)
+	{
+		FMOD_VECTOR fPos, fVel, fForward, fUp;
+
+		// 0 is the index for the first listener
+		FMOD_RESULT result = mSoundSystem->get3DListenerAttributes(0, &fPos, &fVel, &fForward, &fUp);
+
+		if (result == FMOD_OK)
+		{
+			pos = FMODVec3ToVec3(fPos);
+			vel = FMODVec3ToVec3(fVel);
+			forward = FMODVec3ToVec3(fForward);
+			up = FMODVec3ToVec3(fUp);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("FMOD: Failed to get listener attributes. Error: " + std::to_string(result));
+		}
 	}
 
 	void AudioManager::SetMasterVolume(float volume)

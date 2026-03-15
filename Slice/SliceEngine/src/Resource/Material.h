@@ -29,11 +29,11 @@ namespace SliceEngine
 			//Handle<Texture> albedo;
 			Handle<CustomShader> shader;
 
-			glm::vec4 color;
-			glm::vec4 color2;
-			bool isTranslucent;
-			bool isIgnoreLighting;
-			bool isShaderUpdated;
+			glm::vec4 color{};
+			glm::vec4 color2{};
+			bool isTranslucent{};
+			bool isIgnoreLighting{};
+			bool isShaderUpdated{};
 			std::unordered_map<std::string, std::variant<bool, uint32_t, int32_t, float, uint64_t>> data;
 
 			//takes in a shader resource file that links to shader files

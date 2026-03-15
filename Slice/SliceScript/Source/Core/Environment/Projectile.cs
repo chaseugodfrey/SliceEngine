@@ -27,7 +27,12 @@ namespace SliceEngine
             if (hit.Has<PlayerController>() && hit.As<PlayerController>() == Bootstrap.Player)
             {
                 SliceLog.Log("Player is hit");
-                Bootstrap.Player.TakeDamage(damage);
+                Bootstrap.Player.TakeDamage(damage, this.gameObject);
+
+
+                AudioSettings.PlaySFX("PlayerHitLazer");
+
+                CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
 
                 if (destroyOnPlayerImpact)
                 {

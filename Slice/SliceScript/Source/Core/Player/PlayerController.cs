@@ -27,7 +27,8 @@ namespace SliceEngine
             GroundDash,
             AirDash,
             Lunging,
-            Plunging,
+            MovingPlunge,
+            AttackingPlunge,
             Dead
         }
 
@@ -139,7 +140,7 @@ namespace SliceEngine
         public float plungeTerminalVelocity = 40.0f;
         public float plungeAttackDuration = 0.25f;
         public float plungeRecoveryDuration = 0.25f;
-        public float plungeMinDistance = 2.0f;
+        public float plungeMinDistance = 3.0f;
 
         // Ground Check
         public float groundCheckDelay = 0.1f;
@@ -177,6 +178,11 @@ namespace SliceEngine
         float dashCooldownTimer = 0.0f;
         public int dashArrayIndex = 3;
 
+        GameObject FXDash;
+
+        // VFX 
+        public string hitPrefabName;
+
         public float dashSpeed = 20.0f;
         Vector3 dashDir = Vector3.Zero;
         public float iFrameDuration = 0.2f;
@@ -198,6 +204,8 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+
+
             //MovementState prevMoveState = PlayerMovementState;
             //CombatState prevCombatState = PlayerCombatState;
             //CurrentAttack prevAttack = PlayerCurrentAttack;
@@ -276,7 +284,11 @@ namespace SliceEngine
         #region Attacking
         private void ExecuteAttack()
         {
-            if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && grounded && PlayerCombatState != CombatState.Shielding)
+            if (PlayerCombatState != CombatState.Attacking 
+                && PlayerMovementState != MovementState.MovingPlunge 
+                && PlayerMovementState != MovementState.AttackingPlunge
+                && PlayerCombatState != CombatState.Shielding
+                && grounded)
             {
                 PlayerCombatState = CombatState.Attacking;
 
@@ -323,47 +335,38 @@ namespace SliceEngine
                         break;
                 }
             }
-            else if (PlayerCombatState != CombatState.Attacking && PlayerMovementState != MovementState.Plunging && PlayerCombatState != CombatState.Shielding)
+            else if (PlayerCombatState != CombatState.Attacking
+                && PlayerMovementState != MovementState.MovingPlunge
+                && PlayerMovementState != MovementState.AttackingPlunge
+                && PlayerCombatState != CombatState.Shielding)
             {
                 RayCastHit hitInfo;
+                
                 // Check if can plunge by raycasting down to see distance to ground
                 bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
                 if (hit)
-                    Physics.DebugDrawRay(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0), 5.0f);
-                if (hit)
                 {
-                    //Console.WriteLine("It hit something");
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
-                    Console.WriteLine($"obj hit: {objHit.mID} with tag {objHit.tag}");
-                    if (objHit == null)
+
+                    if (objHit != null && objHit.tag == "Ground")
                     {
-                        Console.WriteLine("Obj hit is null");
-                        //return;
-                    }
-                    // Only check distance if its a ground obj
-                    else if (objHit.tag == "Ground")
-                    {
-                        Console.WriteLine($"Hitting the ground with {hitInfo.distance}");
-                        // if its too close to the ground then dont let it plunge
                         if (hitInfo.distance <= plungeMinDistance)
                         {
+                            PlayerMovementState = MovementState.MovingPlunge;
+                            PlayerCurrentAttack = CurrentAttack.None;
                             Console.WriteLine("Not high enough");
-                            Console.WriteLine($"Distance : {hitInfo.distance}");
                             return;
                         }
-
                     }
                 }
 
-
-                    //playerCombatState = CombatState.Attacking;
-                    PlayerMovementState = MovementState.Plunging;
+                PlayerMovementState = MovementState.AttackingPlunge;
                 PlayerCurrentAttack = CurrentAttack.None;
 
                 if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
                 {
                     AudioSettings.PlaySFX("Plunge");
-                }               
+                }
             }
         }
         private void TurnOffHitboxes()
@@ -414,7 +417,9 @@ namespace SliceEngine
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToWalk") != 0))
                         {
                             if (animator.SafeToChange("PlungeToWalk"))
-                                animator.SetBool("PlungeToWalk", true);                            
+                            {
+                                animator.SetBool("PlungeToWalk", true);
+                            }
                         }
                         PlayerMovementState = MovementState.Walking;
                     }
@@ -423,7 +428,9 @@ namespace SliceEngine
                         if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") == 0 && (String.Compare(animator.GetCurrAnimName(), "PlungeToIdle") != 0))
                         {
                             if (animator.SafeToChange("PlungeToIdle"))
+                            {
                                 animator.SetBool("PlungeToIdle", true);
+                            }
                         }
                         PlayerMovementState = MovementState.Idle;
                     }                    
@@ -440,7 +447,8 @@ namespace SliceEngine
             if (enemy != null)
             {
                 Console.WriteLine($"Attacking enemy in attack 1");
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private void Attack2(GameObject target)
@@ -449,7 +457,8 @@ namespace SliceEngine
             if (enemy != null)
             {
                 Console.WriteLine($"Attacking enemy in attack 2");
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private void Attack3(GameObject target)
@@ -457,7 +466,8 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[attackCounter]);
+                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                AudioSettings.PlaySFX("SwordHit");
             }
         }
         private IEnumerator AttackDelay(float delay, Action action)
@@ -547,6 +557,28 @@ namespace SliceEngine
             //console.writeline("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
+
+            AudioSettings.PlaySFX("PlayerHit");
+
+            Bootstrap.CameraController.Shake(0.1f, 1f);
+
+            GameObject vfx = SpawnVFX(hitPrefabName);
+            SliceLog.Log("Returned");
+
+            Transform vfxTransform = vfx.GetComponent<Transform>();
+            SliceLog.Log("Getting Transform");
+
+            vfxTransform.Position = transform.Position;
+            SliceLog.Log("Set");
+
+            vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
+            SliceLog.Log("Rotating");
+        }
+        private GameObject SpawnVFX(string path)
+        {
+            SliceLog.Log("Spawning VFX");
+
+            return CreateGameObject("Prefabs/" + path + ".prefab");
         }
         public override void TakeDamage(int amount, GameObject source = null)
         {
@@ -614,6 +646,17 @@ namespace SliceEngine
                 camForward = camForward.Normalize(); // Get the normal vector which is the direction of the camera
             }
 
+            if (animator.GetCurrAnimName() == "Walk")
+            {
+                // GetComponent<AudioSource>().IsMute = false;
+                GetComponent<AudioSource>().Play();
+            }
+            else
+            {
+                GetComponent<AudioSource>().Stop();
+               // GetComponent<AudioSource>().IsMute = true;
+
+            }
             //Console.WriteLine($" All the states: {PlayerMovementState.ToString()} and {PlayerCombatState.ToString()} and {PlayerCurrentAttack.ToString()}");
 
             Vector3 camRight = Vector3.Cross(Vector3.Up, camForward).Normalize();
@@ -641,7 +684,9 @@ namespace SliceEngine
                 Vector3 lungeVel = lungeDir * lungeSpeed;
                 rigidBody.Velocity = new Vector3(lungeVel.x, rigidBody.Velocity.y, lungeVel.z);
             }
-            else if (PlayerMovementState == MovementState.Plunging && !grounded)
+            else if ((PlayerMovementState == MovementState.MovingPlunge 
+                || PlayerMovementState == MovementState.AttackingPlunge)
+                && !grounded)
             {
                 velTemp.x = 0.0f;
                 if (rigidBody.Velocity.y < -plungeTerminalVelocity)
@@ -662,6 +707,7 @@ namespace SliceEngine
                 || PlayerMovementState == MovementState.Jumping)
             {
                 if (PlayerCombatState == CombatState.Attacking || PlayerCombatState == CombatState.Recovery) return;
+
 
                 //if (animator.GetCurrAnimName() == "AttackToIdle3") return;
                 // Normal locomotion
@@ -778,12 +824,20 @@ namespace SliceEngine
                         PlayerMovementState = grounded ? MovementState.Idle : MovementState.Falling;
                     }
                     break;
-                case MovementState.Plunging:
+                case MovementState.MovingPlunge:
+                    if (grounded)
+                    {
+                        PlayerMovementState = MovementState.Landing;
+                        PlayerCurrentAttack = CurrentAttack.None;
+                    }
+                    break;
+                case MovementState.AttackingPlunge:
                     if (grounded)
                     {
                         PlayerMovementState = MovementState.Landing;
                         PlayerCurrentAttack = CurrentAttack.PlungeLand;
                         attackTimer = plungeAttackDuration;
+                        CreateGameObject("Prefabs/FX_PlayerSlam.prefab").GetComponent<Transform>().Position = transform.Position;
                     }
                     break;
                 case MovementState.Dead:
@@ -828,8 +882,8 @@ namespace SliceEngine
                 case CurrentAttack.PlungeLand:
                     if (attackTimer > 0.0f)
                     {
-                        PlayerCombatState = CombatState.Attacking;                        
-                    }
+                        PlayerCombatState = CombatState.Attacking;
+                    }                    
                     break;
 
                 default:
@@ -956,7 +1010,12 @@ namespace SliceEngine
                 case MovementState.Lunging:
                     break;
 
-                case MovementState.Plunging:
+                case MovementState.MovingPlunge:
+                    if (animator.SafeToChange("Plunge") && (String.Compare(animator.GetCurrAnimName(), "Plunge") != 0))
+                        animator.SetBool("Plunge", true);
+                    break;
+
+                case MovementState.AttackingPlunge:
                     if (animator.SafeToChange("Plunge") && (String.Compare(animator.GetCurrAnimName(), "Plunge") != 0))
                         animator.SetBool("Plunge", true);
                     break;
@@ -1015,7 +1074,9 @@ namespace SliceEngine
                     break;
                 case CurrentAttack.PlungeLand:
                     if (String.Compare(animator.GetCurrAnimName(), "PlungeLand") != 0)
+                    {
                         animator.SetBool("PlungeLand", true);
+                    }
                     break;
                 default:
                     break;
@@ -1040,7 +1101,10 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_E) 
                 && PlayerCombatState != CombatState.Shielding 
                 && PlayerCombatState != CombatState.Attacking 
-                && PlayerMovementState != MovementState.Plunging) StartCoroutine(ShieldCoroutine());
+                && PlayerMovementState != MovementState.MovingPlunge
+                && PlayerMovementState != MovementState.AttackingPlunge
+                ) 
+                StartCoroutine(ShieldCoroutine());
         }
 
         private void HandleJumpInputs()
@@ -1105,6 +1169,11 @@ namespace SliceEngine
 
                 dashDir = ComputeFlatDashDir(true);
 
+                FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
+                FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.SetParent(gameObject);
+                FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
+
                 Console.WriteLine($"Dashing now, after state is : {PlayerMovementState.ToString()}");
             }
         }
@@ -1130,7 +1199,7 @@ namespace SliceEngine
             EnemyBase enemy = target?.As<EnemyBase>();
             if (enemy != null)
             {
-                enemy.TakeDamage(attackDamageValues[dashArrayIndex]);
+                enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
                 dashDurationTimer = 0f;
                 Console.WriteLine("Dealing damage using dash");
             }

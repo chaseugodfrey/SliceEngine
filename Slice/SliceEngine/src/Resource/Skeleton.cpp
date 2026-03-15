@@ -391,7 +391,7 @@ namespace SliceEngine
 
 			float frameTime = time * fps;
 			int frame0 = (int)frameTime;
-			int frame1 = (frame0 + 1) % num_frames;	//lerp back to 0 is somehow this goes to max(it shouldnt)
+			//int frame1 = (frame0 + 1) % num_frames;	//lerp back to 0 is somehow this goes to max(it shouldnt)
 			//float interp = frameTime - frame0;
 			for (int i = 0; i < boneKeyFrames.size(); ++i) {
 				auto& keyframe = boneKeyFrames[i];

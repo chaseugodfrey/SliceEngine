@@ -36,7 +36,7 @@ namespace SliceEngine
 		float spatialBlend = 1.0f;
 		float minDistance = 1.0f;
 		float maxDistance = 30.0f;
-		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Logarithmic;
+		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Linear;
 		float _lastPlayed = -999.f;
 		float minInterval = 0.f;
 	};

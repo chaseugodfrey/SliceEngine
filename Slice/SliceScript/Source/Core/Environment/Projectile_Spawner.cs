@@ -51,8 +51,12 @@ namespace SliceEngine
         private bool preaiming = false;
         public bool preAimRandom = false;
         public string aiminglinePrefabName = "PreAim";
+
         public GameObject preAimObject;
 
+        //Shooting Effects
+        public string shootFXPrefabName1 = "FX_Firing1";
+        public string shootFXPrefabName2 = "FX_Firing2";
         //
         public bool active = false;
 
@@ -67,15 +71,20 @@ namespace SliceEngine
         #region bullet creation
         public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
         {
+            //if (Bootstrap.Player.transform.WorldPosition.Distance(transform.WorldPosition) < 300.0f)
+            //{
+            //}
+            //AudioSettings.PlaySFX("EnemyProjectile", transform.WorldPosition);
+
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
-            GameObject newBullet = CreateGameObject(prefabPath);
+            GameObject newBullet = CreateGameObject(prefabPath);            
 
             Transform tempT = newBullet.GetComponent<Transform>();
 
             tempT.Position = startPos;
             tempT.Rotation = angle;
-            tempT.Scale = scale;
+            tempT.Scale = scale;            
 
             Projectile tempP = newBullet.As<Projectile>();
 
@@ -95,6 +104,23 @@ namespace SliceEngine
                     DestroyBullet(allProjectiles[0]);
                 }
             }
+
+            if (currentStyle != SpawnStyle.Spiral)
+            {
+                string fxPrefabPath = "Prefabs/" + shootFXPrefabName1 + ".prefab";
+
+                GameObject firingEffect = CreateGameObject(fxPrefabPath);
+                Transform tempT2 = firingEffect.GetComponent<Transform>();
+                tempT2.Position = startPos;
+            }
+            //else
+            //{
+            //    string fxPrefabPath = "Prefabs/" + shootFXPrefabName2 + ".prefab";
+
+            //    GameObject firingEffect = CreateGameObject(fxPrefabPath);
+            //    Transform tempT2 = firingEffect.GetComponent<Transform>();
+            //    tempT2.Position = startPos;
+            //}
 
             return newBullet;
         }
@@ -153,6 +179,11 @@ namespace SliceEngine
 
         public void SpawnInBurstCheck()
         {
+            if (HasComponent<AudioSource>())
+            {
+                GetComponent<AudioSource>().Play();
+            }
+
             if (burstProjectiles)
             {
                 StartCoroutine(SpawnInBurstCoroutine());
@@ -220,6 +251,8 @@ namespace SliceEngine
 
             currentStyle = (SpawnStyle)spawnStyle;
 
+            
+
             switch(currentStyle)
             {
                 case SpawnStyle.Spiral:
@@ -230,6 +263,7 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
+                        
                         SpawnInBurstCheck();
                     }
 
@@ -238,7 +272,22 @@ namespace SliceEngine
                 case SpawnStyle.Aim:
 
                     if ((this.transform.WorldPosition - Bootstrap.Player.transform.WorldPosition).Magnitude() > rangeLimit)
-                    break;
+                    {
+                        if (preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            //SliceLog.Log("passed the check on preaim");
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+
+                            a.active = false;
+                        }
+
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
+
+                        break;
+                    }
 
 
                     this.transform.LookAt(Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset,0), new Vector3(0,1,0));
@@ -290,6 +339,11 @@ namespace SliceEngine
                         count -= 1 / projPerSecond;
 
                         SpawnInBurstCheck();
+                    }
+
+                    if (HasComponent<AudioSource>())
+                    {
+                        GetComponent<AudioSource>().Play();
                     }
 
                     break;

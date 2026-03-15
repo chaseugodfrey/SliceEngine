@@ -59,7 +59,7 @@ namespace SliceEngine
 		/*
 		* yea im just gona go through the whole tree twice
 		*/
-		void UpdateHierachy();
+		void UpdateHierachy(bool force = false);
 		void DrawOverlay();
 
 
@@ -74,7 +74,7 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect);
+		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect, bool force);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
@@ -95,7 +95,7 @@ namespace SliceEngine
 			glm::mat4 model_to_ndc{};
 			glm::vec4 atlas_uv{};
 		} font_Instances[Font_Max_Instance];
-		unsigned int font_ssbo;
+		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
 
