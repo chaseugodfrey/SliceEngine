@@ -110,6 +110,7 @@ namespace SliceEngine
 
 #pragma warning(push)
 #pragma warning(disable: 4189)
+#pragma warning(disable: 26444)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
 	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
@@ -118,6 +119,7 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
+#pragma warning(pop)
 #pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
@@ -830,16 +832,16 @@ namespace SliceEngine
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
-		auto sInputs = core->GetInputSystem();
+		//auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
 
 		auto& sTransform = core->GetSystem<TransformSystem>();
-		auto& sAnimator = core->GetSystem<AnimatorSystem>();
-		auto& sBone = core->GetSystem<BoneSystem>();
+		//auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		//auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
-		auto& sButton = core->GetSystem<ButtonSystem>();
-		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
+		//auto& sButton = core->GetSystem<ButtonSystem>();
+		//auto& sSlider = core->GetSystem<SliderSystem>();
+		//auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
