@@ -1,10 +1,31 @@
 [
     {
         "BallProjectile": {
+            "struct SliceEngine::AudioSource": {
+                "componentEnabled": true,
+                "currentVolume": 0.10000000149011612,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 500.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": true,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "13552891661274492760",
+                "spatialBlend": 1.0,
+                "spread": 100.5,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Logarithmic"
+            },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16434417904281556449",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16434417904281556449"
                 },
                 "prefabID": 0
             },
@@ -21,12 +42,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 26214436,
+                "entity_id": 1048673,
                 "neighbours": [
-                    0,
-                    26214437,
-                    26214431,
-                    24117628
+                    4294967295,
+                    1048672,
+                    4294967295,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
@@ -50,7 +71,7 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 26214437
+                        "Value": 1048672
                     },
                     "owner": {
                         "Type": "SliceEngine::GameObject",
@@ -108,19 +129,19 @@
                 }
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16434417904281556449",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16434417904281556449"
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 26214437,
+                "entity_id": 1048672,
                 "neighbours": [
-                    26214436,
+                    1048673,
                     4294967295,
                     4294967295,
-                    16777451
+                    1048671
                 ]
             },
             "struct SliceEngine::Script": {
@@ -160,9 +181,9 @@
     {
         "Inner Mesh": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16434417904281556449",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16434417904281556449"
                 },
                 "prefabID": 2
             },
@@ -179,11 +200,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777451,
+                "entity_id": 1048671,
                 "neighbours": [
-                    26214436,
+                    1048673,
                     4294967295,
-                    26214437,
+                    1048672,
                     4294967295
                 ]
             },
@@ -208,7 +229,7 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 26214437
+                        "Value": 1048672
                     },
                     "owner": {
                         "Type": "SliceEngine::GameObject",
