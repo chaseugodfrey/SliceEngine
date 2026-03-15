@@ -2065,6 +2065,11 @@ namespace SliceEngine
 		}
 	}
 
+	static bool Entity_IsValid(unsigned int entity)
+	{
+		return FactoryInstance.mRegistry.valid((Entity)entity);
+	}
+
 	static unsigned int CloneGO(MonoString* GoName)
 	{
 		std::string cStrName = MonoToString(GoName);
@@ -3012,6 +3017,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
 		ADD_INTERNAL_CALL(Entity_SetParent);
+		ADD_INTERNAL_CALL(Entity_IsValid);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
