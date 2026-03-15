@@ -49,12 +49,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048580,
+                    "entity_id": 7,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048581,
-                        1048583
+                        6,
+                        3
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -142,12 +142,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048581,
+                    "entity_id": 6,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048582,
-                        1048580
+                        5,
+                        7
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -239,13 +239,16 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048582,
+                    "entity_id": 5,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        1048581
+                        6
                     ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.TestInputCam"
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
@@ -268,109 +271,6 @@
                         0.7237884998321533,
                         0.0,
                         -0.6900219321250916,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "GameObject_2": {
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048583,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        1048580,
-                        1048584
-                    ]
-                },
-                "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.TestTimeScale",
-                    "scriptableFieldMap": {
-                        "timeScale": {
-                            "Type": "float",
-                            "Value": 1.0
-                        }
-                    }
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "GameObject_2",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "GameObject_3": {
-                "struct SliceEngine::Light": {
-                    "color": [
-                        1.0,
-                        0.9814386367797852,
-                        0.6372092962265015
-                    ],
-                    "componentEnabled": true,
-                    "intensity": 0.800000011920929,
-                    "type": "Directional"
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048584,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        1048583,
-                        1048585
-                    ]
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "GameObject_3",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        36.21514892578125,
-                        0.0
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
                         0.0
                     ],
                     "scale": [
@@ -432,11 +332,11 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048585,
+                    "entity_id": 4,
                     "neighbours": [
                         0,
                         4294967295,
-                        1048584,
+                        3,
                         4294967295
                     ]
                 },
@@ -454,8 +354,60 @@
                     ],
                     "position": [
                         0.0,
-                        74.91492462158203,
+                        6.584645748138428,
                         12.203849792480469
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "GameObject_3": {
+                "struct SliceEngine::Light": {
+                    "color": [
+                        1.0,
+                        0.9814386367797852,
+                        0.6372092962265015
+                    ],
+                    "componentEnabled": true,
+                    "intensity": 0.800000011920929,
+                    "type": "Directional"
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 3,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        7,
+                        4
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "GameObject_3",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        36.21514892578125,
+                        0.0
                     ],
                     "rotation": [
                         1.0,

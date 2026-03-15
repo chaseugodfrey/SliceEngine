@@ -165,7 +165,6 @@ namespace SliceEditor
 
 		auto inputSystem = SliceEngine::Core::GetInstance()->GetInputSystem();
 		auto cursor_state = inputSystem->GetCurrCursorState();
-		auto cursor_state_prev = inputSystem->GetPrevCursorState();
 		auto mouse_pos = ImGui::GetIO().MousePos;
 
 		auto relative_mouse_pos = mouse_pos - mGameScreen.topLeft;
@@ -180,9 +179,9 @@ namespace SliceEditor
 
 			glfwGetWindowSize(window, &window_size_x, &window_size_y);
 
-			if (cursor_state_prev != SliceEngine::CursorState::DISABLED)
+			if (mLastCursorState != SliceEngine::CursorState::DISABLED)
 			{
-
+				SLICE_LOG_VALUES("Mouse Delta", mGameMouseDelta.x, mGameMouseDelta.y);
 			}
 
 			else
@@ -195,7 +194,6 @@ namespace SliceEditor
 
 			mGameMousePosition = mGameScreen.center;
 			mGameMouseNDC = { 0.5f, 0.5f };
-			mInternalMousePosition += mGameMouseDelta;
 
 			// centering actual mouse position
 			ImGui::SetMouseCursor(ImGuiMouseCursor_None);
@@ -213,15 +211,15 @@ namespace SliceEditor
 		{
 			ImVec2 new_mouse_pos = { percentage_x * mGameScreen.size.x, percentage_y * mGameScreen.size.y };
 
-			if (cursor_state_prev != SliceEngine::CursorState::DISABLED)
+			if (mLastCursorState == SliceEngine::CursorState::DISABLED)
 			{
-
+				SLICE_LOG_VALUES("Mouse Delta", mGameMouseDelta.x, mGameMouseDelta.y);
+				glfwSetCursorPos(window, center.x, center.y);
 			}
 
 			else
 			{
 				mGameMouseDelta = new_mouse_pos - mGameMousePosition;
-
 			}
 
 			mGameMousePosition = new_mouse_pos;
@@ -233,6 +231,7 @@ namespace SliceEditor
 		inputSystem->SetMousePosition(mGameMousePosition.x, mGameMousePosition.y);
 		inputSystem->SetMouseDelta(mGameMouseDelta.x, mGameMouseDelta.y);
 		inputSystem->SetMouseNDC(mGameMouseNDC.x, mGameMouseNDC.y);
+		mLastCursorState = cursor_state;
 
 		mIsHoveringGameScreen = false;
 
