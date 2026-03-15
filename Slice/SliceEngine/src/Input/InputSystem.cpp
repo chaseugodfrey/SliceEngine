@@ -386,7 +386,12 @@ namespace SliceEngine
         SetCursorState();
     }
 
-    CursorState InputSystem::GetCursorState()
+    CursorState InputSystem::GetCurrCursorState() const
+    {
+        return currentCursorState;
+    }
+
+    CursorState InputSystem::GetPrevCursorState() const
     {
         return currentCursorState;
     }
