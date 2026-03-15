@@ -117,11 +117,6 @@ namespace SliceEngine
 			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
 			break;
 		};
-		case 3:
-		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
-			break;
-		};
 
 		}
 

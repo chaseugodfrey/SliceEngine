@@ -784,7 +784,7 @@ namespace SliceEngine
                     {
                         AudioSettings.PlaySFX("Smash");
                         Bootstrap.CameraController.Shake(0.2f, 4.0f);
-                        CreateGameObject("Prefabs/FX_GroundSlamParticle.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
+                        CreateGameObject("Prefabs/FX_TheBallSlam.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0, 2.0f, 0);
                         ToggleHitbox(true);
                         slam.onCooldown = true;
                     }
