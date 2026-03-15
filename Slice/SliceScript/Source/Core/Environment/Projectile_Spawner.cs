@@ -179,6 +179,11 @@ namespace SliceEngine
 
         public void SpawnInBurstCheck()
         {
+            if (HasComponent<AudioSource>())
+            {
+                GetComponent<AudioSource>().Play();
+            }
+
             if (burstProjectiles)
             {
                 StartCoroutine(SpawnInBurstCoroutine());
@@ -258,10 +263,7 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
-                        if (HasComponent<AudioSource>())
-                        {
-                            GetComponent<AudioSource>().Play();
-                        }
+                        
                         SpawnInBurstCheck();
                     }
 
@@ -278,6 +280,12 @@ namespace SliceEngine
 
                             a.active = false;
                         }
+
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
+
                         break;
                     }
 
@@ -331,6 +339,11 @@ namespace SliceEngine
                         count -= 1 / projPerSecond;
 
                         SpawnInBurstCheck();
+                    }
+
+                    if (HasComponent<AudioSource>())
+                    {
+                        GetComponent<AudioSource>().Play();
                     }
 
                     break;
