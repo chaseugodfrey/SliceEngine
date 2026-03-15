@@ -238,7 +238,7 @@ namespace SliceEngine
 
 	static int Input_GetCursorState()
 	{
-		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCurrCursorState());
 	}
 
 	static void Input_SetCursorState(int lockState)
