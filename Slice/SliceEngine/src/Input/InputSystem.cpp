@@ -160,7 +160,7 @@ namespace SliceEngine
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
-        //std::cout << changedQueue.size() << std::endl;
+        ////std::cout << changedQueue.size() << std::endl;
         //mouseDelta = prevMousePos - currMousePos;
         //prevMousePos = currMousePos;
         //scrollDelta = 0.0f;

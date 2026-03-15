@@ -269,7 +269,7 @@ namespace SliceEngine
 		
 		~Handle() 
 		{ 
-			//std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
+			////std::cout << "Resource being released " << mGUID.GetGUID() << " : ";
 			//if (!mManager)
 			//	return;
 
@@ -277,7 +277,7 @@ namespace SliceEngine
 			//{
 			//	if (val == mGUID)
 			//	{
-			//		std::cout << key << std::endl;
+			//		//std::cout << key << std::endl;
 			//	}
 			//}
 			Release(); //not sure but im like 90% sure this is not supposed to be here

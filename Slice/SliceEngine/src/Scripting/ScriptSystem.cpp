@@ -1057,9 +1057,9 @@ namespace SliceEngine
         auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
-            //std::cout << "Loading" << scriptComponent.scriptName << "for entity " << (unsigned int)entity << std::endl;
-            //std::cout << "curr state " << Core::GetInstance()->GetSceneSystem()->mCurrentState << std::endl;
-            //std::cout << "next state " << Core::GetInstance()->GetSceneSystem()->mNextState << std::endl;
+            ////std::cout << "Loading" << scriptComponent.scriptName << "for entity " << (unsigned int)entity << std::endl;
+            ////std::cout << "curr state " << Core::GetInstance()->GetSceneSystem()->mCurrentState << std::endl;
+            ////std::cout << "next state " << Core::GetInstance()->GetSceneSystem()->mNextState << std::endl;
 
             if(Core::GetInstance()->GetSceneSystem()->mCurrentState != SceneState::PLAY_SCENE && Core::GetInstance()->GetSceneSystem()->mNextState == SceneState::PLAY_SCENE)
             {
@@ -1121,7 +1121,7 @@ namespace SliceEngine
         }
         else
         {
-            std::cout << "no script component name " << "for entity " << (unsigned int)entity << std::endl;
+            //std::cout << "no script component name " << "for entity " << (unsigned int)entity << std::endl;
 
             // Script not assigned yet, so add to the entity added list
             // to check later
@@ -1636,7 +1636,7 @@ namespace SliceEngine
             if (mCollisionQueue.empty()) return;
             tempQueue.swap(mCollisionQueue);
         }
-        std::cout << tempQueue.size() << std::endl;
+        //std::cout << tempQueue.size() << std::endl;
         for (const auto& event : tempQueue)
         {
             // make sure entity is still alive
@@ -1757,7 +1757,7 @@ namespace SliceEngine
         //if (scriptInstance)
         //{
 
-        //    //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
+        //    //    //std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
         //    scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
         //}
     }
