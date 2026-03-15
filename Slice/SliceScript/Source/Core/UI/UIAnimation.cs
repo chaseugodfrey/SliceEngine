@@ -57,12 +57,12 @@ namespace SliceEngine
             if (isHovering && animationTimer < 1.0f)
             {
 
-                animationTimer += Time.deltaTime / duration;
+                animationTimer += Time.deltaTimeUnscaled / duration;
             }
             else if (!isHovering && animationTimer > 0f)
             {
 
-                animationTimer -= Time.deltaTime / duration;
+                animationTimer -= Time.deltaTimeUnscaled / duration;
             }
 
             animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);

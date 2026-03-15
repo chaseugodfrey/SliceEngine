@@ -31,14 +31,19 @@ namespace SliceEditor
 	{
 		mIsPlayMode = true;
 		mRequestToFocus = true;
-		mLastCursorState = SliceEngine::Core::GetInstance()->GetInputSystem()->GetCurrCursorState();
+		auto core = SliceEngine::Core::GetInstance();
+		mLastCursorState = core->GetInputSystem()->GetCurrCursorState();
+		
 	}
 
 	void GameViewWindow::OnStop(OnStopEvent e)
 	{
 		mIsPlayMode = false;
 		mLastCursorState = {};
-		SliceEngine::Core::GetInstance()->GetInputSystem()->ResetCursorState();
+		auto core = SliceEngine::Core::GetInstance();
+		core->GetInputSystem()->ResetCursorState();
+		core->GetSceneSystem()->SetTimeScale(1.0f);
+
 	}
 
 	void GameViewWindow::Draw()

@@ -11,6 +11,15 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetDeltaTimeUnscaled();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetTimeScale();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Time_SetTimeScale(float time);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetGamma(float gamma);
