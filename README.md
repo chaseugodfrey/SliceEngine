@@ -2,7 +2,7 @@
 
 Module Code: CSD3451/UXG3450
 
-Milestone: 4
+Milestone: 5
 Team: SR3C
 Engine Name: Slice Engine
 
@@ -57,7 +57,7 @@ Role: Systems Designer & Technical Designer
 
 This file will contain the guide to the Slice Engine. Enjoy your time here(or not).
 This document provides an overview of the setup and controls for efficient utilization of our game engine.
-It also details major changes to the engine since Milestone 3.
+It also details major changes to the engine since Milestone 4.
 
 ## Setup
 The game engine solution was developed in Visual Studio 2022.
@@ -71,7 +71,7 @@ When first setting up the project, the external dependencies must be downloaded 
 ### Prerequisites: 
 Ensure Premake is installed on your device, and that your Visual Studio has the latest C++ module installed. If not, you can download the Premake command-line-executable from Github (https://premake.github.io/).
 
-Run the BAT file "PremakeProj.bat" by double-clicking it in "./SliceEngine/Slice/" to download the dependencies into the "./?/" folder. 
+Run the BAT file "PremakeProj.bat" by double-clicking it in "./Slice/" to download the dependencies into the "./packages/" folder. 
 if the Visual Studio solution does not appear after running the BAT file the first time, run "PremakeProj.bat" again.
 
 Please build the engine in Release.
@@ -80,58 +80,36 @@ When running the engine for the first time, the engine will take a while to star
 
 ------------------------------------------------------------------------------------------------------
 
-## Changes Since Milestone 3
-### Graphics
-- Added a render queue system
-- Added cascading shadow map
-- Added functionality where materials update based on custom shaders
-
-### Animation
-- Stabilised animation & FSM systems
-- Added functionality for animation system to have script events
-- Animator now has states available and more types of states to encompass player animations
-
-### Navigation (Recast & Detour)
-- Implemented navigation/pathfinding around obstacles
-- Implemented off mesh navigation
-
-### ImGui, Inspector, Windows, Animator
-- General debugging
-- Added support for Game Object script variables
-- Able to save preferred scene to load on startup
-- Loads last opened scene if no preferred scene was saved
-- Added functionality to add scenes to the build version
-- Added functionality to displays states and transitions
-
-### Physics
-- Implemented raycasting, impulse physics, layermask and mesh collider.
-- Scripting functionality added for ray and raycastinfo.
-
-### Serialization
-- Added linking and saving specific navmeshes to specific scenes
+## Changes Since Milestone 4
+### Graphics & Rendering
+- **Shader Graph System:** Introduced a node-based Shader Graph for custom material effects and dynamic shader generation.
+- **Advanced Post-Processing:** Added support for Godrays (independent of Bloom), Glow effects for particles, and a dedicated Post-Processing debug view.
+- **Atmospheric Effects:** Implemented volumetric-style Cloud and Water effects as post-processing passes.
+- **Material Enhancements:** Full support for Emission maps, Normal maps (with default fallbacks), and Translucency toggles.
+- **GLB Support:** Expanded model loading capabilities to support the GLB format alongside FBX.
 
 ### Particle System
-- Able to create 3D particles
-- Mesh rendering supports all shapes that is available
-- Cone and Spherical area shape support
-- Orbits, size, rotation, velocity and colour over time
-- Added Burst support
-- Added physics interaction upport (Stickiness, Bounciness, Friction, Gravity)
-- Added Collision support
+- **Material Integration:** Particles now fully support materials and custom shaders for complex visual effects.
+- **Lighting & Glow:** Added "Ignore Lights" option and integrated Glow support for high-intensity particle effects.
+- **Collision Layers:** Implemented collision layer support, allowing particles to interact selectively with the physics world.
+- **Technical Fixes:** Enhanced camera-facing billboard logic and fixed scaling issues for various emitter shapes.
 
-### Scene System
-- Loads scene into queue and by index
-- String in-app by accessing scene handles from build settings
+### Editor & UX
+- **Multi-Selection Support:** Massive QoL update allowing bulk editing for GameObjects, Transforms, Renderers, Scripts (floats, vectors, lists), Tags, and Layers.
+- **Content Browser Improvements:** Integrated a search feature for rapid asset location and improved drag-and-drop workflows for animations.
+- **Animation Tools:** Updated the Animator window with improved state visualization, simplified node linking, and custom animation event handling.
+- **QoL Updates:** Added a Camera Speed slider, improved Gizmo stability, and implemented "Enter to Confirm" for text/tag inputs to prevent accidental changes.
 
-### UI
-- Added UI font/text rendering, text alignment and wrapping
-- Implemented canvas raycast with alpha threshold
+### Physics & Core Engine
+- **Physics Assets:** Introduced Physics Assets for persistent, reusable configuration of physics settings.
+- **Multithreading:** Re-implemented and stabilized multithreading across core engine systems for improved performance.
+- **Testing Framework:** Integrated Catch2 for robust unit testing, beginning with comprehensive Input system tests.
+- **Resource Management:** Optimized model recompilation and hot-reloading to preserve GUID references and prevent scene breakage.
 
-### Editor Gameplay
-- Created a playable start-to-end level
-- Updated player logic in C# for movement and attacks.
-- Improved spawner and enemy behaviour stability.
-- Added support for animation driven attacks via collider activation.
+### Audio & Scripting
+- **Audio Improvements:** Added categorization for audio sources (SFX, Music, etc.) and implemented pathfinding for sound to simulate acoustic occlusion.
+- **Scripting API Expansion:** Exposed Unscaled Delta Time, TimeScale controls, and Skybox properties to the C# scripting layer.
+- **Coroutine Stability:** Significant fixes to the C# coroutine runner for more reliable asynchronous logic.
 
 ------------------------------------------------------------------------------------------------------
 
@@ -271,5 +249,7 @@ Users can play, stop, loop and add animation clips/events from the animation res
 ------------------------------------------------------------------------------------------------------
 
 ## Known Limitations:
-1. Cannot modify animations (not edit animation grpahs nor can create animation controllers)
+1. **Rendering:** Only supports one directional light per scene.
+2. **Scripting:** Inspector support for C# arrays/lists is currently experimental.
+3. **Graphics:** Irradiance map may occasionally lose color and require manual regeneration.
 ------------------------------------------------------------------------------------------------------
