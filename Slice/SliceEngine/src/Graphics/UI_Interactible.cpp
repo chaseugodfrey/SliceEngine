@@ -128,16 +128,16 @@ namespace SliceEngine {
 		* ismousereleased = mouse up
 		* ismousedown = ismousepressed
 		*/
-		//std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
+		////std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
 		if (!input.IsMouseDown(MouseButtons::LEFT) || !mRegistry->any_of<Slider>(raycast_entity)) {
 			return;
 		}
-		//std::cout << "handling" << std::endl;
+		////std::cout << "handling" << std::endl;
 		auto& slider = mRegistry->get<Slider>(raycast_entity);
 		if (!slider.componentEnabled) {
 			return;
 		}
-		//std::cout << "value: " << slider.GetValue() << std::endl;
+		////std::cout << "value: " << slider.GetValue() << std::endl;
 		auto const& rect = mRegistry->get<RectTransform>(raycast_entity);
 
 		glm::vec2 direction{};

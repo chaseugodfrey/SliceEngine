@@ -11,6 +11,9 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetDeltaTimeUnscaled();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Time_GetTimeScale();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

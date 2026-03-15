@@ -10,7 +10,7 @@ namespace SliceEngine
         public float timeScale = 1.0f;
         public override void OnUpdate(float dt)
         {
-            if (Input.IsKeyPressed(Keys.KEY_SPACEBAR))
+            if (Input.IsKeyPressed(Keys.KEY_1))
             {
                 SliceLog.Console("Pausing");
                 timeScale = timeScale == 1.0f ? 0.0f : 1.0f;

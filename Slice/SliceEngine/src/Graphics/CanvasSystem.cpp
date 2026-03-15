@@ -648,7 +648,7 @@ namespace SliceEngine {
 			final_width = right_ref - left_ref;
 			final_x = left_ref + final_width / 2;
 
-			//std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
+			////std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
 		}
 		else {
 			final_width = (float)width;
@@ -714,7 +714,7 @@ namespace SliceEngine {
 			case GL_OUT_OF_MEMORY:      error = "OUT_OF_MEMORY";          break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
 			}
-			std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
+			//std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
 			err = glGetError();
 		}
 
