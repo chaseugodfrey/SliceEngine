@@ -120,6 +120,7 @@ namespace SliceEngine
         public List<float> attackDelay = new List<float>();
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
+        
         float attackTimer = 0.0f;
         bool attackQueued;
         public float shieldDuration = 0.5f;
@@ -182,6 +183,7 @@ namespace SliceEngine
 
         // VFX 
         public string hitPrefabName;
+        public List<String> slashVFX = new List<string>();
 
         public float dashSpeed = 20.0f;
         Vector3 dashDir = Vector3.Zero;
@@ -305,6 +307,7 @@ namespace SliceEngine
                         StartCoroutine(AttackDelay(attackDelay[0], () => attackHitboxes[0].TurnOn()));
 
                         //AudioSettings.PlaySFX("A1");
+                        PlaySlashVFX(0);
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -318,6 +321,7 @@ namespace SliceEngine
                         {
                             //AudioSettings.PlaySFX("A2");
                         }
+                        PlaySlashVFX(1);
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -330,6 +334,7 @@ namespace SliceEngine
                         {
                            // AudioSettings.PlaySFX("A3");
                         }
+                        PlaySlashVFX(2);
                         break;
                     default:
                         break;
@@ -377,6 +382,12 @@ namespace SliceEngine
             }
         }
 
+        private void PlaySlashVFX(int index)
+        {
+            Transform t = CreateGameObject("Prefabs/" + slashVFX[index] + ".prefab").GetComponent<Transform>();
+            t.Position = transform.Position;
+            t.Rotation = transform.Rotation;
+        }
         public void StartAttackRecovery()
         {
             //PlayerMovementState = MovementState.Idle;
