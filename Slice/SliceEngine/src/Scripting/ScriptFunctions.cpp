@@ -2338,7 +2338,7 @@ namespace SliceEngine
 
 	static void Skybox_SetLightingPower(float* target)
 	{
-		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+		SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
 	}
 	static void Skybox_SetZenithColor(glm::vec3* target)
 	{

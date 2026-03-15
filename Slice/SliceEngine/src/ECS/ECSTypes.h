@@ -243,13 +243,13 @@ namespace SliceEngine
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
 		float cloudsIntensity{ 0.3f };
-		float cloudsSmoothness{ 0.0027 };
+		float cloudsSmoothness{ 0.0027f };
 		float cloudsCutoff{ 0.167f };
 		glm::vec4 cloudsColor{ 1.f,1.f,1.f,0.25f };
 		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
 		float cloudsSecondCloudAmplitude{ 49.f };
 		float cloudsSecondCloudIntensity{ 0.3f };
-		float cloudsSecondCloudSmoothness{ 0.0027 };
+		float cloudsSecondCloudSmoothness{ 0.0027f };
 		glm::vec4 cloudsSecondColor{ 1.f,1.f,1.f,0.25f };
 
 		float translucentSelectCutoff{ 0.2f };
@@ -279,7 +279,7 @@ namespace SliceEngine
 
 	struct Prefab
 	{
-		unsigned int prefabID;
+		unsigned int prefabID{};
 
 		// GUID reference to original prefab
 		GUID prefabGUID{};
@@ -873,8 +873,8 @@ namespace SliceEngine
 		} alignment{ LEFT };
 
 
-		float font_size;
-		float line_spacing;	//multiplier of font_size
+		float font_size{};
+		float line_spacing{};	//multiplier of font_size
 		
 		std::string text{"Hello World"};
 

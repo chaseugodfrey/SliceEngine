@@ -122,7 +122,7 @@ namespace SliceEngine
 				audioManager->Get3DListenerAttributes(listenerPos, lVel, lForward, lUp);
 
 				// Calculate the actual distance between the listener and this audio source
-				float distance = glm::distance(listenerPos, audioWorldPos);
+				//float distance = glm::distance(listenerPos, audioWorldPos);
 
 				// Debug Log: Check if this value is changing as you move
 				//SLICE_LOG("Distance to Sound: " + std::to_string(distance));
@@ -212,7 +212,7 @@ namespace SliceEngine
 	{
 		
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 
 		auto& transform = reg.get<Transform>(entity);
@@ -244,7 +244,7 @@ namespace SliceEngine
 	void AudioListenerSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 worldPos = transform.GetWorldPosition();

@@ -95,7 +95,7 @@ namespace SliceEngine
 			glm::mat4 model_to_ndc{};
 			glm::vec4 atlas_uv{};
 		} font_Instances[Font_Max_Instance];
-		unsigned int font_ssbo;
+		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
 

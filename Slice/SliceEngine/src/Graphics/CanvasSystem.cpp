@@ -45,7 +45,7 @@ namespace SliceEngine {
 
 			for (size_t pos = 0; pos < font_text.size(); ++pos) {
 				FontRenderer::Token token{};
-				token.pos = pos;
+				token.pos = (unsigned int)pos;
 
 				const char* pattern = " \n\t";
 				switch (font_text[pos]) {
@@ -591,7 +591,7 @@ namespace SliceEngine {
 				//scale of child is relative to immediate parent
 				//pos of child is child - parent
 				auto& c_tform = mRegistry->get<Transform>(node);
-				auto& p_tform = mRegistry->get<Transform>(parent);
+				//auto& p_tform = mRegistry->get<Transform>(parent);
 
 				c_tform.rotation = glm::identity<glm::quat>();
 				c_tform.eulerAnglesHint = glm::vec3();
