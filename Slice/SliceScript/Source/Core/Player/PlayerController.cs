@@ -237,12 +237,6 @@ namespace SliceEngine
             //    SliceLog.Log(PlayerCurrentAttack.ToString());
             //    OnCombatStateChange();
             //}
-
-            if (FXDash != null)
-            {
-                Transform t = FXDash.GetComponent<Transform>();
-                t.Position = transform.Position;
-            }
         }
 
         public override void OnFixedUpdate(float dt)
@@ -1177,6 +1171,7 @@ namespace SliceEngine
 
                 FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
                 FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.SetParent(gameObject);
                 FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
 
                 Console.WriteLine($"Dashing now, after state is : {PlayerMovementState.ToString()}");
