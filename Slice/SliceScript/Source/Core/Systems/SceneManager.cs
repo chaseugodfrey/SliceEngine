@@ -53,6 +53,7 @@ namespace SliceEngine
             else
             {
                 // Fallback: If no transition object exists, load immediately
+                FunctionCalls.Audio_StopAllSound();
                 FunctionCalls.Scene_LoadScene(name);
             }
 

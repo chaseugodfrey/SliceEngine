@@ -1718,6 +1718,11 @@ namespace SliceEngine
 		}
 	}
 
+	static void Audio_StopAllSound()
+	{
+		Core::GetInstance()->GetAudioManager()->StopAllSound();
+	}
+
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -1941,16 +1946,28 @@ namespace SliceEngine
 		return false;
 	}
 
-	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	//{
-	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	{
+		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-	//	std::string str = MonoToString(string);
+		std::string str = MonoToString(string);
 
-	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-	//	audio.soundName = str;
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+		//audio.soundName = str;
+		
+		auto audioSettings = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>();
+		auto entry = audioSettings->GetSFXEntry(str);
+		if (entry && !entry->AudioClips.empty())
+		{
+			audio.soundGUID = entry->AudioClips[0]; // For now just use the first clip in the group
+			audio.currentVolume = entry->volume;
+			audio.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+			audio.minDistance = entry->minDistance;
+			audio.maxDistance = entry->maxDistance;
+			audio.volumeRollOff = entry->volumeRollOff;
+		}
 
-	//}
+	}
 
 
 #pragma endregion
@@ -3205,9 +3222,10 @@ namespace SliceEngine
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+		ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);

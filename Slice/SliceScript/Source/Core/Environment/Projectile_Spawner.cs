@@ -74,7 +74,7 @@ namespace SliceEngine
             //if (Bootstrap.Player.transform.WorldPosition.Distance(transform.WorldPosition) < 300.0f)
             //{
             //}
-            AudioSettings.PlaySFX("EnemyProjectile", transform.WorldPosition);
+            //AudioSettings.PlaySFX("EnemyProjectile", transform.WorldPosition);
 
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
@@ -246,6 +246,8 @@ namespace SliceEngine
 
             currentStyle = (SpawnStyle)spawnStyle;
 
+            
+
             switch(currentStyle)
             {
                 case SpawnStyle.Spiral:
@@ -256,6 +258,10 @@ namespace SliceEngine
                     {
                         count -= 1f / projPerSecond;
 
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
                         SpawnInBurstCheck();
                     }
 
