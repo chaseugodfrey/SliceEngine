@@ -2918,6 +2918,18 @@ namespace SliceEngine
 		}
 	}
 #pragma endregion
+	
+#pragma region Time
+
+	static float Time_GetTimeScale()
+	{
+		return SliceEngine::Core::GetInstance()->GetSceneSystem()->GetTimeScale();
+	}
+
+	static void Time_SetTimeScale(float timeScale)
+	{
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTimeScale(timeScale);
+	}
 
 #pragma region Application
 
@@ -2984,6 +2996,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(QuitGame);
 		ADD_INTERNAL_CALL(Scene_LoadScene);
 		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
+
+		// Time
+		ADD_INTERNAL_CALL(Time_SetTimeScale);
+		ADD_INTERNAL_CALL(Time_GetTimeScale);
+	
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);

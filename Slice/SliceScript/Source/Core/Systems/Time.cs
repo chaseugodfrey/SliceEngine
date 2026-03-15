@@ -16,6 +16,18 @@ namespace SliceEngine
         [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Unity-style lowercase naming for familiarity")]
         public static float time { get; private set; }
 
+        public static float timeScale
+        {
+            get
+            {
+                return FunctionCalls.Time_GetTimeScale();
+            }
+            set
+            {
+                FunctionCalls.Time_SetTimeScale(value);
+            }
+        }
+
         //public static int frameCount = 0;
 
         //public static float fixedDeltaTime = 0.02f;

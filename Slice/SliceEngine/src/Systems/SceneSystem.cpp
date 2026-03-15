@@ -321,6 +321,16 @@ namespace SliceEngine
 		return mSceneQueue.empty();
 	}
 
+	float SceneSystem::GetTimeScale() const
+	{
+		return timeScale;
+	}
+
+	void SceneSystem::SetTimeScale(float newTimeScale)
+	{
+		timeScale = newTimeScale;
+	}
+
 	std::filesystem::path SceneSystem::GetCurrentScenePath()
 	{
 		return mCurrentScene;

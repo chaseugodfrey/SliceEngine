@@ -66,6 +66,9 @@ namespace SliceEngine
 		bool IsSceneUnloaded();
 		bool CheckQueueEmpty();
 
+		float GetTimeScale() const;
+		void SetTimeScale(float newTimeScale);
+
 		std::filesystem::path GetCurrentScenePath();
 		std::string GetCurrentSceneName();
 		bool isSceneUnloaded{};
@@ -79,6 +82,9 @@ namespace SliceEngine
 		GUID mCurrentSceneGUID;
 		
 		std::string mCurrentSceneName{};
+
+		float timeScale{ 1.0f };
+
 	};
 }
 
