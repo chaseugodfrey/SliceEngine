@@ -132,8 +132,8 @@ namespace SliceEngine {
 		empty.width = 0; empty.height = 0;
 
 		world_space_ui.clear();
-		world_space_z = 0.f;
 		for (auto entity : view) {
+			world_space_z = 0.f;
 			//auto const& canvas = mRegistry->get<Canvas>(entity);
 			get_child_ui(/*entities_to_draw, */entity, entity, entity, empty);
 		}
@@ -601,10 +601,10 @@ namespace SliceEngine {
 				c_tform.scale.z = 1.f;
 				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x / canvas_rect.final_width;
 				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y / canvas_rect.final_height;
-				c_tform.position.z = 0;// world_space_z;
+				c_tform.position.z = world_space_z;
 				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
 				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
-				//world_space_z += 0.0000001f;
+				world_space_z += 0.0001f;
 				if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
 					world_space_ui.insert(node);
 				}
