@@ -240,6 +240,12 @@ namespace SliceEditor
 		case AssetType::Animation:
 			CompileFBXAsset(metaPath);
 			break;
+		case AssetType::SequencePackage:
+			CompileSequencePkgAsset(static_cast<SequencePkgData*>(metaData));
+			break;
+		case AssetType::Sequence:
+			CompileAnimAsset(static_cast<SequenceData*>(metaData));
+			break;
 		case AssetType::Model:
 		{
 			auto* data = static_cast<ModelData*>(metaData);
@@ -263,7 +269,7 @@ namespace SliceEditor
 
 				if (!std::filesystem::exists(data->animMetaPath))
 				{
-					std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+					std::unique_ptr<MetaData> animData = std::make_unique<AnimationData>();
 					animData->InitMetaData(filePath, AssetType::Animation, mAssetExtensions[AssetType::Animation]);
 					if (data->animationGUID.IsValid())
 					{
@@ -366,6 +372,12 @@ namespace SliceEditor
 		case AssetType::Controller:
 			metaData = std::make_unique<StateMachineData>();
 			break;
+		case AssetType::SequencePackage:
+			metaData = std::make_unique<SequencePkgData>();
+			break;
+		case AssetType::Sequence:
+			metaData = std::make_unique<SequenceData>();
+			break;
 		case AssetType::Shader:
 			metaData = std::make_unique<ShaderData>();
 			break;
@@ -434,8 +446,10 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT] = "Cylinder";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::LINE_DEFAULT] = "Line";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT] = "Quad";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT] = "Plane";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT] = "Frustrum";
-		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "Color Deaded";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "White256";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT] = "NormalMap";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
 	}
 
@@ -462,8 +476,10 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CAPSULE_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CYLINDER_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::QUAD_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Model].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Font].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT);
 		
 		//Loop Through and Add the Respective GUIDs
@@ -831,7 +847,46 @@ namespace SliceEditor
 			//return;
 		}
 	}
+
 	void AssetManager::CompileStateMachineAsset(StateMachineData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}	
+
+	void AssetManager::CompileSequencePkgAsset(SequencePkgData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}	
+
+	void AssetManager::CompileAnimAsset(SequenceData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 
@@ -1131,16 +1186,25 @@ namespace SliceEditor
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::PLANE_DEFAULT;
+		assetEntry["name"] = "Plane";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FRUSTRUM_DEFAULT;
 		assetEntry["name"] = "Frustrum";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
-		assetEntry["name"] = "Color Deaded";
+		assetEntry["name"] = "White256";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT;
+		assetEntry["name"] = "NormalMap";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
 		assetEntry["name"] = "Font Default";

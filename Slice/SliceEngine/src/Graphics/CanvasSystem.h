@@ -16,24 +16,26 @@ DigiPen Institute of Technology is prohibited.
 
 #include "../Input/InputSystem.h"
 
+#include <set>
+
 /*
 * Brief description of a canvas
-* 
+*
 * Each Canvas will have its own framebuffer,
 * and canvas elements will draw onto that framebuffer
-* 
+*
 * Depending on canvas mode: world, camera, overlay
 * will change how its drawn
-* 
+*
 * only focus on overlay for now
-* 
+*
 * most likely what will happen
 * -each canvas will search through its children and grab all 2d sprite element components(can look into dirty flag nxt time)
 * -iterate through each component and draw to a framebuffer
 * -finally draw the completed framebuffer to the final framebuffer
-* 
+*
 * likely there is only 1 shared framebuffer for overlay, that follows the reference pixel size
-* for now lock the 
+* for now lock the
 */
 
 void _CheckGLError(const char* file, int line);
@@ -57,15 +59,14 @@ namespace SliceEngine
 		/*
 		* yea im just gona go through the whole tree twice
 		*/
-		void UpdateHierachy();
+		void UpdateHierachy(bool force = false);
 		void DrawOverlay();
 
-		//
-		void ConstructWorldCanvas();
 
 		void Init();
 		void Release();
 
+		std::set<Entity> const& Get_World_UI() const;
 		/*
 		* fires a ray into the list of overlay canvases and finds the element that is hit
 		* bot left corner is 0,0
@@ -73,18 +74,20 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(/*std::vector<std::pair<Entity, int>>& entities_to_draw, */Canvas const& ctx, RectTransform const& parent, Entity node);
+		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect, bool force);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
-		void render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
-		void render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_overlay(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_eids(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 
 
 		//k i realised how render manager uses fbo now
 		unsigned int fbo{};
 		unsigned int raycast_tex{};
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
+		std::set<Entity> world_space_ui;
+		float world_space_z{};
 
 		static constexpr unsigned int Font_Max_Instance = 200;
 
@@ -92,7 +95,7 @@ namespace SliceEngine
 			glm::mat4 model_to_ndc{};
 			glm::vec4 atlas_uv{};
 		} font_Instances[Font_Max_Instance];
-		unsigned int font_ssbo;
+		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
 
@@ -106,7 +109,7 @@ namespace SliceEngine
 	* -sets transform component's values according to canvas system
 	* -rect transform will store values that are used by canvas system
 	* -dosent just contain position, but also the target rect area in the framebuffer to draw whatever renderer is used
-	* 
+	*
 	* Sprite Renderer
 	* -contains handle for the texture to draw(ignore font for now, will be a font renderer component)
 	* -will be used during canvas.render to draw to the framebuffer

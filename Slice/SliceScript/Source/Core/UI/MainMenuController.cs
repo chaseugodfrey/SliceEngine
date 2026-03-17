@@ -8,8 +8,14 @@ namespace SliceEngine
     public class MainMenuController : SliceBehaviour
     {
 
-        private GameObject settingsPopup;
+        private GameObject settingsPopup; // The object holding the Animation script
         private GameObject MainMenuCanvas;
+        private SettingsBorderAnimation borderAnim;
+
+        private float animationTimer = 0f;
+
+        public string textToShow = "";
+        private SettingsBorderAnimation uiBorderAnimController;
 
         public override void OnCreate()
         {
@@ -18,10 +24,17 @@ namespace SliceEngine
 
             if (settingsPopup != null)
             {
+                // Access the script we just built
+                borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 settingsPopup.SetActive(false);
             }
 
 
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            
         }
 
         public void StartGame(string sceneName)
@@ -44,15 +57,22 @@ namespace SliceEngine
 
         public void OpenSettings()
         {
-            if (settingsPopup != null) settingsPopup.SetActive(true);
-            
-            if(MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
+
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(true);
+            }
+            if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
 
         public void CloseSettings()
         {
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(false);
+            }
+            //if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
         }
 
 

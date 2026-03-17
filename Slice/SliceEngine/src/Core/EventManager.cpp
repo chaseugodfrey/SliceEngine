@@ -12,6 +12,8 @@ DigiPen Institute of Technology is prohibited.
 #include "EventManager.h"
 #include "Events.h"
 
+using namespace SliceEngine;
+
 /// <summary>
 /// Call all event registering here
 /// </summary>
@@ -43,6 +45,8 @@ void EventManager::SetupEventManager()
 
 	//ui events
 	RegisterEvent<OnButtonClickEvent>();
+	RegisterEvent<OnButtonHoverEvent>();
+	RegisterEvent<OnButtonExitHoverEvent>();
 	RegisterEvent<OnButtonReleaseEvent>();
 	RegisterEvent<OnSliderValueEvent>();
 

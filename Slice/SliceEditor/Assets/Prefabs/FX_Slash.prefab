@@ -1,0 +1,273 @@
+[
+    {
+        "FX_Slash": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3,
+                "neighbours": [
+                    0,
+                    134,
+                    67,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "FX_Slash",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Slash": {
+            "struct SliceEngine::ParticleSystem": {
+                "alwaysFaceCamera": false,
+                "axis": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "bounceDampening": 0.6000000238418579,
+                "bounciness": 0.0,
+                "bursts": [
+                    [
+                        1,
+                        1,
+                        0.0,
+                        0.0
+                    ]
+                ],
+                "colorValueType": 0,
+                "colour": [
+                    0.9820789098739624,
+                    0.9860464930534363,
+                    0.13300159573554993,
+                    1.0
+                ],
+                "colourMapIntermediary": [],
+                "colourOverLifetime": false,
+                "coneArc": 90.0,
+                "destroyOnExpire": false,
+                "duration": 5.0,
+                "emissionRate": 0.0,
+                "endOrbitVelocity": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "followTransformRotation": true,
+                "friction": 0.8999999761581421,
+                "gForce": 0.0,
+                "glow": true,
+                "glowIntensity": 5.0,
+                "glowValueType": 0,
+                "hasCollision": false,
+                "ignoreLights": false,
+                "initialDelay": 0.0,
+                "initialLifetimeType": 0,
+                "initialRotationType": 0,
+                "innerShapeRadius": 0.0,
+                "isLocalSpace": false,
+                "isRepeating": false,
+                "isRotation3D": false,
+                "lifetime": 1.0,
+                "materialHandle": {
+                    "GUID": "17530852313947238891"
+                },
+                "maxGlowIntensity": 0.0,
+                "maxParticleLifetime": 5.0,
+                "maxParticles": 200,
+                "maxRandomColour": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "maxRandomRotation": 0.0,
+                "maxRandomRotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxRandomScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "maxRandomSpawnPos": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "maxRandomSpeed": 1.0,
+                "minGlowIntensity": 0.0,
+                "minParticleLifetime": 5.0,
+                "minRandomColour": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "minRandomRotation": 0.0,
+                "minRandomRotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minRandomScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "minRandomSpawnPos": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "minRandomSpeed": 1.0,
+                "modelHandle": {
+                    "GUID": "16652602500858593760"
+                },
+                "numBursts": 1,
+                "orbitAxis": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "orbitOverLifetime": false,
+                "particleLayer": 0,
+                "rectScale": [
+                    1.0,
+                    1.0
+                ],
+                "renderMode": 1,
+                "rotateOverLifetime": true,
+                "rotateSeparateAxis": true,
+                "rotateVelocity": [
+                    0.0,
+                    36.0,
+                    0.0
+                ],
+                "rotation": 0.0,
+                "rotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "scaleType": 0,
+                "shapeRadius": 0.10000000149011612,
+                "shapeScale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "shapeType": "SPHERE",
+                "sizeMapIntermediary": [],
+                "sizeOverLifetime": false,
+                "sizeSeparateAxis": false,
+                "spawnPos": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "spawnPosValueType": 0,
+                "speed": 0.0,
+                "speedValueType": 0,
+                "sphereArc": 360.0,
+                "startOrbitVelocity": [
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "stickiness": 0.0,
+                "textureGUID": "",
+                "textureHandle": {
+                    "GUID": ""
+                },
+                "velocityMapIntermediary": [],
+                "velocityOverLifetime": false,
+                "velocitySeparateAxis": false
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 134,
+                "neighbours": [
+                    3,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Slash",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

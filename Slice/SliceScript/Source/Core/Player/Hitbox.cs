@@ -16,18 +16,18 @@ namespace SliceEngine
 
         public override void OnTriggerEnter(uint other)
         {
-            if (Bootstrap.LevelDirector.EnemyList.TryGetValue(other, out EnemySlime slime))
-            {
-                //Console.WriteLine();
-                enemiesInRange.Add(slime);
-            }
+            //if (Bootstrap.LevelDirector.EnemyList.TryGetValue(other, out EnemySlime slime))
+            //{
+            //    //Console.WriteLine();
+            //    enemiesInRange.Add(slime);
+            //}
         }
         public override void OnTriggerExit(uint other)
         {
-            if (Bootstrap.LevelDirector.EnemyList.TryGetValue(other, out EnemySlime slime))
-            {
-                enemiesInRange.Remove(slime);
-            }
+            //if (Bootstrap.LevelDirector.EnemyList.TryGetValue(other, out EnemySlime slime))
+            //{
+            //    enemiesInRange.Remove(slime);
+            //}
         }
     }
 }

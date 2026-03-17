@@ -48,6 +48,8 @@ namespace SliceEngine
 
 		uint32_t GetMask(uint32_t index);
 
+		uint32_t GetCollisionMask(std::string name);
+
 		uint32_t GetLayer(std::string name);
 
 		uint32_t GetLayer(uint32_t index);
@@ -80,7 +82,7 @@ namespace SliceEngine
 		/// </summary>
 		/// <param name="name">Name of the layer</param>
 		/// <param name="entity">entity to modify</param>
-		void SetDefaultLayer(std::string name, Entity entity);
+		void SetDefaultLayer(Entity entity);
 
 		void AssignLayerInteraction(std::string first, std::string second, bool canInteract);
 

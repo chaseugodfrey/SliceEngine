@@ -8,45 +8,50 @@ namespace SliceEngine
 {
     public class TestInput : SliceBehaviour
     {
+        public int buttonType = 0;
+
         public override void OnUpdate(float dt)
         {
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_LEFT))
+            if (Input.IsKeyPressed(Keys.KEY_P))
             {
-                SliceLog.Log("LMB CLICKED");
-            }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
-            {
-                SliceLog.Log("LMB PRESSED");
-            }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_LEFT))
-            {
-                SliceLog.Log("LMB RELEASED");
+                Cursor.state = Cursor.STATE.DISABLED;
             }
 
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_RIGHT))
+            if (Input.IsKeyPressed(Keys.KEY_O))
             {
-                SliceLog.Log("RMB CLICKED");
-            }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                SliceLog.Log("RMB PRESSED");
-            }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_RIGHT))
-            {
-                SliceLog.Log("RMB RELEASED");
+                Cursor.state = Cursor.STATE.DEFAULT;
             }
 
-            if (Input.IsMouseDown(MouseButtons.MOUSE_BUTTON_WHEEL))
+            if (Input.IsKeyDown(Keys.KEY_0))
             {
-                SliceLog.Log("WHEEL CLICKED");
+                Bootstrap.HUDManager.GameWinScreen();
             }
-            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_WHEEL))
+
+            if (Input.IsKeyDown(Keys.KEY_9))
             {
-                SliceLog.Log("WHEEL PRESSED");
+                Bootstrap.HUDManager.GameLoseScreen();
             }
-            if (Input.IsMouseReleased(MouseButtons.MOUSE_BUTTON_WHEEL))
+
+            //var mouseDelta = Input.GetMouseDelta();
+
+            //transform.Position += new Vector3(mouseDelta.x, mouseDelta.y, 0) * Time.deltaTime;
+            //transform.Position = new Vector3(
+            //    Utilities.Clamp(transform.Position.x, -20.0f, 20.0f),
+            //    Utilities.Clamp(transform.Position.y, -20.0f, 20.0f),
+            //    0);
+
+            
+        }
+
+        public override void OnButtonClick()
+        {
+            if(buttonType == 1)
             {
-                SliceLog.Log("WHEEL RELEASED");
+                Bootstrap.LevelDirector.LoadNextLevel();
+            }
+            else
+            {
+                Bootstrap.LevelDirector.RestartLevel();
             }
         }
     }

@@ -31,12 +31,14 @@ namespace SliceEngine
 
         public override void OnSliderValue(float value)
         {
+            
             if (audioParameter == "Master")
             {
                 AudioManager.SetMasterVolume(value);
             }
             else
             {
+                SliceLog.Log(audioParameter);
                 AudioManager.SetCategoryVolume(audioParameter, value);
             }
         }

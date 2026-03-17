@@ -30,6 +30,8 @@ namespace SliceEditor
 		Skeleton,
 		Font,
 		Animation,
+		SequencePackage,
+		Sequence,
 		Audio,
 		Scene,
 		Shader,
@@ -102,6 +104,8 @@ namespace SliceEditor
 		constexpr uint64_t MODEL = SliceEngine::FNVHash::fnv1a("Model");
 		constexpr uint64_t SKELETON = SliceEngine::FNVHash::fnv1a("Skeleton");
 		constexpr uint64_t ANIMATION = SliceEngine::FNVHash::fnv1a("Animation");
+		constexpr uint64_t SEQUENCEPACKAGE = SliceEngine::FNVHash::fnv1a("SequencePackage");
+		constexpr uint64_t SEQUENCE = SliceEngine::FNVHash::fnv1a("Sequence");
 		constexpr uint64_t SOUND = SliceEngine::FNVHash::fnv1a("Sound");
 		constexpr uint64_t SCENE = SliceEngine::FNVHash::fnv1a("Scene");
 		constexpr uint64_t PREFAB = SliceEngine::FNVHash::fnv1a("Prefab");
@@ -196,12 +200,12 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
 		CompressionFormat cmp_format{ CompressionFormat::BC3 };
-		MipMapFilter mip_filter{ MipMapFilter::NONE };
+		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
 		UsageType usage_type{ UsageType::COLOR };
 
-		float comp_quality{ 0.5f };
+		float comp_quality{ 1.f };
 		bool generateMips{ true };
 		unsigned char mip_count{ 8 };
 		bool hasAlpha{ true };
@@ -388,7 +392,7 @@ namespace SliceEditor
 		}
 	};
 
-	struct AnimData : public MetaData
+	struct AnimationData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::ANIMATION;
 
@@ -420,12 +424,193 @@ namespace SliceEditor
 		}
 	};
 
+	struct SequencePkgData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCEPACKAGE;
+
+		std::vector<std::string> animations;
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+
+			nlohmann::json metaJson;
+
+			//uint64_t g = guid.GetGUID();
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to model goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path) 
+		{
+			nlohmann::json metaJson;
+	
+			metaJson["Animations"] = animations;
+
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+		}
+
+		bool DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return false;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			animations = assetJson["Animations"].get<std::vector<std::string>>();
+
+			return true;
+		}
+
+		void LoadSequencePkgData(const SliceEngine::SliceEngineTypes::SequencePackage& newAnim)
+		{
+			for (const auto& anim : newAnim.animations)
+			{
+				animations.push_back(anim.name);
+			}
+		}
+	};
+
+	struct SequenceData : public MetaData
+	{
+		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCE;
+
+		std::vector<std::pair<unsigned int, glm::vec3>> transforms{};
+		std::vector<std::pair<unsigned int, glm::vec3>> rotation{};
+		std::vector<std::pair<unsigned int, glm::vec3>> scale{};
+		std::string name{};
+		unsigned int fps{};
+		float duration{};
+		unsigned int num_frames{};
+
+		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
+		{
+			// now set the resource path
+			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+
+			nlohmann::json metaJson;
+
+			//uint64_t g = guid.GetGUID();
+			metaJson["guid"] = guid.GetGUID();
+			metaJson["assetName"] = assetName;
+			metaJson["assetType"] = assetType;
+			metaJson["assetPath"] = assetPath;
+			metaJson["resourcePath"] = resourcePath;
+
+			// specific properties to model goes here but we dh that yet
+
+			// now create the meta file
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+
+			return std::filesystem::path(desc_path);
+		}
+
+		void SerializeAsset(const std::filesystem::path& desc_path)
+		{
+
+			nlohmann::json metaJson;
+
+			metaJson["Name"] = name;
+			metaJson["FPS"] = fps;
+			metaJson["Duration"] = duration;
+			metaJson["Number of Frames"] = num_frames;
+			metaJson["Transforms"] = transforms;
+			metaJson["Rotations"] = rotation;
+			metaJson["Scales"] = scale;
+
+			std::ofstream outFile(desc_path);
+			if (outFile.is_open())
+			{
+				outFile << metaJson.dump(4);
+				outFile.close();
+			}
+		}
+
+		bool DeserializeAsset(const std::filesystem::path& filePath)
+		{
+			std::ifstream inFile{ filePath };
+			if (inFile.fail())
+			{
+				return false;
+			}
+
+			nlohmann::json assetJson = nlohmann::json::parse(inFile);
+
+			name = assetJson["Name"];
+			fps = assetJson["FPS"];
+			duration = assetJson["Duration"];
+			num_frames = assetJson["Number of Frames"];
+			transforms = assetJson["Transforms"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			rotation = assetJson["Rotations"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+			scale = assetJson["Scales"].get<std::vector<std::pair<unsigned int,glm::vec3>>>();
+
+			return true;
+		}
+
+		void LoadSequenceData(const SliceEngine::SliceEngineTypes::Sequence& newAnim)
+		{
+			name = newAnim.name;
+			fps = newAnim.fps;
+			duration = newAnim.duration;
+			num_frames = newAnim.num_frames;
+
+			transforms = newAnim.transform;
+			rotation = newAnim.rotation;
+			scale = newAnim.scale;
+		}
+
+		void UnLoadSequenceData(SliceEngine::SliceEngineTypes::Sequence& newAnim)
+		{
+			newAnim.name = name;
+			newAnim.fps = fps;
+			newAnim.duration = duration;
+			newAnim.num_frames = num_frames;
+
+			newAnim.transform = transforms;
+			newAnim.rotation = rotation;
+			newAnim.scale = scale;
+		}
+	};
+
 	struct SceneData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SCENE;
 
 		std::string navMeshFile;
 		SliceEngine::GUID navMeshGUID;
+
+		std::string navMeshBinFile;
+		SliceEngine::GUID navMeshBinGUID;
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -442,7 +627,9 @@ namespace SliceEditor
 
 			// specific properties to scene goes here but we dh that yet
 			metaJson["navMeshFile"] = navMeshFile;
-			metaJson["navMeshGUID"] = navMeshGUID.GetGUID();
+			metaJson["navMeshGUID"] = navMeshGUID.GetGUID(); 
+			metaJson["navMeshBinFile"] = navMeshBinFile;
+			metaJson["navMeshBinGUID"] = navMeshBinGUID.GetGUID();
 			// now create the meta file
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -687,6 +874,9 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
+		glm::vec4 color2{ 1.0f };
+		bool isTranslucent{ false };
+		bool isIgnoreLighting{ false };
 		std::map<std::string, std::variant<bool, uint32_t, int32_t, float, SliceEngine::GUID>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
@@ -804,7 +994,12 @@ namespace SliceEditor
 			}
 
 			from_json(metaJson["color"], color);
-
+			if (metaJson.contains("color2"))
+				from_json(metaJson["color2"], color2);
+			if(metaJson.contains("translucency"))
+				isTranslucent = metaJson["translucency"];
+			if(metaJson.contains("ignoreLights"))
+				isIgnoreLighting = metaJson["ignoreLights"];
 			inFile.close();
 		}
 
@@ -814,6 +1009,9 @@ namespace SliceEditor
 			// specific properties to shader goes here but we dh that yet
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
+			to_json(metaJson["color2"], color2);
+			metaJson["translucency"] = isTranslucent;
+			metaJson["ignoreLights"] = isIgnoreLighting;
 			nlohmann::json dataJson = nlohmann::json::object();
 			for (const auto& [key, val] : data)
 			{
@@ -889,11 +1087,7 @@ namespace SliceEditor
 			for (const auto& it : t.conditions)
 			{
 				nlohmann::json tempTransJson;
-
-				// 4. Call your "working" Style 2 to_json to populate it
 				to_json(tempTransJson, it);
-
-				// 5. Add the populated object to the array
 				j["conditions"].push_back(tempTransJson);
 
 			}

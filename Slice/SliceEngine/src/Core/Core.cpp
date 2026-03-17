@@ -90,6 +90,11 @@ namespace SliceEngine
 
 	}
 
+	GLFWWindowManager* Core::GetWindowManager()
+	{
+		return &mWindowManager;
+	}
+
 	void Core::ExitCore()
 	{
 		mFactory.FactoryShutdown();
@@ -153,10 +158,13 @@ namespace SliceEngine
 		return mWindowManager.GetWindow();
 	}
 
+
 	NetworkSystem* Core::GetNetwork()
 	{
 		return mNetwork.get();
 	}
+
+
 
 	//NavigationSystem *Core::GetNavAgent()
 	//{

@@ -85,7 +85,7 @@ namespace SliceEngine
 		
 		//std::unordered_map<std::string, FMOD::SoundGroup*> mSoundGroups;
 		
-		const int MAX_CHANNELS = 32;
+		const int MAX_CHANNELS = 20;
 
 		const float defaultVolume = 1.0f;
 		
@@ -165,10 +165,13 @@ namespace SliceEngine
 		
 		void GetSound3DPosition(FMOD::Channel* channel);
 
+		void Get3DListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
+
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
-
 		float GetMasterVolume();
+
+		//float GetMasterVolume();
 
 		void SetMinMaxDistance(FMOD::Channel* channel, float minDistance, float maxDistance);
 		std::pair<float, float> GetMinMaxDistance(FMOD::Channel* channel);

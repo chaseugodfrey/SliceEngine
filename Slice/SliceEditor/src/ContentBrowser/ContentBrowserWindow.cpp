@@ -21,10 +21,13 @@ namespace SliceEditor
 {
 	ContentBrowserWindow::ContentBrowserWindow(ContentBrowserManager& man, Registry& reg) : EditorWindow(reg), mManager(man)
 	{
+		mSearchBuffer[0] = '\0';
+		mSearchPrompt.clear();
 	}
 
 	void ContentBrowserWindow::Init()
 	{
+
 	}
 
 	void ContentBrowserWindow::Draw()
@@ -176,11 +179,34 @@ namespace SliceEditor
 		//auto resourceMgr = SliceEngine::Core::GetInstance()->GetResourceManager();
 		//auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 
+		//Search feature yippeee
+		auto& buffer = mSearchBuffer;
+		auto& searchPrompt = mSearchPrompt;
+
+		if (ImGui::IsWindowAppearing())
+		{
+			ImGui::SetKeyboardFocusHere();
+			buffer[0] = '\0';
+			searchPrompt.clear();
+		}
+
+		std::string id = "##" + node.fileName;
+
+		if (ImGui::InputText(id.c_str(), buffer, IM_ARRAYSIZE(buffer)))
+		{
+			searchPrompt = buffer;
+		}
+
 		if (ImGui::BeginTable("##FolderDirectory", 5))
 		{
 			//Section for Folders
 			for (auto& [name, entry] : node.children)
 			{
+				if (!searchPrompt.empty() && name.find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
+
 				if (entry.isDirectory)
 				{
 					ImGui::PushID(&entry);
@@ -192,6 +218,11 @@ namespace SliceEditor
 			//Section for Files
 			for (auto& [name, entry] : node.children)
 			{
+
+				if (!searchPrompt.empty() && name.find(searchPrompt) == std::string::npos)
+				{
+					continue;
+				}
 				if (!entry.isDirectory)
 				{
 					ImGui::PushID(&entry);
@@ -403,6 +434,8 @@ namespace SliceEditor
 	void ContentBrowserWindow::SelectFolder(DirectoryNode& node)
 	{
 		mManager.selectedFolder = &node;
+		memset(mSearchBuffer, 0, sizeof(mSearchBuffer));
+		mSearchPrompt.clear();
 	}
 
 	void ContentBrowserWindow::RenameFilePopup(DirectoryNode& entry)
@@ -506,6 +539,12 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
+			case AssetType::SequencePackage:
+				if (auto* data = static_cast<SequencePkgData*>(file.metaData.get()))
+				{
+					DisplayAnimsData(data);
+					//DisplayAudioData(data);
+				}
 				break;
 			}
 
@@ -542,7 +581,7 @@ namespace SliceEditor
 						data->skeleMetaPath = mRegistry.GetAssetManager().CreateResource(skeleData->resourcePath, skeleData.get(),true, file.toRecompile).string();
 						data->skeletonGUID = skeleData->guid;
 
-						std::unique_ptr<MetaData> animData = std::make_unique<AnimData>();
+						std::unique_ptr<MetaData> animData = std::make_unique<AnimationData>();
 						animData->InitMetaData(file.filePath, AssetType::Animation, mRegistry.GetAssetManager().mAssetExtensions[AssetType::Animation]);
 						// if the resource already exist, keep teh same GUID and resource path
 						if (std::filesystem::exists(data->animMetaPath))
@@ -805,6 +844,25 @@ namespace SliceEditor
 			}
 			ImGui::EndCombo();
 		}
+	}
+
+	void ContentBrowserWindow::DisplayAnimsData(SequencePkgData* data)
+	{
+		auto Label = [&](const char* text)
+			{
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(text);
+				ImGui::SameLine();
+				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
+			};
+
+		Label("List of Animations: ");
+
+		for (int i = 0; i < data->animations.size(); ++i)
+		{
+			ImGui::Selectable(data->animations[i].c_str());
+		}
+
 	}
 #pragma endregion
 }

@@ -82,7 +82,7 @@ namespace SliceEngine
 						child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 					else
 					{
-						std::cout << "Unable to get scene graph of child : " << int(child) << std::endl;
+						//std::cout << "Unable to get scene graph of child : " << int(child) << std::endl;
 						break;
 					}
 				}

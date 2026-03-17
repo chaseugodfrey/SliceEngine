@@ -58,7 +58,8 @@ project "SliceEditor"
     {
         "RTTR_DLL",
         "_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS",
-        "JPH_ENABLE_ASSERTS"
+        "JPH_ENABLE_ASSERTS",
+        "GLFW_INCLUDE_NONE"
     }
 
     pchheader "pch.h"
@@ -72,6 +73,7 @@ project "SliceEditor"
         '{COPYFILE} "%{wks.location}/SliceEditor/projectSettings.json" "%{cfg.targetdir}"',
         '{COPYFILE} "%{wks.location}/SliceEditor/FBX_Compile.exe" "%{cfg.targetdir}"',
         '{COPYFILE} "%{wks.location}/SliceEditor/TextureCompile.exe" "%{cfg.targetdir}"',
+        '{COPYFILE} "%{wks.location}/SliceEditor/Font_Compile.exe" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.FMOD_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL}" "%{cfg.targetdir}"',
         '{COPYFILE} "%{ThirdParty.RTTR_DLL_DEBUG}" "%{cfg.targetdir}"',

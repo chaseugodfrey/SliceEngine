@@ -238,7 +238,7 @@ namespace SliceEngine
 
 	static int Input_GetCursorState()
 	{
-		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCurrCursorState());
 	}
 
 	static void Input_SetCursorState(int lockState)
@@ -1242,6 +1242,94 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
 	}
 
+	static void ParticleSystem_GetGlow(unsigned int entity, bool* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().glow;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetGlow(unsigned int entity, bool* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().glow = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().glowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetGlowIntensity (unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().glowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMinGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().minGlowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMinGlowIntensity(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().minGlowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_GetMaxGlowIntensity(unsigned int entity, float* out)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			*out = go.GetComponent<ParticleSystem>().maxGlowIntensity;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
+	static void ParticleSystem_SetMaxGlowIntensity(unsigned int entity, float* value)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<ParticleSystem>())
+		{
+			go.GetComponent<ParticleSystem>().maxGlowIntensity = *value;
+			return;
+		}
+		SLICE_LOG_ERROR("Scripting: Entity %u has no Particle System component.", entity);
+	}
+
 	static void ParticleSystem_GetTextureID(unsigned int entity, unsigned int* out)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
@@ -1397,7 +1485,13 @@ namespace SliceEngine
 
 	static void RigidBody_SetGravityFactor(unsigned int entity, float factor)
 	{
-		Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RigidBody>())
+		{
+			go.GetComponent<RigidBody>().gravityFactor = factor;
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetGravityFactor((Entity)entity, factor);
+		}
+		
 	}
 
 	static bool RigidBody_IsGravityOff(unsigned int entity)
@@ -1407,7 +1501,13 @@ namespace SliceEngine
 
 	static void RigidBody_OffGravity(unsigned int entity, bool condition)
 	{
-		Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+		auto go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (go.IsValid() && go.HasComponent<RigidBody>())
+		{
+			float factor = condition ? 0.0f : 1.0f;
+			go.GetComponent<RigidBody>().gravityFactor = factor;
+			Core::GetInstance()->GetSystem<PhysicsSystem>().OffGravity(Entity(entity), condition);
+		}
 	}
 
 #pragma endregion
@@ -1498,6 +1598,13 @@ namespace SliceEngine
 		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemRayCast(*origin, *direction, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
 	}
 
+	static bool Physics_Spherecast(glm::vec3* origin, glm::vec3* direction,float radius, uint32_t* bodyHitID, glm::vec3* hitPos, glm::vec3* normal, bool triggerInteraction, uint32_t mask)
+	{
+		//bool PhysicsSystem::PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+			//uint32_t & bodyHitID, glm::vec3 & hitPos, glm::vec3 & normal, bool triggerInteraction, uint32_t mask)
+		return Core::GetInstance()->GetSystem<PhysicsSystem>().PSystemSphereCast(*origin, *direction, radius, *bodyHitID, *hitPos, *normal, triggerInteraction, mask);
+	}
+
 	static void Physics_DrawRay(glm::vec3* origin, glm::vec3* direction, float magnitude)
 	{
 		auto* eventManager = EventManager::GetInstance();
@@ -1541,6 +1648,8 @@ namespace SliceEngine
 
 
 	}
+
+
 
 
 #pragma endregion
@@ -1609,6 +1718,11 @@ namespace SliceEngine
 		}
 	}
 
+	static void Audio_StopAllSound()
+	{
+		Core::GetInstance()->GetAudioManager()->StopAllSound();
+	}
+
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -1661,9 +1775,7 @@ namespace SliceEngine
 
 	static void Audio_SetMasterVolume(float volume)
 	{
-
-
-		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+			Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
@@ -1782,6 +1894,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1789,7 +1902,6 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
 		{
@@ -1834,16 +1946,28 @@ namespace SliceEngine
 		return false;
 	}
 
-	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	//{
-	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	{
+		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-	//	std::string str = MonoToString(string);
+		std::string str = MonoToString(string);
 
-	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-	//	audio.soundName = str;
+		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+		//audio.soundName = str;
+		
+		auto audioSettings = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>();
+		auto entry = audioSettings->GetSFXEntry(str);
+		if (entry && !entry->AudioClips.empty())
+		{
+			audio.soundGUID = entry->AudioClips[0]; // For now just use the first clip in the group
+			audio.currentVolume = entry->volume;
+			audio.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+			audio.minDistance = entry->minDistance;
+			audio.maxDistance = entry->maxDistance;
+			audio.volumeRollOff = entry->volumeRollOff;
+		}
 
-	//}
+	}
 
 
 #pragma endregion
@@ -1895,6 +2019,22 @@ namespace SliceEngine
 		return monoArray;
 	}
 
+	static MonoArray* Entity_GetAllChildren(unsigned int entityID)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		std::vector<Entity> entityIDs = go.GetAllChildren();
+
+		MonoDomain* domain = mono_domain_get();
+		MonoArray* monoArray = mono_array_new(domain, mono_get_uint32_class(), entityIDs.size());
+
+		for (size_t i = 0; i < entityIDs.size(); ++i)
+		{
+			mono_array_set(monoArray, uint32_t, i, static_cast<uint32_t>(entityIDs[i]));
+		}
+
+		return monoArray;
+	}
+
 	static unsigned int Entity_FindEntityWithTag(MonoString* tag)
 	{
 		std::string cStrName = MonoToString(tag);
@@ -1928,6 +2068,23 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
 		return 0;
+	}
+
+	static void Entity_SetParent(unsigned int entity, unsigned int parent)
+	{
+		if (entity != entt::null && parent != entt::null)
+		{
+			FactoryInstance.SetParent((Entity)entity, (Entity)parent);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Invalid entity ID(s) provided to SetParent.");
+		}
+	}
+
+	static bool Entity_IsValid(unsigned int entity)
+	{
+		return FactoryInstance.mRegistry.valid((Entity)entity);
 	}
 
 	static unsigned int CloneGO(MonoString* GoName)
@@ -2169,12 +2326,87 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region SKYBOX FUNCTIONS
+	static void Skybox_GetLightingPower(float* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower;
+	}
+	static void Skybox_GetZenithColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.zenithColor;
+	}
+	static void Skybox_GetHorizonColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.horizonColor;
+	}
+	static void Skybox_GetGroundColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.groundColor;
+	}
+	static void Skybox_GetSunDirection(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.sunPos;
+	}
+	static void Skybox_GetSunColor(glm::vec3* outTarget)
+	{
+		*outTarget = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.sunCol;
+	}
+
+
+	static void Skybox_SetLightingPower(float* target)
+	{
+		SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+	}
+	static void Skybox_SetZenithColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.zenithColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetHorizonColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.horizonColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetGroundColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.groundColor = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetSunDirection(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.sunPos = *target;
+		rm->skyboxData.isDirty = true;
+	}
+	static void Skybox_SetSunColor(glm::vec3* target)
+	{
+		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager();
+		rm->skyboxData.sunCol = *target;
+		rm->skyboxData.isDirty = true;
+	}
+#pragma endregion
+
 #pragma region CAMERA FUNCTIONS
 
 	static void Camera_SetMainCamera(unsigned int entityID)
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
 		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+	static void Camera_SetGamma(float gammaVal)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetSessionExposure(gammaVal);
+	}
+
+	static float Camera_GetGamma()
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		return rm->GetSessionExposure();
 	}
 
 #pragma endregion
@@ -2651,6 +2883,27 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Material
+	static void Renderer_SetCastShadow(uint32_t entityID, bool castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.castShadow = castShadow;
+		}
+	}
+	static void Renderer_GetCastShadow(uint32_t entityID, bool* castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*castShadow = renderer.castShadow;
+		}
+	}
+
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2671,17 +2924,37 @@ namespace SliceEngine
 			*color = renderer.materialInstance.color;
 		}
 	}
+	static void Material_SetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.materialInstance.color2 = *color;
+		}
+	}
+	static void Material_GetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*color = renderer.materialInstance.color2;
+		}
+	}
 #pragma endregion
 
 #pragma region Application
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Assets").generic_string();
+		std::string path = std::filesystem::path("Resources").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion Application
+#pragma endregion
 
 
 #pragma region COMPONENT REGISTRATION
@@ -2741,12 +3014,15 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
 		ADD_INTERNAL_CALL(Entity_FindEntitiesWithTag);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithTag);
 		ADD_INTERNAL_CALL(CreateNewGameObject);
+		ADD_INTERNAL_CALL(Entity_GetAllChildren);
 		ADD_INTERNAL_CALL(Entity_FindEntityWithName);
 		ADD_INTERNAL_CALL(Destroy);
 		ADD_INTERNAL_CALL(GetScriptInstance);
@@ -2757,6 +3033,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
+		ADD_INTERNAL_CALL(Entity_SetParent);
+		ADD_INTERNAL_CALL(Entity_IsValid);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -2900,6 +3178,15 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(ParticleSystem_GetColourOverLifetime);
 		ADD_INTERNAL_CALL(ParticleSystem_SetColourOverLifetime);
 
+		ADD_INTERNAL_CALL(ParticleSystem_GetGlow);
+		ADD_INTERNAL_CALL(ParticleSystem_SetGlow);
+		ADD_INTERNAL_CALL(ParticleSystem_GetGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMinGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMinGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_GetMaxGlowIntensity);
+		ADD_INTERNAL_CALL(ParticleSystem_SetMaxGlowIntensity);
+
 		ADD_INTERNAL_CALL(ParticleSystem_GetTextureID);
 		ADD_INTERNAL_CALL(ParticleSystem_SetTextureID);
 
@@ -2924,6 +3211,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(RigidBody_IsGravityOff);
 		ADD_INTERNAL_CALL(RigidBody_OffGravity);
 		ADD_INTERNAL_CALL(Physics_Raycast);
+		ADD_INTERNAL_CALL(Physics_Spherecast);
 		ADD_INTERNAL_CALL(Physics_RayUpdateMovement);
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
@@ -2934,9 +3222,10 @@ namespace SliceEngine
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		//ADD_INTERNAL_CALL(Audio_SetSoundName);
+		ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);
@@ -3038,9 +3327,29 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
+		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+		ADD_INTERNAL_CALL(Material_SetColorEmission);
+		ADD_INTERNAL_CALL(Material_GetColorEmission);
+
+		// Skybox
+		ADD_INTERNAL_CALL(Skybox_GetLightingPower);
+		ADD_INTERNAL_CALL(Skybox_GetZenithColor);
+		ADD_INTERNAL_CALL(Skybox_GetHorizonColor);
+		ADD_INTERNAL_CALL(Skybox_GetGroundColor);
+		ADD_INTERNAL_CALL(Skybox_GetSunDirection);
+		ADD_INTERNAL_CALL(Skybox_GetSunColor);
+
+		ADD_INTERNAL_CALL(Skybox_SetLightingPower);
+		ADD_INTERNAL_CALL(Skybox_SetZenithColor);
+		ADD_INTERNAL_CALL(Skybox_SetHorizonColor);
+		ADD_INTERNAL_CALL(Skybox_SetGroundColor);
+		ADD_INTERNAL_CALL(Skybox_SetSunDirection);
+		ADD_INTERNAL_CALL(Skybox_SetSunColor);
 
 		// Application
 		ADD_INTERNAL_CALL(Application_GetFilePath);

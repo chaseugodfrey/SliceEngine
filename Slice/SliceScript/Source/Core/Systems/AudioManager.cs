@@ -9,6 +9,10 @@ namespace SliceScript.Source.Core.Systems
 {
     public class AudioManager
     {
+        public static void StopAllSounds()
+        {
+            FunctionCalls.Audio_StopAllSound();
+        }
         public static float GetCategoryVolume(string category)
         {
             return FunctionCalls.Audio_GetCategoryVolume(category);

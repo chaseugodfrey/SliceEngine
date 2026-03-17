@@ -15,6 +15,7 @@ DigiPen Institute of Technology is prohibited.
 #include "SceneSystem.h"
 #include "Configuration/ProjectSettingsManager.h"
 #include "Configuration/BuildSettings.h"
+#include "../Scripting/ScriptSystem.h"
 
 namespace SliceEngine
 {
@@ -65,13 +66,15 @@ namespace SliceEngine
 			OnSceneChangeEvent ChangeEvent;
 			EventManager::GetInstance()->Publish<OnSceneChangeEvent>(ChangeEvent);
 
-			if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
-			{
-				mCurrentState = SceneState::DEFAULT;
-			}
+			//if (mCurrentState == SceneState::PLAY_SCENE && mNextState == SceneState::PLAY_SCENE)
+			//{
+			//	mCurrentState = SceneState::DEFAULT;
+			//}
+
+
 		}
 
-
+		gScriptSystem->isChangingScene = true;
 
 		UnloadCurrentScene();
 
@@ -81,6 +84,7 @@ namespace SliceEngine
 
 		//Call DeserializeSceneNavMesh function, will return a guid
 		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
+		 
 
 		mCurrentScene = next_scene_filepath;
 		mCurrentSceneName = next_scene_filepath.stem().string();
@@ -94,6 +98,7 @@ namespace SliceEngine
 
 		std::string navMesh = "";
 		metaPath += ".meta";
+		
 
 		navMesh = LoadNavMeshFromMeta(metaPath);*/
 
@@ -119,6 +124,15 @@ namespace SliceEngine
 
 		}
 
+		/* NOTE FOR WRITING SCRIPTS:
+		If a script that is ran from deserializing scene
+		creates an object on create
+		and that object references something in the scene
+		it might crash cause on awake and oncreate might not have ran yet
+		*/
+		gScriptSystem->isChangingScene = false;
+
+		gScriptSystem->UpdateScripts();
 
 		return true;
 	}
@@ -144,9 +158,9 @@ namespace SliceEngine
 
 		std::string navMeshPath = "";
 
-		if (metaData.contains("navMeshFile"))
+		if (metaData.contains("navMeshBinFile"))
 		{
-			navMeshPath = metaData["navMeshFile"].get<std::string>();
+			navMeshPath = metaData["navMeshBinFile"].get<std::string>();
 			
 		}
 
@@ -173,6 +187,11 @@ namespace SliceEngine
 
 	void SceneSystem::WriteTempFile()
 	{
+		if (!mCanWriteTempFiles)
+		{
+			return;
+		}
+
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
 		std::filesystem::path CurrentSceneTemp = CurrentScene;

@@ -95,6 +95,7 @@ namespace SliceEditor
 			{".gif", SelectionType::TEXTURE},
 			{".obj", SelectionType::MODEL},
 			{".fbx", SelectionType::MODEL},
+			{".glb", SelectionType::MODEL},
 			{".wav", SelectionType::AUDIO},
 			{".mp3", SelectionType::AUDIO},
 			{".ogg", SelectionType::AUDIO},
@@ -224,15 +225,21 @@ namespace SliceEditor
 		using Transition = SliceEngine::SliceEngineTypes::Transition;
 		using Parameters = decltype(StateMachineData::parameters);
 
-		void create_state()
+		void create_state(std::string newName)
 		{
-			std::string state_name = "New State";
+			std::string state_name = newName;
 			int repeat = 1;
+
+			//while (auto it = mNameToStateID.find(state_name) != mNameToStateID.end())
+			if(state_name.empty())
+			{
+				state_name = "New State " + std::to_string(repeat);
+				//repeat++;
+			}
 
 			while (auto it = mNameToStateID.find(state_name) != mNameToStateID.end())
 			{
-				state_name = "New State " + std::to_string(repeat);
-				repeat++;
+
 			}
 
 			State state{};

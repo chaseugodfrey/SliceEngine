@@ -114,9 +114,39 @@ namespace SliceEngine
 			//Create anim package file
 			bool LoadAnimPackageResource(std::string const&);
 
-			std::string name;
+			std::string name{};
 		private:
 			void unpack_data(char const* const buffer, uint64_t& offset);
+		};
+
+		class Sequence
+		{
+		public:
+			std::string name{};
+			unsigned int fps{ 60 };
+			float duration{1.0f};
+			unsigned int num_frames{ 60 };
+			std::vector<std::pair<unsigned int, glm::vec3>> transform{};
+			std::vector<std::pair<unsigned int, glm::vec3>> rotation{};
+			std::vector<std::pair<unsigned int, glm::vec3>> scale{};
+
+			glm::vec3 startPos{};
+			glm::vec3 startEuler{};
+			glm::vec3 startScale{};
+
+			bool initialised{ false };
+
+			bool LoadAnimResource(std::string const&);
+			void UpdateTransforms(entt::registry& ,entt::entity& entity, float time);
+		};
+
+		class SequencePackage 
+		{
+		public:
+			std::vector<Sequence> animations{};
+			std::string name{};
+
+			bool LoadSequencePkgResource(std::string const&);
 		};
 
 	}

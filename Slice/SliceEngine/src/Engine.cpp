@@ -99,7 +99,6 @@ namespace SliceEngine
 
 	rttr::registration::class_<glm::vec2>("glm::vec2")
 		.constructor<>()(rttr::policy::ctor::as_object)
-		.constructor<>()(rttr::policy::ctor::as_object)
 		.property("x", &glm::vec2::x)
 		.property("y", &glm::vec2::y);
 
@@ -108,9 +107,10 @@ namespace SliceEngine
 		.property("x", &glm::vec3::x)
 		.property("y", &glm::vec3::y)
 		.property("z", &glm::vec3::z);
-	
+
 #pragma warning(push)
 #pragma warning(disable: 4189)
+#pragma warning(disable: 26444)
 	rttr::registration::class_<std::vector<glm::vec3>>("std::vector<glm::vec3>");
 	rttr::registration::class_<std::vector<std::string>>("std::vector<std::string>");
 	rttr::registration::class_<std::vector<float>>("std::vector<float>");
@@ -119,6 +119,7 @@ namespace SliceEngine
 	rttr::registration::class_<std::vector<GameObject>>("std::vector<SliceEngine::GameObject>");
 	rttr::registration::class_<std::vector<PrefabVar>>("std::vector<SliceEngine::PrefabVar>");
 	rttr::registration::class_<PrefabVar>("SliceEngine::PrefabVar");
+#pragma warning(pop)
 #pragma warning(pop)
 
 	rttr::registration::class_<std::string>("std::string")
@@ -184,7 +185,7 @@ namespace SliceEngine
 		.property("mTag", &SliceEntity::mTag)
 		.property("mName", &SliceEntity::mName)
 		.property("mLayer", &SliceEntity::mLayer);
-	
+
 	rttr::registration::class_<InactiveEntity>(typeid(InactiveEntity).name())
 		.constructor<>()
 		.property("mTest", &InactiveEntity::mTest);
@@ -263,6 +264,7 @@ namespace SliceEngine
 		.property("stereoPan", &AudioSource::stereoPan)
 		.property("spatialBlend", &AudioSource::spatialBlend)
 		.property("dopplerLevel", &AudioSource::dopplerLevel)
+		.property("category", &AudioSource::category)
 		.property("spread", &AudioSource::spread)
 		.property("minDistance", &AudioSource::minDistance)
 		.property("maxDistance", &AudioSource::maxDistance)
@@ -270,7 +272,6 @@ namespace SliceEngine
 		.property("playOnAwake", &AudioSource::playOnAwake)
 		.property("volumeRollOff", &AudioSource::volumeRollOff)
 		.property("playPreview", &AudioSource::playPreview)
-		.property("enablePathfinding", &AudioSource::enablePathfinding)
 		.property("directOcclusion", &AudioSource::directOcclusion)
 		.property("reverbOcclusion", &AudioSource::reverbOcclusion)
 		.property("componentEnabled", &AudioSource::componentEnabled);
@@ -297,10 +298,23 @@ namespace SliceEngine
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
+		.property("godRayStrength", &Camera::godRayStrength)
+		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("cloudsHeight", &Camera::cloudsHeight)
+		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
+		.property("cloudsIntensity", &Camera::cloudsIntensity)
+		.property("cloudsSmoothness", &Camera::cloudsSmoothness)
+		.property("cloudsCutoff", &Camera::cloudsCutoff)
+		.property("cloudsColor", &Camera::cloudsColor)
+		.property("cloudsSecondOffset", &Camera::cloudsSecondCloudOffset)
+		.property("cloudsSecondAmplitute", &Camera::cloudsSecondCloudAmplitude)
+		.property("cloudsSecondIntensity", &Camera::cloudsSecondCloudIntensity)
+		.property("cloudsSecondSmoothness", &Camera::cloudsSecondCloudSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
+		.property("cloudsSecondColor", &Camera::cloudsSecondColor)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
@@ -329,7 +343,8 @@ namespace SliceEngine
 			);
 	rttr::registration::enumeration<Canvas::Type>("CanvasType")
 		(
-			rttr::value("Overlay", Canvas::Type::OVERLAY)
+			rttr::value("Overlay", Canvas::Type::OVERLAY),
+			rttr::value("World Space", Canvas::Type::WORLD)
 			);
 	rttr::registration::enumeration<FontRenderer::Alignment>("FontAlignment")
 		(
@@ -355,14 +370,13 @@ namespace SliceEngine
 	rttr::registration::enumeration<AudioSource::VolumeRollOff>("VolumeRollOff")
 		(
 			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Logarithmic),
-			rttr::value("Logarithmic", AudioSource::VolumeRollOff::Linear)
+			rttr::value("Linear", AudioSource::VolumeRollOff::Linear)
 		);
 	rttr::registration::enumeration<AudioSource::Category>("Category")
 		(
 			rttr::value("SFX", AudioSource::Category::SFX),
 			rttr::value("BGM", AudioSource::Category::BGM),
-			rttr::value("UI", AudioSource::Category::UI),
-			rttr::value("EditorSounds", AudioSource::Category::EditorSounds)
+			rttr::value("UI", AudioSource::Category::UI)
 		);
 	rttr::registration::class_<Light>(typeid(Light).name())
 		.constructor<>()
@@ -409,7 +423,7 @@ namespace SliceEngine
 	rttr::registration::enumeration<ParticleSystem::ShapeType>(typeid(ParticleSystem::ShapeType).name())
 		(
 			rttr::value("SPHERE", ParticleSystem::ShapeType::SPHERE),
-			rttr::value("CONE", ParticleSystem::ShapeType::CONE),			
+			rttr::value("CONE", ParticleSystem::ShapeType::CONE),
 			rttr::value("CUBE", ParticleSystem::ShapeType::CUBE),
 			rttr::value("CIRCLE", ParticleSystem::ShapeType::CIRCLE),
 			rttr::value("RECT", ParticleSystem::ShapeType::RECT)
@@ -425,12 +439,13 @@ namespace SliceEngine
 
 	rttr::registration::enumeration<ParticleSystem::RenderMode>("RenderMode")
 		(
-			rttr::value("Billboard", ParticleSystem::RenderMode::BILLBOARD),
-			rttr::value("Mesh", ParticleSystem::RenderMode::MESH)
+			rttr::value("BILLBOARD", ParticleSystem::RenderMode::BILLBOARD),
+			rttr::value("MESH", ParticleSystem::RenderMode::MESH)
 			);
 
 	rttr::registration::class_<ParticleSystem>(typeid(ParticleSystem).name())
 		.constructor<>()
+		.property("initialDelay", &ParticleSystem::initialDelay)
 		.property("duration", &ParticleSystem::duration)
 		.property("isRepeating", &ParticleSystem::isRepeating)
 		.property("isLocalSpace", &ParticleSystem::isLocalSpace)
@@ -457,10 +472,11 @@ namespace SliceEngine
 
 		.property("sphereArc", &ParticleSystem::sphereArc)
 
-		.property("shapeRadius", &ParticleSystem::rectScale)
+		.property("rectScale", &ParticleSystem::rectScale)
 
 		.property("shapeRadius", &ParticleSystem::shapeRadius)
-		.property("shapeRadius", &ParticleSystem::shapeScale)
+		.property("shapeScale", &ParticleSystem::shapeScale)
+		.property("innerShapeRadius", &ParticleSystem::innerShapeRadius)
 
 		.property("axis", &ParticleSystem::axis)
 
@@ -478,6 +494,11 @@ namespace SliceEngine
 		.property("rotation", &ParticleSystem::rotation)
 		.property("minRandomRotation", &ParticleSystem::minRandomRotation)
 		.property("maxRandomRotation", &ParticleSystem::maxRandomRotation)
+
+		.property("isRotation3D", &ParticleSystem::isRotation3D)
+		.property("rotation3D", &ParticleSystem::rotation3DHint)
+		.property("minRandomRotation3D", &ParticleSystem::minRotation3DHint)
+		.property("maxRandomRotation3D", &ParticleSystem::maxRotation3DHint)
 
 		.property("spawnPosValueType", &ParticleSystem::posValueType)
 		.property("spawnPos", &ParticleSystem::spawnPos)
@@ -516,9 +537,14 @@ namespace SliceEngine
 		.property("orbitAxis", &ParticleSystem::orbitAxis)
 		.property("startOrbitVelocity", &ParticleSystem::startOrbitVelocity)
 		.property("endOrbitVelocity", &ParticleSystem::endOrbitVelocity)
-
+		.property("glowValueType", &ParticleSystem::glowValueType)
+		.property("glow", &ParticleSystem::glow)
+		.property("glowIntensity", &ParticleSystem::glowIntensity)
+		.property("minGlowIntensity", &ParticleSystem::minGlowIntensity)
+		.property("maxGlowIntensity", &ParticleSystem::maxGlowIntensity)
 		.property("alwaysFaceCamera", &ParticleSystem::alwaysFaceCamera)
-
+		.property("ignoreLights", &ParticleSystem::ignoreLights)
+		.property("particleLayer", &ParticleSystem::particleLayer)
 		.property("renderMode", &ParticleSystem::renderMode)
 		.property("textureGUID", &ParticleSystem::textureGUID)
 		.property("textureHandle", &ParticleSystem::textureHandle)
@@ -558,6 +584,7 @@ namespace SliceEngine
 		.property("AnimPkg Handle", &Animator::Handle_curr_anim_pkg)
 		.property("Skeleton Handle", &Animator::Handle_skeleton)
 		.property("componentEnabled", &Animator::componentEnabled)
+		.property("Anims Pkg GUID", &Animator::Handle_Anims)
 		.property("eventFrames", &Animator::eventFrames);
 
 
@@ -577,8 +604,7 @@ namespace SliceEngine
 		.constructor<>()
 		.property("transition", &Button::transition)
 		.property("color_tints", &Button::color_transitions)
-		//.property("test_float", &Button::test)
-		//.property("test_float2", &Button::test2)
+		.property("sprite_state", &Button::sprite_transitions)
 		.property("componentEnabled", &Button::componentEnabled);
 
 	rttr::registration::class_<Slider>(typeid(Slider).name())
@@ -589,8 +615,6 @@ namespace SliceEngine
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
 		.property("enabled", &Slider::componentEnabled);
-	//.property("colors", &Button::color_transitions)
-	//.property("sprites", &Button::sprite_transitions);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.constructor<>()
@@ -659,7 +683,7 @@ namespace SliceEngine
 	//static ActionMappingSystem actionMapSystemInstance(Core::GetInstance()->GetInputSystem());
 
 	// removed this from engine.cpp because core.cpp now has the global action mapping system instance ptr
-	namespace 
+	namespace
 	{
 		static bool isPlaying = false;
 	}
@@ -778,27 +802,49 @@ namespace SliceEngine
 		EventManager::GetInstance()->Subscribe<OnSceneChangeEvent, &Engine::SceneChangeEvent>(this);
 	}
 
+	void Engine::WindowSizeSwitch()
+	{
+		auto sInputs = SliceEngine::Core::GetInstance()->GetInputSystem();
+		auto windowManager = SliceEngine::Core::GetInstance()->GetWindowManager();
+
+		if (sInputs->IsKeyDown(GLFW_KEY_RIGHT_ALT))
+		{
+			if (sInputs->IsKeyPressed(GLFW_KEY_ENTER))
+			{
+				if (windowManager->isFullScreen)
+				{
+					windowManager->NonFullScreenWindow();
+				}
+				else
+				{
+					windowManager->FullScreenWindow();
+				}
+			}
+
+		}
+	}
+
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
 		auto sAudio = core->GetAudioManager();
-		auto sInputs = core->GetInputSystem();
+		//auto sInputs = core->GetInputSystem();
 		auto projSettingsManager = core->GetProjectSettingsManager();
-		
+
 		auto& sTransform = core->GetSystem<TransformSystem>();
-		auto& sAnimator = core->GetSystem<AnimatorSystem>();
-		auto& sBone = core->GetSystem<BoneSystem>();
+		//auto& sAnimator = core->GetSystem<AnimatorSystem>();
+		//auto& sBone = core->GetSystem<BoneSystem>();
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
-		auto& sButton = core->GetSystem<ButtonSystem>();
-		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
+		//auto& sButton = core->GetSystem<ButtonSystem>();
+		//auto& sSlider = core->GetSystem<SliderSystem>();
+		//auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& prefabSys = core->GetSystem<PrefabSystem>();
 		auto& sParticleSystemManager = core->GetSystem<ParticleSystemManager>();
 
 		(void)projSettingsManager;
-		(void)sParticleSystemManager;		
+		(void)sParticleSystemManager;
 
 		if (!sScene->CheckQueueEmpty())
 		{
@@ -827,14 +873,10 @@ namespace SliceEngine
 		}
 
 		frm->StartSystem("Update Delta Time");
-		frm->updateDeltaTime(); 
+		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
-		frm->StartSystem("Audio");
-		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		sAudio->Update();
-		frm->EndSystem("Audio");
+		
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -846,25 +888,36 @@ namespace SliceEngine
 			OnPlayStarted();
 		}
 
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		frm->EndSystem("Canvas");
+
 		// regular transform update
 		frm->StartSystem("Transform");
 		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
 		sTransform.UpdateTransforms();
-		prefabSys.UpdateBasePrefabs(); 
+		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
 
-		// i shifted this to the end cause UI usually updates last(?) i think
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		sCanvas.ConstructWorldCanvas();
-		frm->EndSystem("Canvas");
+		frm->StartSystem("Audio");
+		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		sAudio->Update();
+		frm->EndSystem("Audio");
+
 
 		// note: might need to have a physics update version of particle sys to call in fixedDT loop
+		/*if (sScene->mCurrentState == SceneState::PLAY_SCENE)
+		{
+			OnPlayStarted();
+		}*/
+
 		frm->StartSystem("Particle System");
 		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
+		sRender->Update(static_cast<float>(frm->getDeltaTime()));
 		sRender->Render();
 		sCanvas.DrawOverlay();
 		frm->EndSystem("Graphics");
@@ -883,7 +936,6 @@ namespace SliceEngine
 		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
 		sAudio->StopAllSound();
@@ -901,6 +953,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -910,8 +963,15 @@ namespace SliceEngine
 			sScene->WriteTempFile();
 		}
 
+		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
+		{
+			sAudio->SetCategoryPause(0, false);
+			sAudio->SetCategoryPause(1, false);
+		}
+
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
@@ -919,13 +979,8 @@ namespace SliceEngine
 			isPlaying = true;
 		}
 
-		if (sScene->mCurrentState == SceneState::PAUSE_SCENE)
-		{
-			sAudio->SetCategoryPause(0, false);
-			sAudio->SetCategoryPause(1, false);
-		}
-
 		sScene->mCurrentState = SceneState::PLAY_SCENE;
+
 	}
 
 	void Engine::OnStopStart()
@@ -945,7 +1000,6 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sScene = core->GetSceneSystem();
 
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sAudio->SetCategoryPause(0, true);
 		sAudio->SetCategoryPause(1, true);
@@ -988,7 +1042,7 @@ namespace SliceEngine
 			frm->StartSystem("Transform");
 			// sync matrices after physics
 			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-			sTransform.UpdateTransforms();
+			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
 			// animation after logic and physics
@@ -1004,7 +1058,7 @@ namespace SliceEngine
 		frm->StartSystem("Script");
 		gScriptSystem->OnUpdate((float)frm->getDeltaTime());
 		frm->EndSystem("Script");
-		
+
 		frm->StartSystem("Navigation System");
 		sNav.Update(static_cast<float>(frm->getDeltaTime()));
 		frm->EndSystem("Navigation System");

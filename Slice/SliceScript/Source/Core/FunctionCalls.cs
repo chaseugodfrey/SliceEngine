@@ -12,6 +12,10 @@ namespace SliceEngine
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetGamma(float gamma);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Camera_GetGamma();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();
@@ -105,6 +109,9 @@ namespace SliceEngine
         internal extern static bool Physics_Raycast(out Vector3 origin, out Vector3 direction, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal, bool triggerInteraction, uint mask);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Physics_Spherecast(out Vector3 origin, out Vector3 direction, float radius, ref uint bodyHitID, ref Vector3 hitPos, ref Vector3 normal, bool triggerInteraction, uint mask);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Physics_DrawRay(ref Vector3 origin, ref Vector3 direction, float magnitude);
 
 
@@ -112,13 +119,13 @@ namespace SliceEngine
         internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static string Audio_GetSoundName(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
@@ -174,8 +181,8 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetMute(uint entityID);
 
-        //[MethodImplAttribute(MethodImplOptions.InternalCall)]
-        //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_SetSoundName(uint entityID, string audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyPressed(Keys key);
@@ -492,6 +499,32 @@ namespace SliceEngine
         [MethodImpl(MethodImplOptions.InternalCall)]
         internal extern static void ParticleSystem_SetSpeedMax(uint entityID, ref float maxSpeed);
 
+        // Post processing effects
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetGlow(uint entityID, out bool hasGLow);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetGlow(uint entityID, ref bool hasGlow);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetGlowIntensity(uint entityID, out float glowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetGlowIntensity(uint entityID, ref float glowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMinGlowIntensity(uint entityID, out float minGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMinGlowIntensity(uint entityID, ref float minGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_GetMaxGlowIntensity(uint entityID, out float maxGlowIntensity);
+
+        [MethodImpl(MethodImplOptions.InternalCall)]
+        internal extern static void ParticleSystem_SetMaxGlowIntensity(uint entityID, ref float maxGlowIntensity);
+
         // Misc
 
         [MethodImpl(MethodImplOptions.InternalCall)]
@@ -534,6 +567,9 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint[] Entity_FindEntitiesWithTag(string tag);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint[] Entity_GetAllChildren(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithTag(string tag);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -541,6 +577,12 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint Entity_FindEntityWithID(uint id);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_SetParent(uint id, uint parent);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_IsValid(uint entity);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
@@ -708,10 +750,54 @@ namespace SliceEngine
 
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_SetColor(uint entityID, ref Vector4 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_GetColorEmission(uint entityID, out Vector4 color);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_SetColorEmission(uint entityID, ref Vector4 value);
+
+        // Skybox
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetLightingPower(out float value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetZenithColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetHorizonColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetGroundColor(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetSunDirection(out Vector3 value);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_GetSunColor(out Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetLightingPower(ref float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetZenithColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetHorizonColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetGroundColor(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetSunDirection(ref Vector3 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Skybox_SetSunColor(ref Vector3 value);
 
         //Entity active
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

@@ -23,6 +23,8 @@ namespace SliceEditor
 	class ContentBrowserWindow : public EditorWindow
 	{
 		ContentBrowserManager& mManager;
+		char mSearchBuffer[256]{};
+		std::string mSearchPrompt;
 		
 		int currentCategoryIndex = -1;
 
@@ -55,6 +57,7 @@ namespace SliceEditor
 		void DisplayFBXData(ModelData* data);
 		void DisplayMaterialData(MaterialData* data);
 		void DisplayAudioData(AudioData* data);
+		void DisplayAnimsData(SequencePkgData* data);
 		void DisplayFontData(FontMetaData* data);
 		
 	#pragma endregion

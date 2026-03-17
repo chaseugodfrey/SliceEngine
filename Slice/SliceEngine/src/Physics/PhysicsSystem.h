@@ -13,6 +13,7 @@ DigiPen Institute of Technology is prohibited.
 
 #include <pch.h>
 #include <iostream>
+
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -22,6 +23,10 @@ DigiPen Institute of Technology is prohibited.
 #include <Jolt/Physics/Collision//Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Raycast.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollector.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/ShapeCast.h>
+#include <Jolt/Core/JobSystemSingleThreaded.h>
 
 #include "ECS/BaseSystem.h"
 #include "ECS/ECSTypes.h"
@@ -49,6 +54,7 @@ namespace SliceEngine
 
 		std::unique_ptr<JPH::PhysicsSystem> physicsSystem;
 		std::unique_ptr<JPH::JobSystemThreadPool> jobSystem;
+		//std::unique_ptr<JPH::JobSystemSingleThreaded> jobSystem;
 		std::unique_ptr<BPLayerInterfaceImpl> broadphaseLayerInterface;
 		std::unique_ptr<ObjectVsBroadPhaseLayerFilterImpl> objectVsBroadphaseLayerFilter;
 		std::unique_ptr<ObjectLayerPairFilterImpl> objectLayerPairFilter;
@@ -70,13 +76,15 @@ namespace SliceEngine
 
 		void OnRigidBodyRemove(const RigidBodyRemovedEvent& event);
 
-		void OnColliderModified(const ColliderShapeModifiedEvent& event);
+		void OnColliderModified(entt::registry& reg, entt::entity entity);
 
 		void OnRigidBodyModified( RigidBodyModifiedEvent& event);
 
 		void OnEntityEnabled(entt::registry& reg, entt::entity entity);
 
 		void OnEntityDisabled(entt::registry& reg, entt::entity entity);
+
+		void OnSliceEntityModified(entt::registry& reg, entt::entity entity);
 
 		void UpdateShapeFromTransform(Entity entity);
 
@@ -127,6 +135,10 @@ namespace SliceEngine
 		void PostStepSync();
 
 		void PreStepSync();
+
+		bool WouldCollideAt(Entity entity);
+
+		void ProcessTempMovements();
 
 		void ClearCollisionPairs();
 
@@ -181,6 +193,9 @@ namespace SliceEngine
 
 		// deafult param ~0 so it can hit all layers
 		bool PSystemRayCast(const glm::vec3 origin, const glm::vec3 direction, uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal,bool triggerInteraction ,uint32_t mask = ~0);
+
+		bool PSystemSphereCast(const glm::vec3 origin, const glm::vec3 direction, float radius,
+							   uint32_t& bodyHitID, glm::vec3& hitPos, glm::vec3& normal, bool triggerInteraction, uint32_t mask = ~0);
 	};
 }
 

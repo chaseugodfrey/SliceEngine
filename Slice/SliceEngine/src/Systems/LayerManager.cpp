@@ -84,7 +84,7 @@ namespace SliceEngine
 
 		for (auto entity : view)
 		{
-			SetDefaultLayer(name, entity); // change to default but remove the layer
+			SetDefaultLayer(entity); // change to default but remove the layer
 		}
 
 		// inform jolt that this layer is gone so set its mask to 0
@@ -118,31 +118,36 @@ namespace SliceEngine
 
 	uint32_t LayerManager::GetMask(std::string name)
 	{
+		uint32_t layer = GetLayer(name);
+
+		if (layer >= INVALID_LAYER)
+		{
+			return 0u;
+		}
+
+		return (1u << layer);
+	}
+
+	uint32_t LayerManager::GetMask(uint32_t index)
+	{
+		if (index >= MAX_LAYERS)
+		{
+			return 0u;
+		}
+
+		return (1u << index);
+	}
+
+	uint32_t LayerManager::GetCollisionMask(std::string name)
+	{
 		// check if it doesn't exist
 		if (collisionMask.find(name) == collisionMask.end())
 		{
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
 			return 0;
 		}
-		
+
 		return collisionMask[name];
-	}
-
-	// might not even be using this mayb
-	uint32_t LayerManager::GetMask(uint32_t index)
-	{
-		if (index > currentBit)
-		{
-			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
-			return 0;
-		}
-
-		// doesn't exist
-		if (indexToLayerName.find(index) == indexToLayerName.end())
-			return 0;
-
-		// looks kinda cancer idk
-		return collisionMask[indexToLayerName[index]];
 	}
 
 	uint32_t LayerManager::GetLayer(std::string name)
@@ -153,7 +158,7 @@ namespace SliceEngine
 			SLICE_LOG_ERROR(name + " doesn't exist bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
 		}
-		else if (nameToLayer[name] < 0u || nameToLayer[name] >= MAX_LAYERS)
+		else if (nameToLayer[name] >= MAX_LAYERS)
 		{
 			SLICE_LOG_ERROR(name + " layer value is invalid bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
@@ -164,7 +169,7 @@ namespace SliceEngine
 
 	uint32_t LayerManager::GetLayer(uint32_t index)
 	{
-		if (index > currentBit)
+		if (index >= MAX_LAYERS)
 		{
 			SLICE_LOG_ERROR(index + " doesn't exist bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
@@ -174,7 +179,7 @@ namespace SliceEngine
 		if (indexToLayerName.find(index) == indexToLayerName.end())
 			return INVALID_LAYER;
 
-		if (nameToLayer[indexToLayerName[index]] < 0u || nameToLayer[indexToLayerName[index]] >= MAX_LAYERS)
+		if (nameToLayer[indexToLayerName[index]] >= MAX_LAYERS)
 		{
 			SLICE_LOG_ERROR(index + " layer value is invalid bodoh");
 			return INVALID_LAYER; // invalid layer (max 32 layers)
@@ -229,7 +234,7 @@ namespace SliceEngine
 				return false;
 			}
 
-			uint32_t firstMask = GetMask(firstLayerName);
+			uint32_t firstMask = GetCollisionMask(firstLayerName);
 			uint32_t secondLayer = GetLayer(secondLayerName);
 
 			return (firstMask & (1u << secondLayer)) != 0u;
@@ -242,7 +247,7 @@ namespace SliceEngine
  
 	bool LayerManager::CheckLayerInteraction(std::string first, std::string second)
 	{
-		uint32_t firstMask = GetMask(first);
+		uint32_t firstMask = GetCollisionMask(first);
 		uint32_t secondLayer = GetLayer(second);
 
 		return (firstMask & (1u << secondLayer)) != 0u;
@@ -267,7 +272,7 @@ namespace SliceEngine
 	}
 
 	//rework change all to default layer instead of removing entirely
-	void LayerManager::SetDefaultLayer(std::string name, Entity entity)
+	void LayerManager::SetDefaultLayer(Entity entity)
 	{
 		auto entityGO = FactoryInstance.GetGOByEntity(entity);
 
@@ -290,7 +295,7 @@ namespace SliceEngine
 		//check if it is a physics body to update jolt body layer
 		if (entityGO.HasComponent<ColliderShape>())
 		{
-			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer[name]);
+			Core::GetInstance()->GetSystem<PhysicsSystem>().SetBodyLayer(entity, nameToLayer["Default"]);
 		}
 
 	}

@@ -17,6 +17,9 @@ DigiPen Institute of Technology is prohibited.
 #include "ComponentPropertiesGUI.h"
 #include <Core/Registry.h>
 #include "../EditorCommonTypes.h"
+#include "Systems/LayerManager.h"
+#include "Configuration/ProjectSettingsManager.h"
+#include "Configuration/PhysicsSettings.h"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include "glm/gtx/euler_angles.hpp"
@@ -52,10 +55,9 @@ namespace SliceEditor
 
 
 
-	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed)
+	bool DragFloatInput(Registry& reg, const char* id, float& val, const char* format, float min, float max, float speed, bool selectionDifferent)
 	{
 		static float oldVal{};
-
 		bool changed = ImGui::DragFloat(id, &val, speed, min, max, format);
 
 		if (ImGui::IsItemActivated())
@@ -77,7 +79,9 @@ namespace SliceEditor
 	{
 		static float oldVal{};
 
-		bool changed = ImGui::SliderFloat(id, &val, min, max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SetNextItemWidth(100.f);
+
+		bool changed = ImGui::SliderFloat(id, &val, min, max, format);
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -138,7 +142,21 @@ namespace SliceEditor
 	{
 		static uint32_t oldVal{};
 
+		std::string minusButton = std::string("-") + id;
+		std::string plusButton = std::string("+")+ id;
+
+		if (ImGui::Button(minusButton.c_str()))
+		{
+			if(val != min)
+			{
+				val -= 1.0f;
+			}
+		}
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(100.f);
 		bool changed = ImGui::DragScalar(id, ImGuiDataType_U32, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SameLine();
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -152,6 +170,13 @@ namespace SliceEditor
 			}
 		}
 
+		if (ImGui::Button(plusButton.c_str()))
+		{
+			if(val != max)
+			{
+				val += 1.0f;
+			}
+		}
 		return changed;
 	}
 
@@ -171,16 +196,27 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInput(Registry& reg, const char* id, std::string& val, float width, std::function<void(std::string)> func)
+	bool StringInput(Registry& reg, const char* id, std::string& val, float width, bool enterReturnsTrue, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		static std::string oldVal{};
+		std::string inputVal = val;
+		ImGuiInputTextFlags flags = ImGuiTextFlags_None;
+		if (selectionDifferent)
+		{
+			inputVal = "---";
+		}
+
+		if (enterReturnsTrue)
+		{
+			flags |= ImGuiInputTextFlags_EnterReturnsTrue;
+		}
 
 		if (width == 0.0f)
 			width = 150.0f;
 
 		ImGui::SetNextItemWidth(width);
 
-		bool changed = ImGui::InputText(id, &val);
+		bool changed = ImGui::InputText(id, &inputVal, flags);
 
 		if (ImGui::IsItemActivated())
 		{
@@ -193,7 +229,7 @@ namespace SliceEditor
 			{
 				if(func != nullptr)
 				{
-					func(val);
+					func(inputVal);
 					std::unique_ptr<FunctionSetsValueCommand<std::string>> command = std::make_unique<FunctionSetsValueCommand<std::string>>(val, oldVal, func);
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}
@@ -202,6 +238,7 @@ namespace SliceEditor
 					std::unique_ptr<ValueCommand<std::string>> command = std::make_unique<ValueCommand<std::string>>(val, oldVal, val);
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 				}
+				val = inputVal;
 			}
 		}
 
@@ -273,47 +310,63 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, std::function<void(std::string)> func)
+	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width, bool enterReturnsTrue, std::function<void(std::string)> func, bool selectionDifferent)
 	{
 		bool changed = false;
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
-		changed = StringInput(reg, id, val, width, func) || changed;
+		changed = StringInput(reg, id, val, width,enterReturnsTrue, func,selectionDifferent) || changed;
 
 		return changed;
 	}
 
 #pragma region Normal Script Functions
 
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val)
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static std::string oldVal{};
+		std::string valCopy = val;
 
-		bool changed = ImGui::InputText(id, &val);
+		if (selectionDifferent)
+		{
+			valCopy = "---";
+		}
+
+		bool changed = ImGui::InputText(id, &valCopy);
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
 		if (ImGui::IsItemDeactivatedAfterEdit())
 		{
-			if (oldVal != val)
+			if (oldVal != valCopy)
 			{
 				std::unique_ptr<ScriptFieldSetterCommand<std::string>> command = std::make_unique<ScriptFieldSetterCommand<std::string>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+
+				val = valCopy;
 			}
 		}
 
 		return changed;
 	}
 
-	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max)
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format, float min, float max, bool selectionDifferent)
 	{
 
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static float oldVal{};
+
+		if (selectionDifferent)
+		{
+
+			format = "---";
+
+		}
 
 		bool changed = ImGui::DragFloat(id, &val, 0.1f, min, max, format);
 
@@ -332,13 +385,19 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val)
+	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static bool oldVal{};
 
 		bool changed = ImGui::Checkbox(id, &val);
+
+		if (selectionDifferent)
+		{
+			ImGui::SameLine();
+			ImGui::Text("***");
+		}
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -355,11 +414,16 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max)
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format, int min, int max, bool selectionDifferent)
 	{
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.f);
 		static int oldVal{};
+
+		if (selectionDifferent)
+		{
+			format = "---";
+		}
 
 		bool changed = ImGui::DragInt(id, &val, 0.1f,min,max,format);
 
@@ -378,7 +442,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max)
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		
 		static glm::vec3 oldVal{};
@@ -387,7 +451,20 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		//changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+
+		bool resultX = ImGui::DragFloat((id + "_x"s).c_str(), &val.x, 0.1f, min, max, formatX.c_str());
+		bool triggerX = resultX;
+		if (selectionDifferent[0] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerX = true;
+		}
+		changed = triggerX || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -402,7 +479,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_y"s).c_str(), &val.y, inc, min, max, format);
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+
+		bool resultY = ImGui::DragFloat((id + "_y"s).c_str(), &val.y, 0.1f, min, max, formatY.c_str());
+		bool triggerY = resultY;
+		if (selectionDifferent[1] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerY = true;
+		}
+		changed = triggerY || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -417,8 +506,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_z"s).c_str(), &val.z, inc, min, max, format);
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
 
+		bool resultZ = ImGui::DragFloat((id + "_z"s).c_str(), &val.z, 0.1f, min, max,formatZ.c_str());
+		bool triggerZ = resultZ;
+		if (selectionDifferent[2] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerZ = true;
+		}
+		changed = triggerZ || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -429,17 +529,26 @@ namespace SliceEditor
 				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
+		}
+
+		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = triggerX;
+			(*changedAxis)[1] = triggerY;
+			(*changedAxis)[2] = triggerZ;
 		}
 
 		return changed;
 	}
 
-	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val)
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val, bool selectionDifferent)
 	{
 		static SliceEngine::GameObject oldVal{};
 
 		bool changed = false;
 		std::string propertyLabelID = property_label;
+		std::string goName;
 
 		ImGui::Text(propertyLabelID.c_str());
 		ImGui::SameLine(150.f);
@@ -458,15 +567,20 @@ namespace SliceEditor
 		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
 		{
-			std::string empty = " ";
-			ImGui::InputText(id, &empty,ImGuiInputTextFlags_ReadOnly);
+			goName = " ";
 		}
 		else
 		{
 			//wtf is this bs
-			std::string goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
-			ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
+			goName = "(" + std::to_string(static_cast<unsigned int>(val.GetEntity())) + ") " + val.GetName();
 		}
+
+		if (selectionDifferent)
+		{
+			goName = "---";
+		}
+
+		ImGui::InputText(id, &goName, ImGuiInputTextFlags_ReadOnly);
 		//ImGui::EndDisabled();
 
 		if (ImGui::BeginDragDropTarget())
@@ -901,7 +1015,7 @@ namespace SliceEditor
 		return changed;
 	}
 	
-	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs, std::vector<bool>& changedVals)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<float > oldList{};
@@ -915,14 +1029,25 @@ namespace SliceEditor
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
 
+				//To check each entry if it was changed, push_back a false first.
+				changedVals.push_back(false); //it should correspond to idx
+
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
 				ImGui::SetNextItemWidth(200.0f);
-				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
+
+				std::string formatCopy = format;
+				if (elementDiffs[idx])
+				{
+					formatCopy = "---";
+				}
+
+				changedVals[idx] = ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, formatCopy.c_str());
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
 
+				changed = changedVals[idx] || changed;
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc,"Edit", std::string(property_label), oldList, list);
@@ -946,7 +1071,8 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, 0.0f, idx);
+				editFunc("Add", std::string(property_label), list, list[idx-1], idx);
+				changedVals.push_back(true); // Push back a new modified value
 
 				// record in history
 				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);
@@ -1172,7 +1298,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler)
+	bool DragRotationInputHeader(Registry& reg, const char* property_label, const char* id, glm::quat& quat, glm::vec3& euler, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		static glm::vec3 oldVal{};
 
@@ -1187,7 +1313,14 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, "X: %.3f");
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+		bool resultX = ImGui::DragFloat("##rot_x", &euler.x, 0.1f, 0.0f, 0.0f, formatX.c_str());
+		changed = resultX || changed;
+
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1200,7 +1333,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, "Y: %.3f") || changed;
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+		bool resultY = ImGui::DragFloat("##rot_y", &euler.y, 0.1f, 0.0f, 0.0f, formatY.c_str());
+		changed = resultY || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1213,7 +1352,13 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, "Z: %.3f") || changed;
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
+		bool resultZ = ImGui::DragFloat("##rot_z", &euler.z, 0.1f, 0.0f, 0.0f, formatZ.c_str());
+		changed = resultZ || changed;
 
 		if (ImGui::IsItemActivated())
 			oldVal = euler;
@@ -1226,6 +1371,13 @@ namespace SliceEditor
 
 		if (changed)
 			quat = SliceEngine::Vec3ToQuat(euler);
+
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = resultX;
+			(*changedAxis)[1] = resultY;
+			(*changedAxis)[2] = resultZ;
+		}
 
 		return changed;
 	}
@@ -1392,6 +1544,50 @@ namespace SliceEditor
 		return true;
 	}
 
+	bool LayerHeader(Registry& reg, std::string property_label, const char* id, uint32_t& selected, std::vector<std::string>& container, bool searchBar, bool selectionDifferent)
+	{
+		bool changed = false;
+		std::vector<std::string> containerCopy = container;
+
+		if (!property_label.empty())
+		{
+			ImGui::Text(property_label.c_str());
+			ImGui::SameLine();
+		}
+		if (selectionDifferent)
+		{
+			containerCopy.push_back("---");
+		}
+
+		float height = ImGui::GetFrameHeight();
+
+		if (ImGui::Button("+##newLayer", ImVec2(0, height)))
+		{
+			ImGui::OpenPopup("New Layer");
+		}
+
+		if (ImGui::BeginPopup("New Layer"))
+		{
+			static std::string newLayerName;
+			StringInputHeader(reg, "New Layer Name: ", "##newLayerName", newLayerName);
+			if (ImGui::Button("Add Layer"))
+			{
+				SliceEngine::Core::GetInstance()->GetLayerManager()->AddLayer(newLayerName);
+				auto* settingsManager = SliceEngine::Core::GetInstance()->GetProjectSettingsManager();
+				auto& physicsSettings = *settingsManager->GetSettings<SliceEngine::PhysicsSettings>();
+				physicsSettings.isDirty = true;
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::SameLine(150.f);
+		ImGui::SetNextItemWidth(150.0f);
+
+		changed = ComboInput(reg, id, selected, containerCopy, searchBar, selectionDifferent);
+
+
+		return changed;
+	}
+
 	bool DragVec2InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec2& vec)
 	{
 		bool changed = false;
@@ -1407,21 +1603,71 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max)
+	bool DragVec3InputHeader(Registry& reg, const char* property_label, const char* id, glm::vec3& vec, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool,3>* changedAxis)
 	{
 		bool changed = false;
+		if (selectionDifferent.size() != 3)
+		{
+			SLICE_LOG_ERROR("Vector set size is wrong!");
+			return changed;
+		}
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, "X: %.3f",min,max) || changed;
+		//Handle the value setting here:
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+
+		bool resultX = DragFloatInput(reg, (id + "_x"s).c_str(), vec.x, formatX.c_str(), min, max, 0.1f, selectionDifferent[0]);
+		bool triggerX = resultX;
+		if (selectionDifferent[0] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerX = true;
+		}
+		changed = triggerX || changed;
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, "Y: %.3f",min,max) || changed;
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
 
+		bool resultY = DragFloatInput(reg, (id + "_y"s).c_str(), vec.y, formatY.c_str(), min, max, 0.1f, selectionDifferent[1]);
+		bool triggerY = resultY;
+		if (selectionDifferent[1] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerY = true;
+		}
+		changed = triggerY || changed;
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, "Z: %.3f",min,max) || changed;
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
+
+		bool resultZ = DragFloatInput(reg, (id + "_z"s).c_str(), vec.z, formatZ.c_str(), min, max, 0.1f, selectionDifferent[2]);
+		bool triggerZ = resultZ;
+		if (selectionDifferent[2] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerZ = true;
+		}
+		changed = triggerZ || changed;
+
+
+		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = triggerX;
+			(*changedAxis)[1] = triggerY;
+			(*changedAxis)[2] = triggerZ;
+		}
 
 		return changed;
 	}

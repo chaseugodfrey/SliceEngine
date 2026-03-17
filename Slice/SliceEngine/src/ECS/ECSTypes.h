@@ -173,6 +173,8 @@ namespace SliceEngine
 		RTTR_ENABLE();
     };
 
+
+
 	struct UITransform
 	{
 		// blank for now because I just need to use this for factory stuff
@@ -198,6 +200,8 @@ namespace SliceEngine
 		RENDER_BLUR			= 0x02,
 		RENDER_BLOOM		= 0x04,
 		RENDER_VIGNETTE		= 0x08,
+		RENDER_GROUND_CLOUD = 0x10,
+		RENDER_GODRAY		= 0x20,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -223,16 +227,31 @@ namespace SliceEngine
 	struct Camera
 	{
 		int width{ 1920 }, height{ 1080 };
-		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
+		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
 		float exposure{ 10.f };
+		float godRayFilterRadius{ 5.f };
+		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+
+		float cloudsHeight{ -110.f };
+		float cloudsAmplitude{ 49.f };
+		float cloudsIntensity{ 0.3f };
+		float cloudsSmoothness{ 0.0027f };
+		float cloudsCutoff{ 0.167f };
+		glm::vec4 cloudsColor{ 1.f,1.f,1.f,0.25f };
+		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
+		float cloudsSecondCloudAmplitude{ 49.f };
+		float cloudsSecondCloudIntensity{ 0.3f };
+		float cloudsSecondCloudSmoothness{ 0.0027f };
+		glm::vec4 cloudsSecondColor{ 1.f,1.f,1.f,0.25f };
+
 		float translucentSelectCutoff{ 0.2f };
 		unsigned char debugRenderToggles{};
 		unsigned char postRenderToggles{};
@@ -253,8 +272,6 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
-		GLuint depthMaps{};
-		GLuint shadowCubeMap{};
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -262,7 +279,7 @@ namespace SliceEngine
 
 	struct Prefab
 	{
-		unsigned int prefabID;
+		unsigned int prefabID{};
 
 		// GUID reference to original prefab
 		GUID prefabGUID{};
@@ -401,8 +418,7 @@ namespace SliceEngine
 		{
 			SFX,
 			BGM,
-			UI,
-			EditorSounds
+			UI
 		};
 		//std::string soundName;
 		bool componentEnabled{ true };
@@ -421,12 +437,12 @@ namespace SliceEngine
 		//3D effects
 		float dopplerLevel = 1.0f;
 		float spread = 1.0f;
-		VolumeRollOff volumeRollOff = Logarithmic;
+		VolumeRollOff volumeRollOff = Linear;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
-		bool enablePathfinding = false;
+		//bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
 
@@ -461,11 +477,12 @@ namespace SliceEngine
 	struct ParticleRenderPart
 	{
 		glm::mat4 transform{}; // has position, rotation, scale calculated
-		glm::vec4 colour{};
-
+		glm::vec4 colour{};		
 		GLuint64 textureID{};
 
+		float glowIntensity{};
 		bool isMeshParticle{false};
+		bool isIgnoreLights{ false };
 
 		GUID modelGUID;
 		GUID materialGUID;
@@ -486,7 +503,8 @@ namespace SliceEngine
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
-		float duration{};                       // how long the system should last, 0.0f = forever					
+		float duration{5.0f};                // how long the system should last, 0.0f = forever					
+		float initialDelay{};
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
 		bool followTransformRotation{ true };
@@ -563,7 +581,11 @@ namespace SliceEngine
 		// Shape-Shared params
 		float shapeRadius{ 0.1f };
 		glm::vec3 shapeScale{ 1.0f };
+		float innerShapeRadius{ 0.0f };
 
+		// Shape params that doesnt need to be saved
+		float inner3{};
+		float outer3{};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -575,9 +597,9 @@ namespace SliceEngine
 
 		// Start Lifetime
 		ValueType initialLifetimeType{ CONSTANT };
-		float lifetime{};
-		float minParticleLifetime{};
-		float maxParticleLifetime{};
+		float lifetime{5.0f};
+		float minParticleLifetime{ 5.0f };
+		float maxParticleLifetime{ 5.0f };
 
 		// Start Rotation (1-D spins to reduce workload for a cosmetic system, referencing Unity3D)
 		ValueType initialRotationType{ CONSTANT };
@@ -637,6 +659,13 @@ namespace SliceEngine
 		glm::vec3 startOrbitVelocity{1.0f};
 		glm::vec3 endOrbitVelocity{0.f};
 
+		// Post processing
+		ValueType glowValueType{ CONSTANT };
+		bool glow{ false };
+		float glowIntensity{};
+		float minGlowIntensity{};
+		float maxGlowIntensity{};
+
 		// Renderer
 		GLuint GetTextureID() const { return static_cast<GLuint>(textureGUID.GetGUID()); }
 
@@ -647,6 +676,7 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		bool alwaysFaceCamera{ true };
+		bool ignoreLights{ false };
 
 		GUID textureGUID;
 
@@ -655,6 +685,7 @@ namespace SliceEngine
 		Handle<SliceEngineTypes::Material> materialHandle;
 
 		// Internal
+		uint32_t particleLayer{ 0 };
 		std::vector<Particle> particles{};		// Main Storage of all particles
 		uint64_t awaitingIndex{};				// index that is waiting for ActivateParticle
 		uint64_t oldestIndex{};					// oldest particle index as backup when exceeding maxParticles, use this particle then +1 the index
@@ -663,6 +694,7 @@ namespace SliceEngine
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
 		bool isActive{ true };
+		float delayTimer{};
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
@@ -694,8 +726,10 @@ namespace SliceEngine
 
 		Handle<SliceEngineTypes::AnimationPackage> Handle_curr_anim_pkg;
 		Handle<SliceEngineTypes::Skeleton> Handle_skeleton;
+		Handle<SliceEngineTypes::SequencePackage> Handle_Anims;
 
 		SliceEngineTypes::AnimationPackage curr_anim_pkg;
+		SliceEngineTypes::SequencePackage curr_anims;
 		std::vector<SliceEngineTypes::AnimationKeyFrame> eventFrames;
 
 
@@ -756,9 +790,9 @@ namespace SliceEngine
 	struct Canvas
 	{
 		enum Type {
-			OVERLAY
+			OVERLAY,
 			//CAMERA
-			//WORLD
+			WORLD
 		};
 
 		bool componentEnabled{ true };
@@ -798,10 +832,13 @@ namespace SliceEngine
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
 
-		//Parent/Canvas reference - done via passing param through the recursive func call maybe
-		void Update(Canvas const& ctx, RectTransform const& parent);
+		//scales used for world space transformation only
+		float scale_x{}, scale_y{};
 
-		glm::mat4 ToMatrix() const;
+		//Parent/Canvas reference - done via passing param through the recursive func call maybe
+		void Update(RectTransform const& parent);
+
+		glm::mat4 ToMatrix() const noexcept;
 
 		RTTR_ENABLE();
 	};
@@ -810,7 +847,7 @@ namespace SliceEngine
 	struct SpriteRenderer {
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
-		glm::vec4 rgba{0.f, 0.f, 0.f, 1.f};
+		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
@@ -836,14 +873,15 @@ namespace SliceEngine
 		} alignment{ LEFT };
 
 
-		float font_size;
-		float line_spacing;	//multiplier of font_size
+		float font_size{};
+		float line_spacing{};	//multiplier of font_size
 		
-		std::string text{"Hello World\nNew Line"};
+		std::string text{"Hello World"};
 
 		struct Token {
 			//std::string text{};
-			const char* pos{};
+			//const char* pos{};
+			unsigned int pos{};
 			float size{};
 			unsigned int char_cnt{};
 		};
@@ -873,8 +911,7 @@ namespace SliceEngine
 			glm::vec4(0.75f, 0.75f, 0.75f, 1.f),//light grey
 			glm::vec4(0.5f, 0.5f, 0.5f, 1.f)//dark grey
 		};
-
-		GUID sprite_transitions[Total_States]{
+		std::array<GUID, Total_States> sprite_transitions{
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT,
 			(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT

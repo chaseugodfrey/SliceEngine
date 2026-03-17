@@ -22,6 +22,30 @@ namespace SliceEngine
 		//mEntity = mRegistry->create();
 	}
 
+	std::vector<Entity> GameObject::GetAllChildren()
+	{
+
+		if (HasComponent<SceneGraph>())
+		{
+			std::vector<Entity> children;
+			SceneGraph& sceneGraph = GetComponent<SceneGraph>();
+			Entity childEntity = sceneGraph.neighbours[SceneGraph::DOWN];
+			while (childEntity != entt::null)
+			{
+				children.push_back(childEntity);
+
+				GameObject childGO = FactoryInstance.GetGOByEntity(childEntity);
+				std::vector<Entity> childChildren = childGO.GetAllChildren();
+
+				children.insert(children.end(), childChildren.begin(), childChildren.end());
+				SceneGraph& childSceneGraph = mRegistry.get<SceneGraph>(childEntity);
+				childEntity = childSceneGraph.neighbours[SceneGraph::RIGHT];
+			}
+			return children;
+		}
+		return std::vector<Entity>();
+	}
+
 	void GameObject::SetName(std::string name)
 	{
 		if (HasComponent<SliceEntity>())

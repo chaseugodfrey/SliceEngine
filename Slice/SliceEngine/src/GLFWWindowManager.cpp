@@ -57,9 +57,46 @@ namespace SliceEngine
 		glfwSetWindowSize(window, width, height);
 	}
 
+	void GLFWWindowManager::FullScreenWindow()
+	{
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		auto vidMode = glfwGetVideoMode(monitor);
+
+		glfwSetWindowMonitor(window, monitor, 0, 0, vidMode->width, vidMode->height, vidMode->refreshRate);
+
+		glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_FALSE);
+
+		glfwMakeContextCurrent(window);
+
+
+		isFullScreen = true;
+
+	}
+
+	void GLFWWindowManager::NonFullScreenWindow()
+	{
+
+
+		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+
+		auto vidMode = glfwGetVideoMode(monitor);
+
+		glfwSetWindowMonitor(window, nullptr, 0, 25, vidMode->width, vidMode->height, vidMode->refreshRate);
+
+		glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
+
+		glfwSetWindowTitle(window, "Weight Of The Sky");
+
+		glfwMakeContextCurrent(window);
+
+		isFullScreen = false;
+	}
+
 	void GLFWWindowManager::CloseWindow()
 	{
-	
+
 		glfwDestroyWindow(window);
 		SLICE_LOG("Main Window Destroyed.");
 	}

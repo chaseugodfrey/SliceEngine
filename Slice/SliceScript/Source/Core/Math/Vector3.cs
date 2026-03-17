@@ -339,5 +339,13 @@ namespace SliceEngine
         {
             return v - Project(v, normal);
         }
+        public static Vector3 operator -(Vector3 v)
+        {
+            return new Vector3(-v.x, -v.y, -v.z);
+        }
+        public static Vector3 operator *(Vector3 v, double scale)
+        {
+            return new Vector3((float)(v.x * scale), (float)(v.y * scale), (float)(v.z * scale));
+        }
     }
 }

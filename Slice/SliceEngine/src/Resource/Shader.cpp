@@ -252,8 +252,7 @@ namespace SliceEngine
 		{
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
-			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
-			{"sat_Vec3", "vec3 sat_Vec3(vec3 x) {return clamp(x, vec3(0.0), vec3(1.0));}"},
+			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
 			{"SetV4F", R"(vec4 SetV4F(vec4 inv, float val, int n){
 switch(n){
 	case 0: return vec4(val, inv.gba);
@@ -355,35 +354,27 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_EMISSION", {"finalEmission = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
-			{"Vec2_f_f", {"vec2 %s = vec2(%s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC2, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec3_f_f_f", {"vec3 %s = vec3(%s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Vec4_f_f_f_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
+			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			
-			{"GetX_Vec2", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetY_Vec2", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
-			{"GetX_Vec3", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetY_Vec3", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetZ_Vec3", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC3}}},
-			{"GetX_Vec4", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetY_Vec4", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetZ_Vec4", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetA_Vec4", {"float %s = %s.a;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
-			{"GetRGB_Vec4", {"vec3 %s = %s.rgb;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
+			{"GetR", {"float %s = %s.x;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetG", {"float %s = %s.y;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetB", {"float %s = %s.z;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetA", {"float %s = %s.a;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
+			{"GetRGB", {"vec3 %s = %s.rgb;", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC3, {CSHAD_T::VEC4}}},
 
-			{"SetR_Vec4", {"vec4 %s = SetV4F(%s, %s, 0);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetG_Vec4", {"vec4 %s = SetV4F(%s, %s, 1);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetB_Vec4", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
-			{"SetA_Vec4", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetR", {"vec4 %s = SetV4F(%s, %s, 0);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetG", {"vec4 %s = SetV4F(%s, %s, 1);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetB", {"vec4 %s = SetV4F(%s, %s, 2);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
+			{"SetA", {"vec4 %s = SetV4F(%s, %s, 3);", "SetV4F", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::FLOAT}}},
 
-			{"sat_f", {"float %s = sat_f(%s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
-			{"sat_Vec3", {"vec3 %s = sat_Vec3(%s);", "sat_Vec3", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3,{CSHAD_T::VEC3}}},
+			{"Sine", {"float %s = sin(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"Cosine", {"float %s = cos(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
+			{"Sat", {"vec3 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
 			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
-			{"Mul_f", {"float %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Mul_Vec2", {"vec2 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
-			{"Mul_Vec3", {"vec3 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
-			{"Mul_Vec4", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"Multiply", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			{"One_Minus_f", {"float %s = 1.f - %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
 			{"Flip_Y_Vec2", {"vec2 %s = flipY(%s);","flipY", ShaderGraphFunc_T::MATH, CSHAD_T::VEC2, {CSHAD_T::VEC2}}},
 			
@@ -400,7 +391,9 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vPos", CSHAD_T::VEC3},
 			{"vNom", CSHAD_T::VEC3},
 			{"vUV", CSHAD_T::VEC2},
-			{"color", CSHAD_T::VEC4}
+			{"color", CSHAD_T::VEC4},
+			{"color2", CSHAD_T::VEC3},
+			{"time", CSHAD_T::FLOAT}
 		};
 		std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
 		{
@@ -532,7 +525,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			// Extract Functions
 			std::unordered_map<std::string, std::string> fragInclFunctions{};
 			std::string fragMainShaderSource{
-R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic)
+R"(void CustomCalc(in vec4 color, in vec3 color2, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic, inout vec3 finalEmission)
 {
 )"};
 			{
@@ -562,7 +555,7 @@ R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, i
 			}
 			LoadCShaderFunctions(fragMainShaderSource, fragInclFunctions, dataI, cshaderJson["Main"]);
 
-			std::string fragStart{
+			std::string opaqueInOuts{
 R"(#version 460 core
 // Custom Shader
 #extension GL_ARB_bindless_texture : require
@@ -577,17 +570,75 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec4 fMetalRoughData;
+layout (location=4) out vec3 fMetalRoughLightData;
+layout (location=5) out vec3 fEmission;
+)"};
+			std::string translucentInOuts{
+R"(#version 460 core
+// Custom Shader
+#extension GL_ARB_bindless_texture : require
 
+layout (location=0) in vec3 vPos; // In M Space
+layout (location=1) in vec3 vNom; // In MV Space
+layout (location=2) in vec2 vUV;
+layout (location=3) in flat uint vInstance;
+layout (location=4) in mat3 TBN;
+
+layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
+layout (location=1) out uint fGID;
+layout (location=2) out vec3 fEmission;
+
+struct Light{
+	vec3 position;
+	float uFarPlane;
+	vec3 direction;
+	int type;
+	vec4 color; // rgb + intensity
+};
+
+layout (std140, binding = 0) uniform lightSpaceBlock
+{
+	mat4 lightSpaceMtx[16];
+};
+layout (std140, binding = 1) uniform lights
+{
+	Light uLight[121];
+};
+
+layout (binding = 2) uniform samplerCube uSkyboxTex;
+layout (binding = 4) uniform sampler2DArray uShadowTex;
+layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap;
+
+const float PI = 3.14159265358979323846;
+const float EPSILON = 0.000001;
+// -TODO- Temporary material values
+const float ambient = 0.01;
+const float biasModifier = 0.5f;
+const int isDirectional = 0;
+const int isPoint 		= 1;
+const int isSpot 		= 2;
+const int maxLights = 10;
+
+uniform mat4 V;
+uniform int numLights;
+uniform float cascadePlaneDist[16];
+uniform int cascadeCnt;
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
+uniform float skyboxLightingPower = 1.0f;
+uniform bool willBloom = false;
+
+)"};
+			std::string fragStart{
+R"(
+uniform float time;
 
 struct BasicIDat
 {
 	mat4 mdlMtx;
 	uint entityID;
-	uint textureID; 
-	uint tex2ID;
+	uint isIgnoreLights; 
+	uint col2;
 	uint col;
 };
 
@@ -629,8 +680,8 @@ float ExtractFloat(int num)
 }
 )"};
 			// GLSL Main Func
-			std::string fragEnd{
-R"(
+			std::string opaqueFragEnd{
+	R"(
 void main(void){
 
 	fPositionData = vPos;
@@ -641,72 +692,340 @@ void main(void){
 	float(iDat[vInstance].col >> 8 & 0xFF),
 	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
+	vec3 color2 = vec3(
+	float(iDat[vInstance].col2 >> 24 & 0xFF),
+	float(iDat[vInstance].col2 >> 16 & 0xFF),
+	float(iDat[vInstance].col2 >> 8 & 0xFF)) / float(0xFF);
+
 	fFragColor = vec4(0.f);
 	float roughness = 0.f;
 	float metallic = 0.f;
-	CustomCalc(color, fFragColor, fNormalData, roughness, metallic);
+	fEmission = vec3(0.0f);
+	CustomCalc(color, color2, fFragColor, fNormalData, roughness, metallic, fEmission);
  
-	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
+	if(fFragColor.a < 0.00001f)
 		discard;
 
 	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughData.xy = vec2(roughness, metallic);
-})"};
+	fMetalRoughLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
+})" };
+
+			std::string translucentFragEnd{
+R"(
+float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights);
+vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
+vec3 GetRandDir(vec3 seed);
+
+void main(void){
+
+	vec3 nom = vNom;
+	vec4 color = vec4(
+	float(iDat[vInstance].col >> 24 & 0xFF),
+	float(iDat[vInstance].col >> 16 & 0xFF),
+	float(iDat[vInstance].col >> 8 & 0xFF),
+	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
+
+	vec3 color2 = vec3(
+	float(iDat[vInstance].col2 >> 24 & 0xFF),
+	float(iDat[vInstance].col2 >> 16 & 0xFF),
+	float(iDat[vInstance].col2 >> 8 & 0xFF)) / float(0xFF);
+
+	fFragColor = vec4(0.f);
+	float roughness = 0.f;
+	float metallic = 0.f;
+	vec3 emission = vec3(0.0f);
+	CustomCalc(color, color2, fFragColor, nom, roughness, metallic, emission);
+ 
+	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
+		discard;
+
+    fGID = iDat[vInstance].entityID;
+    if(translucentIDOnly == 1)
+		return;
+	
+	fEmission = emission;    
+
+    vec4 dif = fFragColor;
+   
+	if(any(notEqual(nom, vec3(0.0f))) && iDat[vInstance].isIgnoreLights == 0)
+	{
+		nom = normalize(nom);
+
+        vec3 skyAmbient = texture(uSkyboxTex, nom).rgb * skyboxLightingPower;
+        fFragColor = vec4(dif.rgb * skyAmbient, dif.a);
+
+        // Copies lighting_Frag code
+		vec3 v = normalize(-vPos);
+		
+		int numDirectionalLight = 0;
+		for(int lightCnt = 0; lightCnt < numLights; ++lightCnt)
+        {
+	    	if(uLight[lightCnt].type == isDirectional)
+	    	{
+                if(numDirectionalLight > 0)
+                    continue; // -TODO- Only support 1 directional light for now
+	    		vec4 fragViewSpace = V * vec4(vPos, 1.0f);
+	    		float depthVal = abs(fragViewSpace.z);
+	    		int layer = -1;
+	    		for(int i = 0; i < cascadeCnt; ++i)
+	    		{
+	    			if(depthVal <= cascadePlaneDist[i])
+	    			{
+	    				layer = i;
+	    				break;
+	    			}
+	    		}
+	    		if(layer == -1)
+	    		{
+	    			layer = cascadeCnt - 1;
+	    		}
+
+	    		vec4 vLightPos = lightSpaceMtx[layer] * vec4(vPos, 1.0f);
+	    		vec3 projCoords = vLightPos.xyz / vLightPos.w;
+	    		projCoords = projCoords * 0.5f + 0.5f;
+
+	    		vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
+
+	    		vec3 l = normalize(-uLight[lightCnt].direction);// Surface to Light
+	    		float shadow = getShadowMulti(nom, l, projCoords, layer);
+	    		finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight[lightCnt].color.rgb * uLight[lightCnt].color.a, l, dif.rgb, roughness, metallic);
+	    		fFragColor += vec4(finalLighting, 0.0f);
+                ++numDirectionalLight;
+	    	}
+	    	else if(uLight[lightCnt].type == isPoint)
+	    	{
+	    		vec3 l = uLight[lightCnt].position - vPos; // Surface to Light
+	    		float dist = length(l);
+	    		vec4 lightCol = uLight[lightCnt].color;
+	    		lightCol.a /= (dist * dist); // Intensity is normalized, so scale up by 100?
+
+	    		float shadow = getShadowCubeMulti(nom, l, length(vPos), dist, lightCnt, numDirectionalLight);
+	    		l = l / dist;
+	    		fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic)), 0.0f);
+	    	}
+
+        }
+	}
+	if(!willBloom)
+		fFragColor += vec4(fEmission, 0.0f);
+}
+
+
+float GgxDistribution(float nDotH, float rough)
+{
+	float alpha2 = rough * rough * rough * rough;
+	float d = nDotH * nDotH * (alpha2 - 1.0) + 1.0;
+	return alpha2 / (PI * d * d);
+}
+
+vec3 SchlickFresnel(float lDotH, vec3 dif, float metal)
+{
+	vec3 f0 = vec3(0.04); // -TODO- Dielectrics
+
+	f0 = mix(f0, dif, metal);
+	return f0 + (1.0 - f0) * pow(clamp(1.0 - lDotH, 0.0, 1.0), 5.0);
+}
+
+float GeomSmith(float nDotL, float rough)
+{
+	float k = (rough + 1.0) * (rough + 1.0) / 8.0;
+	float d = nDotL * (1.0 - k) + k;
+	return nDotL / d;
+}
+
+vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal)
+{
+	vec3 h = normalize(v + l);
+	float nDotH = clamp(dot(n, h), 0.0, 1.0);
+	float vDotH = clamp(dot(v, h), 0.0, 1.0);
+	float nDotL = clamp(dot(n, l), 0.0, 1.0);
+	float nDotV = abs(dot(n, v)) + 1e-5;
+	
+	vec3 F = SchlickFresnel(vDotH, dif, metal);
+	vec3 kD = 1.0 - F;
+	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
+					F *
+					GeomSmith(nDotL, rough) *
+					GeomSmith(nDotV, rough);
+	float specBRDF_denom = 4.0 * nDotV * nDotL + 1e-5;
+	vec3 specBPDF = specBRDF_nom / specBRDF_denom;
+	vec3 diffuseBRDF = kD * dif / PI;
+	return (diffuseBRDF + specBPDF) * lightCol * nDotL;
+}
+
+float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer)
+{
+	if(projCoords.z > 1.0)
+        return 0.0;
+	
+	float baseBias = max(0.05 * (1.0 - dot(n, l)), 0.005);
+	float bias = baseBias * (cascadePlaneDist[layer] * 0.001);
+
+	// PCF
+	float shadow = 0.0;
+	vec2 texelSize = 1.0 / vec2(textureSize(uShadowTex, 0));
+	for(int x = -1; x <= 1; ++x)
+	{
+		for(int y = -1; y <= 1; ++y)
+		{
+			float pcfDepth = texture(uShadowTex, vec3(projCoords.xy + vec2(x,y) * texelSize, layer)).r;
+			shadow += projCoords.z - bias > pcfDepth ? 1.0 : 0.0;
+		}
+	}
+
+	return shadow / 9.0;
+}
+
+
+// array of offset direction for sampling
+vec3 gridSamplingDisk[20] = vec3[]
+(
+   vec3(1, 1,  1), vec3( 1, -1,  1), vec3(-1, -1,  1), vec3(-1, 1,  1), 
+   vec3(1, 1, -1), vec3( 1, -1, -1), vec3(-1, -1, -1), vec3(-1, 1, -1),
+   vec3(1, 1,  0), vec3( 1, -1,  0), vec3(-1, -1,  0), vec3(-1, 1,  0),
+   vec3(1, 0,  1), vec3(-1,  0,  1), vec3( 1,  0, -1), vec3(-1, 0, -1),
+   vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
+);
+
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights)
+{
+	vec3 fragToLight = -l;
+
+	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	float diskRadius = (1.0 + (viewDist / 20.0)) / 25.0;
+	
+	int samples = 20;
+	float shadow = 0.0;
+
+	vec3 noise = GetRandDir(vec3(gl_FragCoord.xy, 0.0));
+
+	for(int i = 0; i < samples; ++i)
+	{
+		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
+
+		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(lightIdx - numDirLights))).r;
+		closestDepth *= uLight[lightIdx].uFarPlane;
+		if(dist - bias > closestDepth)
+			shadow += 1.0;
+	}
+	return shadow /= float(samples);
+}
+
+vec3 GetRandDir(vec3 seed)
+{
+	float j = 4096.0 * sin(dot(seed, vec3(17.0, 59.4, 15.0)));
+	vec3 r;
+	r.z = fract(512.0 * j);
+	j *= .125;
+	r.x = fract(512.0 * j);
+	j *= .125;
+	r.y = fract(512.0 * j);
+	return r - 0.5;
+}
+)" };
 
 			// Combine all the texts
-			fragStart += fragNumExtraElems;
-			for (auto& i : fragInclFunctions)
-				fragStart += cShaderPredefines.find(i.first)->second + "\n";
-			fragStart += fragMainShaderSource + fragEnd;
-			GLchar const* frag_shader_code[] = { fragStart.c_str() };
 
+			std::string sharedFragCode = fragStart + fragNumExtraElems;
+			for (auto& i : fragInclFunctions)
+				sharedFragCode += cShaderPredefines.find(i.first)->second + "\n";
+			sharedFragCode += fragMainShaderSource;
+
+			std::string opaqueFrag = opaqueInOuts + sharedFragCode + opaqueFragEnd;
+			std::string translucentFrag = translucentInOuts + sharedFragCode + translucentFragEnd;
+			GLchar const* opq_frag_shader_code[] = { opaqueFrag.c_str() };
+			GLchar const* trq_frag_shader_code[] = { translucentFrag.c_str() };
 			// -----------------------------------------------------------
 			// Start GLSL compiling
 			int success;
 			char infoLog[512];
-			GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragShader, 1, frag_shader_code, nullptr);
-			glCompileShader(fragShader);
-			glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
-			if (!success)
-			{
-				glGetShaderInfoLog(fragShader, 512, nullptr, infoLog);
-				SLICE_LOG_WARNING("Unable to compile custom fragment shader:" + std::string(infoLog));
-
-				return {};
-			}
-
 			//*********************************************************
 			std::string VertexShaderName{"Shaders/deferred_Vert.vert"};
 			//*********************************************************
 			
-			GLuint shader = glCreateProgram();
-			glAttachShader(shader, Core::GetInstance()->GetResourceManager()->get<VertShader>(VertexShaderName).get()->s);
-			glAttachShader(shader, fragShader);
-			glLinkProgram(shader);
-
-			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			// -----------------------------------------------------------
+			// Opaque Frag Shader
+			GLuint opaqueFragShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(opaqueFragShader, 1, opq_frag_shader_code, nullptr);
+			glCompileShader(opaqueFragShader);
+			glGetShaderiv(opaqueFragShader, GL_COMPILE_STATUS, &success);
 			if (!success)
 			{
-				glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+				glGetShaderInfoLog(opaqueFragShader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Unable to compile custom opaque fragment shader:" + std::string(infoLog));
+
+				return {};
+			}
+			GLuint opqShader = glCreateProgram();
+			glAttachShader(opqShader, Core::GetInstance()->GetResourceManager()->get<VertShader>(VertexShaderName).get()->s);
+			glAttachShader(opqShader, opaqueFragShader);
+			glLinkProgram(opqShader);
+
+			glGetProgramiv(opqShader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(opqShader, 512, nullptr, infoLog);
 				SLICE_LOG_WARNING("Link / Compile Custom Shader Failed:" + std::string(infoLog));
-				glDeleteShader(fragShader);
+				glDeleteShader(opaqueFragShader);
 				return {};
 			}
-			glValidateProgram(shader);
-			glGetProgramiv(shader, GL_LINK_STATUS, &success);
+			glValidateProgram(opqShader);
+			glGetProgramiv(opqShader, GL_LINK_STATUS, &success);
 			if (!success)
 			{
-				glGetShaderInfoLog(shader, 512, nullptr, infoLog);
+				glGetShaderInfoLog(opqShader, 512, nullptr, infoLog);
 				SLICE_LOG_WARNING("Validate Custom Shader Failed:" + std::string(infoLog));
-				glDeleteShader(fragShader);
+				glDeleteShader(opaqueFragShader);
 				return {};
 			}
 
-			glDeleteShader(fragShader);
-			return { shader, dataIn };
+			glDeleteShader(opaqueFragShader);
+
+			// -----------------------------------------------------------
+			// Translucent Frag Shader
+			GLuint translucentFragShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(translucentFragShader, 1, trq_frag_shader_code, nullptr);
+			glCompileShader(translucentFragShader);
+			glGetShaderiv(translucentFragShader, GL_COMPILE_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(translucentFragShader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Unable to compile custom translucent fragment shader:" + std::string(infoLog));
+
+				return {};
+			}
+
+			GLuint trqShader = glCreateProgram();
+			glAttachShader(trqShader, Core::GetInstance()->GetResourceManager()->get<VertShader>(VertexShaderName).get()->s);
+			glAttachShader(trqShader, translucentFragShader);
+			glLinkProgram(trqShader);
+
+			glGetProgramiv(trqShader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(trqShader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Link / Compile Custom Shader Failed:" + std::string(infoLog));
+				glDeleteShader(translucentFragShader);
+				return {};
+			}
+			glValidateProgram(trqShader);
+			glGetProgramiv(trqShader, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				glGetShaderInfoLog(trqShader, 512, nullptr, infoLog);
+				SLICE_LOG_WARNING("Validate Custom Shader Failed:" + std::string(infoLog));
+				glDeleteShader(translucentFragShader);
+				return {};
+			}
+
+			glDeleteShader(translucentFragShader);
+
+
+
+			return { opqShader, trqShader, dataIn };
 		}
 
 		namespace
@@ -869,8 +1188,10 @@ void main(void){
 		}
 		void CustomShader::DestroyCShader()
 		{
-			glDeleteShader(s);
-			s = 0;
+			glDeleteShader(opaqueS);
+			opaqueS = 0;
+			glDeleteShader(translucentS);
+			translucentS = 0;
 			dataIn.clear();
 		}
 #pragma endregion

@@ -159,7 +159,15 @@ namespace SliceEngine
     void ScriptSystem::InitMono()
     {
         // while (true) {};
-        mono_set_assemblies_path("thirdparty/Mono/bin");
+        std::string assemblyBinPath = "Data/thirdparty/Mono/bin";
+
+        if (!std::filesystem::exists(assemblyBinPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyBinPath = "thirdparty/Mono/bin";
+        }
+
+        mono_set_assemblies_path(assemblyBinPath.c_str());
 
         //mRootDomain = rootDomain;
         if (debug)
@@ -189,8 +197,16 @@ namespace SliceEngine
             mono_debug_domain_create(mRootDomain);
         }
 
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+
+        LoadMonoAssembly(assemblyPath);
 
 
         PrintAssemblyTypes(mCoreAssembly);
@@ -327,7 +343,17 @@ namespace SliceEngine
             mAppDomain = nullptr;
         }
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
+
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+        LoadMonoAssembly(assemblyPath);
+
+        //LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
         //ScriptFunctions::RegisterFunctions();
         LoadEntityClasses();
@@ -465,6 +491,8 @@ namespace SliceEngine
             if (!scriptComponent.componentEnabled)
                 continue;
 
+            if (entityConstructed.contains(id))
+				continue;
 
             scriptRef->InvokeOnConstruct((unsigned int)id);
         }
@@ -474,6 +502,9 @@ namespace SliceEngine
             //continue if disabled
             auto& scriptComponent = mRegistry->get<Script>(id);
             if (!scriptComponent.componentEnabled)
+                continue;
+
+            if (entityConstructed.contains(id))
                 continue;
 
             scriptRef->InvokeOnAwake();
@@ -487,9 +518,21 @@ namespace SliceEngine
             if (!scriptComponent.componentEnabled)
                 continue;
 
+            if (entityConstructed.contains(id))
+                continue;
+
             scriptRef->InvokeOnCreate();
             UpdateScriptComponent(id);
         }
+
+        //for (const auto& id : entityConstructed)
+        //{
+        //    mEntityInstances[id]->InvokeOnAwake();
+        //    mEntityInstances[id]->InvokeOnCreate();
+
+        //}
+
+        entityConstructed.clear();
     }
 
     void ScriptSystem::OnUpdate(float dt)
@@ -661,21 +704,54 @@ namespace SliceEngine
             }
         }
 
-       /* if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+        if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
         {
-            for (auto entity : entityToInit)
-            {
-                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
-            }
+            
+
+            //for (auto entity : entityToInit)
+            //{
+            //    auto& scriptComponent = mRegistry->get<Script>(entity);
+
+            //    std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+            //    mEntityInstances[entity] = instance;
+
+            //    // in the script component
+            //    UpdateScriptVariables(entity);
+
+            //    // idk incase it isnt populated the first time
+            //    UpdateScriptComponent(entity);
+
+            //    mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+            //}
 
             for(auto entity: entityToInit)
             {
+                if (mEntityInstances.count(entity) == 0)
+                {
+                            auto& scriptComponent = mRegistry->get<Script>(entity);
+
+                            std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+                            mEntityInstances[entity] = instance;
+
+                            // in the script component
+                            UpdateScriptVariables(entity);
+
+                            // idk incase it isnt populated the first time
+                            UpdateScriptComponent(entity);
+
+                            mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+
+                }
                 mEntityInstances[entity]->InvokeOnAwake();
+            }
+
+            for (auto entity : entityToInit)
+            {
                 mEntityInstances[entity]->InvokeOnCreate();
             }
 
             entityToInit.clear();
-        }*/
+        }
 
 
     }
@@ -1007,41 +1083,72 @@ namespace SliceEngine
         auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
-            //static bool tempFlagToTestScriptListShit = false;
-            std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
-            mEntityInstances[entity] = instance;
+            //std::cout << "Loading" << scriptComponent.scriptName << "for entity " << (unsigned int)entity << std::endl;
+            //std::cout << "curr state " << Core::GetInstance()->GetSceneSystem()->mCurrentState << std::endl;
+            //std::cout << "next state " << Core::GetInstance()->GetSceneSystem()->mNextState << std::endl;
 
-
-            // Update the variables in script instance with variables 
-            // in the script component
-            UpdateScriptVariables(entity);
-
-            //if (scriptComponent.scriptName == "SliceEngine.Spawner" && tempFlagToTestScriptListShit == false)
-            //{ 
-            //    tempFlagToTestScriptListShit = true;
-            //// jus testing if add list field value worked
-            //    // i need test if serializing it works first
-            //    mEntityInstances[entity]->AddListFieldValue("testList", 2.0f);
-            //}
-
-            // idk incase it isnt populated the first time
-            UpdateScriptComponent(entity);
-            // Check if an entity is created on runtime
-            // if it is then we have to invoke the construct and oncreate
-            // but again after M1 
-
-            // for now we just invoke the moment it has been added
-            if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+            if(Core::GetInstance()->GetSceneSystem()->mCurrentState != SceneState::PLAY_SCENE && Core::GetInstance()->GetSceneSystem()->mNextState == SceneState::PLAY_SCENE)
             {
-               // entityToInit.insert(entity);
+                //static bool tempFlagToTestScriptListShit = false;
+                std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+                mEntityInstances[entity] = instance;
+
+                // in the script component
+                UpdateScriptVariables(entity);
+
+                // idk incase it isnt populated the first time
+                UpdateScriptComponent(entity);
+                entityConstructed.insert(entity);
+                // construct first but awake and create after all entities has been resolved
                 mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
                 mEntityInstances[entity]->InvokeOnAwake();
                 mEntityInstances[entity]->InvokeOnCreate();
 
             }
+            else if (Core::GetInstance()->GetSceneSystem()->mCurrentState == SceneState::PLAY_SCENE)
+             {
+                if (isChangingScene)
+                    entityToInit.insert(entity);
+
+                std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+                mEntityInstances[entity] = instance;
+
+                // in the script component
+                UpdateScriptVariables(entity);
+
+                // idk incase it isnt populated the first time
+                UpdateScriptComponent(entity);
+                mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+                if (!isChangingScene)
+                {
+                    mEntityInstances[entity]->InvokeOnAwake();
+                    mEntityInstances[entity]->InvokeOnCreate();
+                }
+            //mEntityInstances[entity]->InvokeOnConstruct((unsigned int)entity);
+
+
+            //mEntityInstances[entity]->InvokeOnAwake();
+            //mEntityInstances[entity]->InvokeOnCreate();
+
+            }
+            else // in normal editor mode
+            {
+                //static bool tempFlagToTestScriptListShit = false;
+                std::shared_ptr<ScriptObject> instance = std::make_shared<ScriptObject>(mEntityClasses[scriptComponent.scriptName], entity);
+                mEntityInstances[entity] = instance;
+
+                // in the script component
+                UpdateScriptVariables(entity);
+
+                // idk incase it isnt populated the first time
+                UpdateScriptComponent(entity);
+
+            }
         }
         else
         {
+            std::cout << "no script component name " << "for entity " << (unsigned int)entity << std::endl;
+
             // Script not assigned yet, so add to the entity added list
             // to check later
             entityAdded.push_back(entity);
@@ -1095,6 +1202,15 @@ namespace SliceEngine
             if (*it2 == entity)
             {
                 entityAdded.erase(it2);
+                break;
+            }
+        }
+        
+        for (auto it2 = entityToInit.begin(); it2 != entityToInit.end(); ++it2)
+        {
+            if (*it2 == entity)
+            {
+                entityToInit.erase(it2);
                 break;
             }
         }
@@ -1432,6 +1548,8 @@ namespace SliceEngine
 
         //UI System
         eventManager->Subscribe<OnButtonClickEvent, &ScriptSystem::OnButtonClick>(this);
+        eventManager->Subscribe<OnButtonHoverEvent, &ScriptSystem::OnButtonHover>(this);
+        eventManager->Subscribe<OnButtonExitHoverEvent, &ScriptSystem::OnButtonExitHover>(this);
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
@@ -1545,7 +1663,7 @@ namespace SliceEngine
             if (mCollisionQueue.empty()) return;
             tempQueue.swap(mCollisionQueue);
         }
-        std::cout << tempQueue.size() << std::endl;
+        //std::cout << tempQueue.size() << std::endl;
         for (const auto& event : tempQueue)
         {
             // make sure entity is still alive
@@ -1748,6 +1866,29 @@ namespace SliceEngine
         if (scriptInstance)
         {
             scriptInstance->InvokeButtonOnClick();
+        }
+    }
+    void ScriptSystem::OnButtonHover(const OnButtonHoverEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnHover();
+        }
+    }
+
+    void ScriptSystem::OnButtonExitHover(const OnButtonExitHoverEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnExitHover();
         }
     }
 

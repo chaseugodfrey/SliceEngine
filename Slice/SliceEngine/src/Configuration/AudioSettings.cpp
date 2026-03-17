@@ -475,6 +475,9 @@ namespace SliceEngine
             if (FactoryInstance.SetParent(newAudioObject.GetEntity(), audioManagerObject.GetEntity()))
             {
                 AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
+                Transform& audioPos = newAudioObject.GetComponent<Transform>();
+
+                audioPos.position = position;
 
                 audioComp.soundGUID = clipGUID;
 
@@ -496,9 +499,15 @@ namespace SliceEngine
                 if (audioComp.channel == nullptr || !isSFXPlaying)
                 {
                 
-                    audioComp.channel =  audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+                    audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
 
                 }
+                /*if (audioComp.channel)
+                {
+                
+                    audioComp.channel =  audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+                }*/
 
             }
             else
@@ -511,22 +520,33 @@ namespace SliceEngine
         else
         {
             AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
+            Transform& audioPos = audioObject.GetComponent<Transform>();
+
+            audioPos.position = position;
 
             //auto& transform = audioObject.GetComponent<Transform>();
 
             audioComp.soundGUID = clipGUID;
+
+            //bool isSFXPlaying = false;
 
             bool isSFXPlaying = false;
 
             if (audioComp.channel)
                 audioComp.channel->isPlaying(&isSFXPlaying);
 
-            if ((audioComp.channel == nullptr || !isSFXPlaying))
+            if (audioComp.channel == nullptr || !isSFXPlaying)
+            {
+            
+                audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
+
+            }
+            /*if (audioComp.channel)
             {
 
                 audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
 
-            }
+            }*/
         }
 
 

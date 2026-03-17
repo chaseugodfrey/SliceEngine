@@ -58,7 +58,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
@@ -86,7 +86,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
-      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -122,6 +122,7 @@
     <ClInclude Include="src\Configuration\ProjectSettings.h" />
     <ClInclude Include="src\Configuration\ProjectSettingsIncludes.h" />
     <ClInclude Include="src\Configuration\ProjectSettingsManager.h" />
+    <ClInclude Include="src\Configuration\SkyboxSettings.h" />
     <ClInclude Include="src\Core\ComponentEventHandler.h" />
     <ClInclude Include="src\Core\ComponentModified.h" />
     <ClInclude Include="src\Core\Core.h" />
@@ -195,11 +196,13 @@
     <ClCompile Include="src\Configuration\PhysicsSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettings.cpp" />
     <ClCompile Include="src\Configuration\ProjectSettingsManager.cpp" />
+    <ClCompile Include="src\Configuration\SkyboxSettings.cpp" />
     <ClCompile Include="src\Core\ComponentEventHandler.cpp" />
     <ClCompile Include="src\Core\ComponentModified.cpp" />
     <ClCompile Include="src\Core\Core.cpp" />
     <ClCompile Include="src\Core\EventManager.cpp" />
     <ClCompile Include="src\Core\LayerEventHandler.cpp" />
+    <ClCompile Include="src\ECS\ECSTypes.cpp" />
     <ClCompile Include="src\ECS\GOFactory.cpp" />
     <ClCompile Include="src\ECS\GameObject.cpp" />
     <ClCompile Include="src\Engine.cpp" />

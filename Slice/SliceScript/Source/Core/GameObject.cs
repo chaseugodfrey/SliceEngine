@@ -11,6 +11,19 @@ namespace SliceEngine
             mID = id;
         }
 
+        public string tag
+        {
+            get
+            {
+                return FunctionCalls.Entity_GetTag(mID);
+            }
+
+            set
+            {
+                FunctionCalls.Entity_SetTag(mID, value);
+            }
+        }
+
         public bool HasComponent<T>() where T : Component, new()
         {
             Type componentType = typeof(T);
@@ -69,7 +82,24 @@ namespace SliceEngine
             return FunctionCalls.HasScriptInstance(mID, baseClassName);
         }
 
+        public GameObject[] GetAllChildren()
+        {
+            uint[] entityIDs = FunctionCalls.Entity_GetAllChildren(mID);
 
+            GameObject[] gameObjects = new GameObject[entityIDs.Length];
+
+            for (int i = 0; i < entityIDs.Length; i++)
+            {
+                gameObjects[i] = new GameObject(entityIDs[i]);
+            }
+
+            if (gameObjects.Length == 0)
+            {
+                return null;
+            }
+
+            return gameObjects;
+        }
 
         public GameObject[] FindGameObjectsWithTag(string tag)
         {
@@ -107,6 +137,11 @@ namespace SliceEngine
             return new GameObject(entityID);
         }
 
+        public void SetParent(GameObject parent)
+        {
+            FunctionCalls.Entity_SetParent(mID, parent.mID);
+        }
+
         public GameObject FindGameObjectWithID(uint id)
         {
             uint entityID = FunctionCalls.Entity_FindEntityWithID(id);
@@ -120,12 +155,12 @@ namespace SliceEngine
         {
             if (mID != 0)
             {
-                SliceLog.Log("Enemy dying with id: " + mID);
+                //SliceLog.Log("GameObject dying with id: " + mID);
                 FunctionCalls.Destroy(mID);
                 CoroutineManager.EntityDestroyed(mID);
                 return;
             }
-            SliceLog.Log("Killing an enemy with 0 id");
+            //SliceLog.Log("Killing an Gameobject with 0 id");
             
             //mID = 0;
         }
@@ -148,7 +183,17 @@ namespace SliceEngine
         {
             return (int)mID;
         }
+        
+        public bool isValid()
+        {
+            if (!FunctionCalls.Entity_IsValid(mID))
+            {
+                mID = 0;
+                return false;
+            }
 
+            return true;
+        }
         public static bool operator ==(GameObject lhs, GameObject rhs)
         {
             if (ReferenceEquals(lhs, rhs)) return true;

@@ -98,18 +98,6 @@ namespace SliceEngine
 				//return Handle<T>();
 			}
 
-			//if (assetGUID == (GUID)10819322238111217941)
-			//{
-			//	SLICE_LOG_DEBUG("GETTING MATERIAL");
-			//}
-
-
-			auto it = mInstances.find(assetGUID);
-			if (it != mInstances.end())
-			{
-				//it->second.refCount++;
-				return Handle<T>(*this, &it->second, assetGUID);
-			}
 
 			// Asset not loaded, so load the asset
 			std::string path = "";
@@ -130,7 +118,13 @@ namespace SliceEngine
 				//SLICE_LOG_ERROR("Resource with GUID {} not found and no default resource available." + std::to_string(assetGUID.GetGUID()));
 				return Handle<T>();
 			}
-
+			
+			auto it = mInstances.find(assetGUID);
+			if (it != mInstances.end())
+			{
+				//it->second.refCount++;
+				return Handle<T>(*this, &it->second, assetGUID);
+			}
 
 			std::unique_ptr<T> data = Type<T>::Load(*this,/* guid.GetGUID(),*/ path);
 			if (!data)

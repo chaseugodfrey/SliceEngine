@@ -18,7 +18,7 @@ namespace SliceEngine
 
         //public static int frameCount = 0;
 
-        //public static float fixedDeltaTime = 0.02f;
+        public static float fixedDeltaTime = 1f/60f;
         //public static float fixedTime = 0.0f;
 
         // Idk if we want to do this for timeScale

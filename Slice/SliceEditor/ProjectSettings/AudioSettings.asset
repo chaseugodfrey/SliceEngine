@@ -12,7 +12,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -22,11 +22,11 @@
             "key": "Jump",
             "maxDistance": 30.0,
             "maxInstances": 8,
-            "minDistance": 1.0,
+            "minDistance": 0.0,
             "minInterval": 0.0,
             "spatialBlend": 0.0,
-            "volume": 0.5,
-            "volumeRollOff": 0
+            "volume": 0.10000000149011612,
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -41,7 +41,23 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                10718644567249144634,
+                12510399732508655228,
+                13440781433114437033
+            ],
+            "isSpatial": false,
+            "key": "SwordHit",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -55,7 +71,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -69,7 +85,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.6000000238418579,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -83,7 +99,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 1.0,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -97,7 +113,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 1.0,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -110,8 +126,24 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 0.0,
-            "volume": 0.699999988079071,
-            "volumeRollOff": 0
+            "volume": 0.20000000298023224,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                10305650555020226811,
+                15218661569640235272,
+                16799327444022259943
+            ],
+            "isSpatial": false,
+            "key": "PlayerHit",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.6000000238418579,
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -124,8 +156,8 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
-            "volumeRollOff": 0
+            "volume": 0.5,
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -139,77 +171,7 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.699999988079071,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                10633741978937811452
-            ],
-            "isSpatial": true,
-            "key": "Golem_Stop",
-            "maxDistance": 60.0,
-            "maxInstances": -1,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.30000001192092896,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                18190530176056244177
-            ],
-            "isSpatial": true,
-            "key": "Golem_RightStomp",
-            "maxDistance": 60.0,
-            "maxInstances": -1,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.30000001192092896,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                16821803797395721382
-            ],
-            "isSpatial": true,
-            "key": "Golem_PreStop",
-            "maxDistance": 60.0,
-            "maxInstances": -1,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.20000000298023224,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                17410170969615213344
-            ],
-            "isSpatial": true,
-            "key": "Golem_Stand",
-            "maxDistance": 60.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.30000001192092896,
-            "volumeRollOff": 0
-        },
-        {
-            "AudioClips": [
-                16821803797395721382
-            ],
-            "isSpatial": true,
-            "key": "Golem_LeftStomp",
-            "maxDistance": 60.0,
-            "maxInstances": -1,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.30000001192092896,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
         },
         {
             "AudioClips": [
@@ -223,7 +185,49 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.20000000298023224,
-            "volumeRollOff": 0
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                13552891661274492760
+            ],
+            "isSpatial": true,
+            "key": "EnemyProjectile",
+            "maxDistance": 300.0,
+            "maxInstances": 10,
+            "minDistance": 10.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                11243930446659405203
+            ],
+            "isSpatial": false,
+            "key": "PlayerHitLazer",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.4000000059604645,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                17624821668510436491
+            ],
+            "isSpatial": false,
+            "key": "Smash",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.4000000059604645,
+            "volumeRollOff": 1
         }
     ]
 }

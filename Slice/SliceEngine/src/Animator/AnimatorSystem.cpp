@@ -40,7 +40,7 @@ namespace SliceEngine
 	void AnimatorSystem::UpdateAnimation(entt::registry& reg, entt::entity entity, Animator& animator, float dt)
 	{
 		//if (!animator.stateMachine.EFSM.IsValid()) return;
-		if (!animator.IsValid())
+		if (!animator.Handle_stateMachine.IsValid())
 		{
 			InitAnimatorEntity(reg, entity);
 		}
@@ -80,7 +80,7 @@ namespace SliceEngine
 		if (animator.timeline.isPlaying)
 		{
 			//Bone animation
-			if (animator.is_bone) {
+			if (animator.Handle_skeleton.IsValid()) {
 				if(animator.curr_anim_pkg.animations.size() > 0)
 				{
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
@@ -130,7 +130,53 @@ namespace SliceEngine
 			//non bone animation
 			else 
 			{
+				if (animator.curr_anims.animations.size() > 0)
+				{
+					auto& anim = animator.curr_anims.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
+					if (anim.duration <= 0.0f)
+					{
+						animator.current_time = 0.0f;
+					}
+					else
+					{
+						animator.current_time += dt;
 
+						// publish animation key frame event
+						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
+						for (auto eventFrame : animator.eventFrames)
+						{
+							//SLICE_LOG_VALUES("Event Frame:", eventFrame.frameNumber, "Current Frame:", currentFrame, "Anim Idx:", eventFrame.animIdx, "Curr Anim Idx:", animator.stateMachine.EFSM.currState->curr_anim_idx);
+							if (eventFrame.frameNumber == currentFrame && eventFrame.animIdx == animator.stateMachine.EFSM.currState->curr_anim_idx)
+							{
+								// publish event
+								AnimationEvent addEvent{ eventFrame.scriptFunc,eventFrame.scriptName, entity };
+								EventManager::GetInstance()->Publish<AnimationEvent>(addEvent);
+							}
+						}
+
+						if (animator.current_time > anim.duration)
+						{
+
+							if (!animator.stateMachine.EFSM.currState->isLoop)
+							{
+								animator.timeline.isPlaying = false;
+								// fsm set time
+								return;
+							}
+							else
+							{
+								animator.timeline.isPlaying = true;
+								animator.current_time = std::fmod(animator.current_time, anim.duration);
+							}
+						}
+
+					}
+
+					// this has to  be my own not the skeleton 1
+					float safe_time = std::min(animator.current_time, anim.duration);
+
+					anim.UpdateTransforms(reg,entity, safe_time);
+				}
 			}
 		}
 	}
@@ -174,7 +220,7 @@ namespace SliceEngine
 		{
 			Animator& animator = core->GetRegistry().get<Animator>(entity); 
 			
-			if (!animator.IsValid()) return;
+			if (!animator.Handle_stateMachine.IsValid()) return;
 
 			animator.stateMachine.InitState(animator.curr_anim_pkg);
 
@@ -204,11 +250,18 @@ namespace SliceEngine
 			animator.Handle_stateMachine = core->GetResourceManager()->get<SliceEngineTypes::StateMachine>(defCtrl);
 		animator.Handle_skeleton = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::Skeleton>(animator.Handle_skeleton.getGUID());
 		animator.Handle_curr_anim_pkg = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::AnimationPackage>(animator.Handle_curr_anim_pkg.getGUID());
+		animator.Handle_Anims = core->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(animator.Handle_Anims.getGUID());
 
 		if (animator.Handle_stateMachine.IsValid())
 		{
 			animator.stateMachine.EFSM = *animator.Handle_stateMachine.get();
 			animator.stateMachine.InitState();
+		}
+
+		if (animator.Handle_Anims.IsValid())
+		{
+			animator.curr_anims = *animator.Handle_Anims.get();
+			animator.stateMachine.InitState(animator.curr_anims);
 		}
 
 		if (animator.IsValid())

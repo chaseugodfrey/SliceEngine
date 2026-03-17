@@ -8,36 +8,11 @@ namespace SliceEngine
 {
     public class TestButtonSlider : SliceBehaviour
     {
-        //int test = 0;
-
-        Slider slider;
-        public override void OnCreate()
+        public override void OnButtonHover()
         {
-            slider = GetComponent<Slider>();
-            SliceLog.Log("Creating slider button test script");
-        }
-
-        public override void OnSliderValue(float value)
-        {
-            SliceLog.Log("Slider value changed waor" + value);
+            SliceLog.Log("On Hover");
         }
 
 
-        public override void OnUpdate(float dt)
-        {
-            if (Input.IsKeyPressed(Keys.KEY_B))
-            {
-                float curr_val = slider.GetValue();
-                SliceLog.Log("Current Slider Value: " + curr_val);
-                curr_val += 0.1f;
-                while (curr_val > 1.0f)
-                {
-                    curr_val -= 1.0f;
-                }
-
-                SliceLog.Log("New Slider Value: " + curr_val);
-                slider.SetValue(curr_val);
-            }
-        }
     }
 }

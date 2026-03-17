@@ -153,11 +153,12 @@ namespace SliceEditor
 			DebugDrawTogglePopup();
 			ImGui::SameLine();
 		}
-		std::stringstream ss;
-		ss << "Speed: "<<  std::fixed << std::setprecision(3) << mCameraSpeed;
-		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
-		ImGui::Button(ss.str().c_str()); //Speed Display
-		ImGui::PopItemFlag(); //End of Set Disabled
+		ImGui::Text("Camera Speed: ");
+		ImGui::SameLine();
+		SliderFloatInput(mRegistry, "##sceneCamSpeed", mCameraSpeed, "%.3f", 0.f, 5.f);
+		//ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true); //Set Disabled for Click without changing how it looks
+		//ImGui::Button(ss.str().c_str()); //Speed Display
+		//ImGui::PopItemFlag(); //End of Set Disabled
 		//Debug Drawing Settings:
 		ImGui::EndGroup();
 
@@ -495,6 +496,17 @@ namespace SliceEditor
 					}
 				}
 
+				auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+				// 1. Get the Inverse of the Parent World Matrix
+				glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+				// 2. Transform the manipulated world_tr into local space
+				// This gives us the exact local matrix relative to the parent
+				glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+				// 3. Decompose the matrix
+
 				glm::mat4 parentWorldTr{ 1 };
 				glm::vec3 scale, euler, translation, skew;
 				glm::vec4 persp;
@@ -503,12 +515,25 @@ namespace SliceEditor
 
 				if (parentEntity != entt::null)
 				{
-					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+					/*auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
 					parentWorldTr = parentTr.transform;
-					world_tr *= glm::inverse(parentWorldTr);
-				}
+					world_tr *= glm::inverse(parentWorldTr);*/
 
-				glm::decompose(world_tr, scale, rot, translation, skew, persp);
+					auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+
+					// 1. Get the Inverse of the Parent World Matrix
+					glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+
+					// 2. Transform the manipulated world_tr into local space
+					// This gives us the exact local matrix relative to the parent
+					glm::mat4 localMatrix = invParentMatrix * world_tr;
+
+					glm::decompose(localMatrix, scale, rot, translation, skew, persp);
+				}
+				else
+				{
+					glm::decompose(world_tr, scale, rot, translation, skew, persp);
+				}
 
 				if (mGuizmoOperation == ImGuizmo::OPERATION::TRANSLATE)
 				{
@@ -554,7 +579,7 @@ namespace SliceEditor
 						break;
 					case ImGuizmo::OPERATION::SCALE:
 						mRegistry.GetManager<HistoryManager>("History")->AddCommand(
-							std::make_unique<ValueCommand<glm::vec3>>(tr.position, mGizmoTracker->startValue, mGizmoTracker->endValue));
+							std::make_unique<ValueCommand<glm::vec3>>(tr.scale, mGizmoTracker->startValue, mGizmoTracker->endValue));
 						break;
 					}
 					mGizmoTracker.reset();
@@ -654,6 +679,20 @@ namespace SliceEditor
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
+			DragFloatInputHeader(mRegistry, "Render Distance", "##distance", camObj->camera.far, "%.3f", camObj->camera.near, FLT_MAX, 0.1f);
+
+			bool isBloom = camObj->camera.postRenderToggles & SliceEngine::RENDER_TAG::RENDER_BLOOM;
+			ImGui::Text("Bloom");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isBloom", &isBloom))
+				SetBit(camObj->camera.postRenderToggles, SliceEngine::RENDER_TAG::RENDER_BLOOM, isBloom);
+			if (isBloom)
+			{
+				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", camObj->camera.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", camObj->camera.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+			}
+
 			ImGui::EndPopup();
 		}
 	}
