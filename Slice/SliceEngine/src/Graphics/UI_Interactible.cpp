@@ -174,7 +174,7 @@ namespace SliceEngine {
 		float target_value = rel_x / rect.final_width;
 
 		//assert(target_value <= 1.f && target_value >= 0.f);
-		std::clamp(target_value, 0.f, 1.f);
+		target_value = std::clamp(target_value, 0.f, 1.f);
 		slider.SetValue(target_value, raycast_entity);
 	}
 
