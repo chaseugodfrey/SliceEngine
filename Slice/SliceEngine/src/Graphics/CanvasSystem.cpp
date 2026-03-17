@@ -579,12 +579,12 @@ namespace SliceEngine {
 		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
 		if (ctx.canvas_type == Canvas::WORLD) {
 
+			auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
 			if (node == parent) {	//canvas
 				auto const& canvas_tform = mRegistry->get<Transform>(canvas_entity);
-				auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
 				//convert canvas space to world space
-				canvas_rect.scale_x = (1.f / canvas_rect.final_width) / canvas_tform.scale.x;
-				canvas_rect.scale_y = (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+				canvas_rect.scale_x = 1.f;
+				canvas_rect.scale_y = 1.f;// (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
 			}
 			else {					//child of canvas
 				//update world pos?
@@ -599,8 +599,8 @@ namespace SliceEngine {
 				c_tform.scale.x = rect.final_width / p_rect.final_width; 
 				c_tform.scale.y = rect.final_height / p_rect.final_height; 
 				c_tform.scale.z = 1.f;
-				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x;
-				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y;
+				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x / canvas_rect.final_width;
+				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y / canvas_rect.final_height;
 				c_tform.position.z = 0;// world_space_z;
 				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
 				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
