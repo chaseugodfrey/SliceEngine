@@ -253,8 +253,8 @@ namespace SliceEngine
 			else
 			{
 				transformMatrix = glm::translate(transformMatrix, p.position);
-			}			
-
+			}
+			
 			// combine with system rotation
 			glm::quat systemRot = glm::quat(glm::radians(ps.rotation3DHint));
 			if (ps.parentTransform)
@@ -265,13 +265,22 @@ namespace SliceEngine
 
 			// combine rotations if face camera
 			glm::quat baseRot;
-			if (ps.renderMode == ParticleSystem::RenderMode::BILLBOARD)
+
+			if (ps.isLocalSpace)
 			{
-				baseRot = particleRot;
+				// inherit parent/system transform
+				baseRot = systemRot * particleRot;
 			}
 			else
 			{
-				baseRot = systemRot * particleRot;
+				// independent particle
+				baseRot = particleRot;
+			}
+
+			// billboard override
+			if (ps.renderMode == ParticleSystem::RenderMode::BILLBOARD)
+			{
+				baseRot = particleRot; // or ignore systemRot entirely
 			}
 			
 			// Rotation over time
@@ -438,13 +447,24 @@ namespace SliceEngine
 			p.position = ps.spawnPos;
 		}
 
-		if (ps.parentTransform)
-		p.position += ps.parentTransform->GetWorldPosition();
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			p.position += ps.parentTransform->GetWorldPosition();
+		}
 
+		glm::vec3 offset;
 		switch (ps.shapeType)
 		{		
 		case ParticleSystem::ShapeType::SPHERE:
-			p.position += RandomPointInSphere(ps);
+			offset = RandomPointInSphere(ps);
+
+			if (!ps.isLocalSpace && ps.parentTransform)
+			{
+				// convert local offset to world
+				offset = ps.parentTransform->rotation * offset;
+			}
+
+			p.position += offset;
 			break;
 		case ParticleSystem::ShapeType::CONE:
 			p.position += RandomPointInCircle(ps);
@@ -459,7 +479,15 @@ namespace SliceEngine
 			p.position += RandomPointInRect(ps);
 			break;
 		default:
-			p.position += RandomPointInSphere(ps);
+			offset = RandomPointInSphere(ps);
+
+			if (!ps.isLocalSpace && ps.parentTransform)
+			{
+				// convert local offset to world
+				offset = ps.parentTransform->rotation * offset;
+			}
+
+			p.position += offset;
 			break;
 		}
 	}
@@ -1058,7 +1086,9 @@ namespace SliceEngine
 		float u = dist(gen);
 		float w = dist(gen);
 
-		float arcRad = glm::radians(ps.sphereArc);
+		float arcRad = glm::radians(
+			glm::clamp(ps.sphereArc, 0.0f, 180.0f)
+		);
 
 		std::uniform_real_distribution<float> phiDist(0.0f, arcRad);
 		float phi = phiDist(gen);
@@ -1271,5 +1301,3 @@ namespace SliceEngine
 
 #pragma endregion
 }
-
-
