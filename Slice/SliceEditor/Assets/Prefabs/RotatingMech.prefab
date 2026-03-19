@@ -1,6 +1,19 @@
 [
     {
         "RotatingMech": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 1.2999999523162842,
+                    "radius": 1.2000000476837158
+                },
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,16 +22,16 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 140,
+                "entity_id": 171,
                 "neighbours": [
-                    236,
-                    308,
-                    229,
-                    214
+                    75,
+                    3,
+                    82,
+                    97
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Projectile_Spawner",
+                "scriptName": "SliceEngine.Enemy_Projectile_Spawner",
                 "scriptableFieldMap": {
                     "active": {
                         "Type": "bool",
@@ -72,6 +85,14 @@
                         "Type": "float",
                         "Value": 1.0
                     },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
                         "Value": 40.0
@@ -79,6 +100,14 @@
                     "limit": {
                         "Type": "int",
                         "Value": 100
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
                     },
                     "preAimFlickerRate": {
                         "Type": "float",
@@ -128,6 +157,10 @@
                         "Type": "float",
                         "Value": 10.0
                     },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    },
                     "shootFXPrefabName1": {
                         "Type": "std::string",
                         "Value": "FX_Firing1"
@@ -156,9 +189,9 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 5,
                 "mName": "RotatingMech",
-                "mTag": "default"
+                "mTag": "Enemy"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
@@ -195,10 +228,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 308,
+                "entity_id": 3,
                 "neighbours": [
-                    140,
-                    132,
+                    171,
+                    179,
                     4294967295,
                     4294967295
                 ]
@@ -269,12 +302,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 132,
+                "entity_id": 179,
                 "neighbours": [
-                    308,
+                    3,
                     4294967295,
                     4294967295,
-                    306
+                    5
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -330,12 +363,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 306,
+                "entity_id": 5,
                 "neighbours": [
-                    308,
+                    3,
                     4294967295,
-                    132,
-                    307
+                    179,
+                    4
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -391,11 +424,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 307,
+                "entity_id": 4,
                 "neighbours": [
-                    308,
+                    3,
                     4294967295,
-                    306,
+                    5,
                     4294967295
                 ]
             },
