@@ -1187,22 +1187,14 @@ namespace SliceEngine
 	{
 		glm::vec2 halfExtents = ps.rectScale * 0.5f;
 
-		halfExtents.x = std::max(0.0f, halfExtents.x);
-		halfExtents.y = std::max(0.0f, halfExtents.y);
-
 		std::uniform_real_distribution<float> distX(-halfExtents.x, halfExtents.x);
 		std::uniform_real_distribution<float> distY(-halfExtents.y, halfExtents.y);
 
-		glm::vec3 localPoint(
+		return glm::vec3(
 			distX(gen),
 			distY(gen),
 			0.0f
 		);
-
-		if (ps.followTransformRotation && ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return localPoint;
 	}
 #pragma endregion
 
