@@ -1078,7 +1078,14 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, list[idx-1], idx);
+				if (idx == 0)
+				{
+					editFunc("Add", std::string(property_label), list, 0.f, idx);
+				}
+				else
+				{
+					editFunc("Add", std::string(property_label), list, list[idx - 1], idx);
+				}
 				changedVals.push_back(MultiSelect::ADDED); // Push back a new modified value
 
 				// record in history
