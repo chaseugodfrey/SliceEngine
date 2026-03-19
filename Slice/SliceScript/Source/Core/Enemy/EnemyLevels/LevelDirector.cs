@@ -141,7 +141,7 @@ namespace SliceEngine
 
             if (!isActive)
                 return;
-            SliceLog.Log("BBBBBBBBBBBB");
+            //SliceLog.Log("BBBBBBBBBBBB");
             if (currLevel > levels.Count)
             {
                 //SliceLog.Error("Current level is more than the number of levels");
@@ -153,19 +153,19 @@ namespace SliceEngine
                 return;
             }
 
-            SliceLog.Log("aaaaaaaaa");
+            //SliceLog.Log("aaaaaaaaa");
             // if the curr level is done
             if (levels[currLevel].As<BaseLevel>().CheckObjective() && !levelDone)
             {
                 // then move on to next level
                 levelDone = true;
-                SliceLog.Log("qqqqqqqqqqqq");
+                //SliceLog.Log("qqqqqqqqqqqq");
                 // kill all the remaining enemies
                 foreach (GameObject enemy in enemies)
                 {
                     enemy.Destroy();
                 }
-                SliceLog.Log("wwwwwwwwww");
+                //SliceLog.Log("wwwwwwwwww");
                 enemies.Clear();
             }
 
