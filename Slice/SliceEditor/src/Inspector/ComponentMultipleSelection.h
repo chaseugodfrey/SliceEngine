@@ -46,6 +46,8 @@ namespace SliceEditor
 
 	std::vector<bool> ScriptFloatListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, bool isMultiSelection);
 
+	std::vector<bool> ScriptGameObjectListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, bool isMultiSelection);
+
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection, std::function<uint32_t(Entity)> func);
 
 	bool GUIDMultipleSelection(SelectionManager* selectionManager, SliceEngine::GUID currentSelection, bool isMultiSelection, std::function<SliceEngine::GUID(Entity)> func);

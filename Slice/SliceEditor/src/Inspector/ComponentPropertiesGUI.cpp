@@ -911,7 +911,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list)
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list, std::vector<bool> elementDiffs, std::vector<MultiSelect>& changedVars)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<SliceEngine::GameObject > oldList{};
@@ -933,9 +933,13 @@ namespace SliceEditor
 					event.entities.push_back(entity);
 				}
 
+				//To check each entry if it was changed, push_back unchanged first.
+				changedVars.push_back(MultiSelect::UNCHANGED); //it should correspond to idx
+
 				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
+				std::string goName = " ";
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
@@ -943,14 +947,19 @@ namespace SliceEditor
 				ImGui::BeginDisabled();
 				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
 				{
-					std::string empty = " ";
-					ImGui::InputText(newID.c_str(), &empty);
+					goName = " ";
 				}
 				else
 				{
-					std::string goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
-					ImGui::InputText(newID.c_str(), &goName);
+					goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
 				}
+
+				if (elementDiffs[idx])
+				{
+					goName = "---";
+				}
+
+				ImGui::InputText(newID.c_str(), &goName);
 				ImGui::EndDisabled();
 
 				if (ImGui::BeginDragDropTarget())
