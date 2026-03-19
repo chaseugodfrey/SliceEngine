@@ -66,7 +66,7 @@ namespace SliceEngine
 		while (currentClass != nullptr && method == nullptr)
 		{
 			const char* className = mono_class_get_name(currentClass);
-			//std::cout << "Looking for : " << name << " in " << className << std::endl;
+			////std::cout << "Looking for : " << name << " in " << className << std::endl;
 			// dont get the very base slice behaviour
 			if (std::string(className) == "SliceBehaviour" && name != ".ctor")
 				break;
@@ -168,7 +168,7 @@ namespace SliceEngine
 	ScriptObject::ScriptObject(std::shared_ptr<ScriptClass> scClass, Entity entity) : mScriptClass(scClass)
 	{
 
-		//std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
+		////std::cout << "Initializing script object for entity " << (uint32_t)entity << std::endl;
 		//UNUSED(entity);
 		mMonoInstance = scClass->Instantiate();
 		ScriptClass mEntityClass = ScriptClass("SliceEngine", "SliceBehaviour");
