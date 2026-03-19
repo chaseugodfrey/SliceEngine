@@ -484,7 +484,7 @@ namespace SliceEngine
 			if (!ps.isLocalSpace && ps.parentTransform)
 			{
 				// convert local offset to world
-				offset = ps.parentTransform->rotation * offset;
+				offset = ps.parentTransform->rotation * offset;				
 			}
 
 			p.position += offset;
