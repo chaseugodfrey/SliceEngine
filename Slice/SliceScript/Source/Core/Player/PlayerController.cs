@@ -560,19 +560,19 @@ namespace SliceEngine
 
             AudioSettings.PlaySFX("PlayerHit");
 
-            Bootstrap.CameraController.Shake(0.1f, 1f);
+            Bootstrap.CameraController.Shake(0.2f, 0.8f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
-            SliceLog.Log("Returned");
+            //SliceLog.Log("Returned");
 
             Transform vfxTransform = vfx.GetComponent<Transform>();
-            SliceLog.Log("Getting Transform");
+            //SliceLog.Log("Getting Transform");
 
             vfxTransform.Position = transform.Position;
-            SliceLog.Log("Set");
+            //SliceLog.Log("Set");
 
             vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
-            SliceLog.Log("Rotating");
+            //SliceLog.Log("Rotating");
         }
         private GameObject SpawnVFX(string path)
         {

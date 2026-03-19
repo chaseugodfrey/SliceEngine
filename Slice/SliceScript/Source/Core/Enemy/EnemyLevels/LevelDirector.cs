@@ -141,7 +141,7 @@ namespace SliceEngine
 
             if (!isActive)
                 return;
-            SliceLog.Log("BBBBBBBBBBBB");
+            //SliceLog.Log("BBBBBBBBBBBB");
             if (currLevel > levels.Count)
             {
                 //SliceLog.Error("Current level is more than the number of levels");
@@ -153,19 +153,19 @@ namespace SliceEngine
                 return;
             }
 
-            SliceLog.Log("aaaaaaaaa");
+            //SliceLog.Log("aaaaaaaaa");
             // if the curr level is done
             if (levels[currLevel].As<BaseLevel>().CheckObjective() && !levelDone)
             {
                 // then move on to next level
                 levelDone = true;
-                SliceLog.Log("qqqqqqqqqqqq");
+                //SliceLog.Log("qqqqqqqqqqqq");
                 // kill all the remaining enemies
                 foreach (GameObject enemy in enemies)
                 {
                     enemy.Destroy();
                 }
-                SliceLog.Log("wwwwwwwwww");
+               // SliceLog.Log("wwwwwwwwww");
                 enemies.Clear();
             }
 
@@ -173,7 +173,7 @@ namespace SliceEngine
             // the trigger box will toggle the next level
             if (levelDone && levels[currLevel].As<BaseLevel>().stopWhenCleared)
                 return;
-            SliceLog.Log("Updating Level: " + currLevel);
+            //SliceLog.Log("Updating Level: " + currLevel);
             levels[currLevel].As<BaseLevel>().UpdateLevel(dt);
         }
 
@@ -214,7 +214,7 @@ namespace SliceEngine
         /// <param name="nextLevel">The next level coming</param>
         public void TriggerNextLevel(GameObject input)
         {
-            SliceLog.Log("Triggering Next Level Part 1");
+           // SliceLog.Log("Triggering Next Level Part 1");
             // only if they done w the current level
             if (!levelDone)
                 return;
@@ -244,7 +244,7 @@ namespace SliceEngine
                 levelDone = false;
                 //finishedTriggers.Add((int)input.mID, input);
 
-                SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
+               // SliceLog.Log("Triggering Next Level. Curr Level:" + currLevel);
 
                 //SliceLog.Log("Triggering Next Level Part 3");
                 levels[currLevel].As<BaseLevel>().toggleLevel = false;

@@ -3,6 +3,7 @@
 
 #include <Engine.h>
 #include <Input/InputSystem.h>
+#include <Systems/FramerateManager.h>
 #include <filesystem>
 #include <iostream>
 
@@ -73,6 +74,13 @@ namespace SliceBuild
 			engine.Update();
 			engine.Draw();
 			engine.EndFrame();
+
+	/*		auto sysDurations = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSysDurations();
+		
+			for (auto [key, val] : sysDurations)
+			{
+				std::cout << "system :" << key << " duration: " << val << std::endl;
+			}*/
 
 			engine.WindowSizeSwitch();
 
