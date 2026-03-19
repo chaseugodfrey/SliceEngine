@@ -30,9 +30,9 @@ namespace SliceEngine
                 Bootstrap.Player.TakeDamage(damage, this.gameObject);
 
 
-                //AudioSettings.PlaySFX("PlayerHitLazer");
+                AudioSettings.PlaySFX("PlayerHitLazer");
 
-                //CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
+               // CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
 
                 if (destroyOnPlayerImpact)
                 {
