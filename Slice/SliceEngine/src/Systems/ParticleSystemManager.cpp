@@ -457,39 +457,31 @@ namespace SliceEngine
 		{		
 		case ParticleSystem::ShapeType::SPHERE:
 			offset = RandomPointInSphere(ps);
-
-			if (!ps.isLocalSpace && ps.parentTransform)
-			{
-				// convert local offset to world
-				offset = ps.parentTransform->rotation * offset;
-			}
-
-			p.position += offset;
 			break;
 		case ParticleSystem::ShapeType::CONE:
-			p.position += RandomPointInCircle(ps);
+			offset = RandomPointInCircle(ps);
 			break;
 		case ParticleSystem::ShapeType::CUBE:
-			p.position += RandomPointInCube(ps);
+			offset = RandomPointInCube(ps);
 			break;
 		case ParticleSystem::ShapeType::CIRCLE:
-			p.position += RandomPointInCircle(ps);
+			offset = RandomPointInCircle(ps);
 			break;
 		case ParticleSystem::ShapeType::RECT:
-			p.position += RandomPointInRect(ps);
+			offset = RandomPointInRect(ps);
 			break;
 		default:
 			offset = RandomPointInSphere(ps);
-
-			if (!ps.isLocalSpace && ps.parentTransform)
-			{
-				// convert local offset to world
-				offset = ps.parentTransform->rotation * offset;				
-			}
-
-			p.position += offset;
 			break;
 		}
+
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			// convert local offset to world
+			offset = ps.parentTransform->rotation * offset;
+		}
+
+		p.position += offset;
 	}
 	void ParticleSystemManager::InitializeRotation(Particle& p, ParticleSystem& ps)
 	{
@@ -941,14 +933,14 @@ namespace SliceEngine
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
 		// Direction from center to particle
-		glm::vec3 dir = glm::normalize(position - center);
-
-		radialBias = glm::clamp(radialBias, 0.0f, 1.0f);
+		glm::vec3 dir = position - center;
 
 		if (glm::dot(dir, dir) < 1e-6f)
-			dir = glm::vec3(0.0f, 1.0f, 0.0f);// fallback
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
 		else
 			dir = glm::normalize(dir);
+
+		radialBias = glm::clamp(radialBias, 0.0f, 1.0f);
 
 		// Random unit vector for spread
 		glm::vec3 randDir;
@@ -985,7 +977,20 @@ namespace SliceEngine
 			? ps.parentTransform->GetWorldPosition()
 			: glm::vec3(0.0f);
 
-		return glm::normalize(p.position - center);
+		glm::vec3 dir = p.position - center;
+
+		// Prevent normalize(0,0,0)
+		if (glm::dot(dir, dir) < 1e-6f)
+		{
+			// Fallback direction
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
+		else
+		{
+			dir = glm::normalize(dir);
+		}
+
+		return dir;
 	}
 
 	glm::vec3 ParticleSystemManager::RandomDirectionInCone(ParticleSystem& ps)
@@ -1081,6 +1086,9 @@ namespace SliceEngine
 
 	glm::vec3 ParticleSystemManager::RandomPointInSphere(ParticleSystem& ps)
 	{
+		if (ps.shapeRadius <= 0.0f)
+			return glm::vec3(0.0f);
+
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
 		float u = dist(gen);
@@ -1120,6 +1128,9 @@ namespace SliceEngine
 
 	glm::vec3 ParticleSystemManager::RandomPointInCircle(ParticleSystem& ps)
 	{
+		if (ps.shapeRadius <= 0.0f)
+			return glm::vec3(0.0f);
+
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
 		float inner = glm::clamp(ps.innerShapeRadius, 0.0f, ps.shapeRadius);
