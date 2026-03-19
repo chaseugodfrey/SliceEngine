@@ -195,6 +195,38 @@ namespace SliceEditor
 		}
 	};
 
+	struct DefaultMeta : public MetaData
+	{	
+		std::filesystem::path Serialize(const std::filesystem::path&) override
+		{
+			return std::filesystem::path("");
+		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+		}
+	};
+
 	struct TextureData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;

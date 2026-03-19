@@ -60,7 +60,18 @@ namespace SliceEditor
 
 			// we dont check meta file until we find the actual asset
 			if (extension == ".meta")
-				continue;
+			{
+				// if its a meta file, check if the asset exist, if its not then clear it 
+				// since its orphaned and it will keep failing micah's test case thing
+				DefaultMeta defMeta;
+				defMeta.Deserialize(assetPath);
+
+				if (!std::filesystem::exists(defMeta.assetPath))
+				{
+					// if the asset path doesn't exist
+					std::filesystem::remove(assetPath);
+				}
+			}
 			// unsupported asset type
 			if (mSupportedAssetTypes.find(extension) == mSupportedAssetTypes.end())
 				continue;
