@@ -973,7 +973,8 @@ namespace SliceEditor
 						//Disabled Undo/Redo for Lists atm
 						/*std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
-
+						editFunc("Edit", std::string(property_label), list, entry, idx);
+						changedVars[idx] = MultiSelect::CHANGED;
 						changed = true;
 					}
 
@@ -989,6 +990,8 @@ namespace SliceEditor
 				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
 				{
 					editFunc("Remove", std::string(property_label), list, entry, idx);
+					changedVars[idx] = MultiSelect::REMOVED;
+					changed = true;
 				}
 
 				idx++;
@@ -1001,8 +1004,15 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
-
+				if(idx == 0)
+				{
+					editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
+				}
+				else
+				{
+					editFunc("Add", std::string(property_label), list, list[idx-1], idx);
+				}
+				changedVars.push_back(MultiSelect::ADDED);
 				// record in history
 				/*if (oldList != list)
 				{

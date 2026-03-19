@@ -70,6 +70,8 @@ namespace SliceEditor
 
 	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<MultiSelect>& changedVars);
 
+	void ScriptGameObjectListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, std::vector<MultiSelect>& changedVars);
+
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection);
 
 #pragma endregion
