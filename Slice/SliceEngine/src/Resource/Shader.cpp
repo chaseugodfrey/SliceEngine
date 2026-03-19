@@ -274,7 +274,7 @@ uint Hash_Tchou_2_1_uint(uvec2 v)
 float Hash_Tchou_2_1_float(vec2 i)
 {
 	
-	uvec2 v = (uvec2) (ivec2) round(i);
+	uvec2 v = uvec2(round(i));
 	uint r = Hash_Tchou_2_1_uint(v);
 	return (r >> 8) * (1.0 / float(0x00ffffff));
 }
@@ -288,13 +288,13 @@ float GradientNoise_Deterministic(vec2 uv, vec3 scale)
 {
 	vec2 p = uv * scale.xy;
 	vec2 ip = floor(p);
-	vec2 fp = frac(p);
+	vec2 fp = fract(p);
 	float d00 = dot(GradientNoise_Deterministic_Float(ip), fp);
 	float d01 = dot(GradientNoise_Deterministic_Float(ip + vec2(0, 1)), fp - vec2(0, 1));
 	float d10 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 0)), fp - vec2(1, 0));
 	float d11 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 1)), fp - vec2(1, 1));
 	fp = fp * fp * fp * (fp * (fp * 6 - 15) + 10);
-	return lerp(lerp(d00, d01, fp.y), lerp(d10, d11, fp.y), fp.x) + 0.5;
+	return mix(mix(d00, d01, fp.y), mix(d10, d11, fp.y), fp.x) + 0.5;
 })"},
 			{"Voronoi_Deterministic", R"(
 uvec2 Hash_Tchou_2_2_uint(uvec2 v)
@@ -323,7 +323,7 @@ vec2 Voronoi_Deterministic_float(vec2 uv, float offset)
 float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 {
 	vec2 g = floor(uv * cellDensity);
-	vec2 f = frac(uv * cellDensity);
+	vec2 f = fract(uv * cellDensity);
 	float t = 8.0;
 	vec3 res = vec3(8.0, 0.0, 0.0);
 

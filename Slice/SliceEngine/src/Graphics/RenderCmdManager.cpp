@@ -264,7 +264,7 @@ namespace SliceEngine
 				//	key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				//}
 
-				//if (key & MRCK_TRANSCLUCENT)
+				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, material);
@@ -320,7 +320,7 @@ namespace SliceEngine
 					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
 					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
-				if (key & MRCK_TRANSCLUCENT)
+				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, &ui_mat);
