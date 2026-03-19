@@ -120,7 +120,7 @@ namespace SliceEngine {
 	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
 		return world_space_ui;
 	}
-	void CanvasSystem::UpdateHierachy() {
+	void CanvasSystem::UpdateHierachy(bool force) {
 		//list of pair of entity and what type of rendering - split into 2 funcs for now
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
 
@@ -134,8 +134,7 @@ namespace SliceEngine {
 		world_space_ui.clear();
 		for (auto entity : view) {
 			world_space_z = 0.f;
-			//auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */entity, entity, entity, empty);
+			get_child_ui(entity, entity, entity, empty, force);
 		}
 	}
 
@@ -557,13 +556,13 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect, bool force) {
 		/*
 		*	assumptions
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node) || mRegistry->any_of<InactiveEntity>(node)) {
+		if (!mRegistry->any_of<RectTransform>(node) || (!force&&mRegistry->any_of<InactiveEntity>(node))) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);

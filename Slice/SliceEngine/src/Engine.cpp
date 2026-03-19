@@ -960,6 +960,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -980,6 +981,7 @@ namespace SliceEngine
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
+			sCanvas.UpdateHierachy(true);
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
