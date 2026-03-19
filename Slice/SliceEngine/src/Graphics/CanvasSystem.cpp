@@ -616,7 +616,7 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(canvas_entity, node, child, rect);
+				get_child_ui(canvas_entity, node, child, rect, force);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
