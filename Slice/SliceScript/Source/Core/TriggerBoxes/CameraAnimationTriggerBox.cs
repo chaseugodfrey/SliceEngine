@@ -134,7 +134,7 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            Console.WriteLine($"Mouse delta {Input.GetMouseDelta().x} and {Input.GetMouseDelta().y}");
+            //Console.WriteLine($"Mouse delta {Input.GetMouseDelta().x} and {Input.GetMouseDelta().y}");
             cameraSM.OnUpdate(dt);
             if (_enabled && !_done)
             {
