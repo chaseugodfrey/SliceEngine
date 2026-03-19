@@ -49,7 +49,7 @@ namespace SliceEngine
 			}
 		}
 
-		std::cout << "Entity entering sound system" << std::endl;
+		//std::cout << "Entity entering sound system" << std::endl;
 	}
 
 	void AudioSourceSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -70,7 +70,7 @@ namespace SliceEngine
 			audioComp.previewChannel = nullptr;
 		}
 
-		std::cout << "Entity exiting sound system" << std::endl;
+		//std::cout << "Entity exiting sound system" << std::endl;
 	}
 
 	void AudioSourceSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
