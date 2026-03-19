@@ -1706,17 +1706,12 @@ namespace SliceEngine
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position, uint32_t parentID)
 	{
 		std::string key = MonoToString(string);
-		if (position == glm::vec3(0.f))
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
-		}
-		else
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
-		}
+		Entity parent = (parentID == 0) ? entt::null : static_cast<Entity>(parentID);
+
+		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
 	static void Audio_StopAllSound()
