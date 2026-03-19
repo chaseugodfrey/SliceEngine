@@ -22,6 +22,14 @@ namespace SliceEditor
 	class Registry;
 	class SelectionManager;
 
+	enum class MultiSelect
+	{
+		UNCHANGED,
+		CHANGED,
+		ADDED,
+		REMOVED
+	};
+
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
 	std::array<bool, 3> ScriptVector3MultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, bool isMultiSelection);
@@ -58,7 +66,7 @@ namespace SliceEditor
 
 	void ScriptVector3MultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, std::array<bool, 3>& changedAxis);
 
-	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<bool>& changedVars);
+	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<MultiSelect>& changedVars);
 
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection);
 
