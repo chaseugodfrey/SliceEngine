@@ -627,7 +627,8 @@ rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.property("top", &RectTransform::top)
 	.property("bot", &RectTransform::bot)
 	.property("width", &RectTransform::width)
-	.property("height", &RectTransform::height);
+	.property("height", &RectTransform::height)
+	.property("rotation", &RectTransform::final_rot);
 
 rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .constructor<>()

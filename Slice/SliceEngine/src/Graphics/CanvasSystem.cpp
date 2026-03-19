@@ -624,9 +624,12 @@ namespace SliceEngine {
 	}
 
 	glm::mat4 RectTransform::ToMatrix() const noexcept {
+		float rad = glm::radians(final_rot);
+		float c = cosf(rad);
+		float s = sinf(rad);
 		return {
-			{final_width, 0.f, 0.f, 0.f},
-			{0.f, final_height, 0.f, 0.f},
+			{final_width * c, final_width * s, 0.f, 0.f},
+			{final_height * (-s), final_height * c, 0.f, 0.f},
 			{0.f, 0.f, 1.f, 0.f},
 			{final_x, final_y, 0.f, 1.f}
 		};
