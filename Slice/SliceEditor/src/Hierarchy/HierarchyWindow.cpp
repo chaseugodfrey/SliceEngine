@@ -176,6 +176,11 @@ namespace SliceEditor
 				mSelection.SelectSingleAdd(pendingNode);
 			}
 
+			else if (ImGui::GetIO().KeyShift)
+			{
+				//mSelection.AddBetweenEntities(pendingNode);
+			}
+
 			else
 			{
 				mSelection.SelectSingle(pendingNode);

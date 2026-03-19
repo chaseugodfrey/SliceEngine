@@ -39,7 +39,11 @@ namespace SliceEditor
 
 	void SelectionManager::Update()
 	{
-
+		if (ImGui::IsKeyPressed(ImGuiKey_O))
+		{
+			SLICE_LOG("mSelectedNode Size: " + std::to_string(mSelectedNodes.size()));
+			SLICE_LOG("mSelectedOrder Size: " + std::to_string(mSelectionOrder.size()));
+		}
 	}
 
 	void SelectionManager::RegisterListener(ISelectionListener* listener)
@@ -55,6 +59,7 @@ namespace SliceEditor
 		ClearSelection(true);
 		//mSelectedEntities.insert(entity);
 		mSelectedNodes.insert(node);
+		mSelectionOrder.push_back(node);
 		node->isSelected = true;
 
 		if (node->type == SelectionType::ENTITY)
@@ -137,6 +142,7 @@ namespace SliceEditor
 		{
 			node->isSelected = true;
 			mSelectedNodes.insert(node);
+			mSelectionOrder.push_back(node);
 			if (node->type == SelectionType::ENTITY)
 			{
 				EntityNode* entNode = static_cast<EntityNode*>(node);
@@ -147,6 +153,13 @@ namespace SliceEditor
 		{
 			node->isSelected = false;
 			mSelectedNodes.erase(it);
+			auto selectIt = std::find(mSelectionOrder.begin(), mSelectionOrder.end(), node);
+
+			if (selectIt != mSelectionOrder.end())
+			{
+				mSelectionOrder.erase(selectIt);
+			}
+
 			if (node->type == SelectionType::ENTITY)
 			{
 				EntityNode* entNode = static_cast<EntityNode*>(node);
@@ -173,27 +186,22 @@ namespace SliceEditor
 
 	}
 
-	//void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
-	//{
-	//	auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-	//	if (it != std::end(mSelectedEntities))
-	//	{
-	//		//if (!suppressHistory)
-	//		//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
+	void SelectionManager::AddBetweenEntities(SelectionNode* rightNode)
+	{
+		auto& leftNode = mSelectionOrder.back();
+		if (leftNode->type == SelectionType::ENTITY && rightNode->type == SelectionType::ENTITY)
+		{
+			auto& leftEntity = static_cast<EntityNode*>(leftNode)->entity;
+			auto& rightEntity = static_cast<EntityNode*>(rightNode)->entity;
+			//Check that both have sceneGraph
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(leftEntity) && SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(rightEntity))
+			{
+				auto& leftSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(leftEntity);
 
-	//		auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
-	//		if (go.HasComponent<SliceEngine::SelectedEntity>())
-	//			go.RemoveComponent<SliceEngine::SelectedEntity>();
-	//		
-	//		mSelectedEntities.erase(it);
-	//	}
-
-	//	std::unordered_set<entt::entity> set{ entity };
-	//	for (auto& listener : mListeners)
-	//	{
-	//		listener->OnUpdateDeselected(set);
-	//	}
-	//}
+			}
+			//SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+		}
+	}
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
@@ -247,6 +255,7 @@ namespace SliceEditor
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
+		mSelectionOrder.clear();
 	}
 
 	void SelectionManager::DeleteSelectedObjects()
