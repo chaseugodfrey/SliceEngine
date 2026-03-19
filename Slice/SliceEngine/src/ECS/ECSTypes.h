@@ -443,6 +443,7 @@ namespace SliceEngine
 		bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
+		bool destroyOnEnd = false;
 
 		RTTR_ENABLE();
 	};
