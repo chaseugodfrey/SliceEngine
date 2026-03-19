@@ -45,7 +45,17 @@ namespace SliceEngine
 		deltaTime = curr_time - prevTime;	    // Calculate delta time
 		prevTime = curr_time;                  // Update prev_time to the current time
 
+		if (deltaTime > 0.25f) 
+		{
+			deltaTime = 0.25f;
+		}
+
 		accumulatedTime += deltaTime;
+
+		//if (accumulatedTime >= fixedDeltaTime * 8.0f)
+		//{
+		//	accumulatedTime = 0.0f;
+		//}
 
 		while (accumulatedTime >= fixedDeltaTime)
 		{

@@ -120,7 +120,7 @@ namespace SliceEngine {
 	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
 		return world_space_ui;
 	}
-	void CanvasSystem::UpdateHierachy() {
+	void CanvasSystem::UpdateHierachy(bool force) {
 		//list of pair of entity and what type of rendering - split into 2 funcs for now
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
 
@@ -132,10 +132,9 @@ namespace SliceEngine {
 		empty.width = 0; empty.height = 0;
 
 		world_space_ui.clear();
-		world_space_z = 0.f;
 		for (auto entity : view) {
-			//auto const& canvas = mRegistry->get<Canvas>(entity);
-			get_child_ui(/*entities_to_draw, */entity, entity, entity, empty);
+			world_space_z = 0.f;
+			get_child_ui(entity, entity, entity, empty, force);
 		}
 	}
 
@@ -557,13 +556,13 @@ namespace SliceEngine {
 		}
 	}
 
-	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect) {
+	void CanvasSystem::get_child_ui(Entity canvas_entity, Entity parent, Entity node, RectTransform const& p_rect, bool force) {
 		/*
 		*	assumptions
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node) || mRegistry->any_of<InactiveEntity>(node)) {
+		if (!mRegistry->any_of<RectTransform>(node) || (!force&&mRegistry->any_of<InactiveEntity>(node))) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
@@ -579,12 +578,12 @@ namespace SliceEngine {
 		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
 		if (ctx.canvas_type == Canvas::WORLD) {
 
+			auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
 			if (node == parent) {	//canvas
 				auto const& canvas_tform = mRegistry->get<Transform>(canvas_entity);
-				auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
 				//convert canvas space to world space
-				canvas_rect.scale_x = (1.f / canvas_rect.final_width) / canvas_tform.scale.x;
-				canvas_rect.scale_y = (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+				canvas_rect.scale_x = 1.f;
+				canvas_rect.scale_y = 1.f;// (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
 			}
 			else {					//child of canvas
 				//update world pos?
@@ -599,12 +598,12 @@ namespace SliceEngine {
 				c_tform.scale.x = rect.final_width / p_rect.final_width; 
 				c_tform.scale.y = rect.final_height / p_rect.final_height; 
 				c_tform.scale.z = 1.f;
-				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x;
-				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y;
-				c_tform.position.z = 0;// world_space_z;
+				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x / canvas_rect.final_width;
+				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y / canvas_rect.final_height;
+				c_tform.position.z = world_space_z;
 				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
 				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
-				//world_space_z += 0.0000001f;
+				world_space_z += 0.0001f;
 				if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
 					world_space_ui.insert(node);
 				}
@@ -617,16 +616,19 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(/*entities_to_draw, */canvas_entity, node, child, rect);
+				get_child_ui(canvas_entity, node, child, rect, force);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}
 	}
 
 	glm::mat4 RectTransform::ToMatrix() const noexcept {
+		float rad = glm::radians(final_rot);
+		float c = cosf(rad);
+		float s = sinf(rad);
 		return {
-			{final_width, 0.f, 0.f, 0.f},
-			{0.f, final_height, 0.f, 0.f},
+			{final_width * c, final_width * s, 0.f, 0.f},
+			{final_height * (-s), final_height * c, 0.f, 0.f},
 			{0.f, 0.f, 1.f, 0.f},
 			{final_x, final_y, 0.f, 1.f}
 		};
