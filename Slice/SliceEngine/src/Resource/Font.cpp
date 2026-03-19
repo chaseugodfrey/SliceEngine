@@ -127,7 +127,7 @@ namespace SliceEngine
 			std::fstream fs(file, std::ios::binary | std::ios::in);
 
 			if (!fs.good()) {
-				std::cout << "Unable to open file: " << file << std::endl;
+				//std::cout << "Unable to open file: " << file << std::endl;
 				return false;
 			}
 
@@ -137,26 +137,26 @@ namespace SliceEngine
 				fs.read(header_buffer, header_size);
 			}
 			catch (...) {
-				std::cout << "Error reading file: " << file << std::endl;
+				//std::cout << "Error reading file: " << file << std::endl;
 				fs.close();
 				return false;
 			}
 
 			if (fs.fail() || fs.eof()) {
-				std::cout << "Unknown file format: " << file << std::endl;
+				//std::cout << "Unknown file format: " << file << std::endl;
 				fs.close();
 				return false;
 			}
 
 			if (header_buffer[0] != 'F' || header_buffer[1] != 'N' || header_buffer[2] != 'T') {
-				std::cout << "Not a proper fnt file: " << file << std::endl;
+				//std::cout << "Not a proper fnt file: " << file << std::endl;
 				fs.close();
 				return false;
 			}
 			auto vers = version_number;
 			vers = *((decltype(version_number)*)(header_buffer + 3));
 			if (vers != version_number) {
-				std::cout << "Wrong version, please recompile: " << file << std::endl;
+				//std::cout << "Wrong version, please recompile: " << file << std::endl;
 				fs.close();
 				return false;
 			}
