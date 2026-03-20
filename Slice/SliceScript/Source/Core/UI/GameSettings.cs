@@ -58,7 +58,7 @@ namespace SliceEngine
             if (settingsPanel != null) settingsPanel.SetActive(true);
             isPauseMenuOpen = true;
             Cursor.state = Cursor.STATE.DEFAULT;
-            //Time.time = 
+            Time.timeScale = 0.0f;
         }
 
 
@@ -73,6 +73,7 @@ namespace SliceEngine
             SliceLog.Console("Resume");
 
             Cursor.state = Cursor.STATE.DISABLED;
+            Time.timeScale = 1.0f;
         }
 
         public void OpenSubSettings()

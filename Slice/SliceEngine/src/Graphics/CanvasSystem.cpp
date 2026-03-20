@@ -562,7 +562,7 @@ namespace SliceEngine {
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node) || (!force&&mRegistry->any_of<InactiveEntity>(node))) {
+		if (!mRegistry->any_of<RectTransform>(node) || (!force && mRegistry->any_of<InactiveEntity>(node))) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);

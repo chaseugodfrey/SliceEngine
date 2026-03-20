@@ -165,7 +165,7 @@ namespace SliceEngine
                 {
                     enemy.Destroy();
                 }
-               // SliceLog.Log("wwwwwwwwww");
+                //SliceLog.Log("wwwwwwwwww");
                 enemies.Clear();
             }
 

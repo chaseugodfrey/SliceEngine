@@ -74,12 +74,12 @@ namespace SliceEngine
             //if (Bootstrap.Player.transform.WorldPosition.Distance(transform.WorldPosition) < 300.0f)
             //{
             //}
-            //AudioSettings.PlaySFX("EnemyProjectile", transform.WorldPosition);
 
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
             GameObject newBullet = CreateGameObject(prefabPath);            
 
+            AudioSettings.PlaySFX("EnemyProjectile", newBullet);
             Transform tempT = newBullet.GetComponent<Transform>();
 
             tempT.Position = startPos;
