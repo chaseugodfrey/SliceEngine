@@ -421,6 +421,66 @@ namespace SliceEditor
 		return elementDiffs;
 	}
 
+	std::vector<bool> ScriptGameObjectListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, bool isMultiSelection)
+	{
+		std::vector<bool> elementDiffs;
+		if (isMultiSelection)
+		{
+			for (auto selectedNode : selectionManager->GetSelectedNodes())
+			{
+				if (selectedNode->type == SelectionType::ENTITY)
+				{
+					Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+					//Check for the script component
+					if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+					{
+						continue;
+					}
+					//Get the script component and check if same script
+					SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+					if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+					{
+						continue;
+					}
+					//Same script so here's the actual difference checker.
+					auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+					//Get the value:
+					auto currentList = scriptRef->GetListFieldValue<SliceEngine::GameObject>(scriptVarName);
+
+					//Compare this list and the "main" list
+					size_t maxSize = std::max(currentList.size(), originalList.size());
+					if (elementDiffs.size() < maxSize)
+					{
+						elementDiffs.resize(maxSize, false); //Set everything to false first.
+					}
+
+					//Difference check per element
+					for (size_t i = 0; i < maxSize; ++i)
+					{
+						bool currentMissing = i >= currentList.size(); //This means the currentList has less variables than the "main"
+						bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one
+
+						if (currentMissing || originalMissing)
+						{
+							//elementDiffs[i] = true; //Idk do i need to set it as diff??? or just ignore it TBC
+							continue;
+						}
+
+						if (currentList[i].GetEntity() != originalList[i].GetEntity())
+						{
+							elementDiffs[i] = true;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			elementDiffs.resize(originalList.size(), false);
+		}
+		return elementDiffs;
+	}
+
 #pragma endregion
 
 #pragma region Multi-Setting Fucntions
@@ -602,7 +662,7 @@ namespace SliceEditor
 		}
 	}
 
-	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList,std::vector<bool>& changedVars)
+	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList,std::vector<MultiSelect>& changedVars)
 	{
 		for (auto selectedNode : selectionManager->GetSelectedNodes())
 		{
@@ -635,23 +695,63 @@ namespace SliceEditor
 
 				//Check vector sizes.
 				size_t maxSize = std::max(currentList.size(), originalList.size());
-
 				size_t safeBounds = std::max(maxSize, changedVars.size());
+				
+				//Other relevant variables
+				float lastValue = 0.0f; //For tracking the last value
 
 				for (size_t i = 0; i < safeBounds; ++i)
 				{
 					bool currentMissing = i >= currentListCopy.size(); //This means the currentList has less variables than the "main"
-					bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one
+					bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one (eg. the main checked has 3 var, but this one has 5)
 
 					if (currentMissing) //Means we added a new variable
 					{
-						scriptRef->AddListFieldValue(scriptVarName, currentListCopy[i - 1]);
+						if(changedVars[i] == MultiSelect::ADDED) //This is to make sure removing from a larger "main checked out" does not add to the smaller values. But this now disables multi-addition for smaller lists to larger lists.
+						{
+							for(size_t j = currentListCopy.size(); j < originalList.size(); ++j) //Add the smaller list until it reaches the size of the originalList
+							{
+								scriptRef->AddListFieldValue(scriptVarName, lastValue);
+							}
+						}
 						continue;
 					}
+					else
+					{
+						lastValue = currentListCopy[i];
+					}
 
-					if (changedVars[i])
+					if (originalMissing) //This value doesnt exist on the main (5th variable while the original has only 3
+					{
+						if (i >= changedVars.size()) //Larger than even the original before removing (only relevant for removing)
+						{
+							continue;
+						}
+						/*If you remove 2nd element and the other selected has 5 elements. Only the first changedVars[i] removed will exist. The rest should be removed or not(?)
+						With the above if check, it will only remove the ONE element that has been marked for removal.*/
+						if (changedVars[i] == MultiSelect::REMOVED)
+						{
+							if (i == (changedVars.size() - 1))
+							{
+								for (size_t idx = currentListCopy.size() - 1; idx >= i; --idx)
+								{
+									scriptRef->RemoveListField(scriptVarName, idx);
+								}
+								break;
+							}
+							scriptRef->RemoveListField(scriptVarName, i);
+						}
+						continue; //Dont do anything (mostly for adding)
+					}
+
+					if (changedVars[i] == MultiSelect::CHANGED)
 					{
 						currentListCopy[i] = originalList[i];
+					}
+
+					if (changedVars[i] == MultiSelect::REMOVED)
+					{
+						scriptRef->RemoveListField(scriptVarName, i);
 					}
 				}
 
@@ -664,6 +764,107 @@ namespace SliceEditor
 		}
 	}
 
+	void ScriptGameObjectListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, std::vector<MultiSelect>& changedVars)
+	{
+		for (auto selectedNode : selectionManager->GetSelectedNodes())
+		{
+			if (selectedNode->type == SelectionType::ENTITY)
+			{
+				Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
+				//Check for the script component
+				if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Script>(currentEntity))
+				{
+					continue;
+				}
+				//Get the script component and check if same script
+				SliceEngine::Script& currentScript = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(currentEntity);
+				if (currentScript.scriptName.empty() || currentScript.scriptName != scriptName)
+				{
+					continue;
+				}
+				//Same script so here's the actual difference checker.
+				auto scriptRef = SliceEngine::gScriptSystem->GetScriptInstance(currentEntity);
+				//Get the value:
+				auto currentList = scriptRef->GetListFieldValue<SliceEngine::GameObject>(scriptVarName);
+				//Referring to the same script entity
+				if (currentList == originalList)
+				{
+					continue;
+				}
+
+				//Copy the value to set here:
+				std::vector<SliceEngine::GameObject> currentListCopy = currentList;
+
+				//Check vector sizes.
+				size_t maxSize = std::max(currentList.size(), originalList.size());
+				size_t safeBounds = std::max(maxSize, changedVars.size());
+
+				//Other relevant variables
+				SliceEngine::GameObject lastValue = SliceEngine::GameObject(); //For tracking the last value
+
+				for (size_t i = 0; i < safeBounds; ++i)
+				{
+					bool currentMissing = i >= currentListCopy.size(); //This means the currentList has less variables than the "main"
+					bool originalMissing = i >= originalList.size(); //This means the originalList has less variables than the currently checked one (eg. the main checked has 3 var, but this one has 5)
+
+					if (currentMissing) //Means we added a new variable
+					{
+						if (changedVars[i] == MultiSelect::ADDED) //This is to make sure removing from a larger "main checked out" does not add to the smaller values. But this now disables multi-addition for smaller lists to larger lists.
+						{
+							for (size_t j = currentListCopy.size(); j < originalList.size(); ++j) //Add the smaller list until it reaches the size of the originalList
+							{
+								scriptRef->AddListFieldValue(scriptVarName, lastValue);
+							}
+						}
+						continue;
+					}
+					else
+					{
+						lastValue = currentListCopy[i];
+					}
+
+					if (originalMissing) //This value doesnt exist on the main (5th variable while the original has only 3
+					{
+						if (i >= changedVars.size()) //Larger than even the original before removing (only relevant for removing)
+						{
+							continue;
+						}
+						/*If you remove 2nd element and the other selected has 5 elements. Only the first changedVars[i] removed will exist. The rest should be removed or not(?)
+						With the above if check, it will only remove the ONE element that has been marked for removal.*/
+						if (changedVars[i] == MultiSelect::REMOVED)
+						{
+							if (i == (changedVars.size() - 1))
+							{
+								for (size_t idx = currentListCopy.size() - 1; idx >= i; --idx)
+								{
+									scriptRef->RemoveListField(scriptVarName, idx);
+								}
+								break;
+							}
+							scriptRef->RemoveListField(scriptVarName, i);
+						}
+						continue; //Dont do anything (mostly for adding)
+					}
+
+					if (changedVars[i] == MultiSelect::CHANGED)
+					{
+						currentListCopy[i] = originalList[i];
+					}
+
+					if (changedVars[i] == MultiSelect::REMOVED)
+					{
+						scriptRef->RemoveListField(scriptVarName, i);
+					}
+				}
+
+				if (currentListCopy != currentList)
+				{
+					scriptRef->SetListField(scriptVarName, currentListCopy);
+					SliceEngine::gScriptSystem->UpdateScriptComponent(currentEntity);
+				}
+			}
+		}
+	}
 
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection)
 	{

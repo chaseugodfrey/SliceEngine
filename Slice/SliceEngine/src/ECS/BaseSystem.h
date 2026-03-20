@@ -97,7 +97,7 @@ namespace SliceEngine
 
 		void PrintComponents(entt::registry& reg, entt::entity entity)
 		{
-			std::cout << "--- Components on Entity " << static_cast<uint32_t>(entity) << " ---" << std::endl;
+			//std::cout << "--- Components on Entity " << static_cast<uint32_t>(entity) << " ---" << std::endl;
 
 			// Go through every registered component
 			for (auto&& [type_id, storage] : reg.storage())
@@ -107,9 +107,9 @@ namespace SliceEngine
 					continue; // entity does not have this component
 				}
 
-				std::cout << " - " << storage.type().name() << std::endl;
+				//std::cout << " - " << storage.type().name() << std::endl;
 			}
-			std::cout << "-------------------------------------------" << std::endl;
+			//std::cout << "-------------------------------------------" << std::endl;
 		}
 
 		void OnRequiredAdded(entt::registry& reg, entt::entity entity)

@@ -445,6 +445,7 @@ namespace SliceEngine
 		//bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
+		bool destroyOnEnd = false;
 
 		RTTR_ENABLE();
 	};
@@ -831,6 +832,7 @@ namespace SliceEngine
 		//Actual settings used to draw
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
+		float final_rot{};						//local rotation only, unaffected by parent-child relation
 
 		//scales used for world space transformation only
 		float scale_x{}, scale_y{};
