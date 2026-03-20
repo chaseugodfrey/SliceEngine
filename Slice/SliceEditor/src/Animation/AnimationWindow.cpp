@@ -569,13 +569,15 @@ namespace SliceEditor
 				ImGui::EndDisabled();
 				ImGui::SameLine();
 
-				static std::filesystem::path targetAnimsPath = std::filesystem::current_path();
+				//static std::filesystem::path targetAnimsPath = std::filesystem::current_path();
+				static std::filesystem::path targetAnimsPath = std::filesystem::path("Assets");
+
 
 				if (ImGui::Button("Create Animation Package"))
 				{
 					if (targetAnimsPath.filename() != "Animations")
 					{
-						targetAnimsPath = targetAnimsPath / "Assets" / "Animations";
+						targetAnimsPath = targetAnimsPath / "Animations";
 						//std::filesystem::current_path(target);
 
 						ImGui::OpenPopup("##SaveAnims_Popup");
@@ -616,7 +618,7 @@ namespace SliceEditor
 							UnLoadSequencePkgData(Anims, mCurrentAnimator->curr_anims);
 
 							newAnimsName = "";
-							targetAnimsPath = std::filesystem::current_path();
+							targetAnimsPath = std::filesystem::path("Assets");
 							ImGui::CloseCurrentPopup();
 
 							if(mCurrentAnimator->curr_anims.animations.size() > 0)
@@ -640,13 +642,16 @@ namespace SliceEditor
 
 				ImGui::SameLine();
 
-				static std::filesystem::path targetAnimPath = std::filesystem::current_path();
+				
+				//static std::filesystem::path targetAnimPath = std::filesystem::current_path();
+				static std::filesystem::path targetAnimPath = std::filesystem::path("Assets");
+				//std::filesystem::path filePath = mAssetDirectory.string() + "/" + "Prefabs" + "/" + mRegistry.get<SliceEntity>(tmpEnt).mName + ".prefab";
 
 				if (ImGui::Button("Add Animation"))
 				{
 					if (targetAnimPath.filename() != "Animations")
 					{
-						targetAnimPath = targetAnimPath / "Assets" / "Animations";
+						targetAnimPath = targetAnimPath / "Animations";
 						//std::filesystem::current_path(target);
 
 						ImGui::OpenPopup("SaveAnim_Popup");
@@ -697,7 +702,7 @@ namespace SliceEditor
 							}
 
 							newAnimName = "";
-							targetAnimPath = std::filesystem::current_path();
+							targetAnimPath = std::filesystem::path("Assets");;
 							ImGui::CloseCurrentPopup();
 
 							LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
@@ -1236,16 +1241,18 @@ namespace SliceEditor
 		{
 			if (ImGui::Selectable("Add Key"))
 			{
+				Transform* trf = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Transform>(tmpEnt);
+
 				switch (mOpenSRTVar)
 				{
 				case 0:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),trf->position});
 					break;
 				case 1:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
 					break;
 				case 2:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),{0.f,0.f,0.f} });
+					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),trf->scale });
 					break;
 				}
 				
