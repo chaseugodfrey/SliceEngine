@@ -36,7 +36,7 @@ namespace SliceEngine
 		float spatialBlend = 1.0f;
 		float minDistance = 1.0f;
 		float maxDistance = 30.0f;
-		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Logarithmic;
+		AudioSource::VolumeRollOff volumeRollOff = AudioSource::VolumeRollOff::Linear;
 		float _lastPlayed = -999.f;
 		float minInterval = 0.f;
 	};
@@ -74,7 +74,7 @@ namespace SliceEngine
 		void SetMaxInstances(const std::string& key, int maxInstances);
 		const int GetMaxInstances(const std::string& key);
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
-		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f));
+		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f), Entity parent = entt::null);
 		void Release();
 
 

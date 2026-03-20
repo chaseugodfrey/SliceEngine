@@ -124,6 +124,11 @@ namespace SliceEngine
             return new GameObject(entityID);
         }
 
+        public void SetParent(GameObject parent)
+        {
+            FunctionCalls.Entity_SetParent(mID, parent.mID);
+        }
+
         public GameObject FindGameObjectWithID(uint id)
         {
             uint entityID = FunctionCalls.Entity_FindEntityWithID(id);
@@ -165,7 +170,17 @@ namespace SliceEngine
         {
             return (int)mID;
         }
+        
+        public bool isValid()
+        {
+            if (!FunctionCalls.Entity_IsValid(mID))
+            {
+                mID = 0;
+                return false;
+            }
 
+            return true;
+        }
         public static bool operator ==(GameObject lhs, GameObject rhs)
         {
             if (ReferenceEquals(lhs, rhs)) return true;

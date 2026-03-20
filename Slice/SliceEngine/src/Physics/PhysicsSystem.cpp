@@ -95,6 +95,7 @@ namespace SliceEngine
 			// Connect entt component update signals to publish modification events (need 'template' keyword because of dependent context)
 			mRegistry->on_update<RigidBody>().template connect<&NotifyRigidBodyModified>();
 			//mRegistry->on_update<ColliderShape>().template connect<&NotifyColliderShapeModified>();
+			mRegistry->on_update<ColliderShape>().connect<&PhysicsSystem::OnColliderModified>(this);
 
 			mRegistry->on_construct<InactiveEntity>().connect<&PhysicsSystem::OnEntityDisabled>(this);
 			mRegistry->on_destroy<InactiveEntity>().connect<&PhysicsSystem::OnEntityEnabled>(this);
@@ -242,31 +243,31 @@ namespace SliceEngine
 	}
 
 	// componeent enable check
-	void PhysicsSystem::OnColliderModified(const ColliderShapeModifiedEvent& event)
+	void PhysicsSystem::OnColliderModified(entt::registry& reg, entt::entity entity)
 	{
-		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(event.entity);
+		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (!checkEntity.HasComponent<ColliderShape>())
 			return;
 
-		auto& colliderShape = mRegistry->get<ColliderShape>(event.entity);
-		auto& transform = mRegistry->get<Transform>(event.entity);
+		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
 		//auto& slice = mRegistry->get<SliceEntity>(event.entity);
 
 		if(colliderShape.shape == nullptr)
 			return;
 
-		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		if (colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(entity))
 		{
 			if (colliderShape.bodyID.IsInvalid())
 			{
-				CreateJoltBody(event.entity);
+				CreateJoltBody(entity);
 			}
 		}
-		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(event.entity))
+		else if (!colliderShape.componentEnabled && !mRegistry->any_of<InactiveEntity>(entity))
 		{
 			if (!colliderShape.bodyID.IsInvalid())
 			{
-				DeleteJoltBody(event.entity);
+				DeleteJoltBody(entity);
 			}
 		}
 
@@ -293,8 +294,8 @@ namespace SliceEngine
 			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
 															fabs(transform.scale.y),
 															fabs(transform.scale.z));
-			//std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
-			//std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
+			////std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
+			////std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
 			if ((tempScale == halfExtents) && (colliderShape.offSet == colliderShape.prevOffSet)) // in case there is issue look here future me
 			{
 				return;
@@ -321,9 +322,9 @@ namespace SliceEngine
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
 				// end debug later delete
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -382,9 +383,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -443,9 +444,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -508,9 +509,9 @@ namespace SliceEngine
 
 				physicsSystem->GetBodyInterface().SetShape(colliderShape.bodyID, colliderShape.shape, true, JPH::EActivation::DontActivate);
 
-				if (mRegistry->any_of<RigidBody>(event.entity))
+				if (mRegistry->any_of<RigidBody>(entity))
 				{
-					auto& rb = mRegistry->get<RigidBody>(event.entity);
+					auto& rb = mRegistry->get<RigidBody>(entity);
 					if (!rb.isKinematic)
 					{
 						JPH::BodyLockWrite lock(physicsSystem->GetBodyLockInterface(), colliderShape.bodyID);
@@ -586,7 +587,7 @@ namespace SliceEngine
 			mp->SetAngularDamping(rigidBody.angularDamping);
 		}
 
-		//std::cout << (int)event.entity <<"Rigidbody modified\n";
+		////std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
 	//void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
@@ -1212,11 +1213,27 @@ namespace SliceEngine
 			// Add triangles - iterate over INDICES, not meshes!
 			for (size_t i = 0; i < mesh.indices.size(); i += 3)
 			{
-				triangles.push_back(JPH::IndexedTriangle(
-					vertexOffset + mesh.indices[i],
-					vertexOffset + mesh.indices[i + 1],
-					vertexOffset + mesh.indices[i + 2]
-				));
+				//i dont fking know whats going on anymore
+				uint32_t i0 = vertexOffset + mesh.indices[i];
+				uint32_t i1 = vertexOffset + mesh.indices[i + 1];
+				uint32_t i2 = vertexOffset + mesh.indices[i + 2];
+
+				// Get the three vertices
+				JPH::Vec3 v0(vertices[i0].x, vertices[i0].y, vertices[i0].z);
+				JPH::Vec3 v1(vertices[i1].x, vertices[i1].y, vertices[i1].z);
+				JPH::Vec3 v2(vertices[i2].x, vertices[i2].y, vertices[i2].z);
+
+				// Check for degenerate triangle
+				JPH::Vec3 normal = (v1 - v0).Cross(v2 - v0);
+				if (normal.LengthSq() < 1e-10f)
+				{
+					//std::cout << "[DEGENERATE TRIANGLE SKIPPED] at ("
+						//<< v0.GetX() << "," << v0.GetY() << "," << v0.GetZ() << ")"
+						//<< std::endl;
+					continue; // skip this triangle
+				}
+
+				triangles.push_back(JPH::IndexedTriangle(i0, i1, i2));
 			}
 
 			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
@@ -1465,7 +1482,7 @@ namespace SliceEngine
 		//
 		//if (testBodyID.IsInvalid())
 		//{
-		//	std::cout << "ALOYSISU INVALID BODYID 67676767\n";
+		//	//std::cout << "ALOYSISU INVALID BODYID 67676767\n";
 		//}
 
 
@@ -1538,7 +1555,7 @@ namespace SliceEngine
 		// Subscribe to the RigidBodyRemovedEvent
 		eventManager->Subscribe<RigidBodyRemovedEvent, &PhysicsSystem::OnRigidBodyRemove>(this);
 
-		eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
+		//eventManager->Subscribe<ColliderShapeModifiedEvent, &PhysicsSystem::OnColliderModified>(this);
 
 		eventManager->Subscribe<RigidBodyModifiedEvent, &PhysicsSystem::OnRigidBodyModified>(this);
 

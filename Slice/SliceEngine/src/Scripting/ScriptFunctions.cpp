@@ -30,6 +30,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
+#include "../Systems/FramerateManager.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4002)
@@ -238,7 +239,7 @@ namespace SliceEngine
 
 	static int Input_GetCursorState()
 	{
-		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCursorState());
+		return static_cast<int>(Core::GetInstance()->GetInputSystem()->GetCurrCursorState());
 	}
 
 	static void Input_SetCursorState(int lockState)
@@ -1705,17 +1706,12 @@ namespace SliceEngine
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position, uint32_t parentID)
 	{
 		std::string key = MonoToString(string);
-		if (position == glm::vec3(0.f))
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
-		}
-		else
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
-		}
+		Entity parent = (parentID == 0) ? entt::null : static_cast<Entity>(parentID);
+
+		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -1891,6 +1887,7 @@ namespace SliceEngine
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
+		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) == 0)
 		{
@@ -1898,7 +1895,6 @@ namespace SliceEngine
 			return nullptr;
 		}
 
-		std::string cStrName = MonoToString(baseName);
 
 		if (gScriptSystem->mEntityInstances.count((Entity)entityID) > 0)
 		{
@@ -2045,7 +2041,7 @@ namespace SliceEngine
 			if (cStrName == "EnemyTest")
 			{
 				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
-				//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
+				//	//std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
@@ -2053,6 +2049,23 @@ namespace SliceEngine
 		SLICE_LOG_ERROR("Unable to create prefab from: " + cStrName);
 
 		return 0;
+	}
+
+	static void Entity_SetParent(unsigned int entity, unsigned int parent)
+	{
+		if (entity != entt::null && parent != entt::null)
+		{
+			FactoryInstance.SetParent((Entity)entity, (Entity)parent);
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Invalid entity ID(s) provided to SetParent.");
+		}
+	}
+
+	static bool Entity_IsValid(unsigned int entity)
+	{
+		return FactoryInstance.mRegistry.valid((Entity)entity);
 	}
 
 	static unsigned int CloneGO(MonoString* GoName)
@@ -2323,7 +2336,7 @@ namespace SliceEngine
 
 	static void Skybox_SetLightingPower(float* target)
 	{
-		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+		SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
 	}
 	static void Skybox_SetZenithColor(glm::vec3* target)
 	{
@@ -2839,6 +2852,27 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Material
+	static void Renderer_SetCastShadow(uint32_t entityID, bool castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.castShadow = castShadow;
+		}
+	}
+	static void Renderer_GetCastShadow(uint32_t entityID, bool* castShadow)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*castShadow = renderer.castShadow;
+		}
+	}
+
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2859,7 +2893,44 @@ namespace SliceEngine
 			*color = renderer.materialInstance.color;
 		}
 	}
+	static void Material_SetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			renderer.materialInstance.color2 = *color;
+		}
+	}
+	static void Material_GetColorEmission(uint32_t entityID, glm::vec4* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Renderer>())
+		{
+			auto& renderer = GO.GetComponent<Renderer>();
+			*color = renderer.materialInstance.color2;
+		}
+	}
 #pragma endregion
+	
+#pragma region Time
+
+	static float Time_GetTimeScale()
+	{
+		return SliceEngine::Core::GetInstance()->GetSceneSystem()->GetTimeScale();
+	}
+
+	static void Time_SetTimeScale(float timeScale)
+	{
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTimeScale(timeScale);
+	}
+
+	static float Time_GetDeltaTimeUnscaled()
+	{
+		return SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+	}
 
 #pragma region Application
 
@@ -2927,6 +2998,11 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Scene_LoadScene);
 		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
 
+		// Time
+		ADD_INTERNAL_CALL(Time_GetDeltaTimeUnscaled);
+		ADD_INTERNAL_CALL(Time_SetTimeScale);
+		ADD_INTERNAL_CALL(Time_GetTimeScale);
+
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 
@@ -2946,6 +3022,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_FindEntityWithID);
 		ADD_INTERNAL_CALL(Entity_IsActive);
 		ADD_INTERNAL_CALL(Entity_SetActive);
+		ADD_INTERNAL_CALL(Entity_SetParent);
+		ADD_INTERNAL_CALL(Entity_IsValid);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
@@ -3237,9 +3315,14 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
+		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
 		ADD_INTERNAL_CALL(Material_GetColor);
+		ADD_INTERNAL_CALL(Material_SetColorEmission);
+		ADD_INTERNAL_CALL(Material_GetColorEmission);
 
 		// Skybox
 		ADD_INTERNAL_CALL(Skybox_GetLightingPower);

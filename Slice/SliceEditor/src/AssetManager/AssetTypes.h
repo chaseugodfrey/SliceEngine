@@ -195,17 +195,49 @@ namespace SliceEditor
 		}
 	};
 
+	struct DefaultMeta : public MetaData
+	{	
+		std::filesystem::path Serialize(const std::filesystem::path&) override
+		{
+			return std::filesystem::path("");
+		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+		}
+	};
+
 	struct TextureData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
 		CompressionFormat cmp_format{ CompressionFormat::BC3 };
-		MipMapFilter mip_filter{ MipMapFilter::NONE };
+		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
 		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
 		UsageType usage_type{ UsageType::COLOR };
 
-		float comp_quality{ 0.5f };
+		float comp_quality{ 1.f };
 		bool generateMips{ true };
 		unsigned char mip_count{ 8 };
 		bool hasAlpha{ true };
@@ -869,7 +901,9 @@ namespace SliceEditor
 		SliceEngine::GUID shader = (SliceEngine::GUID)0;
 		//GUID normalMap;
 		glm::vec4 color{ 1.0f };
+		glm::vec4 color2{ 1.0f };
 		bool isTranslucent{ false };
+		bool isIgnoreLighting{ false };
 		std::map<std::string, std::variant<bool, uint32_t, int32_t, float, SliceEngine::GUID>> data;
 		
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
@@ -987,8 +1021,12 @@ namespace SliceEditor
 			}
 
 			from_json(metaJson["color"], color);
+			if (metaJson.contains("color2"))
+				from_json(metaJson["color2"], color2);
 			if(metaJson.contains("translucency"))
 				isTranslucent = metaJson["translucency"];
+			if(metaJson.contains("ignoreLights"))
+				isIgnoreLighting = metaJson["ignoreLights"];
 			inFile.close();
 		}
 
@@ -998,7 +1036,9 @@ namespace SliceEditor
 			// specific properties to shader goes here but we dh that yet
 			metaJson["shader"] = shader.GetGUID();
 			to_json(metaJson["color"], color);
+			to_json(metaJson["color2"], color2);
 			metaJson["translucency"] = isTranslucent;
+			metaJson["ignoreLights"] = isIgnoreLighting;
 			nlohmann::json dataJson = nlohmann::json::object();
 			for (const auto& [key, val] : data)
 			{

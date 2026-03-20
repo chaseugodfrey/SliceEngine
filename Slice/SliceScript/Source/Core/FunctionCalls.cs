@@ -11,6 +11,15 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetDeltaTimeUnscaled();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetTimeScale();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Time_SetTimeScale(float time);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -122,6 +131,9 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_PlaySFX(string key, ref Vector3 position, uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
@@ -575,6 +587,12 @@ namespace SliceEngine
         internal extern static uint Entity_FindEntityWithID(uint id);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint Entity_SetParent(uint id, uint parent);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Entity_IsValid(uint entity);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static uint CreateNewGameObject(string prefabName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -740,10 +758,22 @@ namespace SliceEngine
 
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_SetColor(uint entityID, ref Vector4 value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_GetColorEmission(uint entityID, out Vector4 color);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Material_SetColorEmission(uint entityID, ref Vector4 value);
 
         // Skybox
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

@@ -392,6 +392,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"vNom", CSHAD_T::VEC3},
 			{"vUV", CSHAD_T::VEC2},
 			{"color", CSHAD_T::VEC4},
+			{"color2", CSHAD_T::VEC3},
 			{"time", CSHAD_T::FLOAT}
 		};
 		std::unordered_map<CSHAD_T, std::string> cDefaultEmptyVals
@@ -524,7 +525,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			// Extract Functions
 			std::unordered_map<std::string, std::string> fragInclFunctions{};
 			std::string fragMainShaderSource{
-R"(void CustomCalc(in vec4 color, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic, inout vec3 finalEmission)
+R"(void CustomCalc(in vec4 color, in vec3 color2, inout vec4 finalCol, inout vec3 finalNormal, inout float finalRoughness, inout float finalMetallic, inout vec3 finalEmission)
 {
 )"};
 			{
@@ -569,7 +570,7 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec4 fMetalRoughData;
+layout (location=4) out vec3 fMetalRoughLightData;
 layout (location=5) out vec3 fEmission;
 )"};
 			std::string translucentInOuts{
@@ -585,11 +586,10 @@ layout (location=4) in mat3 TBN;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 layout (location=1) out uint fGID;
-layout (location=2) out vec4 fEmission;
+layout (location=2) out vec3 fEmission;
 
 struct Light{
 	vec3 position;
-	//float hasShadow;
 	float uFarPlane;
 	vec3 direction;
 	int type;
@@ -602,7 +602,7 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[11];
+	Light uLight[121];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
@@ -637,8 +637,8 @@ struct BasicIDat
 {
 	mat4 mdlMtx;
 	uint entityID;
-	uint textureID; 
-	uint tex2ID;
+	uint isIgnoreLights; 
+	uint col2;
 	uint col;
 };
 
@@ -692,11 +692,16 @@ void main(void){
 	float(iDat[vInstance].col >> 8 & 0xFF),
 	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
+	vec3 color2 = vec3(
+	float(iDat[vInstance].col2 >> 24 & 0xFF),
+	float(iDat[vInstance].col2 >> 16 & 0xFF),
+	float(iDat[vInstance].col2 >> 8 & 0xFF)) / float(0xFF);
+
 	fFragColor = vec4(0.f);
 	float roughness = 0.f;
 	float metallic = 0.f;
 	fEmission = vec3(0.0f);
-	CustomCalc(color, fFragColor, fNormalData, roughness, metallic, fEmission);
+	CustomCalc(color, color2, fFragColor, fNormalData, roughness, metallic, fEmission);
  
 	if(fFragColor.a < 0.00001f)
 		discard;
@@ -704,7 +709,7 @@ void main(void){
 	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughData.xy = vec2(roughness, metallic);
+	fMetalRoughLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
 })" };
 
 			std::string translucentFragEnd{
@@ -723,11 +728,16 @@ void main(void){
 	float(iDat[vInstance].col >> 8 & 0xFF),
 	float(iDat[vInstance].col & 0xFF)) / float(0xFF);
 
+	vec3 color2 = vec3(
+	float(iDat[vInstance].col2 >> 24 & 0xFF),
+	float(iDat[vInstance].col2 >> 16 & 0xFF),
+	float(iDat[vInstance].col2 >> 8 & 0xFF)) / float(0xFF);
+
 	fFragColor = vec4(0.f);
 	float roughness = 0.f;
 	float metallic = 0.f;
 	vec3 emission = vec3(0.0f);
-	CustomCalc(color, fFragColor, nom, roughness, metallic, emission);
+	CustomCalc(color, color2, fFragColor, nom, roughness, metallic, emission);
  
 	if(translucentIDOnly == 1 && fFragColor.a < translucentSelectThreshold || fFragColor.a < 0.00001f)
 		discard;
@@ -735,11 +745,12 @@ void main(void){
     fGID = iDat[vInstance].entityID;
     if(translucentIDOnly == 1)
 		return;
-    
+	
+	fEmission = emission;    
+
     vec4 dif = fFragColor;
-    fEmission = vec4(emission, 1.0f);
    
-	if(any(notEqual(nom, vec3(0.0f))))
+	if(any(notEqual(nom, vec3(0.0f))) && iDat[vInstance].isIgnoreLights == 0)
 	{
 		nom = normalize(nom);
 
@@ -799,7 +810,7 @@ void main(void){
         }
 	}
 	if(!willBloom)
-		fFragColor += vec4(emission, 0.0f);
+		fFragColor += vec4(fEmission, 0.0f);
 }
 
 

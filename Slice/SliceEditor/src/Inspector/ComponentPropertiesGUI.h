@@ -61,21 +61,21 @@ namespace SliceEditor
 
 	bool CharBitFlagInputHeader(Registry& reg, const char* property_label, const char* id, char& val);
 
-	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val);
+	bool StringInputScriptHeader(Registry& reg, std::function<void(std::string, std::string)> func, const char* property_label, const char* id, std::string& val, bool selectionDifferent);
 	
 	bool StringInput(Registry& reg, const char* id, std::string& val, float width, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
 	bool StringInputHeader(Registry& reg, const char* property_label, const char* id, std::string& val, float width = 0.0f, bool enterReturnsTrue = false, std::function<void(std::string)> func = nullptr, bool selectionDifferent = false);
 
-	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f);
+	bool DragFloatInputScriptHeader(Registry& reg, std::function<void(std::string, float)> func, const char* property_label, const char* id, float& val, const char* format = "%.3f", float min = 0.f, float max = 0.f, bool selectionDifferent = false);
 	
-	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val);
+	bool BoolInputScriptHeader(Registry& reg, std::function<void(std::string, bool)> func, const char* property_label, const char* id, bool& val, bool selectionDifferent);
 
-	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0);
+	bool DragIntInputScriptHeader(Registry& reg, std::function<void(std::string, int)> func, const char* property_label, const char* id, int& val, const char* format = "%d", int min = 0, int max = 0, bool selectionDifferent = false);
 
-	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format = "%.3f", float inc = 0.1, float min = 0.f, float max = 0.f);
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis);
 
-	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val);
+	bool GameObjectInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::GameObject)> func, const char* property_label, const char* id, SliceEngine::GameObject& val, bool selectionDifferent);
 
 	bool PrefabInputScriptHeader(Registry& reg, std::function<void(std::string, SliceEngine::PrefabVar)> func, const char* property_label, const char* id, SliceEngine::PrefabVar& val);
 
@@ -89,9 +89,9 @@ namespace SliceEditor
 
 	bool StringListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<std::string>, std::string, int)> editFunc, const char* property_label, const char* id, std::vector<std::string>& list);
 
-	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list);
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list, std::vector<bool> elementDiffs, std::vector<MultiSelect>& changedVars);
 
-	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format = "%.3f", float inc = 0.1f, float min = 0.0f, float max = 0.0f);
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs,std::vector<MultiSelect>& changedVars);
 
 	bool IntListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<int>, int, int)> editFunc, const char* property_label, const char* id, std::vector<int>& list, const char* format = "%d", float inc = 1.f, int min = 0, int max = 0);
 
@@ -286,7 +286,7 @@ namespace SliceEditor
 			{
 				//const std::string& selectedName = mapNames[selectedIndex];
 				SliceEngine::GUID newGUID = (*mapPtr)[selectedIndex];
-				changed = (handle.getGUID() != newGUID);
+				changed = (handle.getGUID() != newGUID) || multiSelection;
 				if (changed)
 				{
 					if (!setFunc)

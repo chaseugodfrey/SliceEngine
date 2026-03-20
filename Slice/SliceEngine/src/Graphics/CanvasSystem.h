@@ -59,7 +59,7 @@ namespace SliceEngine
 		/*
 		* yea im just gona go through the whole tree twice
 		*/
-		void UpdateHierachy();
+		void UpdateHierachy(bool force = false);
 		void DrawOverlay();
 
 
@@ -74,12 +74,12 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(Entity canvas, Entity parent, Entity node);
+		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect, bool force);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
-		void render_ui_overlay(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
-		void render_ui_eids(Entity canvas, Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_overlay(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
+		void render_ui_eids(Entity camera, std::vector<std::pair<Entity, uint64_t>> const& elements);
 
 
 		//k i realised how render manager uses fbo now
@@ -87,6 +87,7 @@ namespace SliceEngine
 		unsigned int raycast_tex{};
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
 		std::set<Entity> world_space_ui;
+		float world_space_z{};
 
 		static constexpr unsigned int Font_Max_Instance = 200;
 
@@ -94,7 +95,7 @@ namespace SliceEngine
 			glm::mat4 model_to_ndc{};
 			glm::vec4 atlas_uv{};
 		} font_Instances[Font_Max_Instance];
-		unsigned int font_ssbo;
+		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
 

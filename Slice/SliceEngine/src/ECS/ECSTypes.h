@@ -225,7 +225,7 @@ namespace SliceEngine
 	struct Camera
 	{
 		int width{ 1920 }, height{ 1080 };
-		float pov{ 60.f }, near{ 0.01f }, far{ 200.f };// Pov is the angle of y of the screen
+		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
 		GLuint textureID{}, depthTex{};
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
@@ -241,13 +241,13 @@ namespace SliceEngine
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
 		float cloudsIntensity{ 0.3f };
-		float cloudsSmoothness{ 0.0027 };
+		float cloudsSmoothness{ 0.0027f };
 		float cloudsCutoff{ 0.167f };
 		glm::vec4 cloudsColor{ 1.f,1.f,1.f,0.25f };
 		glm::vec3 cloudsSecondCloudOffset{40.f, 40.f, -20.f};
 		float cloudsSecondCloudAmplitude{ 49.f };
 		float cloudsSecondCloudIntensity{ 0.3f };
-		float cloudsSecondCloudSmoothness{ 0.0027 };
+		float cloudsSecondCloudSmoothness{ 0.0027f };
 		glm::vec4 cloudsSecondColor{ 1.f,1.f,1.f,0.25f };
 
 		float translucentSelectCutoff{ 0.2f };
@@ -277,7 +277,7 @@ namespace SliceEngine
 
 	struct Prefab
 	{
-		unsigned int prefabID;
+		unsigned int prefabID{};
 
 		// GUID reference to original prefab
 		GUID prefabGUID{};
@@ -416,8 +416,7 @@ namespace SliceEngine
 		{
 			SFX,
 			BGM,
-			UI,
-			EditorSounds
+			UI
 		};
 		//std::string soundName;
 		bool componentEnabled{ true };
@@ -436,7 +435,7 @@ namespace SliceEngine
 		//3D effects
 		float dopplerLevel = 1.0f;
 		float spread = 1.0f;
-		VolumeRollOff volumeRollOff = Logarithmic;
+		VolumeRollOff volumeRollOff = Linear;
 		float minDistance = 1.0f;
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
@@ -444,6 +443,7 @@ namespace SliceEngine
 		bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
+		bool destroyOnEnd = false;
 
 		RTTR_ENABLE();
 	};
@@ -481,6 +481,7 @@ namespace SliceEngine
 
 		float glowIntensity{};
 		bool isMeshParticle{false};
+		bool isIgnoreLights{ false };
 
 		GUID modelGUID;
 		GUID materialGUID;
@@ -501,7 +502,8 @@ namespace SliceEngine
 		Transform* parentTransform{ nullptr };
 
 		// System Settings
-		float duration{5.0f};                       // how long the system should last, 0.0f = forever					
+		float duration{5.0f};                // how long the system should last, 0.0f = forever					
+		float initialDelay{};
 		bool isRepeating{ false };
 		bool isLocalSpace{ false };				// false means world space
 		bool followTransformRotation{ true };
@@ -578,7 +580,11 @@ namespace SliceEngine
 		// Shape-Shared params
 		float shapeRadius{ 0.1f };
 		glm::vec3 shapeScale{ 1.0f };
+		float innerShapeRadius{ 0.0f };
 
+		// Shape params that doesnt need to be saved
+		float inner3{};
+		float outer3{};
 
 		glm::vec3 axis = glm::vec3(0, 0, 0);   // emission spread - can be internal
 
@@ -669,6 +675,7 @@ namespace SliceEngine
 		} renderMode{ BILLBOARD };
 
 		bool alwaysFaceCamera{ true };
+		bool ignoreLights{ false };
 
 		GUID textureGUID;
 
@@ -686,6 +693,7 @@ namespace SliceEngine
 		bool systemEnding{ false };				// Turns true when particle system expired and just waiting for its particles to all expire
 		bool expired{ false };					// Turns true when all particles have expired + systemEnding is true
 		bool isActive{ true };
+		float delayTimer{};
 		float systemTimer{};					// system's overall lifetime
 
 		float emissionAccumulator{};
@@ -822,6 +830,10 @@ namespace SliceEngine
 		//Actual settings used to draw
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
+		float final_rot{};						//local rotation only, unaffected by parent-child relation
+
+		//scales used for world space transformation only
+		float scale_x{}, scale_y{};
 
 		//Parent/Canvas reference - done via passing param through the recursive func call maybe
 		void Update(RectTransform const& parent);
@@ -861,14 +873,15 @@ namespace SliceEngine
 		} alignment{ LEFT };
 
 
-		float font_size;
-		float line_spacing;	//multiplier of font_size
+		float font_size{};
+		float line_spacing{};	//multiplier of font_size
 		
-		std::string text{"Hello World\nNew Line"};
+		std::string text{"Hello World"};
 
 		struct Token {
 			//std::string text{};
-			const char* pos{};
+			//const char* pos{};
+			unsigned int pos{};
 			float size{};
 			unsigned int char_cnt{};
 		};

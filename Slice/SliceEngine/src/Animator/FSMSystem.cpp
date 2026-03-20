@@ -233,7 +233,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				std::cout << "wassup error" << std::endl;
+				//std::cout << "wassup error" << std::endl;
 			}
 
 			EFSM.stateCon = false;

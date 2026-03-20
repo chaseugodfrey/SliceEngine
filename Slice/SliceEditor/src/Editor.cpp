@@ -60,7 +60,7 @@ namespace SliceEditor
 		if (action == GLFW_PRESS)
 		{
 			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESSED);
-			std::cout << "Mouse Button Pressed: " << std::endl;
+			//std::cout << "Mouse Button Pressed: " << std::endl;
 		}
 		else if (action == GLFW_RELEASE)
 		{

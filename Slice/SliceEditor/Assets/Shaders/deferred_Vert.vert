@@ -18,8 +18,8 @@ struct BasicIDat
 {
 	mat4 mdlMtx;
 	uint entityID;
-	uint textureID; 
-	uint tex2ID;
+	uint isIgnoreLights; 
+	uint col2;
 	uint col;
 };
 

@@ -14,108 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include "../Core/Core.h"
 
 namespace SliceEngine {
-	namespace {	//helper funcs
-		bool is_child(Entity child_entity, Entity parent_entity, Registry& reg) {
-			SceneGraph node = reg.get<SceneGraph>(parent_entity);
-			if (node.neighbours[SceneGraph::DOWN] == child_entity) {
-				return true;
-			}
-			if (node.neighbours[SceneGraph::DOWN] == entt::null) {
-				return false;
-			}
-			parent_entity = node.neighbours[SceneGraph::DOWN];
-			node = reg.get<SceneGraph>(parent_entity);
-			while (node.neighbours[SceneGraph::RIGHT] != entt::null) {
-				if (node.neighbours[SceneGraph::RIGHT] == child_entity) {
-					return true;
-				}
-
-				parent_entity = node.neighbours[SceneGraph::RIGHT];
-				node = reg.get<SceneGraph>(parent_entity);
-			}
-
-			return false;
-		}
-
-		//my own set parent because gofactory's one looks way too complicated then it shld be
-		//benefit of my own use case is that i can ignore transform since ui ignores it
-		void SetParent(Entity child_entity, Entity parent_entity, Registry& reg) {
-
-			auto& child = reg.get<SceneGraph>(child_entity);
-
-			//assert you cannot have both left AND up not be null at the same time
-			assert(!(child.neighbours[SceneGraph::LEFT] != entt::null && child.neighbours[SceneGraph::UP] != entt::null));
-
-			bool up = child.neighbours[SceneGraph::UP] != entt::null;
-			Entity prev = up
-						? child.neighbours[SceneGraph::UP]
-						: child.neighbours[SceneGraph::LEFT];
-			Entity next = child.neighbours[SceneGraph::RIGHT];
-			
-			//remove child from graph
-			if (next != entt::null) {
-				auto& next_node = reg.get<SceneGraph>(next);
-				next_node.neighbours[SceneGraph::LEFT] = child.neighbours[SceneGraph::LEFT];
-				next_node.neighbours[SceneGraph::UP] = child.neighbours[SceneGraph::UP];
-			}
-			if (prev != entt::null) {
-				auto& prev_node = reg.get<SceneGraph>(prev);
-				if (up) {
-					assert(prev_node.neighbours[SceneGraph::DOWN] == child_entity);
-					prev_node.neighbours[SceneGraph::DOWN] = next;
-				}
-				else {
-					assert(prev_node.neighbours[SceneGraph::RIGHT] == child_entity);
-					prev_node.neighbours[SceneGraph::RIGHT] = next;
-				}
-			}
-
-			/*
-			* this is what u would do, in our case parent_entity shld not be null
-			* so we can ignore
-			*/
-			//if (parent_entity == entt::null) {
-			//	child.neighbours[SceneGraph::LEFT] = entt::null;
-			//	child.neighbours[SceneGraph::UP] = entt::null;
-			//	return;
-			//}
-			//else
-			assert(parent_entity != entt::null);
-
-			//add child to parent
-			auto& parent = reg.get<SceneGraph>(parent_entity);
-			bool down = parent.neighbours[SceneGraph::DOWN] == entt::null;
-
-			if (down) {
-				parent.neighbours[SceneGraph::DOWN] = child_entity;
-
-				child.neighbours[SceneGraph::UP] = parent_entity;
-				child.neighbours[SceneGraph::LEFT] = entt::null;
-			}
-			else {
-				Entity parent_down = parent.neighbours[SceneGraph::DOWN];
-				SceneGraph down_node_copy = reg.get<SceneGraph>(parent_down);
-				assert(down_node_copy.neighbours[SceneGraph::LEFT] == entt::null);
-
-				while (down_node_copy.neighbours[SceneGraph::RIGHT] != entt::null) {
-					parent_down = down_node_copy.neighbours[SceneGraph::RIGHT];
-					down_node_copy = reg.get<SceneGraph>(parent_down);
-				}
-				auto& down_node = reg.get<SceneGraph>(parent_down);
-				down_node.neighbours[SceneGraph::RIGHT] = child_entity;
-
-				child.neighbours[SceneGraph::UP] = entt::null;
-				child.neighbours[SceneGraph::LEFT] = parent_down;
-			}
-
-			//check state
-
-			//assert you cannot have both left AND up not be null at the same time
-			assert(!(child.neighbours[SceneGraph::LEFT] != entt::null && child.neighbours[SceneGraph::UP] != entt::null));
-		}
-	}
-
-
+	
 #pragma region Slider
 
 	//sets the value, positions the handle and fill, and calls c# callback
@@ -136,12 +35,8 @@ namespace SliceEngine {
 		if (axis == X_Axis) {
 			handle_pos = (int)(rect.final_width * value);
 
-			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
-				//ensure handle is direct child of self
-				if (!is_child(handle, self, reg)) {
-				//	SetParent(handle, self, reg);
-				}
-
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
+			
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				handle_rect.vert_pivot = RectTransform::MIDDLE;
 				handle_rect.pos_y = 0;
@@ -156,11 +51,8 @@ namespace SliceEngine {
 				}
 			}
 
-			if (fill != entt::null && reg.any_of<RectTransform>(fill)) {
-				if (!is_child(fill, self, reg)) {
-				//	SetParent(fill, self, reg);
-				}
-
+			if (fill != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(fill)) {
+			
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
 				fill_rect.top = 0;
@@ -180,12 +72,8 @@ namespace SliceEngine {
 		else {
 			handle_pos = (int)(rect.final_height * value);
 
-			if (handle != entt::null && reg.any_of<RectTransform>(handle)) {
-				//ensure handle is direct child of self
-				if (!is_child(handle, self, reg)) {
-					SetParent(handle, self, reg);
-				}
-
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
+		
 				auto& handle_rect = reg.get<RectTransform>(handle);
 				//ensure that handle's settings r fixed
 				handle_rect.hori_pivot = RectTransform::CENTER;
@@ -201,11 +89,8 @@ namespace SliceEngine {
 				}
 			}
 
-			if (fill != entt::null && reg.any_of<RectTransform>(fill)) {
-				if (!is_child(fill, self, reg)) {
-					SetParent(fill, self, reg);
-				}
-
+			if (fill != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(fill)) {
+		
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;
 				fill_rect.left = 0;
@@ -243,16 +128,16 @@ namespace SliceEngine {
 		* ismousereleased = mouse up
 		* ismousedown = ismousepressed
 		*/
-		//std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
+		////std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
 		if (!input.IsMouseDown(MouseButtons::LEFT) || !mRegistry->any_of<Slider>(raycast_entity)) {
 			return;
 		}
-		//std::cout << "handling" << std::endl;
+		////std::cout << "handling" << std::endl;
 		auto& slider = mRegistry->get<Slider>(raycast_entity);
 		if (!slider.componentEnabled) {
 			return;
 		}
-		//std::cout << "value: " << slider.GetValue() << std::endl;
+		////std::cout << "value: " << slider.GetValue() << std::endl;
 		auto const& rect = mRegistry->get<RectTransform>(raycast_entity);
 
 		glm::vec2 direction{};
@@ -288,7 +173,8 @@ namespace SliceEngine {
 		float rel_x = mouse_x - (rect.final_x - (float)rect.final_width / 2);
 		float target_value = rel_x / rect.final_width;
 
-		assert(target_value <= 1.f && target_value >= 0.f);
+		//assert(target_value <= 1.f && target_value >= 0.f);
+		target_value = std::clamp(target_value, 0.f, 1.f);
 		slider.SetValue(target_value, raycast_entity);
 	}
 

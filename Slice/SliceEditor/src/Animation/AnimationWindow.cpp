@@ -92,6 +92,8 @@ namespace SliceEditor
 			ClearData();
 			return false;
 		}
+
+		return false;
 	}
 
 	void AnimationWindow::LoadDataFromAnimator(SliceEngine::Animator* component, entt::entity entity)

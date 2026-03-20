@@ -234,7 +234,9 @@ namespace SliceEngine
 		GUID newShaderGUID = loadedMaterialData.shader.getGUID();//(GUID)materialJson["shader"].get<uint64_t>();
 
 		materialToReload->color = loadedMaterialData.color;
+		materialToReload->color2 = loadedMaterialData.color2;
 		materialToReload->isTranslucent = loadedMaterialData.isTranslucent;
+		materialToReload->isIgnoreLighting = loadedMaterialData.isIgnoreLighting;
 		auto oldData = materialToReload->data; // Do I even need old Data? This whole reload function calls when shader change, and when material changes
 		materialToReload->data.clear();
 

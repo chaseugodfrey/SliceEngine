@@ -184,6 +184,12 @@ namespace SliceEditor
 
 		core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(entity, [&](SliceEngine::SliceEntity& slicePatch)
 		{
+			if(slicePatch.mLayer >= layer_name_list.size())
+			{
+				SLICE_LOG_WARNING("why u deletus fetus the physics asset");
+				layer_manager->AssignLayer("Default", entity); //in case the physics asset was deleted
+			}
+
 			if (LayerHeader(mRegistry, "Layer", "##layer", slicePatch.mLayer, layer_name_list, false, ComboMultipleSelection(selectionManager, slicePatch.mLayer, isMultipleSelection, funcLayer)))
 			{
 				//Multi-Selection Setting for Layers
@@ -196,6 +202,11 @@ namespace SliceEditor
 							Entity currentEntity = static_cast<EntityNode*>(selectedNode)->entity;
 							core->GetInstance()->GetRegistry().patch<SliceEngine::SliceEntity>(currentEntity, [&](SliceEngine::SliceEntity& currentSlice)
 								{
+									if (currentSlice.mLayer >= layer_name_list.size())
+									{
+										SLICE_LOG_WARNING("why u deletus fetus the physics asset");
+										layer_manager->AssignLayer("Default", currentEntity); //in case the physics asset was deleted
+									}
 									currentSlice.mLayer = slicePatch.mLayer;
 								});
 						}
@@ -357,7 +368,7 @@ namespace SliceEditor
 		{
 			auto& rect = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::RectTransform>(entity);
 
-			DisplayComponentHeader<SliceEngine::RectTransform>(entity, false);
+			DisplayComponentHeader<SliceEngine::RectTransform>(entity, true);
 
 			static std::vector<std::string> hori_enums{ "Left", "Center", "Right", "Stretch" };
 			static std::vector<std::string> vert_enums{ "Top", "Middle", "Bottom", "Stretch" };
@@ -381,6 +392,8 @@ namespace SliceEditor
 				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
 				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
 			}
+
+			DragFloatInputHeader(mRegistry, "Rotation", "##rect_rot", rect.final_rot, "R: %f", 0.f, 360.f);
 			ImGui::TreePop();
 		}
 	}
@@ -391,7 +404,7 @@ namespace SliceEditor
 		{
 			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::SpriteRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
 			//glm::vec3 rgb;
@@ -418,7 +431,7 @@ namespace SliceEditor
 		{
 			auto& font = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::FontRenderer>(entity);
 
-			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, false);
+			DisplayComponentHeader<SliceEngine::FontRenderer>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", font.componentEnabled);
 
@@ -457,7 +470,7 @@ namespace SliceEditor
 		{
 			auto& canvas = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Canvas>(entity);
 
-			DisplayComponentHeader<SliceEngine::Canvas>(entity, false);
+			DisplayComponentHeader<SliceEngine::Canvas>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", canvas.componentEnabled);
 
@@ -477,7 +490,7 @@ namespace SliceEditor
 		{
 			auto& button = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Button>(entity);
 
-			DisplayComponentHeader<SliceEngine::Button>(entity, false);
+			DisplayComponentHeader<SliceEngine::Button>(entity, true);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", button.componentEnabled);
 
@@ -517,6 +530,9 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::Slider::Axis>(mRegistry, "Axis", "##slideraxis", slider.axis, axis_enums);
 			ComboHeader<SliceEngine::Slider::Direction>(mRegistry, "Direction", "##sliderdirection", slider.direction, direction_enums);
 
+			EntityInputHeader(mRegistry, "Fill", "##sliderfill", slider.fill);
+			EntityInputHeader(mRegistry, "Handle", "##sliderhandle", slider.handle);
+
 			float new_val = slider.GetValue();
 			if (SliderFloatInputHeader(mRegistry, "Value", "##sliderVal", new_val, "%.1f", 0.0, 1.0)) {
 				slider.SetValue(new_val, entity);
@@ -542,6 +558,10 @@ namespace SliceEditor
 					BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", as.componentEnabled);
 
 					GUIDDragDropInputHeader(mRegistry, "Audio Clip", "##audio_clip", as.soundGUID, "Audio");
+
+					static std::vector<std::string> soundCategoryTypes{ "SFX", "BGM", "UI"};
+
+					ComboHeader<SliceEngine::AudioSource::Category>(mRegistry, "Sound Category", "##soundCategory", as.category, soundCategoryTypes);
 
 					DragIntInputHeader(mRegistry, "Priority", "##priority", as.priority, "%d", 0, 256);
 					BoolInputHeader(mRegistry, "Is Mute", "##Mute", as.isMute);
@@ -627,7 +647,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> modelFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					if(SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).modelHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 			
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##rend_mesh", rend.modelHandle, "Model", nullptr, isMultipleSelection, modelFunc))
@@ -652,7 +679,14 @@ namespace SliceEditor
 			std::function<SliceEngine::GUID(Entity)> materialFunc =
 				[&](Entity e)
 				{
-					return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::Renderer>(e))
+					{
+						return SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Renderer>(e).materialHandle.getGUID();
+					}
+					else
+					{
+						return SliceEngine::GUID(0);
+					}
 				};
 
 			if (HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##rend_mat", rend.materialHandle, "Material", nullptr, isMultipleSelection, materialFunc))
@@ -1005,6 +1039,9 @@ namespace SliceEditor
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
 		auto& script = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Script>(entity);
+		auto selectionManager = mRegistry.GetManager<SelectionManager>("Selection");
+		bool isMultipleSelection = selectionManager->GetSelectedNodes().size() > 1 ? true : false;
+
 
 		if (ImGui::TreeNodeEx("Script", mBaseFlags))
 		{
@@ -1148,7 +1185,7 @@ namespace SliceEditor
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
 								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
-
+								std::vector<MultiSelect> changedVars;
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
 										if (std::strcmp(funcToExec, "Edit") == 0)
@@ -1165,10 +1202,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f",0.1f, 0.f,0.f, ScriptFloatListElementDifferent(selectionManager, script.scriptName, it.second.mName, data,isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<float>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptFloatListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 
@@ -1256,6 +1298,7 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								auto data = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::vector<MultiSelect> changedVars;
 
 								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
 									{
@@ -1273,10 +1316,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptGameObjectListElementDifferent(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptGameObjectListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 						}
@@ -1295,9 +1343,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragFloatInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f", 0.0f,0.0f, ScriptFloatMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if(isMultipleSelection)
+									{
+										ScriptFloatMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1308,9 +1360,13 @@ namespace SliceEditor
 									{
 										sp->SetFieldValue(name, val);
 									};
-								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (BoolInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptBoolMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptBoolMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1322,9 +1378,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str))
+								if (StringInputScriptHeader(mRegistry,func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), str, ScriptStringMultipleSelection(selectionManager, script.scriptName, it.second.mName, str, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue<std::string>(it.second.mName, str);
+									if (isMultipleSelection)
+									{
+										ScriptStringMultiSet(selectionManager, script.scriptName, it.second.mName, str);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1336,23 +1396,32 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragIntInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%d", 0,0, ScriptIntMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptIntMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
 							else if (it.second.mType == SliceEngine::ScriptFieldType::Vector3)
 							{
 								glm::vec3 data = scriptRef->GetFieldValue<glm::vec3>(it.second.mName);
+								std::array<bool, 3> changedAxis{ false,false,false };
 								std::function<void(std::string, glm::vec3)> func = [sp = scriptRef](std::string name, glm::vec3 val)
 									{
 										sp->SetFieldValue(name, val);
 									};
 
-								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (DragVec3InputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data,"%.3f",0.1f,0.0f,0.0f, ScriptVector3MultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), &changedAxis))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptVector3MultiSet(selectionManager, script.scriptName, it.second.mName, data, changedAxis);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1366,9 +1435,13 @@ namespace SliceEditor
 										sp->SetFieldValue(name, val);
 									};
 
-								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (GameObjectInputScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptGameObjMultipleSelection(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection)))
 								{
 									scriptRef->SetFieldValue(it.second.mName, data);
+									if (isMultipleSelection)
+									{
+										ScriptGameObjMultiSet(selectionManager, script.scriptName, it.second.mName, data);
+									}
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 								}
 							}
@@ -1542,25 +1615,28 @@ namespace SliceEditor
 
 			if (ImGui::CollapsingHeader("Initialization", ImGuiTreeNodeFlags_DefaultOpen))
 			{
+				// Initial Delay
+				DragFloatInputHeader(mRegistry, "Initial Delay", "##initialDelay", ps.initialDelay, "%.2f", 0.0f, 100.f);
+
 				// Duration
-				DragFloatInputHeader(mRegistry, "Duration", "##duration", ps.duration, "%.1f", 0.0f, 100.f);
+				DragFloatInputHeader(mRegistry, "Duration", "##duration", ps.duration, "%.2f", 0.0f, 100.f);
 				
 				// Looping
 				BoolInputHeader(mRegistry, "Looping", "##looping", ps.isRepeating);
 				
-				// Follow Parent Transform
-				BoolInputHeader(mRegistry, "Follow Parent Rotation", "##followParentRotation", ps.followTransformRotation);
+				// Follow GameObject Transform
+				BoolInputHeader(mRegistry, "Follow Transform Rotation", "##followTransformRotation", ps.followTransformRotation);
 
 				// Start Speed
 				switch (ps.speedValueType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Start Speed", "##startSpeed", ps.speed, "%.2f", 0.0f);
 					break;
 
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.1f", 0.0f);
-					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.1f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Min Start Speed", "##minStartSpeed", ps.minRandomSpeed, "%.2f", 0.0f);
+					DragFloatInputHeader(mRegistry, "Max Start Speed", "##maxStartSpeed", ps.maxRandomSpeed, "%.2f", 0.0f);
 					break;
 				default:
 					break;
@@ -1572,11 +1648,11 @@ namespace SliceEditor
 				switch (ps.initialLifetimeType)
 				{
 				case SliceEngine::ParticleSystem::ValueType::CONSTANT:
-					DragFloatInputHeader(mRegistry, "Start Lifetime", "##startLifetime", ps.lifetime, "%.1f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Start Lifetime", "##startLifetime", ps.lifetime, "%.2f", 0.0f, 0.f);
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
-					DragFloatInputHeader(mRegistry, "Min Lifetime", "##minLifetime", ps.minParticleLifetime, "%.1f", 0.0f, 0.f);
-					DragFloatInputHeader(mRegistry, "Max Lifetime", "##maxLifetime", ps.maxParticleLifetime, "%.1f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Min Lifetime", "##minLifetime", ps.minParticleLifetime, "%.2f", 0.0f, 0.f);
+					DragFloatInputHeader(mRegistry, "Max Lifetime", "##maxLifetime", ps.maxParticleLifetime, "%.2f", 0.0f, 0.f);
 					break;
 				default:
 					break;
@@ -1629,7 +1705,7 @@ namespace SliceEditor
 					}
 					else 
 					{
-						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.1f", 0.0f, 360.f);
+						DragFloatInputHeader(mRegistry, "Rotation", "##rot", ps.rotation, "%.2f", 0.0f, 360.f);
 					}					
 					break;
 				case SliceEngine::ParticleSystem::ValueType::TWO_CONSTANTS:
@@ -1640,8 +1716,8 @@ namespace SliceEditor
 					}
 					else 
 					{
-						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "&.1f", 0.f, 360.f);
-						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "&.1f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Min Rotation", "##minRot", ps.minRandomRotation, "%.2f", 0.f, 360.f);
+						DragFloatInputHeader(mRegistry, "Max Rotation", "##maxRot", ps.maxRandomRotation, "%.2f", 0.f, 360.f);
 					}					
 					break;
 				default:
@@ -1668,16 +1744,16 @@ namespace SliceEditor
 				ButtonValueTypePopup(ps.colourValueType, "colour");
 
 				// Gravity
-				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.1f", 0.0f, 100.f);
+				DragFloatInputHeader(mRegistry, "Gravity Modifier", "##gravityModifier", ps.gForce, "%.2f", 0.0f, 100.f);
 
 				// Collision
 				BoolInputHeader(mRegistry, "Has Collision", "##hasCollision", ps.hasCollision);
 				if (ps.hasCollision)
 				{
-					DragFloatInputHeader(mRegistry, "Friction", "##frictionModifier", ps.friction, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "Bounciness", "##bouncinessModifier", ps.bounciness, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "BounceDampening", "##bounceDampening", ps.bounceDampening, "%.1f", 0.0f, 1.0f);
-					DragFloatInputHeader(mRegistry, "Stickiness", "##stickinessModifier", ps.stickiness, "%.1f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Friction", "##frictionModifier", ps.friction, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Bounciness", "##bouncinessModifier", ps.bounciness, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "BounceDampening", "##bounceDampening", ps.bounceDampening, "%.2f", 0.0f, 1.0f);
+					DragFloatInputHeader(mRegistry, "Stickiness", "##stickinessModifier", ps.stickiness, "%.2f", 0.0f, 1.0f);
 				}
 
 				// Max Particles
@@ -1699,18 +1775,21 @@ namespace SliceEditor
 				switch (ps.shapeType)
 				{
 				case SliceEngine::ParticleSystem::ShapeType::SPHERE:
-					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.1f", 0.0f, 180.0f);
-					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##sphereArc", ps.sphereArc, "%.2f", 0.0f, 180.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##sphereRadius", ps.shapeRadius, "%.2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerSphereRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CONE:
-					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.1f", 0.0f, 90.0f);
-					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Arc", "##coneArc", ps.coneArc, "%.2f", 0.0f, 90.0f);
+					DragFloatInputHeader(mRegistry, "Radius", "##coneRadius", ps.shapeRadius, " % .2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerConeRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CUBE:
 					DragVec3InputHeader(mRegistry, "Scale", "##cubeScale", ps.shapeScale);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::CIRCLE:
-					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .1f", 0.1f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Circle", "##circleRadius", ps.shapeRadius, " % .2f", 0.0f, std::numeric_limits<float>::max());
+					DragFloatInputHeader(mRegistry, "Inner Radius", "##innerCircleRadius", ps.innerShapeRadius, "%.2f", 0.0f, ps.shapeRadius);
 					break;
 				case SliceEngine::ParticleSystem::ShapeType::RECT:					
 					DragVec2InputHeader(mRegistry, "Scale", "##rectScale", ps.rectScale);
@@ -1993,20 +2072,20 @@ namespace SliceEditor
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string velocityX = ("##velocityMap_X" + std::to_string(counter));
-								modified |= DragFloatInput(mRegistry, velocityX.c_str(), value.x, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, velocityX.c_str(), value.x, "%.2f", -FLT_MAX, FLT_MAX);
 
 								ImGui::TableNextColumn();
 								ImGui::SetNextItemWidth(itemWidth);
 								ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 								std::string velocityY = ("##velocityMap_Y" + std::to_string(counter));
-								modified |= DragFloatInput(mRegistry, velocityY.c_str(), value.y, "%.2f", 0.0f, FLT_MAX);
+								modified |= DragFloatInput(mRegistry, velocityY.c_str(), value.y, "%.2f", -FLT_MAX, FLT_MAX);
 							}
 
 							ImGui::TableNextColumn();
 							ImGui::SetNextItemWidth(itemWidth);
 							ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (columnWidth - itemWidth) * 0.5f);
 							std::string velocityZ = ("##velocityMap_Z" + std::to_string(counter));
-							modified |= DragFloatInput(mRegistry, velocityZ.c_str(), value.z, "%.2f", 0.0f, FLT_MAX);
+							modified |= DragFloatInput(mRegistry, velocityZ.c_str(), value.z, "%.2f", -FLT_MAX, FLT_MAX);
 
 							++counter;
 						}
@@ -2047,13 +2126,14 @@ namespace SliceEditor
 				switch (ps.renderMode)
 				{
 					case SliceEngine::ParticleSystem::RenderMode::BILLBOARD:						
+						BoolInputHeader(mRegistry, "Ignore Lights", "##ignoreLighting", ps.ignoreLights);
 						GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 						ps.textureGUID = tex_guid;
 						break;					
 					case SliceEngine::ParticleSystem::RenderMode::MESH:
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Model>(mRegistry, "Mesh", "##ps_mesh", ps.modelHandle, "Model");
 						HandleDragDropInputHeader<SliceEngine::SliceEngineTypes::Material>(mRegistry, "Material", "##ps_mat", ps.materialHandle, "Material", nullptr);
-						break;	
+						break;
 					default:
 						break;
 				}
@@ -2257,7 +2337,13 @@ namespace SliceEditor
 					SliceEngine::Core::GetInstance()->GetRegistry().emplace<SliceEngine::Animator>(entity);
 				}
 			}
-
+			if (!selectedGO.HasComponent<SliceEngine::RectTransform>())
+			{
+				if (ImGui::Selectable("Add Rect Transform"))
+				{
+					reg.emplace<SliceEngine::RectTransform>(entity);
+				}
+			}
 			if (!selectedGO.HasComponent<SliceEngine::SpriteRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
 			{
 				if (ImGui::Selectable("Add Sprite"))
@@ -2491,8 +2577,18 @@ namespace SliceEditor
 		{
 			mat.SerializeAsset(node->fullPath);
 		}
+
+		if (BoolInputHeader(mRegistry, "Ignore Lights", "##mat_ignore_lights", mat.isIgnoreLighting))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
 		
 		if (DragColor4InputHeader(mRegistry, "Material Colour", "##mat_color", mat.color))
+		{
+			mat.SerializeAsset(node->fullPath);
+		}
+
+		if (DragColor4InputHeader(mRegistry, "Material Emission Colour", "##mat_emission_color", mat.color2))
 		{
 			mat.SerializeAsset(node->fullPath);
 		}

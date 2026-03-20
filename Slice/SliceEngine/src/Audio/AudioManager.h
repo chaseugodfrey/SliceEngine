@@ -165,6 +165,8 @@ namespace SliceEngine
 		
 		void GetSound3DPosition(FMOD::Channel* channel);
 
+		void Get3DListenerAttributes(glm::vec3& pos, glm::vec3& vel, glm::vec3& forward, glm::vec3& up);
+
 		/** @brief Sets the global master volume for all sounds. */
 		void SetMasterVolume(float volume);
 
