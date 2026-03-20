@@ -637,30 +637,6 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
 
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_Stop(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_GetSpeed(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_ComponentState(uint entityID, bool componentState);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_HasPath(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_GetComponentEnabled(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
-
 
         //UI
         //*************************
