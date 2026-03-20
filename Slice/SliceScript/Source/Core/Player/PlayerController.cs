@@ -189,8 +189,6 @@ namespace SliceEngine
         public float flickerDuration = 0.05f;
         public bool iFrames = false;
 
-        Coroutine shakeCoroutine = null;
-
         public void Initialize()
         {
             camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
@@ -560,31 +558,21 @@ namespace SliceEngine
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
-            //iFrames = true;
-            //StartCoroutine(iFrameAnimation(0.5f));
             AudioSettings.PlaySFX("PlayerHit");
-            if (shakeCoroutine != null)
-            {
-                if (shakeCoroutine.isActive)
-                {
-                    CoroutineManager.StopCoroutine(shakeCoroutine);
-                }
-            }
 
-
-            shakeCoroutine = Bootstrap.CameraController.Shake(0.2f, 1.0f);
+            //Bootstrap.CameraController.Shake(0.1f, 1f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
-            //SliceLog.Log("Returned");
+            SliceLog.Log("Returned");
 
             Transform vfxTransform = vfx.GetComponent<Transform>();
-            //SliceLog.Log("Getting Transform");
+            SliceLog.Log("Getting Transform");
 
-            vfxTransform.Position = transform.Position + new Vector3(0, 1.0f, 0);
-            //SliceLog.Log("Set");
+            vfxTransform.Position = transform.Position;
+            SliceLog.Log("Set");
 
             vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
-            //SliceLog.Log("Rotating");
+            SliceLog.Log("Rotating");
         }
         private GameObject SpawnVFX(string path)
         {
@@ -599,9 +587,6 @@ namespace SliceEngine
                 Console.WriteLine("Destroying projectile");
                 return;
             }
-
-            if (iFrames)
-                return;
             //source = source ?? gameObject;
             if (source == null)
             {

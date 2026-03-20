@@ -118,6 +118,11 @@ namespace SliceEngine
 			return mEntity < other.mEntity; 
 		}
 
+		bool operator==(const GameObject& other) const
+		{
+			return mEntity == other.mEntity && &mRegistry == &other.mRegistry;
+		}
+
 		std::vector<Entity> GetAllChildren();
 
 		GameObject& operator=(const GameObject& other)  

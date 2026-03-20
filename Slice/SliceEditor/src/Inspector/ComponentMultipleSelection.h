@@ -22,6 +22,14 @@ namespace SliceEditor
 	class Registry;
 	class SelectionManager;
 
+	enum class MultiSelect
+	{
+		UNCHANGED,
+		CHANGED,
+		ADDED,
+		REMOVED
+	};
+
 	bool StringMultipleSelection(SelectionManager* selectionManager,std::string currentSelection, bool isMultiSelection);
 
 	std::array<bool, 3> ScriptVector3MultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, bool isMultiSelection);
@@ -37,6 +45,8 @@ namespace SliceEditor
 	bool ScriptGameObjMultipleSelection(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection, bool isMultiSelection);
 
 	std::vector<bool> ScriptFloatListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, bool isMultiSelection);
+
+	std::vector<bool> ScriptGameObjectListElementDifferent(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, bool isMultiSelection);
 
 	bool ComboMultipleSelection(SelectionManager* selectionManager, uint32_t currentSelection, bool isMultiSelection, std::function<uint32_t(Entity)> func);
 
@@ -58,7 +68,9 @@ namespace SliceEditor
 
 	void ScriptVector3MultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, glm::vec3 currentSelection, std::array<bool, 3>& changedAxis);
 
-	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<bool>& changedVars);
+	void ScriptFloatListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<float> originalList, std::vector<MultiSelect>& changedVars);
+
+	void ScriptGameObjectListMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, std::vector<SliceEngine::GameObject> originalList, std::vector<MultiSelect>& changedVars);
 
 	void ScriptGameObjMultiSet(SelectionManager* selectionManager, std::string scriptName, std::string scriptVarName, SliceEngine::GameObject currentSelection);
 

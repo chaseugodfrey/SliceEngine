@@ -25,7 +25,7 @@
             "minDistance": 0.0,
             "minInterval": 0.0,
             "spatialBlend": 0.0,
-            "volume": 0.10000000149011612,
+            "volume": 0.5,
             "volumeRollOff": 1
         },
         {
@@ -126,7 +126,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 0.0,
-            "volume": 0.20000000298023224,
+            "volume": 0.5,
             "volumeRollOff": 1
         },
         {
@@ -193,12 +193,12 @@
             ],
             "isSpatial": true,
             "key": "EnemyProjectile",
-            "maxDistance": 300.0,
-            "maxInstances": 10,
-            "minDistance": 10.0,
-            "minInterval": 0.0,
+            "maxDistance": 283.70001220703125,
+            "maxInstances": 3,
+            "minDistance": 99.30000305175781,
+            "minInterval": 2.0,
             "spatialBlend": 1.0,
-            "volume": 0.5,
+            "volume": 0.30000001192092896,
             "volumeRollOff": 1
         },
         {
