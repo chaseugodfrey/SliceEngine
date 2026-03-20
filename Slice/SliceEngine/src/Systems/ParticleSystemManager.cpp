@@ -475,9 +475,13 @@ namespace SliceEngine
 			break;
 		}
 
-		if (!ps.isLocalSpace && ps.parentTransform)
+		//if (!ps.followTransformRotation)
+		//	return localPoint;
+		//else if (ps.parentTransform)
+		//	return ps.parentTransform->rotation * localPoint;
+
+		if (ps.parentTransform)
 		{
-			// convert local offset to world
 			offset = ps.parentTransform->rotation * offset;
 		}
 
@@ -577,7 +581,7 @@ namespace SliceEngine
 		switch (ps.shapeType)
 		{
 		case ParticleSystem::ShapeType::SPHERE:
-			direction = ComputeSphereInitialVelocity(ps.parentTransform->GetWorldPosition(), p.position, ps.shapeRadius);
+			direction = ComputeSphereInitialVelocity(ps,p);
 			break;
 		case ParticleSystem::ShapeType::CONE:
 			direction = RandomDirectionInCone(ps);
@@ -928,12 +932,19 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Helper Functions
-	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias)
+	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(ParticleSystem& ps, Particle& p, float radialBias)
 	{
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
 		// Direction from center to particle
-		glm::vec3 dir = position - center;
+		glm::vec3 center = glm::vec3(0.0f);
+
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			center = ps.parentTransform->GetWorldPosition();
+		}
+
+		glm::vec3 dir = p.position - center;
 
 		if (glm::dot(dir, dir) < 1e-6f)
 			dir = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -973,11 +984,19 @@ namespace SliceEngine
 
 	glm::vec3 ParticleSystemManager::ComputeCircleInitialVelocity(ParticleSystem& ps, Particle& p)
 	{
-		glm::vec3 center = ps.parentTransform
-			? ps.parentTransform->GetWorldPosition()
-			: glm::vec3(0.0f);
+		glm::vec3 center = glm::vec3(0.0f);
+
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			center = ps.parentTransform->GetWorldPosition();
+		}
 
 		glm::vec3 dir = p.position - center;
+
+		if (glm::dot(dir, dir) < 1e-6f)
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
+		else
+			dir = glm::normalize(dir);
 
 		// Prevent normalize(0,0,0)
 		if (glm::dot(dir, dir) < 1e-6f)
@@ -1118,11 +1137,6 @@ namespace SliceEngine
 
 		glm::vec3 localPoint = dir * r;
 
-		if (!ps.followTransformRotation)
-			return localPoint;
-		else if (ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
 		return localPoint;
 	}
 
@@ -1142,19 +1156,12 @@ namespace SliceEngine
 		);
 
 		float theta = 2.0f * glm::pi<float>() * dist01(gen);
-
-		glm::vec3 localPoint(
+				
+		return glm::vec3(
 			r * cos(theta),
 			r * sin(theta),
 			0.0f
 		);
-
-		if (!ps.followTransformRotation)
-			return localPoint;
-		else if (ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return glm::vec3();
 	}
 
 	glm::vec3 ParticleSystemManager::RandomPointInCube(ParticleSystem& ps)
@@ -1169,18 +1176,11 @@ namespace SliceEngine
 		std::uniform_real_distribution<float> distY(-halfExtents.y, halfExtents.y);
 		std::uniform_real_distribution<float> distZ(-halfExtents.z, halfExtents.z);
 
-		glm::vec3 localPoint(
+		return glm::vec3(
 			distX(gen),
 			distY(gen),
 			distZ(gen)
 		);
-
-		if (!ps.followTransformRotation)
-			return localPoint;
-		else if (ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return glm::vec3();
 	}
 
 	glm::vec3 ParticleSystemManager::RandomPointInRect(ParticleSystem& ps)
@@ -1193,16 +1193,11 @@ namespace SliceEngine
 		std::uniform_real_distribution<float> distX(-halfExtents.x, halfExtents.x);
 		std::uniform_real_distribution<float> distY(-halfExtents.y, halfExtents.y);
 
-		glm::vec3 localPoint(
+		return glm::vec3(
 			distX(gen),
 			distY(gen),
 			0.0f
 		);
-
-		if (ps.followTransformRotation && ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return localPoint;
 	}
 #pragma endregion
 
