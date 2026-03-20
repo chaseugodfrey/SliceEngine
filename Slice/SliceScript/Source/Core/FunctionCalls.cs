@@ -137,9 +137,6 @@ namespace SliceEngine
         internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_PlaySFX(string key, ref Vector3 position, uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
