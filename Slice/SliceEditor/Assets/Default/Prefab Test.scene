@@ -2,6 +2,348 @@
     "NavMeshData": null,
     "SceneData": [
         {
+            "FX_OrbitalLaser": {
+                "struct SliceEngine::ParticleSystem": {
+                    "alwaysFaceCamera": false,
+                    "axis": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "bounceDampening": 0.6000000238418579,
+                    "bounciness": 0.0,
+                    "bursts": [
+                        [
+                            1,
+                            2,
+                            0.10000000149011612,
+                            0.0
+                        ]
+                    ],
+                    "colorValueType": 0,
+                    "colour": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "colourLifetimeMap": {
+                        "0.000000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.03921568766236305
+                        ],
+                        "1.000000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.09803921729326248
+                        ]
+                    },
+                    "colourMapIntermediary": [
+                        [
+                            0.0,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.03921568766236305
+                            ]
+                        ],
+                        [
+                            1.0,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.09803921729326248
+                            ]
+                        ]
+                    ],
+                    "colourOverLifetime": true,
+                    "coneArc": 90.0,
+                    "destroyOnExpire": true,
+                    "duration": 3.0,
+                    "emissionRate": 0.0,
+                    "endOrbitVelocity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "followTransformRotation": true,
+                    "friction": 0.8999999761581421,
+                    "gForce": 0.0,
+                    "glow": false,
+                    "glowIntensity": 102.0999984741211,
+                    "glowValueType": 0,
+                    "hasCollision": false,
+                    "ignoreLights": false,
+                    "initialDelay": 0.0,
+                    "initialLifetimeType": 0,
+                    "initialRotationType": 0,
+                    "innerShapeRadius": 0.0,
+                    "isLocalSpace": false,
+                    "isRepeating": true,
+                    "isRotation3D": true,
+                    "lifetime": 0.5,
+                    "materialHandle": {
+                        "GUID": "9919909892102733493"
+                    },
+                    "maxGlowIntensity": 0.0,
+                    "maxParticleLifetime": 3.0,
+                    "maxParticles": 200,
+                    "maxRandomColour": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "maxRandomRotation": 0.0,
+                    "maxRandomRotation3D": [
+                        10.0,
+                        0.0,
+                        10.300000190734863
+                    ],
+                    "maxRandomScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "maxRandomSpawnPos": [
+                        20.0,
+                        0.0,
+                        20.0
+                    ],
+                    "maxRandomSpeed": 1.0,
+                    "minGlowIntensity": 0.0,
+                    "minParticleLifetime": 2.5,
+                    "minRandomColour": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "minRandomRotation": 0.0,
+                    "minRandomRotation3D": [
+                        -5.0,
+                        0.0,
+                        -5.0
+                    ],
+                    "minRandomScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "minRandomSpawnPos": [
+                        -20.0,
+                        0.0,
+                        -20.0
+                    ],
+                    "minRandomSpeed": 1.0,
+                    "modelHandle": {
+                        "GUID": "10076918467013417704"
+                    },
+                    "numBursts": 1,
+                    "orbitAxis": [
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "orbitOverLifetime": false,
+                    "particleLayer": 0,
+                    "rectScale": [
+                        1.0,
+                        1.0
+                    ],
+                    "renderMode": 1,
+                    "rotateOverLifetime": false,
+                    "rotateSeparateAxis": false,
+                    "rotateVelocity": [
+                        0.0,
+                        0.0,
+                        45.0
+                    ],
+                    "rotation": 0.0,
+                    "rotation3D": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        5.0,
+                        100.0,
+                        5.0
+                    ],
+                    "scaleType": 0,
+                    "shapeRadius": 0.0,
+                    "shapeScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "shapeType": "SPHERE",
+                    "sizeMap": {
+                        "0.000000": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "0.500000": [
+                            0.75,
+                            1.0,
+                            0.75
+                        ],
+                        "0.600000": [
+                            0.800000011920929,
+                            1.0,
+                            0.800000011920929
+                        ],
+                        "0.700000": [
+                            0.8500000238418579,
+                            1.0,
+                            0.8500000238418579
+                        ],
+                        "0.800000": [
+                            0.8999999761581421,
+                            1.0,
+                            0.8999999761581421
+                        ],
+                        "0.900000": [
+                            0.949999988079071,
+                            1.0,
+                            0.949999988079071
+                        ],
+                        "1.000000": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "sizeMapIntermediary": [
+                        [
+                            0.0,
+                            [
+                                0.0,
+                                1.0,
+                                0.0
+                            ]
+                        ],
+                        [
+                            0.5,
+                            [
+                                0.75,
+                                1.0,
+                                0.75
+                            ]
+                        ],
+                        [
+                            0.6000000238418579,
+                            [
+                                0.800000011920929,
+                                1.0,
+                                0.800000011920929
+                            ]
+                        ],
+                        [
+                            0.699999988079071,
+                            [
+                                0.8500000238418579,
+                                1.0,
+                                0.8500000238418579
+                            ]
+                        ],
+                        [
+                            0.800000011920929,
+                            [
+                                0.8999999761581421,
+                                1.0,
+                                0.8999999761581421
+                            ]
+                        ],
+                        [
+                            0.8999999761581421,
+                            [
+                                0.949999988079071,
+                                1.0,
+                                0.949999988079071
+                            ]
+                        ],
+                        [
+                            1.0,
+                            [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        ]
+                    ],
+                    "sizeOverLifetime": true,
+                    "sizeSeparateAxis": true,
+                    "spawnPos": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "spawnPosValueType": 0,
+                    "speed": 0.0,
+                    "speedValueType": 0,
+                    "sphereArc": 180.0,
+                    "startOrbitVelocity": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "stickiness": 0.0,
+                    "textureGUID": "",
+                    "textureHandle": {
+                        "GUID": ""
+                    },
+                    "velocityMapIntermediary": [],
+                    "velocityOverLifetime": false,
+                    "velocitySeparateAxis": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 3145733,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        5242884,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "FX_OrbitalLaser",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        -4.342618465423584,
+                        2.0338616371154785,
+                        -4.363911151885986
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
             "NicTestPrefabChild": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
@@ -52,9 +394,9 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 11,
+                    "entity_id": 3145734,
                     "neighbours": [
-                        10,
+                        3145735,
                         4294967295,
                         4294967295,
                         4294967295
@@ -142,12 +484,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 10,
+                    "entity_id": 3145735,
                     "neighbours": [
                         0,
-                        11,
-                        7,
-                        4294967295
+                        3145734,
+                        3145738,
+                        5242884
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -220,14 +562,15 @@
                     "pos_x": 704,
                     "pos_y": 329,
                     "right": 0,
+                    "rotation": 0.0,
                     "top": 0,
                     "vert_pivot": "Middle",
                     "width": 400
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 9,
+                    "entity_id": 3145736,
                     "neighbours": [
-                        8,
+                        3145737,
                         4294967295,
                         4294967295,
                         4294967295
@@ -328,17 +671,18 @@
                     "pos_x": 0,
                     "pos_y": 0,
                     "right": 0,
+                    "rotation": 0.0,
                     "top": 0,
                     "vert_pivot": "Middle",
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 8,
+                    "entity_id": 3145737,
                     "neighbours": [
                         0,
-                        9,
-                        4,
-                        7
+                        3145736,
+                        3145741,
+                        3145738
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -403,12 +747,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 7,
+                    "entity_id": 3145738,
                     "neighbours": [
                         0,
                         4294967295,
-                        8,
-                        10
+                        3145737,
+                        3145735
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -457,12 +801,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 6,
+                    "entity_id": 3145739,
                     "neighbours": [
                         0,
                         4294967295,
-                        5,
-                        3
+                        3145740,
+                        5242883
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -470,7 +814,7 @@
                     "scriptableFieldMap": {
                         "GOtest": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 6
+                            "Value": 3145739
                         },
                         "boolTest": {
                             "Type": "bool",
@@ -552,12 +896,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 5,
+                    "entity_id": 3145740,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        6
+                        3145739
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -565,7 +909,7 @@
                     "scriptableFieldMap": {
                         "GOtest": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 5
+                            "Value": 3145740
                         },
                         "boolTest": {
                             "Type": "bool",
@@ -614,9 +958,9 @@
                         0.0
                     ],
                     "position": [
-                        0.0,
-                        4.997071743011475,
-                        -1.8531907796859741
+                        -4.8584699630737305,
+                        2.0805578231811523,
+                        -1.832958698272705
                     ],
                     "rotation": [
                         -0.7071067690849304,
@@ -665,7 +1009,7 @@
                     "cloudsSmoothness": 0.0027000000700354576,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 36,
+                    "depthTex": 39,
                     "far": 200.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -679,7 +1023,7 @@
                     "near": 0.009999999776482582,
                     "postRenderTag": "0",
                     "pov": 60.0,
-                    "textureID": 35,
+                    "textureID": 38,
                     "translucentSelectCutoff": 0.20000000298023224,
                     "vignetteCenter": [
                         0.5,
@@ -690,12 +1034,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 4,
+                    "entity_id": 3145741,
                     "neighbours": [
                         0,
                         4294967295,
-                        3,
-                        8
+                        5242883,
+                        3145737
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -780,12 +1124,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3,
+                    "entity_id": 5242883,
                     "neighbours": [
                         0,
                         4294967295,
-                        6,
-                        4
+                        3145739,
+                        3145741
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -804,6 +1148,348 @@
                         0.0,
                         0.0,
                         0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "FX_OrbitalLaserHint": {
+                "struct SliceEngine::ParticleSystem": {
+                    "alwaysFaceCamera": false,
+                    "axis": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "bounceDampening": 0.6000000238418579,
+                    "bounciness": 0.0,
+                    "bursts": [
+                        [
+                            1,
+                            1,
+                            0.10000000149011612,
+                            0.0
+                        ]
+                    ],
+                    "colorValueType": 0,
+                    "colour": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "colourLifetimeMap": {
+                        "0.000000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.03921568766236305
+                        ],
+                        "1.000000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.09803921729326248
+                        ]
+                    },
+                    "colourMapIntermediary": [
+                        [
+                            0.0,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.03921568766236305
+                            ]
+                        ],
+                        [
+                            1.0,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.09803921729326248
+                            ]
+                        ]
+                    ],
+                    "colourOverLifetime": true,
+                    "coneArc": 90.0,
+                    "destroyOnExpire": true,
+                    "duration": 3.0,
+                    "emissionRate": 0.0,
+                    "endOrbitVelocity": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "followTransformRotation": true,
+                    "friction": 0.8999999761581421,
+                    "gForce": 0.0,
+                    "glow": false,
+                    "glowIntensity": 102.0999984741211,
+                    "glowValueType": 0,
+                    "hasCollision": false,
+                    "ignoreLights": false,
+                    "initialDelay": 0.0,
+                    "initialLifetimeType": 0,
+                    "initialRotationType": 0,
+                    "innerShapeRadius": 0.0,
+                    "isLocalSpace": true,
+                    "isRepeating": true,
+                    "isRotation3D": true,
+                    "lifetime": 1.0,
+                    "materialHandle": {
+                        "GUID": "9919909892102733493"
+                    },
+                    "maxGlowIntensity": 0.0,
+                    "maxParticleLifetime": 3.0,
+                    "maxParticles": 200,
+                    "maxRandomColour": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "maxRandomRotation": 0.0,
+                    "maxRandomRotation3D": [
+                        10.0,
+                        0.0,
+                        10.300000190734863
+                    ],
+                    "maxRandomScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "maxRandomSpawnPos": [
+                        20.0,
+                        0.0,
+                        20.0
+                    ],
+                    "maxRandomSpeed": 1.0,
+                    "minGlowIntensity": 0.0,
+                    "minParticleLifetime": 2.5,
+                    "minRandomColour": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "minRandomRotation": 0.0,
+                    "minRandomRotation3D": [
+                        -5.0,
+                        0.0,
+                        -5.0
+                    ],
+                    "minRandomScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "minRandomSpawnPos": [
+                        -20.0,
+                        0.0,
+                        -20.0
+                    ],
+                    "minRandomSpeed": 1.0,
+                    "modelHandle": {
+                        "GUID": "10076918467013417704"
+                    },
+                    "numBursts": 1,
+                    "orbitAxis": [
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "orbitOverLifetime": false,
+                    "particleLayer": 0,
+                    "rectScale": [
+                        1.0,
+                        1.0
+                    ],
+                    "renderMode": 1,
+                    "rotateOverLifetime": false,
+                    "rotateSeparateAxis": false,
+                    "rotateVelocity": [
+                        0.0,
+                        0.0,
+                        45.0
+                    ],
+                    "rotation": 0.0,
+                    "rotation3D": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        5.0,
+                        100.0,
+                        5.0
+                    ],
+                    "scaleType": 0,
+                    "shapeRadius": 0.0,
+                    "shapeScale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "shapeType": "SPHERE",
+                    "sizeMap": {
+                        "0.000000": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ],
+                        "0.500000": [
+                            0.75,
+                            1.0,
+                            0.75
+                        ],
+                        "0.600000": [
+                            0.800000011920929,
+                            1.0,
+                            0.800000011920929
+                        ],
+                        "0.700000": [
+                            0.8500000238418579,
+                            1.0,
+                            0.8500000238418579
+                        ],
+                        "0.800000": [
+                            0.8999999761581421,
+                            1.0,
+                            0.8999999761581421
+                        ],
+                        "0.900000": [
+                            0.949999988079071,
+                            1.0,
+                            0.949999988079071
+                        ],
+                        "1.000000": [
+                            1.0,
+                            1.0,
+                            1.0
+                        ]
+                    },
+                    "sizeMapIntermediary": [
+                        [
+                            0.0,
+                            [
+                                0.0,
+                                1.0,
+                                0.0
+                            ]
+                        ],
+                        [
+                            0.5,
+                            [
+                                0.75,
+                                1.0,
+                                0.75
+                            ]
+                        ],
+                        [
+                            0.6000000238418579,
+                            [
+                                0.800000011920929,
+                                1.0,
+                                0.800000011920929
+                            ]
+                        ],
+                        [
+                            0.699999988079071,
+                            [
+                                0.8500000238418579,
+                                1.0,
+                                0.8500000238418579
+                            ]
+                        ],
+                        [
+                            0.800000011920929,
+                            [
+                                0.8999999761581421,
+                                1.0,
+                                0.8999999761581421
+                            ]
+                        ],
+                        [
+                            0.8999999761581421,
+                            [
+                                0.949999988079071,
+                                1.0,
+                                0.949999988079071
+                            ]
+                        ],
+                        [
+                            1.0,
+                            [
+                                1.0,
+                                1.0,
+                                1.0
+                            ]
+                        ]
+                    ],
+                    "sizeOverLifetime": true,
+                    "sizeSeparateAxis": true,
+                    "spawnPos": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "spawnPosValueType": 0,
+                    "speed": 0.0,
+                    "speedValueType": 0,
+                    "sphereArc": 180.0,
+                    "startOrbitVelocity": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "stickiness": 0.0,
+                    "textureGUID": "",
+                    "textureHandle": {
+                        "GUID": ""
+                    },
+                    "velocityMapIntermediary": [],
+                    "velocityOverLifetime": false,
+                    "velocitySeparateAxis": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 5242884,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        3145735,
+                        3145733
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "FX_OrbitalLaserHint",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        -3.2455735206604004,
+                        5.174973964691162,
+                        5.2270612716674805
                     ],
                     "rotation": [
                         1.0,
