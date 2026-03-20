@@ -637,6 +637,13 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames);
+
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
 .property("font", &FontRenderer::fontHandle)

@@ -853,6 +853,15 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	struct SpriteAnimator {
+		unsigned char row{ 1 };
+		unsigned char col{ 1 };
+		unsigned char fps{ 10 };
+		unsigned char num_frames{ 1 };
+		float curr_time{};
+		RTTR_ENABLE();
+	};
+
 	/*
 	* Current assumptions:
 	* horizontal wrap
