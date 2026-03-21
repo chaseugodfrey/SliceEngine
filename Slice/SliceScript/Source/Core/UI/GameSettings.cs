@@ -24,7 +24,7 @@ namespace SliceEngine
             if (settingsPanel != null) settingsPanel.SetActive(false);
             if (settingsPopup != null)
             {
-                // Access the script we just built
+                
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 settingsPopup.SetActive(false);
             }
@@ -37,13 +37,13 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            if (Input.IsKeyPressed(Keys.KEY_ESC) && Bootstrap.HUDManager.CheckLoseScreen() == false)
             {
                 if (isSubSettingsOpen)
                 {
                     CloseSubSettings();
                 }
-                // 2. If nothing is open, open the Pause Menu
+                
                 else if (!isPauseMenuOpen)
                 {
                     OpenPauseMenu();
