@@ -142,6 +142,7 @@
     <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderCmdManager.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
+    <ClInclude Include="src\Graphics\SpriteAnimationSystem.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\UI_Interactible.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderCmdManager.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
+    <ClCompile Include="src\Graphics\SpriteAnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\UI_Interactible.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
