@@ -6,6 +6,10 @@ struct Light{
 	vec3 direction;
 	int type;
 	vec4 color; // rgb + intensity
+	int hasShadow;
+	int shadowNum;
+	int spotShadowNum;
+	int padding;
 };
 
 layout (location=0) in vec3 vPos;
@@ -20,7 +24,8 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[121];
+	Light directionLight;
+	Light uLight[150];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
