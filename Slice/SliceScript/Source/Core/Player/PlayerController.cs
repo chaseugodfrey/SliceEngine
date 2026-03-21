@@ -297,7 +297,8 @@ namespace SliceEngine
                 // Ground attacking
                 PlayerCurrentAttack = CurrentAttack.GroundAttack;
                 attackCounter++;
-                if (attackCounter > 3) attackCounter = 1;
+                // changing this to 2 to remove the 3rd attack
+                if (attackCounter > 2) attackCounter = 1;
 
                 switch (attackCounter)
                 {
@@ -323,15 +324,6 @@ namespace SliceEngine
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
-                        break;
-                    case 3:
-                        attackTimer = attackDuration[2];
-                        StartCoroutine(AttackDelay(attackDelay[2], () => attackHitboxes[2].TurnOn()));
-
-                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                        {
-                           // AudioSettings.PlaySFX("A3");
-                        }
                         break;
                     default:
                         break;
@@ -403,11 +395,6 @@ namespace SliceEngine
                         if (animator.SafeToChange("AttackToIdle2"))
                             animator.SetBool("AttackToIdle2", true);
                     }
-                    if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle3") != 0))
-                    {
-                        if (animator.SafeToChange("AttackToIdle3"))
-                            animator.SetBool("AttackToIdle3", true);
-                    }
                 }
                 else if (PlayerCurrentAttack == CurrentAttack.PlungeLand)
                 {
@@ -463,15 +450,6 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("SwordHit");
             }
         }
-        private void Attack3(GameObject target)
-        {
-            EnemyBase enemy = target.As<EnemyBase>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
-                AudioSettings.PlaySFX("SwordHit");
-            }
-        }
         private IEnumerator AttackDelay(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
@@ -522,9 +500,9 @@ namespace SliceEngine
                     case 1:
                         attackAction = Attack2;
                         break;
-                    case 2:
-                        attackAction = Attack3;
-                        break;
+                    // ill leave hitbox3 in the list of attackHitboxNames for now
+                    // so 0 is attack 1, 1 is attack 2, 3 is for dash
+                    // 2 is removed now
                     case 3:
                         attackAction = DashAttack;
                         break;
@@ -1074,14 +1052,6 @@ namespace SliceEngine
                                 if (String.Compare(animator.GetCurrAnimName(), "Attack2") != 0 && (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0))
                                 {
                                     animator.SetBool("Attack2", true);
-                                }
-                                break;
-                            }
-                        case 3:
-                            {
-                                if (String.Compare(animator.GetCurrAnimName(), "Attack3") != 0 && (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0))
-                                {
-                                    animator.SetBool("Attack3", true);
                                 }
                                 break;
                             }
