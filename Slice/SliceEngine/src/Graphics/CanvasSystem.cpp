@@ -294,13 +294,13 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
 
-				uniform_loc = glGetUniformLocation(shader, "uv");
+		/*		uniform_loc = glGetUniformLocation(shader, "uv");
 				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
 					glUniform4fv(uniform_loc, 1, glm::value_ptr());
 				}
 				else {
 					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
-				}
+				}*/
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 			}
