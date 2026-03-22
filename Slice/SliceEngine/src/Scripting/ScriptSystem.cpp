@@ -1136,7 +1136,7 @@ namespace SliceEngine
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
-
+        
 
 
         {
@@ -1155,6 +1155,8 @@ namespace SliceEngine
         {
             if (it.first == entity)
             {
+                it.second->InvokeOnEntityDestroy((unsigned int)entity);
+
     //            mono_gchandle_free(it.second->mHandle);
 				//it.second->mHandle = 0;
                 it.second->Destroy();

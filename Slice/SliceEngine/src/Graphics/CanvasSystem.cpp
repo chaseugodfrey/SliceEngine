@@ -286,7 +286,6 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "M");
 				glm::mat4 model = rect.ToMatrix();
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-		//		CheckGLError();
 
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
@@ -294,10 +293,16 @@ namespace SliceEngine {
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
-			//	CheckGLError();
+
+		/*		uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr());
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+				}*/
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-			//	CheckGLError();
 			}
 			else if (shader_guid == font_shader) {	//font
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
