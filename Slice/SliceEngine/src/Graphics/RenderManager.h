@@ -87,7 +87,7 @@ namespace SliceEngine
 		GLuint SkyboxIrradianceMap{};
 		int numLightsFound{};
 		float mainDirLightFar{};
-		#define mMaxPointLights 2
+		#define mMaxPointLights 10
 		const size_t mMaxLights{150};
 		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
 		const float shadowCascadeLevels[4]{ 40.f, 15.f, 6.f, 2.4f };

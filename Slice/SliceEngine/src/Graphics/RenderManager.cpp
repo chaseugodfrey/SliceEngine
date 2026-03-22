@@ -878,13 +878,8 @@ namespace SliceEngine
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, shadowNum);
 
-			glm::mat4 lightP = glm::perspective(light.pointAngle, 1.f, 0.01f, light.uFarPlane);
-			glm::vec3 lightUp{ 0.f, 1.f, 0.f };
-			if (abs(glm::dot(lightUp, light.dir)) > 0.99999f)
-				lightUp = glm::vec3(0.f, 0.f, 1.f);
-			glm::mat4 VP{ lightP * glm::lookAt(eye, light.dir, lightUp) };
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
-			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &VP[0][0]);
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &light.pointlightMtx[0][0]);
 
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
 		}
@@ -1349,7 +1344,7 @@ namespace SliceEngine
 				if (abs(glm::dot(lightUp, tempDat.dir)) > 0.99999f)
 					lightUp = glm::vec3(0.f, 0.f, 1.f);
 
-				tempDat.pointlightMtx = lightP * glm::lookAt(eye, eye + tempDat.dir, lightUp);
+				tempDat.pointlightMtx = lightP * glm::lookAt(eye, tempDat.dir, lightUp);
 			}
 
 			sortedLights.emplace_back(allLightData.size());
@@ -1365,7 +1360,7 @@ namespace SliceEngine
 		});
 		// Gather first n Lights (Spot lights considered 1/6)
 		std::unordered_set<size_t> newShadows{}; // --MAYDO-- Group the spot lights tgt lol ;w; 
-		size_t numShadowCnt{}, emptySpotShadowNum{};
+		size_t numShadowCnt{}, emptySpotShadowNum{}, totalSpotsRequired{};
 
 		for (auto& it : sortedLights) // it -> allLightData[it] accessor
 		{
@@ -1381,6 +1376,7 @@ namespace SliceEngine
 				}
 				newShadows.insert(it);
 				--emptySpotShadowNum;
+				++totalSpotsRequired;
 			}
 			else if (allLightData[it].type == Light::Light_Point)
 			{
@@ -1416,9 +1412,10 @@ namespace SliceEngine
 		}
 		else
 		{
-			std::vector<std::pair<size_t, size_t>> openSpotSlots;
-			std::vector<size_t> survivingSpotLights;
+			std::vector<std::pair<size_t, size_t>> openSpotSlots;// Slot num, sub slot num
 			std::vector<size_t> openPointSlots;
+
+			std::unordered_map<size_t, std::vector<size_t>> slotsTakenForSpotLights{};// slot Num, alive's ID
 
 			// If currently active shadows not found in this iteration
 			for (auto& it : activeShadowSet)
@@ -1429,95 +1426,46 @@ namespace SliceEngine
 					if (allLightData[it].type == Light::Light_Point)
 						openPointSlots.push_back(allLightData[it].shadowNum);
 					else if (allLightData[it].type == Light::Light_Spot)
+					{
 						openSpotSlots.push_back({ allLightData[it].shadowNum, allLightData[it].spotShadowNum });
+						if (!slotsTakenForSpotLights.contains(allLightData[it].shadowNum))
+							slotsTakenForSpotLights[allLightData[it].shadowNum];
+					}
 				}
 				else if (allLightData[it].type == Light::Light_Spot)
-					survivingSpotLights.push_back(it);
+				{
+					slotsTakenForSpotLights[allLightData[it].shadowNum].push_back(it);
+				}
 			}
 
-			// cleanup
-			if (!survivingSpotLights.empty())
+			// cleanup - Set the correct openSlots, add spot lights into newShadows if necessary
+
+			// I need free more slots (Dun need care about less, cuz I can just use the WHOLE openSpotSlots cuz i need more anyways hahahs)
+			while (totalSpotsRequired / 6 > slotsTakenForSpotLights.size())
 			{
-				// Group surviving spot lights by their shadow cube map (shadowNum)
-				std::unordered_map<size_t, std::vector<size_t>> spotsByBase;
-				for (size_t lightIt : survivingSpotLights)
+				auto newSpotLightSlot = openPointSlots.front();
+				openPointSlots.erase(openPointSlots.begin());
+				slotsTakenForSpotLights[newSpotLightSlot];
+				for (size_t i{}; i < 6; ++i)
+					openSpotSlots.push_back({ newSpotLightSlot, i });
+			}
+			// I need consolidate spot lights to take less cube space
+			while (totalSpotsRequired / 6 < slotsTakenForSpotLights.size())
+			{
+				size_t leastFilledSlot{}, numInLeastFilledSlot{6};
+				for (auto& i : slotsTakenForSpotLights)
 				{
-					spotsByBase[allLightData[lightIt].shadowNum].push_back(lightIt);
-				}
-
-				// Identify the bases and sort by occupancy (Most full to Least full)
-				std::vector<size_t> activeBases;
-				for (const auto& pair : spotsByBase)
-					activeBases.push_back(pair.first);
-
-				std::sort(activeBases.begin(), activeBases.end(), [&spotsByBase](size_t a, size_t b) {
-					return spotsByBase[a].size() > spotsByBase[b].size();
-					});
-
-				// Pack lights: Drain the emptiest bases into the fullest bases
-				int left = 0; // Most full
-				int right = (int)activeBases.size() - 1; // Least full
-
-				while (left < right)
-				{
-					size_t receiverBase = activeBases[left];
-					size_t giverBase = activeBases[right];
-
-					// If receiver is full (6 spots), move to the next most-full receiver
-					if (spotsByBase[receiverBase].size() >= 6)
+					if (i.second.size() < numInLeastFilledSlot)
 					{
-						left++;
-						continue;
-					}
-
-					// Pop a light from the emptiest base
-					size_t lightToMove = spotsByBase[giverBase].back();
-					spotsByBase[giverBase].pop_back();
-
-					// Find an empty sub-slot in the receiver base (0-5)
-					std::vector<bool> takenSlots(6, false);
-					for (size_t l : spotsByBase[receiverBase])
-						takenSlots[allLightData[l].spotShadowNum] = true;
-
-					size_t freeSpotNum = 0;
-					for (size_t i = 0; i < 6; ++i) {
-						if (!takenSlots[i]) {
-							freeSpotNum = i;
-							break;
-						}
-					}
-
-					// Shift the light & mark it dirty so it redraws in its new home
-					allLightData[lightToMove].shadowNum = receiverBase;
-					allLightData[lightToMove].spotShadowNum = freeSpotNum;
-					dirtyShadows.push_back(lightToMove);
-
-					// Register it in the receiver's list for the next iteration
-					spotsByBase[receiverBase].push_back(lightToMove);
-
-					// If the giver base is now completely empty, we just freed a point slot!
-					if (spotsByBase[giverBase].empty())
-					{
-						openPointSlots.push_back(giverBase);
-						right--; // Move pointer to the next emptiest base
+						leastFilledSlot = i.first;
+						numInLeastFilledSlot = i.second.size();
 					}
 				}
+				std::remove_if(openSpotSlots.begin(), openSpotSlots.end(), [&leastFilledSlot](const auto& a) { return a.first == leastFilledSlot; });
+				for (auto& it : slotsTakenForSpotLights[leastFilledSlot])
+					newShadows.insert(it);
 
-				// Rebuild openSpotSlots based on the newly compacted state
-				openSpotSlots.clear();
-				for (int i = 0; i <= right; ++i) // Only iterate bases that actually survived
-				{
-					size_t base = activeBases[i];
-					std::vector<bool> takenSlots(6, false);
-					for (size_t l : spotsByBase[base])
-						takenSlots[allLightData[l].spotShadowNum] = true;
-
-					for (size_t s = 0; s < 6; ++s)
-					{
-						if (!takenSlots[s])
-							openSpotSlots.push_back({ base, s });
-					}
-				}
+				slotsTakenForSpotLights.erase(leastFilledSlot);
 			}
 
 			// If new shadows prev did not exist
