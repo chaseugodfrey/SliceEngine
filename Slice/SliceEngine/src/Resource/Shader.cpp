@@ -586,7 +586,7 @@ layout (location=4) in mat3 TBN;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 layout (location=1) out uint fGID;
-layout (location=2) out vec3 fEmission;
+layout (location=2) out vec4 fEmission;
 
 struct Light{
 	vec3 position;
@@ -753,7 +753,7 @@ void main(void){
     if(translucentIDOnly == 1)
 		return;
 	
-	fEmission = emission;    
+	fEmission = vec4(emission, 1.0f);    
 
     vec4 dif = fFragColor;
    
@@ -832,7 +832,7 @@ void main(void){
         }
 	}
 	if(!willBloom)
-		fFragColor += vec4(fEmission, 0.0f);
+		fFragColor += vec4(fEmission.rgb, 0.0f);
 }
 
 
