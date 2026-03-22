@@ -142,7 +142,21 @@ namespace SliceEditor
 	{
 		static uint32_t oldVal{};
 
+		std::string minusButton = std::string("-") + id;
+		std::string plusButton = std::string("+")+ id;
+
+		if (ImGui::Button(minusButton.c_str()))
+		{
+			if(val != min)
+			{
+				val -= 1.0f;
+			}
+		}
+		ImGui::SameLine();
+
+		ImGui::SetNextItemWidth(100.f);
 		bool changed = ImGui::DragScalar(id, ImGuiDataType_U32, &val, 1.0f, &min, &max, format, ImGuiSliderFlags_AlwaysClamp);
+		ImGui::SameLine();
 
 		if (ImGui::IsItemActivated())
 			oldVal = val;
@@ -156,6 +170,13 @@ namespace SliceEditor
 			}
 		}
 
+		if (ImGui::Button(plusButton.c_str()))
+		{
+			if(val != max)
+			{
+				val += 1.0f;
+			}
+		}
 		return changed;
 	}
 
@@ -421,7 +442,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max)
+	bool DragVec3InputScriptHeader(Registry& reg, std::function<void(std::string, glm::vec3)> func, const char* property_label, const char* id, glm::vec3& val, const char* format, float inc, float min, float max, std::array<bool, 3> selectionDifferent, std::array<bool, 3>* changedAxis)
 	{
 		
 		static glm::vec3 oldVal{};
@@ -430,7 +451,20 @@ namespace SliceEditor
 		ImGui::Text(property_label);
 		ImGui::SameLine(150.0f);
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		//changed |= ImGui::DragFloat((id+"_x"s).c_str(), &val.x, inc, min, max, format);
+		std::string formatX = "X: %.3f";
+		if (selectionDifferent[0])
+		{
+			formatX = "X: ---";
+		}
+
+		bool resultX = ImGui::DragFloat((id + "_x"s).c_str(), &val.x, 0.1f, min, max, formatX.c_str());
+		bool triggerX = resultX;
+		if (selectionDifferent[0] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerX = true;
+		}
+		changed = triggerX || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -445,7 +479,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_y"s).c_str(), &val.y, inc, min, max, format);
+		std::string formatY = "Y: %.3f";
+		if (selectionDifferent[1])
+		{
+			formatY = "Y: ---";
+		}
+
+		bool resultY = ImGui::DragFloat((id + "_y"s).c_str(), &val.y, 0.1f, min, max, formatY.c_str());
+		bool triggerY = resultY;
+		if (selectionDifferent[1] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerY = true;
+		}
+		changed = triggerY || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -460,8 +506,19 @@ namespace SliceEditor
 
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(50.0f);
-		changed |= ImGui::DragFloat((id + "_z"s).c_str(), &val.z, inc, min, max, format);
+		std::string formatZ = "Z: %.3f";
+		if (selectionDifferent[2])
+		{
+			formatZ = "Z: ---";
+		}
 
+		bool resultZ = ImGui::DragFloat((id + "_z"s).c_str(), &val.z, 0.1f, min, max,formatZ.c_str());
+		bool triggerZ = resultZ;
+		if (selectionDifferent[2] && ImGui::IsItemDeactivatedAfterEdit())
+		{
+			triggerZ = true;
+		}
+		changed = triggerZ || changed;
 		if (ImGui::IsItemActivated())
 			oldVal = val;
 
@@ -472,6 +529,14 @@ namespace SliceEditor
 				std::unique_ptr<ScriptFieldSetterCommand<glm::vec3>> command = std::make_unique<ScriptFieldSetterCommand<glm::vec3>>(func, std::string(property_label), oldVal, val);
 				reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
 			}
+		}
+
+		//Set the array of bools for multi-selection of respective variables on the outer loop in the if statement
+		if (changedAxis)
+		{
+			(*changedAxis)[0] = triggerX;
+			(*changedAxis)[1] = triggerY;
+			(*changedAxis)[2] = triggerZ;
 		}
 
 		return changed;
@@ -846,7 +911,7 @@ namespace SliceEditor
 		return changed;
 	}
 
-	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list)
+	bool GameObjectListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> editFunc, const char* property_label, const char* id, std::vector<SliceEngine::GameObject>& list, std::vector<bool> elementDiffs, std::vector<MultiSelect>& changedVars)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<SliceEngine::GameObject > oldList{};
@@ -868,9 +933,13 @@ namespace SliceEditor
 					event.entities.push_back(entity);
 				}
 
+				//To check each entry if it was changed, push_back unchanged first.
+				changedVars.push_back(MultiSelect::UNCHANGED); //it should correspond to idx
+
 				std::string elementPropertyLabel = elementNo_String + std::to_string(idx);
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
+				std::string goName = " ";
 
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
@@ -878,14 +947,19 @@ namespace SliceEditor
 				ImGui::BeginDisabled();
 				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
 				{
-					std::string empty = " ";
-					ImGui::InputText(newID.c_str(), &empty);
+					goName = " ";
 				}
 				else
 				{
-					std::string goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
-					ImGui::InputText(newID.c_str(), &goName);
+					goName = "(" + std::to_string(static_cast<unsigned int>(entry.GetEntity())) + ") " + entry.GetName().c_str();
 				}
+
+				if (elementDiffs[idx])
+				{
+					goName = "---";
+				}
+
+				ImGui::InputText(newID.c_str(), &goName);
 				ImGui::EndDisabled();
 
 				if (ImGui::BeginDragDropTarget())
@@ -899,7 +973,8 @@ namespace SliceEditor
 						//Disabled Undo/Redo for Lists atm
 						/*std::unique_ptr<ScriptFieldSetterCommand<SliceEngine::GameObject>> command = std::make_unique<ScriptFieldSetterCommand<SliceEngine::GameObject>>(func, std::string(property_label), oldVal, val);
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
-
+						editFunc("Edit", std::string(property_label), list, entry, idx);
+						changedVars[idx] = MultiSelect::CHANGED;
 						changed = true;
 					}
 
@@ -915,6 +990,8 @@ namespace SliceEditor
 				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
 				{
 					editFunc("Remove", std::string(property_label), list, entry, idx);
+					changedVars[idx] = MultiSelect::REMOVED;
+					changed = true;
 				}
 
 				idx++;
@@ -927,8 +1004,15 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
-
+				if(idx == 0)
+				{
+					editFunc("Add", std::string(property_label), list, SliceEngine::GameObject(), idx);
+				}
+				else
+				{
+					editFunc("Add", std::string(property_label), list, list[idx-1], idx);
+				}
+				changedVars.push_back(MultiSelect::ADDED);
 				// record in history
 				/*if (oldList != list)
 				{
@@ -950,7 +1034,7 @@ namespace SliceEditor
 		return changed;
 	}
 	
-	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max)
+	bool FloatListScriptHeader(Registry& reg, std::function<void(const char*, std::string, std::vector<float>, float, int)> editFunc, const char* property_label, const char* id, std::vector<float>& list, const char* format, float inc, float min, float max, std::vector<bool> elementDiffs, std::vector<MultiSelect>& changedVals)
 	{
 		static std::string elementNo_String = "Element ";
 		static std::vector<float > oldList{};
@@ -964,24 +1048,42 @@ namespace SliceEditor
 				std::string newID = std::string(id) + elementNo_String + std::to_string(idx);
 				std::string buttonLabel = "-##" + elementPropertyLabel;
 
+				//To check each entry if it was changed, push_back unchanged first.
+				changedVals.push_back(MultiSelect::UNCHANGED); //it should correspond to idx
+
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
 				ImGui::SetNextItemWidth(200.0f);
-				changed |= ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, format);
+
+				std::string formatCopy = format;
+				if (elementDiffs[idx])
+				{
+					formatCopy = "---";
+				}
+
+				bool changedVar = ImGui::DragFloat(newID.c_str(), &entry, inc, min, max, formatCopy.c_str());
+
+				if (changedVar)
+				{
+					changedVals[idx] = MultiSelect::CHANGED;
+				}
 
 				if (ImGui::IsItemActivated())
 					oldList = list;
 
+				changed = changedVar || changed;
 				if (ImGui::IsItemDeactivatedAfterEdit())
 				{
 					std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc,"Edit", std::string(property_label), oldList, list);
 					reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));
+					editFunc("Edit", std::string(property_label), list, entry, idx);
 				}
 
 				ImGui::SameLine();
 				if (ImGui::Button(buttonLabel.c_str(), ImVec2(30, 20)))
 				{
 					editFunc("Remove", std::string(property_label),list, entry, idx);
+					changedVals[idx] = MultiSelect::REMOVED;
 					changed = true;
 				}
 
@@ -995,7 +1097,15 @@ namespace SliceEditor
 				//oldList = list;
 
 				// perform change
-				editFunc("Add", std::string(property_label), list, 0.0f, idx);
+				if (idx == 0)
+				{
+					editFunc("Add", std::string(property_label), list, 0.f, idx);
+				}
+				else
+				{
+					editFunc("Add", std::string(property_label), list, list[idx - 1], idx);
+				}
+				changedVals.push_back(MultiSelect::ADDED); // Push back a new modified value
 
 				// record in history
 				/*std::unique_ptr<ScriptListSetterCommand<float>> command = std::make_unique<ScriptListSetterCommand<float>>(editFunc, "Remove", std::string(property_label), oldList, list,idx);

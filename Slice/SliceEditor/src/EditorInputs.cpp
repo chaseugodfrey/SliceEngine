@@ -25,7 +25,7 @@ namespace SliceEditor
 			auto game_view = windowManager->GetWindow<GameViewWindow>();
 			if (game_view.has_value())
 			{
-				if (core->GetInputSystem()->GetCursorState() == SliceEngine::CursorState::DISABLED)
+				if (core->GetInputSystem()->GetCurrCursorState() == SliceEngine::CursorState::DISABLED)
 				{
 					io.MousePos = game_view.value()->center;
 				}

@@ -51,7 +51,7 @@ namespace SliceEngine
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
-	//	std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
+	//	//std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
 
 		return go;
 	}
@@ -268,7 +268,7 @@ namespace SliceEngine
 	void GOFactory::Destroy(entt::entity entity)
 	{
 		auto go = GetGOByEntity(entity);
-		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
+		////std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
 		if (mDeleteList.contains(entity))
 		{
@@ -997,14 +997,14 @@ namespace SliceEngine
 	void GOFactory::DebugPrint()
 	{
 		// map size
-		std::cout << "Total GameObjects: " << mEntityToGO.size() << std::endl;
+		//std::cout << "Total GameObjects: " << mEntityToGO.size() << std::endl;
 		// name map size
-		std::cout << "Total Names: " << mNameToEntity.size() << std::endl;
+		//std::cout << "Total Names: " << mNameToEntity.size() << std::endl;
 
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
-			std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
+			//std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
 		}
 	}
 
@@ -1013,7 +1013,7 @@ namespace SliceEngine
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
-			std::cout << mEntityToGO[entity].GetName() << std::endl;
+			//std::cout << mEntityToGO[entity].GetName() << std::endl;
 			
 			
 			for (auto&& [type_id, storage] : mRegistry.storage())
@@ -1021,7 +1021,7 @@ namespace SliceEngine
 				if (storage.contains(entity))
 				{
 					// each component will be here
-					std::cout << storage.type().name() << std::endl;
+					//std::cout << storage.type().name() << std::endl;
 					
 				}
 
@@ -1065,46 +1065,45 @@ namespace SliceEngine
 						continue;
 
 					// Print based on type
-					if (value.is_type<int>())
-						std::cout << property.get_name() << " = " << value.get_value<int>() << std::endl;
-					else if (value.is_type<float>())
-						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
-					else if (value.is_type<double>())
-						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
+					if (value.is_type<int>());
+					//std::cout << property.get_name() << " = " << value.get_value<int>() << std::endl;
+					else if (value.is_type<float>());
+					//std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
+					else if (value.is_type<double>());
+						//std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
 					else if (value.get_type() == rttr::type::get<uint64_t>() ||
 						value.get_type().is_derived_from(rttr::type::get<uint64_t>()))
 					{
-						std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
+						//std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
 					}
 					else if (value.is_type<std::array<Entity, 4>>())
 					{
 						auto arr = value.get_value<std::array<Entity, 4>>();
-						std::cout << property.get_name() << " = [";
-						for (size_t i = 0; i < arr.size(); ++i)
-							std::cout << static_cast<uint32_t>(arr[i]) << (i + 1 < arr.size() ? ", " : "");
-						std::cout << "]" << std::endl;
+						//std::cout << property.get_name() << " = [";
+						for (size_t i = 0; i < arr.size(); ++i);
+							//std::cout << static_cast<uint32_t>(arr[i]) << (i + 1 < arr.size() ? ", " : "");
+						//std::cout << "]" << std::endl;
 					}
 					else if (value.is_type<glm::vec3>())
 					{
 						glm::vec3 v = value.get_value<glm::vec3>();
-						std::cout << property.get_name() << " = ("
-							<< v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
+						//std::cout << property.get_name() << " = (" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
 					}
 					else if (value.get_type() == rttr::type::get<uint32_t>() ||
 						value.get_type().is_derived_from(rttr::type::get<uint32_t>()))
 					{
 						uint32_t u = value.get_value<uint32_t>();
-						std::cout << property.get_name() << " = " << u << std::endl;
+						//std::cout << property.get_name() << " = " << u << std::endl;
 					}
 					else if (value.is_type<std::string>() ||
 						value.get_type().is_derived_from(rttr::type::get<std::string>()))
 					{
 						std::string str = value.get_value<std::string>();
-						std::cout << property.get_name() << " = \"" << str << "\"" << std::endl;
+						//std::cout << property.get_name() << " = \"" << str << "\"" << std::endl;
 					}
 					else
 					{
-						std::cout << property.get_name() << " = <unsupported type>" << std::endl;
+						//std::cout << property.get_name() << " = <unsupported type>" << std::endl;
 					}
 				}
 			}
@@ -1152,7 +1151,7 @@ namespace SliceEngine
 			if (!mEntityToGO[Entity].HasComponent<PrefabEditingEntity>())
 				mNameToEntity.erase(mEntityToGO[Entity].GetName());
 
-			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
+			////std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mEntityToGO[Entity].Destroy();

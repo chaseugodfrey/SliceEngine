@@ -84,7 +84,7 @@ namespace SliceEngine
         navQuery->init(navMesh, 2048); 
 		dtCrowd *crowd = InitCrowd(navMesh);
 
-		std::cout << "NavMesh loaded successfully!" << std::endl;
+		//std::cout << "NavMesh loaded successfully!" << std::endl;
 
         return { NavMeshObj{navMesh, navQuery, crowd}};
     }
@@ -105,14 +105,13 @@ namespace SliceEngine
 
 		// Check if navmesh has any tiles using public API
 		int tileCount = navMeshObj.navMesh->getMaxTiles();
-		std::cout << "NavMesh has " << tileCount << " max tiles" << std::endl;
+		//std::cout << "NavMesh has " << tileCount << " max tiles" << std::endl;
 
 		// Check tile count a different way
 		const dtNavMeshParams *params = navMeshObj.navMesh->getParams();
 		if (params)
 		{
-			std::cout << "NavMesh params - maxTiles: " << params->maxTiles
-				<< " maxPolys: " << params->maxPolys << std::endl;
+			//std::cout << "NavMesh params - maxTiles: " << params->maxTiles << " maxPolys: " << params->maxPolys << std::endl;
 		}
 
         dtQueryFilter filter;
@@ -135,8 +134,8 @@ namespace SliceEngine
 		dtVcopy(startPos, start);
 		dtVcopy(endPos, end);
 
-		std::cout << "Searching for start: (" << startPos[0] << ", " << startPos[1] << ", " << startPos[2] << ")" << std::endl;
-		std::cout << "Searching for end: (" << endPos[0] << ", " << endPos[1] << ", " << endPos[2] << ")" << std::endl;
+		//std::cout << "Searching for start: (" << startPos[0] << ", " << startPos[1] << ", " << startPos[2] << ")" << std::endl;
+		//std::cout << "Searching for end: (" << endPos[0] << ", " << endPos[1] << ", " << endPos[2] << ")" << std::endl;
 
 		float nearestStart[3], nearestEnd[3];
 		navMeshObj.navMeshQuery->findNearestPoly(startPos, polyPickExt, &filter, &startRef, nearestStart);

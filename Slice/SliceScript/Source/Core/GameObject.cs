@@ -170,7 +170,17 @@ namespace SliceEngine
         {
             return (int)mID;
         }
+        
+        public bool isValid()
+        {
+            if (!FunctionCalls.Entity_IsValid(mID))
+            {
+                mID = 0;
+                return false;
+            }
 
+            return true;
+        }
         public static bool operator ==(GameObject lhs, GameObject rhs)
         {
             if (ReferenceEquals(lhs, rhs)) return true;

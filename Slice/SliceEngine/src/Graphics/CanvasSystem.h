@@ -59,7 +59,7 @@ namespace SliceEngine
 		/*
 		* yea im just gona go through the whole tree twice
 		*/
-		void UpdateHierachy();
+		void UpdateHierachy(bool force = false);
 		void DrawOverlay();
 
 
@@ -74,7 +74,7 @@ namespace SliceEngine
 		*/
 		Entity Raycast(unsigned int x, unsigned int y) const;
 	private:
-		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect);
+		void get_child_ui(Entity canvas, Entity parent, Entity node, RectTransform const& prect, bool force);
 
 		void get_node_render(std::vector<std::pair<Entity, uint64_t>>&, Entity);
 
@@ -95,43 +95,9 @@ namespace SliceEngine
 			glm::mat4 model_to_ndc{};
 			glm::vec4 atlas_uv{};
 		} font_Instances[Font_Max_Instance];
-		unsigned int font_ssbo;
+		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
-
-
-
-	//do i need a system for 2d, prob no for now
-	//struct canvasEntity {};
-	/*
-	* Idea behind rect transform component
-	* -bypass transform component's scenegraph settings
-	* -sets transform component's values according to canvas system
-	* -rect transform will store values that are used by canvas system
-	* -dosent just contain position, but also the target rect area in the framebuffer to draw whatever renderer is used
-	* 
-	* Sprite Renderer
-	* -contains handle for the texture to draw(ignore font for now, will be a font renderer component)
-	* -will be used during canvas.render to draw to the framebuffer
-	* -uses rect transform to know how to display the texture
-	*/
-	/*
-	* Rect Transform Imgui display:
-	* pos z, only used for sorting
-	*
-	* if no hori stretch
-	*	pos x, x distance in pixels from pivot
-	*	width, pixel width of the UI element
-	* else
-	*	left, x distance in pixels from left pivot
-	*	right, x distance in pixels from right pivot
-	*
-	* if no vert stretch
-	*	same as above except pos y/height/top/bot
-	*
-	* ignore rotation and scale for now, work only in abso pixels
-	*
-	*/
 }
 
 #endif

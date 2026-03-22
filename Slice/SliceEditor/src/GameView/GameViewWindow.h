@@ -38,7 +38,6 @@ namespace SliceEditor
 		Screen mGameScreen;
 		
 		ImVec2 mRelativeCenter;
-		ImVec2 mInternalMousePosition;
 		ImVec2 mGameMousePosition;
 		ImVec2 mGameMouseNDC;
 		ImVec2 mGameMouseDelta;

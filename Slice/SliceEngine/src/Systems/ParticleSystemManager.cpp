@@ -83,6 +83,7 @@ namespace SliceEngine
 #pragma region System Stuff
 	void ParticleSystemManager::InitializeSystem(ParticleSystem& ps)
 	{
+		ps.delayTimer = 0.0f;
 		ps.systemTimer = 0.0f;
 		ps.systemEnding = false;
 		ps.expired = false;
@@ -90,6 +91,11 @@ namespace SliceEngine
 		ps.particles.resize(ps.maxParticles);		
 		ps.oldestIndex = 0u;
 		ps.awaitingIndex = 0u;
+
+		float inner = glm::clamp(ps.innerShapeRadius, 0.0f, ps.shapeRadius);
+		float outer = ps.shapeRadius;
+		ps.inner3 = inner * inner * inner;
+		ps.outer3 = outer * outer * outer;
 
 		ps.colourLifetimeMap.clear();
 		for (const auto& kv : ps.colourMapIntermediary)
@@ -121,6 +127,13 @@ namespace SliceEngine
 	}
 	void ParticleSystemManager::UpdateSystem(ParticleSystem& ps, float dt)
 	{
+		// Initial Delay
+		if (ps.initialDelay > 0.0f && ps.delayTimer <= ps.initialDelay)
+		{
+			ps.delayTimer += dt;
+			return;
+		}
+
 		ValidateParticleSystem(ps);
 
 		// particle billboard from camera
@@ -241,18 +254,40 @@ namespace SliceEngine
 			{
 				transformMatrix = glm::translate(transformMatrix, p.position);
 			}
+			
+			// combine with system rotation
+			glm::quat systemRot = glm::quat(glm::radians(ps.rotation3DHint));
+			if (ps.parentTransform)
+				systemRot = ps.parentTransform->rotation * systemRot;
 
 			// particle rotation
-			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));			
+			glm::quat particleRot = ps.isRotation3D ? p.rotation3D : glm::angleAxis(p.rotation, glm::vec3(0, 0, 1));
 
-			// combine rotations if face camera			
-			glm::quat baseRot = particleRot;
+			// combine rotations if face camera
+			glm::quat baseRot;
+
+			if (ps.isLocalSpace || ps.followTransformRotation)
+			{
+				// inherit parent/system transform
+				baseRot = systemRot * particleRot;
+			}
+			else
+			{
+				// independent particle
+				baseRot = particleRot;
+			}
+
+			// billboard override
+			if (ps.renderMode == ParticleSystem::RenderMode::BILLBOARD)
+			{
+				baseRot = particleRot; // or ignore systemRot entirely
+			}
 			
 			// Rotation over time
 			if (ps.rotateOverLifetime)
 			{
 				glm::quat deltaQ = RotateOverLifetime(p, ps, dt);
-				baseRot = glm::normalize(deltaQ * particleRot);
+				baseRot = glm::normalize(deltaQ * baseRot);
 
 				if (ps.isRotation3D)
 					p.rotation3D = baseRot;
@@ -412,30 +447,45 @@ namespace SliceEngine
 			p.position = ps.spawnPos;
 		}
 
-		if (ps.parentTransform)
-		p.position += ps.parentTransform->GetWorldPosition();
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			p.position += ps.parentTransform->GetWorldPosition();
+		}
 
+		glm::vec3 offset;
 		switch (ps.shapeType)
 		{		
 		case ParticleSystem::ShapeType::SPHERE:
-			p.position += RandomPointInSphere(ps);
+			offset = RandomPointInSphere(ps);
 			break;
 		case ParticleSystem::ShapeType::CONE:
-			p.position += RandomPointInCircle(ps);
+			offset = RandomPointInCircle(ps);
 			break;
 		case ParticleSystem::ShapeType::CUBE:
-			p.position += RandomPointInCube(ps);
+			offset = RandomPointInCube(ps);
 			break;
 		case ParticleSystem::ShapeType::CIRCLE:
-			p.position += RandomPointInCircle(ps);
+			offset = RandomPointInCircle(ps);
 			break;
 		case ParticleSystem::ShapeType::RECT:
-			p.position += RandomPointInRect(ps);
+			offset = RandomPointInRect(ps);
 			break;
 		default:
-			p.position += RandomPointInSphere(ps);
+			offset = RandomPointInSphere(ps);
 			break;
 		}
+
+		//if (!ps.followTransformRotation)
+		//	return localPoint;
+		//else if (ps.parentTransform)
+		//	return ps.parentTransform->rotation * localPoint;
+
+		if (ps.parentTransform)
+		{
+			offset = ps.parentTransform->rotation * offset;
+		}
+
+		p.position += offset;
 	}
 	void ParticleSystemManager::InitializeRotation(Particle& p, ParticleSystem& ps)
 	{
@@ -531,10 +581,19 @@ namespace SliceEngine
 		switch (ps.shapeType)
 		{
 		case ParticleSystem::ShapeType::SPHERE:
-			direction = ComputeSphereInitialVelocity(ps.parentTransform->GetWorldPosition(), p.position, ps.shapeRadius);
+			direction = ComputeSphereInitialVelocity(ps,p);
 			break;
 		case ParticleSystem::ShapeType::CONE:
 			direction = RandomDirectionInCone(ps);
+			break;
+		case ParticleSystem::ShapeType::CIRCLE:
+			direction = ComputeCircleInitialVelocity(ps,p);
+			break;
+		case ParticleSystem::ShapeType::CUBE:
+			direction = RandomDirectionInCube(ps);
+			break;
+		case ParticleSystem::ShapeType::RECT:
+			direction = ComputeRectInitialVelocity(ps);
 			break;
 		default:
 			direction = glm::vec3(0.0f, 1.0f, 0.0f); // fallback
@@ -584,7 +643,7 @@ namespace SliceEngine
 			glm::vec3 velocityMul = VelocityOverLifetime(p, ps, dt);
 			p.position += p.velocity * velocityMul * dt;
 		}
-		else 
+		else
 		{
 			p.position += p.velocity * dt;
 		}
@@ -607,7 +666,7 @@ namespace SliceEngine
 
 		auto core = SliceEngine::Core::GetInstance();
 		auto layer_manager = core->GetLayerManager();
-		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetMask(ps.particleLayer)))
+		if (physicsSystem.PSystemRayCast(p.position, direction, hitID, hitPos, normal, false, layer_manager->GetCollisionMask(layer_manager->GetLayerName(ps.particleLayer))))
 		{
 			glm::vec3 n = glm::normalize(normal);
 			float vn = glm::dot(p.velocity, n);          // velocity along normal
@@ -873,19 +932,26 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region Helper Functions
-	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias)
+	glm::vec3 ParticleSystemManager::ComputeSphereInitialVelocity(ParticleSystem& ps, Particle& p, float radialBias)
 	{
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
 		// Direction from center to particle
-		glm::vec3 dir = glm::normalize(position - center);
+		glm::vec3 center = glm::vec3(0.0f);
 
-		radialBias = glm::clamp(radialBias, 0.0f, 1.0f);
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			center = ps.parentTransform->GetWorldPosition();
+		}
+
+		glm::vec3 dir = p.position - center;
 
 		if (glm::dot(dir, dir) < 1e-6f)
-			dir = glm::vec3(0.0f, 1.0f, 0.0f);// fallback
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
 		else
 			dir = glm::normalize(dir);
+
+		radialBias = glm::clamp(radialBias, 0.0f, 1.0f);
 
 		// Random unit vector for spread
 		glm::vec3 randDir;
@@ -900,6 +966,48 @@ namespace SliceEngine
 
 		// Blend radial + random
 		dir = glm::normalize(glm::mix(randDir, dir, radialBias));
+
+		return dir;
+	}
+
+	glm::vec3 ParticleSystemManager::ComputeRectInitialVelocity(ParticleSystem& ps)
+	{
+		glm::vec3 forward(0.0f, 0.0f, 1.0f);
+
+		if (ps.parentTransform)
+		{
+			forward = ps.parentTransform->rotation * forward;
+		}
+
+		return glm::normalize(forward);
+	}
+
+	glm::vec3 ParticleSystemManager::ComputeCircleInitialVelocity(ParticleSystem& ps, Particle& p)
+	{
+		glm::vec3 center = glm::vec3(0.0f);
+
+		if (!ps.isLocalSpace && ps.parentTransform)
+		{
+			center = ps.parentTransform->GetWorldPosition();
+		}
+
+		glm::vec3 dir = p.position - center;
+
+		if (glm::dot(dir, dir) < 1e-6f)
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
+		else
+			dir = glm::normalize(dir);
+
+		// Prevent normalize(0,0,0)
+		if (glm::dot(dir, dir) < 1e-6f)
+		{
+			// Fallback direction
+			dir = glm::vec3(0.0f, 1.0f, 0.0f);
+		}
+		else
+		{
+			dir = glm::normalize(dir);
+		}
 
 		return dir;
 	}
@@ -934,22 +1042,84 @@ namespace SliceEngine
 		return q * localDir;
 	}
 
+	glm::vec3 ParticleSystemManager::RandomDirectionInCircle(ParticleSystem& ps)
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		float angle = dist01(gen) * glm::two_pi<float>();
+
+		// Point on unit circle
+		glm::vec3 dir(
+			cos(angle),
+			sin(angle),
+			0.0f
+		);
+
+		if (ps.parentTransform && ps.followTransformRotation)
+		{
+			return ps.parentTransform->rotation * dir;
+		}
+
+		return dir;
+	}
+
+	glm::vec3 ParticleSystemManager::ComputeRectDirection(ParticleSystem& ps)
+	{
+		glm::vec3 forward(0.0f, 0.0f, 1.0f);
+
+		if (ps.parentTransform)
+		{
+			return ps.parentTransform->rotation * forward;
+		}
+
+		return forward;
+	}
+
+	glm::vec3 ParticleSystemManager::RandomDirectionInCube(ParticleSystem& ps)
+	{
+		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
+
+		glm::vec3 dir;
+
+		do {
+			dir = glm::vec3(
+				dist01(gen) * 2.0f - 1.0f,
+				dist01(gen) * 2.0f - 1.0f,
+				dist01(gen) * 2.0f - 1.0f
+			);
+		} while (glm::dot(dir, dir) < 1e-6f);
+
+		dir = glm::normalize(dir);
+
+		glm::vec3 axis(0.0f, 0.0f, 1.0f);
+		if (ps.parentTransform && ps.followTransformRotation)
+		{
+			axis = ps.parentTransform->rotation * glm::vec3(0.0f, 0.0f, 1.0f);
+		}
+
+		glm::quat q = Utilities::FromToRotation(glm::vec3(0.0f, 0.0f, 1.0f), axis);
+
+		return q * dir;
+	}
+
+
 	glm::vec3 ParticleSystemManager::RandomPointInSphere(ParticleSystem& ps)
 	{
+		if (ps.shapeRadius <= 0.0f)
+			return glm::vec3(0.0f);
+
 		std::uniform_real_distribution<float> dist(0.0f, 1.0f);
 
-		float u = dist(gen); // for theta
-		float w = dist(gen); // for radius
+		float u = dist(gen);
+		float w = dist(gen);
 
-		// Convert arc from degrees to radians
-		float arcRad = glm::radians(ps.sphereArc);
+		float arcRad = glm::radians(
+			glm::clamp(ps.sphereArc, 0.0f, 180.0f)
+		);
 
-		// Clamp phi to the desired arc
-		// If arcDegrees = 90, then phi ranges from 0 to 90 degrees (0 to pi/2)
 		std::uniform_real_distribution<float> phiDist(0.0f, arcRad);
 		float phi = phiDist(gen);
 
-		// Theta can remain full circle
 		float theta = 2.0f * glm::pi<float>() * u;
 
 		float sinPhi = sin(phi);
@@ -960,47 +1130,38 @@ namespace SliceEngine
 			cos(phi)
 		);
 
-		// Radial distance
-		float r = ps.shapeRadius * cbrt(w);
-		if (!ps.followTransformRotation)
-		{
-			return dir * r;
-		}
-		else if (ps.parentTransform)
-		{
-			return ps.parentTransform->rotation * (dir * r);
-		}
-		return glm::vec3();
+		float r = cbrt(
+			ps.inner3 +
+			w * (ps.outer3 - ps.inner3)
+		);
+
+		glm::vec3 localPoint = dir * r;
+
+		return localPoint;
 	}
 
-	glm::vec3 ParticleSystemManager::RandomPointInCircle(ParticleSystem& ps) // optional parent rotation
+	glm::vec3 ParticleSystemManager::RandomPointInCircle(ParticleSystem& ps)
 	{
+		if (ps.shapeRadius <= 0.0f)
+			return glm::vec3(0.0f);
+
 		std::uniform_real_distribution<float> dist01(0.0f, 1.0f);
 
-		// Random radius with correct distribution
-		float r = ps.shapeRadius * sqrt(dist01(gen)); // sqrt ensures uniform density
+		float inner = glm::clamp(ps.innerShapeRadius, 0.0f, ps.shapeRadius);
+		float outer = ps.shapeRadius;
 
-		// Random angle
+		float r = sqrt(
+			inner * inner +
+			dist01(gen) * (outer * outer - inner * inner)
+		);
+
 		float theta = 2.0f * glm::pi<float>() * dist01(gen);
-
-		// Point in local XY circle (Z = 0)
-		glm::vec3 localPoint(
+				
+		return glm::vec3(
 			r * cos(theta),
 			r * sin(theta),
 			0.0f
 		);
-
-		// Apply parent rotation
-		if (!ps.followTransformRotation)
-		{
-			return localPoint;
-		}
-		else if (ps.parentTransform)
-		{
-			return ps.parentTransform->rotation * localPoint;
-		}
-
-		return glm::vec3();
 	}
 
 	glm::vec3 ParticleSystemManager::RandomPointInCube(ParticleSystem& ps)
@@ -1015,18 +1176,11 @@ namespace SliceEngine
 		std::uniform_real_distribution<float> distY(-halfExtents.y, halfExtents.y);
 		std::uniform_real_distribution<float> distZ(-halfExtents.z, halfExtents.z);
 
-		glm::vec3 localPoint(
+		return glm::vec3(
 			distX(gen),
 			distY(gen),
 			distZ(gen)
 		);
-
-		if (!ps.followTransformRotation)
-			return localPoint;
-		else if (ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return glm::vec3();
 	}
 
 	glm::vec3 ParticleSystemManager::RandomPointInRect(ParticleSystem& ps)
@@ -1039,16 +1193,11 @@ namespace SliceEngine
 		std::uniform_real_distribution<float> distX(-halfExtents.x, halfExtents.x);
 		std::uniform_real_distribution<float> distY(-halfExtents.y, halfExtents.y);
 
-		glm::vec3 localPoint(
+		return glm::vec3(
 			distX(gen),
 			distY(gen),
 			0.0f
 		);
-
-		if (ps.followTransformRotation && ps.parentTransform)
-			return ps.parentTransform->rotation * localPoint;
-
-		return localPoint;
 	}
 #pragma endregion
 
@@ -1158,5 +1307,3 @@ namespace SliceEngine
 
 #pragma endregion
 }
-
-

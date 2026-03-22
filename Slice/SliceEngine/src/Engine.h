@@ -41,6 +41,11 @@ namespace SliceEngine
 
 		FramerateManager* frm ;
 
+		float deltaTimeUnscaled;
+		float deltaTimeScaled;
+		float fixedDeltaTime;
+		float fixedDeltaTimeScaled;
+
 		Engine();
 		~Engine();
 

@@ -294,8 +294,8 @@ namespace SliceEngine
 			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
 															fabs(transform.scale.y),
 															fabs(transform.scale.z));
-			//std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
-			//std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
+			////std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
+			////std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
 			if ((tempScale == halfExtents) && (colliderShape.offSet == colliderShape.prevOffSet)) // in case there is issue look here future me
 			{
 				return;
@@ -587,7 +587,7 @@ namespace SliceEngine
 			mp->SetAngularDamping(rigidBody.angularDamping);
 		}
 
-		//std::cout << (int)event.entity <<"Rigidbody modified\n";
+		////std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
 	//void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
@@ -1213,11 +1213,27 @@ namespace SliceEngine
 			// Add triangles - iterate over INDICES, not meshes!
 			for (size_t i = 0; i < mesh.indices.size(); i += 3)
 			{
-				triangles.push_back(JPH::IndexedTriangle(
-					vertexOffset + mesh.indices[i],
-					vertexOffset + mesh.indices[i + 1],
-					vertexOffset + mesh.indices[i + 2]
-				));
+				//i dont fking know whats going on anymore
+				uint32_t i0 = vertexOffset + mesh.indices[i];
+				uint32_t i1 = vertexOffset + mesh.indices[i + 1];
+				uint32_t i2 = vertexOffset + mesh.indices[i + 2];
+
+				// Get the three vertices
+				JPH::Vec3 v0(vertices[i0].x, vertices[i0].y, vertices[i0].z);
+				JPH::Vec3 v1(vertices[i1].x, vertices[i1].y, vertices[i1].z);
+				JPH::Vec3 v2(vertices[i2].x, vertices[i2].y, vertices[i2].z);
+
+				// Check for degenerate triangle
+				JPH::Vec3 normal = (v1 - v0).Cross(v2 - v0);
+				if (normal.LengthSq() < 1e-10f)
+				{
+					//std::cout << "[DEGENERATE TRIANGLE SKIPPED] at ("
+						//<< v0.GetX() << "," << v0.GetY() << "," << v0.GetZ() << ")"
+						//<< std::endl;
+					continue; // skip this triangle
+				}
+
+				triangles.push_back(JPH::IndexedTriangle(i0, i1, i2));
 			}
 
 			vertexOffset += static_cast<uint32_t>(mesh.vertices.size());
@@ -1466,7 +1482,7 @@ namespace SliceEngine
 		//
 		//if (testBodyID.IsInvalid())
 		//{
-		//	std::cout << "ALOYSISU INVALID BODYID 67676767\n";
+		//	//std::cout << "ALOYSISU INVALID BODYID 67676767\n";
 		//}
 
 

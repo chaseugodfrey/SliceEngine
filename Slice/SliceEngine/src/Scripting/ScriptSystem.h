@@ -208,8 +208,8 @@ namespace SliceEngine
 		// ill store new entities thats added in a vector
 		// then loop this instead and pop when it loads its script properly since itll need to wait until a script is assigned
 		std::vector<Entity> entityAdded;
+		std::set<Entity> entityConstructed;
 		std::set<Entity> entityToInit;
-
 		// Keep track of the entities that were disabled
 		// so that when its re-enabled, it wont call onStay 
 		// this is handled in JOLT now so I dont need this
@@ -223,6 +223,7 @@ namespace SliceEngine
 		std::map<Entity, std::set<Entity>> mCollideMap;
 		std::map<Entity, std::set<Entity>> mTriggerMap;
 		std::mutex mQueueLock;
+		bool isChangingScene = false;
 
 	};
 

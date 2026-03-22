@@ -144,6 +144,9 @@ namespace SliceEngine
             return;
         }
 
+        // Set behavior to FAIL so new sounds don't play if limit is reached
+        soundGroup->setMaxAudibleBehavior(FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
+
         SFXEntry entryData{};
 
         entryData.key = key;
@@ -243,7 +246,7 @@ namespace SliceEngine
         }
 
         newSound->setSoundGroup(entry->soundGroup);
-        
+
 
     }
 
@@ -254,7 +257,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-        //    //SLICE_LOG("SoundGroup '" + oldKey + "' not found");
+            //    //SLICE_LOG("SoundGroup '" + oldKey + "' not found");
             return;
         }
 
@@ -272,18 +275,18 @@ namespace SliceEngine
 
         if (newGroupCreation != FMOD_OK)
         {
-            
-        //    //SLICE_LOG_ERROR("Failed to create sound group.");
+
+            //    //SLICE_LOG_ERROR("Failed to create sound group.");
             return;
 
         }
-        
+
         for (auto& clip : entry->AudioClips)
         {
             auto audioSound = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(clip).get();
             if (!audioSound)
             {
-           //     //SLICE_LOG_ERROR("Failed to get audio clip for GUID.");
+                //     //SLICE_LOG_ERROR("Failed to get audio clip for GUID.");
                 return;
             }
 
@@ -300,17 +303,17 @@ namespace SliceEngine
 
         mSFXMap.insert(std::move(keyToChange));
 
-      //  //SLICE_LOG("Entry successfully renamed");
+        //  //SLICE_LOG("Entry successfully renamed");
     }
 
     void AudioSettings::RemoveAudioClip(std::vector<GUID>& audioClips)
     {
-        
+
         auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(audioClips.back()).get();
 
         //Move to master sound group
         FMOD::SoundGroup* master = nullptr;
-            
+
         if (mSystem)
         {
             mSystem->getMasterSoundGroup(&master);
@@ -377,7 +380,7 @@ namespace SliceEngine
 
         if (!entry)
         {
-           // //SLICE_LOG("SoundGroup '" + key + "' not found");
+            // //SLICE_LOG("SoundGroup '" + key + "' not found");
             return 0.0f;
         }
 
@@ -395,7 +398,7 @@ namespace SliceEngine
     {
         if (!audioClips.empty())
         {
-            
+
             audioClips.pop_back();
 
         }
@@ -431,9 +434,9 @@ namespace SliceEngine
         }
 
         return entry->maxInstances;
-    }    
+    }
 
-    void AudioSettings::PlaySFX(const std::string& key, glm::vec3 position)
+    void AudioSettings::PlaySFX(const std::string& key, glm::vec3 position, Entity parent)
     {
         auto audioManager = Core::GetInstance()->GetAudioManager();
         SFXEntry* entry = GetSFXEntry(key);
@@ -453,84 +456,67 @@ namespace SliceEngine
         GUID clipGUID;
         if (entry->AudioClips.size() == 1)
         {
-            // Only one clip, use it directly
             clipGUID = entry->AudioClips[0];
         }
         else
         {
-            // More than one clip, select one randomly
             int randomIndex = std::rand() % entry->AudioClips.size();
             clipGUID = entry->AudioClips[randomIndex];
         }
 
-        auto audioManagerObject = FactoryInstance.GetGOByName("AudioManager");
-
-        auto audioObject = FactoryInstance.GetGOByName(key);
-
-        if (audioObject.GetEntity() == entt::null)
+        if (entry->soundGroup)
         {
-            auto newAudioObject = FactoryInstance.CreateGO(key);
-            newAudioObject.AddComponent<AudioSource>();
+            entry->soundGroup->setMaxAudible(entry->maxInstances);
+            entry->soundGroup->setMaxAudibleBehavior(FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
+            entry->soundGroup->setVolume(entry->volume);
+        }
 
-            if (FactoryInstance.SetParent(newAudioObject.GetEntity(), audioManagerObject.GetEntity()))
+        auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(clipGUID).get();
+        if (audioClip && entry->soundGroup)
+        {
+            FMOD::Sound* sound = audioClip->GetSound();
+            if (sound)
             {
-                AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
-
-                audioComp.soundGUID = clipGUID;
-
-                // Copy volume/spatial settings from the entry to the component
-                audioComp.currentVolume = entry->volume;
-                audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-                audioComp.minDistance = entry->minDistance;
-                audioComp.maxDistance = entry->maxDistance;
-                audioComp.volumeRollOff = entry->volumeRollOff;
-                audioComp.playOnAwake = false;
-
-                
-
-                bool isSFXPlaying = false;
-
-                if (audioComp.channel)
-                    audioComp.channel->isPlaying(&isSFXPlaying);
-
-                if (audioComp.channel == nullptr || !isSFXPlaying)
+                FMOD::SoundGroup* currentGroup = nullptr;
+                sound->getSoundGroup(&currentGroup);
+                if (currentGroup != entry->soundGroup)
                 {
-                
-                    audioComp.channel =  audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
-
+                    sound->setSoundGroup(entry->soundGroup);
                 }
-
             }
-            else
-            {
-                //SLICE_LOG_ERROR("No AudioManager object in scene");
-                return;
-            }
+        }
 
+        // Create a unique temporary Game Object for this sound instance
+        std::string uniqueName = "OneShot_" + key;
+        auto newAudioObject = FactoryInstance.CreateGO(uniqueName);
+        newAudioObject.AddComponent<AudioSource>();
+
+        AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
+        Transform& audioTrans = newAudioObject.GetComponent<Transform>();
+
+        // Set position or parent
+        if (parent != entt::null)
+        {
+            FactoryInstance.SetParent(newAudioObject.GetEntity(), parent);
+            audioTrans.position = position; // Local position relative to parent
         }
         else
         {
-            AudioSource& audioComp = audioObject.GetComponent<AudioSource>();
-
-            //auto& transform = audioObject.GetComponent<Transform>();
-
-            audioComp.soundGUID = clipGUID;
-
-            bool isSFXPlaying = false;
-
-            if (audioComp.channel)
-                audioComp.channel->isPlaying(&isSFXPlaying);
-
-            if ((audioComp.channel == nullptr || !isSFXPlaying))
-            {
-
-                audioComp.channel = audioManager->PlaySound(audioComp, position, glm::vec3{ 0.f });
-
-            }
+            audioTrans.position = position; // World position
         }
 
+        // Configure AudioSource from SFXEntry
+        audioComp.soundGUID = clipGUID;
+        audioComp.currentVolume = entry->volume;
+        audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+        audioComp.minDistance = entry->minDistance;
+        audioComp.maxDistance = entry->maxDistance;
+        audioComp.volumeRollOff = entry->volumeRollOff;
+        audioComp.playOnAwake = false;
+        audioComp.destroyOnEnd = true; // Mark for automatic destruction when sound ends
 
-        //entry->_lastPlayed = currentTime;
+        // Play the sound
+        audioComp.channel = audioManager->PlaySound(audioComp, audioTrans.GetWorldPosition(), glm::vec3{ 0.f });
     }
 
 
@@ -605,13 +591,16 @@ namespace SliceEngine
 
         entry.AudioClips.clear();
 
-        const auto& audioClipsJsons = j.at("AudioClips");
-
-        for (const auto& audioClipsJson : audioClipsJsons)
+        if (j.contains("AudioClips"))
         {
-            GUID audioClip = (GUID)audioClipsJson.get<uint64_t>();
-            //from_json(audioClipsJsons, audioClip);
-            entry.AudioClips.push_back(audioClip);
+            const auto& audioClipsJsons = j.at("AudioClips");
+
+            for (const auto& audioClipsJson : audioClipsJsons)
+            {
+                GUID audioClip = (GUID)audioClipsJson.get<uint64_t>();
+                //from_json(audioClipsJsons, audioClip);
+                entry.AudioClips.push_back(audioClip);
+            }
         }
 
         /*if (j.contains("AudioClips"))
