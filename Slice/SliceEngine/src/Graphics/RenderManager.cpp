@@ -1036,6 +1036,11 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, mTime);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, cameraPos);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
+		glUniform1i(uniformLoc, numLightsFound);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "hasDirectionalLight");
+		glUniform1i(uniformLoc, mDirLightFound);
+
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
 		glUniform1f(uniformLoc, camera.cloudsAmplitude);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
@@ -1299,6 +1304,7 @@ namespace SliceEngine
 	}
 	void RenderManager::GatherLights()
 	{
+		numLightsFound = 0;
 		mDirLightFound = false;
 		allLightData.clear();
 		sortedLights.clear();
@@ -1310,6 +1316,8 @@ namespace SliceEngine
 		{
 			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
 			if (!light.componentEnabled) continue;
+
+			++numLightsFound;
 
 			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
 
