@@ -57,7 +57,7 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
-		void RenderPointShadowMaps();
+		void RenderPerspectiveShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderSkybox();
 		void RenderSkyboxLighting(Entity cam);
@@ -72,7 +72,7 @@ namespace SliceEngine
 		void ForceSetCustomShader(const std::string& sh, GLuint s);
 		bool UniformExists(const char* str, GLint& ref);
 		void GatherLights();
-		void GatherNearestLights();
+		void GatherNearbyLights();
 		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		const glm::mat4& GetViewMatrix() const;
 		const glm::mat4& GetProjMatrix() const;
@@ -87,7 +87,7 @@ namespace SliceEngine
 		GLuint SkyboxIrradianceMap{};
 		int numLightsFound{};
 		float mainDirLightFar{};
-		#define mMaxPointLights 10
+		#define mMaxPointLights 2
 		const size_t mMaxLights{150};
 		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
 		const float shadowCascadeLevels[4]{ 40.f, 15.f, 6.f, 2.4f };
@@ -249,7 +249,8 @@ namespace SliceEngine
 			int hasShadow;
 			int shadowNum;
 			int spotShadowNum;
-			int padding;
+			float pointAngle;
+			glm::mat4 pointlightMtx;
 		};
 #pragma endregion
 		FBOType mCurrFBO{ FB_TOTAL };
@@ -297,7 +298,6 @@ namespace SliceEngine
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
 		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
-		void GatherNearbyLights();
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 

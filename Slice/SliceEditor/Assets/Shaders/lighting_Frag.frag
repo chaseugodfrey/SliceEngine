@@ -9,7 +9,8 @@ struct Light{
 	int hasShadow;
 	int shadowNum;
 	int spotShadowNum;
-	int padding;
+	float pointAngle;
+	mat4 VP;
 };
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
@@ -46,7 +47,7 @@ layout (binding = 4) uniform sampler2DArray uShadowTex;			// Only for shadow map
 layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap; // Only for shadow mapping (point light)
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
-float getShadowSideMulti(vec3 n, vec3 l, float viewDist, float dist);
+float getShadowSideMulti(vec3 n, vec3 l, float dist);
 float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
 vec3 GetRandDir(vec3 seed);
@@ -111,14 +112,25 @@ void main(void){
 		}
 		else if(uLight[lightIdx].type == isSpot)
 		{
-			vec3 l = uLight[lightIdx].position - uCamPos - wPos; // Surface to Light
-			float dist = length(l);
-			vec4 lightCol = uLight[lightIdx].color;
-			lightCol.a /= (dist * dist);
+			vec3 l = uLight[lightIdx].position - uCamPos - wPos;
+    		float dist = length(l);
+    		vec3 L = l / dist;
+    		vec3 lightDir = normalize(uLight[lightIdx].direction); // Spotlight's forward direction
+    		vec3 fragToLight = -L;
 
-			float shadow = uLight[lightIdx].hasShadow * getShadowSideMulti(nom, l, length(wPos), dist);
-			l = l / dist;
-			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
+			float theta = dot(lightDir, fragToLight);
+    		float cutOff = cos(float(uLight[lightIdx].pointAngle) / 2.0);
+
+			float epsilon = 0.05;
+    		float intensity = clamp((theta - cutOff) / epsilon, 0.0, 1.0);
+
+			if (intensity > 0.0) {
+				vec4 lightCol = uLight[lightIdx].color;
+				lightCol.a = lightCol.a / (dist * dist) * intensity;
+				
+				float shadow = uLight[lightIdx].hasShadow * getShadowSideMulti(nom, l, dist);
+				fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, L, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
+    		}
 		}
 	}
 }
@@ -248,32 +260,61 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
 	return shadow /= float(samples);
 }
 
-float getShadowSideMulti(vec3 n, vec3 l, float viewDist, float dist)
+vec3 UVToCubeDir(vec2 uv, int face) 
 {
-	/*
-	vec3 fragToLight = -l;
-	vec3 L = normalize(l);
+    vec2 c = uv * 2.0 - 1.0;
+    if (face == 0) return vec3(1.0, -c.y, -c.x);       // +X
+    if (face == 1) return vec3(-1.0, -c.y, c.x);       // -X
+    if (face == 2) return vec3(c.x, 1.0, c.y);         // +Y
+    if (face == 3) return vec3(c.x, -1.0, -c.y);       // -Y
+    if (face == 4) return vec3(c.x, -c.y, 1.0);        // +Z
+    return vec3(-c.x, -c.y, -1.0);                     // -Z
+}
 
-	float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
-	float diskRadius = (1.0 + (viewDist / 20.0)) / 25.0;
-	
-	int samples = 20;
-	float shadow = 0.0;
+float getShadowSideMulti(vec3 n, vec3 l, float dist) // Removed wPos from parameters!
+{
+    vec3 L = normalize(l); 
+    
+    // -l is EXACTLY the Fragment's position relative to the Light!
+    // Multiply this directly by the Spotlight's VP matrix
+    vec4 vLightPos = uLight[lightIdx].VP * vec4(-l, 1.0);
+    
+    // Prevent reverse-projection artifacts if the fragment is behind the spotlight
+    if (vLightPos.w <= 0.0) return 1.0; 
+    
+    vec3 projCoords = vLightPos.xyz / vLightPos.w;
+    projCoords = projCoords * 0.5 + 0.5;
 
-	vec3 noise = GetRandDir(vec3(gl_FragCoord.xy, 0.0));
+    // Out of bounds check
+    if(projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+    {
+        return 1.0; 
+    }
 
-	for(int i = 0; i < samples; ++i)
-	{
-		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
+    // Using radial linear distance to match the spherical depth stored in your cubemap
+    float currentDepth = dist / uLight[lightIdx].uFarPlane; 
+    
+    float bias = max(0.005 * (1.0 - dot(n, L)), 0.0005);
+    float shadow = 0.0;
+    
+    vec2 texelSize = 1.0 / vec2(textureSize(uShadowCubeMap, 0).xy); 
+    float layer = float(uLight[lightIdx].shadowNum); 
+    int face = uLight[lightIdx].spotShadowNum;
 
-		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(uLight[lightIdx].shadowNum))).r;
-		closestDepth *= uLight[lightIdx].uFarPlane;
-		if(dist - bias > closestDepth)
-			shadow += 1.0;
-	}
-	return shadow /= float(samples);
-	*/
-	return 1.0f;
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            // Convert 2D PCF offsets into a 3D Cubemap vector
+            vec2 offsetUV = projCoords.xy + vec2(x,y) * texelSize;
+            vec3 cubeDir = UVToCubeDir(offsetUV, face);
+            
+            float pcfDepth = texture(uShadowCubeMap, vec4(cubeDir, layer)).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+
+    return shadow / 9.0;
 }
 
 vec3 GetRandDir(vec3 seed)

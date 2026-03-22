@@ -9,7 +9,8 @@ struct Light{
 	int hasShadow;
 	int shadowNum;
 	int spotShadowNum;
-	int padding;
+	float pointAngle;
+	mat4 VP;
 };
 
 layout (location=0) in vec3 vPos;

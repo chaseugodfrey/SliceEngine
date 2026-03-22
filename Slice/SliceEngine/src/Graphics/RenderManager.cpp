@@ -494,7 +494,7 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 
 			// Reload Shadows
-			RenderPointShadowMaps();
+			RenderPerspectiveShadowMaps();
 			RenderDirectionalShadowMaps(cam);
 
 			SetShader(ShaderPaths[S_SKYBOX]);
@@ -820,7 +820,7 @@ namespace SliceEngine
 			CheckGLError();
 		}
 	}
-	void RenderManager::RenderPointShadowMaps()
+	void RenderManager::RenderPerspectiveShadowMaps()
 	{
 		SetShader(ShaderPaths[S_POINT_SHADOW]);
 		LinkFrameBufferSettings(FB_NIL, 0);
@@ -868,25 +868,28 @@ namespace SliceEngine
 			if (light.type != Light::Light_Spot)
 				continue;
 
-			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, light.shadowNum * 6 + light.spotShadowNum,
+			int shadowNum = light.shadowNum * 6 + light.spotShadowNum;
+
+			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, shadowNum,
 				SHADOW_DIMENSION, SHADOW_DIMENSION, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			glUniform1f(uniformLoc, light.uFarPlane);
-			int shadowNum = light.shadowNum * 6 + light.spotShadowNum;
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, shadowNum);
 
-			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, light.uFarPlane);
+			glm::mat4 lightP = glm::perspective(light.pointAngle, 1.f, 0.01f, light.uFarPlane);
 			glm::vec3 lightUp{ 0.f, 1.f, 0.f };
-			if (glm::dot(lightUp, light.dir) > 0.99999f)
-				lightUp = glm::vec3(1.f, 0.f, 0.f);
-			glm::mat4 VP{ lightP * glm::lookAt(light.pos, light.pos + light.dir, lightUp) };
+			if (abs(glm::dot(lightUp, light.dir)) > 0.99999f)
+				lightUp = glm::vec3(0.f, 0.f, 1.f);
+			glm::mat4 VP{ lightP * glm::lookAt(eye, light.dir, lightUp) };
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
 			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &VP[0][0]);
 
 			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
 		}
+
+		dirtyShadows.clear();
 		CheckGLError();
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
@@ -1331,11 +1334,23 @@ namespace SliceEngine
 			LightDat tempDat;
 			tempDat.pos = transform.GetWorldPosition();
 			tempDat.uFarPlane = CalcPointLightFar(transform.GetWorldScale(), light.intensity);
-			if (light.type == Light::Light_Spot)
-				tempDat.dir = light.color;
 			tempDat.type = static_cast<int>(light.type);
 			tempDat.col = glm::vec4(light.color, light.intensity);
 			tempDat.hasShadow = 0;
+			tempDat.pointAngle = glm::radians(light.angle);
+			if (light.type == Light::Light_Spot)
+			{
+				glm::vec3 eye{};
+				glm::mat3 rot = glm::mat3(transform.transform);
+				tempDat.dir = rot * glm::vec3(0.f, -1.f, 0.f);
+
+				glm::mat4 lightP = glm::perspective(tempDat.pointAngle, 1.f, 0.01f, tempDat.uFarPlane);
+				glm::vec3 lightUp{ 0.f, 1.f, 0.f };
+				if (abs(glm::dot(lightUp, tempDat.dir)) > 0.99999f)
+					lightUp = glm::vec3(0.f, 0.f, 1.f);
+
+				tempDat.pointlightMtx = lightP * glm::lookAt(eye, eye + tempDat.dir, lightUp);
+			}
 
 			sortedLights.emplace_back(allLightData.size());
 			allLightData.emplace_back(tempDat);
