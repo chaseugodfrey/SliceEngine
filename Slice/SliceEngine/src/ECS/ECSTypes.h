@@ -268,6 +268,7 @@ namespace SliceEngine
 			,Light_Spot
 		};
 		bool componentEnabled{ true };
+		bool castsShadow{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
 		float angle{ 90.f };

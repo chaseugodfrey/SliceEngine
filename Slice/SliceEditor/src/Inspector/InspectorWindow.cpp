@@ -737,6 +737,7 @@ namespace SliceEditor
 
 			ImGui::SeparatorText("Post-Processing FX");
 
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
@@ -756,7 +757,6 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			}
 
 			ImGui::Text("Godrays");
@@ -2181,6 +2181,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
+			BoolInputHeader(mRegistry, "Casts Shadow", "##lightCastsShadow", light.castsShadow);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);

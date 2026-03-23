@@ -384,7 +384,8 @@ namespace SliceEngine
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
 		.property("angle", &Light::angle)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()

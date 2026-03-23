@@ -1325,7 +1325,7 @@ namespace SliceEngine
 			{
 				if (!mDirLightFound)
 				{
-					dirLightDat.hasShadow = true;
+					dirLightDat.hasShadow = light.castsShadow;
 					dirLightDat.dir = -transform.GetWorldPosition();
 					dirLightDat.type = static_cast<int>(light.type);
 					dirLightDat.col = glm::vec4(light.color, light.intensity);
@@ -1355,7 +1355,8 @@ namespace SliceEngine
 				tempDat.pointlightMtx = lightP * glm::lookAt(eye, tempDat.dir, lightUp);
 			}
 
-			sortedLights.emplace_back(allLightData.size());
+			if(light.castsShadow)
+				sortedLights.emplace_back(allLightData.size());
 			allLightData.emplace_back(tempDat);
 		}
 	}
