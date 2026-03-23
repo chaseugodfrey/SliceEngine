@@ -293,6 +293,7 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)

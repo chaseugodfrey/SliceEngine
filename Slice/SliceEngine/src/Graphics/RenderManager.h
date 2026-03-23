@@ -49,10 +49,6 @@ namespace SliceEngine
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
-
-		float GetSessionExposure() const { return mSessionExposure; }
-		void SetSessionExposure(float exposure);
-
 		// Rendering functions
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
@@ -99,8 +95,7 @@ namespace SliceEngine
 	private:
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
-		const float mExposureMult = 0.1f;
-		float mSessionExposure{ 10.f };
+		const float mExposureMult = 0.01f;
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 400.f;
@@ -165,6 +160,7 @@ namespace SliceEngine
 			S_VIGNETTE				,
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
+			S_LUMINANCE,
 			S_FINAL						,
 			S_COPY						
 		};
@@ -193,6 +189,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
+			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
 			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
 			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
 		};

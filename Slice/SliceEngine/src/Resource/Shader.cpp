@@ -799,7 +799,7 @@ void main(void){
     		if(uLight[lightIdx].type == isPoint)
     		{
 				vec3 l = uLight[lightIdx].position - uCamPos - vPos; // Surface to Light
-				float dist = length(l);
+				float dist = max(length(l), 0.001);
 				vec4 lightCol = uLight[lightIdx].color;
 				lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
@@ -810,7 +810,7 @@ void main(void){
 			else if(uLight[lightIdx].type == isSpot)
 			{
 				vec3 l = uLight[lightIdx].position - uCamPos - vPos;
-    			float dist = length(l);
+    			float dist = max(length(l), 0.001);
     			vec3 L = l / dist;
     			vec3 lightDir = normalize(uLight[lightIdx].direction); // Spotlight's forward direction
     			vec3 fragToLight = -L;
@@ -964,7 +964,7 @@ float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx)
 
     float currentDepth = dist / uLight[lightIdx].uFarPlane; 
     
-    float bias = max(0.005 * (1.0 - dot(n, L)), 0.0005);
+    float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
     float shadow = 0.0;
     
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowCubeMap, 0).xy); 
