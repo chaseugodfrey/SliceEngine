@@ -23,6 +23,8 @@ void main(void){
 				addition += a;
 		}
 	}
+	addition /= 6.0;
+	
 	float avgLum = dot(addition.rgb, vec3(0.2126, 0.7152, 0.0722));
 
 	float lastLum = texture(uLastLumi, vec2(0,0)).r;
