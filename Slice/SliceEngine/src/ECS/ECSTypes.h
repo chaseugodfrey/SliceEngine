@@ -270,8 +270,10 @@ namespace SliceEngine
 			,Light_Spot
 		};
 		bool componentEnabled{ true };
+		bool castsShadow{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
+		float angle{ 90.f };
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -852,6 +854,15 @@ namespace SliceEngine
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct SpriteAnimator {
+		unsigned char row{ 1 };
+		unsigned char col{ 1 };
+		unsigned char fps{ 10 };
+		unsigned char num_frames{ 1 };
+		float curr_time{};
 		RTTR_ENABLE();
 	};
 

@@ -383,7 +383,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
@@ -636,6 +638,13 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("rgba", &SpriteRenderer::rgba)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()

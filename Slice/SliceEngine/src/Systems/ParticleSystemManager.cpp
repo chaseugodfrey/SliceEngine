@@ -266,7 +266,7 @@ namespace SliceEngine
 			// combine rotations if face camera
 			glm::quat baseRot;
 
-			if (ps.isLocalSpace)
+			if (ps.isLocalSpace || ps.followTransformRotation)
 			{
 				// inherit parent/system transform
 				baseRot = systemRot * particleRot;
@@ -287,7 +287,7 @@ namespace SliceEngine
 			if (ps.rotateOverLifetime)
 			{
 				glm::quat deltaQ = RotateOverLifetime(p, ps, dt);
-				baseRot = glm::normalize(deltaQ * particleRot);
+				baseRot = glm::normalize(deltaQ * baseRot);
 
 				if (ps.isRotation3D)
 					p.rotation3D = baseRot;
