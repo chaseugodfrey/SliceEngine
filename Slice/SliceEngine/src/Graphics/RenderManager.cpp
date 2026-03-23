@@ -191,13 +191,17 @@ namespace SliceEngine
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_16 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 11, GL_RGBA16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		// float_16 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA16F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureStorage2D(mColAttachment[GOUT_POST], 11, GL_RGBA16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		mBloomMips.reserve(mMaxBloom + 1);
 		glm::ivec2 intMip{ maxWidth, maxHeight };
@@ -1206,16 +1210,34 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		// Luminance Calc
+		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
+		SetShader(ShaderPaths[S_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
+		ClearBuffer(BufferClearSetting::ALL);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
+		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
+		// Final Frag
 		SetShader(ShaderPaths[S_FINAL]);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(camera.lumSelected)]);
 
-		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		camera.lumSelected = !camera.lumSelected;
 		CheckGLError();
 	}
 	void RenderManager::Draw()

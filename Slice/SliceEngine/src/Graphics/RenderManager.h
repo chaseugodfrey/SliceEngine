@@ -160,6 +160,7 @@ namespace SliceEngine
 			S_VIGNETTE				,
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
+			S_LUMINANCE,
 			S_FINAL						,
 			S_COPY						
 		};
@@ -188,6 +189,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
+			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
 			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
 			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
 		};

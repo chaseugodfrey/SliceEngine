@@ -226,7 +226,8 @@ namespace SliceEngine
 	{
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
-		GLuint textureID{}, depthTex{};
+		GLuint textureID{}, depthTex{}, lum[2]{};
+		float luminanceLearningRate{ 10.f };
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
@@ -256,6 +257,7 @@ namespace SliceEngine
 		glm::mat4 V{};
 		glm::mat4 P{};
 		bool componentEnabled{ true };
+		bool lumSelected{ false };
 		RTTR_ENABLE();
 	};
 

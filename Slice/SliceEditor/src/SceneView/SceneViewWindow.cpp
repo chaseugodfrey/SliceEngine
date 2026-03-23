@@ -680,6 +680,7 @@ namespace SliceEditor
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Luminance Rate", "##cam_luminanceLearningRate", camObj->camera.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 
 			bool isBloom = camObj->camera.postRenderToggles & SliceEngine::RENDER_TAG::RENDER_BLOOM;
 			ImGui::Text("Bloom");
