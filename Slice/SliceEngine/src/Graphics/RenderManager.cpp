@@ -190,14 +190,14 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], 1, GL_R8UI, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// float_16 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 11, GL_RGBA16F, maxWidth, maxHeight);
+		// float_32 rgba Final Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 11, GL_RGBA32F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		// float_16 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 11, GL_RGBA16F, maxWidth, maxHeight);
+		// float_32 rgba Post Processing for toggling Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_POST], 11, GL_RGBA32F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

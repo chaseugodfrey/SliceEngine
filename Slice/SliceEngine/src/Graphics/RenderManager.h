@@ -95,7 +95,7 @@ namespace SliceEngine
 	private:
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
-		const float mExposureMult = 0.1f;
+		const float mExposureMult = 0.01f;
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 400.f;
