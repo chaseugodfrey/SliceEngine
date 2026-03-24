@@ -38,7 +38,7 @@ namespace SliceEngine
 			return;
 		}
 
-		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_NORMAL, nullptr);
+		result = mSoundSystem->init(MAX_CHANNELS, FMOD_INIT_3D_RIGHTHANDED, nullptr);
 		if (result != FMOD_OK)
 		{
 			SLICE_LOG_ERROR("FMOD System initialization failed");
@@ -115,11 +115,6 @@ namespace SliceEngine
 		case 2:
 		{
 			result = mSoundSystem->playSound(audioClip->GetSound(), ui, audioComp.isPaused, &channel);
-			break;
-		};
-		case 3:
-		{
-			result = mSoundSystem->playSound(audioClip->GetSound(), editorSounds, audioComp.isPaused, &channel);
 			break;
 		};
 

@@ -170,6 +170,7 @@ namespace SliceEngine
 		//button events
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonHover(const OnButtonHoverEvent& event);
+		void OnButtonExitHover(const OnButtonExitHoverEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
 
 		void OnAnimationEvent(const AnimationEvent& event);

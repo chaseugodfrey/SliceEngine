@@ -17,7 +17,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../ECS/GOFactory.h"
 #include "../Core/ComponentModified.h"
 #include <glm/gtx/matrix_decompose.hpp>
-
+#include <Jolt/Physics/Collision/CollideShape.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 
 #define EPSILON 0.0001f
 #define GLM_ENABLE_EXPERIMENTAL
@@ -1469,11 +1470,8 @@ namespace SliceEngine
 		colliderShape.bodyID = body->GetID();
 		physicsSystem->GetBodyInterface().AddBody(colliderShape.bodyID, isRigibody ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 
-		SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
+		//SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
 		physicsSystem->OptimizeBroadPhase();
-
-
-
 	}
 
 	void PhysicsSystem::StepWorld(float dt)

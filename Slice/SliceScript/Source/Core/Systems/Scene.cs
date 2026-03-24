@@ -17,7 +17,7 @@ namespace SliceEngine
         readonly public int buildIndex;
         readonly public int handle;
         
-        readonly public bool isLoaded;
+        readonly public bool isLoaded;  
 
         public Scene() { }
         public Scene(Scene scene)

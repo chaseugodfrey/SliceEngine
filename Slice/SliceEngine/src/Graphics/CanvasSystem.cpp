@@ -125,7 +125,7 @@ namespace SliceEngine {
 		//std::vector<std::pair<Entity, int>> entities_to_draw;
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<canvasEntity>(entt::exclude<InactiveEntity>);
+		auto view = core->GetRegistry().view<canvasEntity>();
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
 		empty.final_height = target_height; empty.final_width = target_width;
@@ -286,7 +286,6 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "M");
 				glm::mat4 model = rect.ToMatrix();
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-		//		CheckGLError();
 
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
@@ -294,10 +293,16 @@ namespace SliceEngine {
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
-			//	CheckGLError();
+
+		/*		uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr());
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+				}*/
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-			//	CheckGLError();
 			}
 			else if (shader_guid == font_shader) {	//font
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
@@ -562,7 +567,7 @@ namespace SliceEngine {
 		*	all children have rect transform
 		*	if no rect transform return
 		*/
-		if (!mRegistry->any_of<RectTransform>(node) || (!force&&mRegistry->any_of<InactiveEntity>(node))) {
+		if (!mRegistry->any_of<RectTransform>(node) || (!force && mRegistry->any_of<InactiveEntity>(node))) {
 			return;
 		}
 		auto& rect = mRegistry->get<RectTransform>(node);
@@ -616,7 +621,7 @@ namespace SliceEngine {
 			entt::entity child = scene_graph->neighbours[SceneGraph::DOWN];
 			while (child != entt::null)
 			{
-				get_child_ui(canvas_entity, node, child, rect, force);
+				get_child_ui(/*entities_to_draw, */canvas_entity, node, child, rect, force);
 				child = mRegistry->get<SceneGraph>(child).neighbours[SceneGraph::RIGHT];
 			}
 		}

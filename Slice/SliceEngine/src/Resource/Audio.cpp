@@ -41,7 +41,6 @@ namespace SliceEngine
 
             std::filesystem::path metaPath;
 
-
             if (!resourceMgr->mFileNameToGUID.empty())
             {
                 for (auto [key, value] : resourceMgr->mFileNameToGUID)
@@ -67,6 +66,8 @@ namespace SliceEngine
                                     shouldStream = true;
 
                                 metaFoundAndLoaded = true;
+
+                                
                             }
                             catch (...)
                             {

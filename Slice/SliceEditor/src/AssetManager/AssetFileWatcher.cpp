@@ -319,7 +319,6 @@ namespace SliceEditor
             {
                 if (std::filesystem::exists(oldMetaPath))
                 {
-
                     std::ifstream inFile(oldMetaPath);
                     nlohmann::json metaJson;
                     inFile >> metaJson;
@@ -338,7 +337,6 @@ namespace SliceEditor
                     std::filesystem::rename(oldMetaPath, newMetaPath);
                 }
 
-
                 SliceEngine::GUID fileGUID = SliceEngine::GUID::FromString(path.value().stem().string());
 
                 am.mGUIDtoFilename[fileGUID] = newAssetName;
@@ -347,7 +345,6 @@ namespace SliceEditor
 
                 resourceMgr->mFileNameToGUID.erase(oldAssetName);
                 resourceMgr->mFileNameToGUID[newAssetName] = fileGUID;
-
 
                 am.CreateAssetMaps();
 

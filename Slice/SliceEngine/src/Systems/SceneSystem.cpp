@@ -84,6 +84,7 @@ namespace SliceEngine
 
 		//Call DeserializeSceneNavMesh function, will return a guid
 		auto navMeshBinGUID = JSONSerializer::DeserializeNavMeshBinGUID(next_scene_filepath);
+		 
 
 		mCurrentScene = next_scene_filepath;
 		mCurrentSceneName = next_scene_filepath.stem().string();
@@ -97,6 +98,7 @@ namespace SliceEngine
 
 		std::string navMesh = "";
 		metaPath += ".meta";
+		
 
 		navMesh = LoadNavMeshFromMeta(metaPath);*/
 
@@ -156,9 +158,9 @@ namespace SliceEngine
 
 		std::string navMeshPath = "";
 
-		if (metaData.contains("navMeshFile"))
+		if (metaData.contains("navMeshBinFile"))
 		{
-			navMeshPath = metaData["navMeshFile"].get<std::string>();
+			navMeshPath = metaData["navMeshBinFile"].get<std::string>();
 			
 		}
 
@@ -185,6 +187,11 @@ namespace SliceEngine
 
 	void SceneSystem::WriteTempFile()
 	{
+		if (!mCanWriteTempFiles)
+		{
+			return;
+		}
+
 		std::filesystem::path CurrentScene = mCurrentScene;
 		
 		std::filesystem::path CurrentSceneTemp = CurrentScene;

@@ -641,6 +641,9 @@ namespace SliceEditor
 		std::string navMeshFile;
 		SliceEngine::GUID navMeshGUID;
 
+		std::string navMeshBinFile;
+		SliceEngine::GUID navMeshBinGUID;
+
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
 			// now set the resource path
@@ -656,7 +659,9 @@ namespace SliceEditor
 
 			// specific properties to scene goes here but we dh that yet
 			metaJson["navMeshFile"] = navMeshFile;
-			metaJson["navMeshGUID"] = navMeshGUID.GetGUID();
+			metaJson["navMeshGUID"] = navMeshGUID.GetGUID(); 
+			metaJson["navMeshBinFile"] = navMeshBinFile;
+			metaJson["navMeshBinGUID"] = navMeshBinGUID.GetGUID();
 			// now create the meta file
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())

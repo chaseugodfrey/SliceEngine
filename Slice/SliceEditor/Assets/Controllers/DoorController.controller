@@ -1,0 +1,64 @@
+{
+    "entryNodePosition": [
+        137.0,
+        192.0
+    ],
+    "entryState": "Close",
+    "exitNodePosition": [
+        75.0,
+        351.0
+    ],
+    "parameters": {
+        "Open": false
+    },
+    "stateMap": {
+        "AnyState": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                259.0,
+                276.0
+            ],
+            "stateName": "AnyState",
+            "transitions": []
+        },
+        "Close": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                223.0,
+                76.0
+            ],
+            "stateName": "Close",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Open",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Close",
+                    "targetState": "Open"
+                }
+            ]
+        },
+        "Open": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                357.0,
+                92.0
+            ],
+            "stateName": "Open",
+            "transitions": []
+        }
+    }
+}

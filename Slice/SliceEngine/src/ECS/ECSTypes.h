@@ -170,6 +170,8 @@ namespace SliceEngine
 		RTTR_ENABLE();
     };
 
+
+
 	struct UITransform
 	{
 		// blank for now because I just need to use this for factory stuff
@@ -223,7 +225,8 @@ namespace SliceEngine
 	{
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
-		GLuint textureID{}, depthTex{};
+		GLuint textureID{}, depthTex{}, lum[2]{};
+		float luminanceLearningRate{ 10.f };
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
@@ -253,6 +256,7 @@ namespace SliceEngine
 		glm::mat4 V{};
 		glm::mat4 P{};
 		bool componentEnabled{ true };
+		bool lumSelected{ false };
 		RTTR_ENABLE();
 	};
 
@@ -265,8 +269,10 @@ namespace SliceEngine
 			,Light_Spot
 		};
 		bool componentEnabled{ true };
+		bool castsShadow{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
+		float angle{ 90.f };
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -437,7 +443,7 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
-		bool enablePathfinding = false;
+		//bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
 		bool destroyOnEnd = false;
@@ -847,6 +853,15 @@ namespace SliceEngine
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct SpriteAnimator {
+		unsigned char row{ 1 };
+		unsigned char col{ 1 };
+		unsigned char fps{ 10 };
+		unsigned char num_frames{ 1 };
+		float curr_time{};
 		RTTR_ENABLE();
 	};
 

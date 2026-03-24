@@ -40,7 +40,7 @@ namespace SliceEngine
         public override void OnButtonClick()
         {
             SliceLog.Console("BUTTS");
-            Input.SetCursorState(Cursor.STATE.DISABLED);
+            Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
 
         public override void OnEnabled()

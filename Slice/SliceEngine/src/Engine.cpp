@@ -292,6 +292,7 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
@@ -382,7 +383,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
@@ -636,6 +639,13 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames);
+
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
 .property("font", &FontRenderer::fontHandle)
@@ -811,8 +821,6 @@ namespace SliceEngine
 		}
 	}
 
-
-
 	void Engine::Update()
 	{
 		auto core = Core::GetInstance();
@@ -928,7 +936,6 @@ namespace SliceEngine
 		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
 		sAudio->StopAllSound();
@@ -964,6 +971,7 @@ namespace SliceEngine
 
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
@@ -993,7 +1001,6 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sScene = core->GetSceneSystem();
 
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sAudio->SetCategoryPause(0, true);
 		sAudio->SetCategoryPause(1, true);

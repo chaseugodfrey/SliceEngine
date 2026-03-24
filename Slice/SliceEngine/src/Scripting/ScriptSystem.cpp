@@ -159,7 +159,15 @@ namespace SliceEngine
     void ScriptSystem::InitMono()
     {
         // while (true) {};
-        mono_set_assemblies_path("thirdparty/Mono/bin");
+        std::string assemblyBinPath = "Data/thirdparty/Mono/bin";
+
+        if (!std::filesystem::exists(assemblyBinPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyBinPath = "thirdparty/Mono/bin";
+        }
+
+        mono_set_assemblies_path(assemblyBinPath.c_str());
 
         //mRootDomain = rootDomain;
         if (debug)
@@ -189,8 +197,16 @@ namespace SliceEngine
             mono_debug_domain_create(mRootDomain);
         }
 
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+
+        LoadMonoAssembly(assemblyPath);
 
 
         PrintAssemblyTypes(mCoreAssembly);
@@ -327,7 +343,17 @@ namespace SliceEngine
             mAppDomain = nullptr;
         }
 
-        LoadMonoAssembly("../SliceScript/SliceScript.dll");
+        std::string assemblyPath = "Data/SliceScript.dll"; // Path for Game Build
+
+        if (!std::filesystem::exists(assemblyPath))
+        {
+            // Fallback for Editor / Dev Environment
+            assemblyPath = "../SliceScript/SliceScript.dll";
+        }
+
+        LoadMonoAssembly(assemblyPath);
+
+        //LoadMonoAssembly("../SliceScript/SliceScript.dll");
 
         //ScriptFunctions::RegisterFunctions();
         LoadEntityClasses();
@@ -1136,7 +1162,7 @@ namespace SliceEngine
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
-
+        
 
 
         {
@@ -1155,6 +1181,8 @@ namespace SliceEngine
         {
             if (it.first == entity)
             {
+                it.second->InvokeOnEntityDestroy((unsigned int)entity);
+
     //            mono_gchandle_free(it.second->mHandle);
 				//it.second->mHandle = 0;
                 it.second->Destroy();
@@ -1523,6 +1551,7 @@ namespace SliceEngine
         //UI System
         eventManager->Subscribe<OnButtonClickEvent, &ScriptSystem::OnButtonClick>(this);
         eventManager->Subscribe<OnButtonHoverEvent, &ScriptSystem::OnButtonHover>(this);
+        eventManager->Subscribe<OnButtonExitHoverEvent, &ScriptSystem::OnButtonExitHover>(this);
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
 
@@ -1850,6 +1879,18 @@ namespace SliceEngine
         if (scriptInstance)
         {
             scriptInstance->InvokeButtonOnHover();
+        }
+    }
+
+    void ScriptSystem::OnButtonExitHover(const OnButtonExitHoverEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeButtonOnExitHover();
         }
     }
 

@@ -301,6 +301,7 @@ namespace SliceEngine
 		mRootEntity = mRegistry.create();
 		mRegistry.emplace<Transform>(mRootEntity);
 		mRegistry.emplace<SceneGraph>(mRootEntity);
+		SLICE_LOG("Init Root");
 	}
 
 	void GOFactory::RemoveFromNameMap(Entity entity)

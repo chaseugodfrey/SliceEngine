@@ -19,38 +19,63 @@ namespace SliceEngine
         
         public static HUD_Manager HUDManager { get; private set; }
 
+        public bool debug;
+
         public override void OnAwake()
         {
+            if (debug)
+            {
+                return;
+            }
+
             // Finding references to each script
             GameObject[] arr = gameObject.FindGameObjectsWithTag("Camera");
             if (arr != null) CameraController = arr[0].As<CameraController>();
-            if (CameraController != null) Console.WriteLine("Camera found");
-            else Console.WriteLine("Camera not found");
+            //if (CameraController != null) SliceLog.Log("Camera found");
+            //else SliceLog.Log("Camera not found");
 
             arr = gameObject.FindGameObjectsWithTag("Player");
             if (arr != null) Player = arr[0].As<PlayerController>();
-            if (Player != null) Console.WriteLine("Player found");
-            else Console.WriteLine("Player not found");
+            //if (Player != null) SliceLog.Log("Player found");
+            //else SliceLog.Log("Player not found");
 
             arr = gameObject.FindGameObjectsWithTag("Level Director");
             LevelDirector = arr[0].As<LevelDirector>();
-            if (LevelDirector != null) Console.WriteLine("Level Director found");
-            else Console.WriteLine("Level Director not found");
+            //if (LevelDirector != null) SliceLog.Log("Level Director found");
+            //else SliceLog.Log("Level Director not found");
 
 
             arr = gameObject.FindGameObjectsWithTag("HUD");
             HUDManager = arr[0].As<HUD_Manager>();
-            if (HUDManager != null) Console.WriteLine("HUD Manager found");
-            else Console.WriteLine("HUD Manager not found");
+            //if (HUDManager != null) SliceLog.Log("HUD Manager found");
+            //else SliceLog.Log("HUD Manager not found");
 
+            // Calling initialize on each script if nothing is empty
 
-            Console.WriteLine("Jiale called");
+            if (CameraController != null && Player != null && HUDManager != null && LevelDirector != null)
+            {
+                //SliceLog.Log("EVERYTHING IS IN BOOTSTRAP. Initializing");
+                CameraController.Initialize();
+                Player.Initialize();
+                HUDManager.Initialize();
+                LevelDirector.Initialize();
+            }
+            else
+            {
+                //SliceLog.Log("NOT EVERYTHING IS IN BOOTSTRAP. SPECIFICALLY");
+                //if (CameraController == null)   SliceLog.Log("Camera controller");
+                //if (Player == null)             SliceLog.Log("Player controller");
+                //if (HUDManager == null)         SliceLog.Log("HUD Manager controller");
+                //if (LevelDirector == null)      SliceLog.Log("Level Director controller");
+            }
 
-            // Calling initialize on each script
-            if (CameraController != null) CameraController.Initialize();
-            if (Player != null) Player.Initialize();
-            if (HUDManager != null) HUDManager.Initialize();
-            if (LevelDirector != null) LevelDirector.Initialize();
+            //SliceLog.Log("Boostrap Check finished");
+            /*
+            if (CameraController != null)   CameraController.Initialize();
+            if (Player != null)             Player.Initialize();
+            if (HUDManager != null)         HUDManager.Initialize();
+            if (LevelDirector != null)      LevelDirector.Initialize();
+            */
         }
     }
 }

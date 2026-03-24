@@ -62,7 +62,6 @@ namespace SliceEngine
     static void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
     {
         auto inputS = Core::GetInstance()->GetInputSystem();
-
         // let input system handle delta
 
         inputS->SetMousePosition(xpos, ypos);
