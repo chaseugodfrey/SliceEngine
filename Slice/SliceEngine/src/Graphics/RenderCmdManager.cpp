@@ -264,7 +264,7 @@ namespace SliceEngine
 				//	key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				//}
 
-				//if (key & MRCK_TRANSCLUCENT)
+				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, material);
@@ -320,7 +320,7 @@ namespace SliceEngine
 					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
 					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
-				if (key & MRCK_TRANSCLUCENT)
+				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, &ui_mat);
@@ -585,6 +585,7 @@ namespace SliceEngine
 
 			auto godRayShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/GodRays.cshader").get()->translucentS;
 			auto* rm = Core::GetInstance()->GetRenderManager();
+			glm::vec3 camPos = Core::GetInstance()->GetRegistry().get<Transform>(mLastKnownCam).GetWorldPosition();
 
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
@@ -603,6 +604,8 @@ namespace SliceEngine
 			{
 				const auto& id = i.id;
 				auto& dat = i.base;
+
+				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
@@ -634,6 +637,8 @@ namespace SliceEngine
 						glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
 						uniformLoc = glGetUniformLocation(mShader, "numLights");
 						glUniform1i(uniformLoc, rm->numLightsFound);
+						uniformLoc = glGetUniformLocation(mShader, "uCamPos");
+						glUniform3f(uniformLoc, camPos.x, camPos.y, camPos.z);
 
 						uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
 						glUniform1i(uniformLoc, rm->mNumCascadeShadow);
@@ -662,9 +667,6 @@ namespace SliceEngine
 							glUniform1f(uniformLoc, camera.translucentSelectCutoff);
 						}
 					}
-
-					ShiftTransformMtx(dat.mdlMtx, offsetDelta);
-
 
 					RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 					if (mdlID != currMdlID)

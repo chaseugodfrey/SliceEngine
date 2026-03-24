@@ -293,6 +293,7 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
@@ -383,7 +384,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
