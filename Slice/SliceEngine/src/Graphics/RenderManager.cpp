@@ -144,7 +144,7 @@ namespace SliceEngine
 		glBindBufferBase(GL_UNIFORM_BUFFER, 0, mShadowUBO);
 
 		glCreateBuffers(1, &mLightUBO);
-		glNamedBufferStorage(mLightUBO, (mMaxPointLights + 1) * sizeof(LightDat), nullptr, GL_DYNAMIC_STORAGE_BIT);
+		glNamedBufferStorage(mLightUBO, (mMaxLights + 1) * sizeof(LightDat), nullptr, GL_DYNAMIC_STORAGE_BIT);
 		glBindBufferBase(GL_UNIFORM_BUFFER, 1, mLightUBO);
 
 		CheckGLError();
@@ -190,14 +190,18 @@ namespace SliceEngine
 		glTextureStorage2D(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], 1, GL_R8UI, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// float_16 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA16F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		// float_32 rgba Final Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 11, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		// float_16 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA16F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// float_32 rgba Post Processing for toggling Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_POST], 11, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 		mBloomMips.reserve(mMaxBloom + 1);
 		glm::ivec2 intMip{ maxWidth, maxHeight };
@@ -489,11 +493,7 @@ namespace SliceEngine
 		}
 
 		IDPick();
-
-		SetShader(ShaderPaths[S_POINT_SHADOW]);
-		LinkFrameBufferSettings(FB_NIL, 0);
-		LoadSettings(GPS_SHADOW);
-		RenderPointShadowMaps();
+		GatherLights();
 
 		auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
 		for (auto cam : cams)
@@ -505,15 +505,17 @@ namespace SliceEngine
 			mCurrFinalColAttachment = GOUT_FINAL;
 
 			renderQueue.SortTranslucent(cam);
+			CalculateVP(cam);
+			GatherNearbyLights();
 
-			// Just clear for godray only
+			// --------------------- Draw Calls From Here on ---------------------
+
+			// Just clear for godray only (needs to be done after each cam :shrug
 			LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_GODRAY]);
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 
-			CalculateVP(cam);
-			SetShader(ShaderPaths[S_SHADOW]);
-			LinkFrameBufferSettings(FB_NIL, 0);
-			LoadSettings(GPS_SHADOW);
+			// Reload Shadows
+			RenderPerspectiveShadowMaps();
 			RenderDirectionalShadowMaps(cam);
 
 			SetShader(ShaderPaths[S_SKYBOX]);
@@ -839,31 +841,33 @@ namespace SliceEngine
 			CheckGLError();
 		}
 	}
-	void RenderManager::RenderPointShadowMaps()
+	void RenderManager::RenderPerspectiveShadowMaps()
 	{
+		SetShader(ShaderPaths[S_POINT_SHADOW]);
+		LinkFrameBufferSettings(FB_NIL, 0);
+		LoadSettings(GPS_SHADOW);
 		glViewport(0, 0, SHADOW_DIMENSION, SHADOW_DIMENSION);
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mShadowCubeMapArr, 0);
-		ClearBuffer(BufferClearSetting::ALL);
+		//ClearBuffer(BufferClearSetting::ALL);
+		float depthClearVal = 1.0f;
 		CheckGLError();
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
 		glm::vec3 eye{};
-		int currLightIdx{};
-		for (auto entity : view)
+		for (auto it : dirtyShadows)
 		{
-			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (!light.componentEnabled) continue;
-			if (light.type != Light::LightType::Light_Point) continue;
-			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			const auto& lightPos = transform.GetWorldPosition();
+			LightDat& light = allLightData[it];
+			if (light.type != Light::Light_Point)
+				continue;
+
+			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, light.shadowNum * 6,
+				SHADOW_DIMENSION, SHADOW_DIMENSION, 6, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
 			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
-			float ptLightFar = CalcPointLightFar(transform.GetWorldScale(), light.intensity);
-			glUniform1f(uniformLoc, ptLightFar);
+			glUniform1f(uniformLoc, light.uFarPlane);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
-			glUniform1i(uniformLoc, currLightIdx);
+			glUniform1i(uniformLoc, light.shadowNum);
 
-			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, ptLightFar);
+			glm::mat4 lightP = glm::perspective(PI05F, 1.f, 0.01f, light.uFarPlane);
 			std::stringstream ss{};
 			for (size_t i{}; i < 6; ++i)
 			{
@@ -874,58 +878,76 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, lightPos);
-			++currLightIdx;
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
 		}
+		CheckGLError();
+
+		SetShader(ShaderPaths[S_SPOT_SHADOW]);
+		for (auto it : dirtyShadows)
+		{
+			LightDat& light = allLightData[it];
+			if (light.type != Light::Light_Spot)
+				continue;
+
+			int shadowNum = light.shadowNum * 6 + light.spotShadowNum;
+
+			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, shadowNum,
+				SHADOW_DIMENSION, SHADOW_DIMENSION, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
+
+			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			glUniform1f(uniformLoc, light.uFarPlane);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
+			glUniform1i(uniformLoc, shadowNum);
+
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
+			glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &light.pointlightMtx[0][0]);
+
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
+		}
+
+		dirtyShadows.clear();
 		CheckGLError();
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
+		if (!mDirLightFound)
+			return;
+		SetShader(ShaderPaths[S_SHADOW]);
+		LinkFrameBufferSettings(FB_NIL, 0);
+		LoadSettings(GPS_SHADOW);
 		glViewport(0, 0, DIRECTIONAL_SHADOW_DIMENSION, DIRECTIONAL_SHADOW_DIMENSION);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
-		for (auto entity : view)
+		std::vector<glm::mat4> lightSpaceMtx;
+		for (int i = 0; i < mNumCascadeShadow; ++i)
 		{
-			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (!light.componentEnabled) continue;
-			if (light.type != Light::LightType::Light_Directional) continue;
-			if (Core::GetInstance()->GetRegistry().any_of<PrefabCameraEntity>(cam) != Core::GetInstance()->GetRegistry().any_of<PrefabEditingEntity>(entity)) continue;
-			// -----
-			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			glm::vec3 lightDir = glm::normalize(-transform.GetWorldPosition());
-
-			std::vector<glm::mat4> lightSpaceMtx;
-			for (int i = 0; i < mNumCascadeShadow; ++i)
+			float near{}, far{};
+			if (i == 0)
 			{
-				float near{}, far{};
-				if(i == 0)
-				{
-					near = camera.near;
-					far = camera.far / shadowCascadeLevels[0]; // 200.f / 50.f = 4.f
-				}
-				else if (i == mNumCascadeShadow - 1)
-				{
-					near = camera.far / shadowCascadeLevels[i - 1];
-					far = camera.far;
-				}
-				else
-				{
-					near = camera.far / shadowCascadeLevels[i - 1];
-					far = camera.far / shadowCascadeLevels[i];
-				}
-				const auto camProj = glm::perspective(glm::radians(camera.pov), ar, near, far);
-				lightSpaceMtx.push_back(DirLightMatCalc(camProj, V, lightDir));
+				near = camera.near;
+				far = camera.far / shadowCascadeLevels[0]; // 200.f / 50.f = 4.f
 			}
-			glNamedBufferSubData(mShadowUBO, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
-			
-			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
-			glClear(GL_DEPTH_BUFFER_BIT);
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
-			break;
+			else if (i == mNumCascadeShadow - 1)
+			{
+				near = camera.far / shadowCascadeLevels[i - 1];
+				far = camera.far;
+			}
+			else
+			{
+				near = camera.far / shadowCascadeLevels[i - 1];
+				far = camera.far / shadowCascadeLevels[i];
+			}
+			const auto camProj = glm::perspective(glm::radians(camera.pov), ar, near, far);
+			lightSpaceMtx.push_back(DirLightMatCalc(camProj, V, dirLightDat.dir));
 		}
+		glNamedBufferSubData(mShadowUBO, 0, lightSpaceMtx.size() * sizeof(glm::mat4), lightSpaceMtx.data());
+
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
+		glClear(GL_DEPTH_BUFFER_BIT);
+		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
+
 		CheckGLError();
 	}
 	void RenderManager::RenderSkybox()
@@ -964,129 +986,54 @@ namespace SliceEngine
 		glBindTextureUnit(4, mDirLightDepthMaps);
 		glBindTextureUnit(5, mShadowCubeMapArr);
 		glBindTextureUnit(6, mColAttachment[GOUT_EMISSION]);
+		LoadSettings(GPS_ADDITION);
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		GLint uniformLoc;
 
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
-		int currPtLightIdx{},currDirLightIdx{};
-		numLightsFound = 0;
-		for (auto entity : view)
-		{
-			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (!light.componentEnabled) continue;
-			if (Core::GetInstance()->GetRegistry().any_of<PrefabCameraEntity>(cam) != Core::GetInstance()->GetRegistry().any_of<PrefabEditingEntity>(entity)) continue;
-			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			
-			int lightIdx = currPtLightIdx + currDirLightIdx;
-
-			switch(light.type)
-			{
-			case Light::LightType::Light_Directional:
-			{
-				if (currDirLightIdx > 0) continue;
-
-				lightData[lightIdx].pos = lightT.GetWorldPosition() - cameraPos;
-				lightData[lightIdx].col = glm::vec4(light.color.r, light.color.g, light.color.b, light.intensity);
-				lightData[lightIdx].type = static_cast<int>(light.type);
-				lightData[lightIdx].dir = -lightT.GetWorldPosition();
-				lightData[lightIdx].uFarPlane = camera.far;
-				//lightData[lightIdx].hasShadow = 1.f;
-
-				++currDirLightIdx;
-				break;
-			}
-			case Light::LightType::Light_Point:
-			{
-				if (currPtLightIdx >= mMaxPointLights) continue;
-
-				lightData[lightIdx].pos = lightT.GetWorldPosition() - cameraPos;
-				lightData[lightIdx].col = glm::vec4(light.color.r, light.color.g, light.color.b, light.intensity);
-				lightData[lightIdx].type = static_cast<int>(light.type);
-				float ptLightFar = CalcPointLightFar(lightT.GetWorldScale(), light.intensity);
-				lightData[lightIdx].uFarPlane = ptLightFar;
-
-				++currPtLightIdx;
-				break;
-			}
-			}
-		}
-	
-		numLightsFound = currPtLightIdx + currDirLightIdx;
-
-		glNamedBufferSubData(mLightUBO, 0, (mMaxPointLights + 1) * sizeof(LightDat), lightData);
+		glNamedBufferSubData(mLightUBO, 0, sizeof(LightDat), &dirLightDat);
+		glNamedBufferSubData(mLightUBO, sizeof(LightDat), std::min(allLightData.size(), mMaxLights) * sizeof(LightDat), allLightData.data());
 		CheckGLError();
-		currPtLightIdx = currDirLightIdx = 0;
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
+		glUniform3f(uniformLoc, cameraPos.x, cameraPos.y, cameraPos.z);
+
+		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
+		auto& mesh = mdl.get()->meshes[0];
 		mainDirLightFar = 0.f;
-		for (auto entity : view)
+
+		if (mDirLightFound)
 		{
-			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
-			if (!light.componentEnabled) continue;
-			if (Core::GetInstance()->GetRegistry().any_of<PrefabCameraEntity>(cam) != Core::GetInstance()->GetRegistry().any_of<PrefabEditingEntity>(entity)) continue;
-			auto& lightT = Core::GetInstance()->GetRegistry().get<Transform>(entity);
-			
-			switch(light.type)
+			mainDirLightFar = camera.far;
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
+			glUniform1i(uniformLoc, 200);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
+			glUniform1i(uniformLoc, mNumCascadeShadow);
+			std::stringstream ss{};
+			for (int i = 0; i < mNumCascadeShadow; ++i)
 			{
-			case Light::LightType::Light_Directional:
-			{
-				if (currDirLightIdx > 0) continue;
-
-				LoadSettings(GPS_ADDITION);
-
-				mainDirLightFar = camera.far;
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
-				glUniform1i(uniformLoc, mNumCascadeShadow);
-				std::stringstream ss{};
-				for (int i = 0; i < mNumCascadeShadow; ++i)
-				{
-					ss.str("");
-					ss << "cascadePlaneDist[" << std::to_string(i) << "]";
-					uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
-					if(i == mNumCascadeShadow - 1)
-						glUniform1f(uniformLoc, camera.far);
-					else
-						glUniform1f(uniformLoc, camera.far/shadowCascadeLevels[i]);
-				}
-
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-				auto& mesh = mdl.get()->meshes[0];
-				glBindVertexArray(mesh.vao);
-				//glDrawArrays(mdl.get()->drawMode, 0, mdl.get()->drawCnt);
-				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				++currDirLightIdx;
-				break;
+				ss.str("");
+				ss << "cascadePlaneDist[" << std::to_string(i) << "]";
+				uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
+				if (i == mNumCascadeShadow - 1)
+					glUniform1f(uniformLoc, camera.far);
+				else
+					glUniform1f(uniformLoc, camera.far / shadowCascadeLevels[i]);
 			}
-			case Light::LightType::Light_Point:
-			{
-				if (currPtLightIdx >= mMaxPointLights) continue;
+			glBindVertexArray(mesh.vao);
+			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 
-				float ptLightFar = lightData[currPtLightIdx + currDirLightIdx].uFarPlane;
-				//if(glm::distance(cameraPos, lightT.GetWorldPosition()) > ptLightFar * 0.5f)
-					LoadSettings(GPS_ADDITION);
-				//else
-				//	LoadSettings(GPS_SPE_ADDITION);
+		}
 
-				//glm::mat4 M{ 1.f };
-				//M = glm::translate(M, lightData[currPtLightIdx + currDirLightIdx].pos);
-				//M = glm::scale(M, glm::vec3(ptLightFar, ptLightFar, ptLightFar));
-				//uniformLoc = glGetUniformLocation(mCurrShader.second, "M");
-				//glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &M[0][0]);
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-				glUniform1i(uniformLoc, currPtLightIdx + currDirLightIdx);
-				uniformLoc = glGetUniformLocation(mCurrShader.second, "numDirLights");
-				glUniform1i(uniformLoc, currDirLightIdx);
+		for (size_t i{}; i < allLightData.size(); ++i)
+		{
+			auto& light = allLightData.at(i);
 
-				auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
-				auto& mesh = mdl.get()->meshes[0];
-				glBindVertexArray(mesh.vao);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
+			glUniform1i(uniformLoc, i);
 
-				glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-				++currPtLightIdx;
-				break;
-			}
-			}
+			glBindVertexArray(mesh.vao);
+			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 		}
 		
 		CheckGLError();
@@ -1110,6 +1057,11 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, mTime);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, cameraPos);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
+		glUniform1i(uniformLoc, numLightsFound);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "hasDirectionalLight");
+		glUniform1i(uniformLoc, mDirLightFound);
+
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsAmplitude");
 		glUniform1f(uniformLoc, camera.cloudsAmplitude);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCloudsIntensity");
@@ -1275,16 +1227,34 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		// Luminance Calc
+		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
+		SetShader(ShaderPaths[S_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
+		ClearBuffer(BufferClearSetting::ALL);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
+		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
+		// Final Frag
 		SetShader(ShaderPaths[S_FINAL]);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(camera.lumSelected)]);
 
-		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
+		camera.lumSelected = !camera.lumSelected;
 		CheckGLError();
 	}
 	void RenderManager::Draw()
@@ -1400,6 +1370,212 @@ namespace SliceEngine
 		//ss << "Uniform variable: " << str << " doesn't exist!!!\n";
 		//SLICE_LOG_WARNING(ss.str());
 		return false;
+	}
+	void RenderManager::GatherLights()
+	{
+		numLightsFound = 0;
+		mDirLightFound = false;
+		allLightData.clear();
+		sortedLights.clear();
+		activeShadowSet.clear();
+		dirtyShadows.clear();
+
+		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
+		for (auto entity : view)
+		{
+			auto& light = Core::GetInstance()->GetRegistry().get<Light>(entity);
+			if (!light.componentEnabled) continue;
+
+			++numLightsFound;
+
+			auto& transform = Core::GetInstance()->GetRegistry().get<Transform>(entity);
+
+			if (light.type == Light::Light_Directional)
+			{
+				if (!mDirLightFound)
+				{
+					dirLightDat.hasShadow = light.castsShadow;
+					dirLightDat.dir = -transform.GetWorldPosition();
+					dirLightDat.type = static_cast<int>(light.type);
+					dirLightDat.col = glm::vec4(light.color, light.intensity);
+					mDirLightFound = true;
+				}
+				continue;
+			}
+
+			LightDat tempDat;
+			tempDat.pos = transform.GetWorldPosition();
+			tempDat.uFarPlane = CalcPointLightFar(transform.GetWorldScale(), light.intensity);
+			tempDat.type = static_cast<int>(light.type);
+			tempDat.col = glm::vec4(light.color, light.intensity);
+			tempDat.hasShadow = 0;
+			tempDat.pointAngle = glm::radians(light.angle);
+			if (light.type == Light::Light_Spot)
+			{
+				glm::vec3 eye{};
+				glm::mat3 rot = glm::mat3(transform.transform);
+				tempDat.dir = rot * glm::vec3(0.f, -1.f, 0.f);
+
+				glm::mat4 lightP = glm::perspective(tempDat.pointAngle, 1.f, 0.01f, tempDat.uFarPlane);
+				glm::vec3 lightUp{ 0.f, 1.f, 0.f };
+				if (abs(glm::dot(lightUp, tempDat.dir)) > 0.99999f)
+					lightUp = glm::vec3(0.f, 0.f, 1.f);
+
+				tempDat.pointlightMtx = lightP * glm::lookAt(eye, tempDat.dir, lightUp);
+			}
+
+			if(light.castsShadow)
+				sortedLights.emplace_back(allLightData.size());
+			allLightData.emplace_back(tempDat);
+		}
+	}
+	void RenderManager::GatherNearbyLights()
+	{
+		// Sort - Small to big
+		glm::vec3 camP = cameraPos;
+		std::sort(sortedLights.begin(), sortedLights.end(), [&camP, this](const auto& a, const auto& b) {
+			return glm::distance2(allLightData[a].pos, camP) < glm::distance2(allLightData[b].pos, camP);
+		});
+		// Gather first n Lights (Spot lights considered 1/6)
+		std::unordered_set<size_t> newShadows{}; // --MAYDO-- Group the spot lights tgt lol ;w; 
+		size_t numShadowCnt{}, emptySpotShadowNum{}, totalSpotsRequired{};
+
+		for (auto& it : sortedLights) // it -> allLightData[it] accessor
+		{
+			if (allLightData[it].type == Light::Light_Spot)
+			{
+				if (emptySpotShadowNum == 0)
+				{
+					if (numShadowCnt >= mMaxPointLights)
+						break;
+
+					emptySpotShadowNum = 6;
+					++numShadowCnt;
+				}
+				newShadows.insert(it);
+				--emptySpotShadowNum;
+				++totalSpotsRequired;
+			}
+			else if (allLightData[it].type == Light::Light_Point)
+			{
+				if (numShadowCnt >= mMaxPointLights)
+					continue;
+				// write
+				newShadows.insert(it);
+				++numShadowCnt;
+			}
+		}
+		if (activeShadowSet.empty())
+		{
+			int numPointShadow{}, numSpotShadow{6}, lastSpotShadow{};
+			for (auto& it : newShadows)
+			{
+				allLightData[it].hasShadow = 1;
+				dirtyShadows.push_back(it);
+				if (allLightData[it].type == Light::Light_Point)
+				{
+					allLightData[it].shadowNum = numPointShadow++;
+				}
+				else if (allLightData[it].type == Light::Light_Spot)
+				{
+					if (numSpotShadow == 6)
+					{
+						lastSpotShadow = numPointShadow++;
+						numSpotShadow = 0;
+					}
+					allLightData[it].shadowNum = lastSpotShadow;
+					allLightData[it].spotShadowNum = numSpotShadow++;
+				}
+			}
+		}
+		else
+		{
+			std::vector<std::pair<size_t, size_t>> openSpotSlots;// Slot num, sub slot num
+			std::vector<size_t> openPointSlots;
+
+			std::unordered_map<size_t, std::vector<size_t>> slotsTakenForSpotLights{};// slot Num, alive's ID
+
+			// If currently active shadows not found in this iteration
+			for (auto& it : activeShadowSet)
+			{
+				if (newShadows.find(it) == newShadows.end())
+				{
+					allLightData[it].hasShadow = 0;
+					if (allLightData[it].type == Light::Light_Point)
+						openPointSlots.push_back(allLightData[it].shadowNum);
+					else if (allLightData[it].type == Light::Light_Spot)
+					{
+						openSpotSlots.push_back({ allLightData[it].shadowNum, allLightData[it].spotShadowNum });
+						if (!slotsTakenForSpotLights.contains(allLightData[it].shadowNum))
+							slotsTakenForSpotLights[allLightData[it].shadowNum];
+					}
+				}
+				else if (allLightData[it].type == Light::Light_Spot)
+				{
+					slotsTakenForSpotLights[allLightData[it].shadowNum].push_back(it);
+				}
+			}
+
+			// cleanup - Set the correct openSlots, add spot lights into newShadows if necessary
+
+			// I need free more slots (Dun need care about less, cuz I can just use the WHOLE openSpotSlots cuz i need more anyways hahahs)
+			while (totalSpotsRequired / 6 > slotsTakenForSpotLights.size())
+			{
+				auto newSpotLightSlot = openPointSlots.front();
+				openPointSlots.erase(openPointSlots.begin());
+				slotsTakenForSpotLights[newSpotLightSlot];
+				for (size_t i{}; i < 6; ++i)
+					openSpotSlots.push_back({ newSpotLightSlot, i });
+			}
+			// I need consolidate spot lights to take less cube space
+			while (totalSpotsRequired / 6 < slotsTakenForSpotLights.size())
+			{
+				size_t leastFilledSlot{}, numInLeastFilledSlot{6};
+				for (auto& i : slotsTakenForSpotLights)
+				{
+					if (i.second.size() < numInLeastFilledSlot)
+					{
+						leastFilledSlot = i.first;
+						numInLeastFilledSlot = i.second.size();
+					}
+				}
+				std::remove_if(openSpotSlots.begin(), openSpotSlots.end(), [&leastFilledSlot](const auto& a) { return a.first == leastFilledSlot; });
+				for (auto& it : slotsTakenForSpotLights[leastFilledSlot])
+					newShadows.insert(it);
+
+				slotsTakenForSpotLights.erase(leastFilledSlot);
+			}
+
+			// If new shadows prev did not exist
+			for (auto& it : newShadows)
+				if (activeShadowSet.find(it) == activeShadowSet.end())
+				{
+					allLightData[it].hasShadow = 1;
+					dirtyShadows.push_back(it);
+					if (allLightData[it].type == Light::Light_Point)
+					{
+						if (!openPointSlots.empty())
+						{
+							allLightData[it].shadowNum = openPointSlots.front();
+							openPointSlots.erase(openPointSlots.begin());
+						}
+						else
+							SLICE_LOG_WARNING("Wrong Calc for open point shadow slots");
+					}
+					else if (allLightData[it].type == Light::Light_Spot)
+					{
+						if (!openSpotSlots.empty())
+						{
+							allLightData[it].shadowNum = openSpotSlots.front().first;
+							allLightData[it].spotShadowNum = openSpotSlots.front().second;
+							openSpotSlots.erase(openSpotSlots.begin());
+						}
+						else
+							SLICE_LOG_WARNING("Wrong Calc for open spot shadow slots");
+					}
+				}
+		}
+		std::swap(activeShadowSet, newShadows);
 	}
 	float RenderManager::CalcPointLightFar(const glm::vec3& scale, const float lightIntensity)
 	{
@@ -1626,12 +1802,6 @@ namespace SliceEngine
 	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
 	{
 		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
-	}
-	void RenderManager::GatherNearbyLights(Entity cam)
-	{
-		auto view = Core::GetInstance()->GetRegistry().view<lightingEntity>(entt::exclude<InactiveEntity>);
-
-
 	}
 	// Sets this up at the start to bind slots 12~15 with the instance transform :p
 	//void RenderManager::LinkTransformInstancing(GUID guid)
