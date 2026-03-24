@@ -34,11 +34,17 @@
                             0.0,
                             0.03921568766236305
                         ],
+                        "0.600000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.19607843458652496
+                        ],
                         "1.000000": [
                             1.0,
                             0.0,
                             0.0,
-                            0.09803921729326248
+                            0.5882353186607361
                         ]
                     },
                     "colourMapIntermediary": [
@@ -52,19 +58,28 @@
                             ]
                         ],
                         [
+                            0.6000000238418579,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.19607843458652496
+                            ]
+                        ],
+                        [
                             1.0,
                             [
                                 1.0,
                                 0.0,
                                 0.0,
-                                0.09803921729326248
+                                0.5882353186607361
                             ]
                         ]
                     ],
                     "colourOverLifetime": true,
                     "coneArc": 90.0,
                     "destroyOnExpire": true,
-                    "duration": 3.0,
+                    "duration": 5.0,
                     "emissionRate": 0.0,
                     "endOrbitVelocity": [
                         0.0,
@@ -86,7 +101,7 @@
                     "isLocalSpace": true,
                     "isRepeating": false,
                     "isRotation3D": true,
-                    "lifetime": 1.0,
+                    "lifetime": 5.0,
                     "materialHandle": {
                         "GUID": "9919909892102733493"
                     },
@@ -214,6 +229,11 @@
                             1.0,
                             0.949999988079071
                         ],
+                        "0.950000": [
+                            0.9800000190734863,
+                            1.0,
+                            0.9800000190734863
+                        ],
                         "1.000000": [
                             1.0,
                             1.0,
@@ -270,6 +290,14 @@
                             ]
                         ],
                         [
+                            0.949999988079071,
+                            [
+                                0.9800000190734863,
+                                1.0,
+                                0.9800000190734863
+                            ]
+                        ],
+                        [
                             1.0,
                             [
                                 1.0,
@@ -311,12 +339,12 @@
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 6,
+                    "entity_id": 1048580,
                     "neighbours": [
                         0,
                         4294967295,
-                        5,
-                        4294967295
+                        1048581,
+                        1048584
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -377,8 +405,8 @@
                     "bursts": [
                         [
                             1,
-                            1,
-                            0.0,
+                            5,
+                            0.10000000149011612,
                             0.0
                         ]
                     ],
@@ -392,15 +420,21 @@
                     "colourLifetimeMap": {
                         "0.000000": [
                             1.0,
-                            0.35348838567733765,
-                            0.35348838567733765,
-                            0.2862745225429535
+                            0.0,
+                            0.0,
+                            0.5882353186607361
+                        ],
+                        "0.900000": [
+                            1.0,
+                            0.0,
+                            0.0,
+                            0.6274510025978088
                         ],
                         "1.000000": [
                             1.0,
-                            0.17209303379058838,
-                            0.17209303379058838,
-                            0.4156862795352936
+                            0.17254900932312012,
+                            0.17254900932312012,
+                            0.0
                         ]
                     },
                     "colourMapIntermediary": [
@@ -408,18 +442,27 @@
                             0.0,
                             [
                                 1.0,
-                                0.35348838567733765,
-                                0.35348838567733765,
-                                0.2862745225429535
+                                0.0,
+                                0.0,
+                                0.5882353186607361
+                            ]
+                        ],
+                        [
+                            0.8999999761581421,
+                            [
+                                1.0,
+                                0.0,
+                                0.0,
+                                0.6274510025978088
                             ]
                         ],
                         [
                             1.0,
                             [
                                 1.0,
-                                0.17209303379058838,
-                                0.17209303379058838,
-                                0.4156862795352936
+                                0.17254900932312012,
+                                0.17254900932312012,
+                                0.0
                             ]
                         ]
                     ],
@@ -448,7 +491,7 @@
                     "isLocalSpace": false,
                     "isRepeating": false,
                     "isRotation3D": true,
-                    "lifetime": 0.5,
+                    "lifetime": 3.0,
                     "materialHandle": {
                         "GUID": "9919909892102733493"
                     },
@@ -519,12 +562,12 @@
                         1.0
                     ],
                     "renderMode": 1,
-                    "rotateOverLifetime": false,
-                    "rotateSeparateAxis": false,
+                    "rotateOverLifetime": true,
+                    "rotateSeparateAxis": true,
                     "rotateVelocity": [
                         0.0,
-                        0.0,
-                        45.0
+                        500.0,
+                        0.0
                     ],
                     "rotation": 0.0,
                     "rotation3D": [
@@ -611,12 +654,12 @@
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 5,
+                    "entity_id": 1048581,
                     "neighbours": [
                         0,
                         4294967295,
-                        4,
-                        6
+                        1048582,
+                        1048580
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -701,12 +744,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 4,
+                    "entity_id": 1048582,
                     "neighbours": [
                         0,
                         4294967295,
-                        3,
-                        5
+                        1048583,
+                        1048581
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -771,12 +814,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3,
+                    "entity_id": 1048583,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        4
+                        1048582
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -806,6 +849,103 @@
                         20.0,
                         1.0,
                         20.5
+                    ]
+                }
+            }
+        },
+        {
+            "Camera": {
+                "struct SliceEngine::Camera": {
+                    "bloomExposure": 10.0,
+                    "bloomFilterRadius": 5.0,
+                    "bloomStrength": 0.4000000059604645,
+                    "cloudsAmplitute": 49.0,
+                    "cloudsColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsCutoff": 0.16699999570846558,
+                    "cloudsHeight": -110.0,
+                    "cloudsIntensity": 0.30000001192092896,
+                    "cloudsSecondAmplitute": 49.0,
+                    "cloudsSecondColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsSecondIntensity": 0.30000001192092896,
+                    "cloudsSecondOffset": [
+                        40.0,
+                        40.0,
+                        -20.0
+                    ],
+                    "cloudsSecondSmoothness": 0.0027000000700354576,
+                    "cloudsSmoothness": 0.0027000000700354576,
+                    "componentEnabled": true,
+                    "debugRenderTag": "0",
+                    "depthTex": 39,
+                    "far": 3000.0,
+                    "fogColor": [
+                        0.20000000298023224,
+                        0.20000000298023224,
+                        0.20000000298023224
+                    ],
+                    "fogIntensity": 0.03999999910593033,
+                    "godRayFilterRadius": 5.0,
+                    "godRayStrength": 0.4000000059604645,
+                    "height": 1080,
+                    "near": 0.009999999776482582,
+                    "postRenderTag": "0",
+                    "pov": 60.0,
+                    "textureID": 38,
+                    "translucentSelectCutoff": 0.20000000298023224,
+                    "vignetteCenter": [
+                        0.5,
+                        0.5
+                    ],
+                    "vignetteIntensity": 0.335999995470047,
+                    "vignetteSmoothness": 0.699999988079071,
+                    "width": 1920
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 1048584,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        1048580,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Camera",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        -13.25509262084961,
+                        5.030158996582031,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 }
             }
