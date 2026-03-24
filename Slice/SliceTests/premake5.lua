@@ -30,10 +30,6 @@ project "SliceTests"
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
         ThirdParty.MONO_INC,
-        ThirdParty.RECAST_INC,
-        ThirdParty.DETOUR_INC,
-        ThirdParty.DETOUR_CROWD_INC,
-        ThirdParty.DETOUR_TILE_INC,
         "../SliceEngine/thirdparty/catch2"
     }
 

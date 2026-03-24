@@ -38,7 +38,6 @@ namespace SliceEngine
 	class LayerManager;
 	struct SoundSystem;
 	struct NetworkSystem;
-	class NavigationSystem;
 
 	class Core : public Singleton<Core>
 	{

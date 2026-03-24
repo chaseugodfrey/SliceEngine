@@ -752,7 +752,6 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
-		Core::GetInstance()->InitSystem<NavigationSystem>();
 
 
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
@@ -1018,7 +1017,6 @@ namespace SliceEngine
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
 
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{

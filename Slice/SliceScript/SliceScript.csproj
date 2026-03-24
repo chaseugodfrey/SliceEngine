@@ -63,7 +63,6 @@
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
-    <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
@@ -75,7 +74,6 @@
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
     <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
@@ -161,6 +159,7 @@
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
+    <Compile Include="Source\Examples\TestInputCam.cs" />
     <Compile Include="Source\Examples\TestMisc.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
     <Compile Include="Source\Examples\TestNavigation.cs" />
@@ -169,6 +168,7 @@
     <Compile Include="Source\Examples\TestRectTransform.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestSprite.cs" />
+    <Compile Include="Source\Examples\TestTimeScale.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
@@ -186,7 +186,6 @@
     <Compile Include="Source\Old_Test_Spawner.cs" />
     <Compile Include="Source\ParticleSpawner.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
