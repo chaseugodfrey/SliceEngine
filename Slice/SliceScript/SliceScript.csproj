@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -104,6 +102,7 @@
     <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\ScaleWiggleAnimation.cs" />
+    <Compile Include="Source\Core\Environment\SurroundAttack.cs" />
     <Compile Include="Source\Core\FeetCollider.cs" />
     <Compile Include="Source\Core\FunctionCalls.cs" />
     <Compile Include="Source\Core\GameObject.cs" />
@@ -151,13 +150,13 @@
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
     <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
+    <Compile Include="Source\Core\UI\SplashScreen.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
-    <Compile Include="Source\Examples\TestMovingPlatform.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCameraMovement.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
@@ -166,6 +165,7 @@
     <Compile Include="Source\Examples\TestInput.cs" />
     <Compile Include="Source\Examples\TestInputCam.cs" />
     <Compile Include="Source\Examples\TestMisc.cs" />
+    <Compile Include="Source\Examples\TestMovingPlatform.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
     <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
@@ -177,6 +177,8 @@
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
+    <Compile Include="Source\Level 3\Level3Boss.cs" />
+    <Compile Include="Source\Level 3\Level3ProjectileSpawner.cs" />
     <Compile Include="Source\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />
     <Compile Include="Source\Level1\IntroController.cs" />
