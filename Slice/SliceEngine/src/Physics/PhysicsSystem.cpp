@@ -943,7 +943,7 @@ namespace SliceEngine
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
 			JPH::Vec3 scaledOffset(
 				colliderShape.offSet.GetX()* scl.GetX(),
@@ -956,6 +956,7 @@ namespace SliceEngine
 				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
+
 			auto result = newShape.Create();
 			if (result.HasError())
 			{
