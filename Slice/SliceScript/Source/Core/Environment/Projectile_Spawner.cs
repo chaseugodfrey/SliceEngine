@@ -224,7 +224,7 @@ namespace SliceEngine
 
             currentStyle = (SpawnStyle)spawnStyle;
 
-            if (currentStyle == SpawnStyle.Aim)
+            if (currentStyle == SpawnStyle.Aim || currentStyle == SpawnStyle.Straight)
             {
                 string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
@@ -334,16 +334,48 @@ namespace SliceEngine
                     break;
                 case SpawnStyle.Straight:
 
-                    if (count >= 1 /projPerSecond)
+                    if (count >= 1f / projPerSecond)
                     {
-                        count -= 1 / projPerSecond;
+                        count -= 1f / projPerSecond;
+
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        // hide the pre-aim line on fire
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            preaiming = false;
+                            a.Reset();
+                        }
 
                         SpawnInBurstCheck();
-                    }
 
-                    if (HasComponent<AudioSource>())
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
+                    }
+                    else if (!preaiming && count >= (1f / projPerSecond) * (1f - preAimPercentage))
                     {
-                        GetComponent<AudioSource>().Play();
+                        // start showing the pre-aim line during charge-up
+                        preaiming = true;
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            a.active = true;
+                            a.rate = preAimFlickerRate;
+                            a.MinWiggle = preaimMinAlpha;
+                            a.MaxWiggle = preaimMaxAlpha;
+                            a.random = preAimRandom;
+                        }
                     }
 
                     break;
