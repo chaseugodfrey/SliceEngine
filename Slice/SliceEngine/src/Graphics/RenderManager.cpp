@@ -565,12 +565,12 @@ namespace SliceEngine
 				RenderFog(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
-				RenderImpact(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
 				RenderBloom(cam, true);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
 				RenderVignette(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
+				RenderImpact(cam);
 
 			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
@@ -1250,19 +1250,24 @@ namespace SliceEngine
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		// Luminance Calc
-		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
-		SetShader(ShaderPaths[S_LUMINANCE]);
-		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
-		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
-		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
+		bool impacting = Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT;
+		GLint uniformLoc;
+		if (!impacting)
+		{
+			// Luminance Calc
+			glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
+			SetShader(ShaderPaths[S_LUMINANCE]);
+			LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
+			ClearBuffer(BufferClearSetting::ALL);
+			glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+			glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
 
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
-		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
+			glUniform1f(uniformLoc, camera.luminanceLearningRate);
 
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLError();
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			CheckGLError();
+		}
 
 		// Final Frag
 		SetShader(ShaderPaths[S_FINAL]);
@@ -1273,6 +1278,8 @@ namespace SliceEngine
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
+		glUniform1i(uniformLoc, !impacting);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		camera.lumSelected = !camera.lumSelected;

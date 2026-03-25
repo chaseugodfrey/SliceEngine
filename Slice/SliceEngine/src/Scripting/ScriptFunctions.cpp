@@ -3004,6 +3004,7 @@ namespace SliceEngine
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
+		RegisterComponent<Camera>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
