@@ -2390,6 +2390,15 @@ namespace SliceEngine
 		}
 	}
 
+	static void Camera_SetImpactFrameWorldPosition(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			go.GetComponent<Camera>().impactPos = *target;
+		}
+	}
+
 #pragma endregion
 
 #pragma region NAVIGATION FUNCTIONS
@@ -3018,6 +3027,7 @@ namespace SliceEngine
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);

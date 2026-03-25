@@ -17,5 +17,9 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_ToggleImpactFrames(go.mID, enable);
         }
+        public void SetImpactFramePosition(GameObject go, Vector3 pos)
+        {
+            FunctionCalls.Camera_SetImpactFrameWorldPosition(go.mID, ref pos);
+        }
     }
 }
