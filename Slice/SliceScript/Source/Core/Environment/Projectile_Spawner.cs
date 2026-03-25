@@ -48,7 +48,7 @@ namespace SliceEngine
         public float preaimMinAlpha = .3f;
         public float preaimMaxAlpha = 1f;
         public float preAimPercentage = .2f; //percantage of the 
-        private bool preaiming = false;
+        public bool preaiming = false;
         public bool preAimRandom = false;
         public string aiminglinePrefabName = "PreAim";
 
@@ -64,8 +64,8 @@ namespace SliceEngine
         public float rangeLimit = 10f;
 
         public int spawnStyle = 0;
-        private enum SpawnStyle { Straight, Spiral, Aim };
-        private SpawnStyle currentStyle = SpawnStyle.Straight;
+        public enum SpawnStyle { Straight, Spiral, Aim };
+        public SpawnStyle currentStyle = SpawnStyle.Straight;
 
 
         #region bullet creation
@@ -216,23 +216,31 @@ namespace SliceEngine
         }
         #endregion
 
-        private float count = 0f;
+        public float count = 0f;
 
         public override void OnCreate()
         {
             base.OnCreate();
-
             currentStyle = (SpawnStyle)spawnStyle;
+            Console.WriteLine("In Projectile Spawner Create");
 
             if (currentStyle == SpawnStyle.Aim)
             {
+                Console.WriteLine($"Aiming line prefab name {aiminglinePrefabName}");
                 string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+                Console.WriteLine($"pre aim {aimingPrefabPath}");
                 preAimObject = CreateGameObject(aimingPrefabPath);
+                Console.WriteLine("Creating pre aim object");
+
                 preAimObject.SetParent(this.gameObject);
+
+                Console.WriteLine("parenting pre aim object");
+
                 Transform T = preAimObject.GetComponent<Transform>();
                 T.Position = new Vector3(0);
                 T.Rotation = new Vector3(0);
+
                 //preAim.
             }
         }
