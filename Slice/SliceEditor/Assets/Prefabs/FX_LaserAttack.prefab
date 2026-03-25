@@ -10,7 +10,14 @@
                 ],
                 "bounceDampening": 0.6000000238418579,
                 "bounciness": 0.0,
-                "bursts": [],
+                "bursts": [
+                    [
+                        1,
+                        1,
+                        0.0,
+                        0.0
+                    ]
+                ],
                 "colorValueType": 0,
                 "colour": [
                     1.0,
@@ -70,8 +77,8 @@
                 "colourOverLifetime": true,
                 "coneArc": 90.0,
                 "destroyOnExpire": true,
-                "duration": 0.15000000596046448,
-                "emissionRate": 4.0,
+                "duration": 0.5,
+                "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     0.0,
                     0.0,
@@ -92,7 +99,7 @@
                 "isLocalSpace": true,
                 "isRepeating": false,
                 "isRotation3D": false,
-                "lifetime": 0.15000000596046448,
+                "lifetime": 0.5,
                 "materialHandle": {
                     "GUID": "16773562439639489861"
                 },
@@ -150,7 +157,7 @@
                 "modelHandle": {
                     "GUID": "10076918467013417704"
                 },
-                "numBursts": 0,
+                "numBursts": 1,
                 "orbitAxis": [
                     0.0,
                     0.0,
@@ -177,9 +184,9 @@
                     0.0
                 ],
                 "scale": [
-                    0.10000000149011612,
+                    1.0,
                     10.0,
-                    0.10000000149011612
+                    1.0
                 ],
                 "scaleType": 0,
                 "shapeRadius": 0.0,
@@ -265,11 +272,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 35651864,
+                "entity_id": 1048838,
                 "neighbours": [
                     0,
                     4294967295,
-                    35651871,
+                    1048837,
                     4294967295
                 ]
             },
@@ -286,9 +293,9 @@
                     0.0
                 ],
                 "position": [
-                    0.5315675735473633,
-                    1.7242567539215088,
-                    3.805971622467041
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
