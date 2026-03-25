@@ -59,6 +59,7 @@ namespace SliceEngine
 
         public virtual void OnButtonClick() { }
         public virtual void OnButtonHover() { }
+        public virtual void OnButtonExitHover() { }
         public virtual void OnButtonRelease() { }
         public virtual void OnSliderValue(float value) { }
 //        public virtual void OnButtonRelease() { }
