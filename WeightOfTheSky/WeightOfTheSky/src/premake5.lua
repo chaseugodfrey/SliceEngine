@@ -1,5 +1,5 @@
 project "WeightOfTheSky"
-    kind "WindowedApp"           
+    kind "ConsoleApp"           
     language "C++"
     cppdialect "C++20"            
 
