@@ -562,7 +562,7 @@ namespace SliceEngine
 
             AudioSettings.PlaySFX("PlayerHit");
 
-            Bootstrap.CameraController.Shake(0.1f, 1f);
+            //Bootstrap.CameraController.Shake(0.1f, 1f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
             SliceLog.Log("Returned");

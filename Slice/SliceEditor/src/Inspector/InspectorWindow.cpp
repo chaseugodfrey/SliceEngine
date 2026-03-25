@@ -392,6 +392,8 @@ namespace SliceEditor
 				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
 				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
 			}
+
+			DragFloatInputHeader(mRegistry, "Rotation", "##rect_rot", rect.final_rot, "R: %f", 0.f, 360.f);
 			ImGui::TreePop();
 		}
 	}
@@ -734,6 +736,8 @@ namespace SliceEditor
 
 			ImGui::SeparatorText("Post-Processing FX");
 
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
@@ -753,7 +757,6 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			}
 
 			ImGui::Text("Godrays");
@@ -1182,7 +1185,7 @@ namespace SliceEditor
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
 								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
-								std::vector<bool> changedVars;
+								std::vector<MultiSelect> changedVars;
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
 										if (std::strcmp(funcToExec, "Edit") == 0)
@@ -1201,7 +1204,7 @@ namespace SliceEditor
 
 								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f",0.1f, 0.f,0.f, ScriptFloatListElementDifferent(selectionManager, script.scriptName, it.second.mName, data,isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 									auto multiSetData = scriptRef->GetListFieldValue<float>(it.second.mName);
 									if (isMultipleSelection)
@@ -1295,6 +1298,7 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								auto data = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::vector<MultiSelect> changedVars;
 
 								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
 									{
@@ -1312,10 +1316,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptGameObjectListElementDifferent(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptGameObjectListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 						}
@@ -2172,6 +2181,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
+			BoolInputHeader(mRegistry, "Casts Shadow", "##lightCastsShadow", light.castsShadow);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
@@ -2181,6 +2191,9 @@ namespace SliceEditor
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
+
+			if (light.type == 2)
+				DragFloatInputHeader(mRegistry, "angle", "##light_angle", light.angle, "%.2f", 0.0f, 90.f);
 
 			ImGui::TreePop();
 		}

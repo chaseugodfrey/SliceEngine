@@ -58,9 +58,9 @@ namespace SliceEngine
             {
                 // Directional Timer Logic
                 if (isOpening)
-                    animationTimer += dt / duration;
+                    animationTimer += Time.deltaTimeUnscaled / duration;
                 else
-                    animationTimer -= dt / duration;
+                    animationTimer -= Time.deltaTimeUnscaled / duration;
 
                 animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);
 

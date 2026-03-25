@@ -34,6 +34,8 @@ namespace SliceEngine
         public virtual void OnAwake() { }
         //public virtual void OnEnable() { }
         public virtual void OnCreate() { }
+
+        public virtual void OnEntityDestroy(uint id) { }
         public virtual void OnUpdate(float dt) { }
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }

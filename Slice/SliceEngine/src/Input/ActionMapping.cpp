@@ -139,7 +139,7 @@ namespace SliceEngine
 		if (actionIndex != static_cast<size_t>(-1))
 		{
 			map.definitions[actionIndex].bindings.push_back({ keyCode, 1.0f, 0.0f, 0.0f }); // for button, scaleX=1.0f, x/y=0.0f
-			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "'\n";
+			//std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "'\n";
 		}
 	}
 
@@ -152,7 +152,7 @@ namespace SliceEngine
 		if (actionIndex != static_cast<size_t>(-1))
 		{
 			map.definitions[actionIndex].bindings.push_back({ keyCode, scale, 0.0f, 0.0f }); // for value1D, x/y=0.0f
-			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "' with scale " << scale << "\n";
+			//std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "' with scale " << scale << "\n";
 		}
 	}
 
@@ -165,7 +165,7 @@ namespace SliceEngine
 		if (actionIndex != static_cast<size_t>(-1))
 		{
 			map.definitions[actionIndex].bindings.push_back({ keyCode, 1.0f, x, y }); // for value2D, scaleX=1.0f
-			std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "' with value2D(" << x << ", " << y << ")\n";
+			//std::cout << "Bound keycode " << keyCode << " to action '" << actionName << "' in map '" << mapName << "' with value2D(" << x << ", " << y << ")\n";
 		}
 	}
 

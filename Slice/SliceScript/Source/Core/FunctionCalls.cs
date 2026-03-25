@@ -11,6 +11,15 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetDeltaTimeUnscaled();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetTimeScale();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Time_SetTimeScale(float time);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetGamma(float gamma);
@@ -122,19 +131,20 @@ namespace SliceEngine
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_StopAllSound();
+        internal extern static void Audio_PlaySFX(string key, ref Vector3 position, uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_IsPlaying(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_SetPaused(uint entityID, bool paused);
+        
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetPaused(uint entityID);
 

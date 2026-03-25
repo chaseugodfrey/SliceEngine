@@ -45,6 +45,16 @@ namespace SliceEngine
 
 		glCreateTextures(GL_TEXTURE_2D, 1, &cam.depthTex);
 		glTextureStorage2D(cam.depthTex, 1, GL_DEPTH_COMPONENT32F, maxWidth, maxHeight);
+	
+		// float_32 rgba Keep Tracks of the Running luminance Amount
+		glCreateTextures(GL_TEXTURE_2D, 2, cam.lum);
+		glTextureStorage2D(cam.lum[0], 1, GL_RGBA32F, 1, 1);
+		glTextureParameterf(cam.lum[0], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(cam.lum[0], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureStorage2D(cam.lum[1], 1, GL_RGBA32F, 1, 1);
+		glTextureParameterf(cam.lum[1], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(cam.lum[1], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
 	}
 	void CameraSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
 	{
@@ -75,6 +85,7 @@ namespace SliceEngine
 		glDeleteTextures(1, &cam.textureID);
 		//glDeleteTextures(1, &mScene.picker_id);
 		glDeleteTextures(1, &cam.depthTex);
+		glDeleteTextures(2, cam.lum);
 	}
 	void CameraSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{

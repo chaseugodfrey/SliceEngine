@@ -293,6 +293,7 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
@@ -383,7 +384,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
@@ -627,7 +630,8 @@ rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
 	.property("top", &RectTransform::top)
 	.property("bot", &RectTransform::bot)
 	.property("width", &RectTransform::width)
-	.property("height", &RectTransform::height);
+	.property("height", &RectTransform::height)
+	.property("rotation", &RectTransform::final_rot);
 
 rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .constructor<>()
@@ -635,6 +639,13 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("rgba", &SpriteRenderer::rgba)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
@@ -876,7 +887,10 @@ namespace SliceEngine
 		frm->updateDeltaTime();
 		frm->EndSystem("Update Delta Time");
 
-		
+		deltaTimeUnscaled = static_cast<float>(frm->getDeltaTime());
+		deltaTimeScaled = deltaTimeUnscaled * sScene->GetTimeScale();
+		fixedDeltaTime = static_cast<float>(frm->getFixedDeltaTime());
+		fixedDeltaTimeScaled = fixedDeltaTime * sScene->GetTimeScale();
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -894,14 +908,14 @@ namespace SliceEngine
 
 		// regular transform update
 		frm->StartSystem("Transform");
-		sTransform.Update(static_cast<float>(frm->getDeltaTime()));
+		sTransform.Update(deltaTimeScaled);
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
 
 		frm->StartSystem("Audio");
-		core->GetSystem<AudioSourceSystem>().Update(static_cast<float>(frm->getDeltaTime()));
-		core->GetSystem<AudioListenerSystem>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<AudioSourceSystem>().Update(deltaTimeUnscaled);
+		core->GetSystem<AudioListenerSystem>().Update(deltaTimeUnscaled);
 		sAudio->Update();
 		frm->EndSystem("Audio");
 
@@ -913,11 +927,11 @@ namespace SliceEngine
 		}*/
 
 		frm->StartSystem("Particle System");
-		core->GetSystem<ParticleSystemManager>().Update(static_cast<float>(frm->getDeltaTime()));
+		core->GetSystem<ParticleSystemManager>().Update(deltaTimeScaled);
 		frm->EndSystem("Particle System");
 
 		frm->StartSystem("Graphics");
-		sRender->Update(static_cast<float>(frm->getDeltaTime()));
+		sRender->Update(deltaTimeScaled);
 		sRender->Render();
 		sCanvas.DrawOverlay();
 		frm->EndSystem("Graphics");
@@ -975,6 +989,7 @@ namespace SliceEngine
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
+			sCanvas.UpdateHierachy(true);
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
@@ -1023,19 +1038,19 @@ namespace SliceEngine
 		{
 			// game logic
 			frm->StartSystem("Script");
-			gScriptSystem->OnFixedUpdate((float)frm->getFixedDeltaTime());
+			gScriptSystem->OnFixedUpdate(fixedDeltaTimeScaled);
 			frm->EndSystem("Script");
 
 			frm->StartSystem("Transform");
 			// sync matrices before physics step
-			sTransform.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sTransform.Update(fixedDeltaTimeScaled);
 			sTransform.UpdateTransforms();
 			frm->EndSystem("Transform");
 
 			// physics update
 			frm->StartSystem("Physics");
 			core->GetSystem<PhysicsSystem>().PreStepSync();
-			core->GetSystem<PhysicsSystem>().StepWorld(static_cast<float>(frm->getFixedDeltaTime()));
+			core->GetSystem<PhysicsSystem>().StepWorld(fixedDeltaTimeScaled);
 			core->GetSystem<PhysicsSystem>().PostStepSync();
 			frm->EndSystem("Physics");
 
@@ -1047,7 +1062,7 @@ namespace SliceEngine
 
 			// animation after logic and physics
 			frm->StartSystem("Animation");
-			sAnimator.Update(static_cast<float>(frm->getFixedDeltaTime()));
+			sAnimator.Update(fixedDeltaTimeScaled);
 			sBone.Update_Scenegraph();
 			sAnimator.BoneUpdate();
 			frm->EndSystem("Animation");
@@ -1056,11 +1071,11 @@ namespace SliceEngine
 		// regular update for scripts
 		// idk if this should be before or after simulation loop
 		frm->StartSystem("Script");
-		gScriptSystem->OnUpdate((float)frm->getDeltaTime());
+		gScriptSystem->OnUpdate(deltaTimeScaled);
 		frm->EndSystem("Script");
 
 		frm->StartSystem("Navigation System");
-		sNav.Update(static_cast<float>(frm->getDeltaTime()));
+		sNav.Update(deltaTimeScaled);
 		frm->EndSystem("Navigation System");
 
 		frm->StartSystem("Canvas");
@@ -1079,7 +1094,7 @@ namespace SliceEngine
 
 		// late update for scripts
 		frm->StartSystem("Script");
-		gScriptSystem->OnLateUpdate((float)frm->getDeltaTime());
+		gScriptSystem->OnLateUpdate(deltaTimeScaled);
 		frm->EndSystem("Script");
 	}
 
