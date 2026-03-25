@@ -745,6 +745,7 @@ namespace SliceEditor
 			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
+			bool isImpact = cam.postRenderToggles & RenderTag::RENDER_IMPACT;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
 
 			ImGui::Text("Bloom");
@@ -787,6 +788,23 @@ namespace SliceEditor
 				float tempIntensity = cam.fogIntensity * 100.f;
 				if (DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", tempIntensity, "%.1f", 0.0f, FLT_MAX))
 					cam.fogIntensity = tempIntensity / 100.f;
+			}
+
+			ImGui::Text("Impact");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isImpact", &isImpact))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_IMPACT, isImpact);
+			}
+
+			if (isImpact)
+			{
+				DragVec3InputHeader(mRegistry, "Impact Position", "##cam_impact_position", cam.impactPos);
+				DragFloatInputHeader(mRegistry, "Impact Brightness",   "##cam_impact_brightness", cam.impactBrightness, "%.2f", 0.0f, 1.0f);
+				DragFloatInputHeader(mRegistry, "Impact Angle", "##cam_impact_angle", cam.impactAngle, "%.1f", 0.0f, 360.0f);
+				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Noise 1", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Noise 2", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
 			}
 
 			ImGui::Text("Vignette");

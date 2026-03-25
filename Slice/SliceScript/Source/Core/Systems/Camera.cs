@@ -12,5 +12,10 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetMainCamera(go.mID);
         }
+
+        public void SetImpactFrame(GameObject go, bool enable)
+        {
+            FunctionCalls.Camera_ToggleImpactFrames(go.mID, enable);
+        }
     }
 }

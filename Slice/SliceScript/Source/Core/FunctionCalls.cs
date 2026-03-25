@@ -21,6 +21,8 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();

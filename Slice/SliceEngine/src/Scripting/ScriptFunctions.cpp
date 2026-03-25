@@ -2378,6 +2378,18 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
+	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			if (isEnable)
+				go.GetComponent<Camera>().postRenderToggles |= RENDER_IMPACT;
+			else
+				go.GetComponent<Camera>().postRenderToggles &= ~RENDER_IMPACT;
+		}
+	}
+
 #pragma endregion
 
 #pragma region NAVIGATION FUNCTIONS
@@ -3005,6 +3017,7 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
