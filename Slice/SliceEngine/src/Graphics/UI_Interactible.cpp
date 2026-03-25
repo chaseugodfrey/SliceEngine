@@ -293,7 +293,7 @@ namespace SliceEngine {
 			button.state = Button::Normal;
 			OnButtonExitHoverEvent exithover_event;
 			exithover_event.entity = button_entity;
-			EventManager::GetInstance()->Publish<OnButtonExitHoverEvent>(hover_event);
+			EventManager::GetInstance()->Publish<OnButtonExitHoverEvent>(exithover_event);
 			break;
 		case Release: {
 			button.state = Button::Normal;
