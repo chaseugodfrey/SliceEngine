@@ -741,7 +741,7 @@ namespace SliceEngine
 				colliderShape.offSet.GetZ() * scl.GetZ()
 			);
 
-			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			//JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
 			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(tempScale);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				scaledOffset,
