@@ -34,6 +34,8 @@ namespace SliceEngine
         private bool inputOpen = false;
         public bool dialogueDone = false;
 
+        bool loseScreenOpen = false;
+
         public override void OnCreate()
         {
             //if (DialogueOnStart)
@@ -80,7 +82,7 @@ namespace SliceEngine
             //victory.SetEnabled(true);
             victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
             continueBtn.SetActive(true);
-            CursorChecking(Cursor.state);
+            Cursor.state = Cursor.STATE.DEFAULT;
 
 
         }
@@ -100,7 +102,18 @@ namespace SliceEngine
             //defeat.SetEnabled(true);
             defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
             retryBtn.SetActive(true);
-            CursorChecking(Cursor.state);
+            Cursor.state = Cursor.STATE.DEFAULT;
+            loseScreenOpen = true;
+        }
+
+        public bool CheckLoseScreen()
+        {
+            if(loseScreenOpen)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void CursorChecking(Cursor.STATE currentCursorState)
