@@ -104,6 +104,10 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
+            introState = new IntroState(this.gameObject);
+            rechargingState = new RechargingState(this.gameObject);
+            referenceState = new ReferenceState(this.gameObject);
+            bossSM = new StateMachine();
             // you have to set the state using
             //bossSM.ChangeState(introState);
             
