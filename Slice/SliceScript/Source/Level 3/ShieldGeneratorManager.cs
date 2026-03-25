@@ -16,6 +16,8 @@ namespace SliceEngine
 
         public GameObject Boss;
 
+        int index = 0;
+
         public override void OnCreate()
         {
             generators = gameObject.FindGameObjectsWithTag("ShieldGenerator");
@@ -23,11 +25,11 @@ namespace SliceEngine
 
             if (numberOfGenerators == 0)
             {
-                SliceLog.Log("No shield generators found! Make sure to tag them with 'ShieldGenerator' and place them in the scene.");
+                SliceLog.Console("No shield generators found! Make sure to tag them with 'ShieldGenerator' and place them in the scene.");
             }
             else
             {
-                SliceLog.Log("Found " + numberOfGenerators + " shield generators.");
+                SliceLog.Console("Found " + numberOfGenerators + " shield generators.");
                 for (int i = 0; i < generators.Length; i++)
                 {
                     generators[i].As<ShieldGenerator>().Destroyedtrigger += OnGeneratorDestroyed;
@@ -43,18 +45,28 @@ namespace SliceEngine
 
         public void OnGeneratorDestroyed()
         {
-            Console.WriteLine("A generator was destroyed! Remaining: " + (numberOfGenerators - 1));
+            SliceLog.Console("A generator was destroyed! Remaining: " + (numberOfGenerators - 1));
             numberOfGenerators--;
             if (numberOfGenerators <= 0)
             {
                 enemyController.ShieldGeneratorDestroyed();
             }
+
+            // for testing
+            index++;
         }
 
-        public void Update(float dt)
+        public override void OnUpdate(float dt)
         {
-            
-        }
+            if (Input.IsKeyPressed(Keys.KEY_K))
+            {
+                if (index < generators.Length)
+                {
+                    generators[index].As<ShieldGenerator>().TakeDamage(100);
+                    SliceLog.Console("Simulating generator destruction for testing.");
 
+                }
+            }
+        }
     }
 }

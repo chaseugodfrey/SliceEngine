@@ -29,15 +29,13 @@ namespace SliceEngine
         {
             // This override is just to insert a debug
             //Console.WriteLine("Enemy is taking damage");
-            SliceLog.Log("SHIELD GENERATOR is taking damage");
-
+            SliceLog.Console("SHIELD GENERATOR is taking damage");
 
             //source = source ?? gameObject;
             if (source == null)
             {
                 source = gameObject;
             }
-            Console.WriteLine("ALOYSIUS");
             Console.WriteLine($"taking {amount} damage and current health {currentHealth}");
             this.currentHealth -= amount;
             if (this.currentHealth > 0) { OnDamaged(source); }
@@ -53,7 +51,7 @@ namespace SliceEngine
         {
             //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
             //CreateGameObject("Prefabs/Sparks.prefab").GetComponent<Transform>().Position = transform.Position;
-            SliceLog.Log("SHIELD GENERATOR IS BEING HIT");
+            SliceLog.Console("SHIELD GENERATOR IS BEING HIT");
 
         }
 
@@ -61,7 +59,7 @@ namespace SliceEngine
         public override void OnDeath()
         {
             Destroyedtrigger?.Invoke();
-            SliceLog.Log("SHIELD GENERATOR DESTROYED");
+            SliceLog.Console("SHIELD GENERATOR DESTROYED");
             this.gameObject.Destroy(); 
 
         }
