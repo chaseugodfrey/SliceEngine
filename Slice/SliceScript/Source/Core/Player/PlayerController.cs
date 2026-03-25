@@ -189,6 +189,8 @@ namespace SliceEngine
         public float flickerDuration = 0.05f;
         public bool iFrames = false;
 
+        private Vector3 groundPosition;
+
         public void Initialize()
         {
             camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
@@ -1222,6 +1224,12 @@ namespace SliceEngine
             {
                 //Console.WriteLine($"Colliding with {other}");
                 groundContactCount++;
+
+                Ray ray = new Ray(transform.Position, Vector3.Down);
+                if (Physics.Raycast(ray, out RayCastHit hitInfo))
+                {
+                    
+                }
             }
         }
 
