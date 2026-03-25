@@ -15,7 +15,7 @@
                     "isTrigger": false,
                     "offSet": [
                         0.0,
-                        0.0,
+                        2.0999999046325684,
                         0.0
                     ]
                 },
@@ -52,17 +52,17 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145732,
+                    "entity_id": 4,
                     "neighbours": [
                         0,
                         4294967295,
-                        3145733,
+                        3,
                         4294967295
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 6,
+                    "mLayer": 0,
                     "mName": "GameObject_1",
                     "mTag": "default"
                 },
@@ -74,7 +74,7 @@
                     ],
                     "position": [
                         0.0,
-                        2.5857937335968018,
+                        5.755051612854004,
                         0.0
                     ],
                     "rotation": [
@@ -84,9 +84,9 @@
                         0.0
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
-                        1.0
+                        3.700000047683716,
+                        3.5,
+                        4.5
                     ]
                 }
             }
@@ -122,12 +122,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3145733,
+                    "entity_id": 3,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        3145732
+                        4
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
