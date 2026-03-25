@@ -66,6 +66,7 @@ namespace SliceEngine
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam, bool specifallyGodRay);
 		void RenderVignette(Entity cam);
+		void RenderImpact(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
@@ -158,6 +159,7 @@ namespace SliceEngine
 			S_UPSCALING			,
 			S_BLOOM_JOIN		,
 			S_VIGNETTE				,
+			S_IMPACT				,
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
 			S_LUMINANCE,
@@ -187,6 +189,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_UPSCALING,       "Shaders/upSample.shader" },
 			{ ShaderOpt::S_BLOOM_JOIN,      "Shaders/bloomJoin.shader" },
 			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
+			{ ShaderOpt::S_IMPACT,			"Shaders/ImpactFrame.shader" },
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
 			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
