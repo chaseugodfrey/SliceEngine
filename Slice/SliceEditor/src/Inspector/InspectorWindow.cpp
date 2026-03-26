@@ -738,6 +738,7 @@ namespace SliceEditor
 			ImGui::SeparatorText("Post-Processing FX");
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
