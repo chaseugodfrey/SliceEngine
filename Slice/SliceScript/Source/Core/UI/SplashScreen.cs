@@ -30,6 +30,8 @@ namespace SliceEngine
                 {
                     SpriteRenderer img_renderer =img.GetComponent<SpriteRenderer>();
 
+                    img_renderer.SetEnabled(true);
+
                     Vector4 color = img_renderer.Colour;
                     color.w = 0.0f;
                     img_renderer.Colour = color;
@@ -64,8 +66,8 @@ namespace SliceEngine
             }
             else
             {
-                //StartGameMenu();
-                SliceLog.Log("all img fin, start game");
+                StartGameMenu();
+                //SliceLog.Log("all img fin, start game");
             }
 
             if(Input.IsKeyDown(Keys.KEY_SPACEBAR))
@@ -76,8 +78,8 @@ namespace SliceEngine
                 }
                 else
                 {
-                    //StartGameMenu();
-                    SliceLog.Log("skip fin, start game");
+                    StartGameMenu();
+                    //SliceLog.Log("skip fin, start game");
                 }
             }
             else
