@@ -309,7 +309,7 @@ uvec2 Hash_Tchou_2_2_uint(uvec2 v)
 }
 void Hash_Tchou_2_2_float(vec2 i, out vec2 o)
 {
-    uvec2 v = (uvec2) (ivec2) round (i);
+    uvec2 v = uvec2(ivec2 (round(i)));
     uvec2 r = Hash_Tchou_2_2_uint(v);
     o = (r >> 8) * (1.0 / float (0x00ffffff));
 }
