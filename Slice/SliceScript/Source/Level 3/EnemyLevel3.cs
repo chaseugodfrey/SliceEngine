@@ -39,7 +39,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = false;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false; // ALOY preAimObject is null when SpawnStyle is Nothing
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
@@ -126,7 +126,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true; // ALOY preAimObject is null when SpawnStyle is Nothing
 
                 }
 
@@ -135,15 +135,15 @@ namespace SliceEngine
             public override void OnUpdate(float dt)
             {
                 owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
-                count += dt;
+                //count += dt;
 
-                if (count >= 1f / projPerSecond)
-                {
-                    count -= 1f / projPerSecond;
-                    Transform T = owner.GetComponent<Transform>();
-                    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
-                    bullet.As<Projectile>().destroyOnPlayerImpact = true;
-                }
+                //if (count >= 1f / projPerSecond)
+                //{
+                //    count -= 1f / projPerSecond;
+                //    Transform T = owner.GetComponent<Transform>();
+                //    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
+                //    bullet.As<Projectile>().destroyOnPlayerImpact = true;
+                //} Aloy here
 
                 if (enemyController.shieldObject == null)
                 {
@@ -268,7 +268,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true; // ALOY preAimObject is null when SpawnStyle is Nothing
 
                 }
 

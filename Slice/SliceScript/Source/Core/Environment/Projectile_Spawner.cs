@@ -64,7 +64,7 @@ namespace SliceEngine
         public float rangeLimit = 10f;
 
         public int spawnStyle = 0;
-        public enum SpawnStyle { Straight, Spiral, Aim };
+        public enum SpawnStyle { Straight, Spiral, Aim, Nothing };
         public SpawnStyle currentStyle = SpawnStyle.Straight;
 
 
@@ -386,6 +386,9 @@ namespace SliceEngine
                         }
                     }
 
+                    break;
+                case SpawnStyle.Nothing:
+                    //does nothing for testing purooses
                     break;
             }
 
