@@ -2404,6 +2404,27 @@ namespace SliceEngine
 		auto* rm = Core::GetInstance()->GetRenderManager();
 		return rm->GetSessionExposure();
 	}
+	
+	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			if (isEnable)
+				go.GetComponent<Camera>().postRenderToggles |= RENDER_IMPACT;
+			else
+				go.GetComponent<Camera>().postRenderToggles &= ~RENDER_IMPACT;
+		}
+	}
+
+	static void Camera_SetImpactFrameWorldPosition(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			go.GetComponent<Camera>().impactPos = *target;
+		}
+	}
 
 #pragma endregion
 
@@ -2928,6 +2949,7 @@ namespace SliceEngine
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
+		RegisterComponent<Camera>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
@@ -2952,6 +2974,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 		ADD_INTERNAL_CALL(Camera_SetGamma);
 		ADD_INTERNAL_CALL(Camera_GetGamma);
+		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);

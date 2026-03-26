@@ -265,9 +265,9 @@ namespace SliceEngine
             FinishCameraMovement();
         }
 
-        public void Shake(float duration, float magnitude)
+        public Coroutine Shake(float duration, float magnitude)
         {
-            StartCoroutine(ShakeSequence(duration, magnitude));
+            return StartCoroutine(ShakeSequence(duration, magnitude));
         }
 
         private IEnumerator ShakeSequence(float duration, float magnitude)

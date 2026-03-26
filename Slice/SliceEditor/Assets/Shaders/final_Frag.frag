@@ -7,6 +7,7 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (binding = 0) uniform sampler2D 	uTex; // Already undergone the addition of all objects
 layout (binding = 1) uniform sampler2D 	uAvgLumTex;
 
+uniform int useLum;
 uniform float uExposure = 1.0;
 uniform float White = 0.928;
 
@@ -33,6 +34,9 @@ void main(void){
 	float avgLum = texture(uAvgLumTex, vec2(0.0)).r;
 	if(abs(avgLum) < 1e-5)
 		avgLum = 0.001;
+
+  if(useLum == 0)
+    avgLum = 0.001;
 
     // Convert to XYZ
 	vec3 xyzCol = rgb2xyz * hdrCol;

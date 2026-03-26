@@ -12,7 +12,7 @@ namespace SliceEngine
     {
         public float speed = 1.0f;
         public int damage = 30;
-        public GameObject generalHitbox;
+        //public GameObject generalHitbox;
         public GameObject owner;
         public bool destroyOnImpact = false;
         public bool destroyOnPlayerImpact = false;
@@ -32,7 +32,7 @@ namespace SliceEngine
 
                 AudioSettings.PlaySFX("PlayerHitLazer");
 
-                CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
+               // CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
 
                 if (destroyOnPlayerImpact)
                 {
@@ -51,8 +51,8 @@ namespace SliceEngine
         
         public void SetUp()
         {
-            generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
-            generalHitbox.As<GeneralHitbox>().TurnOn();
+            //generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+            //generalHitbox.As<GeneralHitbox>().TurnOn();
         }
         
 
@@ -92,6 +92,17 @@ namespace SliceEngine
                 else
                     gameObject.Destroy();
             }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            GameObject collidedGO = FindGameObjectWithID(other);
+            if (collidedGO != null && collidedGO.tag == "Player")
+            {
+                DamagePlayer(collidedGO);
+            }
+
+            DestroyProj();
         }
     }
 }
