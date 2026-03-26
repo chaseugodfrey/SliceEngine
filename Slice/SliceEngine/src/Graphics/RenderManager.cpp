@@ -1295,6 +1295,8 @@ namespace SliceEngine
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uGamma");
+		glUniform1f(uniformLoc, camera.gamma / 100.f);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
 		glUniform1i(uniformLoc, !impacting);
 

@@ -299,6 +299,7 @@ namespace SliceEngine
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
+		.property("gamma", &Camera::gamma)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
