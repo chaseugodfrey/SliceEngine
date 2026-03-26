@@ -27,5 +27,29 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetImpactFrameWorldPosition(gameObject.mID, ref pos);
         }
+        public void SetImpactFrameColor1(Vector3 col)
+        {
+            FunctionCalls.Camera_SetImpactFrameColor1(gameObject.mID, ref col);
+        }
+        public void SetImpactFrameColor2(Vector3 col)
+        {
+            FunctionCalls.Camera_SetImpactFrameColor2(gameObject.mID, ref col);
+        }
+        public void SetImpactFrameIsSmooth(bool isSmooth)
+        {
+            FunctionCalls.Camera_SetImpactFrameSmooth(gameObject.mID, isSmooth);
+        }
+        public void SetImpactFrameSpeed(float speed)
+        {
+            FunctionCalls.Camera_SetImpactFrameSpeed(gameObject.mID, speed);
+        }
+        public void SetImpactFrameSharpness(float sharpness)
+        {
+            FunctionCalls.Camera_SetImpactFrameSharpness(gameObject.mID, sharpness);
+        }
+        public void SetImpactFrameDensity(float density)
+        {
+            FunctionCalls.Camera_SetImpactFrameDensity(gameObject.mID, density);
+        }
     }
 }
