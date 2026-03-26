@@ -2396,13 +2396,13 @@ namespace SliceEngine
 	static void Camera_SetGamma(float gammaVal)
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
-		rm->SetSessionExposure(gammaVal);
+		rm->SetSessionGamma(gammaVal);
 	}
 
 	static float Camera_GetGamma()
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
-		return rm->GetSessionExposure();
+		return rm->GetSessionGamma();
 	}
 	
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)

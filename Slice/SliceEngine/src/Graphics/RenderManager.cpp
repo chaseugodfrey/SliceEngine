@@ -381,6 +381,9 @@ namespace SliceEngine
 			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
 
+	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma / 100.f; }
+
 	void RenderManager::SetSessionExposure(float exposure)
 	{
 		mSessionExposure = exposure;
@@ -391,6 +394,18 @@ namespace SliceEngine
 			camera.exposure = exposure;
 		}
 	}
+	void RenderManager::SetSessionGamma(float gamma)
+	{
+		float modGamma = gamma * 100.f;
+		mSessionGamma = modGamma;
+		auto& mainCam = GetGameCamera();
+		if (mainCam.has_value())
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value());
+			camera.gamma = modGamma;
+		}
+	}
+
 
 	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
