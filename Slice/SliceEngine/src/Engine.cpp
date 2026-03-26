@@ -293,16 +293,24 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
+		.property("gamma", &Camera::gamma)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("vignetteSmoothness", &Camera::impactPos)
+		.property("vignetteSmoothness", &Camera::impactAngle)
+		.property("vignetteSmoothness", &Camera::impactBrightness)
+		.property("vignetteSmoothness", &Camera::impactEpilepsy)
+		.property("vignetteSmoothness", &Camera::impactNoise1)
+		.property("vignetteSmoothness", &Camera::impactNoise2)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)
@@ -383,7 +391,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
@@ -636,6 +646,13 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("rgba", &SpriteRenderer::rgba)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
@@ -960,6 +977,7 @@ namespace SliceEngine
 		auto sScene = core->GetSceneSystem();
 		auto& sAnimator = core->GetSystem<AnimatorSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
+		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto sAudio = core->GetAudioManager();
 
 		sInputs->SetMode(InputMode::Game);
@@ -980,6 +998,7 @@ namespace SliceEngine
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
+			sCanvas.UpdateHierachy(true);
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}

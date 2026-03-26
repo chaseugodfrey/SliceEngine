@@ -200,6 +200,7 @@ namespace SliceEngine
 		RENDER_VIGNETTE		= 0x08,
 		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_GODRAY		= 0x20,
+		RENDER_IMPACT		= 0x40,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -226,17 +227,25 @@ namespace SliceEngine
 	{
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
-		GLuint textureID{}, depthTex{};
+		GLuint textureID{}, depthTex{}, lum[2]{};
+		float luminanceLearningRate{ 10.f };
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
 		float exposure{ 10.f };
+		float gamma{ 45.4545f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		glm::vec3 impactPos{ 0.0f };
+		float impactBrightness{ 1.0f };
+		float impactEpilepsy{ 7.0f };
+		float impactAngle{ 18.0f };
+		float impactNoise1{ 148.0f };
+		float impactNoise2{ 21.0f };
 
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
@@ -256,6 +265,7 @@ namespace SliceEngine
 		glm::mat4 V{};
 		glm::mat4 P{};
 		bool componentEnabled{ true };
+		bool lumSelected{ false };
 		RTTR_ENABLE();
 	};
 
@@ -268,8 +278,10 @@ namespace SliceEngine
 			,Light_Spot
 		};
 		bool componentEnabled{ true };
+		bool castsShadow{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
+		float angle{ 90.f };
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -443,6 +455,7 @@ namespace SliceEngine
 		bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
+		bool destroyOnEnd = false;
 
 		RTTR_ENABLE();
 	};
@@ -849,6 +862,15 @@ namespace SliceEngine
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct SpriteAnimator {
+		unsigned char row{ 1 };
+		unsigned char col{ 1 };
+		unsigned char fps{ 10 };
+		unsigned char num_frames{ 1 };
+		float curr_time{};
 		RTTR_ENABLE();
 	};
 

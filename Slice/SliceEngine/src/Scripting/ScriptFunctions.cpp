@@ -1706,17 +1706,12 @@ namespace SliceEngine
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position, uint32_t parentID)
 	{
 		std::string key = MonoToString(string);
-		if (position == glm::vec3(0.f))
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
-		}
-		else
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
-		}
+		Entity parent = (parentID == 0) ? entt::null : static_cast<Entity>(parentID);
+
+		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -2383,6 +2378,27 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
+	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			if (isEnable)
+				go.GetComponent<Camera>().postRenderToggles |= RENDER_IMPACT;
+			else
+				go.GetComponent<Camera>().postRenderToggles &= ~RENDER_IMPACT;
+		}
+	}
+
+	static void Camera_SetImpactFrameWorldPosition(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			go.GetComponent<Camera>().impactPos = *target;
+		}
+	}
+
 #pragma endregion
 
 #pragma region NAVIGATION FUNCTIONS
@@ -2988,6 +3004,7 @@ namespace SliceEngine
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
+		RegisterComponent<Camera>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
@@ -3010,6 +3027,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);

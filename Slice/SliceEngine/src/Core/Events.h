@@ -149,6 +149,11 @@ namespace SliceEngine
 		Entity entity;
 	};
 
+	struct OnButtonExitHoverEvent
+	{
+		Entity entity;
+	};
+
 	struct OnButtonReleaseEvent
 	{
 		Entity entity;
