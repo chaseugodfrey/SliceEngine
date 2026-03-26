@@ -250,6 +250,7 @@ namespace SliceEngine
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("castsShadow", &Renderer::castShadow)
 		.property("meshOffset", &Renderer::meshOffset)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
