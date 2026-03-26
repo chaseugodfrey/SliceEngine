@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
 #include "Graphics/CanvasSystem.h"
+#include "Graphics/SpriteAnimationSystem.h"
 #include "Graphics/UI_Interactible.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -763,6 +764,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 
 		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<SpriteAnimationSystem>();
 		Core::GetInstance()->InitSystem<ButtonSystem>();
 		Core::GetInstance()->InitSystem<SliderSystem>();
 
@@ -1042,6 +1044,7 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
+		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
@@ -1069,6 +1072,7 @@ namespace SliceEngine
 			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
+
 			// animation after logic and physics
 			frm->StartSystem("Animation");
 			sAnimator.Update(fixedDeltaTimeScaled);
@@ -1086,6 +1090,11 @@ namespace SliceEngine
 		frm->StartSystem("Navigation System");
 		sNav.Update(deltaTimeScaled);
 		frm->EndSystem("Navigation System");
+
+
+		frm->StartSystem("Sprite Animation");
+		sSpriteAnim.Update(deltaTimeScaled);
+		frm->EndSystem("Sprite Animation");
 
 		frm->StartSystem("Canvas");
 		//glm::vec2 mouse_coord = sInputs->GetMousePosition();
