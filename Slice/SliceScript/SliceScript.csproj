@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -76,6 +74,8 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMech.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
@@ -99,9 +99,9 @@
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\Projectile.cs" />
-    <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\RotationWiggleAnimation.cs" />
