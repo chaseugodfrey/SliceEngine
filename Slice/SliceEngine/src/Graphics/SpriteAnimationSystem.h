@@ -24,11 +24,11 @@ namespace SliceEngine
 	struct spriteanimEntity {};
 
 	//struct RectTransform;
-	struct SpriteAnimationSystem : BaseSystem<spriteanimEntity, RectTransform, SpriteAnimator>
+	struct SpriteAnimationSystem : BaseSystem<spriteanimEntity, RectTransform, SpriteAnimator, SpriteRenderer>
 	{
 		void EntityOnEnter(entt::registry& reg, entt::entity entity) override {};
-		void EntityOnExit(entt::registry& reg, entt::entity entity) override {};
-		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override {};
+		void EntityOnExit(entt::registry& reg, entt::entity entity) override;
+		void EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) override;
 
 	};
 }
