@@ -90,6 +90,7 @@ namespace SliceEditor
 
 		void DisplayRectTransform(entt::entity entity);
 		void DisplaySpriteRenderer(entt::entity entity);
+		void DisplaySpriteAnimator(entt::entity entity);
 		void DisplayFontRenderer(entt::entity entity);
 		void DisplayCanvas(entt::entity entity);
 		void DisplayButton(entt::entity entity);
