@@ -236,13 +236,16 @@ namespace SliceEngine
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
 		float exposure{ 10.f };
+		float gamma{ 45.4545f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
 		glm::vec3 impactPos{ 0.0f };
-		float impactBrightness{ 1.0f };
+		glm::vec3 impactColor{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 impactColor2{ 0.0f, 0.0f, 0.0f };
+		bool impactSmooth{ false };
 		float impactEpilepsy{ 7.0f };
 		float impactAngle{ 18.0f };
 		float impactNoise1{ 148.0f };
