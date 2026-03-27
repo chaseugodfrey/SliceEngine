@@ -753,6 +753,16 @@ namespace SliceEngine
         mTriggerMap.clear();
         mEntityInstances.clear();
         entityAdded.clear();
+
+        // Stop all active coroutines when changing scene
+        // incase someone attaches a coroutine to a slicebehaviour that isn't an entity
+        // and thus won't be destroyed when entityDestroyed.
+        if (mCoroutineManager)
+        {
+            MonoMethod* StopAllCoroutines = mCoroutineManager->GetMethod("OnEnd", 0);
+            if (StopAllCoroutines)
+                mCoroutineManager->InvokeMethod(mCoroutineInstance->mMonoInstance, StopAllCoroutines);
+        }
     }
 
     /// <summary>
