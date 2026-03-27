@@ -330,20 +330,33 @@
                 "velocitySeparateAxis": false
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16203473084325357215",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16203473084325357215"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 225,
                 "neighbours": [
-                    0,
                     4294967295,
-                    4,
-                    7
+                    4294967295,
+                    4294967295,
+                    4294967295
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.OrbitalLaserHint",
+                "scriptableFieldMap": {
+                    "laserPrefabName": {
+                        "Type": "std::string",
+                        "Value": "FX_OrbitalLaser"
+                    },
+                    "trackDuration": {
+                        "Type": "float",
+                        "Value": 5.0
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,

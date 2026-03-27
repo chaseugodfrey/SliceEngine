@@ -268,20 +268,29 @@
                 "velocitySeparateAxis": false
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "14637762895653573955",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "14637762895653573955"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
+                "entity_id": 1048801,
                 "neighbours": [
-                    0,
                     4294967295,
-                    5,
-                    3
+                    4294967295,
+                    4294967295,
+                    4294967295
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.OrbitalLaser",
+                "scriptableFieldMap": {
+                    "damage": {
+                        "Type": "int",
+                        "Value": 20
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
