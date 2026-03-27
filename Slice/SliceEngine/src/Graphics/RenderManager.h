@@ -68,6 +68,7 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting(Entity cam);
 		void RenderLighting(Entity cam);
+		void RenderAvgLum(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam, bool specifallyGodRay);
@@ -310,7 +311,7 @@ namespace SliceEngine
 		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
-		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+		void SetUniformVec3(GLint uniformLoc, const glm::vec3& vec);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 

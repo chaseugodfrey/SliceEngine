@@ -425,6 +425,36 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplaySpriteAnimator(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteAnimator", mBaseFlags))
+		{
+			auto& sprite_anim = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteAnimator>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
+
+			//i cant be bothered to make a draguint8 or wtv so ill just do this
+			unsigned int temps[3];
+			temps[0] = sprite_anim.row;
+			temps[1] = sprite_anim.col;
+			temps[2] = sprite_anim.num_frames;
+			DragUInt32InputHeader(mRegistry, "Row", "##spriterow", temps[0], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Col", "##spritecol", temps[1], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Num Frames", "##spriteframes", temps[2], "%d", 1, 256);	//256 is 16*16
+			sprite_anim.row = temps[0];
+			sprite_anim.col = temps[1];
+			sprite_anim.num_frames = temps[2];
+
+			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.1f", 0.f, 60.f, 0.1f);
+
+		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
+			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
+			sprite_anim.curr_frame = curr_temp + FLT_EPSILON;*/
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplayFontRenderer(entt::entity entity)
 	{
 		if (ImGui::TreeNodeEx("FontRenderer", mBaseFlags))
@@ -2380,6 +2410,17 @@ namespace SliceEditor
 					ui_sprite.textureHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 				}
 			}
+
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>() 
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Animator"))
+				{
+					reg.emplace<SliceEngine::SpriteAnimator>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::FontRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
 			{
 				if (ImGui::Selectable("Add Font"))
@@ -2455,6 +2496,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteAnimator>(entity))
+			{
+				DisplaySpriteAnimator(node->entity);
 				ImGui::Separator();
 			}
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))

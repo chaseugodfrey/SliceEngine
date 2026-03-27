@@ -864,17 +864,18 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
+		glm::vec4 uv{ 0.f,1.f,0.f,1.f };
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
 	};
 
 	struct SpriteAnimator {
-		unsigned char row{ 1 };
-		unsigned char col{ 1 };
-		unsigned char fps{ 10 };
-		unsigned char num_frames{ 1 };
-		float curr_time{};
+		unsigned char row { 1 };
+		unsigned char col { 1 };
+		unsigned char num_frames { 1 };
+		float curr_frame { 0 };
+		float fps{ 1.f };
 		RTTR_ENABLE();
 	};
 
