@@ -16,6 +16,8 @@ namespace SliceEngine
             /// can probably handle it here
             /// </summary>
             Level3Boss bossController;
+
+            float timer = 2.0f;
             public IntroState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -23,17 +25,51 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                
+                SliceLog.Console("Intro State.");
             }
 
             public override void OnUpdate(float dt)
             {
-                
+                timer -= dt;
+                if (timer <= 0)
+                {
+                    bossController.bossSM.ChangeState(bossController.summonState);
+                }
             }
 
             public override void OnExit()
             {
                 
+            }
+        }
+
+        public class SummonState : BaseState
+        {
+            /// <summary>
+            /// Idk if you want to do any intro animation cutscene
+            /// can probably handle it here
+            /// </summary>
+            Level3Boss bossController;
+
+            float timer = 2.0f;
+            public SummonState(GameObject owner) : base(owner)
+            {
+                bossController = owner.As<Level3Boss>();
+            }
+
+            public override void OnEnter()
+            {
+                SliceLog.Console("Summon State.");
+            }
+
+            public override void OnUpdate(float dt)
+            {
+
+            }
+
+            public override void OnExit()
+            {
+
             }
         }
 
@@ -96,6 +132,7 @@ namespace SliceEngine
 
         // declare all states here 
         public IntroState introState;
+        public SummonState summonState;
         public RechargingState rechargingState;
         public ReferenceState referenceState;
 
@@ -105,12 +142,13 @@ namespace SliceEngine
         public override void OnCreate()
         {
             introState = new IntroState(this.gameObject);
+            summonState = new SummonState(this.gameObject);
             rechargingState = new RechargingState(this.gameObject);
             referenceState = new ReferenceState(this.gameObject);
             bossSM = new StateMachine();
             // you have to set the state using
-            //bossSM.ChangeState(introState);
-            
+            bossSM.ChangeState(introState);
+
         }
 
         public override void OnUpdate(float dt)

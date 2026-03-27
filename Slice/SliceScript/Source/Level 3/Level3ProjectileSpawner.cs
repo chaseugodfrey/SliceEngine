@@ -74,6 +74,10 @@ namespace SliceEngine
         public AttackState attackState;
         public StateMachine projectileSM;
 
+        GameObject player;
+        Transform playerTr;
+        public bool lookAt;
+
         public override void OnCreate()
         {
             introState = new IntroState(this.gameObject);
@@ -89,6 +93,10 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (lookAt)
+            {
+
+            }
             projectileSM.OnUpdate(dt);
         }
 
