@@ -385,8 +385,8 @@ namespace SliceEditor
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -20000, 20000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -20000, 20000);	//some random ass min max
 			}
 			else {
 				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
