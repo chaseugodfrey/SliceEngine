@@ -250,6 +250,7 @@ namespace SliceEngine
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("castsShadow", &Renderer::castShadow)
 		.property("meshOffset", &Renderer::meshOffset)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
@@ -305,12 +306,14 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
-		.property("vignetteSmoothness", &Camera::impactPos)
-		.property("vignetteSmoothness", &Camera::impactAngle)
-		.property("vignetteSmoothness", &Camera::impactBrightness)
-		.property("vignetteSmoothness", &Camera::impactEpilepsy)
-		.property("vignetteSmoothness", &Camera::impactNoise1)
-		.property("vignetteSmoothness", &Camera::impactNoise2)
+		.property("impactPosition", &Camera::impactPos)
+		.property("impactColor", &Camera::impactColor)
+		.property("impactColor2", &Camera::impactColor2)
+		.property("impactAngle", &Camera::impactAngle)
+		.property("impactSmoothness", &Camera::impactSmooth)
+		.property("impactEpilepsy", &Camera::impactEpilepsy)
+		.property("impactNoise1", &Camera::impactNoise1)
+		.property("impactNoise2", &Camera::impactNoise2)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)

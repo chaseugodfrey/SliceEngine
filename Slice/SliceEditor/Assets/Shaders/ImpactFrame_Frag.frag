@@ -11,8 +11,10 @@ const float PI = 3.14159265358979323846;
 
 uniform mat4 uVP;
 uniform vec3 impactPos;
+uniform vec3 impactColor;
+uniform vec3 impactColor2;
 uniform float time;
-uniform float brightness;
+uniform int isSmooth;
 uniform float epilepsy;
 uniform float impactAngle = 0.31;
 uniform float noiseScale = 148.0;
@@ -33,7 +35,9 @@ void main(void){
     
 	vec2 screenPosCenterd = vTexCoord - vec2(0.5) + offset;
 	
-	float modifiedTime = floor(time * epilepsy);
+	float modifiedTime = time * epilepsy;
+    if(isSmooth == 0)
+        modifiedTime = floor(modifiedTime);
 
 	float noiseInpt = atan(screenPosCenterd.x, screenPosCenterd.y) + PI;
 	float linesExclaim = length(screenPosCenterd) * SimpleNoise(vec2(noiseInpt), noiseScale);
@@ -49,7 +53,9 @@ void main(void){
 	if(dot(normalize(wPos - impactPos), wNom) > impactAngle) // facing
 		blendB = 1.0;
 	
-	fFragColor = vec4(vec3(abs(blendB - blendA) * brightness), 1.0);
+    float blendAlpha = abs(blendB - blendA);
+
+	fFragColor = vec4(vec3(blendAlpha) * impactColor + (1.0 - blendAlpha) * impactColor2, 1.0);
 }
 
 
