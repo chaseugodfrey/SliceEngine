@@ -123,6 +123,7 @@ namespace SliceEngine
         float attackTimer = 0.0f;
         bool attackQueued;
         public float shieldDuration = 0.5f;
+        public bool canAttack = false;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;

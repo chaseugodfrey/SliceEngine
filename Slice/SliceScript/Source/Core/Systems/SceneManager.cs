@@ -118,6 +118,8 @@ namespace SliceEngine
             }
             SetRectAlpha(1.0f); // Ensure fully black
 
+            CoroutineManager.StopAllCoroutines(_transitionRunner);
+
             // Now that screen is black, load the next scene
             FunctionCalls.Scene_LoadScene(sceneName);
         }
