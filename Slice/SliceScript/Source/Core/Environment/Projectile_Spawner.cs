@@ -48,7 +48,7 @@ namespace SliceEngine
         public float preaimMinAlpha = .3f;
         public float preaimMaxAlpha = 1f;
         public float preAimPercentage = .2f; //percantage of the 
-        private bool preaiming = false;
+        public bool preaiming = false;
         public bool preAimRandom = false;
         public string aiminglinePrefabName = "PreAim";
 
@@ -64,8 +64,8 @@ namespace SliceEngine
         public float rangeLimit = 10f;
 
         public int spawnStyle = 0;
-        private enum SpawnStyle { Straight, Spiral, Aim };
-        private SpawnStyle currentStyle = SpawnStyle.Straight;
+        public enum SpawnStyle { Straight, Spiral, Aim, Nothing };
+        public SpawnStyle currentStyle = SpawnStyle.Straight;
 
 
         #region bullet creation
@@ -216,23 +216,31 @@ namespace SliceEngine
         }
         #endregion
 
-        private float count = 0f;
+        public float count = 0f;
 
         public override void OnCreate()
         {
             base.OnCreate();
-
             currentStyle = (SpawnStyle)spawnStyle;
+            Console.WriteLine("In Projectile Spawner Create");
 
-            if (currentStyle == SpawnStyle.Aim)
+            if (currentStyle == SpawnStyle.Aim || currentStyle == SpawnStyle.Straight)
             {
+                Console.WriteLine($"Aiming line prefab name {aiminglinePrefabName}");
                 string aimingPrefabPath = "Prefabs/" + aiminglinePrefabName + ".prefab";
                 //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
+                Console.WriteLine($"pre aim {aimingPrefabPath}");
                 preAimObject = CreateGameObject(aimingPrefabPath);
+                Console.WriteLine("Creating pre aim object");
+
                 preAimObject.SetParent(this.gameObject);
+
+                Console.WriteLine("parenting pre aim object");
+
                 Transform T = preAimObject.GetComponent<Transform>();
                 T.Position = new Vector3(0);
                 T.Rotation = new Vector3(0);
+
                 //preAim.
             }
         }
@@ -334,18 +342,53 @@ namespace SliceEngine
                     break;
                 case SpawnStyle.Straight:
 
-                    if (count >= 1 /projPerSecond)
+                    if (count >= 1f / projPerSecond)
                     {
-                        count -= 1 / projPerSecond;
+                        count -= 1f / projPerSecond;
+
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        // hide the pre-aim line on fire
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            preaiming = false;
+                            a.Reset();
+                        }
 
                         SpawnInBurstCheck();
-                    }
 
-                    if (HasComponent<AudioSource>())
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
+                    }
+                    else if (!preaiming && count >= (1f / projPerSecond) * (1f - preAimPercentage))
                     {
-                        GetComponent<AudioSource>().Play();
+                        // start showing the pre-aim line during charge-up
+                        preaiming = true;
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            a.active = true;
+                            a.rate = preAimFlickerRate;
+                            a.MinWiggle = preaimMinAlpha;
+                            a.MaxWiggle = preaimMaxAlpha;
+                            a.random = preAimRandom;
+                        }
                     }
 
+                    break;
+                case SpawnStyle.Nothing:
+                    //does nothing for testing purooses
                     break;
             }
 
