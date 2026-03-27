@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
 #include "Graphics/CanvasSystem.h"
+#include "Graphics/SpriteAnimationSystem.h"
 #include "Graphics/UI_Interactible.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -250,6 +251,7 @@ namespace SliceEngine
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("castsShadow", &Renderer::castShadow)
 		.property("meshOffset", &Renderer::meshOffset)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
@@ -305,12 +307,14 @@ namespace SliceEngine
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
-		.property("vignetteSmoothness", &Camera::impactPos)
-		.property("vignetteSmoothness", &Camera::impactAngle)
-		.property("vignetteSmoothness", &Camera::impactBrightness)
-		.property("vignetteSmoothness", &Camera::impactEpilepsy)
-		.property("vignetteSmoothness", &Camera::impactNoise1)
-		.property("vignetteSmoothness", &Camera::impactNoise2)
+		.property("impactPosition", &Camera::impactPos)
+		.property("impactColor", &Camera::impactColor)
+		.property("impactColor2", &Camera::impactColor2)
+		.property("impactAngle", &Camera::impactAngle)
+		.property("impactSmoothness", &Camera::impactSmooth)
+		.property("impactEpilepsy", &Camera::impactEpilepsy)
+		.property("impactNoise1", &Camera::impactNoise1)
+		.property("impactNoise2", &Camera::impactNoise2)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)
@@ -764,6 +768,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 
 		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<SpriteAnimationSystem>();
 		Core::GetInstance()->InitSystem<ButtonSystem>();
 		Core::GetInstance()->InitSystem<SliderSystem>();
 
@@ -1043,6 +1048,7 @@ namespace SliceEngine
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
 		auto& sNav = core->GetSystem<NavigationSystem>();
+		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
@@ -1070,6 +1076,7 @@ namespace SliceEngine
 			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
+
 			// animation after logic and physics
 			frm->StartSystem("Animation");
 			sAnimator.Update(fixedDeltaTimeScaled);
@@ -1087,6 +1094,11 @@ namespace SliceEngine
 		frm->StartSystem("Navigation System");
 		sNav.Update(deltaTimeScaled);
 		frm->EndSystem("Navigation System");
+
+
+		frm->StartSystem("Sprite Animation");
+		sSpriteAnim.Update(deltaTimeScaled);
+		frm->EndSystem("Sprite Animation");
 
 		frm->StartSystem("Canvas");
 		//glm::vec2 mouse_coord = sInputs->GetMousePosition();
