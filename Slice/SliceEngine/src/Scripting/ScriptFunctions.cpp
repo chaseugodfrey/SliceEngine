@@ -2393,6 +2393,18 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
+	static void Camera_SetGamma(float gammaVal)
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		rm->SetSessionGamma(gammaVal);
+	}
+
+	static float Camera_GetGamma()
+	{
+		auto* rm = Core::GetInstance()->GetRenderManager();
+		return rm->GetSessionGamma();
+	}
+	
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2409,46 +2421,10 @@ namespace SliceEngine
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.IsValid() && go.HasComponent<Camera>())
+		{
 			go.GetComponent<Camera>().impactPos = *target;
+		}
 	}
-
-	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactColor = *target;
-	}
-	static void Camera_SetImpactFrameColor2(unsigned int entityID, glm::vec3* target)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactColor2 = *target;
-	}
-	static void Camera_SetImpactFrameSmooth(unsigned int entityID, bool isSmooth)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactSmooth = isSmooth;
-	}
-	static void Camera_SetImpactFrameSpeed(unsigned int entityID, float speed)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactEpilepsy = speed;
-	}
-	static void Camera_SetImpactFrameSharpness(unsigned int entityID, float sharp)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactNoise1 = sharp;
-	}
-	static void Camera_SetImpactFrameDensity(unsigned int entityID, float dense)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactNoise2 = dense;
-	}
-
 
 #pragma endregion
 
@@ -3078,14 +3054,10 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor2);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSmooth);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
