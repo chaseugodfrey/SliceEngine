@@ -19,8 +19,11 @@ namespace SliceEngine
         private float skipTime = 0.0f;
         private uint curr_img = 0;
 
+        private bool sceneChanged = false;
+
         public override void OnCreate()
         {
+            sceneChanged = false;
             SplashScreenCanvas = FindGameObjectWithName("SplashScreen_Canvas");
             if (SplashScreenCanvas != null)
             {
@@ -78,7 +81,10 @@ namespace SliceEngine
                 }
                 else
                 {
-                    StartGameMenu();
+                    if (!sceneChanged)
+                        StartGameMenu();
+
+                    sceneChanged = true;
                     //SliceLog.Log("skip fin, start game");
                 }
             }
