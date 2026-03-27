@@ -75,6 +75,8 @@ namespace SliceEngine
             //{
             //}
 
+            //SliceLog.Log("Bullet created");
+
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             //GameObject newBullet = CreateGameObject("Prefabs/Projectile.prefab");
             GameObject newBullet = CreateGameObject(prefabPath);            
@@ -163,7 +165,11 @@ namespace SliceEngine
 
         public void SpawnInCircle(int number, float radius)
         {
+            
+
             float degree = 360f / (float)number;
+
+            //SliceLog.Log("Spawn in circle is called for [" + number + "] number of buttlets with [" + radius + "] radius. The calculated degrees is " + degree);
 
             Transform T = this.GetComponent<Transform>();
 
@@ -171,10 +177,16 @@ namespace SliceEngine
 
             for (int i = 0; i< number; i++)
             {
-                copiedT.Rotate(degree, T.Up);
+                //SliceLog.Log("T pre rotation is at" + T.Rotation);
 
-                CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
+                T.Rotate(degree, T.Up);
+
+                //SliceLog.Log("T post rotation is at" + T.Rotation);
+
+                CreateBullet(T.WorldPosition, T.Rotation, bulletScale, bulletSpeed, projDestroysOnImpact, distanceBeforeDestroyBullet);
             }
+
+            T.Rotation = copiedT.Rotation;
         }
 
         public void SpawnInBurstCheck()

@@ -1,6 +1,19 @@
 [
     {
         "RotatingMech": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 1.2999999523162842,
+                    "radius": 1.2000000476837158
+                },
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,20 +22,28 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 151,
+                "entity_id": 171,
                 "neighbours": [
-                    247,
-                    143,
-                    240,
-                    225
+                    75,
+                    3,
+                    82,
+                    97
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Projectile_Spawner",
+                "scriptName": "SliceEngine.Enemy_Projectile_Spawner",
                 "scriptableFieldMap": {
                     "active": {
                         "Type": "bool",
                         "Value": true
+                    },
+                    "aimVerticalOffset": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "aiminglinePrefabName": {
+                        "Type": "std::string",
+                        "Value": "PreAimLine"
                     },
                     "bulletDamage": {
                         "Type": "int",
@@ -64,6 +85,14 @@
                         "Type": "float",
                         "Value": 1.0
                     },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
                         "Value": 40.0
@@ -71,6 +100,42 @@
                     "limit": {
                         "Type": "int",
                         "Value": 100
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "preAimFlickerRate": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "preAimObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "preAimPercentage": {
+                        "Type": "float",
+                        "Value": 0.20000000298023224
+                    },
+                    "preAimRandom": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "preaim": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "preaimMaxAlpha": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "preaimMinAlpha": {
+                        "Type": "float",
+                        "Value": 0.30000001192092896
                     },
                     "projDestroysOnImpact": {
                         "Type": "bool",
@@ -92,6 +157,18 @@
                         "Type": "float",
                         "Value": 10.0
                     },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "shootFXPrefabName1": {
+                        "Type": "std::string",
+                        "Value": "FX_Firing1"
+                    },
+                    "shootFXPrefabName2": {
+                        "Type": "std::string",
+                        "Value": "FX_Firing2"
+                    },
                     "spawnStyle": {
                         "Type": "int",
                         "Value": 1
@@ -112,9 +189,9 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 5,
                 "mName": "RotatingMech",
-                "mTag": "default"
+                "mTag": "Enemy"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
@@ -142,7 +219,7 @@
         }
     },
     {
-        "Visual Mesh": {
+        "MeshContainer": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -150,31 +227,32 @@
                 },
                 "prefabID": 1
             },
-            "struct SliceEngine::Renderer": {
-                "componentEnabled": true,
-                "material": {
-                    "GUID": "9336273396156370476"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "17624440551099859049"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 143,
+                "entity_id": 3,
                 "neighbours": [
-                    151,
-                    4294967295,
+                    171,
+                    179,
                     4294967295,
                     4294967295
                 ]
             },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.CrystalAnimation",
+                "scriptableFieldMap": {
+                    "floatingAmp": {
+                        "Type": "float",
+                        "Value": 0.10000000149011612
+                    },
+                    "floatingFreq": {
+                        "Type": "float",
+                        "Value": 10.0
+                    }
+                }
+            },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Visual Mesh",
+                "mName": "MeshContainer",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -195,9 +273,192 @@
                     0.0
                 ],
                 "scale": [
-                    3.0,
+                    1.0000001192092896,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Visual Mesh Container": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "15121433550698795629"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18304660953343672452"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 179,
+                "neighbours": [
+                    3,
+                    4294967295,
+                    4294967295,
+                    5
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Visual Mesh Container",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.999999761581421,
                     3.0,
                     3.0
+                ]
+            }
+        }
+    },
+    {
+        "Visual Mesh Shell": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16482265741563908225"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9393107775564695193"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 5,
+                "neighbours": [
+                    3,
+                    4294967295,
+                    179,
+                    4
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Visual Mesh Shell",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    3.000000238418579,
+                    3.0,
+                    3.0
+                ]
+            }
+        }
+    },
+    {
+        "Visual Mesh Core": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9773132494906022418"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15944074647628756543"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4,
+                "neighbours": [
+                    3,
+                    4294967295,
+                    5,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Visual Mesh Core",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
                 ]
             }
         }
