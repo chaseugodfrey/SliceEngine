@@ -320,6 +320,7 @@ namespace SliceEngine
 			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonHover);
 		}
 	}
+
 	void ScriptObject::InvokeButtonOnExitHover()
 	{
 		if (mOnButtonExitHover)
@@ -327,6 +328,7 @@ namespace SliceEngine
 			mScriptClass->InvokeMethod(mMonoInstance, mOnButtonExitHover);
 		}
 	}
+
 	void ScriptObject::InvokeButtonOnRelease()
 	{
 		if (mOnButtonRelease)

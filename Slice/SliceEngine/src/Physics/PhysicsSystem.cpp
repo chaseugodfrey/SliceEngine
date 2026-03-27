@@ -310,6 +310,11 @@ namespace SliceEngine
 				colliderShape.offSet.GetY() * scl.GetY(),
 				colliderShape.offSet.GetZ() * scl.GetZ()
 			);
+			// ensure minimum size for each dimension
+			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
+			tempScale.SetX(JPH::max(tempScale.GetX(), minSize));
+			tempScale.SetY(JPH::max(tempScale.GetY(), minSize));
+			tempScale.SetZ(JPH::max(tempScale.GetZ(), minSize));
 
 			JPH::BoxShapeSettings* settings = new JPH::BoxShapeSettings(tempScale);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -722,13 +727,13 @@ namespace SliceEngine
 			if (tempScale == halfExtents)
 				return;
 
-			JPH::Vec3 newHalf(boxData.scale * scl);
+			//JPH::Vec3 newHalf(boxData.scale * scl);
 
 			// ensure minimum size for each dimension
 			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
-			newHalf.SetX(JPH::max(newHalf.GetX(), minSize));
-			newHalf.SetY(JPH::max(newHalf.GetY(), minSize));
-			newHalf.SetZ(JPH::max(newHalf.GetZ(), minSize));
+			tempScale.SetX(JPH::max(tempScale.GetX(), minSize));
+			tempScale.SetY(JPH::max(tempScale.GetY(), minSize));
+			tempScale.SetZ(JPH::max(tempScale.GetZ(), minSize));
 
 			JPH::Vec3 scaledOffset(
 				colliderShape.offSet.GetX() * scl.GetX(),
@@ -736,7 +741,8 @@ namespace SliceEngine
 				colliderShape.offSet.GetZ() * scl.GetZ()
 			);
 
-			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			//JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(tempScale);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 				scaledOffset,
 				JPH::Quat::sIdentity(),
@@ -938,7 +944,7 @@ namespace SliceEngine
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
 			JPH::Vec3 scaledOffset(
 				colliderShape.offSet.GetX()* scl.GetX(),
@@ -951,6 +957,7 @@ namespace SliceEngine
 				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
+
 			auto result = newShape.Create();
 			if (result.HasError())
 			{

@@ -1,5 +1,5 @@
 #version 460 core
-//final_Frag
+//luminance_Frag
 layout (location=0) in vec2 vTexCoord;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
