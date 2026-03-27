@@ -186,21 +186,127 @@ namespace SliceEditor
 
 	}
 
-	void SelectionManager::AddBetweenEntities(SelectionNode* rightNode)
+	void SelectionManager::AddBetweenEntities(SelectionNode* otherNode)
 	{
-		auto& leftNode = mSelectionOrder.back();
-		if (leftNode->type == SelectionType::ENTITY && rightNode->type == SelectionType::ENTITY)
+		auto& mainNode = mSelectionOrder.back();
+		if (mainNode->type == SelectionType::ENTITY && otherNode->type == SelectionType::ENTITY)
 		{
-			auto& leftEntity = static_cast<EntityNode*>(leftNode)->entity;
-			auto& rightEntity = static_cast<EntityNode*>(rightNode)->entity;
+			auto& mainEntity = static_cast<EntityNode*>(mainNode)->entity;
+			auto& otherEntity = static_cast<EntityNode*>(otherNode)->entity;
 			//Check that both have sceneGraph
-			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(leftEntity) && SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(rightEntity))
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(mainEntity) && SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(otherEntity))
 			{
-				auto& leftSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(leftEntity);
+				auto& mainSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mainEntity);
+				auto& otherSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(otherEntity);
 
+				//DFS to the end of the sceneGraph
+				bool onRight = SceneGraphRightTraversal(mainEntity, otherEntity);
+				if(onRight)
+				{
+					SLICE_LOG("Entity is on the down/right!");
+				}
+				else
+				{
+					SLICE_LOG("Entity is on the down/left!");
+				}
 			}
 			//SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
 		}
+	}
+
+	void SelectionManager::ShiftAddEntities(Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
+	{
+		auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
+		//Get the starting entity:
+		auto& mainNode = mSelectionOrder.back();
+		auto currentEntity = static_cast<EntityNode*>(mainNode)->entity; //Thjis should be true becasue i checked in the outer function
+		//Double check for sceneGraph:
+		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(currentEntity))
+		{
+			SLICE_LOG("No Scene Graph in the last selected object");
+			return;
+		}
+		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+
+		auto childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+		//Go down and check if open
+		while (childEntity != entt::null)
+		{
+			//Get the child's EntityNode to see if its even open
+			if (entityNodes.find(childEntity) == entityNodes.end())
+			{
+				break;
+			}
+			//Break if node isnt open
+			if (!entityNodes[childEntity].get()->nodeOpen)
+			{
+				break;
+			}
+			else //Its open. I need to traverse.
+			{
+
+			}
+
+			auto& childSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+			//if (childEntity == targetEntity)
+			//{
+			//	return true;
+			//}
+
+			//if (SceneGraphRightTraversal(childEntity, targetEntity))
+			//{
+			//	return true;
+			//}
+
+			//childEntity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+		}
+		
+	}
+
+	bool SelectionManager::SceneGraphRightTraversal(Entity currentEntity, Entity targetEntity)
+	{
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(currentEntity))
+		{
+			auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+			auto childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			
+			//DOWN CHECKS
+			while (childEntity != entt::null)
+			{
+				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+				
+				if (childEntity == targetEntity)
+				{
+					return true;
+				}
+
+				if (SceneGraphRightTraversal(childEntity, targetEntity))
+				{
+					return true;
+				}
+
+				childEntity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+
+			auto rightEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			//MOVING TO THE RIGHT
+			while (rightEntity != entt::null)
+			{
+				auto& rightSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(rightEntity);
+				if (rightEntity == targetEntity)
+				{
+					return true;
+				}
+				if (SceneGraphRightTraversal(rightEntity, targetEntity))
+				{
+					return true;
+				}
+				rightEntity = rightSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+
+		}
+		return false;
 	}
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)

@@ -110,6 +110,14 @@ namespace SliceEditor
 
 		bool isNodeOpen = ImGui::TreeNodeEx(name.c_str(), flags);
 
+		//Set the corresponding element's nodeOpen to true (because its being drawn)
+		//TO NOTE: does this happen before or after sessionManager update/selectionManager stuff (to check if its an issue)
+		if (mSession.GetEntityNodes().find(entity) != mSession.GetEntityNodes().end())
+		{
+			auto& entityNodes = mSession.GetEntityNodes();
+			entityNodes[entity].get()->nodeOpen = true;
+		}
+
 		bool itemHovered = ImGui::IsItemHovered();
 		//Set Pending Select when clicked
 		if (itemHovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
@@ -178,7 +186,7 @@ namespace SliceEditor
 
 			else if (ImGui::GetIO().KeyShift)
 			{
-				//mSelection.AddBetweenEntities(pendingNode);
+				mSelection.AddBetweenEntities(pendingNode);
 			}
 
 			else
