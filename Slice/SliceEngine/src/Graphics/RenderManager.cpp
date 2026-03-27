@@ -1235,10 +1235,14 @@ namespace SliceEngine
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactPos");
 		glm::vec3 relImpactPos = camera.impactPos - cameraT.GetWorldPosition();
 		glUniform3f(uniformLoc, relImpactPos.x, relImpactPos.y, relImpactPos.z);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "brightness");
-		glUniform1f(uniformLoc, camera.impactBrightness);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactColor");
+		glUniform3f(uniformLoc, camera.impactColor.x, camera.impactColor.y, camera.impactColor.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactColor2");
+		glUniform3f(uniformLoc, camera.impactColor2.x, camera.impactColor2.y, camera.impactColor2.z);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "epilepsy");
 		glUniform1f(uniformLoc, camera.impactEpilepsy);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "isSmooth");
+		glUniform1i(uniformLoc, camera.impactSmooth);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactAngle");
 		glUniform1f(uniformLoc, glm::radians(camera.impactEpilepsy));
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "noiseScale");
@@ -1281,6 +1285,8 @@ namespace SliceEngine
 
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uGamma");
+		glUniform1f(uniformLoc, camera.gamma / 100.f);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
 		glUniform1i(uniformLoc, !impacting);
 
