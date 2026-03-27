@@ -737,12 +737,16 @@ namespace SliceEditor
 
 			ImGui::SeparatorText("Post-Processing FX");
 
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
 			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
+			bool isImpact = cam.postRenderToggles & RenderTag::RENDER_IMPACT;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
 
 			ImGui::Text("Bloom");
@@ -756,7 +760,6 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			}
 
 			ImGui::Text("Godrays");
@@ -786,6 +789,25 @@ namespace SliceEditor
 				float tempIntensity = cam.fogIntensity * 100.f;
 				if (DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", tempIntensity, "%.1f", 0.0f, FLT_MAX))
 					cam.fogIntensity = tempIntensity / 100.f;
+			}
+
+			ImGui::Text("Impact");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isImpact", &isImpact))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_IMPACT, isImpact);
+			}
+
+			if (isImpact)
+			{
+				DragVec3InputHeader(mRegistry, "Impact Position", "##cam_impact_position", cam.impactPos);
+				DragColor3InputHeader(mRegistry, "Impact Color", "##cam_impact_color", cam.impactColor);
+				DragColor3InputHeader(mRegistry, "Impact Color 2", "##cam_impact_color2", cam.impactColor2);
+				DragFloatInputHeader(mRegistry, "Impact Angle ?", "##cam_impact_angle", cam.impactAngle, "%.1f", 0.0f, FLT_MAX);
+				BoolInputHeader(mRegistry, "Impact Is Smooth", "##cam_impact_smooth", cam.impactSmooth);
+				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
+				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
 			}
 
 			ImGui::Text("Vignette");
@@ -2181,6 +2203,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
+			BoolInputHeader(mRegistry, "Casts Shadow", "##lightCastsShadow", light.castsShadow);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
@@ -2190,6 +2213,9 @@ namespace SliceEditor
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
+
+			if (light.type == 2)
+				DragFloatInputHeader(mRegistry, "angle", "##light_angle", light.angle, "%.2f", 0.0f, 90.f);
 
 			ImGui::TreePop();
 		}
