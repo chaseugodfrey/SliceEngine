@@ -1,4 +1,5 @@
 using SliceEngine;
+using System;
 using System.Collections.Generic;
 
 namespace SliceEngine
@@ -10,17 +11,17 @@ namespace SliceEngine
         // Bullet settings
         public string projectilePrefabName = "Projectile";
         public float projPerSecond = 10.0f;
-        public float bulletSpeed = 50.0f;
+        public float bulletSpeed = 100.0f;
         public Vector3 bulletScale = new Vector3(1);
         public int bulletDamage = 1;
         public float distanceBeforeDestroyBullet = 250.0f;
 
         // Aim settings
         public float aimVerticalOffset = 1f;
-
+        public float bloomAmount = 5.0f;
         public bool active = false;
-
-        private float count = 0f;
+        public float maxAimRange = 100.0f;
+        public float predictionStrength = 0.75f;
 
         // Burst settings
         public int bulletsPerBurst = 3;
@@ -28,13 +29,20 @@ namespace SliceEngine
         public float timeBetweenShotsInBurst = 0.1f;
 
         // FX prefab
-        public string firingFXPrefabName = "FX_Firing";
+        public string firingFXPrefabName = "FX_Firing1";
 
         // Internal state
-        private float burstTimer = 0f;
-        private int shotsFiredInBurst = 0;
-        private float shotTimer = 0f;
-        private bool isBursting = false;
+        float count = 0f;
+        float burstTimer = 0f;
+        int shotsFiredInBurst = 0;
+        float shotTimer = 0f;
+        bool isBursting = false;
+
+        // Bobbing
+        float bobTimer = 0f;
+        float bobAmplitude = 1.0f;
+        float bobFrequency = 1.5f;
+        float baseY = 0f;
 
         GameObject telegraph;
         bool telegraphed = false;
@@ -48,8 +56,23 @@ namespace SliceEngine
 
             Transform t = newBullet.GetComponent<Transform>();
             t.Position = startPos;
-            t.Rotation = angle;
-            t.Scale = bulletScale;
+            t.Scale = bulletScale;            
+
+            // Get forward direction from original rotation
+            Vector3 forward = Quaternion.FromEuler(angle) * Vector3.Forward;
+
+            // Apply small random deviation
+            forward += new Vector3(
+                SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
+                SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
+                0f
+            ) * 0.01f;
+
+            // Normalize so speed stays consistent
+            forward = forward.Normalize();
+
+            // Convert back to rotation
+            t.Rotation = Quaternion.LookRotation(forward).ToEuler();
 
             Projectile p = newBullet.As<Projectile>();
             p.SetUp();
@@ -63,23 +86,14 @@ namespace SliceEngine
             return newBullet;
         }
 
-        public GameObject CreateTelegraph()
+        public void SetTelegraph()
         {
-            string prefabPath = "Prefabs/FX_LaserPointer.prefab";
-            GameObject fx = CreateGameObject(prefabPath);
-
-            Transform fxTransform = fx.GetComponent<Transform>();
-            Transform casterTransform = this.GetComponent<Transform>();
-
-            // Parent it to the caster first
-            fx.SetParent(gameObject);
-
-            // Reset local transform (so it sits exactly on the caster)
-            fxTransform.Position = Vector3.Zero;
-            fxTransform.Rotation = Vector3.Zero;
-            fxTransform.Scale = Vector3.One;
-
-            return fx;
+            telegraph.SetActive(telegraphed);
+            foreach (GameObject child in telegraph.GetAllChildren())
+            {
+                child.SetActive(telegraphed);
+            }
+            return;
         }
 
         public void CreateFiringFX(Vector3 position, Vector3 rotation)
@@ -96,12 +110,18 @@ namespace SliceEngine
         {
             base.OnCreate();
 
+            baseY = transform.Position.y;
+
             GameObject[] children = gameObject.GetAllChildren();
             foreach (GameObject child in children)
             {
                 if (child.tag == "AimingMechWings")
                 {
                     wings = child;
+                }
+                if (child.tag == "Telegraph")
+                {
+                    telegraph = child;
                 }
             }
         }
@@ -110,57 +130,85 @@ namespace SliceEngine
         {
             base.OnFixedUpdate(dt);
 
+            // Bobbing motion
+            bobTimer += dt;
+
+            Vector3 pos = transform.Position;
+            pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
+
+            transform.Position = pos;
+
             if (!active)
                 return;
 
-            // Always face player
-            this.transform.LookAt(
-                Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
-                new Vector3(0, 1, 0)
-            );
-
-            if (!isBursting)
+            float distanceToPlayer = Utilities.Distance3D(pos, Bootstrap.Player.transform.Position);
+            Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
+            if (distanceToPlayer <= maxAimRange)
             {
-                burstTimer += dt;
-
-                if (!telegraphed)
+                if (playerVel.SquareMagnitude() > 1.0f)
                 {
-                    CreateTelegraph();
-                    telegraphed = true;
+                    float timeToHit = distanceToPlayer / bulletSpeed;
+                    Vector3 predictedPos = Bootstrap.Player.transform.Position + playerVel * timeToHit;
+                    Vector3 aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
+
+                    this.transform.LookAt(aimTarget, new Vector3(0, 1, 0));
+                }
+                else
+                {
+                    this.transform.LookAt(
+                    Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                    new Vector3(0, 1, 0));
                 }
 
-                if (burstTimer >= timeBetweenBursts)
+                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.5f;
+
+                if (shouldTelegraph != telegraphed)
                 {
-                    burstTimer = 0f;
-                    isBursting = true;
-                    shotsFiredInBurst = 0;
-                    shotTimer = 0f;
+                    telegraphed = shouldTelegraph;
+                    SetTelegraph();
+                }
+
+                if (!isBursting)
+                {
+                    burstTimer += dt;
+
+                    if (burstTimer >= timeBetweenBursts)
+                    {
+                        burstTimer = 0f;
+                        isBursting = true;
+                        shotsFiredInBurst = 0;
+                        shotTimer = 0f;
+                    }
+                }
+                else
+                {
+                    shotTimer += dt;
+
+                    if (shotTimer >= timeBetweenShotsInBurst)
+                    {
+                        shotTimer = 0f;
+
+                        Transform t = this.GetComponent<Transform>();
+
+                        // Fire bullet
+                        CreateBullet(t.WorldPosition, t.WorldRotationQuat.ToEuler());
+
+                        // Spawn firing FX
+                        CreateFiringFX(t.WorldPosition, t.WorldRotationQuat.ToEuler());
+
+                        shotsFiredInBurst++;
+
+                        if (shotsFiredInBurst >= bulletsPerBurst)
+                        {
+                            isBursting = false;
+                        }
+                    }
                 }
             }
             else
             {
-                shotTimer += dt;
-
-                if (shotTimer >= timeBetweenShotsInBurst)
-                {
-                    shotTimer = 0f;
-
-                    Transform t = this.GetComponent<Transform>();
-
-                    // Fire bullet
-                    CreateBullet(t.WorldPosition, t.WorldRotationQuat.ToEuler());
-
-                    // Spawn firing FX
-                    CreateFiringFX(t.WorldPosition, t.WorldRotationQuat.ToEuler());
-
-                    shotsFiredInBurst++;
-
-                    if (shotsFiredInBurst >= bulletsPerBurst)
-                    {
-                        isBursting = false;
-                        telegraphed = false;
-                    }
-                }
+                telegraphed = false;
+                SetTelegraph();
             }
 
             AimingMechWings amw = wings.As<AimingMechWings>();

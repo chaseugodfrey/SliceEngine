@@ -207,6 +207,22 @@ namespace SliceEngine
         }
 
         /// <summary>
+        /// Returns sine of a value (in radians).
+        /// </summary>
+        public static float Sin(float value)
+        {
+            return (float)Math.Sin(value);
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in degrees).
+        /// </summary>
+        public static float SinDeg(float degrees)
+        {
+            return (float)Math.Sin(Deg2Rad(degrees));
+        }
+
+        /// <summary>
         /// Converts degrees to radians.
         /// </summary>
         public static float Deg2Rad(float degrees)

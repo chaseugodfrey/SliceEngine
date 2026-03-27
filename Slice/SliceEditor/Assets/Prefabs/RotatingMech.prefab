@@ -22,158 +22,22 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 171,
+                "entity_id": 7340061,
                 "neighbours": [
-                    75,
-                    3,
-                    82,
-                    97
+                    0,
+                    7340060,
+                    7340237,
+                    7340246
                 ]
             },
             "struct SliceEngine::Script": {
-                "scriptName": "SliceEngine.Enemy_Projectile_Spawner",
+                "scriptName": "SliceEngine.RotatingMech",
                 "scriptableFieldMap": {
-                    "active": {
-                        "Type": "bool",
-                        "Value": true
+                    "activeLasers": {
+                        "Type": "std::vector<SliceEngine::GameObject>",
+                        "Value": []
                     },
-                    "aimVerticalOffset": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "aiminglinePrefabName": {
-                        "Type": "std::string",
-                        "Value": "PreAimLine"
-                    },
-                    "bulletDamage": {
-                        "Type": "int",
-                        "Value": 20
-                    },
-                    "bulletScale": {
-                        "Type": "glm::vec3",
-                        "Value": [
-                            1.0,
-                            1.0,
-                            1.0
-                        ]
-                    },
-                    "bulletSpeed": {
-                        "Type": "float",
-                        "Value": 50.0
-                    },
-                    "bulletsPerCircle": {
-                        "Type": "int",
-                        "Value": 4
-                    },
-                    "burstCount": {
-                        "Type": "int",
-                        "Value": 3
-                    },
-                    "burstProjectiles": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "burstRatePerSecond": {
-                        "Type": "int",
-                        "Value": 10
-                    },
-                    "circle": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "circleRadius": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "currentHealth": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "damage": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "distanceBeforeDestroyBullet": {
-                        "Type": "float",
-                        "Value": 40.0
-                    },
-                    "limit": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "maxHealth": {
-                        "Type": "int",
-                        "Value": 100
-                    },
-                    "movementSpeed": {
-                        "Type": "float",
-                        "Value": 5.0
-                    },
-                    "preAimFlickerRate": {
-                        "Type": "float",
-                        "Value": 10.0
-                    },
-                    "preAimObject": {
-                        "Type": "SliceEngine::GameObject",
-                        "Value": 4294967295
-                    },
-                    "preAimPercentage": {
-                        "Type": "float",
-                        "Value": 0.20000000298023224
-                    },
-                    "preAimRandom": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "preaim": {
-                        "Type": "bool",
-                        "Value": true
-                    },
-                    "preaimMaxAlpha": {
-                        "Type": "float",
-                        "Value": 1.0
-                    },
-                    "preaimMinAlpha": {
-                        "Type": "float",
-                        "Value": 0.30000001192092896
-                    },
-                    "projDestroysOnImpact": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "projPerSecond": {
-                        "Type": "float",
-                        "Value": 16.0
-                    },
-                    "projectilePrefabName": {
-                        "Type": "std::string",
-                        "Value": "BallProjectile"
-                    },
-                    "radialRandomInDegrees": {
-                        "Type": "float",
-                        "Value": 0.0
-                    },
-                    "rangeLimit": {
-                        "Type": "float",
-                        "Value": 10.0
-                    },
-                    "shield": {
-                        "Type": "bool",
-                        "Value": false
-                    },
-                    "shootFXPrefabName1": {
-                        "Type": "std::string",
-                        "Value": "FX_Firing1"
-                    },
-                    "shootFXPrefabName2": {
-                        "Type": "std::string",
-                        "Value": "FX_Firing2"
-                    },
-                    "spawnStyle": {
-                        "Type": "int",
-                        "Value": 1
-                    },
-                    "spiralAxis": {
+                    "axis": {
                         "Type": "glm::vec3",
                         "Value": [
                             0.0,
@@ -181,9 +45,21 @@
                             0.0
                         ]
                     },
-                    "spiralRate": {
+                    "firingFXPrefabName": {
+                        "Type": "std::string",
+                        "Value": ""
+                    },
+                    "laserPrefabName": {
+                        "Type": "std::string",
+                        "Value": "RotatingMechLaser"
+                    },
+                    "numLasers": {
+                        "Type": "int",
+                        "Value": 3
+                    },
+                    "rotateSpeed": {
                         "Type": "float",
-                        "Value": 2.0
+                        "Value": 180.0
                     }
                 }
             },
@@ -200,9 +76,9 @@
                     0.0
                 ],
                 "position": [
-                    -19.137109756469727,
-                    4.373044013977051,
-                    -18.81622314453125
+                    5.519563674926758,
+                    2.0,
+                    91.1419448852539
                 ],
                 "rotation": [
                     1.0,
@@ -228,10 +104,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 7340060,
                 "neighbours": [
-                    171,
-                    179,
+                    7340061,
+                    7340059,
                     4294967295,
                     4294967295
                 ]
@@ -290,6 +166,7 @@
                 "prefabID": 2
             },
             "struct SliceEngine::Renderer": {
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "15121433550698795629"
@@ -302,12 +179,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 179,
+                "entity_id": 7340059,
                 "neighbours": [
-                    3,
+                    7340060,
                     4294967295,
                     4294967295,
-                    5
+                    7340058
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -351,6 +228,7 @@
                 "prefabID": 3
             },
             "struct SliceEngine::Renderer": {
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "16482265741563908225"
@@ -363,12 +241,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5,
+                "entity_id": 7340058,
                 "neighbours": [
-                    3,
+                    7340060,
                     4294967295,
-                    179,
-                    4
+                    7340059,
+                    7340057
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -412,6 +290,7 @@
                 "prefabID": 4
             },
             "struct SliceEngine::Renderer": {
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "9773132494906022418"
@@ -424,11 +303,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4,
+                "entity_id": 7340057,
                 "neighbours": [
-                    3,
+                    7340060,
                     4294967295,
-                    5,
+                    7340058,
                     4294967295
                 ]
             },
