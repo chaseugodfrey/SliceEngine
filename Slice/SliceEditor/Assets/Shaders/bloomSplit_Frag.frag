@@ -10,12 +10,12 @@ const vec3 cThreshold = vec3(0.2126, 0.7152, 0.0722);
 uniform float uLimit = 1.0;
 
 void main(void){
-	vec3 col = texture(uTex, vTexCoord).rgb;
-	fFragColor = texture(uEmission, vTexCoord).rgb;
+	vec3 col = texture(uTex, vTexCoord).rgb; // Texure after lighting + emission
+	fFragColor = texture(uEmission, vTexCoord).rgb; // just the emission
 
 	float brightness = dot(col, cThreshold);
 	if(brightness > uLimit)
 	{
-		fFragColor += col;
+		fFragColor = col;
 	}
 }

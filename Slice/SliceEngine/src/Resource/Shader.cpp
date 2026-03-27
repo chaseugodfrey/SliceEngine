@@ -831,7 +831,7 @@ void main(void){
 			}
         }
 	}
-	if(!willBloom)
+	//if(!willBloom)
 		fFragColor += vec4(fEmission.rgb, 0.0f);
 }
 
