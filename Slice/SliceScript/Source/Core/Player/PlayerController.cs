@@ -1067,7 +1067,6 @@ namespace SliceEngine
                 default:
                     break;
             }
-
         }
 
         private void HandleMovementInputs()
@@ -1082,6 +1081,8 @@ namespace SliceEngine
 
         private void HandleAttackInputs()
         {
+            if (!canAttack) { return; }
+
             if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
 
             if (Input.IsKeyPressed(Keys.KEY_E) 
