@@ -271,6 +271,7 @@ namespace SliceEngine
 		glm::mat4 P{};
 		bool componentEnabled{ true };
 		bool lumSelected{ false };
+		bool camLoaded{ false };
 		RTTR_ENABLE();
 	};
 
