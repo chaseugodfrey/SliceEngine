@@ -716,7 +716,8 @@ namespace SliceEngine
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(wrappedShape->GetInnerShape());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
 			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
@@ -783,7 +784,8 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(wrappedShape->GetInnerShape());
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
@@ -998,7 +1000,6 @@ namespace SliceEngine
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(Entity entity) const
 	{
 		auto& collider = mRegistry->get<ColliderShape>(entity);
-		auto& transform = mRegistry->get<Transform>(entity);
 
 		sliceEngineVariantShape shapeData = collider.shapeData;
 
@@ -1010,7 +1011,7 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			shapeReference = CreateSphereShape(transform, collider);
+			shapeReference = CreateSphereShape(collider);
 		}
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
@@ -1210,16 +1211,15 @@ namespace SliceEngine
 		return result.Get();
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateSphereShape( Transform& transform, const ColliderShape& collider) const
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape( const ColliderShape& collider) const
 	{
 		//TRS
 		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
 		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
-		JPH::ScaledShapeSettings* scaledSettings = new JPH::ScaledShapeSettings(shapeSetting, helpers::glmtoJPH(transform.GetWorldScale()));
 		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 			collider.offSet,
 			JPH::Quat::sIdentity(),
-			scaledSettings);
+			shapeSetting);
 
 		auto result = newShape.Create();
 
@@ -1348,12 +1348,9 @@ namespace SliceEngine
 		auto& collider = mRegistry->get<ColliderShape>(entity);
 
 		CreateJoltBody(entity);
+		OnColliderModified(reg, entity);
 		UpdateShapeFromTransform(entity);
 
-		if (!collider.componentEnabled)
-		{
-			OnColliderModified(reg, entity);
-		}
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
