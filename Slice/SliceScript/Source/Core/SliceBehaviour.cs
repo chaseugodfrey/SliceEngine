@@ -59,7 +59,6 @@ namespace SliceEngine
 
         public virtual void OnButtonClick() { }
         public virtual void OnButtonHover() { }
-
         public virtual void OnButtonExitHover() { }
         public virtual void OnButtonRelease() { }
         public virtual void OnSliderValue(float value) { }
@@ -166,7 +165,7 @@ namespace SliceEngine
             FunctionCalls.Entity_SetActive(gameObject.mID, active);
         }
 
-        public bool IsActive()
+        public bool IsActive(bool active)
         {
                 return FunctionCalls.Entity_IsActive(gameObject.mID);
         }

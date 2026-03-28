@@ -76,6 +76,8 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMech.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
@@ -96,15 +98,20 @@
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
+    <Compile Include="Source\Core\Enemy\RotatingMech.cs" />
+    <Compile Include="Source\Core\Enemy\WallMech.cs" />
+    <Compile Include="Source\Core\Enemy\WallMechWall.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaserDebug.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaser.cs" />
     <Compile Include="Source\Core\Environment\Projectile.cs" />
     <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\RotationWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\ScaleWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaserHint.cs" />
     <Compile Include="Source\Core\Environment\SurroundAttack.cs" />
@@ -159,6 +166,7 @@
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
+    <Compile Include="Source\CreditsText.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />

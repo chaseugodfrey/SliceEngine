@@ -385,8 +385,8 @@ namespace SliceEditor
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -2000, 2000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -20000, 20000);	//some random ass min max
+				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -20000, 20000);	//some random ass min max
 			}
 			else {
 				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
@@ -420,6 +420,36 @@ namespace SliceEditor
 			SliceEngine::GUID tex_guid = sprite.textureHandle;
 			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 			sprite.textureHandle = tex_guid;
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySpriteAnimator(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteAnimator", mBaseFlags))
+		{
+			auto& sprite_anim = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteAnimator>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
+
+			//i cant be bothered to make a draguint8 or wtv so ill just do this
+			unsigned int temps[3];
+			temps[0] = sprite_anim.row;
+			temps[1] = sprite_anim.col;
+			temps[2] = sprite_anim.num_frames;
+			DragUInt32InputHeader(mRegistry, "Row", "##spriterow", temps[0], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Col", "##spritecol", temps[1], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Num Frames", "##spriteframes", temps[2], "%d", 1, 256);	//256 is 16*16
+			sprite_anim.row = temps[0];
+			sprite_anim.col = temps[1];
+			sprite_anim.num_frames = temps[2];
+
+			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.1f", 0.f, 60.f, 0.1f);
+
+		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
+			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
+			sprite_anim.curr_frame = curr_temp + FLT_EPSILON;*/
 
 			ImGui::TreePop();
 		}
@@ -737,6 +767,7 @@ namespace SliceEditor
 			ImGui::SeparatorText("Post-Processing FX");
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
@@ -744,6 +775,7 @@ namespace SliceEditor
 			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
+			bool isImpact = cam.postRenderToggles & RenderTag::RENDER_IMPACT;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
 
 			ImGui::Text("Bloom");
@@ -786,6 +818,25 @@ namespace SliceEditor
 				float tempIntensity = cam.fogIntensity * 100.f;
 				if (DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", tempIntensity, "%.1f", 0.0f, FLT_MAX))
 					cam.fogIntensity = tempIntensity / 100.f;
+			}
+
+			ImGui::Text("Impact");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isImpact", &isImpact))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_IMPACT, isImpact);
+			}
+
+			if (isImpact)
+			{
+				DragVec3InputHeader(mRegistry, "Impact Position", "##cam_impact_position", cam.impactPos);
+				DragColor3InputHeader(mRegistry, "Impact Color", "##cam_impact_color", cam.impactColor);
+				DragColor3InputHeader(mRegistry, "Impact Color 2", "##cam_impact_color2", cam.impactColor2);
+				DragFloatInputHeader(mRegistry, "Impact Angle ?", "##cam_impact_angle", cam.impactAngle, "%.1f", 0.0f, FLT_MAX);
+				BoolInputHeader(mRegistry, "Impact Is Smooth", "##cam_impact_smooth", cam.impactSmooth);
+				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
+				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
 			}
 
 			ImGui::Text("Vignette");
@@ -2359,6 +2410,17 @@ namespace SliceEditor
 					ui_sprite.textureHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 				}
 			}
+
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>() 
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Animator"))
+				{
+					reg.emplace<SliceEngine::SpriteAnimator>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::FontRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
 			{
 				if (ImGui::Selectable("Add Font"))
@@ -2434,6 +2496,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteAnimator>(entity))
+			{
+				DisplaySpriteAnimator(node->entity);
 				ImGui::Separator();
 			}
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))

@@ -202,6 +202,7 @@ namespace SliceEngine
 		RENDER_VIGNETTE		= 0x08,
 		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_GODRAY		= 0x20,
+		RENDER_IMPACT		= 0x40,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -235,11 +236,20 @@ namespace SliceEngine
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
 		float exposure{ 10.f };
+		float gamma{ 45.4545f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		glm::vec3 impactPos{ 0.0f };
+		glm::vec3 impactColor{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 impactColor2{ 0.0f, 0.0f, 0.0f };
+		bool impactSmooth{ false };
+		float impactEpilepsy{ 7.0f };
+		float impactAngle{ 18.0f };
+		float impactNoise1{ 148.0f };
+		float impactNoise2{ 21.0f };
 
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
@@ -854,17 +864,18 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
+		glm::vec4 uv{ 0.f,1.f,0.f,1.f };
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
 		RTTR_ENABLE();
 	};
 
 	struct SpriteAnimator {
-		unsigned char row{ 1 };
-		unsigned char col{ 1 };
-		unsigned char fps{ 10 };
-		unsigned char num_frames{ 1 };
-		float curr_time{};
+		unsigned char row { 1 };
+		unsigned char col { 1 };
+		unsigned char num_frames { 1 };
+		float curr_frame { 0 };
+		float fps{ 1.f };
 		RTTR_ENABLE();
 	};
 

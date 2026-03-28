@@ -181,9 +181,11 @@ namespace SliceEngine {
 		if (main_cam == entt::null) {
 			return;	//not a game camera
 		}
-
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(main_cam);
+		cam_gamma = cam.gamma / 100.f;
+		
 		glViewport(0, 0, cam.width, cam.height);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cam.textureID, 0);
@@ -266,6 +268,7 @@ namespace SliceEngine {
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
 
+
 		//Get quad
 		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
 		auto const& quad_mesh = quad.meshes[0];
@@ -294,13 +297,16 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
 
-		/*		uniform_loc = glGetUniformLocation(shader, "uv");
+				uniform_loc = glGetUniformLocation(shader, "gamma");
+				glUniform1f(uniform_loc, cam_gamma);
+
+				uniform_loc = glGetUniformLocation(shader, "uv");
 				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
-					glUniform4fv(uniform_loc, 1, glm::value_ptr());
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
 				}
 				else {
-					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
-				}*/
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,1,0,1 }));
+				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 			}
@@ -514,6 +520,14 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "alphaThresh");
 				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
+
+				uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();

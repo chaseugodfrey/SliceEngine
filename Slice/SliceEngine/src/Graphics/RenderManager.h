@@ -50,8 +50,10 @@ namespace SliceEngine
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
 
-		float GetSessionExposure() const { return mSessionExposure; }
+		float GetSessionExposure() const;
+		float GetSessionGamma() const;
 		void SetSessionExposure(float exposure);
+		void SetSessionGamma(float gamma);
 
 		// Rendering functions
 		void CalculateVP(Entity cam);
@@ -66,10 +68,12 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting(Entity cam);
 		void RenderLighting(Entity cam);
+		void RenderAvgLum(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam, bool specifallyGodRay);
 		void RenderVignette(Entity cam);
+		void RenderImpact(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
@@ -101,6 +105,7 @@ namespace SliceEngine
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.01f;
 		float mSessionExposure{ 10.f };
+		float mSessionGamma{ 45.454545f };
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 400.f;
@@ -163,6 +168,7 @@ namespace SliceEngine
 			S_UPSCALING			,
 			S_BLOOM_JOIN		,
 			S_VIGNETTE				,
+			S_IMPACT				,
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
 			S_LUMINANCE,
@@ -192,6 +198,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_UPSCALING,       "Shaders/upSample.shader" },
 			{ ShaderOpt::S_BLOOM_JOIN,      "Shaders/bloomJoin.shader" },
 			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
+			{ ShaderOpt::S_IMPACT,			"Shaders/ImpactFrame.shader" },
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
 			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
@@ -304,7 +311,7 @@ namespace SliceEngine
 		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
-		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+		void SetUniformVec3(GLint uniformLoc, const glm::vec3& vec);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 

@@ -191,13 +191,13 @@ namespace SliceEngine
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_32 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 11, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 10, GL_RGBA32F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		// float_32 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 11, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureStorage2D(mColAttachment[GOUT_POST], 10, GL_RGBA32F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -375,11 +375,14 @@ namespace SliceEngine
 
 			// Sync exposure
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
-			camera.exposure = mSessionExposure;
+			camera.gamma = mSessionGamma;
 		}
 		else
 			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
+
+	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma / 10.f; }
 
 	void RenderManager::SetSessionExposure(float exposure)
 	{
@@ -391,6 +394,18 @@ namespace SliceEngine
 			camera.exposure = exposure;
 		}
 	}
+	void RenderManager::SetSessionGamma(float gamma)
+	{
+		float modGamma = gamma * 10.f;
+		mSessionGamma = modGamma;
+		auto& mainCam = GetGameCamera();
+		if (mainCam.has_value())
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value());
+			camera.gamma = modGamma;
+		}
+	}
+
 
 	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
@@ -575,6 +590,9 @@ namespace SliceEngine
 				LoadSettings(GPS_DEBUG);
 				RenderDebug(cam);
 			}
+
+			RenderAvgLum(cam);
+
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
 				RenderGroundCloud(cam);
@@ -586,8 +604,9 @@ namespace SliceEngine
 				RenderBloom(cam, true);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
 				RenderVignette(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
+				RenderImpact(cam);
 
-			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
 
@@ -781,7 +800,7 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			{
 				glm::mat4 PV = P * V;
-				GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uPV");
+				GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uPV");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
 			}
 			BindCameraDepth(cam); // for the viewPort call
@@ -812,7 +831,7 @@ namespace SliceEngine
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_DEBUG_OUTLINE_BLEND); // Blend?
 			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // In
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
 			SetUniformVec3(uniformLoc, glm::vec3(1.f));
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -862,7 +881,7 @@ namespace SliceEngine
 			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, light.shadowNum * 6,
 				SHADOW_DIMENSION, SHADOW_DIMENSION, 6, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			glUniform1f(uniformLoc, light.uFarPlane);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, light.shadowNum);
@@ -894,7 +913,7 @@ namespace SliceEngine
 			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, shadowNum,
 				SHADOW_DIMENSION, SHADOW_DIMENSION, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			glUniform1f(uniformLoc, light.uFarPlane);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, shadowNum);
@@ -1038,6 +1057,26 @@ namespace SliceEngine
 		
 		CheckGLError();
 	}
+	void RenderManager::RenderAvgLum(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		LoadSettings(GPS_DEFAULT);
+		// Luminance Calc
+		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
+		SetShader(ShaderPaths[S_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
+		ClearBuffer(BufferClearSetting::ALL);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
+		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
+	}
 	void RenderManager::RenderGroundCloud(Entity cam)
 	{
 		SetShader(ShaderPaths[S_CLOUDS]);
@@ -1053,7 +1092,7 @@ namespace SliceEngine
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTime");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTime");
 		glUniform1f(uniformLoc, mTime);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, cameraPos);
@@ -1127,7 +1166,7 @@ namespace SliceEngine
 		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 		ClearBuffer(BufferClearSetting::ALL);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
 		SetUniformVec3(uniformLoc, camera.fogColor);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
 		glUniform1f(uniformLoc, camera.fogIntensity);
@@ -1215,7 +1254,7 @@ namespace SliceEngine
 		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 		ClearBuffer(BufferClearSetting::ALL);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
 		glUniform2f(uniformLoc, camera.vignetteCenter.x, camera.vignetteCenter.y);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteIntensity");
 		glUniform1f(uniformLoc, camera.vignetteIntensity);
@@ -1225,33 +1264,64 @@ namespace SliceEngine
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
 	}
+	void RenderManager::RenderImpact(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+		auto& cameraT = Core::GetInstance()->GetRegistry().get<Transform>(cam);
+
+		SetShader(ShaderPaths[S_IMPACT]);
+		LoadSettings(GPS_DEFAULT);
+		glBindTextureUnit(0, mColAttachment[GOUT_POS]);
+		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
+		ToggleFinalTexture();
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::ALL);
+
+		glm::mat4 PV = P * V;
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
+		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "time");
+		glUniform1f(uniformLoc, mTime);
+
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactPos");
+		glm::vec3 relImpactPos = camera.impactPos - cameraT.GetWorldPosition();
+		glUniform3f(uniformLoc, relImpactPos.x, relImpactPos.y, relImpactPos.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactColor");
+		glUniform3f(uniformLoc, camera.impactColor.x, camera.impactColor.y, camera.impactColor.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactColor2");
+		glUniform3f(uniformLoc, camera.impactColor2.x, camera.impactColor2.y, camera.impactColor2.z);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "epilepsy");
+		glUniform1f(uniformLoc, camera.impactEpilepsy);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "isSmooth");
+		glUniform1i(uniformLoc, camera.impactSmooth);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactAngle");
+		glUniform1f(uniformLoc, glm::radians(camera.impactEpilepsy));
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "noiseScale");
+		glUniform1f(uniformLoc, camera.impactNoise1);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "secondNoiseScale");
+		glUniform1f(uniformLoc, camera.impactNoise2);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+	}
 	void RenderManager::RenderGammaCorrection(Entity cam)
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		// Luminance Calc
-		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
-		SetShader(ShaderPaths[S_LUMINANCE]);
-		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
-		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
-		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
-
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
-		glUniform1f(uniformLoc, camera.luminanceLearningRate);
-
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		CheckGLError();
-
-		// Final Frag
+		LoadSettings(GPS_DEFAULT);
 		SetShader(ShaderPaths[S_FINAL]);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 		glBindTextureUnit(1, camera.lum[static_cast<int>(camera.lumSelected)]);
 
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uGamma");
+		glUniform1f(uniformLoc, camera.gamma / 100.f);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
+		bool inImpactFrameMode = Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT;
+		glUniform1i(uniformLoc, !inImpactFrameMode);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		camera.lumSelected = !camera.lumSelected;
@@ -1799,7 +1869,7 @@ namespace SliceEngine
 		else
 			mCurrFinalColAttachment = GOUT_FINAL;
 	}
-	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
+	void RenderManager::SetUniformVec3(GLint uniformLoc, const glm::vec3& vec)
 	{
 		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
 	}

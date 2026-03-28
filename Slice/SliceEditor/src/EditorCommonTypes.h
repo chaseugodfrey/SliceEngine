@@ -133,6 +133,7 @@ namespace SliceEditor
 		entt::entity entity = entt::null;
 		bool isPrefab = false;
 		bool seen = false; //For editor Hierarchy to check if it should be removed or not
+		bool nodeOpen = false;
 		bool isScriptSelected = false;
 
 		EntityNode()
