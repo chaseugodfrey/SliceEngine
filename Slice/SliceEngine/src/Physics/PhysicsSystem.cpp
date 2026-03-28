@@ -1343,6 +1343,11 @@ namespace SliceEngine
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
+		if (!collider.componentEnabled)
+			return;
+
 		CreateJoltBody(entity);
 	}
 
