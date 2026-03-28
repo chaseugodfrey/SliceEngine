@@ -565,6 +565,7 @@ namespace SliceEngine
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
+				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 				RenderDebug(cam);
 			}
 
@@ -1040,7 +1041,8 @@ namespace SliceEngine
 		LoadSettings(GPS_DEFAULT);
 		SetShader(ShaderPaths[S_EXT_LUMINANCE]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_LUM_EXTRACT]);
-		ClearBuffer(BufferClearSetting::ALL);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -1050,7 +1052,7 @@ namespace SliceEngine
 		glGenerateTextureMipmap(mColAttachment[GOUT_LUM_EXTRACT]);
 		SetShader(ShaderPaths[S_LUMINANCE]);
 		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
-		ClearBuffer(BufferClearSetting::ALL);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
 		glBindTextureUnit(0, mColAttachment[GOUT_LUM_EXTRACT]);
 		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
 
