@@ -2,18 +2,18 @@
     {
         "FX_LaserPointer": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "9296099836462161293",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "9296099836462161293"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3,
+                "entity_id": 1048584,
                 "neighbours": [
-                    174,
-                    179,
-                    175,
+                    4294967295,
+                    1048583,
+                    4294967295,
                     4294967295
                 ]
             },
@@ -51,14 +51,14 @@
     {
         "LaserPointer": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "9296099836462161293",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "9296099836462161293"
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::Renderer": {
-                "castsShadow": true,
+                "castsShadow": false,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "17081988023694304057"
@@ -71,9 +71,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 179,
+                "entity_id": 1048583,
                 "neighbours": [
-                    3,
+                    1048584,
                     4294967295,
                     4294967295,
                     4294967295

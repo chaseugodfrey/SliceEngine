@@ -4,7 +4,7 @@ namespace SliceEngine
 {
     public class OrbitalLaserHint : SliceBehaviour
     {
-        public float trackDuration = 5f;
+        public float trackDuration = 2.5f;
         public string laserPrefabName = "FX_OrbitalLaser";
 
         private float timer = 0f;
