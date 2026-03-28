@@ -9,8 +9,10 @@ namespace SliceEngine
 {
     public class ShieldGenerator : EnemyBase
     {
-        public delegate void ShieldGeneratorDestroyedEvent();
-        public event ShieldGeneratorDestroyedEvent Destroyedtrigger;
+        public delegate void ShieldGeneratorDestroyedEvent(GameObject gen);
+        public event ShieldGeneratorDestroyedEvent DestroyTrigger;
+
+        public bool generating = false;
 
         //Function called when you want the enemy to be active
         public override void OnCreate()
@@ -27,23 +29,14 @@ namespace SliceEngine
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
+            if (!active) return;
+            if (!generating) return;
+
             // This override is just to insert a debug
             //Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("SHIELD GENERATOR is taking damage");
 
-            //source = source ?? gameObject;
-            if (source == null)
-            {
-                source = gameObject;
-            }
-            Console.WriteLine($"taking {amount} damage and current health {currentHealth}");
-            this.currentHealth -= amount;
-            if (this.currentHealth > 0) { OnDamaged(source); }
-            if (this.currentHealth <= 0)
-            {
-                currentHealth = 0; // Ensure health doesn't go below zero
-                OnDeath();
-            }
+            base.TakeDamage(amount, source);
 
         }
 
@@ -52,17 +45,25 @@ namespace SliceEngine
             //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
             //CreateGameObject("Prefabs/Sparks.prefab").GetComponent<Transform>().Position = transform.Position;
             SliceLog.Console("SHIELD GENERATOR IS BEING HIT");
-
         }
 
-        
         public override void OnDeath()
         {
-            Destroyedtrigger?.Invoke();
+            DestroyTrigger?.Invoke(this.gameObject);
+            active = false;
             SliceLog.Console("SHIELD GENERATOR DESTROYED");
-            this.gameObject.Destroy(); 
-
         }
 
+        public void GenerateShields()
+        {
+            generating = true;
+            SliceLog.Console("SHIELD GENERATOR STARTED GENERATING SHIELDS");
+        }
+
+        public void StopGenerating()
+        {
+            generating = false;
+            SliceLog.Console("SHIELD GENERATOR STOPPED GENERATING SHIELDS");
+        }
     }
 }

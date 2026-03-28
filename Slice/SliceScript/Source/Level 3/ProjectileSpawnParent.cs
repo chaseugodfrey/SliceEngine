@@ -31,11 +31,11 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            FollowBoss();
+            Follow();
             Orbit(dt);
         }
 
-        void FollowBoss()
+        void Follow()
         {
             transform.Position = bossTransform.Position;
         }

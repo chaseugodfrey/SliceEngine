@@ -188,6 +188,7 @@
     <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
+    <Compile Include="Source\Level 3\Lvl3EnemyHUD.cs" />
     <Compile Include="Source\Level2\EnemyHUD.cs" />
     <Compile Include="Source\Level2\EnemyLevel2.cs" />
     <Compile Include="Source\Level2\L2Controller.cs" />
@@ -199,6 +200,7 @@
     <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

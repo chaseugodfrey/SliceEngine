@@ -74,9 +74,16 @@ namespace SliceEngine
         public AttackState attackState;
         public StateMachine projectileSM;
 
-        GameObject player;
-        Transform playerTr;
-        public bool lookAt;
+        public Transform target;
+        public Vector3 destination;
+        public Vector3 offset;
+        public bool followTarget;
+        public float followTightness = 0.0f;
+        public float followRange = 200.0f;
+        public float followOscillator = 0.0f;
+        public float followOscillatorRate = 0.5f;
+        public float followOscillatorTiming = 2.5f;
+        public float followExternalModifier = 1.0f;
 
         public override void OnCreate()
         {
@@ -91,18 +98,44 @@ namespace SliceEngine
             projectileSM.ChangeState(introState);
         }
 
+        public override void OnAwake()
+        {
+            base.OnAwake();
+        }
+
         public override void OnUpdate(float dt)
         {
-            if (lookAt)
-            {
 
+            if (followTarget)
+            {
+                followOscillator += followOscillatorRate * dt;
+                if (followOscillator > followOscillatorTiming || followOscillator <= 0.0f)
+                {
+                    followOscillatorRate *= -1.0f;
+                }
+
+                float distance = Utilities.Distance3D(transform.Position, destination);
+                float tightness = Utilities.Clamp(distance / followRange, 0.0f, 1.0f) - followTightness;
+                followTightness += tightness * 0.5f;
+                destination = target.WorldPosition + offset;
+
+                Vector3 direction = (destination - transform.Position).Normalize();
+                transform.Position = transform.Position + direction * followTightness * dt * 100f * followOscillator * followExternalModifier;
             }
+
             projectileSM.OnUpdate(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
             projectileSM.OnFixedUpdate(dt);
+        }
+
+        public void SetTarget(Transform targetTransform = null, float speedModifier = 1.0f)
+        {
+            active = followTarget = targetTransform != null;
+            target = targetTransform;
+            followExternalModifier = speedModifier;
         }
 
         public void ShootUpdate(float dt)
@@ -115,8 +148,6 @@ namespace SliceEngine
             count += dt;
 
             currentStyle = (SpawnStyle)spawnStyle;
-
-
 
             switch (currentStyle)
             {
@@ -213,8 +244,6 @@ namespace SliceEngine
 
                     break;
             }
-
-
         }
     }
 }
