@@ -191,14 +191,20 @@ namespace SliceEngine
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_32 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 10, GL_RGBA32F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureStorage2D(mColAttachment[GOUT_LUM_EXTRACT], 9, GL_R32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// float_32 rgba Final Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		// float_32 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 10, GL_RGBA32F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -583,21 +589,27 @@ namespace SliceEngine
 			glDepthMask(GL_TRUE);
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
 			CheckGLError();
+
+			// Special case for Post Processings
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
+				RenderFog(cam);
+
+			RenderAvgLum(cam);
+
 			//----------------------------------------------------------------
 			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
+				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 				RenderDebug(cam);
 			}
-
-			RenderAvgLum(cam);
 
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
 				RenderGroundCloud(cam);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
-				RenderFog(cam);
+
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
@@ -1061,17 +1073,31 @@ namespace SliceEngine
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
+		// Extract Luminiance before downscaling
 		LoadSettings(GPS_DEFAULT);
+		SetShader(ShaderPaths[S_EXT_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_LUM_EXTRACT]);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
 		// Luminance Calc
-		glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
+		glGenerateTextureMipmap(mColAttachment[GOUT_LUM_EXTRACT]);
 		SetShader(ShaderPaths[S_LUMINANCE]);
 		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
-		ClearBuffer(BufferClearSetting::ALL);
-		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glBindTextureUnit(0, mColAttachment[GOUT_LUM_EXTRACT]);
 		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
 		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMaxLum");
+		glUniform1f(uniformLoc, camera.maxLuminance);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMinLum");
+		glUniform1f(uniformLoc, camera.minLuminance);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
@@ -1170,8 +1196,6 @@ namespace SliceEngine
 		SetUniformVec3(uniformLoc, camera.fogColor);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
 		glUniform1f(uniformLoc, camera.fogIntensity);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
-		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
@@ -1190,13 +1214,17 @@ namespace SliceEngine
 			glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLimit");
+		glUniform1f(uniformLoc, camera.bloomLimit);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Downscaling
 		SetShader(ShaderPaths[S_DOWNSCALING]);
 
 		glBindTextureUnit(0, mBloomMips[0].tex);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
 		glUniform2f(uniformLoc, 1.f/mBloomMips[0].size.x, 1.f/mBloomMips[0].size.y);
 		for (int i{1}; i < mMaxBloom; ++i)
 		{

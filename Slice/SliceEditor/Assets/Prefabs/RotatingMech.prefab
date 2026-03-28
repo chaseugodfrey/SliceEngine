@@ -22,12 +22,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340061,
+                "entity_id": 188,
                 "neighbours": [
                     0,
-                    7340060,
-                    7340237,
-                    7340246
+                    189,
+                    16,
+                    10
                 ]
             },
             "struct SliceEngine::Script": {
@@ -104,10 +104,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340060,
+                "entity_id": 189,
                 "neighbours": [
-                    7340061,
-                    7340059,
+                    188,
+                    190,
                     4294967295,
                     4294967295
                 ]
@@ -179,12 +179,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340059,
+                "entity_id": 190,
                 "neighbours": [
-                    7340060,
+                    189,
                     4294967295,
                     4294967295,
-                    7340058
+                    191
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -241,12 +241,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340058,
+                "entity_id": 191,
                 "neighbours": [
-                    7340060,
+                    189,
                     4294967295,
-                    7340059,
-                    7340057
+                    190,
+                    192
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -303,11 +303,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340057,
+                "entity_id": 192,
                 "neighbours": [
-                    7340060,
+                    189,
                     4294967295,
-                    7340058,
+                    191,
                     4294967295
                 ]
             },
