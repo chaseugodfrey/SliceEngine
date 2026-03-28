@@ -31,7 +31,8 @@ namespace SliceEngine
         public override void OnCreate()
         {
             base.OnCreate();
-            cs = GetComponent<ColliderShape>();            
+            cs = GetComponent<ColliderShape>();
+            cs.ComponentEnabled = false;
         }
 
         public override void OnFixedUpdate(float dt)
