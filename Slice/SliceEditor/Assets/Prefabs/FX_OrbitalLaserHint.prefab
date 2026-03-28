@@ -337,12 +337,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 225,
+                "entity_id": 9437441,
                 "neighbours": [
                     0,
                     4294967295,
-                    4,
-                    4294967295
+                    2097328,
+                    10485993
                 ]
             },
             "struct SliceEngine::Script": {
@@ -351,6 +351,10 @@
                     "laserPrefabName": {
                         "Type": "std::string",
                         "Value": "FX_OrbitalLaser"
+                    },
+                    "moveSpeed": {
+                        "Type": "float",
+                        "Value": 15.0
                     },
                     "trackDuration": {
                         "Type": "float",
@@ -373,7 +377,7 @@
                 "position": [
                     -7.4201340675354,
                     2.472093105316162,
-                    4.200984001159668
+                    12.398283958435059
                 ],
                 "rotation": [
                     1.0,
