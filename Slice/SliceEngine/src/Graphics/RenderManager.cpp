@@ -590,6 +590,11 @@ namespace SliceEngine
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
 			CheckGLError();
 
+			// Special case for Post Processings
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
+				RenderFog(cam);
+
 			RenderAvgLum(cam);
 
 			//----------------------------------------------------------------
@@ -604,8 +609,7 @@ namespace SliceEngine
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
 				RenderGroundCloud(cam);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
-				RenderFog(cam);
+
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
@@ -1192,8 +1196,6 @@ namespace SliceEngine
 		SetUniformVec3(uniformLoc, camera.fogColor);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
 		glUniform1f(uniformLoc, camera.fogIntensity);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
-		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
