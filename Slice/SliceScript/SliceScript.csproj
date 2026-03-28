@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -108,6 +110,7 @@
     <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
+    <Compile Include="Source\Examples\TestCamera.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
