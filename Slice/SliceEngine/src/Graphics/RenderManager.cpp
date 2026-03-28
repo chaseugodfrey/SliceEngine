@@ -1178,13 +1178,17 @@ namespace SliceEngine
 			glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLimit");
+		glUniform1f(uniformLoc, camera.bloomLimit);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Downscaling
 		SetShader(ShaderPaths[S_DOWNSCALING]);
 
 		glBindTextureUnit(0, mBloomMips[0].tex);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
 		glUniform2f(uniformLoc, 1.f/mBloomMips[0].size.x, 1.f/mBloomMips[0].size.y);
 		for (int i{1}; i < mMaxBloom; ++i)
 		{

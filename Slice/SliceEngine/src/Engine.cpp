@@ -299,6 +299,7 @@ namespace SliceEngine
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomLimit", &Camera::bloomLimit)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
 		.property("gamma", &Camera::gamma)

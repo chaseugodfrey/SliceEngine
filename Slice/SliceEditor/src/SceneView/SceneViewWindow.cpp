@@ -694,6 +694,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", camObj->camera.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", camObj->camera.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", camObj->camera.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::EndPopup();
