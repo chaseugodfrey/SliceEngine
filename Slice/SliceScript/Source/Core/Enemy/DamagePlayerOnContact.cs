@@ -24,7 +24,6 @@ namespace SliceEngine
             GameObject collidedGO = FindGameObjectWithID(other);
             if (collidedGO != null && collidedGO.tag == "Player")
             {
-                SliceLog.Console("Im supposed to kill myself");
                 DamagePlayer(collidedGO);
             }
         }
