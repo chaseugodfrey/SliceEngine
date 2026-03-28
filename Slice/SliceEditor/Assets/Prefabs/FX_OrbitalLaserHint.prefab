@@ -330,18 +330,18 @@
                 "velocitySeparateAxis": false
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16203473084325357215",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "16203473084325357215"
+                    "GUID": ""
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
                 "entity_id": 225,
                 "neighbours": [
+                    0,
                     4294967295,
-                    4294967295,
-                    4294967295,
+                    4,
                     4294967295
                 ]
             },
@@ -354,7 +354,7 @@
                     },
                     "trackDuration": {
                         "Type": "float",
-                        "Value": 5.0
+                        "Value": 2.0
                     }
                 }
             },
