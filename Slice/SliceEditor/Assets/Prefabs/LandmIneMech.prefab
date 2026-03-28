@@ -1,0 +1,479 @@
+[
+    {
+        "LandmIneMech": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "sphereData": {
+                    "radius": 2.0
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048792,
+                "neighbours": [
+                    0,
+                    1048793,
+                    1048790,
+                    1048593
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.LandmineMech"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LandmIneMech",
+                "mTag": "Enemy"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    19.189382553100586,
+                    0.533282995223999,
+                    21.246896743774414
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Baseplate": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12564939983032945792"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048793,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    4294967295,
+                    1048594
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Baseplate",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.20000000298023224,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LandmineExplosionCore": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "sphereData": {
+                    "radius": 6.0
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12642939756615169623"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048594,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    1048793,
+                    1048795
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.LandmineMechExplosion",
+                "scriptableFieldMap": {
+                    "damage": {
+                        "Type": "int",
+                        "Value": 5
+                    },
+                    "fx_explosion": {
+                        "Type": "std::string",
+                        "Value": "FX_LandmineExplosion"
+                    },
+                    "jumpTime": {
+                        "Type": "float",
+                        "Value": 0.25
+                    },
+                    "jumpVelocity": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            10.0,
+                            0.0
+                        ]
+                    },
+                    "lingerTime": {
+                        "Type": "float",
+                        "Value": 0.10000000149011612
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LandmineExplosionCore",
+                "mTag": "LandmineExplosionCore"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.4000000059604645,
+                    0.4000000059604645,
+                    0.4000000059604645
+                ]
+            }
+        }
+    },
+    {
+        "OrangeInner": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14527206540275638286"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048795,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    1048594,
+                    1048796
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrangeInner",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.25,
+                    0.07500000298023224,
+                    0.25
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ]
+            }
+        }
+    },
+    {
+        "OrangeInner_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14527206540275638286"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048796,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    1048795,
+                    2097155
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrangeInner_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.25,
+                    0.07500000298023224,
+                    0.25
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ]
+            }
+        }
+    },
+    {
+        "OrangeInner_2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14527206540275638286"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097155,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    1048796,
+                    2097156
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrangeInner_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.25,
+                    0.07500000298023224,
+                    -0.25
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ]
+            }
+        }
+    },
+    {
+        "OrangeInner_3": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14527206540275638286"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097156,
+                "neighbours": [
+                    1048792,
+                    4294967295,
+                    2097155,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrangeInner_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.25,
+                    0.07500000298023224,
+                    -0.25
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.10000000149011612,
+                    0.10000000149011612,
+                    0.10000000149011612
+                ]
+            }
+        }
+    }
+]
