@@ -1209,14 +1209,16 @@ namespace SliceEngine
 		return result.Get();
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateSphereShape(const ColliderShape& collider) const
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape( Transform& transform, const ColliderShape& collider) const
 	{
+		//TRS
 		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
 		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
+		JPH::ScaledShapeSettings* scaledSettings = new JPH::ScaledShapeSettings(shapeSetting, helpers::glmtoJPH(transform.GetWorldScale()));
 		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
 			collider.offSet,
 			JPH::Quat::sIdentity(),
-			shapeSetting);
+			scaledSettings);
 
 		auto result = newShape.Create();
 

@@ -97,7 +97,7 @@ namespace SliceEngine
 
 		JPH::ShapeRefC CreateBoxShape(const ColliderShape& collider) const;
 
-		JPH::ShapeRefC CreateSphereShape(const ColliderShape& collider) const;
+		JPH::ShapeRefC CreateSphereShape( Transform& transform, const ColliderShape& collider) const;
 
 		JPH::ShapeRefC CreateCapsuleShape(const ColliderShape& collider) const;
 
