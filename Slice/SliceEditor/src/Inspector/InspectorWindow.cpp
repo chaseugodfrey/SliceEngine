@@ -768,6 +768,8 @@ namespace SliceEditor
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
@@ -789,6 +791,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", cam.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::Text("Godrays");

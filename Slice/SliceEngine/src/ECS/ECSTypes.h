@@ -235,8 +235,11 @@ namespace SliceEngine
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
+		float bloomLimit{ 1.f };
 		float exposure{ 10.f };
 		float gamma{ 45.4545f };
+		float minLuminance{ 0.0001f };
+		float maxLuminance{ 10.0f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
