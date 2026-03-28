@@ -1350,6 +1350,7 @@ namespace SliceEngine
 		CreateJoltBody(entity);
 		OnColliderModified(reg, entity);
 		UpdateShapeFromTransform(entity);
+		OnColliderModified(reg, entity);
 
 	}
 
@@ -1421,6 +1422,12 @@ namespace SliceEngine
 
 	void PhysicsSystem::CreateJoltBody(Entity entity)
 	{
+
+		//if (entity == entt::entity(1048793))
+		//{
+		//	int a = 2;
+		//}
+
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (!checkEntity.HasComponent<ColliderShape>())
 			return;
@@ -1430,12 +1437,6 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
-
-
-		if (!colliderShape.componentEnabled)
-		{
-			return;
-		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{
