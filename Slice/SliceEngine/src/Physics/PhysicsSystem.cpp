@@ -999,6 +999,7 @@ namespace SliceEngine
 	JPH::ShapeRefC PhysicsSystem::CreateShapeFromCollider(Entity entity) const
 	{
 		auto& collider = mRegistry->get<ColliderShape>(entity);
+		auto& transform = mRegistry->get<Transform>(entity);
 
 		sliceEngineVariantShape shapeData = collider.shapeData;
 
@@ -1010,7 +1011,7 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			shapeReference = CreateSphereShape(collider);
+			shapeReference = CreateSphereShape(transform, collider);
 		}
 		else if (std::holds_alternative<ColliderShape::CapsuleData>(shapeData))
 		{
@@ -1347,10 +1348,12 @@ namespace SliceEngine
 	{
 		auto& collider = mRegistry->get<ColliderShape>(entity);
 
-		if (!collider.componentEnabled)
-			return;
-
 		CreateJoltBody(entity);
+
+		if (!collider.componentEnabled)
+		{
+			OnColliderModified(reg, entity);
+		}
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
