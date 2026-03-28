@@ -1349,6 +1349,7 @@ namespace SliceEngine
 		auto& collider = mRegistry->get<ColliderShape>(entity);
 
 		CreateJoltBody(entity);
+		UpdateShapeFromTransform(entity);
 
 		if (!collider.componentEnabled)
 		{
