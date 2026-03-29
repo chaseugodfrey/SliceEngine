@@ -2396,15 +2396,15 @@ namespace SliceEngine
 	static void Camera_SetGamma(float gammaVal)
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
-		rm->SetSessionExposure(gammaVal);
+		rm->SetSessionGamma(gammaVal);
 	}
 
 	static float Camera_GetGamma()
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
-		return rm->GetSessionExposure();
+		return rm->GetSessionGamma();
 	}
-
+	
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2421,46 +2421,10 @@ namespace SliceEngine
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.IsValid() && go.HasComponent<Camera>())
+		{
 			go.GetComponent<Camera>().impactPos = *target;
+		}
 	}
-
-	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactColor = *target;
-	}
-	static void Camera_SetImpactFrameColor2(unsigned int entityID, glm::vec3* target)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactColor2 = *target;
-	}
-	static void Camera_SetImpactFrameSmooth(unsigned int entityID, bool isSmooth)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactSmooth = isSmooth;
-	}
-	static void Camera_SetImpactFrameSpeed(unsigned int entityID, float speed)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactEpilepsy = speed;
-	}
-	static void Camera_SetImpactFrameSharpness(unsigned int entityID, float sharp)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactNoise1 = sharp;
-	}
-	static void Camera_SetImpactFrameDensity(unsigned int entityID, float dense)
-	{
-		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
-		if (go.IsValid() && go.HasComponent<Camera>())
-			go.GetComponent<Camera>().impactNoise2 = dense;
-	}
-
 
 #pragma endregion
 
@@ -3033,6 +2997,41 @@ namespace SliceEngine
 		}
 	}
 
+	static bool Renderer_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<Renderer>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& rend = go.GetComponent<Renderer>();
+		return rend.componentEnabled;
+	}
+
+	static void Renderer_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<Renderer>())
+		{
+			Entity _entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::Renderer>(_entity, [&](auto& rend)
+				{
+					rend.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", _entity);
+		}
+
+	}
+
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -3171,12 +3170,6 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor2);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSmooth);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
-		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
 
 		//Light
 		ADD_INTERNAL_CALL(Light_SetCastShadow);
@@ -3503,6 +3496,8 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
 		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_IsEnabled);
+		ADD_INTERNAL_CALL(Renderer_SetEnabled);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);

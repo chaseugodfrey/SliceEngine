@@ -215,7 +215,7 @@ namespace SliceEngine
                 inputOpen = false;
                 dialogueDone = true;
                 //Bootstrap.Player.canInput = true;
-                dialogueIndex = 0;
+                dialogueIndex = -1;
                 //levelDialogues.Clear();
                 SetTextBox("");
                 CloseTextBox();

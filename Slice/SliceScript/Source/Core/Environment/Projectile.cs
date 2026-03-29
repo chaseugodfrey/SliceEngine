@@ -86,9 +86,9 @@ namespace SliceEngine
                 if (owner.Has<Projectile_Spawner>())
                     owner.As<Projectile_Spawner>().DestroyBullet(this);
                 else if (owner.Has<EnemyLevel2>())
-                {
-                     owner.As<EnemyLevel2>().projectileState.DestroyBullet(this); 
-                }
+                    owner.As<EnemyLevel2>().projectileState.DestroyBullet(this);
+                else if (owner.Has<SurroundAttack>())
+                    owner.As<SurroundAttack>().DestroyBullet(this);
                 else
                     gameObject.Destroy();
             }
