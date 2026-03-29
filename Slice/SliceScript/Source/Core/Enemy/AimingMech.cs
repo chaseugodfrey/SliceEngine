@@ -162,7 +162,7 @@ namespace SliceEngine
 
                 this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
 
-                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.5f;
+                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
 
                 if (shouldTelegraph != telegraphed)
                 {
