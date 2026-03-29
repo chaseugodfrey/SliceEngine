@@ -25,7 +25,6 @@ namespace SliceEditor
 	void ProfilerManager::Init()
 	{
 		SLICE_LOG("Initializing Profiler Data.");
-		mAverageTotalFrameTime.totalSum = 0.0f;
 	}
 
 	void ProfilerManager::Update()
@@ -64,7 +63,6 @@ namespace SliceEditor
 	{
 		auto engineFRM = SliceEngine::Core::GetInstance()->GetFramerateManager();
 		float dt = static_cast<float>(engineFRM->getDeltaTime());
-		float currentTotalFrameTime = engineFRM->GetFrameTime();
 		//float currFPS = engineFRM->GetCurrFPS();
 		ImVec2 canvas_size = ImGui::GetContentRegionAvail();
 		const auto& currentDurations = engineFRM->GetSysDurations();
@@ -72,7 +70,6 @@ namespace SliceEditor
 		{
 			if (time <= FLT_EPSILON)
 			{
-				SLICE_LOG_ERROR("This continue should not happen...");
 				continue;
 			}
 			SystemHistory& history = mSystemMap[system];
@@ -87,56 +84,46 @@ namespace SliceEditor
 				history.samples.pop_front();
 			}
 		}
-		mAverageTotalFrameTime.samples.push_back(currentTotalFrameTime);
-		mAverageTotalFrameTime.totalSum += currentTotalFrameTime;
-
-		if (mAverageTotalFrameTime.samples.size() > MAX_SAMPLES)
-		{
-			mAverageTotalFrameTime.totalSum -= mAverageTotalFrameTime.samples.front();
-			mAverageTotalFrameTime.samples.pop_front();
-		}
-
+		
 		static float updateTimer = 0.0f;
 		const float updateInterval = 1.0f;
 
-		//Actual Profiler Stats Updating
 		updateTimer += dt;
 		float trackedTime = 0.0f;
-		if (updateTimer >= updateInterval)
+		if(updateTimer >= updateInterval)
 		{
 			updateTimer = 0;
+			float aggregateTime = 0.0f;
 
-			// 1. Get the real average total frame time (the 7ms)
-			float avgTotal = mAverageTotalFrameTime.totalSum / mAverageTotalFrameTime.samples.size();
-
-			// 2. Sum up the average of all tracked systems (the 4ms)
-			float totalTrackedAvg = 0.0f;
 			for (auto& [system, history] : mSystemMap)
 			{
-				totalTrackedAvg += (history.totalSum / history.samples.size());
+				aggregateTime += (history.totalSum / history.samples.size());
 			}
-
-			// 3. Update individual system stats using the TRUE TOTAL as the percentage base
-			for (auto& [system, history] : mSystemMap)
+			for(auto& [system, history] : mSystemMap)
 			{
 				float averageTime = history.totalSum / history.samples.size();
-				// Use avgTotal here, NOT aggregateTime
-				float averagePercentage = (avgTotal > 0) ? (averageTime / avgTotal) * 100.0f : 0.0f;
+				float averagePercentage = (aggregateTime > 0) ? (averageTime / aggregateTime) * 100.0f : 0.0f;
 
 				ProfilerManager::DebugStats stats;
+
 				stats.timeTaken = averageTime;
 				stats.loadPercentage = averagePercentage;
 				stats.width = (averagePercentage / 100.f) * canvas_size.x;
 				mDebugStats.insert_or_assign(system, stats);
+				trackedTime += averageTime;
 			}
-
-			// 4. Calculate the real untracked time (the 3ms gap)
-			mTotalFrameTime = avgTotal;
-			mUntrackedFrameTime = std::max(0.0f, avgTotal - totalTrackedAvg);
-			mUntrackedFrameTimePercentage = (avgTotal > 0) ? (mUntrackedFrameTime / avgTotal) * 100.0f : 0.0f;
-
 			mCurrFPS = engineFRM->GetCurrFPS();
-			mDeltaTime = dt;
+			mDeltaTime = static_cast<float>(engineFRM->getDeltaTime());
+			mTotalFrameTime = engineFRM->GetFrameTime();
+			mUntrackedFrameTime = aggregateTime - trackedTime;
+			if(mUntrackedFrameTime > 0)
+			{
+				mUntrackedFrameTimePercentage = (mUntrackedFrameTime / aggregateTime) * 100.0f;
+			}
+			else
+			{
+				mUntrackedFrameTimePercentage = 0.0f;
+			}
 		}
 	}
 
@@ -149,7 +136,6 @@ namespace SliceEditor
 		mTotalFrameTime = 0.0f;
 		mUntrackedFrameTime = 0.0f;
 		mUntrackedFrameTimePercentage = 0.0f;
-		mAverageTotalFrameTime.totalSum = 0.0f;
 		mClearStatistics = false;
 	}
 

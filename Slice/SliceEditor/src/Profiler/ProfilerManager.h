@@ -45,7 +45,7 @@ namespace SliceEditor
 		};
 
 
-		std::map<std::string, SystemHistory> mSystemMap;
+		std::unordered_map<std::string, SystemHistory> mSystemMap;
 		const size_t MAX_SAMPLES = 120;
 
 	public:
@@ -53,12 +53,11 @@ namespace SliceEditor
 		bool mAutoScroll = true;
 		bool mClearStatistics = false;
 
-		std::map<std::string, DebugStats> mDebugStats;
+		std::unordered_map<std::string, DebugStats> mDebugStats;
 
 		float mCurrFPS;
 		float mDeltaTime;
 		float mTotalFrameTime;
-		SystemHistory mAverageTotalFrameTime;
 		float mUntrackedFrameTime;
 		float mUntrackedFrameTimePercentage;
 
