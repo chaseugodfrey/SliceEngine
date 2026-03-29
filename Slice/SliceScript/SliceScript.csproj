@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -113,6 +115,7 @@
     <Compile Include="Source\Core\Environment\DynamicLight.cs" />
     <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\MineFieldSpawner.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaser.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaserDebug.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaserHint.cs" />

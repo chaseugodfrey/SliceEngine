@@ -1011,6 +1011,11 @@
             "path": "Resources/14606407826179867827.dds"
         },
         {
+            "guid": 17365031189549555498,
+            "name": "Prefabs/FX_Firing1.prefab",
+            "path": "Resources/17365031189549555498.prefab"
+        },
+        {
             "guid": 10724009023115052591,
             "name": "Textures/Splash/Mono_project_logo 1.png",
             "path": "Resources/10724009023115052591.dds"
@@ -1391,11 +1396,6 @@
             "path": "Resources/9523743905181672290.prefab"
         },
         {
-            "guid": 17363216273753204008,
-            "name": "Prefabs/LandmIneMech.prefab",
-            "path": "Resources/17363216273753204008.prefab"
-        },
-        {
             "guid": 17734129292647502161,
             "name": "Material/FogTestL1.mat",
             "path": "Resources/17734129292647502161.mat"
@@ -1479,6 +1479,11 @@
             "guid": 15989901402013934042,
             "name": "Dylan/Environment Assets/A5_StartWalls.fbx",
             "path": "Resources/15989901402013934042.mdl"
+        },
+        {
+            "guid": 16873854803697811209,
+            "name": "Prefabs/RotatingMech.prefab",
+            "path": "Resources/16873854803697811209.prefab"
         },
         {
             "guid": 12391765220661237869,
@@ -2306,21 +2311,6 @@
             "path": "Resources/11864011536008048090.mat"
         },
         {
-            "guid": 14082461890577180591,
-            "name": "Prefabs/LoadNextScene_trigger.prefab",
-            "path": "Resources/14082461890577180591.prefab"
-        },
-        {
-            "guid": 11443324886659557821,
-            "name": "Models/CrystalOnly.fbx",
-            "path": "Resources/11443324886659557821.mdl"
-        },
-        {
-            "guid": 11626882610179915005,
-            "name": "Prefabs/FX_Firing1.prefab",
-            "path": "Resources/11626882610179915005.prefab"
-        },
-        {
             "guid": 10230791056562210482,
             "name": "Material/EnemySpawner_m.mat",
             "path": "Resources/10230791056562210482.mat"
@@ -2329,6 +2319,16 @@
             "guid": 15812733968228765909,
             "name": "Prefabs/FX_Environment_Sparks.prefab",
             "path": "Resources/15812733968228765909.prefab"
+        },
+        {
+            "guid": 14082461890577180591,
+            "name": "Prefabs/LoadNextScene_trigger.prefab",
+            "path": "Resources/14082461890577180591.prefab"
+        },
+        {
+            "guid": 11443324886659557821,
+            "name": "Models/CrystalOnly.fbx",
+            "path": "Resources/11443324886659557821.mdl"
         },
         {
             "guid": 14579481185500843548,
@@ -2791,9 +2791,29 @@
             "path": "Resources/15165941912960571623.prefab"
         },
         {
-            "guid": 16425451403600498101,
+            "guid": 10939185677082754481,
+            "name": "Prefabs/ShieldGen.prefab",
+            "path": "Resources/10939185677082754481.prefab"
+        },
+        {
+            "guid": 13269073587537076570,
+            "name": "Prefabs/EnemySpawner.prefab",
+            "path": "Resources/13269073587537076570.prefab"
+        },
+        {
+            "guid": 13182828767649584504,
+            "name": "Shaders/downSample_Frag.frag",
+            "path": "Resources/13182828767649584504.frag"
+        },
+        {
+            "guid": 17082456570713917945,
             "name": "Prefabs/AimingMech.prefab",
-            "path": "Resources/16425451403600498101.prefab"
+            "path": "Resources/17082456570713917945.prefab"
+        },
+        {
+            "guid": 14025531774044594780,
+            "name": "Prefabs/AirmineMech.prefab",
+            "path": "Resources/14025531774044594780.prefab"
         },
         {
             "guid": 11471319866102529418,
@@ -2851,16 +2871,6 @@
             "path": "Resources/13694285006182903832.prefab"
         },
         {
-            "guid": 10939185677082754481,
-            "name": "Prefabs/ShieldGen.prefab",
-            "path": "Resources/10939185677082754481.prefab"
-        },
-        {
-            "guid": 13269073587537076570,
-            "name": "Prefabs/EnemySpawner.prefab",
-            "path": "Resources/13269073587537076570.prefab"
-        },
-        {
             "guid": 17372928666018152619,
             "name": "Prefabs/EnemyTest.prefab",
             "path": "Resources/17372928666018152619.prefab"
@@ -2916,6 +2926,11 @@
             "path": "Resources/17947387130014437828.prefab"
         },
         {
+            "guid": 14661040814502681250,
+            "name": "Prefabs/RotatingMechLaser.prefab",
+            "path": "Resources/14661040814502681250.prefab"
+        },
+        {
             "guid": 15667001206799374938,
             "name": "Prefabs/FX_PlayerDash.prefab",
             "path": "Resources/15667001206799374938.prefab"
@@ -2966,6 +2981,21 @@
             "path": "Resources/14786321649691325524.prefab"
         },
         {
+            "guid": 9396430891929942064,
+            "name": "Prefabs/Landmine.prefab",
+            "path": "Resources/9396430891929942064.prefab"
+        },
+        {
+            "guid": 11432798866923574641,
+            "name": "Shaders/skyboxGeneration.shader",
+            "path": "Resources/11432798866923574641.shader"
+        },
+        {
+            "guid": 18017358965691832109,
+            "name": "Prefabs/LandmineMech.prefab",
+            "path": "Resources/18017358965691832109.prefab"
+        },
+        {
             "guid": 18271418503383271121,
             "name": "Textures/Splash/FMOD Logo White - Transparent Background.png",
             "path": "Resources/18271418503383271121.dds"
@@ -3014,6 +3044,11 @@
             "guid": 12854187215604683955,
             "name": "Prefabs/MainMenu.prefab",
             "path": "Resources/12854187215604683955.prefab"
+        },
+        {
+            "guid": 16481484577159867839,
+            "name": "Prefabs/MineSpawner.prefab",
+            "path": "Resources/16481484577159867839.prefab"
         },
         {
             "guid": 10253740419631562308,
@@ -3079,16 +3114,6 @@
             "guid": 16623696165479466212,
             "name": "Prefabs/RootNode_1.prefab",
             "path": "Resources/16623696165479466212.prefab"
-        },
-        {
-            "guid": 16105258801334667373,
-            "name": "Prefabs/RotatingMech.prefab",
-            "path": "Resources/16105258801334667373.prefab"
-        },
-        {
-            "guid": 16933452921416599024,
-            "name": "Prefabs/RotatingMechLaser.prefab",
-            "path": "Resources/16933452921416599024.prefab"
         },
         {
             "guid": 9223955957571950508,
@@ -3216,11 +3241,6 @@
             "path": "Resources/17082663247688680890.shader"
         },
         {
-            "guid": 13182828767649584504,
-            "name": "Shaders/downSample_Frag.frag",
-            "path": "Resources/13182828767649584504.frag"
-        },
-        {
             "guid": 16493589749155911333,
             "name": "Shaders/final.shader",
             "path": "Resources/16493589749155911333.shader"
@@ -3279,11 +3299,6 @@
             "guid": 14285044838440524560,
             "name": "Shaders/shadow_Geom.geom",
             "path": "Resources/14285044838440524560.geom"
-        },
-        {
-            "guid": 11432798866923574641,
-            "name": "Shaders/skyboxGeneration.shader",
-            "path": "Resources/11432798866923574641.shader"
         },
         {
             "guid": 17035423744017174956,
