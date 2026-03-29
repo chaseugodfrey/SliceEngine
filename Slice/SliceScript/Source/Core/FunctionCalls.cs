@@ -777,6 +777,12 @@ namespace SliceEngine
         internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Renderer_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetEnabled(uint entityID, bool enabled);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

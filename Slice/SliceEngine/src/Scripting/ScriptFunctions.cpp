@@ -2930,6 +2930,41 @@ namespace SliceEngine
 		}
 	}
 
+	static bool Renderer_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<Renderer>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& rend = go.GetComponent<Renderer>();
+		return rend.componentEnabled;
+	}
+
+	static void Renderer_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<Renderer>())
+		{
+			Entity _entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::Renderer>(_entity, [&](auto& rend)
+				{
+					rend.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", _entity);
+		}
+
+	}
+
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
 	{
 		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -3383,6 +3418,8 @@ namespace SliceEngine
 
 		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
 		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_IsEnabled);
+		ADD_INTERNAL_CALL(Renderer_SetEnabled);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);
