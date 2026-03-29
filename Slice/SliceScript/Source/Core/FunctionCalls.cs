@@ -37,6 +37,27 @@ namespace SliceEngine
         internal extern static void Camera_SetImpactFrameSharpness(uint entityID, float sharpness);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactFrameDensity(uint entityID, float density);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        // Light
+        internal extern static void Light_SetCastShadow(uint entityID, bool castsShadow);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Light_GetCastShadow(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetColor(uint entityID, ref Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_GetColor(uint entityID, out Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetIntensity(uint entityID, float intensity);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetIntensity(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetAngle(uint entityID, float angle);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetAngle(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetLightType(uint entityID, int lightType);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int Light_GetLightType(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();
