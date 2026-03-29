@@ -236,6 +236,7 @@ namespace SliceEngine
 		float bloomLimit{ 1.f };
 		float exposure{ 10.f };
 		float gamma{ 45.4545f };
+		float whiteBalance{ 0.98f };
 		float minLuminance{ 0.0001f };
 		float maxLuminance{ 10.0f };
 		float godRayFilterRadius{ 5.f };
