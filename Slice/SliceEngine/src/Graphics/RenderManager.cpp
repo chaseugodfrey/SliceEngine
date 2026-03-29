@@ -1093,7 +1093,13 @@ namespace SliceEngine
 		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
-		glUniform1f(uniformLoc, camera.luminanceLearningRate);
+		if(!camera.camLoaded)
+		{
+			glUniform1f(uniformLoc, 1000);
+			camera.camLoaded = true;
+		}
+		else
+			glUniform1f(uniformLoc, camera.luminanceLearningRate);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMaxLum");
 		glUniform1f(uniformLoc, camera.maxLuminance);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMinLum");

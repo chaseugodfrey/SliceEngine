@@ -100,12 +100,14 @@
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMech.cs" />
+    <Compile Include="Source\Core\Enemy\LandmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\RotatingMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMechWall.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />
+    <Compile Include="Source\Core\Environment\DynamicLight.cs" />
     <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
     <Compile Include="Source\Core\Environment\OrbitalLaserDebug.cs" />
