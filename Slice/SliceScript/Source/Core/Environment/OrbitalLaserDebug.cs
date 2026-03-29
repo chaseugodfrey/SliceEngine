@@ -6,7 +6,7 @@ namespace SliceEngine
 {
     public class OrbitalLaserDebug : SliceBehaviour
     {
-        public string hintPrefabName = "FX_OrbitalLaserHint";
+        public string hintPrefabName = "OrbitalLaser";
         public float spawnRadius = 200f;
         public float yOffset = 0.1f;
         public float trackDuration = 2f;
