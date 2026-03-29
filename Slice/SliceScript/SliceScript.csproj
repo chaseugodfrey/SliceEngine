@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -79,6 +77,8 @@
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
+    <Compile Include="Source\Core\Enemy\AirmineMech.cs" />
+    <Compile Include="Source\Core\Enemy\AirmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\DamagePlayerOnContact.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
     <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
@@ -111,10 +111,6 @@
     <Compile Include="Source\Core\Environment\DynamicLight.cs" />
     <Compile Include="Source\Core\Environment\Enemy_Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\MovingEnvironment.cs" />
-    <Compile Include="Source\Core\Environment\OrbitalLaser.cs" />
-    <Compile Include="Source\Core\Environment\OrbitalLaserDebug.cs" />
-    <Compile Include="Source\Core\Environment\OrbitalLaserHint.cs" />
-    <Compile Include="Source\Core\Environment\OrbitalLaserLight.cs" />
     <Compile Include="Source\Core\Environment\Projectile.cs" />
     <Compile Include="Source\Core\Environment\Projectile_Spawner.cs" />
     <Compile Include="Source\Core\Environment\RotatingEnvironment.cs" />
@@ -177,8 +173,8 @@
     <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
-    <Compile Include="Source\Examples\TestCameraMovement.cs" />
     <Compile Include="Source\Examples\TestCamera.cs" />
+    <Compile Include="Source\Examples\TestCameraMovement.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
