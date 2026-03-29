@@ -3,15 +3,16 @@
         "LandmIneMech": {
             "struct SliceEngine::ColliderShape": {
                 "componentEnabled": true,
+                "cylinderData": {
+                    "height": 3.0,
+                    "radius": 2.0
+                },
                 "isTrigger": true,
                 "offSet": [
                     0.0,
                     0.0,
                     0.0
-                ],
-                "sphereData": {
-                    "radius": 2.0
-                }
+                ]
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -21,12 +22,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048792,
+                "entity_id": 5243100,
                 "neighbours": [
                     0,
-                    1048793,
-                    1048790,
-                    1048593
+                    5243091,
+                    5243083,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
@@ -45,9 +46,9 @@
                     0.0
                 ],
                 "position": [
-                    19.189382553100586,
+                    31.993404388427734,
                     0.533282995223999,
-                    21.246896743774414
+                    5.5758957862854
                 ],
                 "rotation": [
                     1.0,
@@ -86,12 +87,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048793,
+                "entity_id": 5243091,
                 "neighbours": [
-                    1048792,
+                    5243100,
                     4294967295,
                     4294967295,
-                    1048594
+                    5242893
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -136,7 +137,7 @@
                     0.0
                 ],
                 "sphereData": {
-                    "radius": 6.0
+                    "radius": 6.699999809265137
                 }
             },
             "struct SliceEngine::Prefab": {
@@ -160,12 +161,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048594,
+                "entity_id": 5242893,
                 "neighbours": [
-                    1048792,
-                    4294967295,
-                    1048793,
-                    1048795
+                    5243100,
+                    5242892,
+                    5243091,
+                    5243097
                 ]
             },
             "struct SliceEngine::Script": {
@@ -181,13 +182,13 @@
                     },
                     "jumpTime": {
                         "Type": "float",
-                        "Value": 0.25
+                        "Value": 0.33000001311302185
                     },
                     "jumpVelocity": {
                         "Type": "glm::vec3",
                         "Value": [
                             0.0,
-                            10.0,
+                            7.5,
                             0.0
                         ]
                     },
@@ -229,13 +230,74 @@
         }
     },
     {
-        "OrangeInner": {
+        "LandmineLight": {
+            "struct SliceEngine::Light": {
+                "angle": 90.0,
+                "castsShadow": true,
+                "color": [
+                    1.0,
+                    0.0,
+                    0.0
+                ],
+                "componentEnabled": true,
+                "intensity": 5.0,
+                "type": "Point"
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
                     "GUID": ""
                 },
                 "prefabID": 3
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 5242892,
+                "neighbours": [
+                    5242893,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LandmineLight",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.6273293495178223,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    2.5,
+                    2.5,
+                    2.5
+                ]
+            }
+        }
+    },
+    {
+        "OrangeInner": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -251,12 +313,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048795,
+                "entity_id": 5243097,
                 "neighbours": [
-                    1048792,
+                    5243100,
                     4294967295,
-                    1048594,
-                    1048796
+                    5242893,
+                    5243090
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -297,7 +359,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 4
+                "prefabID": 5
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -313,12 +375,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048796,
+                "entity_id": 5243090,
                 "neighbours": [
-                    1048792,
+                    5243100,
                     4294967295,
-                    1048795,
-                    2097155
+                    5243097,
+                    5243092
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -359,7 +421,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 5
+                "prefabID": 6
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -375,12 +437,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097155,
+                "entity_id": 5243092,
                 "neighbours": [
-                    1048792,
+                    5243100,
                     4294967295,
-                    1048796,
-                    2097156
+                    5243090,
+                    5243094
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -421,7 +483,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 6
+                "prefabID": 7
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -437,11 +499,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097156,
+                "entity_id": 5243094,
                 "neighbours": [
-                    1048792,
+                    5243100,
                     4294967295,
-                    2097155,
+                    5243092,
                     4294967295
                 ]
             },
