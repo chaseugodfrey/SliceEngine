@@ -65,6 +65,7 @@
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
+    <Compile Include="Source\Core\Components\Light.cs" />
     <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
     <Compile Include="Source\Examples\TestCameraMovement.cs" />
+    <Compile Include="Source\Examples\TestCamera.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
