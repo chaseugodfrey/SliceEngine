@@ -196,6 +196,12 @@ namespace SliceEngine
 		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// float_16 rgb Impact Image
+		glTextureStorage2D(mColAttachment[GOUT_IMPACT], 1, GL_RGB16F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_IMPACT], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_IMPACT], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_IMPACT], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_IMPACT], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		// float_32 rgba Final Image To Send to Camera Texture
 		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA32F, maxWidth, maxHeight);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -1307,8 +1313,7 @@ namespace SliceEngine
 		LoadSettings(GPS_DEFAULT);
 		glBindTextureUnit(0, mColAttachment[GOUT_POS]);
 		glBindTextureUnit(1, mColAttachment[GOUT_NOM]);
-		ToggleFinalTexture();
-		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_IMPACT]);
 		ClearBuffer(BufferClearSetting::ALL);
 
 		glm::mat4 PV = P * V;
@@ -1348,6 +1353,7 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 		glBindTextureUnit(1, camera.lum[static_cast<int>(camera.lumSelected)]);
+		glBindTextureUnit(2, mColAttachment[GOUT_IMPACT]);
 
 		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
@@ -1355,9 +1361,11 @@ namespace SliceEngine
 		glUniform1f(uniformLoc, camera.gamma / 100.f);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "White");
 		glUniform1f(uniformLoc, camera.whiteBalance);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
-		bool inImpactFrameMode = Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT;
-		glUniform1i(uniformLoc, !inImpactFrameMode);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "impactBlend");
+		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
+			glUniform1f(uniformLoc, camera.impactBlend);
+		else
+			glUniform1f(uniformLoc, 0.f);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		camera.lumSelected = !camera.lumSelected;

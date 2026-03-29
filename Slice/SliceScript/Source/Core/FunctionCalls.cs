@@ -43,6 +43,8 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactFrameDensity(uint entityID, float density);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactBlend(uint entityID, float blend);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         // Light
         internal extern static void Light_SetCastShadow(uint entityID, bool castsShadow);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
