@@ -758,7 +758,7 @@ void main(void){
     if(translucentIDOnly == 1)
 		return;
 	
-	fEmission = vec4(emission, 1.0f);    
+	fEmission = vec4(emission, fFragColor.a);    
 
     vec4 dif = fFragColor;
    
