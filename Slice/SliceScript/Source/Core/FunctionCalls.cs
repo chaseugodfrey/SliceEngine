@@ -706,8 +706,9 @@ namespace SliceEngine
         internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
 
 
-        //UI
-        //*************************
+
+        /************************* UI Functions *************************/
+        /************************* Rect Transform *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_GetHoriAlign(uint entityID, out RectTransform.HoriPivot hori);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -753,13 +754,15 @@ namespace SliceEngine
         internal extern static int RectTransform_GetRight(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_SetRight(uint entityID, int value);
-        //*************************
 
+
+        /************************* Slider *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Slider_SetValue(uint entityID, float value);
 
+        /************************* Font *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string FontRenderer_GetText(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -788,7 +791,7 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void FontRenderer_SetEnabled(uint entityID, bool enabled);
 
-
+        /************************* Sprite Renderer *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_GetColor(uint entityID, out Vector4 color);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -797,12 +800,55 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
 
+        /************************* Sprite Animator *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SpriteAnimator_GetPlaying(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetPlaying(uint entityID, bool value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SpriteAnimator_GetLoop(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetLoop(uint entityID, bool value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetRows(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetRows(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetCols(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetCols(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetFrameCnt(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetFrameCnt(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float SpriteAnimator_GetFPS(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetFPS(uint entityID, float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetCurrFrame(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetCurrFrame(uint entityID, uint value);
+
+
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Renderer_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetEnabled(uint entityID, bool enabled);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);

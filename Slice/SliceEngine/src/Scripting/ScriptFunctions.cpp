@@ -2973,6 +2973,138 @@ namespace SliceEngine
 		auto& slider = registry.get<Slider>(e);
 		slider.SetValue(value, e);
 	}
+
+	static bool SpriteAnimator_GetPlaying(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->is_playing;
+		}
+
+		return false;
+		//this is ridiculous to be calling getgobyentity when u already have the entity id then call has component then get component
+	/*	GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteAnimator>())
+		{
+			auto& anim = GO.GetComponent<SpriteAnimator>();
+			return anim.is_playing;
+		}*/
+	}
+	static void SpriteAnimator_SetPlaying(uint32_t entityID, bool value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->is_playing = value;
+		}
+	}
+
+	static bool SpriteAnimator_GetLoop(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->loop;
+		}
+
+		return false;
+	}
+	static void SpriteAnimator_SetLoop(uint32_t entityID, bool value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->loop = value;
+		}
+	}
+
+	static unsigned int SpriteAnimator_GetRows(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->row;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetRows(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->row = (unsigned char)value;
+		}
+	}
+
+	static unsigned int SpriteAnimator_GetCols(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->col;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetCols(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->col = (unsigned char)value;
+		}
+	}
+	static unsigned int SpriteAnimator_GetFrameCnt(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->num_frames;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetFrameCnt(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->num_frames = (unsigned char)value;
+		}
+	}
+
+	static float SpriteAnimator_GetFPS(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->fps;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetFPS(uint32_t entityID, float value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->fps = value;
+		}
+	}
+	static unsigned int SpriteAnimator_GetCurrFrame(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return (unsigned int)comp->curr_frame;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetCurrFrame(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->curr_frame = (float)value;
+		}
+	}
 #pragma endregion
 
 #pragma region Material
@@ -2995,6 +3127,41 @@ namespace SliceEngine
 			auto& renderer = GO.GetComponent<Renderer>();
 			*castShadow = renderer.castShadow;
 		}
+	}
+
+	static bool Renderer_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<Renderer>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& rend = go.GetComponent<Renderer>();
+		return rend.componentEnabled;
+	}
+
+	static void Renderer_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<Renderer>())
+		{
+			Entity _entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::Renderer>(_entity, [&](auto& rend)
+				{
+					rend.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", _entity);
+		}
+
 	}
 
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
@@ -3055,6 +3222,7 @@ namespace SliceEngine
 	{
 		return SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
 	}
+#pragma endregion
 
 #pragma region Application
 
@@ -3105,6 +3273,7 @@ namespace SliceEngine
 		RegisterComponent<AudioSource>();
 		RegisterComponent<RectTransform>();
 		RegisterComponent<SpriteRenderer>();
+		RegisterComponent<SpriteAnimator>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
@@ -3459,8 +3628,29 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
+
+		ADD_INTERNAL_CALL(SpriteAnimator_GetPlaying);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetPlaying);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetLoop);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetLoop);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetRows);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetRows);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetCols);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetCols);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetFrameCnt);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetFrameCnt);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetFPS);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetFPS);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetCurrFrame);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetCurrFrame);
+
+
+
+		//Renderer
 		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
 		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_IsEnabled);
+		ADD_INTERNAL_CALL(Renderer_SetEnabled);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);

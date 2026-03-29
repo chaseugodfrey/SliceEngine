@@ -433,6 +433,8 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
 
+			BoolInputHeader(mRegistry, "Playing", "##spriteanimplaying", sprite_anim.is_playing);
+			BoolInputHeader(mRegistry, "Loop", "##spriteanimloop", sprite_anim.loop);
 			//i cant be bothered to make a draguint8 or wtv so ill just do this
 			unsigned int temps[3];
 			temps[0] = sprite_anim.row;
@@ -445,7 +447,7 @@ namespace SliceEditor
 			sprite_anim.col = temps[1];
 			sprite_anim.num_frames = temps[2];
 
-			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.1f", 0.f, 60.f, 0.1f);
+			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.2f", 0.f, 60.f, 0.01f);
 
 		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
 			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
@@ -768,6 +770,7 @@ namespace SliceEditor
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", cam.whiteBalance, "%.1f", 0.001f, 100.0f);
 			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
