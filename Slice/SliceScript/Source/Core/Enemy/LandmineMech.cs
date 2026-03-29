@@ -27,15 +27,17 @@ namespace SliceEngine
 
         public override void OnTriggerEnter(uint other)
         {
-            if (triggered) { return; }
-            triggered = true;
-            base.OnTriggerEnter(other);
-            GameObject collidedGO = FindGameObjectWithID(other);
-            if (collidedGO != null && collidedGO.tag == "Player")
-            {
-                explosion.As<LandmineMechExplosion>().Triggered();
-                StartCoroutine(Suicide());
-            }
+            SliceLog.Console("ALOY LandmineMech triggered by collision with object ID: ", other);
+            
+            //if (triggered) { return; }
+            //triggered = true;
+            //base.OnTriggerEnter(other);
+            //GameObject collidedGO = FindGameObjectWithID(other);
+            //if (collidedGO != null && collidedGO.tag == "Player")
+            //{
+            //    explosion.As<LandmineMechExplosion>().Triggered();
+            //    StartCoroutine(Suicide());
+            //}
         }
 
         IEnumerator Suicide()

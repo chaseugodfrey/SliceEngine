@@ -376,8 +376,11 @@ namespace SliceEngine
 
 	void ScriptObject::InvokeOnTriggerEnter(unsigned int id)
 	{
+		std::cout << "ALOY OUTSIDE INVOKE TRIGGER" << id << std::endl;
+
 		if (mOnTriggerEnter)
 		{
+			std::cout << "ALOY INSIDE INVOKE TRIGGER" << id << std::endl;
 			void* param = &id;
 			//CM_CORE_INFO("Calling the Invoke Method onTriggerEnter");
 			mScriptClass->InvokeMethod(mMonoInstance, mOnTriggerEnter, &param);

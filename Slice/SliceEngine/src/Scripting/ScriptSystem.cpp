@@ -1743,6 +1743,7 @@ namespace SliceEngine
             {
                 //mEntityCollisionMap[event.entity].insert(event.other);
                 mTriggerMap[event.entity].insert(event.other);
+				std::cout << "ALOYTrigger enter for " << (unsigned int)event.entity << " and " << (unsigned int)event.other << std::endl;
                 scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
             }
                 break;
