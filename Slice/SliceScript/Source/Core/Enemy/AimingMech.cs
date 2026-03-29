@@ -138,7 +138,7 @@ namespace SliceEngine
             if (!active)
                 return;
 
-            float distanceToPlayer = Utilities.Distance3D(pos, Bootstrap.Player.transform.Position);
+            float distanceToPlayer = Utilities.Distance3D(transform.WorldPosition, Bootstrap.Player.transform.WorldPosition);
             Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
             if (distanceToPlayer <= maxAimRange)
             {
@@ -158,7 +158,7 @@ namespace SliceEngine
                     aimTarget = Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0);
                 }
 
-                Vector3 shootDir = (aimTarget - transform.Position).Normalize();
+                Vector3 shootDir = (aimTarget - transform.WorldPosition).Normalize();
 
                 this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
 

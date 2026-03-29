@@ -31,7 +31,7 @@ namespace SliceEngine
         {
             base.OnCreate();
 
-            startPos = transform.WorldPosition;
+            startPos = transform.Position;
             targetPos = startPos + endPosOffset;
 
             GameObject[] children = gameObject.GetAllChildren();
@@ -83,10 +83,10 @@ namespace SliceEngine
             }
 
             // Move towards target
-            Vector3 current = transform.WorldPosition;
+            Vector3 current = transform.Position;
             Vector3 direction = (targetPos - current).Normalize();
 
-            transform.Position += direction * moveSpeed * dt;
+            transform.Translate(direction * moveSpeed * dt);
 
             // Check if reached target (small threshold)
             if ((targetPos - current).Magnitude() < 0.05f)
