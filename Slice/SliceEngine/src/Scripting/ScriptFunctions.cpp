@@ -3272,7 +3272,6 @@ namespace SliceEngine
 		// if we hotload and need to rerun the linking and reinit mono
 		// then we might need to clear the map before registering again
 		mGameObjectHasComponentFuncs.clear();
-		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
 		RegisterComponent<ColliderShape>();
@@ -3287,6 +3286,7 @@ namespace SliceEngine
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
 		RegisterComponent<Light>();
+		RegisterComponent<ParticleSystem>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
