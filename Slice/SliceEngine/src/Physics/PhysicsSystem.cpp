@@ -1412,6 +1412,8 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
+		if (colliderShape.bodyID.IsInvalid())
+			return;
 		
 		// Remove body form physics world
 		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
