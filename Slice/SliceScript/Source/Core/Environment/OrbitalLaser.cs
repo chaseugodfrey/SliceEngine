@@ -34,7 +34,10 @@ namespace SliceEngine
             innerLaser = gameObject.GetAllChildren();
             foreach (GameObject child in innerLaser)
             {
-                child.GetComponent<Renderer>().ComponentEnabled = false;
+                if (child.tag == "InnerLaser")
+                {
+                    child.GetComponent<Renderer>().ComponentEnabled = false;
+                }
             }
         }
 
@@ -89,7 +92,10 @@ namespace SliceEngine
 
                 foreach (GameObject child in innerLaser)
                 {
-                    child.GetComponent<Renderer>().ComponentEnabled = true;
+                    if (child.tag == "InnerLaser")
+                    {
+                        child.GetComponent<Renderer>().ComponentEnabled = true;
+                    }
                 }
             }
 

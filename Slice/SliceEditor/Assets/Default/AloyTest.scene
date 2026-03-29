@@ -824,7 +824,7 @@
                         0,
                         1048731,
                         1048729,
-                        1048794
+                        1048800
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -4718,7 +4718,7 @@
                         [
                             1,
                             1,
-                            0.10000000149011612,
+                            0.5,
                             0.0
                         ]
                     ],
@@ -4732,14 +4732,14 @@
                     "colourLifetimeMap": {
                         "0.000000": [
                             1.0,
-                            0.0,
-                            0.0,
+                            1.0,
+                            1.0,
                             0.03921568766236305
                         ],
                         "0.600000": [
                             1.0,
-                            0.0,
-                            0.0,
+                            0.7627906799316406,
+                            0.7627906799316406,
                             0.19607843458652496
                         ],
                         "1.000000": [
@@ -4754,8 +4754,8 @@
                             0.0,
                             [
                                 1.0,
-                                0.0,
-                                0.0,
+                                1.0,
+                                1.0,
                                 0.03921568766236305
                             ]
                         ],
@@ -4763,8 +4763,8 @@
                             0.6000000238418579,
                             [
                                 1.0,
-                                0.0,
-                                0.0,
+                                0.7627906799316406,
+                                0.7627906799316406,
                                 0.19607843458652496
                             ]
                         ],
@@ -4801,7 +4801,7 @@
                     "initialRotationType": 0,
                     "innerShapeRadius": 0.0,
                     "isLocalSpace": true,
-                    "isRepeating": false,
+                    "isRepeating": true,
                     "isRotation3D": true,
                     "lifetime": 5.0,
                     "materialHandle": {
@@ -4888,9 +4888,9 @@
                         0.0
                     ],
                     "scale": [
-                        5.0,
+                        10.0,
                         100.0,
-                        5.0
+                        10.0
                     ],
                     "scaleType": 0,
                     "shapeRadius": 0.0,
@@ -5034,19 +5034,19 @@
                     "velocitySeparateAxis": false
                 },
                 "struct SliceEngine::Prefab": {
-                    "prefabGUID": "18308487913035597357",
+                    "prefabGUID": "10949822319543335601",
                     "prefabHandle": {
-                        "GUID": "18308487913035597357"
+                        "GUID": "10949822319543335601"
                     },
-                    "prefabID": 0
+                    "prefabID": 3
                 },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 1048794,
                     "neighbours": [
-                        0,
+                        1048797,
                         4294967295,
-                        1048730,
-                        1048799
+                        1048799,
+                        4294967295
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -5079,9 +5079,9 @@
                         0.0
                     ],
                     "position": [
-                        -7.4201340675354,
-                        2.472093105316162,
-                        12.398283958435059
+                        0.0,
+                        0.0,
+                        0.0
                     ],
                     "rotation": [
                         1.0,
@@ -5090,9 +5090,9 @@
                         0.0
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
-                        1.0
+                        0.09999997913837433,
+                        0.009999999776482582,
+                        0.10000000149011612
                     ]
                 }
             }
@@ -5217,7 +5217,97 @@
             }
         },
         {
+            "OrbitalLaser": {
+                "struct SliceEngine::ColliderShape": {
+                    "componentEnabled": true,
+                    "cylinderData": {
+                        "height": 0.5,
+                        "radius": 0.5
+                    },
+                    "isTrigger": true,
+                    "offSet": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "struct SliceEngine::Prefab": {
+                    "prefabGUID": "10949822319543335601",
+                    "prefabHandle": {
+                        "GUID": "10949822319543335601"
+                    },
+                    "prefabID": 0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 1048797,
+                    "neighbours": [
+                        0,
+                        1048798,
+                        1048800,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.OrbitalLaser",
+                    "scriptableFieldMap": {
+                        "damage": {
+                            "Type": "int",
+                            "Value": 20
+                        },
+                        "lingerTime": {
+                            "Type": "float",
+                            "Value": 2.0
+                        },
+                        "moveSpeed": {
+                            "Type": "float",
+                            "Value": 15.0
+                        },
+                        "trackDuration": {
+                            "Type": "float",
+                            "Value": 5.0
+                        }
+                    }
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "OrbitalLaser",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        50.0,
+                        -16.21139907836914
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        10.000000953674316,
+                        100.0,
+                        10.0
+                    ]
+                }
+            }
+        },
+        {
             "Outer": {
+                "struct SliceEngine::Prefab": {
+                    "prefabGUID": "10949822319543335601",
+                    "prefabHandle": {
+                        "GUID": "10949822319543335601"
+                    },
+                    "prefabID": 1
+                },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
                     "componentEnabled": true,
@@ -5232,19 +5322,19 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048797,
+                    "entity_id": 1048798,
                     "neighbours": [
-                        1048799,
+                        1048797,
                         4294967295,
                         4294967295,
-                        1048798
+                        1048799
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
                     "mName": "Outer",
-                    "mTag": "default"
+                    "mTag": "InnerLaser"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
@@ -5273,6 +5363,13 @@
         },
         {
             "Inner": {
+                "struct SliceEngine::Prefab": {
+                    "prefabGUID": "10949822319543335601",
+                    "prefabHandle": {
+                        "GUID": "10949822319543335601"
+                    },
+                    "prefabID": 2
+                },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
                     "componentEnabled": true,
@@ -5287,19 +5384,19 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048798,
+                    "entity_id": 1048799,
                     "neighbours": [
-                        1048799,
-                        4294967295,
                         1048797,
-                        4294967295
+                        4294967295,
+                        1048798,
+                        1048794
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
                     "mName": "Inner",
-                    "mTag": "default"
+                    "mTag": "InnerLaser"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
@@ -5322,86 +5419,6 @@
                         0.5999999642372131,
                         1.0,
                         0.5999999046325684
-                    ]
-                }
-            }
-        },
-        {
-            "OrbitalLaser": {
-                "struct SliceEngine::ColliderShape": {
-                    "componentEnabled": true,
-                    "cylinderData": {
-                        "height": 0.5,
-                        "radius": 0.5
-                    },
-                    "isTrigger": false,
-                    "offSet": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 1048799,
-                    "neighbours": [
-                        0,
-                        1048797,
-                        1048794,
-                        1048800
-                    ]
-                },
-                "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.OrbitalLaser",
-                    "scriptableFieldMap": {
-                        "damage": {
-                            "Type": "int",
-                            "Value": 20
-                        },
-                        "laserPrefabName": {
-                            "Type": "std::string",
-                            "Value": "FX_OrbitalLaser"
-                        },
-                        "lingerTime": {
-                            "Type": "float",
-                            "Value": 2.0
-                        },
-                        "moveSpeed": {
-                            "Type": "float",
-                            "Value": 15.0
-                        },
-                        "trackDuration": {
-                            "Type": "float",
-                            "Value": 4.0
-                        }
-                    }
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "OrbitalLaser",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        50.0,
-                        6.911658763885498
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        10.000000953674316,
-                        100.0,
-                        10.0
                     ]
                 }
             }
@@ -5442,8 +5459,8 @@
                     "neighbours": [
                         0,
                         4294967295,
-                        1048799,
-                        4294967295
+                        1048730,
+                        1048797
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
