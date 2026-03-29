@@ -303,6 +303,7 @@ namespace SliceEngine
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
 		.property("gamma", &Camera::gamma)
+		.property("whiteBalance", &Camera::whiteBalance)
 		.property("minLuminance", &Camera::minLuminance)
 		.property("maxLuminance", &Camera::maxLuminance)
 		.property("godRayStrength", &Camera::godRayStrength)
