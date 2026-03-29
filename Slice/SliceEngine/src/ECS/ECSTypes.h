@@ -238,6 +238,7 @@ namespace SliceEngine
 		float bloomLimit{ 1.f };
 		float exposure{ 10.f };
 		float gamma{ 45.4545f };
+		float whiteBalance{ 0.98f };
 		float minLuminance{ 0.0001f };
 		float maxLuminance{ 10.0f };
 		float godRayFilterRadius{ 5.f };
@@ -875,6 +876,8 @@ namespace SliceEngine
 	};
 
 	struct SpriteAnimator {
+		bool is_playing{ false };
+		bool loop{ false };
 		unsigned char row { 1 };
 		unsigned char col { 1 };
 		unsigned char num_frames { 1 };
