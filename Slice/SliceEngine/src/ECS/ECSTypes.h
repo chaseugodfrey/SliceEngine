@@ -873,6 +873,8 @@ namespace SliceEngine
 	};
 
 	struct SpriteAnimator {
+		bool is_playing{ false };
+		bool loop{ false };
 		unsigned char row { 1 };
 		unsigned char col { 1 };
 		unsigned char num_frames { 1 };

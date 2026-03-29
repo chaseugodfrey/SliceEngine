@@ -656,6 +656,8 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 
 rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .constructor<>()
+.property("is_playing", &SpriteAnimator::is_playing)
+.property("loop", &SpriteAnimator::loop)
 .property("fps", &SpriteAnimator::fps)
 .property("row", &SpriteAnimator::row)
 .property("col", &SpriteAnimator::col)
