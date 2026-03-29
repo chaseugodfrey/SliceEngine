@@ -2426,6 +2426,50 @@ namespace SliceEngine
 		}
 	}
 
+	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor = *target;
+	}
+	static void Camera_SetImpactFrameColor2(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor2 = *target;
+	}
+	static void Camera_SetImpactFrameSmooth(unsigned int entityID, bool isSmooth)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactSmooth = isSmooth;
+	}
+	static void Camera_SetImpactFrameSpeed(unsigned int entityID, float speed)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactEpilepsy = speed;
+	}
+	static void Camera_SetImpactFrameSharpness(unsigned int entityID, float sharp)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise1 = sharp;
+	}
+	static void Camera_SetImpactFrameDensity(unsigned int entityID, float dense)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise2 = dense;
+	}
+	static void Camera_SetImpactBlend(unsigned int entityID, float blend)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactBlend = blend;
+	}
+
+
 #pragma endregion
 
 #pragma region LIGHT
@@ -3304,6 +3348,13 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor2);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSmooth);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
 
 		//Light
 		ADD_INTERNAL_CALL(Light_SetCastShadow);
