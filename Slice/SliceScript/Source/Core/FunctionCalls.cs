@@ -21,18 +21,43 @@ namespace SliceEngine
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
-        
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Camera_SetGamma(float gamma);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float Camera_GetGamma();
-
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
-
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactFrameWorldPosition(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameColor1(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameColor2(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSmooth(uint entityID, bool isSmooth);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSpeed(uint entityID, float speed);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSharpness(uint entityID, float sharpness);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameDensity(uint entityID, float density);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        // Light
+        internal extern static void Light_SetCastShadow(uint entityID, bool castsShadow);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Light_GetCastShadow(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetColor(uint entityID, ref Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_GetColor(uint entityID, out Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetIntensity(uint entityID, float intensity);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetIntensity(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetAngle(uint entityID, float angle);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetAngle(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetLightType(uint entityID, int lightType);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int Light_GetLightType(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();
@@ -136,6 +161,9 @@ namespace SliceEngine
         internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string Audio_GetSoundName(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -145,14 +173,10 @@ namespace SliceEngine
         internal extern static void Audio_Stop(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_StopAllSound();
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_IsPlaying(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_SetPaused(uint entityID, bool paused);
-        
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetPaused(uint entityID);
 
@@ -199,8 +223,8 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetMute(uint entityID);
 
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_SetSoundName(uint entityID, string audioName);
+        //[MethodImplAttribute(MethodImplOptions.InternalCall)]
+        //internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyPressed(Keys key);
