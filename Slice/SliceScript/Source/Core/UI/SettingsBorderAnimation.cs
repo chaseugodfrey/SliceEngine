@@ -15,16 +15,12 @@ namespace SliceEngine
         public GameObject closeSettingsButton;
         public GameObject menuCanvasObj;
 
-        private RectTransform frontBgTrans, backBgTrans, frontTitleBgTrans, backTitleBgTrans;
-        private FontRenderer frontText, backText;
+        private RectTransform frontBgTrans;
+        
 
         public int defaultHeight = 0;
         public int finalHeight = 0;
-        public int defaultFrontTitleBGWidth = 0;
-        public int finalFrontTitleBGWidth = 0;
-        public int defaultBackTitleBGWidth = 0;
-        public int finalBackTitleBGWidth = 0;
-        public string textToShow = "";
+        
 
         private float animationTimer = 0f;
         private bool isOpening = false;
@@ -36,7 +32,6 @@ namespace SliceEngine
             if (settingsFrontBG != null) frontBgTrans = settingsFrontBG.GetComponent<RectTransform>();
 
             if (settingsSliders != null) settingsSliders.SetActive(false);
-            if (closeSettingsButton != null) closeSettingsButton.SetActive(false);
         }
 
         public override void OnUpdate(float dt)
@@ -71,16 +66,6 @@ namespace SliceEngine
 
                 
                 float textProgress = Utilities.InverseLerp(0.5f, 1.0f, animationTimer);
-
-                if (frontText != null && !string.IsNullOrEmpty(textToShow))
-                {
-                    int charactersToShow = (int)(textProgress * textToShow.Length);
-                    string currentStr = textToShow.Substring(0, charactersToShow);
-
-                    frontText.Text_val = currentStr;
-                    if (backText != null) backText.Text_val = currentStr;
-                }
-
                 
                 bool isFullyOpen = animationTimer >= 1.0f && isOpening;
                 if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);

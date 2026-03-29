@@ -29,11 +29,6 @@ namespace SliceEngine
         internal extern static float Camera_GetGamma();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Camera_SetGamma(float gamma);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float Camera_GetGamma();
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -236,8 +231,6 @@ namespace SliceEngine
         internal extern static void Audio_SetMute(uint entityID, bool mute);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetMute(uint entityID);
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
