@@ -631,6 +631,7 @@ namespace SliceEngine
 		.property("handle", &Slider::handle)
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
+		.property("contained", &Slider::contained)
 		.property("enabled", &Slider::componentEnabled);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
