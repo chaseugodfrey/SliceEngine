@@ -137,6 +137,9 @@ namespace SliceEngine
 		Entity entity = mRegistry.create();
 		GameObject newGO(mRegistry, entity);
 
+		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
+		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
 		{
@@ -147,9 +150,6 @@ namespace SliceEngine
 		newGO.SetName(CreateName(go.GetName()));
 		newGO.AddComponent<SceneGraph>();
 		newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
-
-		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
-		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
 
 		// need preserve transform if not it passes away
 		if (newGO.HasComponent<Transform>())

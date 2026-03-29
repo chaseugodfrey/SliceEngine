@@ -2464,6 +2464,82 @@ namespace SliceEngine
 
 #pragma endregion
 
+#pragma region LIGHT
+	static void Light_SetCastShadow(unsigned int entityID, bool target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().castsShadow = target;
+	}
+	static bool Light_GetCastShadow(uint32_t entityID)
+	{
+		bool ret = false;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().castsShadow;
+		return ret;
+	}
+
+	static void Light_SetColor(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().color = *target;
+	}
+	static void Light_GetColor(uint32_t entityID, glm::vec3* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			*color = GO.GetComponent<Light>().color;
+	}
+
+	static void Light_SetIntensity(unsigned int entityID, float target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().intensity = target;
+	}
+	static float Light_GetIntensity(uint32_t entityID)
+	{
+		float ret = 0.0f;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().intensity;
+		return ret;
+	}
+
+	static void Light_SetAngle(unsigned int entityID, float target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().angle = std::clamp(target, -90.0f, 90.f);
+	}
+	static float Light_GetAngle(uint32_t entityID)
+	{
+		float ret = 0.0f;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().angle;
+		return ret;
+	}
+
+	static void Light_SetLightType(unsigned int entityID, int target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().type = static_cast<Light::LightType>(target);
+	}
+	static int Light_GetLightType(uint32_t entityID)
+	{
+		int ret = 0;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = static_cast<int>(GO.GetComponent<Light>().type);
+		return ret;
+	}
+
+#pragma endregion
+
 #pragma region NAVIGATION FUNCTIONS
 
 
@@ -3068,6 +3144,7 @@ namespace SliceEngine
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
+		RegisterComponent<Light>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
@@ -3100,6 +3177,19 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+
+		//Light
+		ADD_INTERNAL_CALL(Light_SetCastShadow);
+		ADD_INTERNAL_CALL(Light_GetCastShadow);
+		ADD_INTERNAL_CALL(Light_SetColor);
+		ADD_INTERNAL_CALL(Light_GetColor);
+		ADD_INTERNAL_CALL(Light_SetIntensity);
+		ADD_INTERNAL_CALL(Light_GetIntensity);
+		ADD_INTERNAL_CALL(Light_SetAngle);
+		ADD_INTERNAL_CALL(Light_GetAngle);
+		ADD_INTERNAL_CALL(Light_SetLightType);
+		ADD_INTERNAL_CALL(Light_GetLightType);
+
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);

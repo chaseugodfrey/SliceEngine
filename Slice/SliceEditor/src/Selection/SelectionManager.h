@@ -29,6 +29,7 @@ namespace SliceEditor
 		std::vector<ISelectionListener*> mListeners;
 		//std::unordered_set<entt::entity> mSelectedEntities;
 		std::unordered_set<SelectionNode*> mSelectedNodes;
+		std::vector<SelectionNode*> mSelectionOrder;
 
 		//void UpdateManagers();
 
@@ -43,6 +44,9 @@ namespace SliceEditor
 		void SelectSingle(SelectionNode* node, bool suppressHistory = false);
 		void SelectSingle(entt::entity entity, bool suppressHistory = false);
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
+		void AddBetweenEntities(SelectionNode* rightNode);
+		void ShiftAddEntities(Entity targetEntity, SliceEngine::SceneGraph::Direction direction);
+		bool SceneGraphRightTraversal(Entity currentEntity, Entity targetEntity);
 		void SelectSingleAdd(SelectionNode* node, bool suppressHistory = false);
 		//void UpdateDeslected(entt::entity entity, bool suppressHistory = false);
 		void SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory = false);

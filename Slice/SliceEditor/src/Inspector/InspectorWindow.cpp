@@ -447,6 +447,10 @@ namespace SliceEditor
 
 			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.1f", 0.f, 60.f, 0.1f);
 
+		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
+			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
+			sprite_anim.curr_frame = curr_temp + FLT_EPSILON;*/
+
 			ImGui::TreePop();
 		}
 	}
@@ -764,6 +768,8 @@ namespace SliceEditor
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
@@ -785,6 +791,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", cam.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::Text("Godrays");
