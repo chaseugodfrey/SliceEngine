@@ -35,7 +35,10 @@ void main(void){
 		avgLum = 0.001;
 
   if(useLum == 0)
-    avgLum = 0.001;
+  {
+    fFragColor = vec4(hdrCol, 1.0);
+    return;
+  }
 
     // Convert to XYZ
 	vec3 xyzCol = rgb2xyz * hdrCol;
