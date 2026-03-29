@@ -68,6 +68,7 @@ namespace SliceEngine
 		void RenderSkybox();
 		void RenderSkyboxLighting(Entity cam);
 		void RenderLighting(Entity cam);
+		void RenderAvgLum(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam, bool specifallyGodRay);
@@ -171,6 +172,7 @@ namespace SliceEngine
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
 			S_LUMINANCE,
+			S_EXT_LUMINANCE,
 			S_FINAL						,
 			S_COPY						
 		};
@@ -201,6 +203,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
 			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
+			{ ShaderOpt::S_EXT_LUMINANCE,	"Shaders/Extractluminance.shader" },
 			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
 			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
 		};
@@ -217,6 +220,7 @@ namespace SliceEngine
 			GOUT_GODRAY,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
+			GOUT_LUM_EXTRACT,
 			GOUT_FINAL,
 			GOUT_POST,
 			GOUT_TOTAL
@@ -310,7 +314,7 @@ namespace SliceEngine
 		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
-		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
+		void SetUniformVec3(GLint uniformLoc, const glm::vec3& vec);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 

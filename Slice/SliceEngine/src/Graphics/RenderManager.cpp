@@ -191,14 +191,20 @@ namespace SliceEngine
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_DEBUG_OUTLINE_BLURED], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		// float_32 rgba Final Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_FINAL], 10, GL_RGBA32F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureStorage2D(mColAttachment[GOUT_LUM_EXTRACT], 9, GL_R32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTextureParameterf(mColAttachment[GOUT_LUM_EXTRACT], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		// float_32 rgba Final Image To Send to Camera Texture
+		glTextureStorage2D(mColAttachment[GOUT_FINAL], 1, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_FINAL], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 		// float_32 rgba Post Processing for toggling Image To Send to Camera Texture
-		glTextureStorage2D(mColAttachment[GOUT_POST], 10, GL_RGBA32F, maxWidth, maxHeight);
-		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTextureStorage2D(mColAttachment[GOUT_POST], 1, GL_RGBA32F, maxWidth, maxHeight);
+		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 		glTextureParameterf(mColAttachment[GOUT_POST], GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -583,18 +589,27 @@ namespace SliceEngine
 			glDepthMask(GL_TRUE);
 			renderQueue.UseDrawCalls(0, isPrefabCam ? RenderCmdManager::DrawType::DRAW_PREFAB_TRANSLUCENT : RenderCmdManager::DrawType::DRAW_TRANSLUCENT, cameraPos);
 			CheckGLError();
+
+			// Special case for Post Processings
+			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
+				RenderFog(cam);
+
+			RenderAvgLum(cam);
+
 			//----------------------------------------------------------------
 			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
 			{
 				LoadSettings(GPS_DEBUG);
+				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 				RenderDebug(cam);
 			}
+
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
 				RenderGroundCloud(cam);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
-				RenderFog(cam);
+
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
@@ -604,7 +619,6 @@ namespace SliceEngine
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
 				RenderImpact(cam);
 
-			LoadSettings(GPS_DEFAULT);
 			RenderGammaCorrection(cam);
 		}
 
@@ -798,7 +812,7 @@ namespace SliceEngine
 			ClearBuffer(BufferClearSetting::COLOR_ONLY);
 			{
 				glm::mat4 PV = P * V;
-				GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uPV");
+				GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uPV");
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
 			}
 			BindCameraDepth(cam); // for the viewPort call
@@ -829,7 +843,7 @@ namespace SliceEngine
 			BindCameraDepth(cam); // for the viewPort call
 			LoadSettings(GPS_DEBUG_OUTLINE_BLEND); // Blend?
 			glBindTextureUnit(0, mColAttachment[GOUT_DEBUG_OUTLINE_BLURED]); // In
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uCol");
 			SetUniformVec3(uniformLoc, glm::vec3(1.f));
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
@@ -879,7 +893,7 @@ namespace SliceEngine
 			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, light.shadowNum * 6,
 				SHADOW_DIMENSION, SHADOW_DIMENSION, 6, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			glUniform1f(uniformLoc, light.uFarPlane);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, light.shadowNum);
@@ -911,7 +925,7 @@ namespace SliceEngine
 			glClearTexSubImage(mShadowCubeMapArr, 0, 0, 0, shadowNum,
 				SHADOW_DIMENSION, SHADOW_DIMENSION, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &depthClearVal);
 
-			GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
+			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFarPlane");
 			glUniform1f(uniformLoc, light.uFarPlane);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLightIdx");
 			glUniform1i(uniformLoc, shadowNum);
@@ -1055,6 +1069,46 @@ namespace SliceEngine
 		
 		CheckGLError();
 	}
+	void RenderManager::RenderAvgLum(Entity cam)
+	{
+		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+
+		// Extract Luminiance before downscaling
+		LoadSettings(GPS_DEFAULT);
+		SetShader(ShaderPaths[S_EXT_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[GOUT_LUM_EXTRACT]);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
+		// Luminance Calc
+		glGenerateTextureMipmap(mColAttachment[GOUT_LUM_EXTRACT]);
+		SetShader(ShaderPaths[S_LUMINANCE]);
+		LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
+		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+		glBindTextureUnit(0, mColAttachment[GOUT_LUM_EXTRACT]);
+		glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
+		if(!camera.camLoaded)
+		{
+			glUniform1f(uniformLoc, 1000);
+			camera.camLoaded = true;
+		}
+		else
+			glUniform1f(uniformLoc, camera.luminanceLearningRate);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMaxLum");
+		glUniform1f(uniformLoc, camera.maxLuminance);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uMinLum");
+		glUniform1f(uniformLoc, camera.minLuminance);
+
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+		CheckGLError();
+
+	}
 	void RenderManager::RenderGroundCloud(Entity cam)
 	{
 		SetShader(ShaderPaths[S_CLOUDS]);
@@ -1070,7 +1124,7 @@ namespace SliceEngine
 
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTime");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTime");
 		glUniform1f(uniformLoc, mTime);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
 		SetUniformVec3(uniformLoc, cameraPos);
@@ -1144,12 +1198,10 @@ namespace SliceEngine
 		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 		ClearBuffer(BufferClearSetting::ALL);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogColor");
 		SetUniformVec3(uniformLoc, camera.fogColor);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uFogIntensity");
 		glUniform1f(uniformLoc, camera.fogIntensity);
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uCamPos");
-		SetUniformVec3(uniformLoc, camT.GetWorldPosition());
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		CheckGLError();
@@ -1168,13 +1220,17 @@ namespace SliceEngine
 			glBindTextureUnit(1, mColAttachment[GOUT_EMISSION]);
 		LinkFrameBufferSettings(FB_FINAL, 1, mBloomMips[0].tex);
 		ClearBuffer(BufferClearSetting::COLOR_ONLY);
+
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uLimit");
+		glUniform1f(uniformLoc, camera.bloomLimit);
+
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 
 		// Downscaling
 		SetShader(ShaderPaths[S_DOWNSCALING]);
 
 		glBindTextureUnit(0, mBloomMips[0].tex);
-		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "uTexelSize");
 		glUniform2f(uniformLoc, 1.f/mBloomMips[0].size.x, 1.f/mBloomMips[0].size.y);
 		for (int i{1}; i < mMaxBloom; ++i)
 		{
@@ -1232,7 +1288,7 @@ namespace SliceEngine
 		LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 		ClearBuffer(BufferClearSetting::ALL);
 
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteCenter");
 		glUniform2f(uniformLoc, camera.vignetteCenter.x, camera.vignetteCenter.y);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uVignetteIntensity");
 		glUniform1f(uniformLoc, camera.vignetteIntensity);
@@ -1256,7 +1312,7 @@ namespace SliceEngine
 		ClearBuffer(BufferClearSetting::ALL);
 
 		glm::mat4 PV = P * V;
-		GLuint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uVP");
 		glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &PV[0][0]);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "time");
 		glUniform1f(uniformLoc, mTime);
@@ -1286,38 +1342,20 @@ namespace SliceEngine
 	{
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 
-		bool impacting = Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT;
-		GLint uniformLoc;
-		if (!impacting)
-		{
-			// Luminance Calc
-			glGenerateTextureMipmap(mColAttachment[mCurrFinalColAttachment]);
-			SetShader(ShaderPaths[S_LUMINANCE]);
-			LinkFrameBufferSettings(FB_FINAL, 1, camera.lum[static_cast<int>(camera.lumSelected)]);
-			ClearBuffer(BufferClearSetting::ALL);
-			glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
-			glBindTextureUnit(1, camera.lum[static_cast<int>(!camera.lumSelected)]);
-
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "uLearningRate");
-			glUniform1f(uniformLoc, camera.luminanceLearningRate);
-
-			glDrawArrays(GL_TRIANGLES, 0, 6);
-			CheckGLError();
-		}
-
-		// Final Frag
+		LoadSettings(GPS_DEFAULT);
 		SetShader(ShaderPaths[S_FINAL]);
 		LinkFrameBufferSettings(FB_FINAL, 1, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 		ClearBuffer(BufferClearSetting::ALL);
 		glBindTextureUnit(0, mColAttachment[mCurrFinalColAttachment]);
 		glBindTextureUnit(1, camera.lum[static_cast<int>(camera.lumSelected)]);
 
-		uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
+		GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uExposure");
 		glUniform1f(uniformLoc, camera.exposure * mExposureMult);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "uGamma");
 		glUniform1f(uniformLoc, camera.gamma / 100.f);
 		uniformLoc = glGetUniformLocation(mCurrShader.second, "useLum");
-		glUniform1i(uniformLoc, !impacting);
+		bool inImpactFrameMode = Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT;
+		glUniform1i(uniformLoc, !inImpactFrameMode);
 
 		glDrawArrays(GL_TRIANGLES, 0, 6);
 		camera.lumSelected = !camera.lumSelected;
@@ -1865,7 +1903,7 @@ namespace SliceEngine
 		else
 			mCurrFinalColAttachment = GOUT_FINAL;
 	}
-	void RenderManager::SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec)
+	void RenderManager::SetUniformVec3(GLint uniformLoc, const glm::vec3& vec)
 	{
 		glUniform3f(uniformLoc, vec.x, vec.y, vec.z);
 	}

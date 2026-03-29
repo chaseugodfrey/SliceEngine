@@ -299,9 +299,12 @@ namespace SliceEngine
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomLimit", &Camera::bloomLimit)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
 		.property("gamma", &Camera::gamma)
+		.property("minLuminance", &Camera::minLuminance)
+		.property("maxLuminance", &Camera::maxLuminance)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
@@ -897,12 +900,12 @@ namespace SliceEngine
 
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime();
-		frm->EndSystem("Update Delta Time");
 
 		deltaTimeUnscaled = static_cast<float>(frm->getDeltaTime());
 		deltaTimeScaled = deltaTimeUnscaled * sScene->GetTimeScale();
 		fixedDeltaTime = static_cast<float>(frm->getFixedDeltaTime());
 		fixedDeltaTimeScaled = fixedDeltaTime * sScene->GetTimeScale();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -1125,8 +1128,10 @@ namespace SliceEngine
 	void Engine::EndFrame()
 	{
 		auto _frm = Core::GetInstance()->GetFramerateManager();
+		_frm->StartSystem("Update Destroyed");
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
+		_frm->EndSystem("Update Destroyed");
 
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
