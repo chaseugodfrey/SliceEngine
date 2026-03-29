@@ -1,13 +1,13 @@
 [
     {
-        "LandmIneMech": {
+        "LandmineMech": {
             "struct SliceEngine::ColliderShape": {
                 "componentEnabled": true,
                 "cylinderData": {
-                    "height": 3.0,
-                    "radius": 2.0
+                    "height": 0.20000000298023224,
+                    "radius": 0.5
                 },
-                "isTrigger": true,
+                "isTrigger": false,
                 "offSet": [
                     0.0,
                     0.0,
@@ -22,11 +22,73 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243100,
+                "entity_id": 66060535,
                 "neighbours": [
                     0,
-                    5243091,
-                    5243083,
+                    60817437,
+                    61866270,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LandmineMech",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.7762879133224487,
+                    0.5993115901947021,
+                    12.702059745788574
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LandmIneMechMain": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 5.0,
+                    "radius": 5.0
+                },
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 60817437,
+                "neighbours": [
+                    66060535,
+                    59768856,
+                    4294967295,
                     4294967295
                 ]
             },
@@ -36,7 +98,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "LandmIneMech",
+                "mName": "LandmIneMechMain",
                 "mTag": "Enemy"
             },
             "struct SliceEngine::Transform": {
@@ -46,9 +108,9 @@
                     0.0
                 ],
                 "position": [
-                    31.993404388427734,
-                    0.533282995223999,
-                    5.5758957862854
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -71,7 +133,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 1
+                "prefabID": 2
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -87,12 +149,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243091,
+                "entity_id": 59768856,
                 "neighbours": [
-                    5243100,
+                    60817437,
                     4294967295,
                     4294967295,
-                    5242893
+                    61865994
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -145,7 +207,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 2
+                "prefabID": 3
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -161,12 +223,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242893,
+                "entity_id": 61865994,
                 "neighbours": [
-                    5243100,
-                    5242892,
-                    5243091,
-                    5243097
+                    60817437,
+                    61866238,
+                    59768856,
+                    60817433
                 ]
             },
             "struct SliceEngine::Script": {
@@ -233,7 +295,7 @@
         "LandmineLight": {
             "struct SliceEngine::Light": {
                 "angle": 90.0,
-                "castsShadow": true,
+                "castsShadow": false,
                 "color": [
                     1.0,
                     0.0,
@@ -248,16 +310,65 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 3
+                "prefabID": 4
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242892,
+                "entity_id": 61866238,
                 "neighbours": [
-                    5242893,
+                    61865994,
                     4294967295,
                     4294967295,
                     4294967295
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.DynamicLight",
+                "scriptableFieldMap": {
+                    "colorA": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            1.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "colorB": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    },
+                    "colorDuration": {
+                        "Type": "float",
+                        "Value": 2.0
+                    },
+                    "flickerAmount": {
+                        "Type": "float",
+                        "Value": 0.30000001192092896
+                    },
+                    "flickerSpeed": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "maxIntensity": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "minIntensity": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "mode": {
+                        "Type": "int",
+                        "Value": 2
+                    },
+                    "speed": {
+                        "Type": "float",
+                        "Value": 10.0
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
@@ -273,7 +384,7 @@
                 ],
                 "position": [
                     0.0,
-                    0.6273293495178223,
+                    0.30000001192092896,
                     0.0
                 ],
                 "rotation": [
@@ -297,7 +408,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 4
+                "prefabID": 5
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -313,12 +424,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243097,
+                "entity_id": 60817433,
                 "neighbours": [
-                    5243100,
+                    60817437,
                     4294967295,
-                    5242893,
-                    5243090
+                    61865994,
+                    59768852
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -359,7 +470,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 5
+                "prefabID": 6
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -375,12 +486,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243090,
+                "entity_id": 59768852,
                 "neighbours": [
-                    5243100,
+                    60817437,
                     4294967295,
-                    5243097,
-                    5243092
+                    60817433,
+                    59768863
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -421,7 +532,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 6
+                "prefabID": 7
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -437,12 +548,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243092,
+                "entity_id": 59768863,
                 "neighbours": [
-                    5243100,
+                    60817437,
                     4294967295,
-                    5243090,
-                    5243094
+                    59768852,
+                    59769066
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -483,7 +594,7 @@
                 "prefabHandle": {
                     "GUID": ""
                 },
-                "prefabID": 7
+                "prefabID": 8
             },
             "struct SliceEngine::Renderer": {
                 "castsShadow": true,
@@ -499,11 +610,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243094,
+                "entity_id": 59769066,
                 "neighbours": [
-                    5243100,
+                    60817437,
                     4294967295,
-                    5243092,
+                    59768863,
                     4294967295
                 ]
             },

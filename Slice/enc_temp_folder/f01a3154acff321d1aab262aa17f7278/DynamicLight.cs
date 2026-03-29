@@ -10,17 +10,20 @@ namespace SliceEngine
 {
     public class DynamicLight : SliceBehaviour
     {
-        const int MODE_NONE = 0;
-        const int MODE_PINGPONG = 1;
-        const int MODE_PULSE = 2;
-        const int MODE_FLICKER = 3;
-        const int MODE_RAINBOW = 4;
+        public enum LightMode
+        {
+            None,
+            PingPongColor,
+            PulseIntensity,
+            Flicker,
+            RainbowCycle
+        }
 
-        public int mode = MODE_PINGPONG;
+        public LightMode mode = LightMode.PingPongColor;
 
         // Color settings
-        public Vector3 colorA = new Vector3(1, 0, 0); // Red
-        public Vector3 colorB = new Vector3(0, 0, 1); // Blue
+        //public Color colorA = new Color(1, 0, 0); // Red
+        //public Color colorB = new Color(0, 0, 1); // Blue
         public float colorDuration = 2.0f;
 
         // Intensity settings
@@ -31,38 +34,38 @@ namespace SliceEngine
         public float flickerSpeed = 10.0f;
         public float flickerAmount = 0.3f;
 
-        public float speed = 1.0f;
         private float timer = 0.0f;
-        private Light light;
-
+        //private Light light;
 
         public override void OnCreate()
         {
             base.OnCreate();
-            light = GetComponent<Light>();
+            //light = GetComponent<Light>();
         }
 
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
 
-            timer += dt * speed;
+            //if (light == null) return;
+
+            timer += dt;
 
             switch (mode)
             {
-                case MODE_PINGPONG:
+                case LightMode.PingPongColor:
                     UpdatePingPongColor();
                     break;
 
-                case MODE_PULSE:
+                case LightMode.PulseIntensity:
                     UpdatePulse();
                     break;
 
-                case MODE_FLICKER:
+                case LightMode.Flicker:
                     UpdateFlicker();
                     break;
 
-                case MODE_RAINBOW:
+                case LightMode.RainbowCycle:
                     UpdateRainbow();
                     break;
             }
@@ -71,26 +74,25 @@ namespace SliceEngine
         void UpdatePingPongColor()
         {
             float t = (float)(Math.Sin(timer / colorDuration * Math.PI) * 0.5 + 0.5);
-            light.Color = Utilities.Lerp(colorA, colorB, t);
+            //light.color = Color.Lerp(colorA, colorB, t);
         }
 
         void UpdatePulse()
         {
             float t = (float)(Math.Sin(timer * 2.0f) * 0.5 + 0.5);
-            light.Intensity = Lerp(minIntensity, maxIntensity, t);
+            //light.intensity = Lerp(minIntensity, maxIntensity, t);
         }
 
         void UpdateFlicker()
         {
             float noise = (float)(new Random().NextDouble());
-            light.Intensity = Lerp(minIntensity, maxIntensity, noise * flickerAmount);
+            //light.intensity = Lerp(minIntensity, maxIntensity, noise * flickerAmount);
         }
 
         void UpdateRainbow()
         {
             float hue = (timer * 0.2f) % 1.0f;
-            float pulse = (float)(Math.Sin(timer * 2.0f) * 0.5 + 0.5);
-            light.Color = Utilities.FromHSV(hue, 1.0f, pulse);
+            //light.color = Color.FromHSV(hue, 1.0f, 1.0f);
         }
 
         float Lerp(float a, float b, float t)

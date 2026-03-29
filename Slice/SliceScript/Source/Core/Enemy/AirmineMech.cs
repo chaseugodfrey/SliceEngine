@@ -11,7 +11,6 @@ namespace SliceEngine
         bool triggered = false;
 
         GameObject explosion;
-
         public override void OnCreate()
         {
             base.OnCreate();
