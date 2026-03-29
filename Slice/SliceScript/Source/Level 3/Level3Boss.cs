@@ -126,9 +126,7 @@ namespace SliceEngine
                     new Vector3(0, 1, -1)
                 };
 
-                bool first = bossController.projectileSpawners == null;
-                if (first)
-                    bossController.projectileSpawners = new List<Level3ProjectileSpawner>();
+                bool first = bossController.projectileSpawners.Count == 0;
 
                 for (int i = 0; i < 4; i++)
                 {
@@ -197,7 +195,7 @@ namespace SliceEngine
 
             public override void OnUpdate(float dt)
             {
-                if (bossController.movementDone && !attacking)
+                if (bossController.isMovementDone && !attacking)
                 {
                     attacking = true;
 
@@ -208,7 +206,7 @@ namespace SliceEngine
                 if (onCooldown)
                 {
                     timer += dt;
-                    bossController.grounded = true;
+                    bossController.isGrounded = true;
 
                     if (timer >= 0.5f)
                     {
@@ -217,7 +215,7 @@ namespace SliceEngine
 
                     if (timer >= 5.0f)
                     {
-                        bossController.grounded = false;
+                        bossController.isGrounded = false;
                         onCooldown = false;
                         attacking = false;
                         reset = true;
@@ -245,13 +243,14 @@ namespace SliceEngine
             }
         }
 
-
         public class RechargingState : BaseState
         {
             Level3Boss bossController;
             Vector3 rotDir = new Vector3(0, 1, 0);
             float rotSpeed = 10.0f;
             double rotTimer = 0.0;
+
+            bool hasGen = true;
 
             public RechargingState(GameObject owner) : base(owner)
             {
@@ -261,28 +260,47 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 SliceLog.Console("Recharging State.");
-                bossController.invulnerable = true;
+                bossController.isInvulnerable = true;
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.0f));
                 bossController.ReturnFollowingProjectiles();
+                hasGen = bossController.canRecharge = bossController.SetupRecharging();
             }
 
             public override void OnUpdate(float dt)
             {
-                if (bossController.movementDone)
+                if (bossController.isMovementDone)
                 {
-                    rotTimer += dt;
-                    bossController.RestoreShield();
-                    // some silly animation for now
+                    if (hasGen)
+                    {
+                        rotTimer += dt;
 
-                    rotDir.x = (float)Math.Sin(rotTimer) + 1;
-                    rotDir.z = (float)Math.Cos(rotTimer) + 1;
-                    bossController.transform.Rotate(rotDir * rotSpeed * dt);
+                        if (rotTimer >= 0.5f)
+                        {
+                            float x = SliceRandom.RangeFloat(0, 360);
+                            float y = SliceRandom.RangeFloat(0, 360);
+                            float z = SliceRandom.RangeFloat(0, 360);
+
+                            rotDir = new Vector3(x, y, z);
+                            rotTimer = 0.0f;
+                        }
+
+                        hasGen = bossController.RechargeShield();
+                        // some silly animation for now
+
+                        bossController.transform.Rotation = rotDir;
+                    }
+
+                    else
+                    {
+                        bossController.stateQueue.Enqueue(bossController.summonState);
+                        bossController.bossSM.ChangeState(bossController.idleState);
+                    }
                 }
             }
 
             public override void OnExit()
             {
-                bossController.invulnerable = false;
+                bossController.isInvulnerable = false;
             }
         }
 
@@ -315,6 +333,35 @@ namespace SliceEngine
             }
         }
 
+        public class DeathState : BaseState
+        {
+            Level3Boss bossController;
+            public DeathState(GameObject owner) : base(owner)
+            {
+                bossController = owner.As<Level3Boss>();
+            }
+
+            public override void OnEnter()
+            {
+
+            }
+
+            public override void OnUpdate(float dt)
+            {
+
+            }
+
+            public override void OnFixedUpdate(float dt)
+            {
+
+            }
+
+            public override void OnExit()
+            {
+
+            }
+        }
+
         #endregion
 
         // make it public so u can access it in the states as well
@@ -326,6 +373,7 @@ namespace SliceEngine
         public SlamState slamState;
         public RechargingState rechargingState;
         public ReferenceState referenceState;
+        public DeathState deathState;
 
         // state machine for the boss
         public StateMachine bossSM;
@@ -335,41 +383,49 @@ namespace SliceEngine
         public GameObject startingPositionObj;
         public GameObject generalHitbox;
         public GameObject enemyHUD;
-        Vector3 startingPosition;
+        public GameObject shieldGeneratorManager;
 
+        Vector3 startingPosition;
 
         public float currentShield = 100.0f;
         public float maxShield = 100.0f;
         public float restoreRate = 10.0f;
 
-        bool invulnerable = false;
-        bool movementDone = false;
-        bool grounded = false;
+        bool canRecharge = true;
+        bool isInvulnerable = false;
+        bool isMovementDone = false;
+        bool isGrounded = false;
+        bool isDead = false;
 
         public float areaRadius = 100.0f;
 
         public override void OnCreate()
         {
+            // initializing states and statemachine
             introState = new IntroState(this.gameObject);
             idleState = new IdleState(this.gameObject);
             slamState = new SlamState(this.gameObject);
             summonState = new SummonState(this.gameObject);
             rechargingState = new RechargingState(this.gameObject);
             referenceState = new ReferenceState(this.gameObject);
+            deathState = new DeathState(this.gameObject);
             bossSM = new StateMachine();
+            stateQueue = new Queue();
 
+            // initializing hitbox
             generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
             generalHitbox.As<GeneralHitbox>().TurnOff();
 
+            // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().Position;
-            // you have to set the state using
-            stateQueue = new Queue();
-
             currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
+            projectileSpawners = new List<Level3ProjectileSpawner>();
+
+            // start
             bossSM.ChangeState(introState);
         }
 
@@ -378,7 +434,6 @@ namespace SliceEngine
             // you have to call on update if u want the onUpdate to run
             bossSM.OnUpdate(dt);
             Cheats();
-
         }
 
         public override void OnFixedUpdate(float dt)
@@ -391,7 +446,7 @@ namespace SliceEngine
         {
             float elapsedTime = 0.0f;
             Transform transform = this.gameObject.GetComponent<Transform>();
-            movementDone = false;
+            isMovementDone = false;
 
             while (elapsedTime < duration)
             {
@@ -401,7 +456,7 @@ namespace SliceEngine
                 yield return null;
             }
 
-            movementDone = true;
+            isMovementDone = true;
             transform.Position = targetPos;
         }
 
@@ -441,9 +496,10 @@ namespace SliceEngine
 
         public override void TakeDamage(int damage, GameObject source = null)
         {
-            SliceLog.Console($"Boss took {damage} damage.");
-            if (invulnerable)
+            if (isInvulnerable)
                 return;
+
+            SliceLog.Console($"Boss took {damage} damage.");
 
             if (currentShield > 0)
             {
@@ -463,8 +519,22 @@ namespace SliceEngine
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
         }
 
-        public void RestoreShield()
+        public bool SetupRecharging()
         {
+            SliceLog.Console("Setting up recharging phase.");
+            bool hasGen = shieldGeneratorManager.As<ShieldGeneratorManager>().StartGenerators(1);
+            return hasGen;
+        }
+
+        public bool RechargeShield()
+        {
+            var shieldManager = shieldGeneratorManager.As<ShieldGeneratorManager>();
+
+            bool hasGen = shieldManager.RegenerateShields();
+            if (!hasGen)
+                return false;
+
+            //SliceLog.Console("Recharging...");
             currentShield += restoreRate * Time.deltaTime;
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
@@ -475,10 +545,13 @@ namespace SliceEngine
                 stateQueue.Enqueue(summonState);
                 bossSM.ChangeState(idleState);
             }
+
+            return true;
         }
 
         void ReturnFollowingProjectiles()
         {
+            SliceLog.Console("Returning following projectiles to boss.");
             foreach (var spawner in projectileSpawners)
             {
                 spawner.SetTarget(transform, 5.0f);
@@ -489,6 +562,8 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
+            isDead = true;
+            bossSM.ChangeState(deathState);
             SliceLog.Console("Boss defeated!");
         }
 
@@ -497,7 +572,7 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
                 TakeDamage(1000);
-                if (currentShield <= 0)
+                if (currentShield <= 0 && canRecharge && !isDead)
                     bossSM.ChangeState(rechargingState);
             }
         }

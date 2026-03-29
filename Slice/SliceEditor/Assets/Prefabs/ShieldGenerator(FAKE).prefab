@@ -1,0 +1,390 @@
+[
+    {
+        "ShieldGenerator(FAKE)": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 35.70000076293945,
+                    "radius": 23.0
+                },
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    -5.599999904632568,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RigidBody": {
+                "CollisionDetection": "",
+                "angularDamping": 0.05000000074505806,
+                "freezePosition": [
+                    false,
+                    false,
+                    false
+                ],
+                "freezeRotation": [
+                    false,
+                    false,
+                    false
+                ],
+                "friction": 0.5,
+                "gravityFactor": 0.0,
+                "isKinematic": true,
+                "linearDamping": 0.05000000074505806,
+                "mass": 1.0,
+                "restituition": 0.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 25165837,
+                "neighbours": [
+                    0,
+                    25165842,
+                    22020335,
+                    27262990
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ShieldGenerator",
+                "scriptableFieldMap": {
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 3
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "generating": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 3
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ShieldGenerator(FAKE)",
+                "mTag": "ShieldGenerator"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.30000001192092896,
+                    0.30000001192092896,
+                    0.30000001192092896
+                ]
+            }
+        }
+    },
+    {
+        "Shield Glass_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 0.5,
+                    "radius": 0.5
+                },
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18096052950747598717"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 25165842,
+                "neighbours": [
+                    25165837,
+                    4294967295,
+                    4294967295,
+                    26214403
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Shield Glass_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -12.97845458984375,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    22.52288818359375,
+                    60.0,
+                    22.52288818359375
+                ]
+            }
+        }
+    },
+    {
+        "Top_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12859658446911922046"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11440354555383964401"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 26214403,
+                "neighbours": [
+                    25165837,
+                    4294967295,
+                    25165842,
+                    27262980
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "Top_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    20.4677734375,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.9999996423721313,
+                    0.02461767941713333
+                ]
+            }
+        }
+    },
+    {
+        "BottomHolder": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 4.599999904632568,
+                    "radius": 17.0
+                },
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    1.7999999523162842,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 27262980,
+                "neighbours": [
+                    25165837,
+                    27262985,
+                    26214403,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "BottomHolder",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.029541015625,
+                    -46.417999267578125,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Bottom_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13085550071973109497"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12213741007363102559"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 27262985,
+                "neighbours": [
+                    27262980,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "Bottom_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.01806640625,
+                    1.453948974609375,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071068286895752,
+                    -0.7071067094802856,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.07600000500679016,
+                    0.07599997520446777,
+                    0.09698699414730072
+                ]
+            }
+        }
+    }
+]

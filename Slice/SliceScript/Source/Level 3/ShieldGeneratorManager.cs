@@ -12,7 +12,8 @@ namespace SliceEngine
 
         private EnemyLevel3 enemyController;
         private GameObject[] generators;
-        private List<GameObject> generatorsLeft;
+        public List<GameObject> generatorsLeft;
+        public List<GameObject> generatorsFunctioning;
 
         public GameObject Boss;
 
@@ -43,7 +44,7 @@ namespace SliceEngine
             generatorsLeft = new List<GameObject>(generators);
         }
 
-        public bool GenerateShields(int count)
+        public bool StartGenerators(int count)
         {
             if (generatorsLeft.Count <= 0)
             {
@@ -51,18 +52,36 @@ namespace SliceEngine
                 return false;
             }
 
+            SliceLog.Console("Attempting to start " + count + " generators.");
+
             if (count > generatorsLeft.Count)
                 count = generatorsLeft.Count;
 
-            List<GameObject> toGenerate = generatorsLeft;
+            generatorsFunctioning = new List<GameObject>();
+
             Random rnd = new Random();
 
             for (int i = 0; i < count; i++)
             {
-                int randomIndex = rnd.Next(toGenerate.Count);
-                GameObject generator = toGenerate[randomIndex];
-                generator.As<ShieldGenerator>().GenerateShields();
-                toGenerate.RemoveAt(randomIndex);
+                int randomIndex = rnd.Next(generatorsLeft.Count);
+                GameObject generator = generatorsLeft[randomIndex];
+                generator.As<ShieldGenerator>().StartGenerating();
+                generatorsFunctioning.Add(generator);
+            }
+
+            SliceLog.Console("Started " + count + " generators.");
+
+            return true;
+        }
+
+        public bool RegenerateShields()
+        {
+            if (generatorsFunctioning.Count <= 0)
+                return false;
+
+            foreach (GameObject gen in generatorsFunctioning)
+            {
+                gen.As<ShieldGenerator>().GenerateShield();
             }
 
             return true;
@@ -70,16 +89,24 @@ namespace SliceEngine
 
         public void StopAllGenerators()
         {
-            foreach (GameObject gen in generatorsLeft)
+            foreach (GameObject gen in generatorsFunctioning)
             {
                 gen.As<ShieldGenerator>().StopGenerating();
             }
+
+            generatorsFunctioning.Clear();
         }
 
         public void OnGeneratorDestroyed(GameObject generator)
         {
+            generatorsFunctioning.Remove(generator);
             generatorsLeft.Remove(generator);
             SliceLog.Console("A generator was destroyed! Remaining: " + (generatorsLeft.Count));
+
+            if (generatorsFunctioning.Count == 0)
+            {
+                SliceLog.Console("All generators stopped.");
+            }
 
             if (generatorsLeft.Count == 0)
             {
@@ -91,11 +118,9 @@ namespace SliceEngine
         {
             if (Input.IsKeyPressed(Keys.KEY_K))
             {
-                if (index < generators.Length)
+                foreach (GameObject gen in generatorsFunctioning)
                 {
-                    generators[index].As<ShieldGenerator>().TakeDamage(100);
-                    SliceLog.Console("Simulating generator destruction for testing.");
-
+                    gen.As<ShieldGenerator>().TakeDamage(1000);
                 }
             }
         }

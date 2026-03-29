@@ -13,13 +13,21 @@ namespace SliceEngine
         public event ShieldGeneratorDestroyedEvent DestroyTrigger;
 
         public bool generating = false;
+        private ColliderShape hitbox;
 
         //Function called when you want the enemy to be active
         public override void OnCreate()
         {
             enemyT = GetComponent<Transform>();
             active = true;
-            currentHealth = 1; // for testing purposes, set to 1 so it dies in one hit
+        }
+
+        public override void OnAwake()
+        {
+            SliceLog.Console("g" + gameObject.mID);
+            hitbox = GetComponent<ColliderShape>();
+            SliceLog.Console("c" + hitbox.gameObject.mID);
+            hitbox.ComponentEnabled = false;
         }
 
         public override void OnUpdate(float dt)
@@ -32,37 +40,40 @@ namespace SliceEngine
             if (!active) return;
             if (!generating) return;
 
-            // This override is just to insert a debug
-            //Console.WriteLine("Enemy is taking damage");
             SliceLog.Console("SHIELD GENERATOR is taking damage");
 
-            base.TakeDamage(amount, source);
-
+            base.TakeDamage(1, source);
         }
 
         protected override void OnDamaged(GameObject source)
         {
-            //rb.AddForce(new Vector3(0, vertKnockback, horKnockback), ForceMode.Impulse); 
-            //CreateGameObject("Prefabs/Sparks.prefab").GetComponent<Transform>().Position = transform.Position;
-            SliceLog.Console("SHIELD GENERATOR IS BEING HIT");
+            // put some vfx here
         }
 
         public override void OnDeath()
         {
             DestroyTrigger?.Invoke(this.gameObject);
             active = false;
+            generating = false;
+            hitbox.ComponentEnabled = false;
             SliceLog.Console("SHIELD GENERATOR DESTROYED");
         }
 
-        public void GenerateShields()
+        public void StartGenerating()
         {
             generating = true;
-            SliceLog.Console("SHIELD GENERATOR STARTED GENERATING SHIELDS");
+            hitbox.ComponentEnabled = true;
+        }
+
+        public void GenerateShield()
+        {
+            // animation here
         }
 
         public void StopGenerating()
         {
             generating = false;
+            hitbox.ComponentEnabled = false;
             SliceLog.Console("SHIELD GENERATOR STOPPED GENERATING SHIELDS");
         }
     }
