@@ -28,9 +28,9 @@
                 "colourLifetimeMap": {
                     "0.000000": [
                         1.0,
-                        0.5023255348205566,
+                        0.501960813999176,
                         0.0,
-                        0.29411765933036804
+                        0.27450981736183167
                     ],
                     "1.000000": [
                         1.0,
@@ -44,9 +44,9 @@
                         0.0,
                         [
                             1.0,
-                            0.5023255348205566,
+                            0.501960813999176,
                             0.0,
-                            0.29411765933036804
+                            0.27450981736183167
                         ]
                     ],
                     [
@@ -73,7 +73,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.4000000059604645,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": true,
@@ -154,7 +154,7 @@
                     1.0,
                     1.0
                 ],
-                "renderMode": 1,
+                "renderMode": 0,
                 "rotateOverLifetime": false,
                 "rotateSeparateAxis": false,
                 "rotateVelocity": [
@@ -286,11 +286,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777317,
+                "entity_id": 15728807,
                 "neighbours": [
                     0,
                     4294967295,
-                    16777323,
+                    15728839,
                     4294967295
                 ]
             },

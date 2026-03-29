@@ -1564,6 +1564,8 @@ namespace SliceEngine
         eventManager->Subscribe<OnButtonExitHoverEvent, &ScriptSystem::OnButtonExitHover>(this);
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
+        eventManager->Subscribe<OnSpriteAnimStopEvent, &ScriptSystem::OnSpriteAnimStop>(this);
+        eventManager->Subscribe<OnSpriteAnimLoopEvent, &ScriptSystem::OnSpriteAnimLoop>(this);
 
         eventManager->Subscribe< AnimationEvent, &ScriptSystem::OnAnimationEvent>(this);
     }
@@ -1916,6 +1918,43 @@ namespace SliceEngine
         }
     }
 
+    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnSliderValue(event.value);
+        }
+    }
+
+    void ScriptSystem::OnSpriteAnimStop(const OnSpriteAnimStopEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeSAnimStop();
+        }
+    }
+
+    void ScriptSystem::OnSpriteAnimLoop(const OnSpriteAnimLoopEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeSAnimLoop();
+        }
+    }
+
+
     void ScriptSystem::OnAnimationEvent(const AnimationEvent& event)
     {
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
@@ -1952,17 +1991,6 @@ namespace SliceEngine
         // look to adding support for either string or x number of variables after this is working.
     }
 
-    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
-    {
-        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
-            return;
-
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnSliderValue(event.value);
-        }
-    }
     MonoObject* ScriptSystem::GetOrCreateManagedObject(Entity entity)
     {
         if (entity == entt::null) return nullptr;

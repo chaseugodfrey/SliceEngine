@@ -49,30 +49,27 @@ namespace SliceEngine
 
         GameObject wings;
 
-        public GameObject CreateBullet(Vector3 startPos, Vector3 angle)
+        public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             GameObject newBullet = CreateGameObject(prefabPath);
 
             Transform t = newBullet.GetComponent<Transform>();
             t.Position = startPos;
-            t.Scale = bulletScale;            
+            t.Scale = bulletScale;
 
-            // Get forward direction from original rotation
-            Vector3 forward = Quaternion.FromEuler(angle) * Vector3.Forward;
-
-            // Apply small random deviation
-            forward += new Vector3(
+            // Apply bloom (spread)
+            direction += new Vector3(
                 SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
                 SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
                 0f
             ) * 0.01f;
 
-            // Normalize so speed stays consistent
-            forward = forward.Normalize();
+            // Normalize
+            direction = direction.Normalize();
 
-            // Convert back to rotation
-            t.Rotation = Quaternion.LookRotation(forward).ToEuler();
+            // Set bullet rotation
+            t.Rotation = Quaternion.LookRotation(direction).ToEuler();
 
             Projectile p = newBullet.As<Projectile>();
             p.SetUp();
@@ -145,22 +142,27 @@ namespace SliceEngine
             Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
             if (distanceToPlayer <= maxAimRange)
             {
-                if (playerVel.SquareMagnitude() > 1.0f)
+                Vector3 lookTarget = Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0);
+                Vector3 aimTarget;
+
+                bool usePrediction = ((shotsFiredInBurst + 1) % 3 != 0);
+
+                if (usePrediction && playerVel.SquareMagnitude() > 1.0f)
                 {
                     float timeToHit = distanceToPlayer / bulletSpeed;
                     Vector3 predictedPos = Bootstrap.Player.transform.Position + playerVel * timeToHit;
-                    Vector3 aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
-
-                    this.transform.LookAt(aimTarget, new Vector3(0, 1, 0));
+                    aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
                 }
                 else
                 {
-                    this.transform.LookAt(
-                    Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
-                    new Vector3(0, 1, 0));
+                    aimTarget = Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0);
                 }
 
-                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.5f;
+                Vector3 shootDir = (aimTarget - transform.Position).Normalize();
+
+                this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
+
+                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
 
                 if (shouldTelegraph != telegraphed)
                 {
@@ -191,7 +193,7 @@ namespace SliceEngine
                         Transform t = this.GetComponent<Transform>();
 
                         // Fire bullet
-                        CreateBullet(t.WorldPosition, t.WorldRotationQuat.ToEuler());
+                        CreateBullet(t.WorldPosition, shootDir);
 
                         // Spawn firing FX
                         CreateFiringFX(t.WorldPosition, t.WorldRotationQuat.ToEuler());
