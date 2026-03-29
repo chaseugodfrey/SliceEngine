@@ -2433,6 +2433,12 @@ namespace SliceEngine
 		if (go.IsValid() && go.HasComponent<Camera>())
 			go.GetComponent<Camera>().impactNoise2 = dense;
 	}
+	static void Camera_SetImpactBlend(unsigned int entityID, float blend)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactBlend = blend;
+	}
 
 
 #pragma endregion
@@ -3317,6 +3323,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
 
 		//Light
 		ADD_INTERNAL_CALL(Light_SetCastShadow);

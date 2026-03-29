@@ -6,8 +6,9 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 
 layout (binding = 0) uniform sampler2D 	uTex; // Already undergone the addition of all objects
 layout (binding = 1) uniform sampler2D 	uAvgLumTex;
+layout (binding = 2) uniform sampler2D 	uImpactTex;
 
-uniform int useLum;
+uniform float impactBlend;
 uniform float uExposure = 1.0;
 uniform float uGamma = 0.45454545454;
 uniform float White = 0.928;
@@ -29,37 +30,32 @@ uniform mat3 xyz2rgb = mat3(
 *****************************************************/
 void main(void){
 	vec3 hdrCol = texture(uTex, vTexCoord).rgb;
+	vec3 impactCol = texture(uImpactTex, vTexCoord).rgb;
 
 	float avgLum = texture(uAvgLumTex, vec2(0.0)).r;
 	if(abs(avgLum) < 1e-5)
 		avgLum = 0.001;
 
-  if(useLum == 0)
-  {
-    fFragColor = vec4(hdrCol, 1.0);
-    return;
-  }
-
-    // Convert to XYZ
+  // Convert to XYZ
 	vec3 xyzCol = rgb2xyz * hdrCol;
 
-    // Convert to xyY
-    float xyzSum = xyzCol.x + xyzCol.y + xyzCol.z;
-    vec3 xyYCol = vec3(xyzCol.x / xyzSum, xyzCol.y / xyzSum, xyzCol.y);
+  // Convert to xyY
+  float xyzSum = xyzCol.x + xyzCol.y + xyzCol.z;
+  vec3 xyYCol = vec3(xyzCol.x / xyzSum, xyzCol.y / xyzSum, xyzCol.y);
 
-    // Apply the tone mapping operation to the luminance (xyYCol.z or xyzCol.y)
-    float L = (uExposure * xyYCol.z) / avgLum;
-    L = (L * (1 + L / (White * White))) / (1 + L);
-
-    // Using the new luminance, convert back to XYZ
-    xyzCol.x = (L * xyYCol.x) / (xyYCol.y);
-    xyzCol.y = L;
-    xyzCol.z = (L * (1 - xyYCol.x - xyYCol.y))/xyYCol.y;
+  // Apply the tone mapping operation to the luminance (xyYCol.z or xyzCol.y)
+  float L = (uExposure * xyYCol.z) / avgLum;
+  L = (L * (1 + L / (White * White))) / (1 + L);
+  
+  // Using the new luminance, convert back to XYZ
+  xyzCol.x = (L * xyYCol.x) / (xyYCol.y);
+  xyzCol.y = L;
+  xyzCol.z = (L * (1 - xyYCol.x - xyYCol.y))/xyYCol.y;
 
 	hdrCol = xyz2rgb * xyzCol;
 
 	// Gamma Correction
   vec3 gamma = vec3(uGamma);
 	hdrCol = pow(hdrCol, gamma); // Gamma Correction
-	fFragColor = vec4(hdrCol, 1.0);
+	fFragColor = vec4(mix(hdrCol, impactCol, impactBlend), 1.0);
 }

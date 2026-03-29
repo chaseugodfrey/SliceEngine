@@ -319,6 +319,7 @@ namespace SliceEngine
 		.property("impactEpilepsy", &Camera::impactEpilepsy)
 		.property("impactNoise1", &Camera::impactNoise1)
 		.property("impactNoise2", &Camera::impactNoise2)
+		.property("impactBlend", &Camera::impactBlend)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)

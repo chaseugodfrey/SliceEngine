@@ -844,6 +844,7 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
 				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Blend", "##cam_impact_blend", cam.impactBlend, "%.2f", 0.0f, 1.0f, 0.01f);
 			}
 
 			ImGui::Text("Vignette");
