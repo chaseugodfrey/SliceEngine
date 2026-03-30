@@ -1554,11 +1554,18 @@ namespace SliceEngine
 
 #pragma region LAYERMASK FUNCTIONS
 
-	static uint32_t LayerMask_GetMask(MonoString* string)
+	static uint32_t LayerMask_GetCollisionMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return Core::GetInstance()->GetLayerManager()->GetMask(name);
+		return Core::GetInstance()->GetLayerManager()->GetCollisionMask(name);
+	}
+
+	static uint32_t LayerMask_ToMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return Core::GetInstance()->GetLayerManager()->ToMask(name);
 	}
 
 	static MonoString* LayerMask_LayerToName(uint32_t layer)
@@ -2433,6 +2440,12 @@ namespace SliceEngine
 		if (go.IsValid() && go.HasComponent<Camera>())
 			go.GetComponent<Camera>().impactNoise2 = dense;
 	}
+	static void Camera_SetImpactBlend(unsigned int entityID, float blend)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactBlend = blend;
+	}
 
 
 #pragma endregion
@@ -3272,7 +3285,6 @@ namespace SliceEngine
 		// if we hotload and need to rerun the linking and reinit mono
 		// then we might need to clear the map before registering again
 		mGameObjectHasComponentFuncs.clear();
-		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
 		RegisterComponent<ColliderShape>();
@@ -3287,6 +3299,7 @@ namespace SliceEngine
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
 		RegisterComponent<Light>();
+		RegisterComponent<ParticleSystem>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
@@ -3317,6 +3330,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
 
 		//Light
 		ADD_INTERNAL_CALL(Light_SetCastShadow);
@@ -3530,7 +3544,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
-		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_GetCollisionMask);
+		ADD_INTERNAL_CALL(LayerMask_ToMask);
 		ADD_INTERNAL_CALL(LayerMask_LayerToName);
 		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 

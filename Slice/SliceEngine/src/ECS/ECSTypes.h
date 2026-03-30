@@ -252,6 +252,7 @@ namespace SliceEngine
 		float impactAngle{ 18.0f };
 		float impactNoise1{ 148.0f };
 		float impactNoise2{ 21.0f };
+		float impactBlend{ 1.0f };
 
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
