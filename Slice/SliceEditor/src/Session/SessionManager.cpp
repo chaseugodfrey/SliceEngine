@@ -132,10 +132,10 @@ namespace SliceEditor
 
 		//SLICE_LOG_DEBUG( "Prefab Editing Entity Size: " + std::to_string(prefabEditorView.size()));
 		//Set the nodeOpen to false every frame because i dont really have time to rework the whole thing
-		for (auto& node : mEntityNodes)
+		/*for (auto& node : mEntityNodes)
 		{
 			node.second.get()->nodeOpen = false;
-		}
+		}*/
 
 		//EntityNode Map for Hierarchy
 		if (view.size() != mEntityNodes.size())
