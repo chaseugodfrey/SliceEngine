@@ -358,7 +358,7 @@ namespace SliceEngine
                 {
                     attacking = true;
                     RayCastHit hitInfo;
-                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal);
 
                     if (hit)
                     {

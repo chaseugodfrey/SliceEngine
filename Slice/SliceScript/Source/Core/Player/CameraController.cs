@@ -113,7 +113,7 @@ namespace SliceEngine
             //SliceLog.Log("Cam dir is " + dir);
             float safeDist = 0f;
 
-            if (Physics.SphereCast(transform.WorldPosition + new Vector3(0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.GetMask("Environment"), QueryTriggerInteraction.Ignore))
+            if (Physics.SphereCast(transform.WorldPosition + new Vector3(0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.ToMask("Environment"), QueryTriggerInteraction.Ignore))
             {
 
                 // Place camera just before the surface using the sphere radius
