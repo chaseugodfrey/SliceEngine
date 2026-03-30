@@ -1,17 +1,12 @@
 using SliceEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
-
 
 namespace SliceEngine
 {
     public class ShieldGeneratorManager : SliceBehaviour
     {
-
-        private EnemyLevel3 enemyController;
-        private GameObject[] generators;
         public List<GameObject> generatorsLeft;
         public List<GameObject> generatorsFunctioning;
 
@@ -21,7 +16,10 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            generators = gameObject.FindGameObjectsWithTag("ShieldGenerator");
+            generatorsLeft = new List<GameObject>();
+            generatorsFunctioning = new List<GameObject>();
+
+            GameObject[] generators = gameObject.FindGameObjectsWithTag("ShieldGenerator");
 
             if (generators.Length == 0)
             {
@@ -33,15 +31,14 @@ namespace SliceEngine
                 for (int i = 0; i < generators.Length; i++)
                 {
                     generators[i].As<ShieldGenerator>().DestroyTrigger += OnGeneratorDestroyed;
+                    generatorsLeft.Add(generators[i]);
                 }
             }
+        }
 
-            if (Boss != null)
-            {
-                enemyController = Boss.As<EnemyLevel3>();
-            }
+        public override void OnAwake()
+        {
 
-            generatorsLeft = new List<GameObject>(generators);
         }
 
         public bool StartGenerators(int count)
@@ -52,21 +49,28 @@ namespace SliceEngine
                 return false;
             }
 
-            SliceLog.Console("Attempting to start " + count + " generators.");
+            SliceLog.Console("generatorsLeft count: " + generatorsLeft.Count);
 
             if (count > generatorsLeft.Count)
                 count = generatorsLeft.Count;
 
-            generatorsFunctioning = new List<GameObject>();
+            generatorsFunctioning.Clear();
+
+            SliceLog.Console("Attempting to start " + count + " generators.");
 
             Random rnd = new Random();
 
-            for (int i = 0; i < count; i++)
+            while (count > 0)
             {
                 int randomIndex = rnd.Next(generatorsLeft.Count);
                 GameObject generator = generatorsLeft[randomIndex];
+
+                if (generatorsFunctioning.Contains(generator))
+                    continue;
+
                 generator.As<ShieldGenerator>().StartGenerating();
                 generatorsFunctioning.Add(generator);
+                --count;
             }
 
             SliceLog.Console("Started " + count + " generators.");
@@ -78,6 +82,7 @@ namespace SliceEngine
         {
             if (generatorsFunctioning.Count <= 0)
                 return false;
+
 
             foreach (GameObject gen in generatorsFunctioning)
             {

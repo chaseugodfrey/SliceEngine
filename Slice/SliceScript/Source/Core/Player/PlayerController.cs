@@ -435,7 +435,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                SliceLog.Console($"Attacking enemy in attack 1");
+                //SliceLog.Console($"Attacking enemy in attack 1");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
@@ -445,7 +445,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 2");
+                //Console.WriteLine($"Attacking enemy in attack 2");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }

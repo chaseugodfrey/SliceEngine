@@ -65,6 +65,14 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 SliceLog.Console("Idle State.");
+
+                // check shields first first
+                if (bossController.canRecharge && bossController.isShieldDestroyed)
+                {
+                    bossController.bossSM.ChangeState(bossController.rechargingState);
+                    return;
+                }
+
                 timer = timerMax;
                 nextState = bossController.stateQueue.Dequeue() as BaseState;
             }
@@ -174,6 +182,7 @@ namespace SliceEngine
             public Vector3 ogPosition;
             float timer = 0.0f;
 
+            bool isFiring = false;
             public SlamState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -189,8 +198,10 @@ namespace SliceEngine
 
                 Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
                 targetPos.y = owner.GetComponent<Transform>().Position.y;
-                bossController.StartCoroutine(bossController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, targetPos, 0.8f));
                 ogPosition = targetPos;
+
+                bossController.stateQueue.Enqueue(bossController.projectileState);
             }
 
             public override void OnUpdate(float dt)
@@ -201,6 +212,12 @@ namespace SliceEngine
 
                     SliceLog.Console("Slamming");
                     owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
+                    if (!bossController.canRecharge && !isFiring)
+                    {
+                        Vector3 dir = (Bootstrap.Player.GetComponent<Transform>().WorldPosition - bossController.transform.WorldPosition).Normalize();
+                        bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.Position, dir, 10.0f, 5, 0.3f));
+                        isFiring = true;
+                    }
                 }
 
                 if (onCooldown)
@@ -228,18 +245,14 @@ namespace SliceEngine
             {
                 owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
                 bossController.StopAllCoroutines();
-                if (bossController.currentShield <= 0)
-                    bossController.bossSM.ChangeState(bossController.rechargingState);
-                else
-                {
-                    bossController.StartCoroutine(bossController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, ogPosition, 1.2f));
-                    bossController.bossSM.ChangeState(bossController.idleState);
-                }
+                bossController.StartCoroutine(bossController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, ogPosition, 1.2f));
+                bossController.bossSM.ChangeState(bossController.idleState);
             }
 
             public override void OnExit()
             {
                 owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
+                isFiring = false;
             }
         }
 
@@ -260,10 +273,12 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 SliceLog.Console("Recharging State.");
+
                 bossController.isInvulnerable = true;
+                hasGen = bossController.canRecharge = bossController.SetupRecharging();
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.0f));
                 bossController.ReturnFollowingProjectiles();
-                hasGen = bossController.canRecharge = bossController.SetupRecharging();
+                bossController.stateQueue.Clear();
             }
 
             public override void OnUpdate(float dt)
@@ -304,22 +319,72 @@ namespace SliceEngine
             }
         }
 
-        public class ReferenceState : BaseState
+        public class ProjectileState : BaseState
         {
             Level3Boss bossController;
-            public ReferenceState(GameObject owner) : base(owner)
+            Transform playerTr;
+
+            Vector3 destination;
+
+            readonly float timerMax = 7f;
+            readonly float moveSpeed = 10.0f;
+            readonly float shootSpeed = 100.0f;
+            readonly float shootRate = 0.1f;
+            readonly int bulletDamage = 10;
+            readonly float offsetRange = 5.0f;
+
+            float timer = 0.0f;
+            float shootTimer = 0.0f;
+
+            readonly Vector3[] offsets =
+            {
+                Vector3.Up + Vector3.Left, Vector3.Up, Vector3.Up + Vector3.Right, 
+                Vector3.Left, Vector3.Zero, Vector3.Right,
+                Vector3.Down + Vector3.Left, Vector3.Down, Vector3.Down + Vector3.Right
+            };
+
+            Random rand;
+
+            public ProjectileState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
             }
 
             public override void OnEnter()
             {
+                SliceLog.Console("Projectile State.");
+                
+                playerTr = Bootstrap.Player.GetComponent<Transform>();
 
+                timer = timerMax;
+                CalculateDestination();
+
+                rand = null;
+                rand = new Random();
+
+                //bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(playerTr.Position, 10.0f, 5, 0.25f));
+                bossController.stateQueue.Enqueue(bossController.orbitalState);
             }
 
             public override void OnUpdate(float dt)
             {
+                timer -= dt;
 
+                if (timer <= 0)
+                {
+                    bossController.bossSM.ChangeState(bossController.idleState);
+                }
+
+                CalculateDestination();
+                MoveToDestination();
+
+                shootTimer -= dt;
+                
+                if (shootTimer <= 0.0f)
+                {
+                    FireBullet();
+                    shootTimer = shootRate;
+                }
             }
 
             public override void OnFixedUpdate(float dt)
@@ -329,7 +394,82 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                
+
+            }
+
+            void FireBullet()
+            {
+                var bossTr = bossController.GetComponent<Transform>();
+                Vector3 dirToPlayer = (playerTr.Position - bossController.transform.Position).Normalize();
+                Vector3 finalPos = bossTr.Position + dirToPlayer * 2.0f + offsets[rand.Next(offsets.Length)] * offsetRange;
+                GameObject go = bossController.CreateBullet(finalPos, bossTr.WorldRotationQuat.ToEuler(), Vector3.One, bulletDamage, shootSpeed, false, 1000.0f);
+                go.As<Projectile>().destroyOnPlayerImpact = true;
+            }
+
+            void CalculateDestination()
+            {
+                destination = new Vector3(playerTr.Position.x, bossController.transform.Position.y, playerTr.Position.z);
+            }
+
+            void MoveToDestination()
+            {
+                bossController.transform.Position = Vector3.MoveTowards(bossController.transform.Position, destination, moveSpeed * Time.deltaTime);
+                bossController.transform.LookAt(playerTr.Position, Vector3.Up);
+
+                var player2DPos = new Vector3(playerTr.Position.x, bossController.transform.Position.y, playerTr.Position.z);
+                float distance = Utilities.Distance3D(bossController.transform.Position, player2DPos);
+                if (distance <= 15.0f)
+                    bossController.bossSM.ChangeState(bossController.slamState); 
+            }
+        }
+
+        public class OrbitalState : BaseState
+        {
+            Level3Boss bossController;
+            bool isFiring = false;
+
+            readonly float radius = 30.0f;
+
+            public OrbitalState(GameObject owner) : base(owner)
+            {
+                bossController = owner.As<Level3Boss>();
+            }
+
+            public override void OnEnter()
+            {
+                SliceLog.Console("Orbital State.");
+                Vector3 finalPos = bossController.landingPositionObj.GetComponent<Transform>().Position;
+                bossController.StopAllCoroutines();
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, finalPos, 3.0f));
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                if (bossController.isMovementDone)
+                {
+                    if (!isFiring)
+                    {
+                        //bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.Position, radius, 20, 0.5f));
+                        bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
+                            - bossController.transform.WorldPosition, radius, 20, 0.5f));
+                        if (!bossController.canRecharge)
+                            bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+
+                        isFiring = true;
+                    }
+
+                    bossController.transform.Rotate(Vector3.Up * dt * 20.0f);
+                }
+            }
+
+            public override void OnFixedUpdate(float dt)
+            {
+
+            }
+
+            public override void OnExit()
+            {
+
             }
         }
 
@@ -372,15 +512,18 @@ namespace SliceEngine
         public SummonState summonState;
         public SlamState slamState;
         public RechargingState rechargingState;
-        public ReferenceState referenceState;
+        public ProjectileState projectileState;
+        public OrbitalState orbitalState;
         public DeathState deathState;
 
         // state machine for the boss
         public StateMachine bossSM;
 
         public Queue stateQueue;
+        List<Projectile> projectiles;
         public List<Level3ProjectileSpawner> projectileSpawners;
         public GameObject startingPositionObj;
+        public GameObject landingPositionObj;
         public GameObject generalHitbox;
         public GameObject enemyHUD;
         public GameObject shieldGeneratorManager;
@@ -391,10 +534,12 @@ namespace SliceEngine
         public float maxShield = 100.0f;
         public float restoreRate = 10.0f;
 
-        bool canRecharge = true;
+        public bool canRecharge = true;
         bool isInvulnerable = false;
         bool isMovementDone = false;
+        bool isFiringDone = false;
         bool isGrounded = false;
+        bool isShieldDestroyed = false;
         bool isDead = false;
 
         public float areaRadius = 100.0f;
@@ -407,7 +552,8 @@ namespace SliceEngine
             slamState = new SlamState(this.gameObject);
             summonState = new SummonState(this.gameObject);
             rechargingState = new RechargingState(this.gameObject);
-            referenceState = new ReferenceState(this.gameObject);
+            projectileState = new ProjectileState(this.gameObject);
+            orbitalState = new OrbitalState(this.gameObject);
             deathState = new DeathState(this.gameObject);
             bossSM = new StateMachine();
             stateQueue = new Queue();
@@ -424,6 +570,7 @@ namespace SliceEngine
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
             projectileSpawners = new List<Level3ProjectileSpawner>();
+            projectiles = new List<Projectile>();
 
             // start
             bossSM.ChangeState(introState);
@@ -432,8 +579,8 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             // you have to call on update if u want the onUpdate to run
-            bossSM.OnUpdate(dt);
             Cheats();
+            bossSM.OnUpdate(dt);
         }
 
         public override void OnFixedUpdate(float dt)
@@ -504,6 +651,10 @@ namespace SliceEngine
             if (currentShield > 0)
             {
                 currentShield -= damage;
+
+                if (currentShield <= 0)
+                    isShieldDestroyed = true;
+
                 currentShield = Math.Max(currentShield, 0);
                 OnDamaged(source);
             }
@@ -535,6 +686,7 @@ namespace SliceEngine
                 return false;
 
             //SliceLog.Console("Recharging...");
+            isShieldDestroyed = false;
             currentShield += restoreRate * Time.deltaTime;
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
@@ -542,6 +694,7 @@ namespace SliceEngine
             if (currentShield >= maxShield)
             {
                 currentShield = maxShield;
+                shieldManager.StopAllGenerators();
                 stateQueue.Enqueue(summonState);
                 bossSM.ChangeState(idleState);
             }
@@ -575,6 +728,107 @@ namespace SliceEngine
                 if (currentShield <= 0 && canRecharge && !isDead)
                     bossSM.ChangeState(rechargingState);
             }
+
+            if (Input.IsKeyPressed(Keys.KEY_J))
+            {
+                bossSM.ChangeState(orbitalState);
+            }
+        }
+
+        IEnumerator FireBigOrbitalLaser(Vector3 position)
+        {
+            GameObject go = CreateOrbitalLaser(100.0f, 100.0f, 3.0f, 5.0f, 0.0f);
+            Vector3 finalPos = position;
+            finalPos.y = go.GetComponent<Transform>().Position.y;
+            go.GetComponent<Transform>().Position = position;
+
+            return null;
+        }
+
+        IEnumerator FireOrbitalLaserRow(Vector3 startPos, Vector3 dir, float distance, int count, float interval)
+        {
+            isFiringDone = false;
+
+            while (count > 0)
+            {
+                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
+                Transform tr = go.GetComponent<Transform>();
+                float height = tr.Position.y;
+                tr.Position = new Vector3(startPos.x, height, startPos.z);
+                startPos += dir.Normalize() * distance;
+                count--;
+                yield return new WaitForSeconds(interval);
+            }
+
+            isFiringDone = true;
+        }
+
+        IEnumerator FireOrbitalLaserRandomRadius(Vector3 startPos, float radius, int count, float interval)
+        {
+            Random rand = new Random();
+            while (count > 0)
+            {
+                Vector3 randomSphere = Utilities.RandomInsideSphere(radius);
+                Vector3 finalPos = new Vector3(startPos.x + randomSphere.x, startPos.y, startPos.z + randomSphere.y);
+                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
+                Transform tr = go.GetComponent<Transform>();
+                float height = tr.Position.y;
+                tr.Position = new Vector3(finalPos.x, height, finalPos.z);
+                count--;
+                yield return new WaitForSeconds(interval);
+            }
+        }
+
+        public GameObject CreateOrbitalLaser(float diameter, float height, float tracktime, float lifetime, float trackspeed)
+        {
+            GameObject laser = gameObject.CreateGameObject("Prefabs/OrbitalLaser.prefab");
+            var laserScript = laser.As<OrbitalLaser>();
+
+            laserScript.SetupLaser(diameter, height, tracktime, lifetime, trackspeed);  
+
+            return laser;
+        }
+
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, int damage, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
+        {
+            string prefabName = "Projectile";
+            string prefabPath = "Prefabs/" + prefabName + ".prefab";
+            GameObject newBullet = gameObject.CreateGameObject(prefabPath);
+            Transform tempT = newBullet.GetComponent<Transform>();
+
+            tempT.Position = startPos;
+            tempT.Rotation = angle;
+            tempT.Scale = scale;
+
+            Projectile tempP = newBullet.As<Projectile>();
+            tempP.SetUp();
+            tempP.speed = speed;
+            tempP.owner = gameObject;
+            tempP.damage = damage;
+            tempP.distanceBeforeDestroy = distanceBeforeDestroy;
+            tempP.destroyOnImpact = destroyOnImpact;
+
+            projectiles.Add(tempP);
+
+            //if (projectiles.Count > limit)
+            //{
+            //    for (int i = 0; i < (allProjectiles.Count - limit); i++)
+            //    {
+            //        DestroyBullet(allProjectiles[0]);
+            //    }
+            //}
+            return newBullet;
+        }
+
+        public void DestroyBullet(Projectile toDestroy)
+        {
+            //int index = allProjectiles.IndexOf(toDestroy);
+            //if (index != -1)
+            //{
+            //    Projectile temp = allProjectiles[index];
+            //    allProjectiles.RemoveAt(index);
+            //    temp.gameObject.Destroy();
+            //}
         }
     }
 }

@@ -97,9 +97,10 @@ namespace SliceEngine
         public override void OnCollideEnter(uint other)
         {
             GameObject collidedGO = FindGameObjectWithID(other);
-            if (collidedGO != null && collidedGO.tag == "Player")
+            if (collidedGO != null)
             {
-                DamagePlayer(collidedGO);
+                if (collidedGO.tag == "Player")
+                    DamagePlayer(collidedGO);
             }
 
             DestroyProj();
