@@ -17,10 +17,19 @@ namespace SliceEngine
         {
             return mask.value;
         }
-        public static uint GetMask(string layerName)
+
+        //get the full bit mask of this layer(hit anything this layer can hit)
+        public static uint GetCollisionMask(string layerName)
         {
             //return the mask 0 if invalid
-            return FunctionCalls.LayerMask_GetMask(layerName);
+            return FunctionCalls.LayerMask_GetCollisionMask(layerName);
+        }
+
+        //just get the bitmask of this individual layer(for example if you put enviroment you can only hit objects with enviroment layer)
+        public static uint ToMask(string layerName)
+        {
+            //return the mask 0 if invalid
+            return FunctionCalls.LayerMask_ToMask(layerName);
         }
 
         public static string LayerToName(uint layer)
