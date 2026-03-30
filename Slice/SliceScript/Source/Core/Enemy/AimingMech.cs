@@ -138,9 +138,22 @@ namespace SliceEngine
             if (!active)
                 return;
 
+            Vector3 origin = transform.WorldPosition;
+            Vector3 toPlayer = Bootstrap.Player.transform.WorldPosition - origin;
+            RayCastHit hit;
+            bool hasLineOfSightOnPlayer = false;
+            bool hitSomething = Physics.Raycast(origin, toPlayer, out hit, LayerMask.NameTolayer("LineOfSight"), QueryTriggerInteraction.Ignore);
+            if (hitSomething)
+            {
+                if (hit.transform.gameObject.tag == "Player")
+                {
+                    hasLineOfSightOnPlayer = true;
+                }
+            }
+
             float distanceToPlayer = Utilities.Distance3D(transform.WorldPosition, Bootstrap.Player.transform.WorldPosition);
             Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
-            if (distanceToPlayer <= maxAimRange)
+            if (distanceToPlayer <= maxAimRange && hasLineOfSightOnPlayer)
             {
                 Vector3 lookTarget = Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0);
                 Vector3 aimTarget;

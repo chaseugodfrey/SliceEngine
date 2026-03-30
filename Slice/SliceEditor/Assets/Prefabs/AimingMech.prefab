@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777454,
+                "entity_id": 5243113,
                 "neighbours": [
                     0,
-                    16777453,
-                    16777455,
-                    16777393
+                    5243114,
+                    5243123,
+                    8389010
                 ]
             },
             "struct SliceEngine::Script": {
@@ -41,7 +41,7 @@
                         "Value": [
                             0.5,
                             0.5,
-                            2.0
+                            1.5
                         ]
                     },
                     "bulletSpeed": {
@@ -50,7 +50,7 @@
                     },
                     "bulletsPerBurst": {
                         "Type": "int",
-                        "Value": 10
+                        "Value": 20
                     },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
@@ -78,7 +78,7 @@
                     },
                     "timeBetweenBursts": {
                         "Type": "float",
-                        "Value": 2.5
+                        "Value": 1.0
                     },
                     "timeBetweenShotsInBurst": {
                         "Type": "float",
@@ -99,9 +99,9 @@
                     0.0
                 ],
                 "position": [
-                    -9.45723819732666,
-                    10.863723754882813,
-                    105.2243881225586
+                    720.807861328125,
+                    53.8559684753418,
+                    -205.30523681640625
                 ],
                 "rotation": [
                     1.0,
@@ -131,17 +131,17 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777453,
+                "entity_id": 5243114,
                 "neighbours": [
-                    16777454,
-                    16777452,
+                    5243113,
+                    5243115,
                     4294967295,
-                    16777392
+                    5243110
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 1,
                 "mName": "AimingMechMesh",
                 "mTag": "default"
             },
@@ -197,17 +197,17 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777452,
+                "entity_id": 5243115,
                 "neighbours": [
-                    16777453,
+                    5243114,
                     4294967295,
                     4294967295,
-                    16777451
+                    5243116
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 5,
                 "mName": "Shooter",
                 "mTag": "default"
             },
@@ -275,17 +275,17 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777451,
+                "entity_id": 5243116,
                 "neighbours": [
-                    16777453,
+                    5243114,
                     4294967295,
-                    16777452,
-                    16777450
+                    5243115,
+                    5243111
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 5,
                 "mName": "Core",
                 "mTag": "default"
             },
@@ -341,11 +341,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777450,
+                "entity_id": 5243111,
                 "neighbours": [
-                    16777453,
+                    5243114,
                     4294967295,
-                    16777451,
+                    5243116,
                     4294967295
                 ]
             },
@@ -364,7 +364,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 5,
                 "mName": "Wings",
                 "mTag": "AimingMechWings"
             },
@@ -403,17 +403,17 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777392,
+                "entity_id": 5243110,
                 "neighbours": [
-                    16777454,
-                    16777449,
-                    16777453,
+                    5243113,
+                    5243066,
+                    5243114,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 1,
                 "mName": "FX_LaserPointer",
                 "mTag": "Telegraph"
             },
@@ -465,9 +465,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 16777449,
+                "entity_id": 5243066,
                 "neighbours": [
-                    16777392,
+                    5243110,
                     4294967295,
                     4294967295,
                     4294967295
@@ -475,7 +475,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 1,
                 "mName": "LaserPointer",
                 "mTag": "default"
             },
