@@ -54,24 +54,25 @@ namespace SliceEditor
 
 		// check what type selected nodes are
 
-		auto type = selected_nodes.begin().operator*()->type;
+		auto lastSelectedNode = mRegistry.GetManager<SelectionManager>("Selection")->GetLastSelectedNode();
+		auto type = lastSelectedNode->type;
 
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			DisplayEntity(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			DisplayMaterial(static_cast<DirectoryNode*>(lastSelectedNode));
 			break;
 		case SelectionType::PREFAB_ENTITY:
-			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			DisplayPrefab(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::STATE:
-			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			DisplayState(static_cast<StateNode*>(lastSelectedNode));
 			break;
 		case SelectionType::TRANSITION:
-			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
+			DisplayTransition(static_cast<TransitionLinkNode*>(lastSelectedNode));
 			break;
 		}
 

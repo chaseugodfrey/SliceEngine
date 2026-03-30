@@ -203,14 +203,13 @@ namespace SliceEditor
 				bool onRight = SceneGraphRightTraversal(mainEntity, otherEntity);
 				if(onRight)
 				{
-					SLICE_LOG("Entity is on the down/right!");
+					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::RIGHT);
 				}
 				else
 				{
-					SLICE_LOG("Entity is on the down/left!");
+					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::LEFT);
 				}
 			}
-			//SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entNode->entity).AddComponent<SliceEngine::SelectedEntity>();
 		}
 	}
 
@@ -227,40 +226,64 @@ namespace SliceEditor
 			return;
 		}
 		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+		Entity startingEntity = currentSceneGraph.neighbours[direction];
+		Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+		TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT); // The down of the current entity
+		TraverseAndSelect(startingEntity, targetEntity, direction);
+	}
 
-		auto childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
-		//Go down and check if open
-		while (childEntity != entt::null)
+	void SelectionManager::TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
+	{
+		auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
+		//Get the child's EntityNode to see if its even open
+		if (entityNodes.find(currentEntity) == entityNodes.end())
 		{
-			//Get the child's EntityNode to see if its even open
-			if (entityNodes.find(childEntity) == entityNodes.end())
-			{
-				break;
-			}
-			//Break if node isnt open
-			if (!entityNodes[childEntity].get()->nodeOpen)
-			{
-				break;
-			}
-			else //Its open. I need to traverse.
-			{
-
-			}
-
-			auto& childSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
-			//if (childEntity == targetEntity)
-			//{
-			//	return true;
-			//}
-
-			//if (SceneGraphRightTraversal(childEntity, targetEntity))
-			//{
-			//	return true;
-			//}
-
-			//childEntity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			return;
 		}
-		
+		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+		EntityNode* currentNode = entityNodes[currentEntity].get();
+
+		ProcessNodeSelection(currentNode); //Process Selection
+		//Go in if node is open
+		if (currentNode->nodeOpen)
+		{
+			Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+			if (childEntity != entt::null) {
+				TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT);
+			}
+		}
+		if (targetEntity == currentEntity)
+		{
+			return;
+		}
+		//Continue iterating to the direction:
+		Entity nextSibling = currentSceneGraph.neighbours[direction];
+		if (nextSibling != entt::null) 
+		{
+			TraverseAndSelect(nextSibling, targetEntity, direction);
+		}
+	}
+
+	void SelectionManager::ProcessNodeSelection(EntityNode* currentNode)
+	{
+		if (!currentNode->isSelected) //Hasnt been selected
+		{
+			currentNode->isSelected = true;
+			mSelectedNodes.insert(currentNode);
+			mSelectionOrder.push_back(currentNode);
+			SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(currentNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+		}
+		else
+		{
+			currentNode->isSelected = false;
+			mSelectionOrder.erase
+			(
+				std::remove(mSelectionOrder.begin(), mSelectionOrder.end(), currentNode), mSelectionOrder.end()
+			);
+			auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(currentNode->entity);
+			if (go.HasComponent<SliceEngine::SelectedEntity>())
+				go.RemoveComponent<SliceEngine::SelectedEntity>();
+		}
 	}
 
 	bool SelectionManager::SceneGraphRightTraversal(Entity currentEntity, Entity targetEntity)
@@ -401,5 +424,9 @@ namespace SliceEditor
 	std::unordered_set<SelectionNode*>& SelectionManager::GetSelectedNodes()
 	{
 		return mSelectedNodes;
+	}
+	SelectionNode* SelectionManager::GetLastSelectedNode()
+	{
+		return mSelectionOrder.back();
 	}
 }
