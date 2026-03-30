@@ -21,16 +21,25 @@ set "MSBUILD_EXE="!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe""
 echo --- Building User-Facing (Release) Solution ---
 
 :: Find the premake executable (it is in the Slice directory)
-set "PREMAKE_EXE=%CD%\Slice\premake\premake5.exe"
+set "PREMAKE_EXE=%~dp0Slice\premake\premake5.exe"
 if not exist "%PREMAKE_EXE%" (
     echo ERROR: Premake not found at %PREMAKE_EXE%
+    echo Current Directory Contents:
+    dir
     exit /b 1
 )
 
-pushd WeightOfTheSky
-if %ERRORLEVEL% neq 0 (echo ERROR: Could not enter WeightOfTheSky directory! & exit /b 1)
+:: Try to find the WeightOfTheSky directory regardless of exact naming/case
+if exist "WeightOfTheSky\" (
+    pushd WeightOfTheSky
+) else (
+    echo ERROR: WeightOfTheSky directory not found!
+    echo Current Directory Contents:
+    dir
+    exit /b 1
+)
 
-echo Running Premake...
+echo Running Premake from: %PREMAKE_EXE%
 "%PREMAKE_EXE%" vs2022
 if %ERRORLEVEL% neq 0 (echo ERROR: Premake generation failed! & popd & exit /b %ERRORLEVEL%)
 
