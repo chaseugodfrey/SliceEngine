@@ -14,8 +14,11 @@ namespace SliceEngine
         public GameObject settingsSliders;
         public GameObject closeSettingsButton;
         public GameObject menuCanvasObj;
+        public GameObject settingsBGAnim;
+        public GameObject settingsBG;
 
         private RectTransform frontBgTrans;
+        private SpriteAnimator bgAnim;
         
 
         public int defaultHeight = 0;
@@ -32,6 +35,11 @@ namespace SliceEngine
             if (settingsFrontBG != null) frontBgTrans = settingsFrontBG.GetComponent<RectTransform>();
 
             if (settingsSliders != null) settingsSliders.SetActive(false);
+
+            if (settingsBGAnim != null)
+            {
+                bgAnim = settingsBGAnim.GetComponent<SpriteAnimator>();
+            }
         }
 
         public override void OnUpdate(float dt)
