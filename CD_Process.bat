@@ -19,13 +19,24 @@ set "MSBUILD_EXE="!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe""
 :: 2. BUILD USER-FACING VERSION (WeightOfTheSky Release)
 :: -----------------------------------------------------------------------------
 echo --- Building User-Facing (Release) Solution ---
+
+:: Find the premake executable (it is in the Slice directory)
+set "PREMAKE_EXE=%CD%\Slice\premake\premake5.exe"
+if not exist "%PREMAKE_EXE%" (
+    echo ERROR: Premake not found at %PREMAKE_EXE%
+    exit /b 1
+)
+
 pushd WeightOfTheSky
-call premake\premake5.exe vs2022
-if %ERRORLEVEL% neq 0 (echo ERROR: Premake failed! & exit /b %ERRORLEVEL%)
+if %ERRORLEVEL% neq 0 (echo ERROR: Could not enter WeightOfTheSky directory! & exit /b 1)
+
+echo Running Premake...
+"%PREMAKE_EXE%" vs2022
+if %ERRORLEVEL% neq 0 (echo ERROR: Premake generation failed! & popd & exit /b %ERRORLEVEL%)
 
 echo Building WeightOfTheSky App (Release)...
 %MSBUILD_EXE% WeightOfTheSky.sln /p:Configuration=Release /p:Platform=x64 /t:Rebuild /m /v:m
-if %ERRORLEVEL% neq 0 (echo ERROR: Build failed! & exit /b %ERRORLEVEL%)
+if %ERRORLEVEL% neq 0 (echo ERROR: MSBuild failed! & popd & exit /b %ERRORLEVEL%)
 popd
 
 :: -----------------------------------------------------------------------------
