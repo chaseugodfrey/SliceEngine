@@ -16,7 +16,7 @@ namespace SliceEngine
         public Vector3 bulletScale = new Vector3(1f);
         public float distanceBeforeDestroy = 30f;
         public string projectilePrefabName = "Projectile";
-        public string preAimPrefabName = "PreAimLonger";
+        public string preAimPrefabName = "FX_LaserPointer";
         public float ringYOffset = 1f;
         public float attackCooldown = 3f;
 

@@ -38,6 +38,8 @@ namespace SliceEngine
 
             color.w = MaxWiggle;
 
+            storedRenderer = gameObject.GetComponent<Renderer>();
+
             storedRenderer.SetColor(color);
 
         }

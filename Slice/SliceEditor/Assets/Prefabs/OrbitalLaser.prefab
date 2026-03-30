@@ -1,5 +1,212 @@
 [
     {
+        "OrbitalLaser": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 0.5,
+                    "radius": 0.5
+                },
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "11796213258283547244",
+                "prefabHandle": {
+                    "GUID": "11796213258283547244"
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 225,
+                "neighbours": [
+                    4294967295,
+                    226,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.OrbitalLaser",
+                "scriptableFieldMap": {
+                    "damage": {
+                        "Type": "int",
+                        "Value": 20
+                    },
+                    "lingerTime": {
+                        "Type": "float",
+                        "Value": 2.0
+                    },
+                    "moveSpeed": {
+                        "Type": "float",
+                        "Value": 15.0
+                    },
+                    "trackDuration": {
+                        "Type": "float",
+                        "Value": 5.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrbitalLaser",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    50.0,
+                    -16.21139907836914
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    10.000000953674316,
+                    100.0,
+                    10.0
+                ]
+            }
+        }
+    },
+    {
+        "Outer": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "11796213258283547244",
+                "prefabHandle": {
+                    "GUID": "11796213258283547244"
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "15013141975069348310"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 226,
+                "neighbours": [
+                    225,
+                    4294967295,
+                    4294967295,
+                    227
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Outer",
+                "mTag": "InnerLaser"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -148.3000030517578,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.27311986684799194,
+                    0.0,
+                    0.9619800448417664,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Inner": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "11796213258283547244",
+                "prefabHandle": {
+                    "GUID": "11796213258283547244"
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12687902782278462473"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 227,
+                "neighbours": [
+                    225,
+                    4294967295,
+                    226,
+                    228
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Inner",
+                "mTag": "InnerLaser"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.5999999642372131,
+                    1.0,
+                    0.5999999046325684
+                ]
+            }
+        }
+    },
+    {
         "FX_OrbitalLaserHint": {
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": false,
@@ -330,18 +537,18 @@
                 "velocitySeparateAxis": false
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "11796213258283547244",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "11796213258283547244"
                 },
-                "prefabID": 0
+                "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048804,
+                "entity_id": 228,
                 "neighbours": [
-                    0,
+                    225,
                     4294967295,
-                    4,
+                    227,
                     4294967295
                 ]
             },
@@ -359,8 +566,8 @@
                 ],
                 "position": [
                     0.0,
-                    50.0,
-                    -16.21139907836914
+                    0.0,
+                    0.0
                 ],
                 "rotation": [
                     1.0,
@@ -369,9 +576,9 @@
                     0.0
                 ],
                 "scale": [
-                    0.9999998807907104,
-                    1.0,
-                    1.0
+                    0.09999997913837433,
+                    0.009999999776482582,
+                    0.10000000149011612
                 ]
             }
         }
