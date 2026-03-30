@@ -716,7 +716,8 @@ namespace SliceEngine
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(wrappedShape->GetInnerShape());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
 			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
@@ -783,7 +784,8 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(wrappedShape->GetInnerShape());
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
@@ -1209,8 +1211,9 @@ namespace SliceEngine
 		return result.Get();
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateSphereShape(const ColliderShape& collider) const
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape( const ColliderShape& collider) const
 	{
+		//TRS
 		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
 		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
 		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -1342,7 +1345,13 @@ namespace SliceEngine
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
 		CreateJoltBody(entity);
+
+		UpdateShapeFromTransform(entity);
+		OnColliderModified(reg, entity);
+
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -1402,6 +1411,8 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
+		if (colliderShape.bodyID.IsInvalid())
+			return;
 		
 		// Remove body form physics world
 		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
@@ -1413,6 +1424,12 @@ namespace SliceEngine
 
 	void PhysicsSystem::CreateJoltBody(Entity entity)
 	{
+
+		//if (entity == entt::entity(1048793))
+		//{
+		//	int a = 2;
+		//}
+
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (!checkEntity.HasComponent<ColliderShape>())
 			return;
@@ -1422,12 +1439,6 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
-
-
-		if (!colliderShape.componentEnabled)
-		{
-			return;
-		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{

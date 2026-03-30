@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -53,6 +55,7 @@
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
+    <Compile Include="Source\Core\Components\Light.cs" />
     <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
@@ -62,6 +65,7 @@
     <Compile Include="Source\Core\Components\Renderer.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
+    <Compile Include="Source\Core\Components\SpriteAnimator.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
@@ -108,6 +112,7 @@
     <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
+    <Compile Include="Source\Examples\TestCamera.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />

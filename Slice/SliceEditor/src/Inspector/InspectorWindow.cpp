@@ -54,24 +54,25 @@ namespace SliceEditor
 
 		// check what type selected nodes are
 
-		auto type = selected_nodes.begin().operator*()->type;
+		auto lastSelectedNode = mRegistry.GetManager<SelectionManager>("Selection")->GetLastSelectedNode();
+		auto type = lastSelectedNode->type;
 
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			DisplayEntity(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			DisplayMaterial(static_cast<DirectoryNode*>(lastSelectedNode));
 			break;
 		case SelectionType::PREFAB_ENTITY:
-			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			DisplayPrefab(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::STATE:
-			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			DisplayState(static_cast<StateNode*>(lastSelectedNode));
 			break;
 		case SelectionType::TRANSITION:
-			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
+			DisplayTransition(static_cast<TransitionLinkNode*>(lastSelectedNode));
 			break;
 		}
 
@@ -433,6 +434,8 @@ namespace SliceEditor
 
 			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
 
+			BoolInputHeader(mRegistry, "Playing", "##spriteanimplaying", sprite_anim.is_playing);
+			BoolInputHeader(mRegistry, "Loop", "##spriteanimloop", sprite_anim.loop);
 			//i cant be bothered to make a draguint8 or wtv so ill just do this
 			unsigned int temps[3];
 			temps[0] = sprite_anim.row;
@@ -445,7 +448,11 @@ namespace SliceEditor
 			sprite_anim.col = temps[1];
 			sprite_anim.num_frames = temps[2];
 
-			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.1f", 0.f, 60.f, 0.1f);
+			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.2f", 0.f, 60.f, 0.01f);
+
+		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
+			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
+			sprite_anim.curr_frame = curr_temp + FLT_EPSILON;*/
 
 			ImGui::TreePop();
 		}
@@ -765,6 +772,9 @@ namespace SliceEditor
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
 			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", cam.whiteBalance, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
@@ -786,6 +796,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", cam.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::Text("Godrays");
@@ -834,6 +845,7 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
 				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Blend", "##cam_impact_blend", cam.impactBlend, "%.2f", 0.0f, 1.0f, 0.01f);
 			}
 
 			ImGui::Text("Vignette");

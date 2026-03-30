@@ -299,9 +299,13 @@ namespace SliceEngine
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomLimit", &Camera::bloomLimit)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
 		.property("gamma", &Camera::gamma)
+		.property("whiteBalance", &Camera::whiteBalance)
+		.property("minLuminance", &Camera::minLuminance)
+		.property("maxLuminance", &Camera::maxLuminance)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
@@ -315,6 +319,7 @@ namespace SliceEngine
 		.property("impactEpilepsy", &Camera::impactEpilepsy)
 		.property("impactNoise1", &Camera::impactNoise1)
 		.property("impactNoise2", &Camera::impactNoise2)
+		.property("impactBlend", &Camera::impactBlend)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)
@@ -653,6 +658,8 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 
 rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .constructor<>()
+.property("is_playing", &SpriteAnimator::is_playing)
+.property("loop", &SpriteAnimator::loop)
 .property("fps", &SpriteAnimator::fps)
 .property("row", &SpriteAnimator::row)
 .property("col", &SpriteAnimator::col)
@@ -851,6 +858,7 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		frm->StartSystem("Misc");
 		auto core = Core::GetInstance();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
@@ -897,14 +905,15 @@ namespace SliceEngine
 			}
 		}
 
+		frm->EndSystem("Misc");
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime();
-		frm->EndSystem("Update Delta Time");
 
 		deltaTimeUnscaled = static_cast<float>(frm->getDeltaTime());
 		deltaTimeScaled = deltaTimeUnscaled * sScene->GetTimeScale();
 		fixedDeltaTime = static_cast<float>(frm->getFixedDeltaTime());
 		fixedDeltaTimeScaled = fixedDeltaTime * sScene->GetTimeScale();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -1050,6 +1059,7 @@ namespace SliceEngine
 		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
+		//frm->StartSystem("Fixed Dt Loop");
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
 			// game logic
@@ -1084,6 +1094,7 @@ namespace SliceEngine
 			sAnimator.BoneUpdate();
 			frm->EndSystem("Animation");
 		}
+		//frm->EndSystem("Fixed Dt Loop");
 
 		// regular update for scripts
 		// idk if this should be before or after simulation loop
@@ -1127,17 +1138,18 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto _frm = Core::GetInstance()->GetFramerateManager();
+		frm->StartSystem("Update Destroyed");
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
+		frm->EndSystem("Update Destroyed");
 
+		frm->StartSystem("GLFW Swap Buffers");
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		_frm->EndSystem("GLFW Swap Buffers");
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()
