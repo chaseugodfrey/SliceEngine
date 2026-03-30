@@ -15,6 +15,7 @@ namespace SliceEngine
         public float launchSpeedMax = 10f;
         public float launchUpwardForce = 8f;
         public float timeBetweenMines = 0.2f; // delay between each mine spawn
+        public float lingerTime = 2f;
 
         private bool triggered = false;
 
@@ -24,11 +25,21 @@ namespace SliceEngine
 
             base.OnTriggerEnter(other);
 
+            lingerTime = mineCount * timeBetweenMines * 3;
             GameObject collidedGO = FindGameObjectWithID(other);
             if (collidedGO == null || collidedGO.tag != "Player") return;
 
             triggered = true;
-            StartCoroutine(SpawnMines());
+            
+            StartCoroutine(WaitForSpawn());
+            
+        }
+
+        private IEnumerator WaitForSpawn()
+        {
+            Coroutine test = StartCoroutine(SpawnMines());
+            yield return new WaitForCoroutine(test);
+            StartCoroutine(Suicide(lingerTime));
         }
 
         private IEnumerator SpawnMines()
@@ -63,6 +74,12 @@ namespace SliceEngine
                 yield return new WaitForSeconds(timeBetweenMines);
             }
 
+            //gameObject.Destroy();
+        }
+
+        IEnumerator Suicide(float time)
+        {
+            yield return new WaitForSeconds(time);
             gameObject.Destroy();
         }
     }
