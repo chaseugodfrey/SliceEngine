@@ -145,9 +145,11 @@ namespace SliceEngine
         //End Physics
 
         //Layer
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint LayerMask_GetCollisionMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static uint LayerMask_GetMask(string layerName);
+        internal extern static uint LayerMask_ToMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string LayerMask_LayerToName(uint layer);

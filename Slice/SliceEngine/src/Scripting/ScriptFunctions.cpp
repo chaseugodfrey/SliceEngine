@@ -1554,11 +1554,18 @@ namespace SliceEngine
 
 #pragma region LAYERMASK FUNCTIONS
 
-	static uint32_t LayerMask_GetMask(MonoString* string)
+	static uint32_t LayerMask_GetCollisionMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return Core::GetInstance()->GetLayerManager()->GetMask(name);
+		return Core::GetInstance()->GetLayerManager()->GetCollisionMask(name);
+	}
+
+	static uint32_t LayerMask_ToMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return Core::GetInstance()->GetLayerManager()->ToMask(name);
 	}
 
 	static MonoString* LayerMask_LayerToName(uint32_t layer)
@@ -3566,7 +3573,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
-		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_GetCollisionMask);
+		ADD_INTERNAL_CALL(LayerMask_ToMask);
 		ADD_INTERNAL_CALL(LayerMask_LayerToName);
 		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 
