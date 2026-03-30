@@ -6,10 +6,7 @@ project "SliceEditor"
     targetdir ("%{wks.location}/build/bin/%{cfg.buildcfg}/%{prj.name}")
     objdir ("%{wks.location}/build/bin-int/%{cfg.buildcfg}/%{prj.name}")
 
-    files { "src/**", "thirdparty/imgui/include/**", 
-    "thirdparty/recast/Recast/Source/*.cpp",
-    "thirdparty/recast/Detour/DetourCrowd/Source/**.cpp",
-    "thirdparty/recast/Detour/Detour/Source/**.cpp" }
+    files { "src/**", "thirdparty/imgui/include/**"}
 
     --rtti "On"
 
@@ -25,9 +22,6 @@ project "SliceEditor"
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
         ThirdParty.MONO_INC,
-        ThirdParty.RECAST_INC,
-        ThirdParty.DETOUR_INC,
-        ThirdParty.DETOUR_CROWD_INC,
         "thirdparty/imgui/include",
         "thirdparty/filewatch/FileWatch"
         

@@ -10,12 +10,7 @@ project "SliceTests"
     files
     {
         "**.cpp",
-        "**.h",
-        -- navigation dependencies (recast/detour)
-        "../SliceEngine/thirdparty/recast/Recast/Source/*.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/Detour/Source/*.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/DetourCrowd/Source/*.cpp",
-        "../SliceEngine/thirdparty/recast/Detour/DetourTileCache/Source/*.cpp"
+        "**.h"
     }
 
     includedirs
@@ -30,10 +25,6 @@ project "SliceTests"
         ThirdParty.GLM_INC,
         ThirdParty.JOLT_INC,
         ThirdParty.MONO_INC,
-        ThirdParty.RECAST_INC,
-        ThirdParty.DETOUR_INC,
-        ThirdParty.DETOUR_CROWD_INC,
-        ThirdParty.DETOUR_TILE_INC,
         "../SliceEngine/thirdparty/catch2"
     }
 

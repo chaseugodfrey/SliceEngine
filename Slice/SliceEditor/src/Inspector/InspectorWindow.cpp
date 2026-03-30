@@ -1049,52 +1049,6 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplayNavAgent(entt::entity entity)
-	{
-		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavAgent>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Agent", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
-
-			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
-
-			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
-
-			ImGui::TreePop();
-		}
-
-	}
-
-	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	//{
-	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-	//	{
-	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-	//		
-	//		
-	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-	//		ImGui::TreePop();
-	//	}
-
-
-	//		//ImGui::TreePop();
-	//	}
-
-	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
-	{
-		auto& navObstacle = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavObstacle>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Obstacle", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavObstacle>(entity);
-
-			BoolInputHeader(mRegistry, "Is Obstacle: ", "##isNavObstacle", navObstacle.isObstacle);
-			ImGui::TreePop();
-		}
-	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -2288,13 +2242,6 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavAgent>())
-			{
-				if (ImGui::Selectable("Add Nav Agent"))
-				{
-					reg.emplace<SliceEngine::NavAgent>(entity);
-				}
-			}
 
 			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
 			//{
@@ -2304,13 +2251,6 @@ namespace SliceEditor
 			//	}
 			//}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
-			{
-				if (ImGui::Selectable("Add Nav Obstacle"))
-				{
-					reg.emplace<SliceEngine::NavObstacle>(entity);
-				}
-			}
 
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
@@ -2569,23 +2509,6 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavAgent>(entity))
-			{
-				DisplayNavAgent(node->entity);
-				ImGui::Separator();
-			}
-
-			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			//{
-			//	DisplayNavMeshLink(node->entity);
-			//	ImGui::Separator();
-			//}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
-			{
-				DisplayNavObstacle(node->entity);
-				ImGui::Separator();
-			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
