@@ -142,7 +142,7 @@ namespace SliceEngine
             Vector3 toPlayer = Bootstrap.Player.transform.WorldPosition - origin;
             RayCastHit hit;
             bool hasLineOfSightOnPlayer = false;
-            bool hitSomething = Physics.Raycast(origin, toPlayer, out hit, LayerMask.NameTolayer("LineOfSight"), QueryTriggerInteraction.Ignore);
+            bool hitSomething = Physics.Raycast(origin, toPlayer, out hit, LayerMask.GetCollisionMask("LineOfSight"), QueryTriggerInteraction.Ignore);
             if (hitSomething)
             {
                 if (hit.transform.gameObject.tag == "Player")
