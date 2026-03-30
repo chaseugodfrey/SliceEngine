@@ -45,8 +45,9 @@ namespace SliceEditor
 		};
 
 
-		std::map<std::string, SystemHistory> mSystemMap;
+
 		const size_t MAX_SAMPLES = 120;
+		std::map<std::string, SystemHistory> mSystemMap;
 
 	public:
 

@@ -115,7 +115,7 @@ namespace SliceEditor
 		if (mSession.GetEntityNodes().find(entity) != mSession.GetEntityNodes().end())
 		{
 			auto& entityNodes = mSession.GetEntityNodes();
-			entityNodes[entity].get()->nodeOpen = true;
+			entityNodes[entity].get()->nodeOpen = isNodeOpen;
 		}
 
 		bool itemHovered = ImGui::IsItemHovered();
