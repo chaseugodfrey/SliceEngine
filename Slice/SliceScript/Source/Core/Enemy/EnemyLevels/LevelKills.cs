@@ -32,10 +32,10 @@ namespace SliceEngine
         {
             base.EnemyKilled(enemy);
 
-            if (enemy.Has<EnemyGrunt>())
-            {
-                KillsRequired--;
-            }
+            //if (enemy.Has<EnemyGrunt>())
+            //{
+            //    KillsRequired--;
+            //}
         }
     }
 }

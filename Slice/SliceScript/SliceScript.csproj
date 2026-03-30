@@ -65,7 +65,7 @@
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
-    <Compile Include="Source\Core\Components\NavAgent.cs" />
+    <Compile Include="Source\Core\Components\Light.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
@@ -74,13 +74,10 @@
     <Compile Include="Source\Core\Components\Renderer.cs" />
     <Compile Include="Source\Core\Components\RigidBody.cs" />
     <Compile Include="Source\Core\Components\Slider.cs" />
+    <Compile Include="Source\Core\Components\SpriteAnimator.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
@@ -91,10 +88,6 @@
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjective.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjectiveDone.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
@@ -113,7 +106,6 @@
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Math\Vector4.cs" />
-    <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
     <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
@@ -151,6 +143,7 @@
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
     <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
+    <Compile Include="Source\Core\UI\SplashScreen.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
@@ -158,14 +151,16 @@
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
-    <Compile Include="Source\Examples\TestMovingPlatform.cs" />
     <Compile Include="Source\Examples\TestButton.cs" />
+    <Compile Include="Source\Examples\TestCamera.cs" />
     <Compile Include="Source\Examples\TestCameraMovement.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />
+    <Compile Include="Source\Examples\TestInputCam.cs" />
     <Compile Include="Source\Examples\TestMisc.cs" />
+    <Compile Include="Source\Examples\TestMovingPlatform.cs" />
     <Compile Include="Source\Examples\TestMusic.cs" />
     <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
@@ -173,13 +168,15 @@
     <Compile Include="Source\Examples\TestRectTransform.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestSprite.cs" />
+    <Compile Include="Source\Examples\TestTimeScale.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
+    <Compile Include="Source\Level 3\Level3Boss.cs" />
+    <Compile Include="Source\Level 3\Level3ProjectileSpawner.cs" />
     <Compile Include="Source\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />
     <Compile Include="Source\Level1\IntroController.cs" />
-    <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
     <Compile Include="Source\Level2\EnemyHUD.cs" />
@@ -190,7 +187,6 @@
     <Compile Include="Source\Old_Test_Spawner.cs" />
     <Compile Include="Source\ParticleSpawner.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

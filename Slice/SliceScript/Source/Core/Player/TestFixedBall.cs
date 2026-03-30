@@ -9,8 +9,8 @@ namespace SliceEngine
 {
     public class TestFixedBall : SliceBehaviour
     {
-        private List<EnemySlime> enemiesInRange = new List<EnemySlime>();
-        public List<EnemySlime> EnemiesInRange => enemiesInRange;
+        //private List<EnemySlime> enemiesInRange = new List<EnemySlime>();
+        //public List<EnemySlime> EnemiesInRange => enemiesInRange;
         public delegate void Attack();
         public Attack OnAttack;
 

@@ -154,13 +154,13 @@ namespace SliceEngine
                     return;
                 }
 
-                GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateGruntEnemy();
+               // GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateGruntEnemy();
 
                 if (!constantSpawning)
                     maxGrunts--;
 
-                //SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
-                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
+                ////SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
+                //enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
 
                 //timer = 0.0f;
                 currPoint++;
@@ -179,9 +179,9 @@ namespace SliceEngine
                     return;
                 }
 
-                GameObject enemy = levelDirectorObject.As<LevelDirector>().CreateSlimeEnemy();
-                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
-                currSlimes++;
+                //GameObject enemy = levelDirectorObject.As<LevelDirector>().CreateSlimeEnemy();
+                //enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
+                //currSlimes++;
                 currPoint++;
             }
 
@@ -201,10 +201,10 @@ namespace SliceEngine
                 toggleSpawning = true;
             }
 
-            if (enemy.Has<EnemySlime>())
-            {
-                currSlimes--;
-            }
+            //if (enemy.Has<EnemySlime>())
+            //{
+            //    currSlimes--;
+            //}
         }
 
 

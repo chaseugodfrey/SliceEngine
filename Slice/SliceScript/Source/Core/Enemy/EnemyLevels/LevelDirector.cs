@@ -80,28 +80,28 @@ namespace SliceEngine
             Console.WriteLine("Num of levels: " + levels.Count);
         }
 
-        public GameObject CreateGruntEnemy(/*Prefab prefab*/)
-        {
-            // instantiate the enemy
-            GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
-            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
-            newEnemy.As<EnemyGrunt>().SetUp();
-            enemies.Add(newEnemy);
+        //public GameObject CreateGruntEnemy(/*Prefab prefab*/)
+        //{
+        //    // instantiate the enemy
+        //    GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
+        //    SliceLog.Log("Creating enemy with: " + newEnemy.mID);
+        //    //newEnemy.As<EnemyGrunt>().SetUp();
+        //    enemies.Add(newEnemy);
 
-            return newEnemy;
-        }
+        //    return newEnemy;
+        //}
 
-        public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
-        {
-            // instantiate the enemy
-            SliceLog.Log("Creating Slime Enemy");
-            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
-            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
-            newEnemy.As<EnemySlime>().SetUp();
-            enemies.Add(newEnemy);
+        //public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
+        //{
+        //    // instantiate the enemy
+        //    SliceLog.Log("Creating Slime Enemy");
+        //    GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
+        //    SliceLog.Log("Creating enemy with: " + newEnemy.mID);
+        //    newEnemy.As<EnemySlime>().SetUp();
+        //    enemies.Add(newEnemy);
 
-            return newEnemy;
-        }
+        //    return newEnemy;
+        //}
 
         public int EnemyCount() { return enemies.Count; }
 
