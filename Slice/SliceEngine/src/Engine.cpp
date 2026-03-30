@@ -858,6 +858,7 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		frm->StartSystem("Misc");
 		auto core = Core::GetInstance();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
@@ -904,6 +905,7 @@ namespace SliceEngine
 			}
 		}
 
+		frm->EndSystem("Misc");
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime();
 
@@ -1057,6 +1059,7 @@ namespace SliceEngine
 		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
+		//frm->StartSystem("Fixed Dt Loop");
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
 			// game logic
@@ -1091,6 +1094,7 @@ namespace SliceEngine
 			sAnimator.BoneUpdate();
 			frm->EndSystem("Animation");
 		}
+		//frm->EndSystem("Fixed Dt Loop");
 
 		// regular update for scripts
 		// idk if this should be before or after simulation loop
@@ -1134,19 +1138,18 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto _frm = Core::GetInstance()->GetFramerateManager();
-		_frm->StartSystem("Update Destroyed");
+		frm->StartSystem("Update Destroyed");
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
-		_frm->EndSystem("Update Destroyed");
+		frm->EndSystem("Update Destroyed");
 
+		frm->StartSystem("GLFW Swap Buffers");
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		_frm->EndSystem("GLFW Swap Buffers");
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()
