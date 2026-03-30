@@ -511,9 +511,11 @@ namespace SliceEditor
 #pragma region Drawing
 	void CustomShaderWindow::Draw()
 	{
+
 		CheckFileData();
 
 		ImGui::Begin("Shader Graph");
+
 		if(ImGui::Button("Save"))
 		{
 			SaveFileData();
@@ -549,7 +551,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -589,7 +596,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if(ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -617,7 +629,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 		
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -634,7 +651,12 @@ namespace SliceEditor
 		}
 
 		if (ImNodes::IsNodeSelected(mFinalNode.id))
-			SelectNode(&mFinalNode);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&mFinalNode);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -645,7 +667,12 @@ namespace SliceEditor
 			return;
 		ImNodes::Link(n.id, n.sourceAttr, n.destAttr);
 		if (ImNodes::IsLinkSelected(n.id))
-			SelectNode(&n);
+		{
+			if(ImGui::IsWindowFocused())
+			{
+				SelectNode(&n);
+			}
+		}
 	}
 #pragma endregion
 

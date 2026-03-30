@@ -296,6 +296,11 @@ namespace SliceEngine
 			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
 				ui_mat.color = sprite->rgba;
 				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
+				ui_mat.data["U_Start"] = sprite->uv[0];
+				ui_mat.data["U_End"] = sprite->uv[1];
+				ui_mat.data["V_Start"] = sprite->uv[2];
+				ui_mat.data["V_End"] = sprite->uv[3];
+
 				ui_mat.isTranslucent = ui_mat.color.a < 0.999f;
 
 				RCK_ModelT mdlDet = GetModelDetails(

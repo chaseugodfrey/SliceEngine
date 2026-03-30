@@ -62,7 +62,8 @@ namespace SliceEngine
         public virtual void OnButtonExitHover() { }
         public virtual void OnButtonRelease() { }
         public virtual void OnSliderValue(float value) { }
-//        public virtual void OnButtonRelease() { }
+        public virtual void OnSpriteAnimStop() { }
+        public virtual void OnSpriteAnimLoop() { }
 
         public bool HasComponent<T>() where T : Component, new()
         {

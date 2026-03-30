@@ -10,12 +10,56 @@ DigiPen Institute of Technology is prohibited.
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 #include "pch.h"
-#include "CanvasSystem.h"
 #include "../Core/Core.h"
-#include "CameraSystem.h"
+#include "SpriteAnimationSystem.h"
 
 #include <glm/gtc/type_ptr.hpp>
 
 namespace SliceEngine {
 
+	void SpriteAnimationSystem::EntityOnExit(entt::registry& reg, entt::entity entity) {
+		if (auto render = reg.try_get<SpriteRenderer>(entity)) {
+			render->uv = glm::vec4(0.f, 1.f, 0.f, 1.f);
+
+		}
+	};
+
+	void SpriteAnimationSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) {
+		auto& sprite_anim = reg.get<SpriteAnimator>(entity);
+		if (!sprite_anim.is_playing || !sprite_anim.row || !sprite_anim.col || !sprite_anim.num_frames) {
+			return;
+		}
+		sprite_anim.curr_frame += sprite_anim.fps * dt;
+
+		if (sprite_anim.loop) {
+			while (sprite_anim.curr_frame > sprite_anim.num_frames) {
+				sprite_anim.curr_frame -= sprite_anim.num_frames;
+			}
+		}
+		else if (sprite_anim.curr_frame > sprite_anim.num_frames) {
+			sprite_anim.curr_frame = 0.f;
+			sprite_anim.is_playing = false;
+		}
+
+		//choose above or below
+
+		/*while (sprite_anim.curr_frame > sprite_anim.num_frames) {
+			sprite_anim.curr_frame -= sprite_anim.num_frames;
+			if (sprite_anim.loop) {
+				sprite_anim.curr_frame = 0.f;
+				sprite_anim.is_playing = false;
+				break;
+			}
+		}*/
+
+
+		auto& render = reg.get<SpriteRenderer>(entity);
+		float x_offset = 1.f / sprite_anim.col;
+		float y_offset = 1.f / sprite_anim.row;
+		unsigned char frame = (unsigned char)sprite_anim.curr_frame;
+		unsigned char u = frame % sprite_anim.row;
+		unsigned char v = frame / sprite_anim.row;
+		render.uv = glm::vec4(u * x_offset, (u + 1) * x_offset, v * y_offset, (v + 1) * y_offset);
+
+	};
 }
