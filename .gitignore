@@ -116,3 +116,9 @@ Slice/SliceEditor/Resources/**
 Slice/SliceScript/obj/EditorDebug/SliceScript.dll
 Slice/SliceScript/SliceScript.dll
 Slice/SliceEditor/imgui.ini
+
+# Installer Build Artifacts
+WeightOfTheSkyInstaller/INSTALLER/
+WeightOfTheSkyInstaller/GAMEDIRECTORY/*
+!WeightOfTheSkyInstaller/GAMEDIRECTORY/Icon.ico
+.venv/
