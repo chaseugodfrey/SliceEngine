@@ -71,17 +71,6 @@ namespace SliceEditor
 		TRIANGLE,
 		BOX
 	};
-	enum WrapType : std::uint8_t {
-		CLAMP_TO_EDGE,
-		WRAP,
-		MIRROR
-	};
-	enum UsageType : std::uint8_t {
-		COLOR,
-		COLOR_ALPHA,
-		TANGENT_NORMAL,
-		INTENSITY
-	};
 
 	enum AudioStream : std::uint8_t
 	{
@@ -233,15 +222,11 @@ namespace SliceEditor
 
 		CompressionFormat cmp_format{ CompressionFormat::BC3 };
 		MipMapFilter mip_filter{ MipMapFilter::BOX };
-		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
-		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
-		UsageType usage_type{ UsageType::COLOR };
 
 		float comp_quality{ 1.f };
 		bool generateMips{ true };
 		unsigned char mip_count{ 8 };
 		bool hasAlpha{ true };
-		unsigned char alpha_threshold{ 128 };	//used only for non-blending
 
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
@@ -260,13 +245,10 @@ namespace SliceEditor
 			// now we have specific properties :)
 			metaJson["comp_format"] = cmp_format;
 			metaJson["mip_filter"] = mip_filter;
-			metaJson["u_wrap"] = u_wrap;
-			metaJson["v_wrap"] = v_wrap;
 			metaJson["comp_quality"] = comp_quality;
 			metaJson["generateMips"] = generateMips;
 			metaJson["mip_count"] = mip_count;
 			metaJson["hasAlpha"] = hasAlpha;
-			metaJson["alpha_threshold"] = alpha_threshold;
 			// now create the meta file
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -302,10 +284,7 @@ namespace SliceEditor
 			resourcePath = metaData["resourcePath"].get<std::string>();
 			cmp_format = metaData["comp_format"].get<CompressionFormat>();
 			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
-			u_wrap = metaData["u_wrap"].get<WrapType>();
-			v_wrap = metaData["v_wrap"].get<WrapType>();
 			comp_quality = metaData["comp_quality"].get <float> ();
-			alpha_threshold = metaData["alpha_threshold"].get <char> ();
 			generateMips = metaData["generateMips"].get <bool> ();
 			hasAlpha = metaData["hasAlpha"].get <bool> ();
 		}
