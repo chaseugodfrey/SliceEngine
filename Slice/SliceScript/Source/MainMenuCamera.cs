@@ -4,51 +4,57 @@ using System;
 
 namespace SliceEngine
 {
-    public class MainMenuCamera : SliceBehaviour, IInitializable
+    public class MainMenuCamera : SliceBehaviour
     {
-        public float totalAnimTime = 5.0f;
+        private Transform lightPos;
+        private Transform fanBladeRotation;
+        public float minValue = 0f;
+        public float maxValue = 0f;
+        public float speed = 2.0f;
+        public float currAngle = 0f;
 
-        private bool isActivated = false;
-        private Vector3 startCamPosition;
-        private Quaternion startCamRot;
-        private Vector3 finalCamPosition;
-        private Quaternion finalCamRot;
-        private float timeSinceActivated;
+        private float timeAccumulator = 0f;
+
         public override void OnCreate()
         {
-            Camera.SetMainCamera(this.gameObject);
+            GameObject lightObj = FindGameObjectWithName("MovingLight");
+            GameObject fanBladeObj = FindGameObjectWithName("FanBlades");
+
+
+            if(lightObj != null)
+            {
+                lightPos = lightObj.GetComponent<Transform>();
+            }
+
+            if (fanBladeObj != null)
+            {
+                fanBladeRotation = fanBladeObj.GetComponent<Transform>();
+            }
+
         }
 
-        public void ActivateMainMenuCamera()
-        {
-            isActivated = true;
-            timeSinceActivated = 0.0f;
-            startCamPosition = transform.WorldPosition;
-            startCamRot = transform.WorldRotationQuat;
-            finalCamPosition = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().WorldPosition;
-            finalCamRot = gameObject.FindGameObjectWithName("Camera").GetComponent<Transform>().WorldRotationQuat;
-        }
-
-        public void Initialize()
-        {
-        }
         public override void OnUpdate(float dt)
         {
-            if (isActivated)
+            if (lightPos == null)
             {
-                timeSinceActivated += dt;
-                if (timeSinceActivated >= totalAnimTime)
-                {
-                    Camera.SetMainCamera(gameObject.FindGameObjectWithName("Camera"));
-                    Destroy();
-                }
-                else
-                {
-                    float t = Utilities.EaseIn(timeSinceActivated / totalAnimTime);
+                return;
+            }
 
-                    transform.Position = Utilities.Lerp(startCamPosition, finalCamPosition, t);
-                    transform.RotationQuat = Quaternion.Slerp(startCamRot, finalCamRot, t);
-                }
+            timeAccumulator += dt * speed;
+
+            float distance = maxValue - minValue;
+
+            float bounce = Utilities.PingPong(timeAccumulator, distance);
+
+            Vector3 pos = lightPos.Position;
+            pos.y = minValue + bounce;
+            lightPos.Position = pos;
+            if(fanBladeRotation != null)
+            {
+                
+
+                fanBladeRotation.Rotate(80.0f*dt, new Vector3(1.0f,0.0f,0.0f)); 
+
             }
         }
     }

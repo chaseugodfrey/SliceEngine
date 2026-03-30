@@ -2,75 +2,80 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node30"
+                "Node34"
             ]
         },
         "END_EMISSION": {
             "FinalNode3": [
-                "Node74"
+                "Node42"
             ]
         },
         "END_METALLIC": {
             "FinalNode0": [
-                "Node42"
+                "Node90"
             ]
         },
         "END_NORMAL": {
             "FinalNode4": [
-                "Node34"
+                "Node46"
             ]
         },
         "END_ROUGHNESS": {
             "FinalNode2": [
-                "Node46"
+                "Node58"
             ]
         },
         "Flip_Y_Vec2": {
-            "Node27": [
+            "Node31": [
                 "vUV"
             ]
         },
         "Multiply": {
-            "Node30": [
+            "Node34": [
                 "color",
-                "Node38"
+                "Node50"
             ],
-            "Node74": [
-                "Node545",
+            "Node38": [
+                "Node62",
+                "color2"
+            ],
+            "Node42": [
+                "Node38",
                 "EmissionMult"
             ],
-            "Node545": [
-                "Node50",
-                "color2"
+            "Node90": [
+                "Node54",
+                "MetalicMul"
             ]
         },
         "sampleTexture": {
-            "Node34": [
-                "NormalMap",
-                "Node27"
-            ],
-            "Node38": [
-                "albedo",
-                "Node27"
-            ],
-            "Node42": [
-                "MetallicMap",
-                "Node27"
-            ],
             "Node46": [
-                "RoughnessMap",
-                "Node27"
+                "NormalMap",
+                "Node31"
             ],
             "Node50": [
+                "albedo",
+                "Node31"
+            ],
+            "Node54": [
+                "MetallicMap",
+                "Node31"
+            ],
+            "Node58": [
+                "RoughnessMap",
+                "Node31"
+            ],
+            "Node62": [
                 "EmissionMap",
-                "Node27"
+                "Node31"
             ]
         }
     },
     "Params": {
         "Bools": {},
         "Floats": {
-            "EmissionMult": 1.0
+            "EmissionMult": 1.0,
+            "MetalicMul": 1.0
         },
         "Ints": {},
         "Textures": {

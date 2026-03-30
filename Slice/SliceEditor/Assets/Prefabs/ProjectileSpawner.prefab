@@ -1,0 +1,96 @@
+[
+    {
+        "ProjectileSpawner": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 6291687,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    4194428,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Projectile_Spawner",
+                "scriptableFieldMap": {
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "bulletDamage": {
+                        "Type": "int",
+                        "Value": 1
+                    },
+                    "bulletScale": {
+                        "Type": "float",
+                        "Value": 0.5
+                    },
+                    "bulletSpeed": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "limit": {
+                        "Type": "int",
+                        "Value": 80
+                    },
+                    "projPerSecond": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "spawnStyle": {
+                        "Type": "int",
+                        "Value": 0
+                    },
+                    "spiralAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "spiralRate": {
+                        "Type": "float",
+                        "Value": 10.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ProjectileSpawner",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -8.848859786987305,
+                    250.26544189453125
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

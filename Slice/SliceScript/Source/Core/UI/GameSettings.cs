@@ -11,40 +11,45 @@ namespace SliceEngine
     {
         private GameObject settingsPanel;
         private GameObject settingsPopup;
+        private SettingsBorderAnimation borderAnim;
 
         private bool isPauseMenuOpen = false;
         private bool isSubSettingsOpen = false;
 
         public override void OnCreate()
         {
-            settingsPanel = FindGameObjectWithName("Game Settings");
+            settingsPanel = FindGameObjectWithName("GameSettings");
             settingsPopup = FindGameObjectWithName("Settings_Popup");
 
             if (settingsPanel != null) settingsPanel.SetActive(false);
-            if (settingsPopup != null) settingsPopup.SetActive(false);
+            if (settingsPopup != null)
+            {
+                
+                borderAnim = settingsPopup.As<SettingsBorderAnimation>();
+                settingsPopup.SetActive(false);
+            }
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
+
+            
         }
 
         public override void OnUpdate(float dt)
         {
-            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            if (Input.IsKeyPressed(Keys.KEY_ESC) && Bootstrap.HUDManager.CheckLoseScreen() == false)
             {
                 if (isSubSettingsOpen)
                 {
                     CloseSubSettings();
                 }
-                // 2. If nothing is open, open the Pause Menu
+                
                 else if (!isPauseMenuOpen)
                 {
                     OpenPauseMenu();
+
                 }
-                // 3. If Pause Menu is open, close it (Resume Game)
-                else
-                {
-                    ResumeGame();
-                }
+
             }
         }
 
@@ -52,6 +57,8 @@ namespace SliceEngine
         {
             if (settingsPanel != null) settingsPanel.SetActive(true);
             isPauseMenuOpen = true;
+            Cursor.state = Cursor.STATE.DEFAULT;
+            Time.timeScale = 0.0f;
         }
 
 
@@ -62,13 +69,23 @@ namespace SliceEngine
             if (settingsPopup != null) settingsPopup.SetActive(false);
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
+
+            SliceLog.Console("Resume");
+
+            Cursor.state = Cursor.STATE.DISABLED;
+            Time.timeScale = 1.0f;
         }
 
         public void OpenSubSettings()
         {
-            // Hide Pause Menu, Show Settings
-            if (settingsPanel != null) settingsPanel.SetActive(false);
-            if (settingsPopup != null) settingsPopup.SetActive(true);
+
+            //if (settingsPanel != null) settingsPanel.SetActive(false);
+            //if (settingsPopup != null) settingsPopup.SetActive(true);
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(true);
+            }
+            
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = true;
@@ -77,11 +94,18 @@ namespace SliceEngine
         public void CloseSubSettings()
         {
             // Hide Settings, Show Pause Menu
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            if (settingsPanel != null) settingsPanel.SetActive(true);
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+            //if (settingsPanel != null) settingsPanel.SetActive(true);
+
+            if (borderAnim != null)
+            {
+                borderAnim.StartAnimation(false);
+            }
 
             isSubSettingsOpen = false;
             isPauseMenuOpen = true;
+
+            //Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
     }
 }

@@ -840,8 +840,6 @@ namespace SliceEngine
 		}
 	}
 
-
-
 	void Engine::Update()
 	{
 		frm->StartSystem("Misc");
@@ -959,7 +957,6 @@ namespace SliceEngine
 		(void)sParticleSystemManager;
 
 		core->GetSystem<PhysicsSystem>().ClearCollisionPairs();
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sInputs->ResetCursorState();
 		sAudio->StopAllSound();
@@ -995,6 +992,7 @@ namespace SliceEngine
 
 		if (!isPlaying)
 		{
+			sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
@@ -1024,7 +1022,6 @@ namespace SliceEngine
 		auto sAudio = core->GetAudioManager();
 		auto sScene = core->GetSceneSystem();
 
-		sInputs->SetMode(InputMode::Editor);
 		sInputs->SetEnabled(false);
 		sAudio->SetCategoryPause(0, true);
 		sAudio->SetCategoryPause(1, true);

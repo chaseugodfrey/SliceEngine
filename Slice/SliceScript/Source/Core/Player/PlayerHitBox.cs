@@ -10,14 +10,14 @@ namespace SliceEngine
     {
         //GameObject swordHitBox;
 
-        public void EnableBox(string str)
+        public void TriggerBox(string str)
         {
-            SliceLog.Log("Testing :" + str);
+            //SliceLog.Log("Testing :" + str);
         }
 
-        public void DisableBox(string str) 
-        {
-            SliceLog.Log("Testing :" + str);
-        }
+        //public void DisableBox(string str) 
+        //{
+        //    SliceLog.Log("Testing :" + str);
+        //}
     }
 }

@@ -49,14 +49,14 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_K))
             {
-                Console.WriteLine("PRESSING THE K KEY");
+                //Console.WriteLine("PRESSING THE K KEY");
                 GameObject GO = gameObject.FindGameObjectWithID((uint)CameraID);
                 Camera.SetMainCamera(GO);
             }
 
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
-                Console.WriteLine("PRESSING THE L KEY");
+                //Console.WriteLine("PRESSING THE L KEY");
                 GameObject GO = FindGameObjectWithName("Camera_1");
                 Camera.SetMainCamera(GO);
             }

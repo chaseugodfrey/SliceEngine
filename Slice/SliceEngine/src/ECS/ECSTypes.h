@@ -170,6 +170,8 @@ namespace SliceEngine
 		RTTR_ENABLE();
     };
 
+
+
 	struct UITransform
 	{
 		// blank for now because I just need to use this for factory stuff
@@ -457,7 +459,7 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
-		bool enablePathfinding = false;
+		//bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
 		bool destroyOnEnd = false;

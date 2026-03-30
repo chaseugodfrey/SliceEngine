@@ -8,43 +8,20 @@ namespace SliceEngine
 {
     public class GroundCheck : SliceBehaviour
     {
-        public string groundName = "Ground";
+        public string groundName = "Ground Check";
         private GameObject[] groundObject;
-        private bool grounded;
-        public bool Grounded { get { return grounded; } }
+        public bool grounded;
+
+        private int TriggerBoxCount = 0;
+
         public override void OnCreate()
         {
             base.OnCreate();
 
             groundObject = gameObject.FindGameObjectsWithTag(groundName);
-            if (groundObject != null) Console.WriteLine("Found ground");
-            else Console.WriteLine("Ground not found");
+            //if (groundObject != null) Console.WriteLine("Found ground");
+            //else Console.WriteLine("Ground not found");
         }
-        public override void OnTriggerEnter(uint other)
-        {
-            if (IsGround(other))
-            {
-                Console.WriteLine("Player grounded");
-                Bootstrap.Player.OnGrounded();
-                grounded = true;
-            }
-        }
-        public override void OnTriggerExit(uint other)
-        {
-            if (IsGround(other))
-            {
-                Console.WriteLine("Player off ground");
-                grounded = false;
-            }
-        }
-        private bool IsGround(uint id)
-        {
-            foreach (GameObject ground in groundObject)
-            {
-                if (id == ground.mID)
-                    return true;
-            }
-            return false;
-        }
+
     }
 }

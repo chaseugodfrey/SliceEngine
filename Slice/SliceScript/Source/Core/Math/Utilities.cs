@@ -58,6 +58,59 @@ namespace SliceEngine
             return from + (to - from) * t;
         }
 
+        public static bool AreAllPointsCollinear3D(Vector3[] points)
+        {
+            if (points.Length < 3) return true;
+
+            Vector3 p1 = points[0];
+            Vector3 p2 = points[1];
+
+            // Manually calculating the base vector (p2 - p1)
+            float baseVx = p2.x - p1.x;
+            float baseVy = p2.y - p1.y;
+            float baseVz = p2.z - p1.z;
+
+            float epsilon = 0.0001f;
+
+            for (int i = 2; i < points.Length; i++)
+            {
+                Vector3 pi = points[i];
+
+                // Manually calculating the check vector (pi - p1)
+                float checkVx = pi.x - p1.x;
+                float checkVy = pi.y - p1.y;
+                float checkVz = pi.z - p1.z;
+
+                // 3D Cross Product
+                float crossX = (baseVy * checkVz) - (baseVz * checkVy);
+                float crossY = (baseVz * checkVx) - (baseVx * checkVz);
+                float crossZ = (baseVx * checkVy) - (baseVy * checkVx);
+
+                // Check the squared magnitude of the cross product vector
+                float sqrMagnitude = (crossX * crossX) + (crossY * crossY) + (crossZ * crossZ);
+
+                if (sqrMagnitude > epsilon)
+                {
+                    return false; // Not a straight line
+                }
+            }
+            return true; // All points passed the check
+        }
+
+        public static Vector3 GetShapeCenter(Vector3[] shapePoints, int numberOfCorners)
+        {
+            Vector3 sum = Vector3.Zero;
+
+            // Loop through only the points that make up the shape 
+            // (ignoring the final return trip to the original camera position)
+            for (int i = 0; i < numberOfCorners; i++)
+            {
+                sum += shapePoints[i];
+            }
+
+            return new Vector3(sum.x / numberOfCorners, sum.y / numberOfCorners, sum.z / numberOfCorners);
+        }
+
         /// <summary>
         /// Clamps a value between a minimum and maximum limit.
         /// </summary>

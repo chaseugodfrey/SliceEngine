@@ -381,10 +381,42 @@ namespace SliceEngine
 		std::optional<Entity> camEntity = camSys.GetCamera(cam);
 
 		if (camEntity.has_value())
+		{
 			camSys.mainCam.emplace(cam);
+
+			// Sync exposure
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
+			camera.gamma = mSessionGamma;
+		}
 		else
 			SLICE_LOG_ERROR("Setting to a non camera entity");
 	}
+
+	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma / 10.f; }
+
+	void RenderManager::SetSessionExposure(float exposure)
+	{
+		mSessionExposure = exposure;
+		auto& mainCam = GetGameCamera();
+		if (mainCam.has_value())
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value());
+			camera.exposure = exposure;
+		}
+	}
+	void RenderManager::SetSessionGamma(float gamma)
+	{
+		float modGamma = gamma * 10.f;
+		mSessionGamma = modGamma;
+		auto& mainCam = GetGameCamera();
+		if (mainCam.has_value())
+		{
+			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(mainCam.value());
+			camera.gamma = modGamma;
+		}
+	}
+
 
 	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
@@ -1319,12 +1351,42 @@ namespace SliceEngine
 	void RenderManager::Draw()
 	{
 		LinkFrameBufferSettings(FB_TOTAL, 0);
+
+		glm::ivec2 win{1920, 1080};
+		glfwGetFramebufferSize(SliceEngine::Core::GetInstance()->GetWindow(), &win.x, &win.y);
+
+		const bool IWantAspectRatio = true;
+
+		if (IWantAspectRatio)
+		{
+			float ar = 1920.f / 1080.f;
+			float myScreenAR = static_cast<float>(win.x) / static_cast<float>(win.y);
+			if (myScreenAR > ar)// if actual screen width is much wider
+			{
+				float newWinWidth = (static_cast<float>(win.x) / myScreenAR) * ar;
+				glViewport(static_cast<int>((static_cast<float>(win.x) - newWinWidth) * 0.5f), 0, static_cast<int>(newWinWidth), win.y);
+			}
+			else
+			{
+				float newWinHeight = (static_cast<float>(win.y) / (1.f / myScreenAR) * (1.f / ar));
+				glViewport(0, static_cast<int>((static_cast<float>(win.y) - newWinHeight) * 0.5f), win.x, static_cast<int>(newWinHeight));
+			}
+		}
+		else
+		{
+			glViewport(0, 0, win.x, win.y);
+		}
+
+
 		LoadSettings(GPS_DEFAULT);
 		ClearBuffer(BufferClearSetting::ALL);
 		if (GetGameCamera().has_value())
+		//auto cams = Core::GetInstance()->GetRegistry().view<cameraEntity>(entt::exclude<InactiveEntity>);
+		//for (auto cam : cams)
 		{
 			SetShader(ShaderPaths[S_COPY]);
 			glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(GetGameCamera().value()).textureID);
+			//glBindTextureUnit(0, Core::GetInstance()->GetRegistry().get<Camera>(cam).textureID);
 
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}

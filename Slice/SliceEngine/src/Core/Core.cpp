@@ -170,10 +170,13 @@ namespace SliceEngine
 		return mWindowManager.GetWindow();
 	}
 
+
 	NetworkSystem* Core::GetNetwork()
 	{
 		return mNetwork.get();
 	}
+
+
 
 	//NavigationSystem *Core::GetNavAgent()
 	//{

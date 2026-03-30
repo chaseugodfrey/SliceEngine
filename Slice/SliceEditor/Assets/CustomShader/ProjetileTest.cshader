@@ -1,0 +1,86 @@
+{
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node82"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node36"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node48"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "Node40"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "Node52"
+            ]
+        },
+        "Flip_Y_Vec2": {
+            "Node29": [
+                "vUV"
+            ]
+        },
+        "Multiply": {
+            "Node32": [
+                "color",
+                "Node44"
+            ],
+            "Node36": [
+                "Node56",
+                "EmissionMult"
+            ],
+            "Node82": [
+                "Node32",
+                "ColourMult"
+            ]
+        },
+        "sampleTexture": {
+            "Node40": [
+                "NormalMap",
+                "Node29"
+            ],
+            "Node44": [
+                "albedo",
+                "Node29"
+            ],
+            "Node48": [
+                "MetallicMap",
+                "Node29"
+            ],
+            "Node52": [
+                "RoughnessMap",
+                "Node29"
+            ],
+            "Node56": [
+                "EmissionMap",
+                "Node29"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "ColourMult": 0.0,
+            "EmissionMult": 1.0
+        },
+        "Ints": {},
+        "Textures": {
+            "EmissionMap": 15644028420850910905,
+            "MetallicMap": 11697903386653029786,
+            "NormalMap": 15800990347539648889,
+            "RoughnessMap": 11697903386653029786,
+            "albedo": 11697903386653029786
+        },
+        "Uints": {}
+    }
+}

@@ -61,6 +61,34 @@
                     "hasExitTime": false,
                     "sourceState": "AnyState",
                     "targetState": "AirDashStart"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "BackDashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "BackDashStart"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "DashStart",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "DashStart"
                 }
             ]
         },
@@ -229,7 +257,7 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
+                    "exitTime": 1,
                     "hasExitTime": true,
                     "sourceState": "AttackToIdle1",
                     "targetState": "Idle"
@@ -243,8 +271,8 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
+                    "exitTime": 0.0,
+                    "hasExitTime": false,
                     "sourceState": "AttackToIdle1",
                     "targetState": "Walk"
                 }
@@ -269,7 +297,7 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
+                    "exitTime": 1,
                     "hasExitTime": true,
                     "sourceState": "AttackToIdle2",
                     "targetState": "Idle"
@@ -283,8 +311,8 @@
                         }
                     ],
                     "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
+                    "exitTime": 0,
+                    "hasExitTime": false,
                     "sourceState": "AttackToIdle2",
                     "targetState": "Walk"
                 }
@@ -300,20 +328,6 @@
             ],
             "stateName": "Idle",
             "transitions": [
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Attack1",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "Idle",
-                    "targetState": "Attack1"
-                },
                 {
                     "conditions": [
                         {
@@ -381,34 +395,6 @@
                     "hasExitTime": false,
                     "sourceState": "JumpLoop",
                     "targetState": "Land"
-                },
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "AirDashStart",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 0.7,
-                    "hasExitTime": true,
-                    "sourceState": "JumpLoop",
-                    "targetState": "AirDashStart"
-                },
-		{
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Idle",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
-                    "sourceState": "Idle",
-                    "targetState": "Idle"
                 }
             ]
         },
@@ -440,7 +426,7 @@
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
-                            "paramName": "Idle",
+                            "paramName": "Land",
                             "value": null
                         }
                     ],
@@ -448,21 +434,7 @@
                     "exitTime": 1.0,
                     "hasExitTime": true,
                     "sourceState": "AirDashStart",
-                    "targetState": "Idle"
-                },
-		{
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "Walk",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": true,
-                    "sourceState": "AirDashStart",
-                    "targetState": "Walk"
+                    "targetState": "Land"
                 }
             ]
         },
@@ -489,22 +461,7 @@
                     "hasExitTime": false,
                     "sourceState": "Plunge",
                     "targetState": "PlungeLand"
-                },
-		{
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
-                            "paramName": "AirDashStart",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "Plunge",
-                    "targetState": "AirDashStart"
                 }
-
             ]
         },
         "PlungeLand": {
@@ -613,20 +570,6 @@
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
-                            "paramName": "Attack1",
-                            "value": null
-                        }
-                    ],
-                    "entryTime": 0.0,
-                    "exitTime": 1.0,
-                    "hasExitTime": false,
-                    "sourceState": "Walk",
-                    "targetState": "Attack1"
-                },
-                {
-                    "conditions": [
-                        {
-                            "comparisonOP": "IsTrue",
                             "paramName": "Idle",
                             "value": null
                         }
@@ -650,6 +593,208 @@
                     "hasExitTime": false,
                     "sourceState": "Walk",
                     "targetState": "JumpLoop"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Fall",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Walk",
+                    "targetState": "Fall"
+                }
+            ]
+        },
+	"Fall": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": true,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Fall",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Land",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Fall",
+                    "targetState": "Land"
+                }
+            ]
+        },
+	"Land": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Land",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "Land",
+                    "targetState": "Idle"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "Land",
+                    "targetState": "Walk"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "JumpLoop",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "Land",
+                    "targetState": "JumpLoop"
+                }
+            ]
+        },
+	"BackDashStart": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Land",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "BackDashStart",
+                    "targetState": "Idle"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "BackDashStart",
+                    "targetState": "Walk"
+                },
+		{
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "JumpLoop",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "BackDashStart",
+                    "targetState": "JumpLoop"
+                }
+            ]
+        },
+	"DashStart": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                0.0,
+                0.0
+            ],
+            "stateName": "Land",
+            "transitions": [
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "DashStart",
+                    "targetState": "Idle"
+                },
+		        {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Walk",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "DashStart",
+                    "targetState": "Walk"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Fall",
+                            "value": null
+                        }
+                    ],
+                                        "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": true,
+                    "sourceState": "DashStart",
+                    "targetState": "Fall"
                 }
             ]
         }

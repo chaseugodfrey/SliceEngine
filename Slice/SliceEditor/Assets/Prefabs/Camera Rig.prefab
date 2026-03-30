@@ -1,0 +1,236 @@
+[
+    {
+        "Camera Rig": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048771,
+                "neighbours": [
+                    0,
+                    1048770,
+                    1048762,
+                    1048773
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.CameraController",
+                "scriptableFieldMap": {
+                    "LockCamera": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "cameraChild": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "cameraOffset": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            2.0,
+                            -5.0
+                        ]
+                    },
+                    "cameraRotationSpeed": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "cameraTransitionSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "cameraWayPoints": {
+                        "Type": "std::vector<SliceEngine::GameObject>",
+                        "Value": []
+                    },
+                    "collisionCheckOffset": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "collisionRadius": {
+                        "Type": "float",
+                        "Value": 0.25
+                    },
+                    "rectangleWidth": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "resolutionX": {
+                        "Type": "float",
+                        "Value": 1920.0
+                    },
+                    "resolutionY": {
+                        "Type": "float",
+                        "Value": 1080.0
+                    },
+                    "sensitivity": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            10.0,
+                            8.0,
+                            0.0
+                        ]
+                    },
+                    "shakeDuration": {
+                        "Type": "float",
+                        "Value": 0.20000000298023224
+                    },
+                    "shakeMagnitude": {
+                        "Type": "float",
+                        "Value": 0.5
+                    },
+                    "smoothFollowSpeed": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "yClamp": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            -40.0,
+                            60.0,
+                            0.0
+                        ]
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Camera Rig",
+                "mTag": "Camera"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    33.887786865234375,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    12.957056045532227,
+                    -39.13051223754883
+                ],
+                "rotation": [
+                    0.9565905928611755,
+                    0.2914350926876068,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Camera": {
+            "struct SliceEngine::Camera": {
+                "bloomExposure": 15.0,
+                "bloomFilterRadius": 15.0,
+                "bloomStrength": 2.0,
+                "cloudsAmplitute": 50.099998474121094,
+                "cloudsColor": [
+                    0.009541153907775879,
+                    0.009541153907775879,
+                    0.009541153907775879,
+                    0.9803921580314636
+                ],
+                "cloudsCutoff": 0.008999999612569809,
+                "cloudsHeight": -110.80000305175781,
+                "cloudsIntensity": 0.6000000238418579,
+                "cloudsSecondAmplitute": 49.0,
+                "cloudsSecondColor": [
+                    0.12312585115432739,
+                    0.12312585115432739,
+                    0.12312585115432739,
+                    0.5882353186607361
+                ],
+                "cloudsSecondIntensity": 0.30000001192092896,
+                "cloudsSecondOffset": [
+                    40.0,
+                    41.5,
+                    -63.79999923706055
+                ],
+                "cloudsSecondSmoothness": 0.0027000000700354576,
+                "cloudsSmoothness": 0.0027100001461803913,
+                "componentEnabled": true,
+                "debugRenderTag": "0",
+                "depthTex": 36,
+                "far": 9999.0,
+                "fogColor": [
+                    0.0873340368270874,
+                    0.10840298235416412,
+                    0.11858248710632324
+                ],
+                "fogIntensity": 2.0000001313746907e-05,
+                "godRayFilterRadius": 5.0,
+                "godRayStrength": 0.4000000059604645,
+                "height": 1080,
+                "near": 0.009999999776482582,
+                "postRenderTag": "29",
+                "pov": 60.0,
+                "textureID": 35,
+                "translucentSelectCutoff": 0.20000000298023224,
+                "vignetteCenter": [
+                    0.5,
+                    0.5
+                ],
+                "vignetteIntensity": 0.20000000298023224,
+                "vignetteSmoothness": 0.699999988079071,
+                "width": 1920
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048770,
+                "neighbours": [
+                    1048771,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Camera",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    -6.800000190734863
+                ],
+                "position": [
+                    6.07139760688824e-09,
+                    3.0920000076293945,
+                    -4.5
+                ],
+                "rotation": [
+                    0.7058621644973755,
+                    0.041935939341783524,
+                    -0.7058621048927307,
+                    -0.041935939341783524
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]
