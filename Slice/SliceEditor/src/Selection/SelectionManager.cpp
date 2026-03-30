@@ -193,6 +193,8 @@ namespace SliceEditor
 		{
 			auto& mainEntity = static_cast<EntityNode*>(mainNode)->entity;
 			auto& otherEntity = static_cast<EntityNode*>(otherNode)->entity;
+			if (mainEntity == otherEntity)
+				return;
 			//Check that both have sceneGraph
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(mainEntity) && SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(otherEntity))
 			{
@@ -203,11 +205,22 @@ namespace SliceEditor
 				bool onRight = SceneGraphRightTraversal(mainEntity, otherEntity);
 				if(onRight)
 				{
+					SLICE_LOG("Right/Down Shift Selection");
 					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::RIGHT);
 				}
 				else
 				{
+					SLICE_LOG("Left/Down Shift Selection");
 					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::LEFT);
+				}
+				//Making sure the last clicked node was the last to be "selected" IF it should be selected
+				if(mSelectedNodes.find(otherNode) != mSelectedNodes.end())
+				{
+					mSelectionOrder.erase
+					(
+						std::remove(mSelectionOrder.begin(), mSelectionOrder.end(), otherNode), mSelectionOrder.end()
+					);
+					mSelectionOrder.push_back(otherNode);
 				}
 			}
 		}
@@ -215,7 +228,7 @@ namespace SliceEditor
 
 	void SelectionManager::ShiftAddEntities(Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
 	{
-		auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
+		//auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
 		//Get the starting entity:
 		auto& mainNode = mSelectionOrder.back();
 		auto currentEntity = static_cast<EntityNode*>(mainNode)->entity; //Thjis should be true becasue i checked in the outer function
@@ -228,17 +241,20 @@ namespace SliceEditor
 		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
 		Entity startingEntity = currentSceneGraph.neighbours[direction];
 		Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
-		TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT); // The down of the current entity
+		if (TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT)) // The down of the current entity
+		{
+			return;
+		}
 		TraverseAndSelect(startingEntity, targetEntity, direction);
 	}
 
-	void SelectionManager::TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
+	bool SelectionManager::TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
 	{
 		auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
 		//Get the child's EntityNode to see if its even open
 		if (entityNodes.find(currentEntity) == entityNodes.end())
 		{
-			return;
+			return false;
 		}
 		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
 		EntityNode* currentNode = entityNodes[currentEntity].get();
@@ -249,19 +265,26 @@ namespace SliceEditor
 		{
 			Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
 			if (childEntity != entt::null) {
-				TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT);
+				if (TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT))
+				{
+					return true;
+				}
 			}
 		}
 		if (targetEntity == currentEntity)
 		{
-			return;
+			return true;
 		}
 		//Continue iterating to the direction:
 		Entity nextSibling = currentSceneGraph.neighbours[direction];
 		if (nextSibling != entt::null) 
 		{
-			TraverseAndSelect(nextSibling, targetEntity, direction);
+			if (TraverseAndSelect(nextSibling, targetEntity, direction))
+			{
+				return true;
+			}
 		}
+		return false;
 	}
 
 	void SelectionManager::ProcessNodeSelection(EntityNode* currentNode)
@@ -276,6 +299,7 @@ namespace SliceEditor
 		else
 		{
 			currentNode->isSelected = false;
+			mSelectedNodes.erase(currentNode);
 			mSelectionOrder.erase
 			(
 				std::remove(mSelectionOrder.begin(), mSelectionOrder.end(), currentNode), mSelectionOrder.end()

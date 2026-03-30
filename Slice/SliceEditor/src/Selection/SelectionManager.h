@@ -46,7 +46,7 @@ namespace SliceEditor
 		void SelectSingleAdd(entt::entity entity, bool suppressHistory = false);
 		void AddBetweenEntities(SelectionNode* rightNode);
 		void ShiftAddEntities(Entity targetEntity, SliceEngine::SceneGraph::Direction direction);
-		void TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction);
+		bool TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction);
 		void ProcessNodeSelection(EntityNode* currentNode);
 		bool SceneGraphRightTraversal(Entity currentEntity, Entity targetEntity);
 		void SelectSingleAdd(SelectionNode* node, bool suppressHistory = false);
