@@ -253,6 +253,11 @@ namespace SliceEngine
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
 			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
+			{"extractNom", R"(vec3 extractNom(vec2 v){
+	float z = sqrt(1.0 - clamp(v.x * v.x + v.y * v.y, 0.0, 1.0));
+    vec3 actlNom = normalize(vec3(v.x, v.y, z));
+	return normalize(TBN * (actlNom * 2.0f - 1.0f));
+})"},
 			{"OffsetTexture", R"(vec4 OffsetTexture(sampler2D tex, float uStart, float uEnd, float vStart, float vEnd) {
 	vec2 mapUV = mix(vec2(uStart, vStart), vec2(uEnd, vEnd), vUV);
 	return texture(tex, mapUV);
@@ -357,7 +362,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_COLOR", {"finalCol = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
 			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_NORMAL", {"finalNormal = extractNom(%s);", "extractNom", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC2}}},
 			{"END_EMISSION", {"finalEmission = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
