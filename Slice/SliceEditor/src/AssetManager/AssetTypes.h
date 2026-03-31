@@ -289,7 +289,7 @@ namespace SliceEditor
 			resourcePath = metaData["resourcePath"].get<std::string>();
 
 			usage_type = metaData.value<UsageType>("usage", UsageType::Color);
-			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC7);
+			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC3);
 			comp_quality = metaData.value<float>("comp_quality", 1.f);
 			generateMips = metaData.value<bool>("generateMips", false);
 			mip_filter = metaData.value<MipMapFilter>("mip_filter", MipMapFilter::BOX);
