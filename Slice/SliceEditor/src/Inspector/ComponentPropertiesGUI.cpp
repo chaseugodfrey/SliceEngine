@@ -558,9 +558,9 @@ namespace SliceEditor
 			Entity entity = val.GetEntity();
 			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
 			{
-				GameObjectScriptSelected event;
-				event.entities.push_back(entity);
-				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+				GameObjectScriptSelectedUpdate event;
+				event.entity = entity;
+				EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 			}
 		}
 
@@ -918,20 +918,17 @@ namespace SliceEditor
 		int idx = 0;
 		bool changed = false;
 		bool publishEvent = false;
-		GameObjectScriptSelected event; //not sure if this is a good idea
+		static std::vector<bool> elementHighlights(list.size(), false);
+		GameObjectScriptSelectedUpdate event; //not sure if this is a good idea
+
+		if (list.size() != elementHighlights.size())
+		{
+			elementHighlights.resize(list.size(), false);
+		}
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
 		{
-			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
-			{
-				publishEvent = true;
-			}
 			for (auto& entry : list)
 			{
-				if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
-				{
-					Entity entity = entry.GetEntity();
-					event.entities.push_back(entity);
-				}
 
 				//To check each entry if it was changed, push_back unchanged first.
 				changedVars.push_back(MultiSelect::UNCHANGED); //it should correspond to idx
@@ -944,7 +941,7 @@ namespace SliceEditor
 				ImGui::Text(elementPropertyLabel.c_str());
 				ImGui::SameLine(150.f);
 				ImGui::SetNextItemWidth(200.0f);
-				ImGui::BeginDisabled();
+				//ImGui::BeginDisabled();
 				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
 				{
 					goName = " ";
@@ -959,8 +956,8 @@ namespace SliceEditor
 					goName = "---";
 				}
 
-				ImGui::InputText(newID.c_str(), &goName);
-				ImGui::EndDisabled();
+				ImGui::InputText(newID.c_str(), &goName, ImGuiInputTextFlags_ReadOnly);
+				//ImGui::EndDisabled();
 
 				if (ImGui::BeginDragDropTarget())
 				{
@@ -993,6 +990,22 @@ namespace SliceEditor
 					changedVars[idx] = MultiSelect::REMOVED;
 					changed = true;
 				}
+				ImGui::SameLine();
+				std::string checkboxLabel = "##checkbox" + elementPropertyLabel;
+				
+				bool temp = elementHighlights[idx];
+				if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
+				{
+					elementHighlights[idx] = temp;
+					event.toAdd = elementHighlights[idx];
+					if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+					{
+						Entity entity = entry.GetEntity();
+						event.entity = entity;
+					}
+					publishEvent = true;
+				}
+
 
 				idx++;
 			}
@@ -1025,7 +1038,7 @@ namespace SliceEditor
 
 			if (publishEvent)
 			{
-				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+				EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 			}
 
 			ImGui::TreePop();

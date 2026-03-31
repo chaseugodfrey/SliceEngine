@@ -103,9 +103,10 @@ namespace SliceEditor
 		SliceEngine::GUID shaderGraphGUID;
 	};
 	
-	struct GameObjectScriptSelected
+	struct GameObjectScriptSelectedUpdate
 	{
-		std::vector<Entity> entities;
+		Entity entity;
+		bool toAdd;
 	};
 }
 
