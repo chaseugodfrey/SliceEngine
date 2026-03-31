@@ -656,7 +656,7 @@ namespace SliceEditor
 			};
 
 
-		static std::vector<std::string> usageTypeNames{ "COLOR","TANGENT", "METALLIC,ROUGHNESS" };
+		static std::vector<std::string> usageTypeNames{ "COLOR","TANGENT,BC5", "METALLIC_ROUGHNESS,BC4" };
 		Label("Usage Type: ");
 		if (ImGui::BeginCombo("##UsageType: ", usageTypeNames[(int)data->usage_type].c_str()))
 		{

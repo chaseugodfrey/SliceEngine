@@ -288,13 +288,14 @@ namespace SliceEditor
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
 
-			usage_type = metaData["usage"].get<UsageType>();
-			cmp_format = metaData["compression"].get<CompressionFormat>();
-			comp_quality = metaData["comp_quality"].get <float>();
-			generateMips = metaData["generateMips"].get <bool> ();
-			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
-			mip_count = metaData["mip_count"].get<unsigned char>();
-			premultiply_alpha = metaData["premultiply"].get <bool> ();
+			usage_type = metaData.value<UsageType>("usage", UsageType::Color);
+			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC7);
+			comp_quality = metaData.value<float>("comp_quality", 1.f);
+			generateMips = metaData.value<bool>("generateMips", false);
+			mip_filter = metaData.value<MipMapFilter>("mip_filter", MipMapFilter::BOX);
+			mip_count = metaData.value<unsigned char>("mip_count", 8);
+
+			premultiply_alpha = metaData.value<bool>("premultiply", false);
 		}
 	};
 
