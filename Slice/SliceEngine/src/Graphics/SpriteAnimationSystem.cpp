@@ -57,8 +57,8 @@ namespace SliceEngine {
 		float x_offset = 1.f / sprite_anim.col;
 		float y_offset = 1.f / sprite_anim.row;
 		unsigned char frame = (unsigned char)sprite_anim.curr_frame;
-		unsigned char u = frame % sprite_anim.row;
-		unsigned char v = frame / sprite_anim.row;
+		unsigned char u = frame % sprite_anim.col;
+		unsigned char v = frame / sprite_anim.col;
 		render.uv = glm::vec4(u * x_offset, (u + 1) * x_offset, v * y_offset, (v + 1) * y_offset);
 
 	};
