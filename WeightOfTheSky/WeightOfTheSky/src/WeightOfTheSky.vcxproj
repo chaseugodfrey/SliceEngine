@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{5AB40D08-4682-010E-2F16-72341B83DD72}</ProjectGuid>
+    <IgnoreWarnCompileDuplicatedFilename>true</IgnoreWarnCompileDuplicatedFilename>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>WeightOfTheSky</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v143</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(ProjectDir)..\..\build\bin\Release\</OutDir>
+    <IntDir>$(ProjectDir)..\..\build\bin-int\Release\</IntDir>
+    <TargetName>WeightOfTheSky</TargetName>
+    <TargetExt>.exe</TargetExt>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <WarningLevel>Level4</WarningLevel>
+      <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>.;..\..\..\Slice\SliceEngine\src;..\..\..\Slice\SliceEngine\thirdparty\entt;..\..\..\Slice\SliceEngine\thirdparty\glew;..\..\..\Slice\SliceEngine\thirdparty\glfw\include;..\..\..\Slice\SliceEngine\thirdparty\glm;..\..\..\Slice\SliceEngine\thirdparty\fmod\include;..\..\..\Slice\SliceEngine\thirdparty\nlohmann\include;..\..\..\Slice\SliceEngine\thirdparty\JoltPhysics;..\..\..\Slice\SliceEngine\thirdparty\rttr\include;..\..\..\Slice\SliceEngine\thirdparty\Mono\include;..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\include;..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\include;..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\include;..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <MinimalRebuild>false</MinimalRebuild>
+      <StringPooling>true</StringPooling>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <ExternalWarningLevel>Level3</ExternalWarningLevel>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>SliceEngine.lib;mono-2.0-sgen.lib;MonoPosixHelper.lib;opengl32.lib;fmod_vc.lib;glfw3.lib;glew32.lib;Jolt_r.lib;rttr_core.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\..\..\Slice\SliceEngine;..\..\..\Slice\SliceEngine\thirdparty\rttr\lib;..\..\..\Slice\SliceEngine\thirdparty\glfw\lib-vc2022;..\..\..\Slice\SliceEngine\thirdparty\glew;..\..\..\Slice\SliceEngine\thirdparty\fmod\lib;..\..\..\Slice\SliceEngine\thirdparty\Mono\lib;..\..\..\Slice\SliceEngine\thirdparty\JoltPhysics\lib\Debug;..\..\..\Slice\SliceEngine\thirdparty\JoltPhysics\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+    <PreBuildEvent>
+      <Command>IF NOT EXIST "..\..\build\bin\Release\Data" (mkdir "..\..\build\bin\Release\Data")
+copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\SliceEngine.lib" "..\..\build\bin\Release\Data"</Command>
+    </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\JoltPhysics\lib\Release" "..\..\build\bin\Release"
+copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\fmod\lib\fmod.dll" "..\..\build\bin\Release"
+copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\Mono\lib" "..\..\build\bin\Release"
+copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\rttr\bin\rttr_core.dll" "..\..\build\bin\Release"
+copy /B /Y "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\glew\glew32.dll" "..\..\build\bin\Release"
+IF EXIST "$(SolutionDir)\..\Slice\SliceScript\SliceScript.dll"\ (xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceScript\SliceScript.dll" "..\..\build\bin\Release\Data\" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\..\Slice\SliceScript\SliceScript.dll" "..\..\build\bin\Release\Data\" &gt; nul)
+IF EXIST "$(SolutionDir)\..\Slice\SliceEditor\Resources"\ (xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceEditor\Resources" "..\..\build\bin\Release\Resources" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\..\Slice\SliceEditor\Resources" "..\..\build\bin\Release\Resources" &gt; nul)
+xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\Mono\lib" "..\..\build\bin\Release\Data\thirdparty\Mono\lib"
+xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceEngine\thirdparty\Mono\bin" "..\..\build\bin\Release\Data\thirdparty\Mono\bin"
+IF EXIST "$(SolutionDir)\..\Slice\SliceEditor\ProjectSettings"\ (xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceEditor\ProjectSettings" "..\..\build\bin\Release\ProjectSettings" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\..\Slice\SliceEditor\ProjectSettings" "..\..\build\bin\Release\ProjectSettings" &gt; nul)
+IF EXIST "$(SolutionDir)\..\Slice\SliceEngine\thirdparty"\ (xcopy /Q /E /Y /I "$(SolutionDir)\..\Slice\SliceEngine\thirdparty" "..\..\build\bin\Release\Data\thirdparty" &gt; nul) ELSE (xcopy /Q /Y /I "$(SolutionDir)\..\Slice\SliceEngine\thirdparty" "..\..\build\bin\Release\Data\thirdparty" &gt; nul)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Application\Application.h" />
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourAlloc.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourAssert.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourCommon.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMesh.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMeshBuilder.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMeshQuery.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNode.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourCrowd.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourLocalBoundary.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourPathCorridor.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourPathQueue.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourProximityGrid.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source\DetourTileCache.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source\DetourTileCacheBuilder.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\Recast.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastAlloc.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastArea.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastAssert.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastContour.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastFilter.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastLayers.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastMesh.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastMeshDetail.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastRasterization.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastRegion.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="Application\Application.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pch.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

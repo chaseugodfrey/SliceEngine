@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Application">
+      <UniqueIdentifier>{D9DE78AF-4594-F1A4-CE88-EB7B3A3DE8A8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice">
+      <UniqueIdentifier>{B5F6190E-210B-42BF-EA8C-E51E56603EF0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine">
+      <UniqueIdentifier>{AA384D87-164F-4B1D-5FC6-D63ECB1B1CA5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty">
+      <UniqueIdentifier>{644768BE-5002-586A-F9B9-D0B4E553A2FA}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast">
+      <UniqueIdentifier>{556E6238-C127-CDE2-4A87-E7BCB63F8352}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour">
+      <UniqueIdentifier>{777D6B39-63E5-3107-CC50-461DB8D748F3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\Detour">
+      <UniqueIdentifier>{59F28BD2-C5B8-E8EE-0E14-77517A195753}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source">
+      <UniqueIdentifier>{39C2F271-2597-3A25-4E46-7A213A7A483C}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd">
+      <UniqueIdentifier>{D8266B76-C4D0-A085-ADA1-A8A099EA4074}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source">
+      <UniqueIdentifier>{D811D8B8-44DA-A53C-0D6B-AE4E79F2D577}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache">
+      <UniqueIdentifier>{7B01BCCD-67C1-4C72-D0DE-347DBCBD5F84}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source">
+      <UniqueIdentifier>{1B375A33-8755-6E00-D022-74123C80A909}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Recast">
+      <UniqueIdentifier>{06280A5A-F28F-D027-5BFB-E43D4782E713}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice\SliceEngine\thirdparty\recast\Recast\Source">
+      <UniqueIdentifier>{46334029-B2F9-9C45-FB54-2BA8675A0BAA}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application\Application.h">
+      <Filter>Application</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h" />
+    <ClInclude Include="pch.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourAlloc.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourAssert.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourCommon.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMesh.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMeshBuilder.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNavMeshQuery.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source\DetourNode.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\Detour\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourCrowd.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourLocalBoundary.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourPathCorridor.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourPathQueue.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source\DetourProximityGrid.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourCrowd\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source\DetourTileCache.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source\DetourTileCacheBuilder.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Detour\DetourTileCache\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\Recast.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastAlloc.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastArea.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastAssert.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastContour.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastFilter.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastLayers.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastMesh.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastMeshDetail.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastRasterization.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Slice\SliceEngine\thirdparty\recast\Recast\Source\RecastRegion.cpp">
+      <Filter>Slice\SliceEngine\thirdparty\recast\Recast\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Application\Application.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="pch.cpp" />
+  </ItemGroup>
+</Project>
