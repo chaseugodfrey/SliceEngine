@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
 #include "../Systems/FramerateManager.h"
+#include "Graphics/SpriteAnimationSystem.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4002)
@@ -3125,6 +3126,8 @@ namespace SliceEngine
 
 		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
 			comp->curr_frame = (float)value;
+			auto& sSpriteAnim = Core::GetInstance()->GetSystem<SpriteAnimationSystem>();
+			sSpriteAnim.EntityOnUpdate(registry, (entt::entity)entityID, 0);
 		}
 	}
 #pragma endregion
