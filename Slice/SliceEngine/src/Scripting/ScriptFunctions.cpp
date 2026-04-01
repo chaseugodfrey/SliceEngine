@@ -1722,11 +1722,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
-	static void Audio_StopAllSound()
-	{
-		Core::GetInstance()->GetAudioManager()->StopAllSound();
-	}
-
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -1779,7 +1774,9 @@ namespace SliceEngine
 
 	static void Audio_SetMasterVolume(float volume)
 	{
-			Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+
+
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
@@ -1896,6 +1893,11 @@ namespace SliceEngine
 		return false;
 	}
 
+	static void Audio_StopAllSound()
+	{
+
+	}
+
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
 		std::string cStrName = MonoToString(baseName);
@@ -1950,28 +1952,16 @@ namespace SliceEngine
 		return false;
 	}
 
-	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	{
-		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	//{
+	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-		std::string str = MonoToString(string);
+	//	std::string str = MonoToString(string);
 
-		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-		//audio.soundName = str;
-		
-		auto audioSettings = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>();
-		auto entry = audioSettings->GetSFXEntry(str);
-		if (entry && !entry->AudioClips.empty())
-		{
-			audio.soundGUID = entry->AudioClips[0]; // For now just use the first clip in the group
-			audio.currentVolume = entry->volume;
-			audio.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-			audio.minDistance = entry->minDistance;
-			audio.maxDistance = entry->maxDistance;
-			audio.volumeRollOff = entry->volumeRollOff;
-		}
+	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+	//	audio.soundName = str;
 
-	}
+	//}
 
 
 #pragma endregion
@@ -2401,18 +2391,16 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
-	static void Camera_SetGamma(float gammaVal)
+	static void Camera_SetGamma(float gamma)
 	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		rm->SetSessionGamma(gammaVal);
+		Core::GetInstance()->GetRenderManager()->SetSessionGamma(gamma);
 	}
 
 	static float Camera_GetGamma()
 	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		return rm->GetSessionGamma();
+		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
 	}
-	
+
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2429,9 +2417,7 @@ namespace SliceEngine
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.IsValid() && go.HasComponent<Camera>())
-		{
 			go.GetComponent<Camera>().impactPos = *target;
-		}
 	}
 
 	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
@@ -3282,11 +3268,11 @@ namespace SliceEngine
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Resources").generic_string();
+		std::string path = std::filesystem::path("Assets").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion
+#pragma endregion Application
 
 
 #pragma region COMPONENT REGISTRATION
@@ -3585,10 +3571,9 @@ namespace SliceEngine
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		ADD_INTERNAL_CALL(Audio_SetSoundName);
+		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
-		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);
@@ -3607,6 +3592,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_SetMute);
 		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_SetPan);
 		ADD_INTERNAL_CALL(Audio_GetPan);
 

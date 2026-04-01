@@ -19,8 +19,11 @@ namespace SliceEngine
         private float skipTime = 0.0f;
         private uint curr_img = 0;
 
+        private bool sceneChanged = false;
+
         public override void OnCreate()
         {
+            sceneChanged = false;
             SplashScreenCanvas = FindGameObjectWithName("SplashScreen_Canvas");
             if (SplashScreenCanvas != null)
             {
@@ -29,6 +32,8 @@ namespace SliceEngine
                 foreach(GameObject img in all_images)
                 {
                     SpriteRenderer img_renderer =img.GetComponent<SpriteRenderer>();
+
+                    img_renderer.SetEnabled(true);
 
                     Vector4 color = img_renderer.Colour;
                     color.w = 0.0f;
@@ -64,8 +69,8 @@ namespace SliceEngine
             }
             else
             {
-                //StartGameMenu();
-                SliceLog.Log("all img fin, start game");
+                StartGameMenu();
+                //SliceLog.Log("all img fin, start game");
             }
 
             if(Input.IsKeyDown(Keys.KEY_SPACEBAR))
@@ -76,8 +81,11 @@ namespace SliceEngine
                 }
                 else
                 {
-                    //StartGameMenu();
-                    SliceLog.Log("skip fin, start game");
+                    if (!sceneChanged)
+                        StartGameMenu();
+
+                    sceneChanged = true;
+                    //SliceLog.Log("skip fin, start game");
                 }
             }
             else
