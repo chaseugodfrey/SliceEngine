@@ -13,7 +13,7 @@ namespace SliceEngine
         private static Scene _activeScene;
 
         private static SliceBehaviour _transitionRunner;
-        private static SpriteRenderer _transitionRenderer;
+        public static SpriteRenderer _transitionRenderer;
         private static Coroutine fadeCoroutine;
         private const float TransitionDuration = 1.0f;
 
@@ -102,9 +102,8 @@ namespace SliceEngine
             if (_transitionRenderer != null)
             {
                 _transitionRenderer.SetEnabled(false);
-            };
+            }
         }
-
         private static IEnumerator FadeOutAndLoad(string sceneName)
         {
             float elapsedTime = 0f;
