@@ -137,54 +137,6 @@ namespace SliceEngine
             {
                 return;
             }
-            //SliceLog.Log("Curr time : " + timer);
-
-            //SliceLog.Log("Base Level passed ;vl dri object");
-
-            if (toggleSpawning && timer > spawnInterval && maxGrunts > 0)
-            {
-                SliceLog.Log("CREATING ENEMY at : " + currPoint);
-                Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
-                if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
-                {
-                    //SliceLog.Log("Died in here 3");
-                    // if the curr point can't then just go next point instead
-                    timer = 0.0f;
-                    currPoint++;
-                    return;
-                }
-
-                GameObject enemy =  levelDirectorObject.As<LevelDirector>().CreateGruntEnemy();
-
-                if (!constantSpawning)
-                    maxGrunts--;
-
-                //SliceLog.Log("Point Position = " + pointTransform.WorldPosition.x + ", " + pointTransform.WorldPosition.y + ", " + pointTransform.WorldPosition.z);
-                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
-
-                //timer = 0.0f;
-                currPoint++;
-            }
-
-            float rand = SliceRandom.ValueFloat();
-            //SliceLog.Log("Random : " + rand);
-            if (rand <= slimeSpawnRate && currSlimes < maxSlimes && timer > spawnInterval)
-            {
-                Transform pointTransform = enemyPoints[currPoint].GetComponent<Transform>();
-
-                if (!levelDirectorObject.As<LevelDirector>().CanCreateEnemy(pointTransform.WorldPosition))
-                {
-                    timer = 0.0f;
-                    currPoint++;
-                    return;
-                }
-
-                GameObject enemy = levelDirectorObject.As<LevelDirector>().CreateSlimeEnemy();
-                enemy.GetComponent<Transform>().Position = pointTransform.WorldPosition;
-                currSlimes++;
-                currPoint++;
-            }
-
             if (timer > spawnInterval)
             {
                 timer = 0.0f;
@@ -196,15 +148,8 @@ namespace SliceEngine
 
         public virtual void EnemyKilled(GameObject enemy) 
         { 
-            if (constantSpawning && maxGrunts > levelDirectorObject.As<LevelDirector>().EnemyCount())
-            {
-                toggleSpawning = true;
-            }
 
-            if (enemy.Has<EnemySlime>())
-            {
-                currSlimes--;
-            }
+
         }
 
 

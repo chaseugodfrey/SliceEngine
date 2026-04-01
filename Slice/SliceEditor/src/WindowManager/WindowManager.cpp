@@ -61,7 +61,6 @@ namespace SliceEditor
 
 		AddWindow<ContentBrowserWindow>("ContentBrowser");
 		AddWindow<ProfilerWindow>("Profiler");
-		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();

@@ -8,7 +8,7 @@ namespace SliceEngine
 {
     public class Payload : SliceBehaviour
     {
-        public WaypointSystem waypointSystem;
+        //public WaypointSystem waypointSystem;
         public List<string> wayPoints = new List<string>();
         Animator animator;
         Transform t;
@@ -30,7 +30,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            waypointSystem = new WaypointSystem();
+            //waypointSystem = new WaypointSystem();
             testList.Add(0.0f);
 
             wayPoints.Add("Waypoint1");
@@ -44,10 +44,10 @@ namespace SliceEngine
             wayPoints.Add("Waypoint9");
             wayPoints.Add("Waypoint10");
 
-            foreach(string point in wayPoints)
+/*            foreach(string point in wayPoints)
             {
                 waypointSystem.AddWaypoint(gameObject.FindGameObjectWithName(point).GetComponent<Transform>().Position);
-            }
+            }*/
 
             t = GetComponent<Transform>();
             animator = GetComponent<Animator>();
@@ -56,18 +56,18 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            waypointSystem.Update(t.Position);
+            //waypointSystem.Update(t.Position);
 
             //Vector3 moveTo = new Vector3(waypointSystem.GetTargetPosition().x, t.Position.y, waypointSystem.GetTargetPosition().z);
 
-            Vector3 dir = (waypointSystem.GetTargetPosition() - t.Position).Normalize();
+            //Vector3 dir = (waypointSystem.GetTargetPosition() - t.Position).Normalize();
 
-            dir = Vector3.RotateTowards(dir, waypointSystem.GetTargetPosition().Normalize(), 30.0f*dt);
-            t.RotationQuat = Quaternion.LookRotation(dir, this.up);
+            //dir = Vector3.RotateTowards(dir, waypointSystem.GetTargetPosition().Normalize(), 30.0f*dt);
+            //t.RotationQuat = Quaternion.LookRotation(dir, this.up);
 
             if (healthPoints > 0 && animator.GetCurrAnimTime() < 1.3f)
             {
-                t.Position += dir * moveSpeed * dt;
+                //t.Position += dir * moveSpeed * dt;
                 playSound = false;
             }
             else

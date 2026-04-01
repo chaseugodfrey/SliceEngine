@@ -1,4 +1,4 @@
-﻿using System;
+﻿/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -68,12 +68,12 @@ namespace SliceEngine
             }
 
             // Uncomment this if you want to spam the console to check path status
-            /*
+            *//*
             if (agent.HasPath)
             {
                 // FunctionCalls.Log("Agent is moving...");
             }
-            */
+            *//*
         }
     }
-}
+}*/
