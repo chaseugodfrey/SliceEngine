@@ -632,6 +632,7 @@ namespace SliceEngine
 		.property("handle", &Slider::handle)
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
+		.property("contained", &Slider::contained)
 		.property("enabled", &Slider::componentEnabled);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
@@ -655,6 +656,11 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 
+rttr::registration::class_<SpriteRendererGammaOverride>(typeid(SpriteRendererGammaOverride).name())
+.constructor<>()
+.property("gamma", &SpriteRendererGammaOverride::gamma)
+.property("componentEnabled", &SpriteRendererGammaOverride::componentEnabled);
+
 rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .constructor<>()
 .property("is_playing", &SpriteAnimator::is_playing)
@@ -662,7 +668,8 @@ rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .property("fps", &SpriteAnimator::fps)
 .property("row", &SpriteAnimator::row)
 .property("col", &SpriteAnimator::col)
-.property("num_frames", &SpriteAnimator::num_frames);
+.property("num_frames", &SpriteAnimator::num_frames)
+.property("componentEnabled", &SpriteAnimator::componentEnabled);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()

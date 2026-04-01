@@ -142,14 +142,16 @@ namespace SliceEditor
 				flags |= ImGuiTreeNodeFlags_Leaf;
 			}
 
-			if (ImGui::TreeNodeEx(node.fileName.c_str(), flags))
-			{
-				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
-				{
-					SelectFolder(node);
-					currentCategoryIndex = -1;
-				}
+			bool isOpen = ImGui::TreeNodeEx(node.fileName.c_str(), flags);
 
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			{
+				SelectFolder(node);
+				currentCategoryIndex = -1;
+			}
+
+			if(isOpen)
+			{
 				for (auto& entry : node.children)
 				{
 					DisplayFolders(entry.second);
@@ -539,6 +541,7 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
+				break;
 			case AssetType::SequencePackage:
 				if (auto* data = static_cast<SequencePkgData*>(file.metaData.get()))
 				{
@@ -655,96 +658,8 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		static std::vector<std::string> compressionFormatNames{ "BC1", "BC2" , "BC3", "BC4", "BC4s", "BC5", "BC5s", "BC6", "BC6s", "BC7"};
-		Label("Compression Format: ");
-		if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
-		{
-			for (int i = 0; i < compressionFormatNames.size(); ++i)
-			{
-				if (ImGui::Selectable(compressionFormatNames[i].c_str()))
-				{
-					data->cmp_format = (CompressionFormat)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
 
-		Label("Compression Quality: ");
-		if (ImGui::DragFloat("##Comp_Quality", &data->comp_quality, 0.1f, 0.0f, 1.0f, "%.1f"))
-		{
-			data->comp_quality = std::clamp(data->comp_quality, 0.0f, 1.0f);
-		}
-
-		static std::vector<std::string> mipMapFilterNames{"NONE", "POINT", "LINEAR", "TRIANGLE", "BOX"};
-		Label("MipMapFilter: ");
-		if (ImGui::BeginCombo("##MipMapFilter: ", mipMapFilterNames[(int)data->mip_filter].c_str()))
-		{
-			for (int i = 0; i < mipMapFilterNames.size(); ++i)
-			{
-				if (ImGui::Selectable(mipMapFilterNames[i].c_str()))
-				{
-					data->mip_filter = (MipMapFilter)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		Label("Generate Mips: ");
-		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
-		{
-
-		}
-
-		Label("Mip Count: ");
-		int mip = data->mip_count;
-		if (ImGui::DragInt("##Mip_Count", &mip, 1, 1, 12))
-		{
-			mip = std::clamp(mip, 1, 12);
-			data->mip_count = static_cast<unsigned char>(mip);
-		}
-
-		Label("Has Alpha: ");
-		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha))
-		{
-
-		}
-
-		Label("Alpha_Threshold: ");
-		int threshold = data->alpha_threshold;
-		if (ImGui::SliderInt("##Alpha_Threshold", &threshold, 0, 255))
-		{
-			threshold = std::clamp(threshold, 0, 255);
-			data->alpha_threshold = static_cast<unsigned char>(threshold);
-		}
-
-		static std::vector<std::string> wrapTypeNames{"CLAMP_TO_EDGE", "WRAP", "MIRROR"};
-		Label("U_Wrap: ");
-		if (ImGui::BeginCombo("##U_Wrap: ", wrapTypeNames[(int)data->u_wrap].c_str()))
-		{
-			for (int i = 0; i < wrapTypeNames.size(); ++i)
-			{
-				if (ImGui::Selectable(wrapTypeNames[i].c_str()))
-				{
-					data->u_wrap = (WrapType)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		Label("V_Wrap: ");
-		if (ImGui::BeginCombo("##V_Wrap: ", wrapTypeNames[(int)data->v_wrap].c_str()))
-		{
-			for (int i = 0; i < wrapTypeNames.size(); ++i)
-			{
-				if (ImGui::Selectable(wrapTypeNames[i].c_str()))
-				{
-					data->v_wrap = (WrapType)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		static std::vector<std::string> usageTypeNames{ "COLOR","COLOR_ALPHA","TANGENT_NORMAL","INTENSITY" };
+		static std::vector<std::string> usageTypeNames{ "COLOR","TANGENT,BC5", "METALLIC_ROUGHNESS,BC4" };
 		Label("Usage Type: ");
 		if (ImGui::BeginCombo("##UsageType: ", usageTypeNames[(int)data->usage_type].c_str()))
 		{
@@ -758,6 +673,71 @@ namespace SliceEditor
 			ImGui::EndCombo();
 		}
 
+		if (data->usage_type == UsageType::Color) {
+			static std::vector<std::string> compressionFormatNames{ "BC1", "BC3", "BC4", "BC5", "BC7" };
+			Label("Compression Format: ");
+			if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
+			{
+				for (int i = 0; i < compressionFormatNames.size(); ++i)
+				{
+					if (i != 2 && i != 3) {	//skip bc4 and 5
+
+						if (ImGui::Selectable(compressionFormatNames[i].c_str()))
+						{
+							data->cmp_format = (CompressionFormat)i;
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			Label("Is SRGB: ");
+			if (ImGui::Checkbox("##issrgb", &data->is_srgb))
+			{
+
+			}
+
+			Label("Premultiply Alpha: ");
+			if (ImGui::Checkbox("##premultiply", &data->premultiply_alpha))
+			{
+
+			}
+		}
+	
+		Label("Compression Quality: ");
+		if (ImGui::DragFloat("##Comp_Quality", &data->comp_quality, 0.1f, 0.0f, 1.0f, "%.1f"))
+		{
+			data->comp_quality = std::clamp(data->comp_quality, 0.0f, 1.0f);
+		}
+
+		Label("Generate Mips: ");
+		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
+		{
+
+		}
+
+		static std::vector<std::string> mipMapFilterNames{ "NONE", "POINT", "LINEAR", "TRIANGLE", "BOX" };
+		Label("MipMapFilter: ");
+		if (ImGui::BeginCombo("##MipMapFilter: ", mipMapFilterNames[(int)data->mip_filter].c_str()))
+		{
+			for (int i = 0; i < mipMapFilterNames.size(); ++i)
+			{
+				if (ImGui::Selectable(mipMapFilterNames[i].c_str()))
+				{
+					data->mip_filter = (MipMapFilter)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+
+		Label("Mip Count: ");
+		int mip = data->mip_count;
+		if (ImGui::DragInt("##Mip_Count", &mip, 1, 1, 12))
+		{
+			mip = std::clamp(mip, 1, 12);
+			data->mip_count = static_cast<unsigned char>(mip);
+		}
 	}
 
 	void ContentBrowserWindow::DisplayFBXData(ModelData* data)

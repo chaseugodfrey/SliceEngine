@@ -377,21 +377,21 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::RectTransform::VertPivot>(mRegistry, "Vert Pivot", "##vertpivot", rect.vert_pivot, vert_enums);
 
 			if (rect.hori_pivot != SliceEngine::RectTransform::HoriPivot::STRETCH_H) {
-				DragIntInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "W: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Width", "##width", rect.width, "W: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "L: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "R: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Left", "##left", rect.left, "L: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Right", "##right", rect.right, "R: %.1f", -2000, 2000);	//some random ass min max
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Height", "##height", rect.height, "H: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Top", "##top", rect.top, "T: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %.1f", -2000, 2000);	//some random ass min max
 			}
 
 			DragFloatInputHeader(mRegistry, "Rotation", "##rect_rot", rect.final_rot, "R: %f", 0.f, 360.f);
@@ -426,6 +426,22 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplaySpriteRendererGammaOverride(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteRendererGammaOverride", mBaseFlags))
+		{
+			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRendererGammaOverride>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteRendererGammaOverride>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
+
+			DragFloatInputHeader(mRegistry, "Gamma Override", "##gammaoverride", sprite.gamma, "%.1f", 0.001f, 100.0f);
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplaySpriteAnimator(entt::entity entity)
 	{
 		if (ImGui::TreeNodeEx("SpriteAnimator", mBaseFlags))
@@ -433,6 +449,8 @@ namespace SliceEditor
 			auto& sprite_anim = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteAnimator>(entity);
 
 			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite_anim.componentEnabled);
 
 			BoolInputHeader(mRegistry, "Playing", "##spriteanimplaying", sprite_anim.is_playing);
 			BoolInputHeader(mRegistry, "Loop", "##spriteanimloop", sprite_anim.loop);
@@ -557,6 +575,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Slider>(entity, false);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", slider.componentEnabled);
+			BoolInputHeader(mRegistry, "Contained", "##slidercontained", slider.contained);
 
 			static std::vector<std::string> axis_enums{ "X Axis", "Y Axis" };
 			static std::vector<std::string> direction_enums{ "Positive", "Negative" };
@@ -2360,6 +2379,16 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>()
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Gamma Override"))
+				{
+					reg.emplace<SliceEngine::SpriteRendererGammaOverride>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>() 
 				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
 				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
@@ -2445,6 +2474,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRendererGammaOverride>(entity))
+			{
+				DisplaySpriteRendererGammaOverride(node->entity);
 				ImGui::Separator();
 			}
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteAnimator>(entity))
@@ -2688,6 +2722,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayState(StateNode* node)
 	{
 		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+		auto animator = mRegistry.GetManager<SessionManager>("Session")->currentAnimator;
 
 		ImGui::SeparatorText("State");
 
@@ -2703,6 +2738,39 @@ namespace SliceEditor
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 
 		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
+		
+		float speedBuffer{ 1 };
+
+		//mCurrentAnimator->Handle_skeleton.IsValid()
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+		}
+		else
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+
+		}
+
+		DragFloatInputHeader(mRegistry, "Speed:", "##anim_speed", speedBuffer, "%0.3f", 0.1f, 10.0f);
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		else
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		
 
 		ImGui::SeparatorText("Transitions");
 

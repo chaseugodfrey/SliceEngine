@@ -49,6 +49,12 @@ namespace SliceEngine
 		void SelectCamIDPick(Entity cam);
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
+
+		float GetSessionExposure() const;
+		float GetSessionGamma() const;
+		void SetSessionExposure(float exposure);
+		void SetSessionGamma(float gamma);
+
 		// Rendering functions
 		void CalculateVP(Entity cam);
 		void UpdateCamVP();
@@ -98,6 +104,8 @@ namespace SliceEngine
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
 		const float mExposureMult = 0.01f;
+		float mSessionExposure{ 10.f };
+		float mSessionGamma{ 45.454545f };
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 400.f;

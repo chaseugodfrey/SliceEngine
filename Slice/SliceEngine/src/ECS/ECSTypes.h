@@ -840,9 +840,9 @@ namespace SliceEngine
 		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
 
 		//Intermediate settings used by imgui, all in local space
-		int pos_x{}, pos_y{};			//pixel coord
-		int width{ 100 }, height{ 100 };//pixel size
-		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+		float pos_x{}, pos_y{};			//pixel coord
+		float width{ 100 }, height{ 100 };//pixel size
+		float left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
 		float final_x{}, final_y{};				//position with center of quad as position
@@ -871,7 +871,14 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	struct SpriteRendererGammaOverride {
+		bool componentEnabled{ true };
+		float gamma{ 45.4545f };
+		RTTR_ENABLE();
+	};
+
 	struct SpriteAnimator {
+		bool componentEnabled{ true };
 		bool is_playing{ false };
 		bool loop{ false };
 		unsigned char row { 1 };
@@ -977,6 +984,7 @@ namespace SliceEngine
 		float GetValue() const;	//not actually sure if this func is needed
 
 		bool componentEnabled{ true };
+		bool contained{ false };	//whether handle should be contained within the slider bg
 		//for now only allow a normalized value - 0 to 1
 		float value{ 0 };
 	};
