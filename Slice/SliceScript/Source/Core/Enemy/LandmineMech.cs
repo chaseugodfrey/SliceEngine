@@ -11,7 +11,7 @@ namespace SliceEngine
         bool triggered = false;
 
         GameObject explosion;
-
+        GameObject trigger;
         public override void OnCreate()
         {
             base.OnCreate();
@@ -22,17 +22,24 @@ namespace SliceEngine
                 {
                     explosion = child;
                 }
+                else if (child.tag == "LandmineTrigger")
+                {
+                    trigger = child;
+                }
             }
         }
 
-        public override void OnTriggerEnter(uint other)
-        {
-            if (triggered) { return; }
-            triggered = true;
-            base.OnTriggerEnter(other);
-            GameObject collidedGO = FindGameObjectWithID(other);
-            if (collidedGO != null && collidedGO.tag == "Player")
+        public override void OnFixedUpdate(float dt)
+        {            
+            if (triggered)
             {
+                return;
+            }
+            base.OnFixedUpdate(dt);
+
+            if (trigger.As<LandmineMechTrigger>().triggered)
+            {
+                triggered = true;
                 explosion.As<LandmineMechExplosion>().Triggered();
                 StartCoroutine(Suicide());
             }

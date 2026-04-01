@@ -18,9 +18,9 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14170060166492584974",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "14170060166492584974"
+                    "GUID": ""
                 },
                 "prefabID": 0
             },
@@ -38,11 +38,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 256903357,
+                "entity_id": 7340465,
                 "neighbours": [
-                    4294967295,
-                    41945295,
-                    4294967295,
+                    0,
+                    6291937,
+                    6291513,
                     4294967295
                 ]
             },
@@ -77,7 +77,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 9,
+                "mLayer": 1,
                 "mName": "Projectile",
                 "mTag": "default"
             },
@@ -125,16 +125,16 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "14170060166492584974",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "14170060166492584974"
+                    "GUID": ""
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 41945295,
+                "entity_id": 6291937,
                 "neighbours": [
-                    256903357,
+                    7340465,
                     4294967295,
                     4294967295,
                     4294967295
@@ -145,7 +145,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 9,
+                "mLayer": 0,
                 "mName": "HitBox",
                 "mTag": "default"
             },

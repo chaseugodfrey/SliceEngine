@@ -76,6 +76,8 @@ namespace SliceEditor
 					tmpEnt = entity;
 					return true;
 				}
+
+				return true;
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data
