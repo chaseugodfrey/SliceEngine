@@ -16,6 +16,7 @@ namespace SliceEngine
         public GameObject menuCanvasObj;
         public GameObject settingsBGAnim;
         public GameObject settingsBG;
+        public GameObject settingsContent;
 
         public GameObject audioSettingsPage;
         public GameObject graphicsSettingsPage;
@@ -25,9 +26,9 @@ namespace SliceEngine
         public GameObject returnToTitleButton;
 
         public GameObject miniTitleTextObj;
+        public GameObject miniTitleObject;
 
         private RectTransform frontBgTrans;
-        private SpriteAnimator bgAnim;
         private FontRenderer miniTitleText;
         
         public int defaultHeight = 0;
@@ -46,10 +47,7 @@ namespace SliceEngine
 
             if (settingsSliders != null) settingsSliders.SetActive(false);
 
-            if (settingsBGAnim != null)
-            {
-                bgAnim = settingsBGAnim.GetComponent<SpriteAnimator>();
-            }
+            
 
             if (miniTitleTextObj != null)
             {
@@ -80,8 +78,9 @@ namespace SliceEngine
                 }
 
                 bool isFullyOpen = animationTimer >= 1.0f && isOpening;
-                
+
                 // Manage visibility of elements
+                if (miniTitleObject != null) miniTitleObject.SetActive(isFullyOpen);
                 if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);
                 if (closeSettingsButton != null) closeSettingsButton.SetActive(isFullyOpen);
                 if (audioButton != null) audioButton.SetActive(isFullyOpen);
@@ -90,14 +89,17 @@ namespace SliceEngine
 
                 if (isFullyOpen)
                 {
+                    if (settingsContent != null) settingsContent.SetActive(true);
                     if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudioPageSelected);
                     if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudioPageSelected);
                     UpdateTitleText();
                 }
                 else
                 {
-                    if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
-                    if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
+
+                    //if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
+                    //if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
+                    if (settingsContent != null) settingsContent.SetActive(false);
                 }
                 
                 if (animationTimer <= 0f && !isOpening)
@@ -129,8 +131,7 @@ namespace SliceEngine
             // If closing, ensure everything is hidden immediately or starts hiding
             if (!opening)
             {
-                if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
-                if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
+                if (settingsContent != null) settingsContent.SetActive(false);
             }
         }
 
