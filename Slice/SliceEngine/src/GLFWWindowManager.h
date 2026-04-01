@@ -18,6 +18,7 @@ namespace SliceEngine
 	class GLFWWindowManager
 	{
 		GLFWwindow* window;
+		bool mSmokeTest = false;
 
 	public:
 		bool isFullScreen;
@@ -27,6 +28,9 @@ namespace SliceEngine
 		void NonFullScreenWindow();
 		void CloseWindow();
 		GLFWwindow* GetWindow();
+
+		void SetSmokeTest(bool smokeTest) { mSmokeTest = smokeTest; }
+		bool IsSmokeTest() const { return mSmokeTest; }
 	};
 }
 

@@ -32,9 +32,30 @@ namespace SliceEngine
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		auto vidmode = glfwGetVideoMode(monitor);
+		int width = 1920;
+		int height = 1080;
 
-		window = glfwCreateWindow(vidmode->width, vidmode->height, "Slice Engine", nullptr, nullptr);
+		if (monitor)
+		{
+			auto vidmode = glfwGetVideoMode(monitor);
+			if (vidmode)
+			{
+				width = vidmode->width;
+				height = vidmode->height;
+			}
+		}
+		else
+		{
+			SLICE_LOG("No monitor detected. Using default 1080p dimensions.");
+		}
+
+		if (mSmokeTest)
+		{
+			SLICE_LOG("Smoke test mode: Window will be hidden.");
+			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+		}
+
+		window = glfwCreateWindow(width, height, "Slice Engine", nullptr, nullptr);
 
 		glfwMakeContextCurrent(window);
 
