@@ -438,7 +438,7 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 SliceLog.Console("Orbital State.");
-                Vector3 finalPos = bossController.landingPositionObj.GetComponent<Transform>().Position;
+                Vector3 finalPos = bossController.landingPositionObj.GetComponent<Transform>().WorldPosition;
                 bossController.StopAllCoroutines();
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, finalPos, 3.0f));
             }
@@ -452,13 +452,18 @@ namespace SliceEngine
                         //bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.Position, radius, 20, 0.5f));
                         bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
                             - bossController.transform.WorldPosition, radius, 20, 0.5f));
-                        if (!bossController.canRecharge)
-                            bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                        //if (!bossController.canRecharge)
+                        //    bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
 
                         isFiring = true;
                     }
 
                     bossController.transform.Rotate(Vector3.Up * dt * 20.0f);
+
+                    if (bossController.isFiringDone)
+                    {
+                        bossController.bossSM.ChangeState(bossController.idleState);
+                    }
                 }
             }
 
@@ -469,7 +474,7 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-
+                bossController.isFiringDone = false;
             }
         }
 
@@ -563,7 +568,7 @@ namespace SliceEngine
             generalHitbox.As<GeneralHitbox>().TurnOff();
 
             // initializing values
-            startingPosition = startingPositionObj.GetComponent<Transform>().Position;
+            startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
             currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);

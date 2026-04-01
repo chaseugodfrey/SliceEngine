@@ -1,0 +1,419 @@
+[
+    {
+        "L3BOSS": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "sphereData": {
+                    "radius": 0.5
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13537746615146799233"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18229435044585338891"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::RigidBody": {
+                "CollisionDetection": "",
+                "angularDamping": 0.05000000074505806,
+                "freezePosition": [
+                    false,
+                    false,
+                    false
+                ],
+                "freezeRotation": [
+                    true,
+                    false,
+                    true
+                ],
+                "friction": 0.5,
+                "gravityFactor": 0.0,
+                "isKinematic": false,
+                "linearDamping": 0.05000000074505806,
+                "mass": 1.0,
+                "restituition": 0.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097266,
+                "neighbours": [
+                    0,
+                    2097267,
+                    2097280,
+                    2097202
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Level3Boss",
+                "scriptableFieldMap": {
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "areaRadius": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
+                    "canRecharge": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "currentShield": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "enemyHUD": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "generalHitbox": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 2097267
+                    },
+                    "landingPositionObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 1000
+                    },
+                    "maxShield": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "restoreRate": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "shieldGeneratorManager": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startingPositionObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 5,
+                "mName": "L3BOSS",
+                "mTag": "Boss"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -35.55764389038086,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    13.141799926757813,
+                    13.141799926757813,
+                    13.141799926757813
+                ]
+            }
+        }
+    },
+    {
+        "SlamHitBox": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        2.799999952316284,
+                        0.20000000298023224,
+                        2.799999952316284
+                    ]
+                },
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097267,
+                "neighbours": [
+                    2097266,
+                    4294967295,
+                    4294967295,
+                    2097278
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.GeneralHitbox"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SlamHitBox",
+                "mTag": "Boss"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -0.4000000059604645,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.30000001192092896,
+                    0.20000000298023224,
+                    0.30000001192092896
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_3": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13346568691029341814"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097278,
+                "neighbours": [
+                    2097266,
+                    4294967295,
+                    2097267,
+                    2097299
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    30.825000762939453
+                ],
+                "position": [
+                    6.103515625e-05,
+                    -0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.9640374183654785,
+                    0.0,
+                    0.0,
+                    0.2657664716243744
+                ],
+                "scale": [
+                    1.100000023841858,
+                    0.10000000149011612,
+                    1.100000023841858
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_4": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13346568691029341814"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097299,
+                "neighbours": [
+                    2097266,
+                    4294967295,
+                    2097278,
+                    2097295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject_4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    124.94999694824219
+                ],
+                "position": [
+                    6.103515625e-05,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.4621356725692749,
+                    0.0,
+                    0.0,
+                    0.886809229850769
+                ],
+                "scale": [
+                    1.100000023841858,
+                    0.10000000149011612,
+                    1.100000023841858
+                ]
+            }
+        }
+    },
+    {
+        "GameObject_5": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13346568691029341814"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097295,
+                "neighbours": [
+                    2097266,
+                    4294967295,
+                    2097299,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "GameObject_5",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -91.1050033569336,
+                    0.0,
+                    6.150000095367432
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    -0.6992471814155579,
+                    0.7128645181655884,
+                    -0.03829541429877281,
+                    -0.037563882768154144
+                ],
+                "scale": [
+                    1.100000023841858,
+                    0.10000000149011612,
+                    1.100000023841858
+                ]
+            }
+        }
+    }
+]

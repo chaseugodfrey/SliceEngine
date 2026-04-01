@@ -1,0 +1,68 @@
+[
+    {
+        "ShieldGeneratorManager": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097167,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    2097263,
+                    2097268
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.ShieldGeneratorManager",
+                "scriptableFieldMap": {
+                    "Boss": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "generatorsFunctioning": {
+                        "Type": "std::vector<SliceEngine::GameObject>",
+                        "Value": []
+                    },
+                    "generatorsLeft": {
+                        "Type": "std::vector<SliceEngine::GameObject>",
+                        "Value": []
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ShieldGeneratorManager",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]
