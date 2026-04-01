@@ -1,14 +1,31 @@
 [
     {
         "Projectile": {
+            "struct SliceEngine::ColliderShape": {
+                "boxData": {
+                    "scale": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "componentEnabled": true,
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "14170060166492584974",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "14170060166492584974"
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::Renderer": {
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "16084993839446534427"
@@ -21,12 +38,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 25165905,
+                "entity_id": 256903357,
                 "neighbours": [
-                    25165906,
-                    25165884,
                     4294967295,
-                    25165883
+                    41945295,
+                    4294967295,
+                    4294967295
                 ]
             },
             "struct SliceEngine::Script": {
@@ -40,9 +57,17 @@
                         "Type": "bool",
                         "Value": false
                     },
-                    "generalHitbox": {
+                    "destroyOnPlayerImpact": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "distanceBeforeDestroy": {
+                        "Type": "float",
+                        "Value": 10.0
+                    },
+                    "owner": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 25165884
+                        "Value": 4294967295
                     },
                     "speed": {
                         "Type": "float",
@@ -52,7 +77,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 9,
                 "mName": "Projectile",
                 "mTag": "default"
             },
@@ -63,8 +88,8 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.0,
+                    -2.559638500213623,
+                    4.753900051116943,
                     0.0
                 ],
                 "rotation": [
@@ -100,16 +125,16 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10445884867155255521",
+                "prefabGUID": "14170060166492584974",
                 "prefabHandle": {
-                    "GUID": "10445884867155255521"
+                    "GUID": "14170060166492584974"
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 25165884,
+                "entity_id": 41945295,
                 "neighbours": [
-                    25165905,
+                    256903357,
                     4294967295,
                     4294967295,
                     4294967295
@@ -120,7 +145,7 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 0,
+                "mLayer": 9,
                 "mName": "HitBox",
                 "mTag": "default"
             },

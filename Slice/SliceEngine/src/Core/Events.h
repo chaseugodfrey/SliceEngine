@@ -164,6 +164,16 @@ namespace SliceEngine
 		float value;
 	};
 
+	struct OnSpriteAnimStopEvent
+	{
+		Entity entity;
+	};
+
+	struct OnSpriteAnimLoopEvent
+	{
+		Entity entity;
+	};
+
 	struct OnSceneChangeEvent
 	{
 

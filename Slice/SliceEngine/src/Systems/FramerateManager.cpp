@@ -109,6 +109,7 @@ namespace SliceEngine
 	{
 		frameStartTime = Clock::now();
 		systemDurations.clear();
+		systemStartEndTimes.clear();
 	}
 
 	void FramerateManager::EndFrame()
@@ -119,6 +120,7 @@ namespace SliceEngine
 		mTotalFrameTime = frameTime;
 
 		currFPS = (frameTime > 0.0f) ? (1000.0f / frameTime) : 0.0f;
+		mPreviousSystemDurations = systemDurations;
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -148,6 +150,11 @@ namespace SliceEngine
 	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
 	{
 		return systemDurations;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetPrevSysDurations()
+	{
+		return mPreviousSystemDurations;
 	}
 
 	const float FramerateManager::GetFrameTime()
@@ -189,5 +196,6 @@ namespace SliceEngine
 			trackedTime += time;
 		}
 		mUntrackedTime = mTotalFrameTime - trackedTime;
+		//SLICE_LOG("Untracked Time on FRM Side: " + std::to_string(mUntrackedTime));
 	}
 }

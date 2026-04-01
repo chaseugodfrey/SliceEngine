@@ -39,11 +39,11 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = false;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false; // ALOY preAimObject is null when SpawnStyle is Nothing
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
-                Console.WriteLine($"STarting pos: {enemyController.startingPosition.GetComponent<Transform>().WorldPosition.ToString()}");
+                SliceLog.Console($"STarting pos: {enemyController.startingPosition.GetComponent<Transform>().WorldPosition.ToString()}");
             }
 
             public override void OnUpdate(float dt)
@@ -66,6 +66,7 @@ namespace SliceEngine
                     //    //enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
                     //    moved = true;
                     //}
+                    SliceLog.Console("moved");
                 }
 
                 orbitTimer += dt * rotationSpeed;
@@ -119,14 +120,14 @@ namespace SliceEngine
             }
             public override void OnEnter()
             {
-                Console.WriteLine("Entering stasis state");
+                SliceLog.Console("Entering stasis state");
                 enemyController.shield = true;
                 count = 0f;
 
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true; // ALOY preAimObject is null when SpawnStyle is Nothing
 
                 }
 
@@ -135,15 +136,15 @@ namespace SliceEngine
             public override void OnUpdate(float dt)
             {
                 owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
-                count += dt;
+                //count += dt;
 
-                if (count >= 1f / projPerSecond)
-                {
-                    count -= 1f / projPerSecond;
-                    Transform T = owner.GetComponent<Transform>();
-                    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
-                    bullet.As<Projectile>().destroyOnPlayerImpact = true;
-                }
+                //if (count >= 1f / projPerSecond)
+                //{
+                //    count -= 1f / projPerSecond;
+                //    Transform T = owner.GetComponent<Transform>();
+                //    GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
+                //    bullet.As<Projectile>().destroyOnPlayerImpact = true;
+                //} Aloy here
 
                 if (enemyController.shieldObject == null)
                 {
@@ -157,13 +158,13 @@ namespace SliceEngine
                 {
                     if (enemyController.shield == false)
                     {
-                        Console.WriteLine("Going to idle");
+                        SliceLog.Console("Going to idle");
                         enemyController.stateMachine.ChangeState(enemyController.idleState);
 
                     }
                     else if (shieldFade == false)
                     {
-                        Console.WriteLine("Starting coroutine to fade out shield");
+                        SliceLog.Console("Starting coroutine to fade out shield");
                         enemyController.StartCoroutine(FadeOutShield(3.0f));
                         shieldFade = true;
                     }
@@ -177,7 +178,7 @@ namespace SliceEngine
                 Vector4 col = enemyController.shieldObject.GetComponent<Renderer>().GetColor();
                 Vector4 targetCol = col;
                 targetCol.w = 0.0f;
-                Console.WriteLine("Start of fade out shield");
+                SliceLog.Console("Start of fade out shield");
                 while (elapsedTime < duration)
                 {
                     elapsedTime += Time.deltaTime;
@@ -185,11 +186,11 @@ namespace SliceEngine
 
                     //                    enemyTransform.Position = Vector3.Lerp(startPos, targetPos, t);
                     enemyController.shieldObject.GetComponent<Renderer>().SetColor(Vector4.Lerp(col, targetCol, t));
-                    Console.WriteLine($"Current color of shield : {enemyController.shieldObject.GetComponent<Renderer>().GetColor()}");
+                    SliceLog.Console($"Current color of shield : {enemyController.shieldObject.GetComponent<Renderer>().GetColor()}");
                     yield return null;
                 }
 
-                Console.WriteLine("End of Fade out shield");
+                SliceLog.Console("End of Fade out shield");
 
                 enemyController.shieldObject.GetComponent<Renderer>().SetColor(targetCol);
                 enemyController.shield = false;
@@ -258,7 +259,7 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                Console.WriteLine("Idle state entered");
+                SliceLog.Console("Idle state entered");
                 if (enemyController.stateMachine.prevState is SlamState)
                 {
                     moves = 0;
@@ -268,7 +269,7 @@ namespace SliceEngine
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
                     shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true; // ALOY preAimObject is null when SpawnStyle is Nothing
 
                 }
 
@@ -303,7 +304,7 @@ namespace SliceEngine
                         }
                         else if (roll < 0.8f && roll > 0.4f)
                         {
-                            Console.WriteLine("pew pew pew");
+                            SliceLog.Console("pew pew pew");
                             enemyController.stateMachine.ChangeState(enemyController.projectileState);
                         }
                         else
@@ -341,7 +342,7 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                Console.WriteLine("Entering slam state");
+                SliceLog.Console("Entering slam state");
                 onCooldown = false;
                 attacking = false;
                 reset = false;
@@ -358,7 +359,7 @@ namespace SliceEngine
                 {
                     attacking = true;
                     RayCastHit hitInfo;
-                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                    bool hit = Physics.Raycast(owner.GetComponent<Transform>().Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal);
 
                     if (hit)
                     {
@@ -370,7 +371,7 @@ namespace SliceEngine
                         }
                     }
 
-                    Console.WriteLine("Slamming");
+                    SliceLog.Console("Slamming");
                     owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
                 }
 
@@ -430,7 +431,7 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                Console.WriteLine("Entering projectile state");
+                SliceLog.Console("Entering projectile state");
                 timer = 0f;
                 count = 0f;
             }

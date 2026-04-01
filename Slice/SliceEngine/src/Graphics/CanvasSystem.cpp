@@ -128,8 +128,8 @@ namespace SliceEngine {
 		auto view = core->GetRegistry().view<canvasEntity>();
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
-		empty.final_height = target_height; empty.final_width = target_width;
-		empty.width = 0; empty.height = 0;
+		empty.final_height = (float)target_height; empty.final_width = (float)target_width;
+		empty.width = 0.f; empty.height = 0.f;
 
 		world_space_ui.clear();
 		for (auto entity : view) {
@@ -300,13 +300,13 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "gamma");
 				glUniform1f(uniform_loc, cam_gamma);
 
-		/*		uniform_loc = glGetUniformLocation(shader, "uv");
+				uniform_loc = glGetUniformLocation(shader, "uv");
 				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
-					glUniform4fv(uniform_loc, 1, glm::value_ptr());
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
 				}
 				else {
-					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
-				}*/
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,1,0,1 }));
+				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 			}
@@ -520,6 +520,14 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "alphaThresh");
 				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
+
+				uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();

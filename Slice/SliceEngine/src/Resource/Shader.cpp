@@ -253,6 +253,15 @@ namespace SliceEngine
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
 			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
+			{"extractNom", R"(vec3 extractNom(vec2 v){
+	float z = sqrt(1.0 - clamp(v.x * v.x + v.y * v.y, 0.0, 1.0));
+    vec3 actlNom = normalize(vec3(v.x, v.y, z));
+	return normalize(TBN * (actlNom * 2.0f - 1.0f));
+})"},
+			{"OffsetTexture", R"(vec4 OffsetTexture(sampler2D tex, float uStart, float uEnd, float vStart, float vEnd) {
+	vec2 mapUV = mix(vec2(uStart, vStart), vec2(uEnd, vEnd), vUV);
+	return texture(tex, mapUV);
+})"},
 			{"SetV4F", R"(vec4 SetV4F(vec4 inv, float val, int n){
 switch(n){
 	case 0: return vec4(val, inv.gba);
@@ -309,7 +318,7 @@ uvec2 Hash_Tchou_2_2_uint(uvec2 v)
 }
 void Hash_Tchou_2_2_float(vec2 i, out vec2 o)
 {
-    uvec2 v = (uvec2) (ivec2) round (i);
+    uvec2 v = uvec2(ivec2 (round(i)));
     uvec2 r = Hash_Tchou_2_2_uint(v);
     o = (r >> 8) * (1.0 / float (0x00ffffff));
 }
@@ -353,7 +362,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_COLOR", {"finalCol = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
 			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_NORMAL", {"finalNormal = extractNom(%s);", "extractNom", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC2}}},
 			{"END_EMISSION", {"finalEmission = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
@@ -381,6 +390,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
 			{"sampleTexture", {"vec4 %s = texture(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::VEC2}}},
+			{"sampleTextureOffset", {"vec4 %s = OffsetTexture(%s, %s, %s, %s, %s);", "OffsetTexture", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::FLOAT,  CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			{"fRand_Vec2", {"float %s = frand_vec2(%s);", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
 			{"Tiling_And_Offset_Vec2", {"vec2 %s = %s * %s + %s;", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
 			{"Gradient_Noise_f", {"float %s = GradientNoise_Deterministic(%s, %s);", "GradientNoise_Deterministic", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2, CSHAD_T::VEC3}}}
@@ -753,7 +763,7 @@ void main(void){
     if(translucentIDOnly == 1)
 		return;
 	
-	fEmission = vec4(emission, 1.0f);    
+	fEmission = vec4(emission, fFragColor.a);    
 
     vec4 dif = fFragColor;
    
@@ -831,7 +841,7 @@ void main(void){
 			}
         }
 	}
-	if(!willBloom)
+	//if(!willBloom)
 		fFragColor += vec4(fEmission.rgb, 0.0f);
 }
 

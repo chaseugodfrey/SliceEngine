@@ -1,0 +1,215 @@
+[
+    {
+        "LazerImpact": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 166723922,
+                "neighbours": [
+                    0,
+                    143654918,
+                    6291646,
+                    6291627
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LazerImpact",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    737.8692016601563,
+                    4.556838035583496,
+                    19.796234130859375
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Impact1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16421389726626740171"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 143654918,
+                "neighbours": [
+                    166723922,
+                    4294967295,
+                    4294967295,
+                    146800983
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -60.7095832824707,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.862912654876709,
+                    0.0,
+                    -0.5053530931472778,
+                    0.0
+                ],
+                "scale": [
+                    0.6000000238418579,
+                    1.0,
+                    0.6000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "Impact2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10573828308931267518"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 146800983,
+                "neighbours": [
+                    166723922,
+                    4294967295,
+                    143654918,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

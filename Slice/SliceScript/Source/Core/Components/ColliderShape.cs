@@ -9,7 +9,7 @@ namespace SliceEngine
         public ColliderShape(GameObject entity)
         {
             gameObject = entity;
-            ComponentEnabled = FunctionCalls.ColliderShape_IsEnabled(gameObject.mID); ;
+            ComponentEnabled = FunctionCalls.ColliderShape_IsEnabled(gameObject.mID);
         }
 
         public bool ComponentEnabled

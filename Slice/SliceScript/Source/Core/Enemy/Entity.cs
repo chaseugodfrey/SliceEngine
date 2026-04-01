@@ -40,6 +40,7 @@ namespace SliceEngine
             if (this.currentHealth <= 0)
             {
                 currentHealth = 0; // Ensure health doesn't go below zero
+                OnDamaged(source);
                 OnDeath();
             }
         }

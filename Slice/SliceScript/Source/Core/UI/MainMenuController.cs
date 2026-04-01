@@ -62,7 +62,7 @@ namespace SliceEngine
             {
                 borderAnim.StartAnimation(true);
             }
-            if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
+            //if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
 
         public void CloseSettings()

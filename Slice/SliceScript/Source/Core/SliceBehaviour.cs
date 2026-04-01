@@ -62,7 +62,8 @@ namespace SliceEngine
         public virtual void OnButtonExitHover() { }
         public virtual void OnButtonRelease() { }
         public virtual void OnSliderValue(float value) { }
-//        public virtual void OnButtonRelease() { }
+        public virtual void OnSpriteAnimStop() { }
+        public virtual void OnSpriteAnimLoop() { }
 
         public bool HasComponent<T>() where T : Component, new()
         {
@@ -165,7 +166,7 @@ namespace SliceEngine
             FunctionCalls.Entity_SetActive(gameObject.mID, active);
         }
 
-        public bool IsActive()
+        public bool IsActive(bool active)
         {
                 return FunctionCalls.Entity_IsActive(gameObject.mID);
         }

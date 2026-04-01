@@ -138,7 +138,7 @@ namespace SliceEditor
 
 	void ProfilerWindow::DrawSystemTimeline()
 	{
-		const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
+		//const auto& systemPercentages = SliceEngine::Core::GetInstance()->GetFramerateManager()->GetSystemPercentages();
 
 		ImGui::Text("System Timeline");
 		ImGui::BeginChild("Timeline", ImVec2(0, 30), ImGuiChildFlags_AutoResizeY);
@@ -158,7 +158,7 @@ namespace SliceEditor
 
 
 			// Draw each system's time slice
-			for (const auto& pair : systemPercentages) 
+			for (const auto& pair : mManager.mDebugStats)
 			{
 				ImU32 sysColor = mManager.GetSystemColor(pair.first);
 
@@ -207,15 +207,16 @@ namespace SliceEditor
 	void ProfilerWindow::DrawSystemBreakdown()
 	{
 		auto frm = SliceEngine::Core::GetInstance()->GetFramerateManager();
-		const auto& systemPercentages = frm->GetSystemPercentages();
+		//const auto& systemPercentages = frm->GetSystemPercentages();
 		ImGui::Text("System Statistics");
 		ImGui::BeginChild("System Stats", ImVec2(0, 0), true);
 		{
 			ImGui::Text("Total Frame Time: %.4f", mManager.mTotalFrameTime);
 			ImGui::Text("%.2f %% of Frame Time Untracked", mManager.mUntrackedFrameTimePercentage);
+			ImGui::Text("Untracked Frame Time: %.4f", mManager.mUntrackedFrameTime);
 			ImGui::Text("Delta Time: %.4f", mManager.mDeltaTime);
 			//ImGui::Text("Fixed Delta Time: %.4f", frm->getFixedDeltaTime());
-			for (const auto& pair : systemPercentages) {
+			for (const auto& pair : mManager.mDebugStats) {
 				// Create a bordered box for each system
 				ImGui::BeginChild(pair.first.c_str(), ImVec2(0, 0), ImGuiChildFlags_AutoResizeY);
 				{

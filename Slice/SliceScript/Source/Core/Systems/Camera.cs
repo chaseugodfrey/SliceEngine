@@ -18,8 +18,7 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetMainCamera(go.mID);
         }
-
-        public static float Exposure
+        public static float Gamma
         {
             get { return FunctionCalls.Camera_GetGamma(); }
             set { FunctionCalls.Camera_SetGamma(value); }
@@ -55,6 +54,11 @@ namespace SliceEngine
         public void SetImpactFrameDensity(float density)
         {
             FunctionCalls.Camera_SetImpactFrameDensity(gameObject.mID, density);
+        }
+        // in range: [0.f, 1.f]
+        public void SetImpactBlend(float blend)
+        {
+            FunctionCalls.Camera_SetImpactBlend(gameObject.mID, blend);
         }
     }
 }

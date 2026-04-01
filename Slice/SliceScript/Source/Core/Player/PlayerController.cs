@@ -339,7 +339,7 @@ namespace SliceEngine
                 RayCastHit hitInfo;
                 
                 // Check if can plunge by raycasting down to see distance to ground
-                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal);
                 if (hit)
                 {
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
@@ -437,7 +437,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 1");
+                //SliceLog.Console($"Attacking enemy in attack 1");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
@@ -447,7 +447,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 2");
+                //Console.WriteLine($"Attacking enemy in attack 2");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }

@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 392,
+                "entity_id": 32506737,
                 "neighbours": [
                     0,
-                    397,
-                    391,
-                    399
+                    32506736,
+                    29360973,
+                    32506676
                 ]
             },
             "struct SliceEngine::Script": {
@@ -51,9 +51,9 @@
                     0.0
                 ],
                 "position": [
-                    1131.629638671875,
+                    1060.1895751953125,
                     50.4157600402832,
-                    -397.67919921875
+                    -389.2633056640625
                 ],
                 "rotation": [
                     1.0,
@@ -72,9 +72,9 @@
     {
         "NewBigLazer_4_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
                 "prefabID": 1
             },
@@ -91,12 +91,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 397,
+                "entity_id": 32506736,
                 "neighbours": [
-                    392,
-                    398,
+                    32506737,
+                    32506734,
                     4294967295,
-                    393
+                    32506708
                 ]
             },
             "struct SliceEngine::Script": {
@@ -112,7 +112,7 @@
                     },
                     "generalHitboxObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 4294967295
+                        "Value": 32506734
                     }
                 }
             },
@@ -166,19 +166,19 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 398,
+                "entity_id": 32506734,
                 "neighbours": [
-                    397,
+                    32506736,
                     4294967295,
                     4294967295,
-                    396
+                    32506712
                 ]
             },
             "struct SliceEngine::Script": {
@@ -218,9 +218,9 @@
     {
         "Big Laser Mesh_1_4_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
                 "prefabID": 3
             },
@@ -237,12 +237,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 396,
+                "entity_id": 32506712,
                 "neighbours": [
-                    397,
+                    32506736,
                     4294967295,
-                    398,
-                    4294967295
+                    32506734,
+                    34603523
                 ]
             },
             "struct SliceEngine::Script": {
@@ -299,8 +299,221 @@
                 ],
                 "scale": [
                     2.0,
-                    1.000000238418579,
+                    1.0,
                     2.0
+                ]
+            }
+        }
+    },
+    {
+        "LazerImpact": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603523,
+                "neighbours": [
+                    32506736,
+                    34603531,
+                    32506712,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LazerImpact",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -0.4300000071525574,
+                    0.0
+                ],
+                "rotation": [
+                    0.9238795042037964,
+                    0.0,
+                    -0.3826834559440613,
+                    0.0
+                ],
+                "scale": [
+                    4.0,
+                    0.07999999821186066,
+                    4.0
+                ]
+            }
+        }
+    },
+    {
+        "Impact1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16421389726626740171"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603531,
+                "neighbours": [
+                    34603523,
+                    4294967295,
+                    4294967295,
+                    34603585
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -60.7095832824707,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.862912654876709,
+                    0.0,
+                    -0.5053530931472778,
+                    0.0
+                ],
+                "scale": [
+                    0.6000000238418579,
+                    1.0,
+                    0.6000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "Impact2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10573828308931267518"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603585,
+                "neighbours": [
+                    34603523,
+                    4294967295,
+                    34603531,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }
@@ -308,11 +521,11 @@
     {
         "NewBigLazer_5_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
-                "prefabID": 4
+                "prefabID": 7
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -327,11 +540,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 393,
+                "entity_id": 32506708,
                 "neighbours": [
-                    392,
-                    394,
-                    397,
+                    32506737,
+                    32506694,
+                    32506736,
                     4294967295
                 ]
             },
@@ -348,7 +561,7 @@
                     },
                     "generalHitboxObject": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 4294967295
+                        "Value": 32506694
                     }
                 }
             },
@@ -402,19 +615,19 @@
                 ]
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
-                "prefabID": 5
+                "prefabID": 8
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 394,
+                "entity_id": 32506694,
                 "neighbours": [
-                    393,
+                    32506708,
                     4294967295,
                     4294967295,
-                    395
+                    32506686
                 ]
             },
             "struct SliceEngine::Script": {
@@ -454,11 +667,11 @@
     {
         "Big Laser Mesh_1_5_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "10903767827413325819",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "10903767827413325819"
+                    "GUID": ""
                 },
-                "prefabID": 6
+                "prefabID": 9
             },
             "struct SliceEngine::Renderer": {
                 "componentEnabled": true,
@@ -473,12 +686,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 395,
+                "entity_id": 32506686,
                 "neighbours": [
-                    393,
+                    32506708,
                     4294967295,
-                    394,
-                    4294967295
+                    32506694,
+                    34603607
                 ]
             },
             "struct SliceEngine::Script": {
@@ -537,6 +750,219 @@
                     2.0,
                     1.000000238418579,
                     2.0
+                ]
+            }
+        }
+    },
+    {
+        "LazerImpact_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 10
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603607,
+                "neighbours": [
+                    32506708,
+                    34603648,
+                    32506686,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LazerImpact_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -0.4300000071525574,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    0.0,
+                    -0.7071068286895752,
+                    0.0
+                ],
+                "scale": [
+                    4.0,
+                    0.07999999821186066,
+                    4.0
+                ]
+            }
+        }
+    },
+    {
+        "Impact1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 11
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16421389726626740171"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603648,
+                "neighbours": [
+                    34603607,
+                    4294967295,
+                    4294967295,
+                    34603793
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact1_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -60.7095832824707,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.862912654876709,
+                    0.0,
+                    -0.5053530931472778,
+                    0.0
+                ],
+                "scale": [
+                    0.6000000238418579,
+                    1.0,
+                    0.6000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "Impact2_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 12
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10573828308931267518"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "11434656353426613002"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 34603793,
+                "neighbours": [
+                    34603607,
+                    4294967295,
+                    34603648,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.RotationWiggleAnimation",
+                "scriptableFieldMap": {
+                    "RotationAxis": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            1.0,
+                            0.0
+                        ]
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 30.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Impact2_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }

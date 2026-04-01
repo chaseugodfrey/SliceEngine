@@ -655,7 +655,22 @@ namespace SliceEditor
 				ImGui::SetCursorPosX(150.0f); // left-align all widgets at X = 150
 			};
 
-		static std::vector<std::string> compressionFormatNames{ "BC1", "BC2" , "BC3", "BC4", "BC4s", "BC5", "BC5s", "BC6", "BC6s", "BC7"};
+
+		static std::vector<std::string> usageTypeNames{ "COLOR","TANGENT,BC5", "METALLIC_ROUGHNESS,BC4" };
+		Label("Usage Type: ");
+		if (ImGui::BeginCombo("##UsageType: ", usageTypeNames[(int)data->usage_type].c_str()))
+		{
+			for (int i = 0; i < usageTypeNames.size(); ++i)
+			{
+				if (ImGui::Selectable(usageTypeNames[i].c_str()))
+				{
+					data->usage_type = (UsageType)i;
+				}
+			}
+			ImGui::EndCombo();
+		}
+
+		static std::vector<std::string> compressionFormatNames{ "BC1", "BC3", "BC4", "BC5", "BC7"};
 		Label("Compression Format: ");
 		if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
 		{
@@ -675,7 +690,13 @@ namespace SliceEditor
 			data->comp_quality = std::clamp(data->comp_quality, 0.0f, 1.0f);
 		}
 
-		static std::vector<std::string> mipMapFilterNames{"NONE", "POINT", "LINEAR", "TRIANGLE", "BOX"};
+		Label("Generate Mips: ");
+		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
+		{
+
+		}
+
+		static std::vector<std::string> mipMapFilterNames{ "NONE", "POINT", "LINEAR", "TRIANGLE", "BOX" };
 		Label("MipMapFilter: ");
 		if (ImGui::BeginCombo("##MipMapFilter: ", mipMapFilterNames[(int)data->mip_filter].c_str()))
 		{
@@ -689,11 +710,6 @@ namespace SliceEditor
 			ImGui::EndCombo();
 		}
 
-		Label("Generate Mips: ");
-		if (ImGui::Checkbox("##Generate_Mips", &data->generateMips))
-		{
-
-		}
 
 		Label("Mip Count: ");
 		int mip = data->mip_count;
@@ -703,61 +719,11 @@ namespace SliceEditor
 			data->mip_count = static_cast<unsigned char>(mip);
 		}
 
-		Label("Has Alpha: ");
-		if (ImGui::Checkbox("##Has_Alpha", &data->hasAlpha))
+		Label("Premultiply Alpha: ");
+		if (ImGui::Checkbox("##premultiply", &data->premultiply_alpha))
 		{
 
 		}
-
-		Label("Alpha_Threshold: ");
-		int threshold = data->alpha_threshold;
-		if (ImGui::SliderInt("##Alpha_Threshold", &threshold, 0, 255))
-		{
-			threshold = std::clamp(threshold, 0, 255);
-			data->alpha_threshold = static_cast<unsigned char>(threshold);
-		}
-
-		static std::vector<std::string> wrapTypeNames{"CLAMP_TO_EDGE", "WRAP", "MIRROR"};
-		Label("U_Wrap: ");
-		if (ImGui::BeginCombo("##U_Wrap: ", wrapTypeNames[(int)data->u_wrap].c_str()))
-		{
-			for (int i = 0; i < wrapTypeNames.size(); ++i)
-			{
-				if (ImGui::Selectable(wrapTypeNames[i].c_str()))
-				{
-					data->u_wrap = (WrapType)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		Label("V_Wrap: ");
-		if (ImGui::BeginCombo("##V_Wrap: ", wrapTypeNames[(int)data->v_wrap].c_str()))
-		{
-			for (int i = 0; i < wrapTypeNames.size(); ++i)
-			{
-				if (ImGui::Selectable(wrapTypeNames[i].c_str()))
-				{
-					data->v_wrap = (WrapType)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
-		static std::vector<std::string> usageTypeNames{ "COLOR","COLOR_ALPHA","TANGENT_NORMAL","INTENSITY" };
-		Label("Usage Type: ");
-		if (ImGui::BeginCombo("##UsageType: ", usageTypeNames[(int)data->usage_type].c_str()))
-		{
-			for (int i = 0; i < usageTypeNames.size(); ++i)
-			{
-				if (ImGui::Selectable(usageTypeNames[i].c_str()))
-				{
-					data->usage_type = (UsageType)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
-
 	}
 
 	void ContentBrowserWindow::DisplayFBXData(ModelData* data)

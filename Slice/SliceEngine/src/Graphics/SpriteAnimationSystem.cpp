@@ -26,20 +26,50 @@ namespace SliceEngine {
 
 	void SpriteAnimationSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) {
 		auto& sprite_anim = reg.get<SpriteAnimator>(entity);
-		if (!sprite_anim.row || !sprite_anim.col || !sprite_anim.num_frames) {
+		if (!sprite_anim.is_playing || !sprite_anim.row || !sprite_anim.col || !sprite_anim.num_frames) {
 			return;
 		}
 		sprite_anim.curr_frame += sprite_anim.fps * dt;
-		while (sprite_anim.curr_frame > sprite_anim.num_frames) {
-			sprite_anim.curr_frame -= sprite_anim.num_frames;
+
+		if (sprite_anim.loop) {
+			bool send = false;
+			while (sprite_anim.curr_frame > sprite_anim.num_frames) {
+				sprite_anim.curr_frame -= sprite_anim.num_frames;
+
+				if (!send) {	//not sure if it shld be in this
+					OnSpriteAnimLoopEvent event{};
+					event.entity = entity;
+					EventManager::GetInstance()->Publish<OnSpriteAnimLoopEvent>(event);
+				}
+			}
 		}
+		else if (sprite_anim.curr_frame > sprite_anim.num_frames) {
+			sprite_anim.curr_frame = 0.f;
+			sprite_anim.is_playing = false;
+
+			OnSpriteAnimStopEvent event{};
+			event.entity = entity;
+			EventManager::GetInstance()->Publish<OnSpriteAnimStopEvent>(event);
+		}
+
+		//choose above or below
+
+		/*while (sprite_anim.curr_frame > sprite_anim.num_frames) {
+			sprite_anim.curr_frame -= sprite_anim.num_frames;
+			if (sprite_anim.loop) {
+				sprite_anim.curr_frame = 0.f;
+				sprite_anim.is_playing = false;
+				break;
+			}
+		}*/
+
 
 		auto& render = reg.get<SpriteRenderer>(entity);
 		float x_offset = 1.f / sprite_anim.col;
 		float y_offset = 1.f / sprite_anim.row;
 		unsigned char frame = (unsigned char)sprite_anim.curr_frame;
-		unsigned char u = frame % sprite_anim.num_frames;
-		unsigned char v = frame / sprite_anim.num_frames;
+		unsigned char u = frame % sprite_anim.col;
+		unsigned char v = frame / sprite_anim.col;
 		render.uv = glm::vec4(u * x_offset, (u + 1) * x_offset, v * y_offset, (v + 1) * y_offset);
 
 	};
