@@ -110,12 +110,7 @@ namespace SliceEngine
             {
                 SceneManager.LoadScene("MenuScene");
                 gameSettingsController.ResumeGame();
-                if (uiAnimController != null)
-                {
-                    uiAnimController.ButtonHoverState(false);
-                    uiAnimController.ResetButton();
-
-                }
+                
             }
 
             if(buttonType == 6) //AudioPage in Settings
