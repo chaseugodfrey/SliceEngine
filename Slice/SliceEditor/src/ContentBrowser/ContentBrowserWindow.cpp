@@ -142,14 +142,16 @@ namespace SliceEditor
 				flags |= ImGuiTreeNodeFlags_Leaf;
 			}
 
-			if (ImGui::TreeNodeEx(node.fileName.c_str(), flags))
-			{
-				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
-				{
-					SelectFolder(node);
-					currentCategoryIndex = -1;
-				}
+			bool isOpen = ImGui::TreeNodeEx(node.fileName.c_str(), flags);
 
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			{
+				SelectFolder(node);
+				currentCategoryIndex = -1;
+			}
+
+			if(isOpen)
+			{
 				for (auto& entry : node.children)
 				{
 					DisplayFolders(entry.second);
