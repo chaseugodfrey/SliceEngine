@@ -156,6 +156,13 @@ namespace SliceEngine
             if (buttonType == 4)
             {
                 SceneManager.LoadScene("MenuScene");
+                gameSettingsController.ResumeGame();
+                if (uiAnimController != null)
+                {
+                    uiAnimController.ButtonHoverState(false);
+                    uiAnimController.ResetButton();
+
+                }
             }
         }
 
