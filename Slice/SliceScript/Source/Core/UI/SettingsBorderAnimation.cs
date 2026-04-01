@@ -183,10 +183,10 @@ namespace SliceEngine
 
         public void StartSettingsPopupAnimation(bool opening)
         {
+            this.gameObject.SetActive(true);
             isOpening = opening;
             UpdateButtonVisuals();
             isActive = true;
-            this.gameObject.SetActive(true);
             
             
             if (!opening)

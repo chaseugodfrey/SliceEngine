@@ -9,19 +9,18 @@ namespace SliceEngine
 {
     public class GameSettings : SliceBehaviour
     {
-        private GameObject settingsPanel;
+        
         private GameObject settingsPopup;
         private SettingsBorderAnimation borderAnim;
 
-        private bool isPauseMenuOpen = false;
-        private bool isSubSettingsOpen = false;
+        
+        private bool isSettingsOpen = false;
 
         public override void OnCreate()
         {
-            settingsPanel = FindGameObjectWithName("GameSettings");
-            settingsPopup = FindGameObjectWithName("Settings_Popup");
+            settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
 
-            if (settingsPanel != null) settingsPanel.SetActive(false);
+            
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
@@ -37,21 +36,21 @@ namespace SliceEngine
                 settingsPopup.SetActive(false);
             }
 
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = false;
+            
+            isSettingsOpen = false;
         }
 
         public override void OnUpdate(float dt)
         {
             if (Input.IsKeyPressed(Keys.KEY_ESC) && Bootstrap.HUDManager.CheckLoseScreen() == false)
             {
-                if (isSubSettingsOpen)
+                if (isSettingsOpen)
                 {
-                    CloseSubSettings();
+                    ResumeGame();
                 }
-                else if (!isPauseMenuOpen)
+                else
                 {
-                    OpenPauseMenu();
+                    OpenSubSettings();
                 }
             }
         }
@@ -61,22 +60,30 @@ namespace SliceEngine
             if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
 
-        public void OpenPauseMenu()
-        {
-            if (settingsPanel != null) settingsPanel.SetActive(true);
-            isPauseMenuOpen = true;
-            Cursor.state = Cursor.STATE.DEFAULT;
-            Time.timeScale = 0.0f;
-        }
+        //public void OpenPauseMenu()
+        //{
+        //    if (borderAnim != null)
+        //    {
+        //        borderAnim.StartSettingsPopupAnimation(true);
+        //    }
+
+        //    isSettingsOpen = true;
+        //    Cursor.state = Cursor.STATE.DEFAULT;
+        //    Time.timeScale = 0.0f;
+        //}
 
 
         public void ResumeGame()
         {
+            if (borderAnim != null)
+            {
+                borderAnim.StartSettingsPopupAnimation(false);
+            }
+
             // Force close everything
-            if (settingsPanel != null) settingsPanel.SetActive(false);
             if (settingsPopup != null) settingsPopup.SetActive(false);
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = false;
+            
+            isSettingsOpen = false;
 
             SliceLog.Console("Resume");
 
@@ -91,19 +98,21 @@ namespace SliceEngine
                 borderAnim.StartSettingsPopupAnimation(true);
             }
 
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = true;
+            
+            isSettingsOpen = true;
+            Cursor.state = Cursor.STATE.DEFAULT;
+            Time.timeScale = 0.0f;
         }
 
-        public void CloseSubSettings()
-        {
-            if (borderAnim != null)
-            {
-                borderAnim.StartSettingsPopupAnimation(false);
-            }
+        //public void CloseSubSettings()
+        //{
+        //    if (borderAnim != null)
+        //    {
+        //        borderAnim.StartSettingsPopupAnimation(false);
+        //    }
 
-            isSubSettingsOpen = false;
-            isPauseMenuOpen = true;
-        }
+        //    isSubSettingsOpen = false;
+        //    isPauseMenuOpen = true;
+        //}
     }
 }

@@ -1,6 +1,7 @@
 using SliceEngine;
 using SliceScript.Source.Core.Systems;
 using System;
+using System.Runtime.InteropServices;
 
 
 namespace SliceEngine
@@ -14,6 +15,7 @@ namespace SliceEngine
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
+        private bool isSettingsOpen = false;
         private float animationTimer = 0f;
 
         public string textToShow = "";
@@ -21,7 +23,7 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            settingsPopup = FindGameObjectWithName("Settings_Popup");
+            settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
 
@@ -54,7 +56,13 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            
+            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            {
+                if(isSettingsOpen)
+                {
+                    CloseSettings();
+                }
+            }
         }
 
         public void ToggleSettingsPages(bool isAudio)
@@ -82,6 +90,8 @@ namespace SliceEngine
 
         public void OpenSettings()
         {
+            isSettingsOpen = true;
+
             if (bgAnim != null)
             {
                 bgAnim.StartSettingsBGAnimation(true);
@@ -96,6 +106,8 @@ namespace SliceEngine
 
         public void CloseSettings()
         {
+            isSettingsOpen = false;
+
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);

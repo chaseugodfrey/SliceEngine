@@ -94,16 +94,16 @@ namespace SliceEngine
                     gameSettingsController.ResumeGame();
 
                 }
-                else if (buttonType == 1) // Open Settings (Sub-menu)
-                {
-                    gameSettingsController.OpenSubSettings();
+                //else if (buttonType == 1) // Open Settings (Sub-menu)
+                //{
+                //    gameSettingsController.OpenSubSettings();
 
-                }
-                else if (buttonType == 3) // Close Settings (Back button inside popup)
-                {
-                    gameSettingsController.CloseSubSettings();
+                //}
+                //else if (buttonType == 3) // Close Settings (Back button inside popup)
+                //{
+                //    gameSettingsController.CloseSubSettings();
 
-                }
+                //}
             }
 
             if (buttonType == 4) //
@@ -113,13 +113,13 @@ namespace SliceEngine
                 
             }
 
-            if(buttonType == 6) //AudioPage in Settings
+            else if(buttonType == 6) //AudioPage in Settings
             {
                 if (mainController != null) mainController.ToggleSettingsPages(true);
                 if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(true);
             }
 
-            if (buttonType == 7) //GraphicsPage in Settings
+            else if (buttonType == 7) //GraphicsPage in Settings
             {
                 if (mainController != null) mainController.ToggleSettingsPages(false);
                 if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(false);
