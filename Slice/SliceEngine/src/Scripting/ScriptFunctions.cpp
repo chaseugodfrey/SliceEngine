@@ -3362,6 +3362,7 @@ namespace SliceEngine
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<SpriteRendererGammaOverride>();
 		RegisterComponent<SpriteAnimator>();
+		RegisterComponent<Button>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
