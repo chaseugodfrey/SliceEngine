@@ -426,6 +426,22 @@ namespace SliceEditor
 		}
 	}
 
+	void InspectorWindow::DisplaySpriteRendererGammaOverride(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteRendererGammaOverride", mBaseFlags))
+		{
+			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRendererGammaOverride>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteRendererGammaOverride>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
+
+			DragFloatInputHeader(mRegistry, "Gamma Override", "##gammaoverride", sprite.gamma, "%.1f", 0.001f, 100.0f);
+
+			ImGui::TreePop();
+		}
+	}
+
 	void InspectorWindow::DisplaySpriteAnimator(entt::entity entity)
 	{
 		if (ImGui::TreeNodeEx("SpriteAnimator", mBaseFlags))
@@ -433,6 +449,8 @@ namespace SliceEditor
 			auto& sprite_anim = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteAnimator>(entity);
 
 			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite_anim.componentEnabled);
 
 			BoolInputHeader(mRegistry, "Playing", "##spriteanimplaying", sprite_anim.is_playing);
 			BoolInputHeader(mRegistry, "Loop", "##spriteanimloop", sprite_anim.loop);
@@ -2421,6 +2439,16 @@ namespace SliceEditor
 				}
 			}
 
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>()
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Gamma Override"))
+				{
+					reg.emplace<SliceEngine::SpriteRendererGammaOverride>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>() 
 				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
 				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
@@ -2506,6 +2534,11 @@ namespace SliceEditor
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRenderer>(entity))
 			{
 				DisplaySpriteRenderer(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRendererGammaOverride>(entity))
+			{
+				DisplaySpriteRendererGammaOverride(node->entity);
 				ImGui::Separator();
 			}
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteAnimator>(entity))
