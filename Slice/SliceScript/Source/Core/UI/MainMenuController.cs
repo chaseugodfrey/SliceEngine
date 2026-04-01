@@ -8,25 +8,30 @@ namespace SliceEngine
     public class MainMenuController : SliceBehaviour
     {
 
-        private GameObject settingsPopup; // The object holding the Animation script
+        private GameObject settingsPopup;
+        private GameObject bgAnimationObject;
         private GameObject MainMenuCanvas;
         private SettingsBorderAnimation borderAnim;
+        private SettingsBGAnimation bgAnim;
 
         private float animationTimer = 0f;
 
         public string textToShow = "";
-        private SettingsBorderAnimation uiBorderAnimController;
+        
 
         public override void OnCreate()
         {
             settingsPopup = FindGameObjectWithName("Settings_Popup");
+            bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
 
-            if (settingsPopup != null)
+            if (bgAnimationObject != null)
             {
                 // Access the script we just built
+                bgAnimationObject.SetActive(false);
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                settingsPopup.SetActive(false);
+                bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
+                
             }
 
 
@@ -58,9 +63,12 @@ namespace SliceEngine
         public void OpenSettings()
         {
 
-            if (borderAnim != null)
+            if (bgAnim != null)
             {
-                borderAnim.StartAnimation(true);
+                
+                //bgAnimationObject.SetActive(true);
+                //bgAnim.StartSettingsBGAnimation(true);
+                borderAnim.StartSettingsPopupAnimation(true);
             }
             //if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
@@ -70,7 +78,9 @@ namespace SliceEngine
             //if (settingsPopup != null) settingsPopup.SetActive(false);
             if (borderAnim != null)
             {
-                borderAnim.StartAnimation(false);
+                bgAnimationObject.SetActive(false);
+                borderAnim.StartSettingsPopupAnimation(false);
+                
             }
             //if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
         }

@@ -11,10 +11,10 @@ namespace SliceEngine
 
         private MainMenuController mainController;
         private GameSettings gameSettingsController;
-        private UIAnimation uiAnimController;
+        
         
         private AudioSource btnAudio;
-        public GameObject uiAnimObj;
+        
         
 
 
@@ -41,20 +41,6 @@ namespace SliceEngine
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
 
-            
-
-            //GameObject startRect = FindGameObjectWithName("OverlayGameRect");
-            //if (startRect != null)
-            //{
-            //    testTrans = startRect.GetComponent<RectTransform>();
-
-            //}
-
-            if (uiAnimObj != null)
-            {
-                uiAnimController = uiAnimObj.As<UIAnimation>();
-
-            }
 
             
 
@@ -68,12 +54,7 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-            if(uiAnimController!=null)
-            {
-                
-                uiAnimController.ButtonClickAnim();
 
-            }
 
             if (mainController != null)
             {
@@ -84,99 +65,71 @@ namespace SliceEngine
                 else if (buttonType == 1)
                 {
                     mainController.OpenSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
 
-                  
                 }
                 else if (buttonType == 2)
                 {
                     mainController.QuitGame();
                 }
+
                 else if (buttonType == 3)
                 {
                     mainController.CloseSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
-
-                    }
-                }
-                else if (buttonType == 4)
-                {
-                    mainController.BackToMenu();
 
                 }
-                else if (buttonType == 5)
-                {
-                    SliceLog.Log("Test");
-                }
+                //else if (buttonType == 4)
+                //{
+                //    mainController.BackToMenu();
+
+                //}
+                
             }
 
-            // --- GAME SCENE ACTIONS ---
+            
             if (gameSettingsController != null)
             {
                 if (buttonType == 5) // Resume
                 {
                     gameSettingsController.ResumeGame();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
                 }
                 else if (buttonType == 1) // Open Settings (Sub-menu)
                 {
                     gameSettingsController.OpenSubSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
                 }
                 else if (buttonType == 3) // Close Settings (Back button inside popup)
                 {
                     gameSettingsController.CloseSubSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
                 }
             }
 
-            if (buttonType == 4)
+            if (buttonType == 4) //
             {
                 SceneManager.LoadScene("MenuScene");
+            }
+
+            if(buttonType == 6) //AudioPage in Settings
+            {
+
+            }
+
+            if (buttonType == 7) //GraphicsPage in Settings
+            {
+
             }
         }
 
         public override void OnButtonHover()
         {
-            if(uiAnimController != null)
-            {
             
-                uiAnimController.ButtonHoverState(true);
-
-            }
         }
 
         public override void OnButtonExitHover()
         {
-            if (uiAnimController != null)
-            {
 
-                uiAnimController.ButtonHoverState(false);
-
-            }
         }
 
         public override void OnButtonRelease()

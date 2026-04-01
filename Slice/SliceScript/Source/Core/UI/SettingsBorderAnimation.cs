@@ -94,7 +94,7 @@ namespace SliceEngine
             }
         }
 
-        public void StartAnimation(bool opening)
+        public void StartSettingsPopupAnimation(bool opening)
         {
             isOpening = opening;
             isActive = true;

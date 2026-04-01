@@ -83,7 +83,8 @@ namespace SliceEngine
             //if (settingsPopup != null) settingsPopup.SetActive(true);
             if (borderAnim != null)
             {
-                borderAnim.StartAnimation(true);
+                
+                
             }
             
 
@@ -99,7 +100,7 @@ namespace SliceEngine
 
             if (borderAnim != null)
             {
-                borderAnim.StartAnimation(false);
+                borderAnim.StartSettingsPopupAnimation(false);
             }
 
             isSubSettingsOpen = false;
