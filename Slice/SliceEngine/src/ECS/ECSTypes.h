@@ -876,7 +876,14 @@ namespace SliceEngine
 		RTTR_ENABLE();
 	};
 
+	struct SpriteRendererGammaOverride {
+		bool componentEnabled{ true };
+		float gamma{ 45.4545f };
+		RTTR_ENABLE();
+	};
+
 	struct SpriteAnimator {
+		bool componentEnabled{ true };
 		bool is_playing{ false };
 		bool loop{ false };
 		unsigned char row { 1 };

@@ -806,6 +806,8 @@ namespace SliceEngine
 
         /************************* Sprite Animator *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetEnabled(uint entityID, bool enabled);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool SpriteAnimator_GetPlaying(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteAnimator_SetPlaying(uint entityID, bool value);
@@ -840,7 +842,15 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteAnimator_SetCurrFrame(uint entityID, uint value);
 
+        /************************* Sprite Animator *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteGammaOverride_SetEnabled(uint entityID, bool enabled);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float SpriteGammaOverride_GetGamma(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteGammaOverride_SetGamma(uint entityID, float value);
 
+        /************************* UI End *************************/
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
