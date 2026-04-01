@@ -26,7 +26,7 @@ namespace SliceEngine {
 
 	void SpriteAnimationSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt) {
 		auto& sprite_anim = reg.get<SpriteAnimator>(entity);
-		if (!sprite_anim.is_playing || !sprite_anim.row || !sprite_anim.col || !sprite_anim.num_frames) {
+		if (!sprite_anim.componentEnabled || !sprite_anim.is_playing || !sprite_anim.row || !sprite_anim.col || !sprite_anim.num_frames) {
 			return;
 		}
 		sprite_anim.curr_frame += sprite_anim.fps * dt;
