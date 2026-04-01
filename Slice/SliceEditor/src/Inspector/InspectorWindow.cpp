@@ -2799,6 +2799,7 @@ namespace SliceEditor
 	void InspectorWindow::DisplayState(StateNode* node)
 	{
 		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+		auto animator = mRegistry.GetManager<SessionManager>("Session")->currentAnimator;
 
 		ImGui::SeparatorText("State");
 
@@ -2814,6 +2815,39 @@ namespace SliceEditor
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 
 		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
+		
+		float speedBuffer{ 1 };
+
+		//mCurrentAnimator->Handle_skeleton.IsValid()
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+		}
+		else
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+
+		}
+
+		DragFloatInputHeader(mRegistry, "Speed:", "##anim_speed", speedBuffer, "%0.3f", 0.1f, 10.0f);
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		else
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		
 
 		ImGui::SeparatorText("Transitions");
 

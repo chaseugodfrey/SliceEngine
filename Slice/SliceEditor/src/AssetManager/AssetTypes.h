@@ -1122,6 +1122,7 @@ namespace SliceEditor
 			j["isLoop"] = s.isLoop;
 			j["mNodePos"] = s.mNodePos;
 			j["fps"] = s.fps;
+			j["speed"] = s.animationSpeed;
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -1196,6 +1197,9 @@ namespace SliceEditor
 			j.at("isLoop").get_to(s.isLoop);
 			j.at("mNodePos").get_to(s.mNodePos);
 			j.at("fps").get_to(s.fps);
+			//j.at("speed").get_to(s.animationSpeed);
+			s.animationSpeed = j.value("speed", 1.0f);
+
 
 			s.transitions.clear();
 			const auto& transitions_json = j.at("transitions");

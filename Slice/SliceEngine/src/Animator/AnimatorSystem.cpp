@@ -91,7 +91,7 @@ namespace SliceEngine
 					}
 					else
 					{
-						animator.current_time += dt;
+						animator.current_time += dt * animator.stateMachine.EFSM.currState->animationSpeed;
 
 						// publish animation key frame event
 						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
@@ -139,7 +139,7 @@ namespace SliceEngine
 					}
 					else
 					{
-						animator.current_time += dt;
+						animator.current_time += dt * animator.stateMachine.EFSM.currState->animationSpeed;
 
 						// publish animation key frame event
 						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
