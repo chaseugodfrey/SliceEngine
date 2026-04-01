@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
 #include "../Systems/FramerateManager.h"
+#include "Graphics/SpriteAnimationSystem.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4002)
@@ -1554,11 +1555,18 @@ namespace SliceEngine
 
 #pragma region LAYERMASK FUNCTIONS
 
-	static uint32_t LayerMask_GetMask(MonoString* string)
+	static uint32_t LayerMask_GetCollisionMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return Core::GetInstance()->GetLayerManager()->GetMask(name);
+		return Core::GetInstance()->GetLayerManager()->GetCollisionMask(name);
+	}
+
+	static uint32_t LayerMask_ToMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return Core::GetInstance()->GetLayerManager()->ToMask(name);
 	}
 
 	static MonoString* LayerMask_LayerToName(uint32_t layer)
@@ -1714,11 +1722,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
-	static void Audio_StopAllSound()
-	{
-		Core::GetInstance()->GetAudioManager()->StopAllSound();
-	}
-
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -1771,7 +1774,9 @@ namespace SliceEngine
 
 	static void Audio_SetMasterVolume(float volume)
 	{
-			Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+
+
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
@@ -1942,28 +1947,16 @@ namespace SliceEngine
 		return false;
 	}
 
-	static void Audio_SetSoundName(unsigned int entity, MonoString* string)
-	{
-		//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
+	//static void Audio_SetSoundName(unsigned int entity, MonoString* string)
+	//{
+	//	//SLICE_LOG("Setting audio name from C++ for entity: {}", entity);
 
-		std::string str = MonoToString(string);
+	//	std::string str = MonoToString(string);
 
-		auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
-		//audio.soundName = str;
-		
-		auto audioSettings = Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>();
-		auto entry = audioSettings->GetSFXEntry(str);
-		if (entry && !entry->AudioClips.empty())
-		{
-			audio.soundGUID = entry->AudioClips[0]; // For now just use the first clip in the group
-			audio.currentVolume = entry->volume;
-			audio.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
-			audio.minDistance = entry->minDistance;
-			audio.maxDistance = entry->maxDistance;
-			audio.volumeRollOff = entry->volumeRollOff;
-		}
+	//	auto& audio = FactoryInstance.GetGOByEntity((Entity)entity).GetComponent<AudioSource>();
+	//	audio.soundName = str;
 
-	}
+	//}
 
 
 #pragma endregion
@@ -2393,18 +2386,6 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
-	static void Camera_SetGamma(float gammaVal)
-	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		rm->SetSessionGamma(gammaVal);
-	}
-
-	static float Camera_GetGamma()
-	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		return rm->GetSessionGamma();
-	}
-	
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2421,10 +2402,52 @@ namespace SliceEngine
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
 		if (go.IsValid() && go.HasComponent<Camera>())
-		{
 			go.GetComponent<Camera>().impactPos = *target;
-		}
 	}
+
+	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor = *target;
+	}
+	static void Camera_SetImpactFrameColor2(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor2 = *target;
+	}
+	static void Camera_SetImpactFrameSmooth(unsigned int entityID, bool isSmooth)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactSmooth = isSmooth;
+	}
+	static void Camera_SetImpactFrameSpeed(unsigned int entityID, float speed)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactEpilepsy = speed;
+	}
+	static void Camera_SetImpactFrameSharpness(unsigned int entityID, float sharp)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise1 = sharp;
+	}
+	static void Camera_SetImpactFrameDensity(unsigned int entityID, float dense)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise2 = dense;
+	}
+	static void Camera_SetImpactBlend(unsigned int entityID, float blend)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactBlend = blend;
+	}
+
 
 #pragma endregion
 
@@ -3103,6 +3126,8 @@ namespace SliceEngine
 
 		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
 			comp->curr_frame = (float)value;
+			auto& sSpriteAnim = Core::GetInstance()->GetSystem<SpriteAnimationSystem>();
+			sSpriteAnim.EntityOnUpdate(registry, (entt::entity)entityID, 0);
 		}
 	}
 #pragma endregion
@@ -3228,11 +3253,11 @@ namespace SliceEngine
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Resources").generic_string();
+		std::string path = std::filesystem::path("Assets").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion
+#pragma endregion Application
 
 
 #pragma region COMPONENT REGISTRATION
@@ -3300,10 +3325,15 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
-		ADD_INTERNAL_CALL(Camera_SetGamma);
-		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor2);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSmooth);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
 
 		//Light
 		ADD_INTERNAL_CALL(Light_SetCastShadow);
@@ -3517,16 +3547,16 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
-		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_GetCollisionMask);
+		ADD_INTERNAL_CALL(LayerMask_ToMask);
 		ADD_INTERNAL_CALL(LayerMask_LayerToName);
 		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 
 		// Audio
 		ADD_INTERNAL_CALL(Audio_GetSoundName);
-		ADD_INTERNAL_CALL(Audio_SetSoundName);
+		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
-		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);

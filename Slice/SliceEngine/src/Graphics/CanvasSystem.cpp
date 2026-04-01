@@ -128,8 +128,8 @@ namespace SliceEngine {
 		auto view = core->GetRegistry().view<canvasEntity>();
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
-		empty.final_height = target_height; empty.final_width = target_width;
-		empty.width = 0; empty.height = 0;
+		empty.final_height = (float)target_height; empty.final_width = (float)target_width;
+		empty.width = 0.f; empty.height = 0.f;
 
 		world_space_ui.clear();
 		for (auto entity : view) {

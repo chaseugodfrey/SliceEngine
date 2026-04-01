@@ -56,5 +56,10 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetImpactFrameDensity(gameObject.mID, density);
         }
+        // in range: [0.f, 1.f]
+        public void SetImpactBlend(float blend)
+        {
+            FunctionCalls.Camera_SetImpactBlend(gameObject.mID, blend);
+        }
     }
 }

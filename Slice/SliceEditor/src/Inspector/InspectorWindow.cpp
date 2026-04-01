@@ -54,24 +54,25 @@ namespace SliceEditor
 
 		// check what type selected nodes are
 
-		auto type = selected_nodes.begin().operator*()->type;
+		auto lastSelectedNode = mRegistry.GetManager<SelectionManager>("Selection")->GetLastSelectedNode();
+		auto type = lastSelectedNode->type;
 
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			DisplayEntity(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			DisplayMaterial(static_cast<DirectoryNode*>(lastSelectedNode));
 			break;
 		case SelectionType::PREFAB_ENTITY:
-			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			DisplayPrefab(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::STATE:
-			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			DisplayState(static_cast<StateNode*>(lastSelectedNode));
 			break;
 		case SelectionType::TRANSITION:
-			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
+			DisplayTransition(static_cast<TransitionLinkNode*>(lastSelectedNode));
 			break;
 		}
 
@@ -376,21 +377,21 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::RectTransform::VertPivot>(mRegistry, "Vert Pivot", "##vertpivot", rect.vert_pivot, vert_enums);
 
 			if (rect.hori_pivot != SliceEngine::RectTransform::HoriPivot::STRETCH_H) {
-				DragIntInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "W: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Width", "##width", rect.width, "W: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "L: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "R: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Left", "##left", rect.left, "L: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Right", "##right", rect.right, "R: %.1f", -2000, 2000);	//some random ass min max
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -20000, 20000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -20000, 20000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Height", "##height", rect.height, "H: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Top", "##top", rect.top, "T: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %.1f", -2000, 2000);	//some random ass min max
 			}
 
 			DragFloatInputHeader(mRegistry, "Rotation", "##rect_rot", rect.final_rot, "R: %f", 0.f, 360.f);
@@ -556,6 +557,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Slider>(entity, false);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", slider.componentEnabled);
+			BoolInputHeader(mRegistry, "Contained", "##slidercontained", slider.contained);
 
 			static std::vector<std::string> axis_enums{ "X Axis", "Y Axis" };
 			static std::vector<std::string> direction_enums{ "Positive", "Negative" };
@@ -604,6 +606,7 @@ namespace SliceEditor
 					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
 					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					BoolInputHeader(mRegistry, "Enable Pathfinding", "##enablePathfinding", as.enablePathfinding);
 					SliderFloatInputHeader(mRegistry, "Direct Occlusion", "##directOcclusion", as.directOcclusion, "%.1f", 0.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Reverb Occlusion", "##reverbOcclusion", as.reverbOcclusion, "%.1f", 0.0, 1.0);
 					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
@@ -843,6 +846,7 @@ namespace SliceEditor
 				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
 				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Blend", "##cam_impact_blend", cam.impactBlend, "%.2f", 0.0f, 1.0f, 0.01f);
 			}
 
 			ImGui::Text("Vignette");
