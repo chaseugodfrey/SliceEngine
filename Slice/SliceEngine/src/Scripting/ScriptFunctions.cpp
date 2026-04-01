@@ -1893,6 +1893,11 @@ namespace SliceEngine
 		return false;
 	}
 
+	static void Audio_StopAllSound()
+	{
+
+	}
+
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
 		std::string cStrName = MonoToString(baseName);
@@ -2384,6 +2389,16 @@ namespace SliceEngine
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
 		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+	static void Camera_SetGamma(float gamma)
+	{
+		Core::GetInstance()->GetRenderManager()->SetSessionGamma(gamma);
+	}
+
+	static float Camera_GetGamma()
+	{
+		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
 	}
 
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
@@ -3325,6 +3340,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
@@ -3575,6 +3592,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_SetMute);
 		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_SetPan);
 		ADD_INTERNAL_CALL(Audio_GetPan);
 
