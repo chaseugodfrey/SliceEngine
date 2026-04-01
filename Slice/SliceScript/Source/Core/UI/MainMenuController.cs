@@ -33,8 +33,8 @@ namespace SliceEngine
                     borderAnim.menuCanvasObj = MainMenuCanvas;
                     borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
                     borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
+                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
+                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
                     borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
                     borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
                 }

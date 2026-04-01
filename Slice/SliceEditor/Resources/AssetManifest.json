@@ -476,14 +476,14 @@
             "path": "Resources/15950455196030294385.wav"
         },
         {
-            "guid": 12510399732508655228,
-            "name": "Audio/SwordHit_2.wav",
-            "path": "Resources/12510399732508655228.wav"
-        },
-        {
             "guid": 13197137705970457201,
             "name": "Prefabs/FX_TheBallSlam.prefab",
             "path": "Resources/13197137705970457201.prefab"
+        },
+        {
+            "guid": 12510399732508655228,
+            "name": "Audio/SwordHit_2.wav",
+            "path": "Resources/12510399732508655228.wav"
         },
         {
             "guid": 14341399050073251741,
@@ -529,6 +529,31 @@
             "guid": 17764223713568492510,
             "name": "CustomShader/Lazer.cshader",
             "path": "Resources/17764223713568492510.cshader"
+        },
+        {
+            "guid": 15112010388585052262,
+            "name": "Default/Player_m5.animpkg",
+            "path": "Resources/15112010388585052262.animpkg"
+        },
+        {
+            "guid": 12593769892585764841,
+            "name": "Dylan/Environment Assets/StartDam_R.fbx",
+            "path": "Resources/12593769892585764841.mdl"
+        },
+        {
+            "guid": 17628778401066775373,
+            "name": "Dylan/Environment Assets/StartRoof3.fbx",
+            "path": "Resources/17628778401066775373.mdl"
+        },
+        {
+            "guid": 10694405418857323670,
+            "name": "Default/AloyNewTest.scene",
+            "path": "Resources/10694405418857323670.scene"
+        },
+        {
+            "guid": 17449197240966554223,
+            "name": "Default/AloyNewTest.temp",
+            "path": "Resources/17449197240966554223.scene"
         },
         {
             "guid": 18018993670148045922,
@@ -824,21 +849,6 @@
             "guid": 17494253650054626361,
             "name": "Default/Player_m5.skl",
             "path": "Resources/17494253650054626361.skl"
-        },
-        {
-            "guid": 15112010388585052262,
-            "name": "Default/Player_m5.animpkg",
-            "path": "Resources/15112010388585052262.animpkg"
-        },
-        {
-            "guid": 12593769892585764841,
-            "name": "Dylan/Environment Assets/StartDam_R.fbx",
-            "path": "Resources/12593769892585764841.mdl"
-        },
-        {
-            "guid": 17628778401066775373,
-            "name": "Dylan/Environment Assets/StartRoof3.fbx",
-            "path": "Resources/17628778401066775373.mdl"
         },
         {
             "guid": 14545403704316716500,
@@ -2856,6 +2866,11 @@
             "path": "Resources/11471319866102529418.prefab"
         },
         {
+            "guid": 9747843802266912167,
+            "name": "Prefabs/MineSpawner.prefab",
+            "path": "Resources/9747843802266912167.prefab"
+        },
+        {
             "guid": 16188252959531465547,
             "name": "Prefabs/Arena Collider Part.prefab",
             "path": "Resources/16188252959531465547.prefab"
@@ -3071,6 +3086,16 @@
             "path": "Resources/14786321649691325524.prefab"
         },
         {
+            "guid": 11384763024330643729,
+            "name": "[97]Scenes/M5 Level 1_3.scene",
+            "path": "Resources/11384763024330643729.scene"
+        },
+        {
+            "guid": 12916616561579773969,
+            "name": "Prefabs/Landmine.prefab",
+            "path": "Resources/12916616561579773969.prefab"
+        },
+        {
             "guid": 18271418503383271121,
             "name": "Textures/Splash/FMOD Logo White - Transparent Background.png",
             "path": "Resources/18271418503383271121.dds"
@@ -3116,9 +3141,19 @@
             "path": "Resources/12854187215604683955.prefab"
         },
         {
-            "guid": 16481484577159867839,
-            "name": "Prefabs/MineSpawner.prefab",
-            "path": "Resources/16481484577159867839.prefab"
+            "guid": 14373421128133439871,
+            "name": "Prefabs/MineSpawnerNew_1.0.prefab",
+            "path": "Resources/14373421128133439871.prefab"
+        },
+        {
+            "guid": 17035423744017174956,
+            "name": "Shaders/skyboxGeneration_Vert.vert",
+            "path": "Resources/17035423744017174956.vert"
+        },
+        {
+            "guid": 15847644580948965436,
+            "name": "Prefabs/MineSpawner_1.prefab",
+            "path": "Resources/15847644580948965436.prefab"
         },
         {
             "guid": 10253740419631562308,
@@ -3391,11 +3426,6 @@
             "path": "Resources/11432798866923574641.shader"
         },
         {
-            "guid": 17035423744017174956,
-            "name": "Shaders/skyboxGeneration_Vert.vert",
-            "path": "Resources/17035423744017174956.vert"
-        },
-        {
             "guid": 15033367174215302921,
             "name": "Shaders/skyboxIrr_Frag.frag",
             "path": "Resources/15033367174215302921.frag"
@@ -3609,11 +3639,6 @@
             "guid": 11871406283999203421,
             "name": "[97]Scenes/M5 Level 1_2.temp",
             "path": "Resources/11871406283999203421.scene"
-        },
-        {
-            "guid": 11384763024330643729,
-            "name": "[97]Scenes/M5 Level 1_3.scene",
-            "path": "Resources/11384763024330643729.scene"
         },
         {
             "guid": 13642530319638561793,

@@ -14,25 +14,23 @@ namespace SliceEngine
         public GameObject settingsSliders;
         public GameObject closeSettingsButton;
         public GameObject menuCanvasObj;
-        public GameObject settingsBGAnim;
-        public GameObject settingsBG;
         public GameObject settingsContent;
 
         public GameObject audioSettingsPage;
         public GameObject graphicsSettingsPage;
 
-        public GameObject audioButton;
-        public GameObject graphicsButton;
+        public GameObject audioActive;
+        public GameObject audioLabel;
+        public GameObject graphicsActive;
+        public GameObject graphicsLabel;
         public GameObject returnToTitleButton;
 
         public GameObject miniTitleTextObj;
-        public GameObject miniTitleObject;
 
-        private Button audioBtnComp;
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
 
-        private Button graphicsBtnComp;
+
         private SpriteRenderer graphicsSprite;
         private FontRenderer graphicsFont;
 
@@ -66,20 +64,27 @@ namespace SliceEngine
                 miniTitleText = miniTitleTextObj.GetComponent<FontRenderer>();
             }
 
-            // --- New logic: Fetch components ---
-            if (audioButton != null)
-            {
-                audioBtnComp = audioButton.GetComponent<Button>();
-                audioSprite = audioButton.GetComponent<SpriteRenderer>();
-                // Assuming the FontRenderer is on the button itself or you can fetch it from a child
-                audioFont = audioButton.GetComponent<FontRenderer>();
+            
+            if (audioActive != null)
+            {   
+                audioSprite = audioActive.GetComponent<SpriteRenderer>();
+                
             }
 
-            if (graphicsButton != null)
+            if (graphicsActive != null)
             {
-                graphicsBtnComp = graphicsButton.GetComponent<Button>();
-                graphicsSprite = graphicsButton.GetComponent<SpriteRenderer>();
-                graphicsFont = graphicsButton.GetComponent<FontRenderer>();
+                graphicsSprite = graphicsActive.GetComponent<SpriteRenderer>();
+                
+            }
+
+            if (audioLabel != null)
+            {
+                audioFont = audioLabel.GetComponent<FontRenderer>();
+            }
+
+            if (graphicsLabel != null)
+            {
+                graphicsFont = graphicsLabel.GetComponent<FontRenderer>();
             }
         }
 
@@ -110,11 +115,8 @@ namespace SliceEngine
                 bool isFullyOpen = animationTimer >= 1.0f && isOpening;
 
                 // Manage visibility of elements
-                if (miniTitleObject != null) miniTitleObject.SetActive(isFullyOpen);
                 if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);
                 if (closeSettingsButton != null) closeSettingsButton.SetActive(isFullyOpen);
-                if (audioButton != null) audioButton.SetActive(isFullyOpen);
-                if (graphicsButton != null) graphicsButton.SetActive(isFullyOpen);
                 if (returnToTitleButton != null) returnToTitleButton.SetActive(isFullyOpen);
 
                 if (isFullyOpen)
@@ -147,13 +149,27 @@ namespace SliceEngine
         private void UpdateButtonVisuals()
         {
             // Update Audio Button
-            if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
-            if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
-            if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+            SliceLog.Log("isAudioPageSelected : " + isAudioPageSelected);
+            //if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
+            //if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+            //if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
 
             // Update Graphics Button
-            if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
-            if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+            //if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
+            //if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+            //if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+            if (audioSprite != null)
+            {
+                audioSprite.SetEnabled(isAudioPageSelected);
+                
+            }
+            if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+            if (graphicsSprite != null)
+            {
+                graphicsSprite.SetEnabled(!isAudioPageSelected);
+            }
             if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
         }
 
@@ -172,7 +188,7 @@ namespace SliceEngine
             isActive = true;
             this.gameObject.SetActive(true);
             
-            // If closing, ensure everything is hidden immediately or starts hiding
+            
             if (!opening)
             {
                 if (settingsContent != null) settingsContent.SetActive(false);
@@ -182,7 +198,7 @@ namespace SliceEngine
         public void SwitchToPage(bool isAudio)
         {
             isAudioPageSelected = isAudio;
-            
+
             // Apply immediately if already open
             if (animationTimer >= 1.0f && isOpening)
             {
