@@ -320,10 +320,10 @@ namespace SliceEngine
             private float count = 0f;
             private float timer = 0f;
 
-            public string projectilePrefabName = "Projectile";
+            public string projectilePrefabName = "BallProjectile";
             public string shootFXPrefabName = "FX_Firing1";
             public float projPerSecond = 4f;
-            public float bulletSpeed = 40f;
+            public float bulletSpeed = 60f;
             public Vector3 bulletScale = new Vector3(1);
             public int bulletDamage = 10;
             public float distanceBeforeDestroyBullet = 90f;

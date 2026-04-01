@@ -6,13 +6,21 @@ using System.Threading.Tasks;
 
 namespace SliceEngine
 {
-    public class TestButtonSlider : SliceBehaviour
+    public class TestMovingPlatform : SliceBehaviour
     {
-        public override void OnButtonHover()
-        {
-            SliceLog.Log("On Hover");
-        }
+        GameObject player;
 
+        public override void OnAwake()
+        {
+            player = gameObject.FindGameObjectWithName("PlayerNewFinal");
+        }
+        public override void OnCollideStay(uint other)
+        {
+            if (other == player.mID)
+            {
+                
+            }
+        }
 
     }
 }

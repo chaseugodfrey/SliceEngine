@@ -30,6 +30,8 @@ DigiPen Institute of Technology is prohibited.
 #include "../Input/ActionMapping.h"
 #include "Graphics/RenderManager.h"
 #include "../Systems/LayerManager.h"
+#include "../Systems/FramerateManager.h"
+#include "Graphics/SpriteAnimationSystem.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4002)
@@ -1553,11 +1555,18 @@ namespace SliceEngine
 
 #pragma region LAYERMASK FUNCTIONS
 
-	static uint32_t LayerMask_GetMask(MonoString* string)
+	static uint32_t LayerMask_GetCollisionMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
 
-		return Core::GetInstance()->GetLayerManager()->GetMask(name);
+		return Core::GetInstance()->GetLayerManager()->GetCollisionMask(name);
+	}
+
+	static uint32_t LayerMask_ToMask(MonoString* string)
+	{
+		std::string name = MonoToString(string);
+
+		return Core::GetInstance()->GetLayerManager()->ToMask(name);
 	}
 
 	static MonoString* LayerMask_LayerToName(uint32_t layer)
@@ -1705,17 +1714,12 @@ namespace SliceEngine
 		}
 	}
 
-	static void Audio_PlaySFX(MonoString* string, glm::vec3 position)
+	static void Audio_PlaySFX(MonoString* string, glm::vec3 position, uint32_t parentID)
 	{
 		std::string key = MonoToString(string);
-		if (position == glm::vec3(0.f))
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key);
-		}
-		else
-		{
-			Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position);
-		}
+		Entity parent = (parentID == 0) ? entt::null : static_cast<Entity>(parentID);
+
+		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
 	static void Audio_Stop(unsigned int entity)
@@ -1770,7 +1774,9 @@ namespace SliceEngine
 
 	static void Audio_SetMasterVolume(float volume)
 	{
-			Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
+
+
+		Core::GetInstance()->GetAudioManager()->SetMasterVolume(volume);
 	}
 
 	static float Audio_GetMasterVolume()
@@ -1885,6 +1891,11 @@ namespace SliceEngine
 	{
 		if (auto* audioComp = GetAudioComponent(entity)) return audioComp->isMute;
 		return false;
+	}
+
+	static void Audio_StopAllSound()
+	{
+
 	}
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
@@ -2043,7 +2054,7 @@ namespace SliceEngine
 			if (cStrName == "EnemyTest")
 			{
 				SLICE_LOG("Creating Enemy with ID " + static_cast<unsigned int>(newGO.GetEntity()));
-				//	std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
+				//	//std::cout << "Creating enemy with ID<" << static_cast<unsigned int>(newGO.GetEntity()) << ">\n";
 			}
 			return(unsigned int)newGO.GetEntity();
 		}
@@ -2338,7 +2349,7 @@ namespace SliceEngine
 
 	static void Skybox_SetLightingPower(float* target)
 	{
-		auto rm = SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
+		SliceEngine::Core::GetInstance()->GetRenderManager()->skyboxData.lightingPower = *target;
 	}
 	static void Skybox_SetZenithColor(glm::vec3* target)
 	{
@@ -2380,16 +2391,153 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
-	static void Camera_SetGamma(float gammaVal)
+	static void Camera_SetGamma(float gamma)
 	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		rm->SetSessionExposure(gammaVal);
+		Core::GetInstance()->GetRenderManager()->SetSessionGamma(gamma);
 	}
 
 	static float Camera_GetGamma()
 	{
-		auto* rm = Core::GetInstance()->GetRenderManager();
-		return rm->GetSessionExposure();
+		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
+	}
+
+	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+		{
+			if (isEnable)
+				go.GetComponent<Camera>().postRenderToggles |= RENDER_IMPACT;
+			else
+				go.GetComponent<Camera>().postRenderToggles &= ~RENDER_IMPACT;
+		}
+	}
+
+	static void Camera_SetImpactFrameWorldPosition(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactPos = *target;
+	}
+
+	static void Camera_SetImpactFrameColor1(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor = *target;
+	}
+	static void Camera_SetImpactFrameColor2(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactColor2 = *target;
+	}
+	static void Camera_SetImpactFrameSmooth(unsigned int entityID, bool isSmooth)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactSmooth = isSmooth;
+	}
+	static void Camera_SetImpactFrameSpeed(unsigned int entityID, float speed)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactEpilepsy = speed;
+	}
+	static void Camera_SetImpactFrameSharpness(unsigned int entityID, float sharp)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise1 = sharp;
+	}
+	static void Camera_SetImpactFrameDensity(unsigned int entityID, float dense)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactNoise2 = dense;
+	}
+	static void Camera_SetImpactBlend(unsigned int entityID, float blend)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().impactBlend = blend;
+	}
+
+
+#pragma endregion
+
+#pragma region LIGHT
+	static void Light_SetCastShadow(unsigned int entityID, bool target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().castsShadow = target;
+	}
+	static bool Light_GetCastShadow(uint32_t entityID)
+	{
+		bool ret = false;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().castsShadow;
+		return ret;
+	}
+
+	static void Light_SetColor(unsigned int entityID, glm::vec3* target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().color = *target;
+	}
+	static void Light_GetColor(uint32_t entityID, glm::vec3* color)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			*color = GO.GetComponent<Light>().color;
+	}
+
+	static void Light_SetIntensity(unsigned int entityID, float target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().intensity = target;
+	}
+	static float Light_GetIntensity(uint32_t entityID)
+	{
+		float ret = 0.0f;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().intensity;
+		return ret;
+	}
+
+	static void Light_SetAngle(unsigned int entityID, float target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().angle = std::clamp(target, -90.0f, 90.f);
+	}
+	static float Light_GetAngle(uint32_t entityID)
+	{
+		float ret = 0.0f;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = GO.GetComponent<Light>().angle;
+		return ret;
+	}
+
+	static void Light_SetLightType(unsigned int entityID, int target)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().type = static_cast<Light::LightType>(target);
+	}
+	static int Light_GetLightType(uint32_t entityID)
+	{
+		int ret = 0;
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (GO.HasComponent<Light>())
+			ret = static_cast<int>(GO.GetComponent<Light>().type);
+		return ret;
 	}
 
 #pragma endregion
@@ -2863,6 +3011,140 @@ namespace SliceEngine
 		auto& slider = registry.get<Slider>(e);
 		slider.SetValue(value, e);
 	}
+
+	static bool SpriteAnimator_GetPlaying(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->is_playing;
+		}
+
+		return false;
+		//this is ridiculous to be calling getgobyentity when u already have the entity id then call has component then get component
+	/*	GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<SpriteAnimator>())
+		{
+			auto& anim = GO.GetComponent<SpriteAnimator>();
+			return anim.is_playing;
+		}*/
+	}
+	static void SpriteAnimator_SetPlaying(uint32_t entityID, bool value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->is_playing = value;
+		}
+	}
+
+	static bool SpriteAnimator_GetLoop(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->loop;
+		}
+
+		return false;
+	}
+	static void SpriteAnimator_SetLoop(uint32_t entityID, bool value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->loop = value;
+		}
+	}
+
+	static unsigned int SpriteAnimator_GetRows(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->row;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetRows(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->row = (unsigned char)value;
+		}
+	}
+
+	static unsigned int SpriteAnimator_GetCols(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->col;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetCols(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->col = (unsigned char)value;
+		}
+	}
+	static unsigned int SpriteAnimator_GetFrameCnt(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->num_frames;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetFrameCnt(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->num_frames = (unsigned char)value;
+		}
+	}
+
+	static float SpriteAnimator_GetFPS(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return comp->fps;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetFPS(uint32_t entityID, float value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->fps = value;
+		}
+	}
+	static unsigned int SpriteAnimator_GetCurrFrame(uint32_t entityID) {
+
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			return (unsigned int)comp->curr_frame;
+		}
+
+		return 0;
+	}
+	static void SpriteAnimator_SetCurrFrame(uint32_t entityID, unsigned int value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->curr_frame = (float)value;
+			auto& sSpriteAnim = Core::GetInstance()->GetSystem<SpriteAnimationSystem>();
+			sSpriteAnim.EntityOnUpdate(registry, (entt::entity)entityID, 0);
+		}
+	}
 #pragma endregion
 
 #pragma region Material
@@ -2885,6 +3167,41 @@ namespace SliceEngine
 			auto& renderer = GO.GetComponent<Renderer>();
 			*castShadow = renderer.castShadow;
 		}
+	}
+
+	static bool Renderer_IsEnabled(unsigned int entity)
+	{
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+		if (!go.HasComponent<Renderer>())
+		{
+			SLICE_LOG_ERROR("Lol skill issue", entity);
+			return false;
+		}
+
+		auto& rend = go.GetComponent<Renderer>();
+		return rend.componentEnabled;
+	}
+
+	static void Renderer_SetEnabled(unsigned int entity, bool enabled)
+	{
+		auto& reg = SliceEngine::Core::GetInstance()->GetRegistry();
+		GameObject go = FactoryInstance.GetGOByEntity((Entity)entity);
+
+		if (go.HasComponent<Renderer>())
+		{
+			Entity _entity = go.GetEntity();
+
+			//using patch so that the event system can pick up the change
+			reg.patch<SliceEngine::Renderer>(_entity, [&](auto& rend)
+				{
+					rend.componentEnabled = enabled;
+				});
+		}
+		else
+		{
+			SLICE_LOG_ERROR("Lol skill issue", _entity);
+		}
+
 	}
 
 	static void Material_SetColor(uint32_t entityID, glm::vec4* color)
@@ -2928,16 +3245,34 @@ namespace SliceEngine
 		}
 	}
 #pragma endregion
+	
+#pragma region Time
+
+	static float Time_GetTimeScale()
+	{
+		return SliceEngine::Core::GetInstance()->GetSceneSystem()->GetTimeScale();
+	}
+
+	static void Time_SetTimeScale(float timeScale)
+	{
+		SliceEngine::Core::GetInstance()->GetSceneSystem()->SetTimeScale(timeScale);
+	}
+
+	static float Time_GetDeltaTimeUnscaled()
+	{
+		return SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime();
+	}
+#pragma endregion
 
 #pragma region Application
 
 	static MonoString* Application_GetFilePath()
 	{
-		std::string path = std::filesystem::path("Resources").generic_string();
+		std::string path = std::filesystem::path("Assets").generic_string();
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
-#pragma endregion
+#pragma endregion Application
 
 
 #pragma region COMPONENT REGISTRATION
@@ -2968,7 +3303,6 @@ namespace SliceEngine
 		// if we hotload and need to rerun the linking and reinit mono
 		// then we might need to clear the map before registering again
 		mGameObjectHasComponentFuncs.clear();
-		//// Only these 2 for now
 		RegisterComponent<Transform>();
 		RegisterComponent<Animator>();
 		RegisterComponent<ColliderShape>();
@@ -2978,8 +3312,12 @@ namespace SliceEngine
 		RegisterComponent<AudioSource>();
 		RegisterComponent<RectTransform>();
 		RegisterComponent<SpriteRenderer>();
+		RegisterComponent<SpriteAnimator>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
+		RegisterComponent<Camera>();
+		RegisterComponent<Light>();
+		RegisterComponent<ParticleSystem>();
 		//RegisterComponent<Animation>();
 		//RegisterComponent<StateMachine>();
 		//RegisterComponent<TextRenderer>();
@@ -2995,10 +3333,37 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Scene_LoadScene);
 		ADD_INTERNAL_CALL(Scene_UnloadCurrentScene);
 
+		// Time
+		ADD_INTERNAL_CALL(Time_GetDeltaTimeUnscaled);
+		ADD_INTERNAL_CALL(Time_SetTimeScale);
+		ADD_INTERNAL_CALL(Time_GetTimeScale);
+
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 		ADD_INTERNAL_CALL(Camera_SetGamma);
 		ADD_INTERNAL_CALL(Camera_GetGamma);
+		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor2);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSmooth);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSpeed);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameSharpness);
+		ADD_INTERNAL_CALL(Camera_SetImpactFrameDensity);
+		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
+
+		//Light
+		ADD_INTERNAL_CALL(Light_SetCastShadow);
+		ADD_INTERNAL_CALL(Light_GetCastShadow);
+		ADD_INTERNAL_CALL(Light_SetColor);
+		ADD_INTERNAL_CALL(Light_GetColor);
+		ADD_INTERNAL_CALL(Light_SetIntensity);
+		ADD_INTERNAL_CALL(Light_GetIntensity);
+		ADD_INTERNAL_CALL(Light_SetAngle);
+		ADD_INTERNAL_CALL(Light_GetAngle);
+		ADD_INTERNAL_CALL(Light_SetLightType);
+		ADD_INTERNAL_CALL(Light_GetLightType);
+
 
 		// Entity 
 		ADD_INTERNAL_CALL(Entity_HasComponent);
@@ -3199,7 +3564,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Physics_DrawRay);
 
 		//LayerMask
-		ADD_INTERNAL_CALL(LayerMask_GetMask);
+		ADD_INTERNAL_CALL(LayerMask_GetCollisionMask);
+		ADD_INTERNAL_CALL(LayerMask_ToMask);
 		ADD_INTERNAL_CALL(LayerMask_LayerToName);
 		ADD_INTERNAL_CALL(LayerMask_NameToLayer);
 
@@ -3226,6 +3592,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_SetMute);
 		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_SetPan);
 		ADD_INTERNAL_CALL(Audio_GetPan);
 
@@ -3309,8 +3676,29 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_SetColor);
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
+
+		ADD_INTERNAL_CALL(SpriteAnimator_GetPlaying);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetPlaying);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetLoop);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetLoop);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetRows);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetRows);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetCols);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetCols);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetFrameCnt);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetFrameCnt);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetFPS);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetFPS);
+		ADD_INTERNAL_CALL(SpriteAnimator_GetCurrFrame);
+		ADD_INTERNAL_CALL(SpriteAnimator_SetCurrFrame);
+
+
+
+		//Renderer
 		ADD_INTERNAL_CALL(Renderer_SetCastShadow);
 		ADD_INTERNAL_CALL(Renderer_GetCastShadow);
+		ADD_INTERNAL_CALL(Renderer_IsEnabled);
+		ADD_INTERNAL_CALL(Renderer_SetEnabled);
 
 		// Material
 		ADD_INTERNAL_CALL(Material_SetColor);

@@ -679,7 +679,12 @@ namespace SliceEditor
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
-			DragFloatInputHeader(mRegistry, "Render Distance", "##distance", camObj->camera.far, "%.3f", camObj->camera.near, FLT_MAX, 0.1f);
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", camObj->camera.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", camObj->camera.whiteBalance, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", camObj->camera.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", camObj->camera.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Luminance Rate", "##cam_luminanceLearningRate", camObj->camera.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 
 			bool isBloom = camObj->camera.postRenderToggles & SliceEngine::RENDER_TAG::RENDER_BLOOM;
 			ImGui::Text("Bloom");
@@ -690,7 +695,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", camObj->camera.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", camObj->camera.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", camObj->camera.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::EndPopup();

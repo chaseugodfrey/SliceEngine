@@ -131,38 +131,10 @@ namespace SliceEngine
                 keyMap[event.code] = newState;
             else
                 mouseMap[event.code] = newState;
-
-            //switch (event.state) // check which state the frame edge event is in
-            //{
-            //case KeyStates::HOLD:
-            //    newState = KeyStates::PRESSED;
-            //    break;
-            //case KeyStates::PRESSED:
-            //    newState = KeyStates::HOLD;
-            //    break;
-            //case KeyStates::RELEASE:
-            //    newState = KeyStates::RELEASED;
-            //    break;
-            //case KeyStates::RELEASED:
-            //    newState = KeyStates::NONE;
-            //    break;
-            //default:
-            //    newState = KeyStates::NONE;
-            //    break;
-            //}
-            //// update the key/mouse map with the new state
-            //if (event.isKey)
-            //    keyMap[event.code] = newState;
-            //else
-            //    mouseMap[event.code] = newState;
         }
 
         // swap the queues so changedQueue now has only the frame edges for next frame
         changedQueue.swap(nextFrameEdges);
-        //std::cout << changedQueue.size() << std::endl;
-        //mouseDelta = prevMousePos - currMousePos;
-        //prevMousePos = currMousePos;
-        //scrollDelta = 0.0f;
     }
 
     void InputSystem::UpdateCursorData()
@@ -194,7 +166,9 @@ namespace SliceEngine
             // handle change of cursor state case for prev state being disabled
             if (prevCursorState != CursorState::DISABLED)
             {
-
+                
+                // need to test this
+				// glfwSetCursorPos(windowRef, windowDim.x * 0.5f, windowDim.y * 0.5f);
             }
 
             else
@@ -386,11 +360,6 @@ namespace SliceEngine
     }
 
     CursorState InputSystem::GetCurrCursorState() const
-    {
-        return currentCursorState;
-    }
-
-    CursorState InputSystem::GetPrevCursorState() const
     {
         return currentCursorState;
     }

@@ -1,0 +1,94 @@
+{
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node36"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node44"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node96"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "0"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "0"
+            ]
+        },
+        "GetA": {
+            "Node96": [
+                "0"
+            ]
+        },
+        "Multiply": {
+            "Node134": [
+                "Speed",
+                "Node138"
+            ],
+            "Node146": [
+                "VEnd",
+                "Node134"
+            ],
+            "Node36": [
+                "color",
+                "Node108"
+            ],
+            "Node40": [
+                "Node117",
+                "color2"
+            ],
+            "Node44": [
+                "Node40",
+                "EmissionMult"
+            ]
+        },
+        "Sine": {
+            "Node138": [
+                "time"
+            ]
+        },
+        "sampleTextureOffset": {
+            "Node108": [
+                "albedo",
+                "UStart",
+                "UEnd",
+                "VStart",
+                "Node146"
+            ],
+            "Node117": [
+                "EmissionMap",
+                "UStart",
+                "UEnd",
+                "VStart",
+                "Node146"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "EmissionMult": 1.0,
+            "Speed": 0.20000000298023224,
+            "UEnd": 1.0,
+            "UStart": 0.0,
+            "VEnd": 1.0,
+            "VStart": 0.0
+        },
+        "Ints": {},
+        "Textures": {
+            "EmissionMap": 15644028420850910905,
+            "albedo": 11697903386653029786
+        },
+        "Uints": {}
+    }
+}

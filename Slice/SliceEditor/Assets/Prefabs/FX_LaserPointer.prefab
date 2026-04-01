@@ -1,0 +1,113 @@
+[
+    {
+        "FX_LaserPointer": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "9296099836462161293",
+                "prefabHandle": {
+                    "GUID": "9296099836462161293"
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048584,
+                "neighbours": [
+                    4294967295,
+                    1048583,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "FX_LaserPointer",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "LaserPointer": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "9296099836462161293",
+                "prefabHandle": {
+                    "GUID": "9296099836462161293"
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": false,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "17081988023694304057"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048583,
+                "neighbours": [
+                    1048584,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "LaserPointer",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    50.0
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    0.7071067690849304,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    100.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

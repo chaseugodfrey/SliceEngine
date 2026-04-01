@@ -49,7 +49,7 @@ namespace SliceEngine
 			}
 		}
 
-		std::cout << "Entity entering sound system" << std::endl;
+		//std::cout << "Entity entering sound system" << std::endl;
 	}
 
 	void AudioSourceSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -70,7 +70,7 @@ namespace SliceEngine
 			audioComp.previewChannel = nullptr;
 		}
 
-		std::cout << "Entity exiting sound system" << std::endl;
+		//std::cout << "Entity exiting sound system" << std::endl;
 	}
 
 	void AudioSourceSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
@@ -97,6 +97,12 @@ namespace SliceEngine
 			if (res != FMOD_OK || !isPlaying)
 			{
 				audioComp.channel = nullptr;
+
+				if (audioComp.destroyOnEnd)
+				{
+					FactoryInstance.Destroy(entity);
+					return; // Entity destroyed, skip further updates
+				}
 			}
 		}
 
@@ -122,7 +128,7 @@ namespace SliceEngine
 				audioManager->Get3DListenerAttributes(listenerPos, lVel, lForward, lUp);
 
 				// Calculate the actual distance between the listener and this audio source
-				float distance = glm::distance(listenerPos, audioWorldPos);
+				//float distance = glm::distance(listenerPos, audioWorldPos);
 
 				// Debug Log: Check if this value is changing as you move
 				//SLICE_LOG("Distance to Sound: " + std::to_string(distance));
@@ -212,25 +218,27 @@ namespace SliceEngine
 	{
 		
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 worldPos = transform.GetWorldPosition();
 		glm::vec3 velocity(0.f);
 
+		// Use the same convention as RenderManager::GetCameraAxis
+		// Forward = col 0 (X), Up = col 1 (Y), Right = col 2 (Z)
 		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
 		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
 		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));
 
 		
-		auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
-		if (cameraOpt.has_value() && cameraOpt.value() == entity)
+		//auto& cameraOpt = Core::GetInstance()->GetRenderManager()->GetGameCamera();
+		/*if (cameraOpt.has_value() && cameraOpt.value() == entity)
 		{
 			
 			GameObject cameraObj = FactoryInstance.GetGOByEntity(entity);
 			Core::GetInstance()->GetRenderManager()->GetCameraAxis(cameraObj, forward, right, up);
-		}
+		}*/
 
 		audioManager->SetListenerAttributes(worldPos, velocity, forward, up);
 
@@ -244,12 +252,14 @@ namespace SliceEngine
 	void AudioListenerSystem::EntityOnUpdate(entt::registry& reg, entt::entity entity, float dt)
 	{
 		auto audioManager = Core::GetInstance()->GetAudioManager();
-		auto renderManager = Core::GetInstance()->GetRenderManager();
+		//auto renderManager = Core::GetInstance()->GetRenderManager();
 
 		auto& transform = reg.get<Transform>(entity);
 		glm::vec3 worldPos = transform.GetWorldPosition();
 		glm::vec3 velocity(0.f);
 
+		// Use the same convention as RenderManager::GetCameraAxis
+		// Forward = col 0 (X), Up = col 1 (Y), Right = col 2 (Z)
 		glm::vec3 forward = glm::normalize(glm::vec3(transform.transform[2]));
 		glm::vec3 up = glm::normalize(glm::vec3(transform.transform[1]));
 		glm::vec3 right = glm::normalize(glm::vec3(transform.transform[0]));

@@ -64,7 +64,7 @@ namespace SliceEngine
 		else 
 		{
             std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-			std::cout << "No function registered for ID: " << cmdName << std::endl;
+			//std::cout << "No function registered for ID: " << cmdName << std::endl;
 		}
 		
         return 0;
@@ -78,7 +78,7 @@ namespace SliceEngine
 		}
 		else
 		{
-			std::cout << "No function registered for ID: " << cmdName << std::endl;
+			//std::cout << "No function registered for ID: " << cmdName << std::endl;
 		}
 	}*/
 
@@ -168,7 +168,7 @@ namespace SliceEngine
         inet_ntop(AF_INET, &(cAddr.sin_addr), serverIPAddr, INET_ADDRSTRLEN);
         getnameinfo(info->ai_addr, static_cast <socklen_t> (info->ai_addrlen), serverIPAddr, sizeof(serverIPAddr), nullptr, 0, NI_NUMERICHOST);
 
-        std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
+        //std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
 
 
         // REGISTER ID HERE
@@ -185,7 +185,7 @@ namespace SliceEngine
          
         if (player2)
         {
-            std::cout << "sending req....\n";
+            //std::cout << "sending req....\n";
 
             sockaddr_in player1Dest{};
             player1Dest.sin_family = AF_INET;		//ipv4
@@ -276,7 +276,7 @@ namespace SliceEngine
             if (inID == cmdIDs.GetID("N_REQ_CONNECT"))
             {
                 std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-                std::cout << "REQ received....\n";
+                //std::cout << "REQ received....\n";
                 Packet pkt{};
                 pkt << cmdIDs.GetID("N_RSP_CONNECT");
                 pkt << static_cast<uint64_t>(entityView.size());
@@ -300,7 +300,7 @@ namespace SliceEngine
             if (inID == cmdIDs.GetID("N_RSP_CONNECT"))
             {
                 std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-                std::cout << "connected " << std::endl;
+                //std::cout << "connected " << std::endl;
                 uint64_t numOfGOs{};
                 recvPkt >> numOfGOs;
 
@@ -467,10 +467,10 @@ namespace SliceEngine
 
                 auto entityView = reg.view<SliceEntity>();
                 //std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-                //std::cout << " entities size: " << entityView.size() << std::endl;
+                ////std::cout << " entities size: " << entityView.size() << std::endl;
                 for (auto entity : entityView)
                 {
-                    //std::cout << mEntityToGO[entity].GetName() << std::endl;
+                    ////std::cout << mEntityToGO[entity].GetName() << std::endl;
                     Packet pkt{};
                     pkt << cmdIDs.GetID("N_TIME_UPDATE");
                     pkt << static_cast<uint8_t>(client);
@@ -551,7 +551,7 @@ namespace SliceEngine
     void NetworkSystem::Init()
     {
 
-        //std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
+        ////std::cout << "Server is listening on port " << portNumber << " ip " << serverIPAddr << " Player: " << clientNumber << " ...\n";
 
 
         // REGISTER ID HERE
@@ -667,7 +667,7 @@ namespace SliceEngine
         data.port = event.port;
         
 
-        std::cout << "Server is listening on port " << event.port << " ip " << serverIPAddr << " Player: " << " ...\n";
+        //std::cout << "Server is listening on port " << event.port << " ip " << serverIPAddr << " Player: " << " ...\n";
 
         // split the threads
         //std::thread recv_thread(NetworkingThread::ReceiveThread, soc);
@@ -697,7 +697,7 @@ namespace SliceEngine
         pkt << cmdIDs.GetID("N_REQ_CONNECT");
 
         std::lock_guard<std::mutex> usersLock{ _stdoutMutex };
-        std::cout << "sending to " << event.ip << " " << event.port << std::endl;
+        //std::cout << "sending to " << event.ip << " " << event.port << std::endl;
 
         NetworkingThread::SendTo(data.soc, pkt, player1Dest);
         data.client = true;

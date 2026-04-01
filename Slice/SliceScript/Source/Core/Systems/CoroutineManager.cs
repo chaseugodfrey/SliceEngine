@@ -86,6 +86,17 @@ namespace SliceEngine
                     c.isActive = false;
         }
 
+        public static void OnEnd()
+        {
+            foreach (var c in coroutines)
+                c.isActive = false;
+
+            foreach (var c in newCoroutines)
+                c.isActive = false;
+
+            coroutines.Clear();
+            newCoroutines.Clear();
+        }
         public static void OnCreate()
         {
             coroutines.Clear();

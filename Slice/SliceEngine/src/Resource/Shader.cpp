@@ -253,6 +253,15 @@ namespace SliceEngine
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
 			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
+			{"extractNom", R"(vec3 extractNom(vec2 v){
+	float z = sqrt(1.0 - clamp(v.x * v.x + v.y * v.y, 0.0, 1.0));
+    vec3 actlNom = normalize(vec3(v.x, v.y, z));
+	return normalize(TBN * (actlNom * 2.0f - 1.0f));
+})"},
+			{"OffsetTexture", R"(vec4 OffsetTexture(sampler2D tex, float uStart, float uEnd, float vStart, float vEnd) {
+	vec2 mapUV = mix(vec2(uStart, vStart), vec2(uEnd, vEnd), vUV);
+	return texture(tex, mapUV);
+})"},
 			{"SetV4F", R"(vec4 SetV4F(vec4 inv, float val, int n){
 switch(n){
 	case 0: return vec4(val, inv.gba);
@@ -274,7 +283,7 @@ uint Hash_Tchou_2_1_uint(uvec2 v)
 float Hash_Tchou_2_1_float(vec2 i)
 {
 	
-	uvec2 v = (uvec2) (ivec2) round(i);
+	uvec2 v = uvec2(round(i));
 	uint r = Hash_Tchou_2_1_uint(v);
 	return (r >> 8) * (1.0 / float(0x00ffffff));
 }
@@ -288,13 +297,13 @@ float GradientNoise_Deterministic(vec2 uv, vec3 scale)
 {
 	vec2 p = uv * scale.xy;
 	vec2 ip = floor(p);
-	vec2 fp = frac(p);
+	vec2 fp = fract(p);
 	float d00 = dot(GradientNoise_Deterministic_Float(ip), fp);
 	float d01 = dot(GradientNoise_Deterministic_Float(ip + vec2(0, 1)), fp - vec2(0, 1));
 	float d10 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 0)), fp - vec2(1, 0));
 	float d11 = dot(GradientNoise_Deterministic_Float(ip + vec2(1, 1)), fp - vec2(1, 1));
 	fp = fp * fp * fp * (fp * (fp * 6 - 15) + 10);
-	return lerp(lerp(d00, d01, fp.y), lerp(d10, d11, fp.y), fp.x) + 0.5;
+	return mix(mix(d00, d01, fp.y), mix(d10, d11, fp.y), fp.x) + 0.5;
 })"},
 			{"Voronoi_Deterministic", R"(
 uvec2 Hash_Tchou_2_2_uint(uvec2 v)
@@ -309,7 +318,7 @@ uvec2 Hash_Tchou_2_2_uint(uvec2 v)
 }
 void Hash_Tchou_2_2_float(vec2 i, out vec2 o)
 {
-    uvec2 v = (uvec2) (ivec2) round (i);
+    uvec2 v = uvec2(ivec2 (round(i)));
     uvec2 r = Hash_Tchou_2_2_uint(v);
     o = (r >> 8) * (1.0 / float (0x00ffffff));
 }
@@ -323,7 +332,7 @@ vec2 Voronoi_Deterministic_float(vec2 uv, float offset)
 float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 {
 	vec2 g = floor(uv * cellDensity);
-	vec2 f = frac(uv * cellDensity);
+	vec2 f = fract(uv * cellDensity);
 	float t = 8.0;
 	vec3 res = vec3(8.0, 0.0, 0.0);
 
@@ -353,7 +362,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"END_COLOR", {"finalCol = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC4}}},
 			{"END_ROUGHNESS", {"finalRoughness = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
 			{"END_METALLIC", {"finalMetallic = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::FLOAT}}},
-			{"END_NORMAL", {"finalNormal = normalize(TBN * (%s * 2.0f - 1.0f));", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
+			{"END_NORMAL", {"finalNormal = extractNom(%s);", "extractNom", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC2}}},
 			{"END_EMISSION", {"finalEmission = %s;", "", ShaderGraphFunc_T::IMMUTABLE, CSHAD_T::NIL, {CSHAD_T::VEC3}}},
 
 			{"Vec4_f", {"vec4 %s = vec4(%s, %s, %s, %s);", "", ShaderGraphFunc_T::VECTOR_MANIP, CSHAD_T::VEC4, {CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
@@ -381,6 +390,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"SmoothStep_f", {"float %s = smoothstep(%s, %s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
 			{"sampleTexture", {"vec4 %s = texture(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::VEC2}}},
+			{"sampleTextureOffset", {"vec4 %s = OffsetTexture(%s, %s, %s, %s, %s);", "OffsetTexture", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::FLOAT,  CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
 			{"fRand_Vec2", {"float %s = frand_vec2(%s);", "frand_Vec2", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2}}},
 			{"Tiling_And_Offset_Vec2", {"vec2 %s = %s * %s + %s;", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC2, {CSHAD_T::VEC2, CSHAD_T::VEC2}}},
 			{"Gradient_Noise_f", {"float %s = GradientNoise_Deterministic(%s, %s);", "GradientNoise_Deterministic", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::VEC2, CSHAD_T::VEC3}}}
@@ -586,7 +596,7 @@ layout (location=4) in mat3 TBN;
 
 layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT color buffer
 layout (location=1) out uint fGID;
-layout (location=2) out vec3 fEmission;
+layout (location=2) out vec4 fEmission;
 
 struct Light{
 	vec3 position;
@@ -594,6 +604,11 @@ struct Light{
 	vec3 direction;
 	int type;
 	vec4 color; // rgb + intensity
+	int hasShadow;
+	int shadowNum;
+	int spotShadowNum;
+	float pointAngle;
+	mat4 VP;
 };
 
 layout (std140, binding = 0) uniform lightSpaceBlock
@@ -602,7 +617,8 @@ layout (std140, binding = 0) uniform lightSpaceBlock
 };
 layout (std140, binding = 1) uniform lights
 {
-	Light uLight[121];
+	Light uDirectionLight;
+	Light uLight[150];
 };
 
 layout (binding = 2) uniform samplerCube uSkyboxTex;
@@ -612,21 +628,21 @@ layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap;
 const float PI = 3.14159265358979323846;
 const float EPSILON = 0.000001;
 // -TODO- Temporary material values
-const float ambient = 0.01;
 const float biasModifier = 0.5f;
 const int isDirectional = 0;
 const int isPoint 		= 1;
 const int isSpot 		= 2;
-const int maxLights = 10;
 
 uniform mat4 V;
 uniform int numLights;
+uniform int hasDirectionalLight;
 uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
 uniform int translucentIDOnly;
 uniform float translucentSelectThreshold;
 uniform float skyboxLightingPower = 1.0f;
 uniform bool willBloom = false;
+uniform vec3 uCamPos;
 
 )"};
 			std::string fragStart{
@@ -715,7 +731,8 @@ void main(void){
 			std::string translucentFragEnd{
 R"(
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
-float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights);
+float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx);
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx);
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
 vec3 GetRandDir(vec3 seed);
 
@@ -746,7 +763,7 @@ void main(void){
     if(translucentIDOnly == 1)
 		return;
 	
-	fEmission = emission;    
+	fEmission = vec4(emission, fFragColor.a);    
 
     vec4 dif = fFragColor;
    
@@ -760,57 +777,72 @@ void main(void){
         // Copies lighting_Frag code
 		vec3 v = normalize(-vPos);
 		
-		int numDirectionalLight = 0;
-		for(int lightCnt = 0; lightCnt < numLights; ++lightCnt)
+		if(hasDirectionalLight != 0)
+		{
+	    	vec4 fragViewSpace = V * vec4(vPos, 1.0f);
+	    	float depthVal = abs(fragViewSpace.z);
+	    	int layer = -1;
+	    	for(int i = 0; i < cascadeCnt; ++i)
+	    	{
+	    		if(depthVal <= cascadePlaneDist[i])
+	    		{
+	    			layer = i;
+	    			break;
+	    		}
+	    	}
+	    	if(layer == -1)
+	    		layer = cascadeCnt - 1;
+
+	    	vec4 vLightPos = lightSpaceMtx[layer] * vec4(vPos, 1.0f);
+	    	vec3 projCoords = vLightPos.xyz / vLightPos.w;
+	    	projCoords = projCoords * 0.5f + 0.5f;
+
+	    	vec3 finalLighting = vec3(0.0f); // if blocked by shadow
+
+			vec3 l = normalize(-uDirectionLight.direction);// Surface to Light
+			float shadow = uDirectionLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
+			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uDirectionLight.color.rgb * uDirectionLight.color.a, l, dif.rgb, roughness, metallic);
+			fFragColor += vec4(finalLighting, 0.0f);
+		}
+		for(int lightIdx = 0; lightIdx < numLights; ++lightIdx)
         {
-	    	if(uLight[lightCnt].type == isDirectional)
-	    	{
-                if(numDirectionalLight > 0)
-                    continue; // -TODO- Only support 1 directional light for now
-	    		vec4 fragViewSpace = V * vec4(vPos, 1.0f);
-	    		float depthVal = abs(fragViewSpace.z);
-	    		int layer = -1;
-	    		for(int i = 0; i < cascadeCnt; ++i)
-	    		{
-	    			if(depthVal <= cascadePlaneDist[i])
-	    			{
-	    				layer = i;
-	    				break;
-	    			}
-	    		}
-	    		if(layer == -1)
-	    		{
-	    			layer = cascadeCnt - 1;
-	    		}
+    		if(uLight[lightIdx].type == isPoint)
+    		{
+				vec3 l = uLight[lightIdx].position - uCamPos - vPos; // Surface to Light
+				float dist = max(length(l), 0.001);
+				vec4 lightCol = uLight[lightIdx].color;
+				lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
 
-	    		vec4 vLightPos = lightSpaceMtx[layer] * vec4(vPos, 1.0f);
-	    		vec3 projCoords = vLightPos.xyz / vLightPos.w;
-	    		projCoords = projCoords * 0.5f + 0.5f;
+				float shadow = uLight[lightIdx].hasShadow * getShadowCubeMulti(nom, l, length(vPos), dist, lightIdx);
+				l = l / dist;
+				fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic)), 0.0f);
+    		}
+			else if(uLight[lightIdx].type == isSpot)
+			{
+				vec3 l = uLight[lightIdx].position - uCamPos - vPos;
+    			float dist = max(length(l), 0.001);
+    			vec3 L = l / dist;
+    			vec3 lightDir = normalize(uLight[lightIdx].direction); // Spotlight's forward direction
+    			vec3 fragToLight = -L;
 
-	    		vec3 finalLighting = dif.rgb * ambient; // if blocked by shadow
+				float theta = dot(lightDir, fragToLight);
+    			float cutOff = cos(float(uLight[lightIdx].pointAngle) / 2.0);
 
-	    		vec3 l = normalize(-uLight[lightCnt].direction);// Surface to Light
-	    		float shadow = getShadowMulti(nom, l, projCoords, layer);
-	    		finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uLight[lightCnt].color.rgb * uLight[lightCnt].color.a, l, dif.rgb, roughness, metallic);
-	    		fFragColor += vec4(finalLighting, 0.0f);
-                ++numDirectionalLight;
-	    	}
-	    	else if(uLight[lightCnt].type == isPoint)
-	    	{
-	    		vec3 l = uLight[lightCnt].position - vPos; // Surface to Light
-	    		float dist = length(l);
-	    		vec4 lightCol = uLight[lightCnt].color;
-	    		lightCol.a /= (dist * dist); // Intensity is normalized, so scale up by 100?
+				float epsilon = 0.05;
+    			float intensity = clamp((theta - cutOff) / epsilon, 0.0, 1.0);
 
-	    		float shadow = getShadowCubeMulti(nom, l, length(vPos), dist, lightCnt, numDirectionalLight);
-	    		l = l / dist;
-	    		fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughness, metallic)), 0.0f);
-	    	}
+				if (intensity > 0.0) {
+					vec4 lightCol = uLight[lightIdx].color;
+					lightCol.a = lightCol.a / (dist * dist) * intensity;
 
+					float shadow = uLight[lightIdx].hasShadow * getShadowSideMulti(nom, l, dist, lightIdx);
+					fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, L, dif.rgb, roughness, metallic)), 0.0f);
+    			}
+			}
         }
 	}
-	if(!willBloom)
-		fFragColor += vec4(fEmission, 0.0f);
+	//if(!willBloom)
+		fFragColor += vec4(fEmission.rgb, 0.0f);
 }
 
 
@@ -843,7 +875,7 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 	float vDotH = clamp(dot(v, h), 0.0, 1.0);
 	float nDotL = clamp(dot(n, l), 0.0, 1.0);
 	float nDotV = abs(dot(n, v)) + 1e-5;
-	
+
 	vec3 F = SchlickFresnel(vDotH, dif, metal);
 	vec3 kD = 1.0 - F;
 	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
@@ -890,11 +922,12 @@ vec3 gridSamplingDisk[20] = vec3[]
    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
 
-float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx, int numDirLights)
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx)
 {
 	vec3 fragToLight = -l;
+	vec3 L = normalize(l);
 
-	float bias = max(0.005 * (1.0 - dot(n, l)), 0.0005);
+	float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
 	float diskRadius = (1.0 + (viewDist / 20.0)) / 25.0;
 	
 	int samples = 20;
@@ -906,12 +939,61 @@ float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightId
 	{
 		vec3 offset = reflect(gridSamplingDisk[i], normalize(noise));
 
-		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(lightIdx - numDirLights))).r;
+		float closestDepth = texture(uShadowCubeMap, vec4(fragToLight + offset * diskRadius, float(uLight[lightIdx].shadowNum))).r;
 		closestDepth *= uLight[lightIdx].uFarPlane;
 		if(dist - bias > closestDepth)
 			shadow += 1.0;
 	}
 	return shadow /= float(samples);
+}
+
+vec3 UVToCubeDir(vec2 uv, int face) 
+{
+    vec2 c = uv * 2.0 - 1.0;
+    if (face == 0) return vec3(1.0, -c.y, -c.x);       // +X
+    if (face == 1) return vec3(-1.0, -c.y, c.x);       // -X
+    if (face == 2) return vec3(c.x, 1.0, c.y);         // +Y
+    if (face == 3) return vec3(c.x, -1.0, -c.y);       // -Y
+    if (face == 4) return vec3(c.x, -c.y, 1.0);        // +Z
+    return vec3(-c.x, -c.y, -1.0);                     // -Z
+}
+
+float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx)
+{
+    vec3 L = normalize(l); 
+    
+    vec4 vLightPos = uLight[lightIdx].VP * vec4(-l, 1.0);
+    
+    if (vLightPos.w <= 0.0) return 1.0; 
+    
+    vec3 projCoords = vLightPos.xyz / vLightPos.w;
+    projCoords = projCoords * 0.5 + 0.5;
+
+    if(projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
+        return 1.0; 
+
+    float currentDepth = dist / uLight[lightIdx].uFarPlane; 
+    
+    float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
+    float shadow = 0.0;
+    
+    vec2 texelSize = 1.0 / vec2(textureSize(uShadowCubeMap, 0).xy); 
+    float layer = float(uLight[lightIdx].shadowNum); 
+    int face = uLight[lightIdx].spotShadowNum;
+
+    for(int x = -1; x <= 1; ++x)
+    {
+        for(int y = -1; y <= 1; ++y)
+        {
+            vec2 offsetUV = projCoords.xy + vec2(x,y) * texelSize;
+            vec3 cubeDir = UVToCubeDir(offsetUV, face);
+            
+            float pcfDepth = texture(uShadowCubeMap, vec4(cubeDir, layer)).r;
+            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+        }
+    }
+
+    return shadow / 9.0;
 }
 
 vec3 GetRandDir(vec3 seed)

@@ -5,8 +5,6 @@ layout (binding = 0) uniform sampler2D tex2d;
 uniform vec4 rgba;			//from sprite renderer
 uniform float relative_scale = 100.0;
 
-
-
 layout (location=0)	out vec4			fFragColor; // location 0 is color buffer
 
 
@@ -33,4 +31,6 @@ void main(void){
 	if(fFragColor.a <= 0.0) {
 		discard;
 	}
+	//not sure if make sense for fonts to have gamma, will check ltr
+	//fFragColor.rgb = pow(fFragColor.rgb, gamma); // Gamma Correction
 }

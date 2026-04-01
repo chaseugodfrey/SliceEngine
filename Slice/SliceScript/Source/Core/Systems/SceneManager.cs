@@ -53,6 +53,7 @@ namespace SliceEngine
             else
             {
                 // Fallback: If no transition object exists, load immediately
+                FunctionCalls.Audio_StopAllSound();
                 FunctionCalls.Scene_LoadScene(name);
             }
 
@@ -116,6 +117,8 @@ namespace SliceEngine
                 yield return null;
             }
             SetRectAlpha(1.0f); // Ensure fully black
+
+            CoroutineManager.StopAllCoroutines(_transitionRunner);
 
             // Now that screen is black, load the next scene
             FunctionCalls.Scene_LoadScene(sceneName);
