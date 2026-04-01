@@ -301,7 +301,7 @@ namespace SliceEngine {
 
 				if (auto* gamma_override = mRegistry->try_get<SpriteRendererGammaOverride>(element.first)) {
 					if(gamma_override->componentEnabled)
-						glUniform1f(uniform_loc, gamma_override->gamma);
+						glUniform1f(uniform_loc, gamma_override->gamma / 100.f);
 					else
 						glUniform1f(uniform_loc, cam_gamma);
 				}
