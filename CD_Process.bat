@@ -16,6 +16,21 @@ if not exist "!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe" (
 set "MSBUILD_EXE="!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe""
 
 :: -----------------------------------------------------------------------------
+:: 1.5 BUILD ENGINE PREREQUISITES
+:: -----------------------------------------------------------------------------
+echo --- Building Engine Prerequisites (SliceEngine.lib) ---
+pushd Slice
+:: Ensure project files are generated for the engine
+call PremakeProj.bat
+if %ERRORLEVEL% neq 0 (echo ERROR: Premake Slice failed! & exit /b %ERRORLEVEL%)
+
+echo Building Slice Engine (EditorRelease)...
+:: Build the engine in EditorRelease mode to generate the required .lib files
+%MSBUILD_EXE% Slice.sln /p:Configuration=EditorRelease /p:Platform=x64 /t:Build /m /v:m
+if %ERRORLEVEL% neq 0 (echo ERROR: Slice Engine build failed! & exit /b %ERRORLEVEL%)
+popd
+
+:: -----------------------------------------------------------------------------
 :: 2. BUILD USER-FACING VERSION (WeightOfTheSky Release)
 :: -----------------------------------------------------------------------------
 echo --- Building User-Facing (Release) Solution ---
