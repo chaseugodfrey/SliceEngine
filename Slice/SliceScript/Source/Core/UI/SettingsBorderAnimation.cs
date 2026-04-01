@@ -28,9 +28,24 @@ namespace SliceEngine
         public GameObject miniTitleTextObj;
         public GameObject miniTitleObject;
 
+        private Button audioBtnComp;
+        private SpriteRenderer audioSprite;
+        private FontRenderer audioFont;
+
+        private Button graphicsBtnComp;
+        private SpriteRenderer graphicsSprite;
+        private FontRenderer graphicsFont;
+
         private RectTransform frontBgTrans;
         private FontRenderer miniTitleText;
-        
+
+        private Vector4 highlightSpriteColor = new Vector4(151f / 255f, 63f / 255f, 0f, 0f);
+        private Vector4 highlightFontColor = new Vector4(68f / 255f, 51f / 255f, 20f / 255f, 1f);
+
+
+        private Vector4 defaultSpriteColor = new Vector4(1f, 1f, 1f, 1f);
+        private Vector4 defaultFontColor = new Vector4(1f, 1f, 1f, 1f);
+
         public int defaultHeight = 0;
         public int finalHeight = 0;
         
@@ -44,16 +59,31 @@ namespace SliceEngine
         public override void OnCreate()
         {
             if (settingsFrontBG != null) frontBgTrans = settingsFrontBG.GetComponent<RectTransform>();
-
             if (settingsSliders != null) settingsSliders.SetActive(false);
-
-            
 
             if (miniTitleTextObj != null)
             {
                 miniTitleText = miniTitleTextObj.GetComponent<FontRenderer>();
             }
+
+            // --- New logic: Fetch components ---
+            if (audioButton != null)
+            {
+                audioBtnComp = audioButton.GetComponent<Button>();
+                audioSprite = audioButton.GetComponent<SpriteRenderer>();
+                // Assuming the FontRenderer is on the button itself or you can fetch it from a child
+                audioFont = audioButton.GetComponent<FontRenderer>();
+            }
+
+            if (graphicsButton != null)
+            {
+                graphicsBtnComp = graphicsButton.GetComponent<Button>();
+                graphicsSprite = graphicsButton.GetComponent<SpriteRenderer>();
+                graphicsFont = graphicsButton.GetComponent<FontRenderer>();
+            }
         }
+
+      
 
         public override void OnUpdate(float dt)
         {
@@ -114,6 +144,19 @@ namespace SliceEngine
             }
         }
 
+        private void UpdateButtonVisuals()
+        {
+            // Update Audio Button
+            if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
+            if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+            if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+            // Update Graphics Button
+            if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
+            if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+            if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
+        }
+
         private void UpdateTitleText()
         {
             if (miniTitleText != null)
@@ -125,6 +168,7 @@ namespace SliceEngine
         public void StartSettingsPopupAnimation(bool opening)
         {
             isOpening = opening;
+            UpdateButtonVisuals();
             isActive = true;
             this.gameObject.SetActive(true);
             
@@ -146,6 +190,8 @@ namespace SliceEngine
                 if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudio);
                 UpdateTitleText();
             }
+
+            UpdateButtonVisuals();
         }
     }
 }
