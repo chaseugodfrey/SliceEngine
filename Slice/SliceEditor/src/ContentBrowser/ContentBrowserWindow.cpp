@@ -539,6 +539,7 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
+				break;
 			case AssetType::SequencePackage:
 				if (auto* data = static_cast<SequencePkgData*>(file.metaData.get()))
 				{
