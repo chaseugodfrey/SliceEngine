@@ -49,15 +49,12 @@ popd
 
 echo --- Building WeightOfTheSky Solution ---
 pushd WeightOfTheSky
-:: generate project files for WeightOfTheSky
-call premake\premake5.exe vs2022
+:: generate project files for WeightOfTheSky using premake from Slice directory
+call ..\Slice\premake\premake5.exe vs2022
 if %ERRORLEVEL% neq 0 (echo ERROR: Premake WeightOfTheSky failed! & exit /b %ERRORLEVEL%)
 
 :: build the standalone Release version
 echo Building WeightOfTheSky App (Release)...
-:: %MSBUILD_EXE% -> runs msbuild path we got eaarlier with vswhere, slice.sln -> sln file to build, 
-:: choose configuration, choose platform (64-bti target), run rebuild to clean old ouput and clean everything from scratch
-:: /v:m -> set verbosity to minimal, reduce noise in jenkins log (i don't want so many warnings), only useful info
 %MSBUILD_EXE% WeightOfTheSky.sln /p:Configuration=Release /p:Platform=x64 /t:Rebuild /m /v:m
 if %ERRORLEVEL% neq 0 (echo ERROR: WeightOfTheSky build failed! & exit /b %ERRORLEVEL%)
 popd
@@ -69,13 +66,13 @@ popd
 :: Check Slice Editor
 set "EDITOR_DIR=Slice\build\bin\EditorDebug\SliceEditor"
 set "EDITOR_EXE=SliceEditor.exe"
-call :StabilityCheck "%EDITOR_DIR%" "%EDITOR_EXE%" "Slice Editor"
+call :StabilityCheck "%EDITOR_DIR%" "%EDITOR_EXE%" "Slice Editor" "--smoke-test"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 :: Check WeightOfTheSky App
 set "GAME_DIR=WeightOfTheSky\build\bin\Release"
 set "GAME_EXE=WeightOfTheSky.exe"
-call :StabilityCheck "%GAME_DIR%" "%GAME_EXE%" "WeightOfTheSky App"
+call :StabilityCheck "%GAME_DIR%" "%GAME_EXE%" "WeightOfTheSky App" "--smoke-test"
 if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 :: -------------------------------------------------------------------------------------------------------------------------------------------
@@ -131,12 +128,13 @@ exit /b 0
 :: SUBROUTINES
 :: -------------------------------------------------------------------------------------------------------------------------------------------
 
-:: pass 3 arguments into :stabilitycheck
+:: pass 4 arguments into :stabilitycheck
 :: smoketest.log is a path to store stdout/stderr logs from launched executable to capture whatever it printed to console
 :StabilityCheck
 set "TARGET_DIR=%~1"
 set "TARGET_EXE=%~2"
 set "TARGET_NAME=%~3"
+set "EXTRA_FLAGS=%~4"
 set "LOG_FILE=%WORKSPACE%\%TARGET_NAME%_smoke_test.log"
 
 :: enter target directory, check if it exsits, if not exit
@@ -152,8 +150,8 @@ if not exist "%TARGET_EXE%" (
 :: we use 'start /b' to run in background, but wrap in 'cmd /c' to allow redirection
 :: start /b launches new process in bg but doesnt open a visible window
 :: cmd /c runs command in cmd shell then exits to send standard output to log file alongside standard errors
-echo Launching %TARGET_EXE% and capturing logs to %LOG_FILE%...
-start /b "" cmd /c "%TARGET_EXE% > "%LOG_FILE%" 2>&1"
+echo Launching %TARGET_EXE% %EXTRA_FLAGS% and capturing logs to %LOG_FILE%...
+start /b "" cmd /c "%TARGET_EXE% %EXTRA_FLAGS% > "%LOG_FILE%" 2>&1"
 
 :: ping for stability check for 10 seconds
 echo Waiting 10 seconds for stability...

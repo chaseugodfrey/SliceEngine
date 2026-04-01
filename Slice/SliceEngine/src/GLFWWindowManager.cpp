@@ -18,6 +18,21 @@ namespace SliceEngine
 		SLICE_LOG("Creating Main Window.");
 
 		GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+		int width = 1920, height = 1080;
+
+		if (monitor)
+		{
+			auto vidmode = glfwGetVideoMode(monitor);
+			if (vidmode)
+			{
+				width = vidmode->width;
+				height = vidmode->height;
+			}
+		}
+		else
+		{
+			SLICE_LOG("No primary monitor detected. Defaulting to 1920x1080 for headless/CI environment.");
+		}
 
 		//glClearColor(0.f, 0.f, 0.f, 1.f);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
@@ -32,9 +47,19 @@ namespace SliceEngine
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		auto vidmode = glfwGetVideoMode(monitor);
+		if (mSmokeTest)
+		{
+			glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+			SLICE_LOG("Smoke test mode enabled: creating hidden window.");
+		}
 
-		window = glfwCreateWindow(vidmode->width, vidmode->height, "Slice Engine", nullptr, nullptr);
+		window = glfwCreateWindow(width, height, "Slice Engine", nullptr, nullptr);
+
+		if (!window)
+		{
+			SLICE_LOG("Failed to create GLFW window!");
+			return nullptr;
+		}
 
 		glfwMakeContextCurrent(window);
 
