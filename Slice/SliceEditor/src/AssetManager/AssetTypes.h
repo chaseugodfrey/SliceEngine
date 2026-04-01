@@ -224,6 +224,7 @@ namespace SliceEditor
 		UsageType usage_type{ UsageType::Color };
 
 		CompressionFormat cmp_format{ CompressionFormat::BC7 };
+		bool is_srgb{ true };
 		float comp_quality{ 1.f };
 
 		bool generateMips{ true };
@@ -249,6 +250,7 @@ namespace SliceEditor
 			// now we have specific properties :)
 			metaJson["usage"] = usage_type;
 			metaJson["compression"] = cmp_format;
+			metaJson["srgb"] = is_srgb;
 			metaJson["comp_quality"] = comp_quality;
 			metaJson["generateMips"] = generateMips;
 			metaJson["mip_filter"] = mip_filter;
@@ -290,6 +292,7 @@ namespace SliceEditor
 
 			usage_type = metaData.value<UsageType>("usage", UsageType::Color);
 			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC3);
+			is_srgb = metaData.value<bool>("srgb", true);
 			comp_quality = metaData.value<float>("comp_quality", 1.f);
 			generateMips = metaData.value<bool>("generateMips", false);
 			mip_filter = metaData.value<MipMapFilter>("mip_filter", MipMapFilter::BOX);
