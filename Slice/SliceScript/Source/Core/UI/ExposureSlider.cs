@@ -13,14 +13,14 @@ namespace SliceEngine
             slider = GetComponent<Slider>();
             if (slider != null)
             {
-                slider.SetValue(Camera.Exposure * 0.1f);
+                slider.SetValue(Camera.Gamma * 0.1f);
             }
         }
 
         public override void OnSliderValue(float value)
         {
             gammaValue = value * 10;
-            Camera.Exposure = gammaValue;
+            Camera.Gamma = gammaValue;
         }
     }
 }

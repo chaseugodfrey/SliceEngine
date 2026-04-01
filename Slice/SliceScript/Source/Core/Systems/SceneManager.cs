@@ -14,6 +14,7 @@ namespace SliceEngine
 
         private static SliceBehaviour _transitionRunner;
         private static SpriteRenderer _transitionRenderer;
+        private static Coroutine fadeCoroutine;
         private const float TransitionDuration = 1.0f;
 
         public static event Action<Scene> SceneLoaded;
@@ -48,7 +49,10 @@ namespace SliceEngine
             //ActiveSceneChanged?.Invoke(scene);
             if (_transitionRunner != null && _transitionRenderer != null)
             {
-                _transitionRunner.StartCoroutine(FadeOutAndLoad(name));
+                if (fadeCoroutine == null)
+                {
+                    fadeCoroutine = _transitionRunner.StartCoroutine(FadeOutAndLoad(name));
+                }
             }
             else
             {
@@ -117,6 +121,8 @@ namespace SliceEngine
                 yield return null;
             }
             SetRectAlpha(1.0f); // Ensure fully black
+            fadeCoroutine = null;
+            CoroutineManager.StopAllCoroutines(_transitionRunner);
 
             // Now that screen is black, load the next scene
             FunctionCalls.Scene_LoadScene(sceneName);

@@ -1,4 +1,4 @@
-﻿using SliceEngine;
+using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,15 +24,21 @@ namespace SliceEngine
             if (settingsPanel != null) settingsPanel.SetActive(false);
             if (settingsPopup != null)
             {
-                
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
+                if (borderAnim != null)
+                {
+                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
+                    borderAnim.audioButton = FindGameObjectWithName("AudioButton");
+                    borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
+                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
+                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
+                }
                 settingsPopup.SetActive(false);
             }
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = false;
-
-            
         }
 
         public override void OnUpdate(float dt)
@@ -43,14 +49,16 @@ namespace SliceEngine
                 {
                     CloseSubSettings();
                 }
-                
                 else if (!isPauseMenuOpen)
                 {
                     OpenPauseMenu();
-
                 }
-
             }
+        }
+
+        public void ToggleSettingsPages(bool isAudio)
+        {
+            if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
 
         public void OpenPauseMenu()
@@ -78,14 +86,10 @@ namespace SliceEngine
 
         public void OpenSubSettings()
         {
-
-            //if (settingsPanel != null) settingsPanel.SetActive(false);
-            //if (settingsPopup != null) settingsPopup.SetActive(true);
             if (borderAnim != null)
             {
-                borderAnim.StartAnimation(true);
+                borderAnim.StartSettingsPopupAnimation(true);
             }
-            
 
             isPauseMenuOpen = false;
             isSubSettingsOpen = true;
@@ -93,19 +97,13 @@ namespace SliceEngine
 
         public void CloseSubSettings()
         {
-            // Hide Settings, Show Pause Menu
-            //if (settingsPopup != null) settingsPopup.SetActive(false);
-            //if (settingsPanel != null) settingsPanel.SetActive(true);
-
             if (borderAnim != null)
             {
-                borderAnim.StartAnimation(false);
+                borderAnim.StartSettingsPopupAnimation(false);
             }
 
             isSubSettingsOpen = false;
             isPauseMenuOpen = true;
-
-            //Bootstrap.HUDManager.CursorChecking(Cursor.state);
         }
     }
 }
