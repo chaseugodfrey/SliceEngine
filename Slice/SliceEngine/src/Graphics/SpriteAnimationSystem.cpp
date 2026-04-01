@@ -32,13 +32,24 @@ namespace SliceEngine {
 		sprite_anim.curr_frame += sprite_anim.fps * dt;
 
 		if (sprite_anim.loop) {
+			bool send = false;
 			while (sprite_anim.curr_frame > sprite_anim.num_frames) {
 				sprite_anim.curr_frame -= sprite_anim.num_frames;
+
+				if (!send) {	//not sure if it shld be in this
+					OnSpriteAnimLoopEvent event{};
+					event.entity = entity;
+					EventManager::GetInstance()->Publish<OnSpriteAnimLoopEvent>(event);
+				}
 			}
 		}
 		else if (sprite_anim.curr_frame > sprite_anim.num_frames) {
 			sprite_anim.curr_frame = 0.f;
 			sprite_anim.is_playing = false;
+
+			OnSpriteAnimStopEvent event{};
+			event.entity = entity;
+			EventManager::GetInstance()->Publish<OnSpriteAnimStopEvent>(event);
 		}
 
 		//choose above or below
