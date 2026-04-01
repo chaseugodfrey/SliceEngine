@@ -598,6 +598,8 @@ namespace SliceEditor
 		mSessionManager->LoadAnimatorData(guid);
 		mAnimatorData = mSessionManager->GetAnimatorData();
 
+		mSessionManager->currentAnimator = mCurrentAnimator;
+
 		// Set Initial Node Positions
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
 

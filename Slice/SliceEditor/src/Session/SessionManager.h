@@ -79,6 +79,8 @@ namespace SliceEditor
 		void ClearAnimatorData();
 		AnimatorData* GetAnimatorData();
 
+		// Animator
+		SliceEngine::Animator* currentAnimator;
 	};
 
 }

@@ -1893,6 +1893,11 @@ namespace SliceEngine
 		return false;
 	}
 
+	static void Audio_StopAllSound()
+	{
+
+	}
+
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
 	{
 		std::string cStrName = MonoToString(baseName);
@@ -2384,6 +2389,16 @@ namespace SliceEngine
 	{
 		auto* rm = Core::GetInstance()->GetRenderManager();
 		rm->SetMainGameCamera((Entity)entityID);
+	}
+
+	static void Camera_SetGamma(float gamma)
+	{
+		Core::GetInstance()->GetRenderManager()->SetSessionGamma(gamma);
+	}
+
+	static float Camera_GetGamma()
+	{
+		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
 	}
 
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
@@ -2997,6 +3012,15 @@ namespace SliceEngine
 		slider.SetValue(value, e);
 	}
 
+	//Sprite Animator
+	static void SpriteAnimator_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+		if (auto comp = registry.try_get<SpriteAnimator>((entt::entity)entityID)) {
+			comp->componentEnabled = enabled;
+		}
+	}
+
 	static bool SpriteAnimator_GetPlaying(uint32_t entityID) {
 
 		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
@@ -3128,6 +3152,29 @@ namespace SliceEngine
 			comp->curr_frame = (float)value;
 			auto& sSpriteAnim = Core::GetInstance()->GetSystem<SpriteAnimationSystem>();
 			sSpriteAnim.EntityOnUpdate(registry, (entt::entity)entityID, 0);
+		}
+	}
+
+	static void SpriteGammaOverride_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+		if (auto comp = registry.try_get<SpriteRendererGammaOverride>((entt::entity)entityID)) {
+			comp->componentEnabled = enabled;
+		}
+	}
+	static float SpriteGammaOverride_GetGamma(uint32_t entityID) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteRendererGammaOverride>((entt::entity)entityID)) {
+			return comp->gamma;
+		}
+		return 0.001f;
+	}	
+	static void SpriteGammaOverride_SetGamma(uint32_t entityID, float value) {
+		entt::registry& registry = SliceEngine::Core::GetInstance()->GetRegistry();
+
+		if (auto comp = registry.try_get<SpriteRendererGammaOverride>((entt::entity)entityID)) {
+			comp->gamma = value;
 		}
 	}
 #pragma endregion
@@ -3297,6 +3344,7 @@ namespace SliceEngine
 		RegisterComponent<AudioSource>();
 		RegisterComponent<RectTransform>();
 		RegisterComponent<SpriteRenderer>();
+		RegisterComponent<SpriteRendererGammaOverride>();
 		RegisterComponent<SpriteAnimator>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
@@ -3325,6 +3373,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetGamma);
+		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
@@ -3575,6 +3625,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Audio_GetSpatialBlend);
 		ADD_INTERNAL_CALL(Audio_SetMute);
 		ADD_INTERNAL_CALL(Audio_GetMute);
+		ADD_INTERNAL_CALL(Audio_StopAllSound);
 		ADD_INTERNAL_CALL(Audio_SetPan);
 		ADD_INTERNAL_CALL(Audio_GetPan);
 
@@ -3659,6 +3710,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteRenderer_GetColor);
 
 
+		ADD_INTERNAL_CALL(SpriteAnimator_SetEnabled);
 		ADD_INTERNAL_CALL(SpriteAnimator_GetPlaying);
 		ADD_INTERNAL_CALL(SpriteAnimator_SetPlaying);
 		ADD_INTERNAL_CALL(SpriteAnimator_GetLoop);
@@ -3674,6 +3726,10 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(SpriteAnimator_GetCurrFrame);
 		ADD_INTERNAL_CALL(SpriteAnimator_SetCurrFrame);
 
+
+		ADD_INTERNAL_CALL(SpriteGammaOverride_SetEnabled);
+		ADD_INTERNAL_CALL(SpriteGammaOverride_GetGamma);
+		ADD_INTERNAL_CALL(SpriteGammaOverride_SetGamma);
 
 
 		//Renderer
