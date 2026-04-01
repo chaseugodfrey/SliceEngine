@@ -2823,6 +2823,22 @@ namespace SliceEngine
 		}
 	}
 
+#pragma region ButtonRenderer
+
+	static void Button_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Button>())
+		{
+			auto& button = GO.GetComponent<Button>();
+			button.componentEnabled = enabled;
+		}
+	}
+
+
+#pragma endregion
+
 	//Font Renderer
 	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
 	{
@@ -3687,6 +3703,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
 
+		ADD_INTERNAL_CALL(Button_SetEnabled);
 
 		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(FontRenderer_SetColor);

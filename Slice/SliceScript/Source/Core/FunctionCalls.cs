@@ -766,6 +766,10 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Slider_SetValue(uint entityID, float value);
 
+        /************************* Button *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Button_SetEnabled(uint entityID, bool enabled);
+
         /************************* Font *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string FontRenderer_GetText(uint entityID);
