@@ -1,4 +1,4 @@
-﻿using SliceEngine;
+using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +9,9 @@ namespace SliceEngine
 {
     public class SettingsBGAnimation : SliceBehaviour
     {
-        private bool playAnim = true;
+        private bool playAnim = false;
         private SpriteAnimator bgAnimation;
         public SettingsBorderAnimation borderAnim;
-        private GameObject settingsPopup; // The object holding the Animation script
-        
 
         public override void OnCreate()
         {
@@ -22,16 +20,10 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            //if (bgAnimation != null)
-            //{
-            //    if (playAnim && !bgAnimation.IsPlaying)
-            //    {
-                    
-            //        bgAnimation.IsPlaying = true;
-            //    }
-
-            //}
-
+            if (bgAnimation != null && playAnim)
+            {
+                bgAnimation.IsPlaying = true;
+            }
         }
 
         public override void OnSpriteAnimLoop()
@@ -43,27 +35,24 @@ namespace SliceEngine
         {
             if (bgAnimation != null)
             {
-                if(playAnim)
+                if (playAnim)
                 {
-                    
                     bgAnimation.IsPlaying = false;
                     playAnim = false;
-                }
-                
                     
-                if (borderAnim != null)
-                {
-                    borderAnim.StartSettingsPopupAnimation(true);
+                    if (borderAnim != null)
+                    {
+                        borderAnim.StartSettingsPopupAnimation(true);
+                    }
+                    this.gameObject.SetActive(false);
                 }
-                
-
             }
         }
 
-        //public void StartSettingsBGAnimation(bool isOpening)
-        //{
-        //    playAnim = isOpening;
-        //    this.gameObject.SetActive(true);
-        //}
+        public void StartSettingsBGAnimation(bool isOpening)
+        {
+            playAnim = isOpening;
+            this.gameObject.SetActive(true);
+        }
     }
 }

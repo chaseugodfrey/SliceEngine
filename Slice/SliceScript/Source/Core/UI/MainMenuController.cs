@@ -25,21 +25,41 @@ namespace SliceEngine
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
 
-            if (bgAnimationObject != null)
+            if (settingsPopup != null)
             {
-                // Access the script we just built
-                bgAnimationObject.SetActive(false);
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
-                
+                if (borderAnim != null)
+                {
+                    borderAnim.menuCanvasObj = MainMenuCanvas;
+                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
+                    borderAnim.audioButton = FindGameObjectWithName("AudioButton");
+                    borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
+                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
+                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
+                }
+                settingsPopup.SetActive(false);
             }
 
-
+            if (bgAnimationObject != null)
+            {
+                bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
+                if (bgAnim != null)
+                {
+                    bgAnim.borderAnim = borderAnim;
+                }
+                bgAnimationObject.SetActive(false);
+            }
         }
 
         public override void OnUpdate(float dt)
         {
             
+        }
+
+        public void ToggleSettingsPages(bool isAudio)
+        {
+            if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
 
         public void StartGame(string sceneName)
@@ -62,27 +82,24 @@ namespace SliceEngine
 
         public void OpenSettings()
         {
-
             if (bgAnim != null)
             {
-                
-                //bgAnimationObject.SetActive(true);
-                //bgAnim.StartSettingsBGAnimation(true);
+                bgAnim.StartSettingsBGAnimation(true);
+            }
+            else if (borderAnim != null)
+            {
                 borderAnim.StartSettingsPopupAnimation(true);
             }
-            //if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
+
+            if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
 
         public void CloseSettings()
         {
-            //if (settingsPopup != null) settingsPopup.SetActive(false);
             if (borderAnim != null)
             {
-                bgAnimationObject.SetActive(false);
                 borderAnim.StartSettingsPopupAnimation(false);
-                
             }
-            //if(MainMenuCanvas != null) MainMenuCanvas.SetActive(true);
         }
 
 

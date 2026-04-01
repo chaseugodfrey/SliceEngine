@@ -115,12 +115,14 @@ namespace SliceEngine
 
             if(buttonType == 6) //AudioPage in Settings
             {
-
+                if (mainController != null) mainController.ToggleSettingsPages(true);
+                if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(true);
             }
 
             if (buttonType == 7) //GraphicsPage in Settings
             {
-
+                if (mainController != null) mainController.ToggleSettingsPages(false);
+                if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(false);
             }
         }
 
