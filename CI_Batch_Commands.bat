@@ -35,11 +35,11 @@ call PremakeProj.bat
 if %ERRORLEVEL% neq 0 (echo ERROR: Premake Slice failed! & exit /b %ERRORLEVEL%)
 
 echo Building Slice Editor (Debug)...
-%MSBUILD_EXE% Slice.sln /p:Configuration=EditorDebug /p:Platform=x64 /t:Rebuild /m /v:m
+%MSBUILD_EXE% Slice.sln /p:Configuration=EditorDebug /p:Platform=x64 /t:Rebuild /v:m
 if %ERRORLEVEL% neq 0 (echo ERROR: Slice EditorDebug build failed! & exit /b %ERRORLEVEL%)
 
 echo Building Slice Editor (Release)...
-%MSBUILD_EXE% Slice.sln /p:Configuration=EditorRelease /p:Platform=x64 /t:Rebuild /m /v:m
+%MSBUILD_EXE% Slice.sln /p:Configuration=EditorRelease /p:Platform=x64 /t:Rebuild /v:m
 if %ERRORLEVEL% neq 0 (echo ERROR: Slice EditorRelease build failed! & exit /b %ERRORLEVEL%)
 popd
 
