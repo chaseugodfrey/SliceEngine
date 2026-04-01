@@ -50,10 +50,6 @@ ThirdParty.MONO_MONO = "%{wks.location}/SliceEngine/thirdparty/Mono/mono"
 ThirdParty.MONO_DLL = "%{wks.location}/SliceEngine/thirdparty/Mono/lib/*.dll"
 ThirdParty.MONO_BIN = "%{wks.location}/SliceEngine/thirdparty/Mono/bin"
 
-ThirdParty.RECAST_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Recast/include"
-ThirdParty.DETOUR_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/Detour/include"
-ThirdParty.DETOUR_CROWD_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/DetourCrowd/include"
-ThirdParty.DETOUR_TILE_INC = "%{wks.location}/SliceEngine/thirdparty/recast/Detour/DetourTileCache/include"
 
 include "SliceEngine/premake5.lua"
 include "SliceScript/premake5.lua"
