@@ -53,19 +53,20 @@ namespace SliceEditor
 		//ref: https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/#bc1
 		
 		//		RGBA_UNCOMPRESSED,
-		BC1,	//RGB + single bit A, color maps, cutout color maps, normal maps
-		BC2,	//rgba kind off, mostly not used anymore
+		BC1 = 0,	//RGB + single bit A, color maps, cutout color maps, normal maps
 		BC3,	//rgba, color maps with full alpha, packing color and mono maps together
-		BC4,	//grayscale, height maps, gloss maps, font atlas, any grayscale image
-		BC4s,	//bc4 but signed
+		BC4,	
 		BC5,	//2x grayscale, tangent maps
-		BC5s,	//bc5 but signed
-		BC6,	//RGB, floats, HDR
-		BC6s,	//bc6 but signed
-		BC7		//RGB/RGBA, high quality color maps, color maps with full alpha
+		BC7 	//RGB/RGBA, high quality color maps, color maps with full alpha
 	};
+	enum UsageType : std::uint8_t {
+		Color = 0,
+		Tangent_bc5,
+		Intensity_bc4
+	};
+
 	enum MipMapFilter : std::uint8_t {
-		NONE,
+		NONE = 0,
 		POINT,
 		LINEAR,
 		TRIANGLE,
@@ -220,13 +221,16 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::BC3 };
-		MipMapFilter mip_filter{ MipMapFilter::BOX };
+		UsageType usage_type{ UsageType::Color };
 
+		CompressionFormat cmp_format{ CompressionFormat::BC7 };
 		float comp_quality{ 1.f };
+
 		bool generateMips{ true };
+		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		unsigned char mip_count{ 8 };
-		bool hasAlpha{ true };
+
+		bool premultiply_alpha{ false };
 
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
@@ -243,12 +247,13 @@ namespace SliceEditor
 
 			// specific properties to texture goes here but we dh that yet
 			// now we have specific properties :)
-			metaJson["comp_format"] = cmp_format;
-			metaJson["mip_filter"] = mip_filter;
+			metaJson["usage"] = usage_type;
+			metaJson["compression"] = cmp_format;
 			metaJson["comp_quality"] = comp_quality;
 			metaJson["generateMips"] = generateMips;
+			metaJson["mip_filter"] = mip_filter;
 			metaJson["mip_count"] = mip_count;
-			metaJson["hasAlpha"] = hasAlpha;
+			metaJson["premultiply"] = premultiply_alpha;
 			// now create the meta file
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -282,11 +287,15 @@ namespace SliceEditor
 			assetType = metaData["assetType"].get<std::string>();
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
-			cmp_format = metaData["comp_format"].get<CompressionFormat>();
-			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
-			comp_quality = metaData["comp_quality"].get <float> ();
-			generateMips = metaData["generateMips"].get <bool> ();
-			hasAlpha = metaData["hasAlpha"].get <bool> ();
+
+			usage_type = metaData.value<UsageType>("usage", UsageType::Color);
+			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC3);
+			comp_quality = metaData.value<float>("comp_quality", 1.f);
+			generateMips = metaData.value<bool>("generateMips", false);
+			mip_filter = metaData.value<MipMapFilter>("mip_filter", MipMapFilter::BOX);
+			mip_count = metaData.value<unsigned char>("mip_count", 8);
+
+			premultiply_alpha = metaData.value<bool>("premultiply", false);
 		}
 	};
 

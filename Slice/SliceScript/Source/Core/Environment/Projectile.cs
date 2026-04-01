@@ -86,9 +86,9 @@ namespace SliceEngine
                 if (owner.Has<Projectile_Spawner>())
                     owner.As<Projectile_Spawner>().DestroyBullet(this);
                 else if (owner.Has<EnemyLevel2>())
-                {
-                     owner.As<EnemyLevel2>().projectileState.DestroyBullet(this); 
-                }
+                    owner.As<EnemyLevel2>().projectileState.DestroyBullet(this);
+                else if (owner.Has<SurroundAttack>())
+                    owner.As<SurroundAttack>().DestroyBullet(this);
                 else
                     gameObject.Destroy();
             }
@@ -97,9 +97,10 @@ namespace SliceEngine
         public override void OnCollideEnter(uint other)
         {
             GameObject collidedGO = FindGameObjectWithID(other);
-            if (collidedGO != null && collidedGO.tag == "Player")
+            if (collidedGO != null)
             {
-                DamagePlayer(collidedGO);
+                if (collidedGO.tag == "Player")
+                    DamagePlayer(collidedGO);
             }
 
             DestroyProj();

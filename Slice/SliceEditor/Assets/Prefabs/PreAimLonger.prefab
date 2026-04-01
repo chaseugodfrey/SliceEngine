@@ -1,0 +1,141 @@
+[
+    {
+        "PreAimLonger": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12777379928587679679",
+                "prefabHandle": {
+                    "GUID": "12777379928587679679"
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 10,
+                "neighbours": [
+                    4294967295,
+                    11,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.AlphaWiggleAnimation",
+                "scriptableFieldMap": {
+                    "MaxWiggle": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "MinWiggle": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "random": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "rate": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "rendererObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 11
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "PreAimLonger",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    9.13958740234375,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Mesh_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "12777379928587679679",
+                "prefabHandle": {
+                    "GUID": "12777379928587679679"
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12052541654358869986"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9271664270011197698"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 11,
+                "neighbours": [
+                    10,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Mesh_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1000.0
+                ]
+            }
+        }
+    }
+]

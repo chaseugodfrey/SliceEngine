@@ -1,0 +1,219 @@
+using SliceEngine;
+using System;
+using System.Collections.Generic;
+
+namespace SliceEngine
+{
+    public class AimingMech : SliceBehaviour
+    {
+        public List<Projectile> allProjectiles = new List<Projectile>();
+
+        // Bullet settings
+        public string projectilePrefabName = "Projectile";
+        public float projPerSecond = 10.0f;
+        public float bulletSpeed = 100.0f;
+        public Vector3 bulletScale = new Vector3(1);
+        public int bulletDamage = 1;
+        public float distanceBeforeDestroyBullet = 250.0f;
+
+        // Aim settings
+        public float aimVerticalOffset = 1f;
+        public float bloomAmount = 5.0f;
+        public bool active = false;
+        public float maxAimRange = 100.0f;
+        public float predictionStrength = 0.75f;
+
+        // Burst settings
+        public int bulletsPerBurst = 3;
+        public float timeBetweenBursts = 5f;
+        public float timeBetweenShotsInBurst = 0.1f;
+
+        // FX prefab
+        public string firingFXPrefabName = "FX_Firing1";
+
+        // Internal state
+        float count = 0f;
+        float burstTimer = 0f;
+        int shotsFiredInBurst = 0;
+        float shotTimer = 0f;
+        bool isBursting = false;
+
+        // Bobbing
+        float bobTimer = 0f;
+        float bobAmplitude = 1.0f;
+        float bobFrequency = 1.5f;
+        float baseY = 0f;
+
+        GameObject telegraph;
+        bool telegraphed = false;
+
+        GameObject wings;
+
+        public GameObject CreateBullet(Vector3 startPos, Vector3 angle)
+        {
+            string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
+            GameObject newBullet = CreateGameObject(prefabPath);
+
+            Transform t = newBullet.GetComponent<Transform>();
+            t.Position = startPos;
+            t.Scale = bulletScale;            
+
+            // Get forward direction from original rotation
+            Vector3 forward = Quaternion.FromEuler(angle) * Vector3.Forward;
+
+            // Apply small random deviation
+            forward += new Vector3(
+                SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
+                SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
+                0f
+            ) * 0.01f;
+
+            // Normalize so speed stays consistent
+            forward = forward.Normalize();
+
+            // Convert back to rotation
+            t.Rotation = Quaternion.LookRotation(forward).ToEuler();
+
+            Projectile p = newBullet.As<Projectile>();
+            p.SetUp();
+            p.speed = bulletSpeed;
+            p.owner = gameObject;
+            p.damage = bulletDamage;
+            p.distanceBeforeDestroy = distanceBeforeDestroyBullet;
+
+            allProjectiles.Add(p);
+
+            return newBullet;
+        }
+
+        public void SetTelegraph()
+        {
+            telegraph.SetActive(telegraphed);
+            foreach (GameObject child in telegraph.GetAllChildren())
+            {
+                child.SetActive(telegraphed);
+            }
+            return;
+        }
+
+        public void CreateFiringFX(Vector3 position, Vector3 rotation)
+        {
+            string prefabPath = "Prefabs/" + firingFXPrefabName + ".prefab";
+            GameObject fx = CreateGameObject(prefabPath);
+
+            Transform t = fx.GetComponent<Transform>();
+            t.Position = position;
+            t.Rotation = rotation;
+        }
+
+        public override void OnCreate()
+        {
+            base.OnCreate();
+
+            baseY = transform.Position.y;
+
+            GameObject[] children = gameObject.GetAllChildren();
+            foreach (GameObject child in children)
+            {
+                if (child.tag == "AimingMechWings")
+                {
+                    wings = child;
+                }
+                if (child.tag == "Telegraph")
+                {
+                    telegraph = child;
+                }
+            }
+        }
+
+        public override void OnFixedUpdate(float dt)
+        {
+            base.OnFixedUpdate(dt);
+
+            // Bobbing motion
+            bobTimer += dt;
+
+            Vector3 pos = transform.Position;
+            pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
+
+            transform.Position = pos;
+
+            if (!active)
+                return;
+
+            float distanceToPlayer = Utilities.Distance3D(pos, Bootstrap.Player.transform.Position);
+            Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
+            if (distanceToPlayer <= maxAimRange)
+            {
+                if (playerVel.SquareMagnitude() > 1.0f)
+                {
+                    float timeToHit = distanceToPlayer / bulletSpeed;
+                    Vector3 predictedPos = Bootstrap.Player.transform.Position + playerVel * timeToHit;
+                    Vector3 aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
+
+                    this.transform.LookAt(aimTarget, new Vector3(0, 1, 0));
+                }
+                else
+                {
+                    this.transform.LookAt(
+                    Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                    new Vector3(0, 1, 0));
+                }
+
+                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.5f;
+
+                if (shouldTelegraph != telegraphed)
+                {
+                    telegraphed = shouldTelegraph;
+                    SetTelegraph();
+                }
+
+                if (!isBursting)
+                {
+                    burstTimer += dt;
+
+                    if (burstTimer >= timeBetweenBursts)
+                    {
+                        burstTimer = 0f;
+                        isBursting = true;
+                        shotsFiredInBurst = 0;
+                        shotTimer = 0f;
+                    }
+                }
+                else
+                {
+                    shotTimer += dt;
+
+                    if (shotTimer >= timeBetweenShotsInBurst)
+                    {
+                        shotTimer = 0f;
+
+                        Transform t = this.GetComponent<Transform>();
+
+                        // Fire bullet
+                        CreateBullet(t.WorldPosition, t.WorldRotationQuat.ToEuler());
+
+                        // Spawn firing FX
+                        CreateFiringFX(t.WorldPosition, t.WorldRotationQuat.ToEuler());
+
+                        shotsFiredInBurst++;
+
+                        if (shotsFiredInBurst >= bulletsPerBurst)
+                        {
+                            isBursting = false;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                telegraphed = false;
+                SetTelegraph();
+            }
+
+            AimingMechWings amw = wings.As<AimingMechWings>();
+            float denom = Utilities.Max(shotTimer + burstTimer, 0.0001f);
+            amw.rotateSpeedMultiplier = Utilities.Clamp(5.0f / denom, 0.0f, 10.0f);
+        }
+    }
+}

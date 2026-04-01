@@ -74,6 +74,17 @@ namespace SliceEngine
         public AttackState attackState;
         public StateMachine projectileSM;
 
+        public Transform target;
+        public Vector3 destination;
+        public Vector3 offset;
+        public bool followTarget;
+        public float followTightness = 0.0f;
+        public float followRange = 200.0f;
+        public float followOscillator = 0.0f;
+        public float followOscillatorRate = 0.5f;
+        public float followOscillatorTiming = 2.5f;
+        public float followExternalModifier = 1.0f;
+
         public override void OnCreate()
         {
             introState = new IntroState(this.gameObject);
@@ -87,14 +98,44 @@ namespace SliceEngine
             projectileSM.ChangeState(introState);
         }
 
+        public override void OnAwake()
+        {
+            base.OnAwake();
+        }
+
         public override void OnUpdate(float dt)
         {
+
+            if (followTarget)
+            {
+                followOscillator += followOscillatorRate * dt;
+                if (followOscillator > followOscillatorTiming || followOscillator <= 0.0f)
+                {
+                    followOscillatorRate *= -1.0f;
+                }
+
+                float distance = Utilities.Distance3D(transform.Position, destination);
+                float tightness = Utilities.Clamp(distance / followRange, 0.0f, 1.0f) - followTightness;
+                followTightness += tightness * 0.5f;
+                destination = target.WorldPosition + offset;
+
+                Vector3 direction = (destination - transform.Position).Normalize();
+                transform.Position = transform.Position + direction * followTightness * dt * 100f * followOscillator * followExternalModifier;
+            }
+
             projectileSM.OnUpdate(dt);
         }
 
         public override void OnFixedUpdate(float dt)
         {
             projectileSM.OnFixedUpdate(dt);
+        }
+
+        public void SetTarget(Transform targetTransform = null, float speedModifier = 1.0f)
+        {
+            active = followTarget = targetTransform != null;
+            target = targetTransform;
+            followExternalModifier = speedModifier;
         }
 
         public void ShootUpdate(float dt)
@@ -107,8 +148,6 @@ namespace SliceEngine
             count += dt;
 
             currentStyle = (SpawnStyle)spawnStyle;
-
-
 
             switch (currentStyle)
             {
@@ -191,22 +230,52 @@ namespace SliceEngine
                     break;
                 case SpawnStyle.Straight:
 
-                    if (count >= 1 / projPerSecond)
+                    if (count >= 1f / projPerSecond)
                     {
-                        count -= 1 / projPerSecond;
+                        count -= 1f / projPerSecond;
+
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        // hide the pre-aim line on fire
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            preaiming = false;
+                            a.Reset();
+                        }
 
                         SpawnInBurstCheck();
-                    }
 
-                    if (HasComponent<AudioSource>())
+                        if (HasComponent<AudioSource>())
+                        {
+                            GetComponent<AudioSource>().Play();
+                        }
+                    }
+                    else if (!preaiming && count >= (1f / projPerSecond) * (1f - preAimPercentage))
                     {
-                        GetComponent<AudioSource>().Play();
+                        // start showing the pre-aim line during charge-up
+                        preaiming = true;
+                        this.transform.LookAt(
+                            Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
+                            new Vector3(0, 1, 0)
+                        );
+
+                        if (preAimObject != null && preAimObject.Has<AlphaWiggleAnimation>())
+                        {
+                            AlphaWiggleAnimation a = preAimObject.As<AlphaWiggleAnimation>();
+                            a.active = true;
+                            a.rate = preAimFlickerRate;
+                            a.MinWiggle = preaimMinAlpha;
+                            a.MaxWiggle = preaimMaxAlpha;
+                            a.random = preAimRandom;
+                        }
                     }
 
                     break;
             }
-
-
         }
     }
 }
