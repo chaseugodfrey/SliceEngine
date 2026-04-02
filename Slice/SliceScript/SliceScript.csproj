@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -75,6 +77,7 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteAnimator.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
+    <Compile Include="Source\Core\Components\SpriteRendererGammaOverride.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
@@ -160,6 +163,7 @@
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\Core\TriggerBoxes\BossStateTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBoxShowEnemy.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\EnemyDialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\KillPlayerTriggerBox.cs" />
@@ -170,6 +174,7 @@
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\SettingsBGAnimation.cs" />
     <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\SplashScreen.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
@@ -183,6 +188,7 @@
     <Compile Include="Source\Examples\TestCamera.cs" />
     <Compile Include="Source\Examples\TestCameraMovement.cs" />
     <Compile Include="Source\Examples\TestCoroutine.cs" />
+    <Compile Include="Source\Examples\TestRayCast.cs" />
     <Compile Include="Source\Examples\TestEntity.cs" />
     <Compile Include="Source\Examples\TestFont.cs" />
     <Compile Include="Source\Examples\TestInput.cs" />

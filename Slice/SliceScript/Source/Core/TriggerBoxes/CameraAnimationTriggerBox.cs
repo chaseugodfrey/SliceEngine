@@ -113,6 +113,7 @@ namespace SliceEngine
                 }
             }
         }
+
        public GameObject camera;
         // idk if this should be a reusable thing
         // so this decides what state to run for the camera

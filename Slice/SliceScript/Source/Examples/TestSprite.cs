@@ -14,9 +14,9 @@ namespace SliceEngine
         {
             sprite = GetComponent<SpriteAnimator>();
             SliceLog.Log("Creating sprite anim test script");
-            sprite.CurrentFrame = 5;
-            sprite.IsPlaying = false;
-            sprite.Loop = false;
+            //sprite.CurrentFrame = 5;
+            //sprite.IsPlaying = false;
+            //sprite.Loop = false;
         }
 
         public override void OnUpdate(float dt)

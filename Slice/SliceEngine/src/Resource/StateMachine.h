@@ -73,6 +73,7 @@ namespace SliceEngine
 			unsigned int curr_anim_idx{};
 			int fps{};
 			float animationTime{};
+			float animationSpeed{1};
 
 			bool isLoop { false };
 			bool isFinish{ false };

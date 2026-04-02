@@ -21,7 +21,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Input/ActionMapping.h"
 #include "Systems/LayerManager.h"
-#include "Navigation/NavigationSystem.h"
 #include "Configuration/ProjectSettingsManager.h"
 
 namespace SliceEngine
@@ -76,13 +75,11 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
+		mFactory.RegisterComponent<SpriteRendererGammaOverride>();
 		mFactory.RegisterComponent<SpriteAnimator>();
 		mFactory.RegisterComponent<FontRenderer>();
 		mFactory.RegisterComponent<Button>();
 		mFactory.RegisterComponent<Slider>();
-		mFactory.RegisterComponent<NavAgent>();
-		//mFactory.RegisterComponent<NavMeshLink>();
-		mFactory.RegisterComponent<NavObstacle>();
 
 		mFactory.RegisterComponent<RigidBody>();
 		mFactory.RegisterComponent<ColliderShape>();

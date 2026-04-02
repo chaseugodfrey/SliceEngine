@@ -20,7 +20,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Systems/SceneSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Graphics/RenderManager.h"
-#include "Navigation/NavigationSystem.h"
 
 
 namespace SliceEngine

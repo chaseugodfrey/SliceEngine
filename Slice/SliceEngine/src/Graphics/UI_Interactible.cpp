@@ -184,7 +184,7 @@ namespace SliceEngine {
 
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<buttonEntity>();
+		auto view = core->GetRegistry().view<buttonEntity>(entt::exclude<InactiveEntity>);
 
 		auto default_event = ButtonSystem::Events::Cancel;
 		for (auto entity : view) {
@@ -271,7 +271,11 @@ namespace SliceEngine {
 	//Set the color/sprite guid of the image depending on state
 	void ButtonSystem::update_button(Entity button_entity, Events event) {
 		auto& button = mRegistry->get<Button>(button_entity);
-		assert(button.componentEnabled);
+		if (!button.componentEnabled) {
+			return;
+		}
+
+
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;

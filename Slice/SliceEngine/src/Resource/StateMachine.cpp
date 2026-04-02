@@ -66,6 +66,8 @@ namespace SliceEngine
             j.at("mNodePos").get_to(s.mNodePos);
             j.at("fps").get_to(s.fps);
 
+            s.animationSpeed = j.value("speed", 1.0f);
+
             const nlohmann::json& transitionsArray = j.at("transitions");
 
             // 2. Make sure the vector is empty before filling it

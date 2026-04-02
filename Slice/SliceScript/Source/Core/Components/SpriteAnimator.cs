@@ -88,5 +88,10 @@ namespace SliceEngine
                 FunctionCalls.SpriteAnimator_SetCurrFrame(gameObject.mID, value);
             }
         }
+
+        public void SetEnabled(bool enabled)
+        {
+            FunctionCalls.SpriteAnimator_SetEnabled(gameObject.mID, enabled);
+        }
     }
 }
