@@ -1,6 +1,28 @@
 [
     {
         "SettingsBGAnim": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 1.0,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 500.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "11171167347396630330",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::Canvas": {
                 "canvas_type": "Overlay",
                 "componentEnabled": true,
@@ -28,12 +50,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340126,
+                "entity_id": 6291705,
                 "neighbours": [
-                    7340065,
-                    7340127,
-                    7340060,
-                    7340083
+                    5243069,
+                    6291706,
+                    5243064,
+                    5243087
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -90,9 +112,9 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340127,
+                "entity_id": 6291706,
                 "neighbours": [
-                    7340126,
+                    6291705,
                     4294967295,
                     4294967295,
                     4294967295
@@ -110,7 +132,7 @@
             "struct SliceEngine::SpriteAnimator": {
                 "col": "2",
                 "componentEnabled": true,
-                "fps": 10.0,
+                "fps": 20.0,
                 "is_playing": true,
                 "loop": false,
                 "num_frames": "6",
