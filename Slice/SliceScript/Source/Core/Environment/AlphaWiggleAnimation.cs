@@ -34,16 +34,30 @@ namespace SliceEngine
         {
             active = false;
 
-            if (storedRenderer == null)
+            if (rendererObject == null)
+            {
+                //rendererObject = gameObject;
+                return;
+            }
+
+            if (storedRenderer == null && rendererObject.HasComponent<Renderer>())
             {
                 storedRenderer = rendererObject.GetComponent<Renderer>();
+            }
+            if (storedRenderer == null)
+            {
+                return;
+            }
+            if(!rendererObject.HasComponent<Renderer>())
+            {
+                return;
             }
 
             Vector4 color = storedRenderer.GetColor();
 
             color.w = MaxWiggle;
 
-            storedRenderer = gameObject.GetComponent<Renderer>();
+            //storedRenderer = gameObject.GetComponent<Renderer>();
 
             storedRenderer.SetColor(color);
 
