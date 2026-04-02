@@ -115,14 +115,29 @@ namespace SliceEngine
                 flickerTimer += Time.deltaTimeUnscaled;
                 Vector4 color = flickerImageSprite.Colour;
 
-                if (flickerTimer < flickerTotalDuration)
+                if (isOpening)
                 {
-                    float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
-                    color.w = Utilities.Lerp(0.5f, 0.0f, t);
+                    if (flickerTimer < flickerTotalDuration)
+                    {
+                        float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
+                        color.w = Utilities.Lerp(0.5f, 0.0f, t);
+                    }
+                    else
+                    {
+                        color.w = 0.0f;
+                    }
                 }
                 else
                 {
-                    color.w = 0.0f;
+                    if (flickerTimer < flickerTotalDuration)
+                    {
+                        float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
+                        color.w = Utilities.Lerp(0.0f, 0.5f, t);
+                    }
+                    else
+                    {
+                        color.w = 0.5f;
+                    }
                 }
 
                 flickerImageSprite.Colour = color;
