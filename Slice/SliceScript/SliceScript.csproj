@@ -54,7 +54,6 @@
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
     <Compile Include="Source\Core\Components\Light.cs" />
-    <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
@@ -79,7 +78,6 @@
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Math\Vector4.cs" />
-    <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
@@ -106,7 +104,6 @@
     <Compile Include="Source\Core\UI\VolumeSlider.cs" />
     <Compile Include="Source\EditorTest.cs" />
     <Compile Include="Source\EditorTest2.cs" />
-    <Compile Include="Source\EnemyChase.cs" />
     <Compile Include="Source\EnemySlime.cs" />
     <Compile Include="Source\EnemyState.cs" />
     <Compile Include="Source\Examples\TestBasicController.cs" />
@@ -131,7 +128,6 @@
     <Compile Include="Source\MainMenuCamera.cs" />
     <Compile Include="Source\Payload.cs" />
     <Compile Include="Source\Player.cs" />
-    <Compile Include="Source\PlayerTestNavAgent.cs" />
     <Compile Include="Source\Spawner.cs" />
   </ItemGroup>
   <ItemGroup>
