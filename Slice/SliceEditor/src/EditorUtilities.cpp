@@ -439,10 +439,10 @@ namespace SliceEditor
 		{
 			if (ImGui::BeginMenu("Create"))
 			{
-				if (ImGui::MenuItem("Folder"))
+				/*if (ImGui::MenuItem("Folder"))
 				{
 
-				}
+				}*/
 
 				if (ImGui::MenuItem("Material"))
 				{

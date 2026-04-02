@@ -57,6 +57,10 @@ namespace SliceEngine
                     SetImactVars(new Vector3(0.0f), new Vector3(1.0f), 1000.0f, 2000.0f, 1.0f, false);
                 if(Input.IsKeyPressed(Keys.KEY_0))
                     cam.SetImpactFrame(false);
+                if (Input.IsKeyDown(Keys.KEY_A))
+                    cam.FOV += 1.0f;
+                if(Input.IsKeyDown(Keys.KEY_D))
+                    cam.FOV -= 1.0f;
             }
         }
 

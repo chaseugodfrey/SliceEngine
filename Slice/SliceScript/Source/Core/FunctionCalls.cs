@@ -27,6 +27,10 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Camera_GetGamma();
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Camera_GetFOV(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetFOV(uint entityID, float fov);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactFrameWorldPosition(uint entityID, ref Vector3 position);

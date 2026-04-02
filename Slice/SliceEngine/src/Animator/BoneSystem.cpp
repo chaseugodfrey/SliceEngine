@@ -51,6 +51,9 @@ namespace SliceEngine
 			if (!animator.timeline.isPlaying)
 				continue;
 
+			if (animator.curr_anim_pkg.animations.size() < animator.stateMachine.EFSM.currState->curr_anim_idx)
+				continue;
+
 			//some pseudo code
 			glm::mat4 const& frame = animator.GetFinalTform()[bone.frame_idx];
 			glm::vec3 translation, scale, skew;
