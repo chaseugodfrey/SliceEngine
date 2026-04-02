@@ -5,12 +5,12 @@
             "LowerFinger.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 19,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 269,
+                    "entity_id": 4194308,
                     "neighbours": [
-                        268,
+                        4194309,
                         4294967295,
                         4294967295,
                         4294967295
@@ -51,13 +51,13 @@
             "LowerFinger.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 18,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 268,
+                    "entity_id": 4194309,
                     "neighbours": [
-                        267,
-                        269,
+                        4194310,
+                        4194308,
                         4294967295,
                         4294967295
                     ]
@@ -97,15 +97,15 @@
             "UpperFinger.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 17,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 267,
+                    "entity_id": 4194310,
                     "neighbours": [
-                        266,
-                        268,
+                        4194311,
+                        4194309,
                         4294967295,
-                        270
+                        4194356
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -143,14 +143,14 @@
             "Hand.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 16,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 266,
+                    "entity_id": 4194311,
                     "neighbours": [
-                        264,
-                        267,
-                        265,
+                        4194313,
+                        4194310,
+                        4194312,
                         4294967295
                     ]
                 },
@@ -189,7 +189,7 @@
             "Sleeve.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 15,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -205,12 +205,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 265,
+                    "entity_id": 4194312,
                     "neighbours": [
-                        264,
+                        4194313,
                         4294967295,
                         4294967295,
-                        266
+                        4194311
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -248,13 +248,13 @@
             "Forearm.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 14,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 264,
+                    "entity_id": 4194313,
                     "neighbours": [
-                        263,
-                        265,
+                        4194314,
+                        4194312,
                         4294967295,
                         4294967295
                     ]
@@ -294,13 +294,13 @@
             "UpperArm.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 13,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 263,
+                    "entity_id": 4194314,
                     "neighbours": [
-                        262,
-                        264,
+                        4194315,
+                        4194313,
                         4294967295,
                         4294967295
                     ]
@@ -340,15 +340,15 @@
             "Shoulder.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 12,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 262,
+                    "entity_id": 4194315,
                     "neighbours": [
-                        254,
-                        263,
-                        255,
-                        273
+                        4194323,
+                        4194314,
+                        4194322,
+                        4194359
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -386,14 +386,14 @@
             "Head_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 11,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 261,
+                    "entity_id": 4194316,
                     "neighbours": [
-                        256,
+                        4194321,
                         4294967295,
-                        260,
+                        4194317,
                         4294967295
                     ]
                 },
@@ -432,7 +432,7 @@
             "Sphere.001_3": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 10,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -448,12 +448,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 260,
+                    "entity_id": 4194317,
                     "neighbours": [
-                        256,
+                        4194321,
                         4294967295,
-                        259,
-                        261
+                        4194318,
+                        4194316
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -491,7 +491,7 @@
             "Sphere.001_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 10,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -507,12 +507,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 259,
+                    "entity_id": 4194318,
                     "neighbours": [
-                        256,
+                        4194321,
                         4294967295,
-                        258,
-                        260
+                        4194319,
+                        4194317
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -550,7 +550,7 @@
             "Sphere.001_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 10,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -566,12 +566,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 258,
+                    "entity_id": 4194319,
                     "neighbours": [
-                        256,
+                        4194321,
                         4294967295,
-                        257,
-                        259
+                        4194320,
+                        4194318
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -609,7 +609,7 @@
             "Sphere.001": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 10,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -625,12 +625,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 257,
+                    "entity_id": 4194320,
                     "neighbours": [
-                        256,
+                        4194321,
                         4294967295,
                         4294967295,
-                        258
+                        4194319
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -668,13 +668,13 @@
             "Head_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 9,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 256,
+                    "entity_id": 4194321,
                     "neighbours": [
-                        255,
-                        257,
+                        4194322,
+                        4194320,
                         4294967295,
                         4294967295
                     ]
@@ -714,15 +714,15 @@
             "Neck_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 8,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 255,
+                    "entity_id": 4194322,
                     "neighbours": [
-                        254,
-                        256,
+                        4194323,
+                        4194321,
                         4294967295,
-                        262
+                        4194315
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -760,13 +760,13 @@
             "UpperChest_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 7,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 254,
+                    "entity_id": 4194323,
                     "neighbours": [
-                        253,
-                        255,
+                        4194324,
+                        4194322,
                         4294967295,
                         4294967295
                     ]
@@ -806,14 +806,14 @@
             "LowerChest_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 6,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 253,
+                    "entity_id": 4194324,
                     "neighbours": [
-                        250,
-                        254,
-                        252,
+                        4194327,
+                        4194323,
+                        4194325,
                         4294967295
                     ]
                 },
@@ -852,7 +852,7 @@
             "Belt_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 5,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -868,12 +868,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 252,
+                    "entity_id": 4194325,
                     "neighbours": [
-                        250,
+                        4194327,
                         4294967295,
-                        251,
-                        253
+                        4194326,
+                        4194324
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -911,7 +911,7 @@
             "Belt_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 5,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -927,12 +927,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 251,
+                    "entity_id": 4194326,
                     "neighbours": [
-                        250,
+                        4194327,
                         4294967295,
                         4294967295,
-                        252
+                        4194325
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -970,15 +970,15 @@
             "Hips_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 4,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 250,
+                    "entity_id": 4194327,
                     "neighbours": [
-                        249,
-                        251,
+                        4194328,
+                        4194326,
                         4294967295,
-                        301
+                        4194396
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1016,15 +1016,15 @@
             "Groin_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 3,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 249,
+                    "entity_id": 4194328,
                     "neighbours": [
-                        248,
-                        250,
+                        4194329,
+                        4194327,
                         4294967295,
-                        307
+                        4194402
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1062,14 +1062,14 @@
             "Player": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 2,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 248,
+                    "entity_id": 4194329,
                     "neighbours": [
-                        245,
-                        249,
-                        247,
+                        4194332,
+                        4194328,
+                        4194330,
                         4294967295
                     ]
                 },
@@ -1108,7 +1108,7 @@
             "Body_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 1,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1124,12 +1124,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 247,
+                    "entity_id": 4194330,
                     "neighbours": [
-                        245,
+                        4194332,
                         4294967295,
-                        246,
-                        248
+                        4194331,
+                        4194329
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1167,7 +1167,7 @@
             "Body_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 1,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1183,12 +1183,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 246,
+                    "entity_id": 4194331,
                     "neighbours": [
-                        245,
+                        4194332,
                         4294967295,
                         4294967295,
-                        247
+                        4194330
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1242,6 +1242,18 @@
                             "frameNumber": 167,
                             "scriptFunc": "AnimationState",
                             "scriptName": "First"
+                        },
+                        {
+                            "animIdx": 0,
+                            "frameNumber": 11,
+                            "scriptFunc": "AnimationState",
+                            "scriptName": "ToRender"
+                        },
+                        {
+                            "animIdx": 0,
+                            "frameNumber": 337,
+                            "scriptFunc": "AnimationState",
+                            "scriptName": "Second"
                         }
                     ],
                     "stateMachine Handle": {
@@ -1249,28 +1261,36 @@
                     }
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 245,
+                    "entity_id": 4194332,
                     "neighbours": [
-                        6,
-                        246,
+                        4194571,
+                        4194331,
                         4294967295,
-                        7
+                        4194570
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.PlayerCinematic",
                     "scriptableFieldMap": {
-                        "animID": {
+                        "animState": {
                             "Type": "int",
                             "Value": 0
                         },
                         "bagObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 7
+                            "Value": 4194570
+                        },
+                        "bottomBar": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 4194577
                         },
                         "cinematicCamera": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 10
+                            "Value": 4194567
+                        },
+                        "topBar": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 4194576
                         }
                     }
                 },
@@ -1309,14 +1329,14 @@
             "LegIKController.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 71,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 325,
+                    "entity_id": 4194333,
                     "neighbours": [
-                        248,
-                        326,
-                        315,
+                        4194329,
+                        4194334,
+                        4194540,
                         4294967295
                     ]
                 },
@@ -1355,15 +1375,15 @@
             "Feet.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 72,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 326,
+                    "entity_id": 4194334,
                     "neighbours": [
-                        325,
-                        327,
+                        4194333,
+                        4194335,
                         4294967295,
-                        4
+                        4194573
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1401,7 +1421,7 @@
             "Shoe.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 73,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1417,12 +1437,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 327,
+                    "entity_id": 4194335,
                     "neighbours": [
-                        326,
+                        4194334,
                         4294967295,
                         4294967295,
-                        328
+                        4194336
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1460,7 +1480,7 @@
             "Shoe.R_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 73,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1476,12 +1496,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 328,
+                    "entity_id": 4194336,
                     "neighbours": [
-                        326,
+                        4194334,
                         4294967295,
-                        327,
-                        329
+                        4194335,
+                        4194337
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1519,7 +1539,7 @@
             "Shoe.R_3": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 73,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1535,12 +1555,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 329,
+                    "entity_id": 4194337,
                     "neighbours": [
-                        326,
+                        4194334,
                         4294967295,
-                        328,
-                        330
+                        4194336,
+                        4194338
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1578,7 +1598,7 @@
             "Shoe.R_4": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 73,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -1594,12 +1614,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 330,
+                    "entity_id": 4194338,
                     "neighbours": [
-                        326,
+                        4194334,
                         4294967295,
-                        329,
-                        331
+                        4194337,
+                        4194339
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1637,14 +1657,14 @@
             "Toe.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 74,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 331,
+                    "entity_id": 4194339,
                     "neighbours": [
-                        326,
-                        332,
-                        330,
+                        4194334,
+                        4194340,
+                        4194338,
                         4294967295
                     ]
                 },
@@ -1683,12 +1703,12 @@
             "Toe.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 75,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 332,
+                    "entity_id": 4194340,
                     "neighbours": [
-                        331,
+                        4194339,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1762,11 +1782,11 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 236,
+                    "entity_id": 4194341,
                     "neighbours": [
-                        39,
+                        4194538,
                         4294967295,
-                        235,
+                        4194342,
                         4294967295
                     ]
                 },
@@ -1838,12 +1858,12 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 235,
+                    "entity_id": 4194342,
                     "neighbours": [
-                        39,
+                        4194538,
                         4294967295,
-                        210,
-                        236
+                        4194367,
+                        4194341
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1881,12 +1901,12 @@
             "LowerFinger.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 18,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 234,
+                    "entity_id": 4194343,
                     "neighbours": [
-                        42,
+                        4194535,
                         4294967295,
                         4294967295,
                         4294967295
@@ -1927,15 +1947,15 @@
             "Feet.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 52,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 233,
+                    "entity_id": 4194344,
                     "neighbours": [
-                        43,
-                        230,
+                        4194534,
+                        4194347,
                         4294967295,
-                        96
+                        4194481
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -1973,12 +1993,12 @@
             "LegPole.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 61,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 312,
+                    "entity_id": 4194345,
                     "neighbours": [
-                        311,
+                        4194406,
                         4294967295,
                         4294967295,
                         4294967295
@@ -2019,15 +2039,15 @@
             "LegPole.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 62,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 313,
+                    "entity_id": 4194346,
                     "neighbours": [
-                        248,
-                        314,
-                        311,
-                        315
+                        4194329,
+                        4194361,
+                        4194406,
+                        4194540
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2065,7 +2085,7 @@
             "Shoe.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 53,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -2081,12 +2101,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 230,
+                    "entity_id": 4194347,
                     "neighbours": [
-                        233,
+                        4194344,
                         4294967295,
                         4294967295,
-                        97
+                        4194480
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2146,12 +2166,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 229,
+                    "entity_id": 4194348,
                     "neighbours": [
-                        26,
+                        4194551,
                         4294967295,
                         4294967295,
-                        211
+                        4194366
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2200,13 +2220,13 @@
             "Forearm.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 25,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 275,
+                    "entity_id": 4194349,
                     "neighbours": [
-                        274,
-                        276,
+                        4194360,
+                        4194350,
                         4294967295,
                         4294967295
                     ]
@@ -2246,7 +2266,7 @@
             "Sleeve.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 26,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -2262,12 +2282,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 276,
+                    "entity_id": 4194350,
                     "neighbours": [
-                        275,
+                        4194349,
                         4294967295,
                         4294967295,
-                        277
+                        4194351
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2305,14 +2325,14 @@
             "Hand.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 27,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 277,
+                    "entity_id": 4194351,
                     "neighbours": [
-                        275,
-                        278,
-                        276,
+                        4194349,
+                        4194352,
+                        4194350,
                         4294967295
                     ]
                 },
@@ -2351,7 +2371,7 @@
             "HandSleeve.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 28,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -2367,12 +2387,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 278,
+                    "entity_id": 4194352,
                     "neighbours": [
-                        277,
+                        4194351,
                         4294967295,
                         4294967295,
-                        279
+                        4194353
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2410,15 +2430,15 @@
             "RingUpper.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 29,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 279,
+                    "entity_id": 4194353,
                     "neighbours": [
-                        277,
-                        280,
-                        278,
-                        283
+                        4194351,
+                        4194354,
+                        4194352,
+                        4194378
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2456,13 +2476,13 @@
             "RingMid.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 30,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 280,
+                    "entity_id": 4194354,
                     "neighbours": [
-                        279,
-                        281,
+                        4194353,
+                        4194550,
                         4294967295,
                         4294967295
                     ]
@@ -2513,11 +2533,11 @@
                     "type": "Directional"
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 222,
+                    "entity_id": 4194355,
                     "neighbours": [
-                        116,
+                        4194461,
                         4294967295,
-                        139,
+                        4194438,
                         4294967295
                     ]
                 },
@@ -2556,14 +2576,14 @@
             "UpperThumb.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 20,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 270,
+                    "entity_id": 4194356,
                     "neighbours": [
-                        266,
-                        271,
-                        267,
+                        4194311,
+                        4194357,
+                        4194310,
                         4294967295
                     ]
                 },
@@ -2602,13 +2622,13 @@
             "LowerThumb.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 21,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 271,
+                    "entity_id": 4194357,
                     "neighbours": [
-                        270,
-                        272,
+                        4194356,
+                        4194358,
                         4294967295,
                         4294967295
                     ]
@@ -2648,12 +2668,12 @@
             "LowerThumb.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 22,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 272,
+                    "entity_id": 4194358,
                     "neighbours": [
-                        271,
+                        4194357,
                         4294967295,
                         4294967295,
                         4294967295
@@ -2694,14 +2714,14 @@
             "Shoulder.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 23,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 273,
+                    "entity_id": 4194359,
                     "neighbours": [
-                        254,
-                        274,
-                        262,
+                        4194323,
+                        4194360,
+                        4194315,
                         4294967295
                     ]
                 },
@@ -2740,13 +2760,13 @@
             "UpperArm.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 24,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 274,
+                    "entity_id": 4194360,
                     "neighbours": [
-                        273,
-                        275,
+                        4194359,
+                        4194349,
                         4294967295,
                         4294967295
                     ]
@@ -2786,12 +2806,12 @@
             "LegPole.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 63,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 314,
+                    "entity_id": 4194361,
                     "neighbours": [
-                        313,
+                        4194346,
                         4294967295,
                         4294967295,
                         4294967295
@@ -2832,15 +2852,15 @@
             "Thigh.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 43,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 215,
+                    "entity_id": 4194362,
                     "neighbours": [
-                        82,
-                        117,
-                        57,
-                        110
+                        4194495,
+                        4194460,
+                        4194520,
+                        4194467
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -2896,9 +2916,9 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 214,
+                    "entity_id": 4194363,
                     "neighbours": [
-                        78,
+                        4194499,
                         4294967295,
                         4294967295,
                         4294967295
@@ -2972,11 +2992,11 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 213,
+                    "entity_id": 4194364,
                     "neighbours": [
-                        26,
+                        4194551,
                         4294967295,
-                        212,
+                        4194365,
                         4294967295
                     ]
                 },
@@ -3048,12 +3068,12 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 212,
+                    "entity_id": 4194365,
                     "neighbours": [
-                        26,
+                        4194551,
                         4294967295,
-                        211,
-                        213
+                        4194366,
+                        4194364
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3110,12 +3130,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 211,
+                    "entity_id": 4194366,
                     "neighbours": [
-                        26,
+                        4194551,
                         4294967295,
-                        229,
-                        212
+                        4194348,
+                        4194365
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3183,12 +3203,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 210,
+                    "entity_id": 4194367,
                     "neighbours": [
-                        39,
+                        4194538,
                         4294967295,
-                        40,
-                        235
+                        4194537,
+                        4194342
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3270,12 +3290,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 209,
+                    "entity_id": 4194368,
                     "neighbours": [
-                        208,
+                        4194369,
                         4294967295,
                         4294967295,
-                        12
+                        4194565
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3361,12 +3381,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 208,
+                    "entity_id": 4194369,
                     "neighbours": [
-                        205,
-                        209,
-                        207,
-                        17
+                        4194372,
+                        4194368,
+                        4194370,
+                        4194560
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -3447,12 +3467,12 @@
                     "width": 612.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 207,
+                    "entity_id": 4194370,
                     "neighbours": [
-                        205,
+                        4194372,
                         4294967295,
-                        206,
-                        208
+                        4194371,
+                        4194369
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3520,12 +3540,12 @@
                     "width": 612.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 206,
+                    "entity_id": 4194371,
                     "neighbours": [
-                        205,
+                        4194372,
                         4294967295,
                         4294967295,
-                        207
+                        4194370
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3596,11 +3616,11 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 205,
+                    "entity_id": 4194372,
                     "neighbours": [
-                        141,
-                        206,
-                        142,
+                        4194436,
+                        4194371,
+                        4194435,
                         4294967295
                     ]
                 },
@@ -3672,11 +3692,11 @@
                     "width": 324.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 204,
+                    "entity_id": 4194373,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
-                        203,
+                        4194374,
                         4294967295
                     ]
                 },
@@ -3748,12 +3768,12 @@
                     "width": 330.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 203,
+                    "entity_id": 4194374,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
-                        202,
-                        204
+                        4194375,
+                        4194373
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3810,12 +3830,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 202,
+                    "entity_id": 4194375,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
-                        201,
-                        203
+                        4194376,
+                        4194374
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3883,12 +3903,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 201,
+                    "entity_id": 4194376,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
-                        170,
-                        202
+                        4194407,
+                        4194375
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -3937,12 +3957,12 @@
             "RingLower.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 32,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 282,
+                    "entity_id": 4194377,
                     "neighbours": [
-                        281,
+                        4194550,
                         4294967295,
                         4294967295,
                         4294967295
@@ -3983,15 +4003,15 @@
             "UpperThumb.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 33,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 283,
+                    "entity_id": 4194378,
                     "neighbours": [
-                        277,
-                        284,
-                        279,
-                        286
+                        4194351,
+                        4194379,
+                        4194353,
+                        4194381
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4029,13 +4049,13 @@
             "LowerThumb.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 34,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 284,
+                    "entity_id": 4194379,
                     "neighbours": [
-                        283,
-                        285,
+                        4194378,
+                        4194380,
                         4294967295,
                         4294967295
                     ]
@@ -4075,12 +4095,12 @@
             "LowerThumb.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 35,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 285,
+                    "entity_id": 4194380,
                     "neighbours": [
-                        284,
+                        4194379,
                         4294967295,
                         4294967295,
                         4294967295
@@ -4121,15 +4141,15 @@
             "PinkieUpper.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 36,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 286,
+                    "entity_id": 4194381,
                     "neighbours": [
-                        277,
-                        287,
-                        283,
-                        290
+                        4194351,
+                        4194382,
+                        4194378,
+                        4194385
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4167,13 +4187,13 @@
             "PinkieMid.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 37,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 287,
+                    "entity_id": 4194382,
                     "neighbours": [
-                        286,
-                        288,
+                        4194381,
+                        4194383,
                         4294967295,
                         4294967295
                     ]
@@ -4213,13 +4233,13 @@
             "PinkieLower.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 38,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 288,
+                    "entity_id": 4194383,
                     "neighbours": [
-                        287,
-                        289,
+                        4194382,
+                        4194384,
                         4294967295,
                         4294967295
                     ]
@@ -4259,12 +4279,12 @@
             "PinkieLower.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 39,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 289,
+                    "entity_id": 4194384,
                     "neighbours": [
-                        288,
+                        4194383,
                         4294967295,
                         4294967295,
                         4294967295
@@ -4305,15 +4325,15 @@
             "MiddleUpper.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 40,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 290,
+                    "entity_id": 4194385,
                     "neighbours": [
-                        277,
-                        291,
-                        286,
-                        294
+                        4194351,
+                        4194386,
+                        4194381,
+                        4194389
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4351,13 +4371,13 @@
             "MiddleMid.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 41,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 291,
+                    "entity_id": 4194386,
                     "neighbours": [
-                        290,
-                        292,
+                        4194385,
+                        4194387,
                         4294967295,
                         4294967295
                     ]
@@ -4397,13 +4417,13 @@
             "MiddleLower.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 42,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 292,
+                    "entity_id": 4194387,
                     "neighbours": [
-                        291,
-                        293,
+                        4194386,
+                        4194388,
                         4294967295,
                         4294967295
                     ]
@@ -4443,12 +4463,12 @@
             "MiddleLower.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 43,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 293,
+                    "entity_id": 4194388,
                     "neighbours": [
-                        292,
+                        4194387,
                         4294967295,
                         4294967295,
                         4294967295
@@ -4489,15 +4509,15 @@
             "IndexUpper.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 44,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 294,
+                    "entity_id": 4194389,
                     "neighbours": [
-                        277,
-                        295,
-                        290,
-                        298
+                        4194351,
+                        4194390,
+                        4194385,
+                        4194393
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4535,13 +4555,13 @@
             "IndexMid.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 45,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 295,
+                    "entity_id": 4194390,
                     "neighbours": [
-                        294,
-                        296,
+                        4194389,
+                        4194391,
                         4294967295,
                         4294967295
                     ]
@@ -4581,13 +4601,13 @@
             "IndexLower.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 46,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 296,
+                    "entity_id": 4194391,
                     "neighbours": [
-                        295,
-                        297,
+                        4194390,
+                        4194392,
                         4294967295,
                         4294967295
                     ]
@@ -4627,12 +4647,12 @@
             "IndexLower.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 47,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 297,
+                    "entity_id": 4194392,
                     "neighbours": [
-                        296,
+                        4194391,
                         4294967295,
                         4294967295,
                         4294967295
@@ -4673,14 +4693,14 @@
             "Sword_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 48,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 298,
+                    "entity_id": 4194393,
                     "neighbours": [
-                        277,
-                        299,
-                        294,
+                        4194351,
+                        4194394,
+                        4194389,
                         4294967295
                     ]
                 },
@@ -4719,7 +4739,7 @@
             "Cube.001": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 49,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -4735,12 +4755,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 299,
+                    "entity_id": 4194394,
                     "neighbours": [
-                        298,
+                        4194393,
                         4294967295,
                         4294967295,
-                        300
+                        4194395
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4778,14 +4798,14 @@
             "Sword_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 50,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 300,
+                    "entity_id": 4194395,
                     "neighbours": [
-                        298,
+                        4194393,
                         4294967295,
-                        299,
+                        4194394,
                         4294967295
                     ]
                 },
@@ -4824,15 +4844,15 @@
             "Thigh.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 51,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 301,
+                    "entity_id": 4194396,
                     "neighbours": [
-                        249,
-                        302,
-                        250,
-                        304
+                        4194328,
+                        4194397,
+                        4194327,
+                        4194399
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -4870,13 +4890,13 @@
             "Shin.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 52,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 302,
+                    "entity_id": 4194397,
                     "neighbours": [
-                        301,
-                        303,
+                        4194396,
+                        4194398,
                         4294967295,
                         4294967295
                     ]
@@ -4916,12 +4936,12 @@
             "Shin.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 53,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 303,
+                    "entity_id": 4194398,
                     "neighbours": [
-                        302,
+                        4194397,
                         4294967295,
                         4294967295,
                         4294967295
@@ -4962,14 +4982,14 @@
             "Thigh.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 54,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 304,
+                    "entity_id": 4194399,
                     "neighbours": [
-                        249,
-                        305,
-                        301,
+                        4194328,
+                        4194400,
+                        4194396,
                         4294967295
                     ]
                 },
@@ -5008,13 +5028,13 @@
             "Shin.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 55,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 305,
+                    "entity_id": 4194400,
                     "neighbours": [
-                        304,
-                        306,
+                        4194399,
+                        4194401,
                         4294967295,
                         4294967295
                     ]
@@ -5054,12 +5074,12 @@
             "Shin.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 56,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 306,
+                    "entity_id": 4194401,
                     "neighbours": [
-                        305,
+                        4194400,
                         4294967295,
                         4294967295,
                         4294967295
@@ -5100,15 +5120,15 @@
             "Back": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 57,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 307,
+                    "entity_id": 4194402,
                     "neighbours": [
-                        248,
-                        308,
-                        249,
-                        311
+                        4194329,
+                        4194403,
+                        4194328,
+                        4194406
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5146,7 +5166,7 @@
             "Cube": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 58,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -5162,12 +5182,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 308,
+                    "entity_id": 4194403,
                     "neighbours": [
-                        307,
+                        4194402,
                         4294967295,
                         4294967295,
-                        309
+                        4194404
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5205,7 +5225,7 @@
             "Cube_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 58,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -5221,12 +5241,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 309,
+                    "entity_id": 4194404,
                     "neighbours": [
-                        307,
+                        4194402,
                         4294967295,
-                        308,
-                        310
+                        4194403,
+                        4194405
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5264,14 +5284,14 @@
             "Back_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 59,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 310,
+                    "entity_id": 4194405,
                     "neighbours": [
-                        307,
+                        4194402,
                         4294967295,
-                        309,
+                        4194404,
                         4294967295
                     ]
                 },
@@ -5310,15 +5330,15 @@
             "LegPole.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 60,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 311,
+                    "entity_id": 4194406,
                     "neighbours": [
-                        248,
-                        312,
-                        307,
-                        313
+                        4194329,
+                        4194345,
+                        4194402,
+                        4194346
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5407,12 +5427,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 170,
+                    "entity_id": 4194407,
                     "neighbours": [
-                        142,
-                        38,
-                        145,
-                        201
+                        4194435,
+                        4194539,
+                        4194432,
+                        4194376
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -5493,11 +5513,11 @@
                     "width": 12.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 169,
+                    "entity_id": 4194408,
                     "neighbours": [
-                        166,
+                        4194411,
                         4294967295,
-                        168,
+                        4194409,
                         4294967295
                     ]
                 },
@@ -5566,12 +5586,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 168,
+                    "entity_id": 4194409,
                     "neighbours": [
-                        166,
+                        4194411,
                         4294967295,
-                        167,
-                        169
+                        4194410,
+                        4194408
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5639,12 +5659,12 @@
                     "width": 394.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 167,
+                    "entity_id": 4194410,
                     "neighbours": [
-                        166,
+                        4194411,
                         4294967295,
                         4294967295,
-                        168
+                        4194409
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5712,11 +5732,11 @@
                     "width": 459.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 166,
+                    "entity_id": 4194411,
                     "neighbours": [
-                        164,
-                        167,
-                        165,
+                        4194413,
+                        4194410,
+                        4194412,
                         4294967295
                     ]
                 },
@@ -5734,8 +5754,8 @@
                     "Direction": "Positive",
                     "contained": false,
                     "enabled": true,
-                    "fill": 168,
-                    "handle": 169,
+                    "fill": 4194409,
+                    "handle": 4194408,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -5811,12 +5831,12 @@
                     "width": 354.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 165,
+                    "entity_id": 4194412,
                     "neighbours": [
-                        164,
+                        4194413,
                         4294967295,
                         4294967295,
-                        166
+                        4194411
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -5873,11 +5893,11 @@
                     "width": 1.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 164,
+                    "entity_id": 4194413,
                     "neighbours": [
-                        145,
-                        165,
-                        158,
+                        4194432,
+                        4194412,
+                        4194419,
                         4294967295
                     ]
                 },
@@ -5935,11 +5955,11 @@
                     "width": 12.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 163,
+                    "entity_id": 4194414,
                     "neighbours": [
-                        160,
+                        4194417,
                         4294967295,
-                        162,
+                        4194415,
                         4294967295
                     ]
                 },
@@ -6008,12 +6028,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 162,
+                    "entity_id": 4194415,
                     "neighbours": [
-                        160,
+                        4194417,
                         4294967295,
-                        161,
-                        163
+                        4194416,
+                        4194414
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6081,12 +6101,12 @@
                     "width": 394.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 161,
+                    "entity_id": 4194416,
                     "neighbours": [
-                        160,
+                        4194417,
                         4294967295,
                         4294967295,
-                        162
+                        4194415
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6154,11 +6174,11 @@
                     "width": 459.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 160,
+                    "entity_id": 4194417,
                     "neighbours": [
-                        158,
-                        161,
-                        159,
+                        4194419,
+                        4194416,
+                        4194418,
                         4294967295
                     ]
                 },
@@ -6182,8 +6202,8 @@
                     "Direction": "Positive",
                     "contained": false,
                     "enabled": true,
-                    "fill": 162,
-                    "handle": 163,
+                    "fill": 4194415,
+                    "handle": 4194414,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -6259,12 +6279,12 @@
                     "width": 299.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 159,
+                    "entity_id": 4194418,
                     "neighbours": [
-                        158,
+                        4194419,
                         4294967295,
                         4294967295,
-                        160
+                        4194417
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6321,12 +6341,12 @@
                     "width": 1.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 158,
+                    "entity_id": 4194419,
                     "neighbours": [
-                        145,
-                        159,
-                        152,
-                        164
+                        4194432,
+                        4194418,
+                        4194425,
+                        4194413
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6383,11 +6403,11 @@
                     "width": 12.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 157,
+                    "entity_id": 4194420,
                     "neighbours": [
-                        154,
+                        4194423,
                         4294967295,
-                        156,
+                        4194421,
                         4294967295
                     ]
                 },
@@ -6456,12 +6476,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 156,
+                    "entity_id": 4194421,
                     "neighbours": [
-                        154,
+                        4194423,
                         4294967295,
-                        155,
-                        157
+                        4194422,
+                        4194420
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6529,12 +6549,12 @@
                     "width": 394.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 155,
+                    "entity_id": 4194422,
                     "neighbours": [
-                        154,
+                        4194423,
                         4294967295,
                         4294967295,
-                        156
+                        4194421
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6602,11 +6622,11 @@
                     "width": 459.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 154,
+                    "entity_id": 4194423,
                     "neighbours": [
-                        152,
-                        155,
-                        153,
+                        4194425,
+                        4194422,
+                        4194424,
                         4294967295
                     ]
                 },
@@ -6630,8 +6650,8 @@
                     "Direction": "Positive",
                     "contained": false,
                     "enabled": true,
-                    "fill": 156,
-                    "handle": 157,
+                    "fill": 4194421,
+                    "handle": 4194420,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -6707,12 +6727,12 @@
                     "width": 299.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 153,
+                    "entity_id": 4194424,
                     "neighbours": [
-                        152,
+                        4194425,
                         4294967295,
                         4294967295,
-                        154
+                        4194423
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6769,12 +6789,12 @@
                     "width": 1.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 152,
+                    "entity_id": 4194425,
                     "neighbours": [
-                        145,
-                        153,
-                        146,
-                        158
+                        4194432,
+                        4194424,
+                        4194431,
+                        4194419
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6831,11 +6851,11 @@
                     "width": 12.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 151,
+                    "entity_id": 4194426,
                     "neighbours": [
-                        148,
+                        4194429,
                         4294967295,
-                        150,
+                        4194427,
                         4294967295
                     ]
                 },
@@ -6904,12 +6924,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 150,
+                    "entity_id": 4194427,
                     "neighbours": [
-                        148,
+                        4194429,
                         4294967295,
-                        149,
-                        151
+                        4194428,
+                        4194426
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -6977,12 +6997,12 @@
                     "width": 394.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 149,
+                    "entity_id": 4194428,
                     "neighbours": [
-                        148,
+                        4194429,
                         4294967295,
                         4294967295,
-                        150
+                        4194427
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7050,11 +7070,11 @@
                     "width": 459.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 148,
+                    "entity_id": 4194429,
                     "neighbours": [
-                        146,
-                        149,
-                        147,
+                        4194431,
+                        4194428,
+                        4194430,
                         4294967295
                     ]
                 },
@@ -7078,8 +7098,8 @@
                     "Direction": "Positive",
                     "contained": false,
                     "enabled": true,
-                    "fill": 150,
-                    "handle": 151,
+                    "fill": 4194427,
+                    "handle": 4194426,
                     "value": 0.0
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -7155,12 +7175,12 @@
                     "width": 299.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 147,
+                    "entity_id": 4194430,
                     "neighbours": [
-                        146,
+                        4194431,
                         4294967295,
                         4294967295,
-                        148
+                        4194429
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7217,12 +7237,12 @@
                     "width": 1.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 146,
+                    "entity_id": 4194431,
                     "neighbours": [
-                        145,
-                        147,
+                        4194432,
+                        4194430,
                         4294967295,
-                        152
+                        4194425
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7282,12 +7302,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 145,
+                    "entity_id": 4194432,
                     "neighbours": [
-                        142,
-                        146,
-                        144,
-                        170
+                        4194435,
+                        4194431,
+                        4194433,
+                        4194407
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7344,12 +7364,12 @@
                     "width": 1138.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 144,
+                    "entity_id": 4194433,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
-                        143,
-                        145
+                        4194434,
+                        4194432
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7417,12 +7437,12 @@
                     "width": 1138.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 143,
+                    "entity_id": 4194434,
                     "neighbours": [
-                        142,
+                        4194435,
                         4294967295,
                         4294967295,
-                        144
+                        4194433
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7496,12 +7516,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 142,
+                    "entity_id": 4194435,
                     "neighbours": [
-                        141,
-                        143,
+                        4194436,
+                        4194434,
                         4294967295,
-                        205
+                        4194372
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -7521,7 +7541,7 @@
                         },
                         "closeSettingsButton": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 170
+                            "Value": 4194407
                         },
                         "defaultHeight": {
                             "Type": "int",
@@ -7549,7 +7569,7 @@
                         },
                         "menuCanvasObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 205
+                            "Value": 4194372
                         },
                         "miniTitleTextObj": {
                             "Type": "SliceEngine::GameObject",
@@ -7565,11 +7585,11 @@
                         },
                         "settingsFrontBG": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 144
+                            "Value": 4194433
                         },
                         "settingsSliders": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 145
+                            "Value": 4194432
                         },
                         "useGlitch": {
                             "Type": "bool",
@@ -7637,12 +7657,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 141,
+                    "entity_id": 4194436,
                     "neighbours": [
                         0,
-                        142,
-                        133,
-                        66
+                        4194435,
+                        4194444,
+                        4194511
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -7683,15 +7703,15 @@
             "RingUpper.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 27,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 140,
+                    "entity_id": 4194437,
                     "neighbours": [
-                        58,
-                        100,
-                        56,
-                        135
+                        4194519,
+                        4194477,
+                        4194521,
+                        4194442
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7728,12 +7748,12 @@
         {
             "Respawns": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 139,
+                    "entity_id": 4194438,
                     "neighbours": [
-                        116,
-                        64,
-                        102,
-                        222
+                        4194461,
+                        4194513,
+                        4194475,
+                        4194355
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7792,12 +7812,12 @@
                     "volumeRollOff": "Logarithmic"
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 138,
+                    "entity_id": 4194439,
                     "neighbours": [
                         0,
                         4294967295,
-                        136,
-                        133
+                        4194441,
+                        4194444
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -7835,7 +7855,7 @@
             "ShoeGuard.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 45,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -7851,9 +7871,9 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 137,
+                    "entity_id": 4194440,
                     "neighbours": [
-                        117,
+                        4194460,
                         4294967295,
                         4294967295,
                         4294967295
@@ -7893,12 +7913,12 @@
         {
             "Level Director": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 136,
+                    "entity_id": 4194441,
                     "neighbours": [
                         0,
-                        88,
-                        116,
-                        138
+                        4194489,
+                        4194461,
+                        4194439
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -7918,7 +7938,7 @@
                         },
                         "deathBox": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 55
+                            "Value": 4194522
                         },
                         "enemies": {
                             "Type": "std::vector<SliceEngine::GameObject>",
@@ -7935,14 +7955,14 @@
                         "levelTriggers": {
                             "Type": "std::vector<SliceEngine::GameObject>",
                             "Value": [
-                                54
+                                4194523
                             ]
                         },
                         "levels": {
                             "Type": "std::vector<SliceEngine::GameObject>",
                             "Value": [
-                                88,
-                                98
+                                4194489,
+                                4194479
                             ]
                         },
                         "nextSceneToLoad": {
@@ -7986,15 +8006,15 @@
             "UpperThumb.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 30,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 135,
+                    "entity_id": 4194442,
                     "neighbours": [
-                        58,
-                        134,
-                        140,
-                        108
+                        4194519,
+                        4194443,
+                        4194437,
+                        4194469
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -8032,12 +8052,12 @@
             "LowerThumb.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 31,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 134,
+                    "entity_id": 4194443,
                     "neighbours": [
-                        135,
+                        4194442,
                         4294967295,
                         4294967295,
                         4294967295
@@ -8103,12 +8123,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 133,
+                    "entity_id": 4194444,
                     "neighbours": [
                         0,
-                        132,
-                        138,
-                        141
+                        4194445,
+                        4194439,
+                        4194436
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -8120,7 +8140,7 @@
                         },
                         "continueBtn": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 130
+                            "Value": 4194447
                         },
                         "currLevel": {
                             "Type": "int",
@@ -8136,7 +8156,7 @@
                         },
                         "defeatObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 122
+                            "Value": 4194455
                         },
                         "dialogueDone": {
                             "Type": "bool",
@@ -8144,11 +8164,11 @@
                         },
                         "healthSliderObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 71
+                            "Value": 4194506
                         },
                         "nameTextObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 115
+                            "Value": 4194462
                         },
                         "nextSceneToLoad": {
                             "Type": "std::string",
@@ -8156,15 +8176,15 @@
                         },
                         "regularTextObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 118
+                            "Value": 4194459
                         },
                         "retryBtn": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 121
+                            "Value": 4194456
                         },
                         "textBoxParentObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 119
+                            "Value": 4194458
                         },
                         "typeSpeed": {
                             "Type": "float",
@@ -8172,7 +8192,7 @@
                         },
                         "victoryObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 131
+                            "Value": 4194446
                         }
                     }
                 },
@@ -8230,12 +8250,12 @@
                     "width": 2000.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 132,
+                    "entity_id": 4194445,
                     "neighbours": [
-                        133,
+                        4194444,
                         4294967295,
                         4294967295,
-                        131
+                        4194446
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -8303,12 +8323,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 131,
+                    "entity_id": 4194446,
                     "neighbours": [
-                        133,
+                        4194444,
                         4294967295,
-                        132,
-                        130
+                        4194445,
+                        4194447
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -8408,12 +8428,12 @@
                     "width": 334.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 130,
+                    "entity_id": 4194447,
                     "neighbours": [
-                        133,
-                        129,
-                        131,
-                        122
+                        4194444,
+                        4194448,
+                        4194446,
+                        4194455
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -8504,9 +8524,9 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 129,
+                    "entity_id": 4194448,
                     "neighbours": [
-                        130,
+                        4194447,
                         4294967295,
                         4294967295,
                         4294967295
@@ -8566,11 +8586,11 @@
                     "width": 50.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 128,
+                    "entity_id": 4194449,
                     "neighbours": [
-                        71,
+                        4194506,
                         4294967295,
-                        109,
+                        4194468,
                         4294967295
                     ]
                 },
@@ -8639,12 +8659,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 127,
+                    "entity_id": 4194450,
                     "neighbours": [
-                        133,
+                        4194444,
                         4294967295,
-                        72,
-                        126
+                        4194505,
+                        4194451
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -8715,11 +8735,11 @@
                     "width": 600.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 126,
+                    "entity_id": 4194451,
                     "neighbours": [
-                        133,
-                        125,
-                        127,
+                        4194444,
+                        4194452,
+                        4194450,
                         4294967295
                     ]
                 },
@@ -8802,9 +8822,9 @@
                     "width": 517.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 125,
+                    "entity_id": 4194452,
                     "neighbours": [
-                        126,
+                        4194451,
                         4294967295,
                         4294967295,
                         4294967295
@@ -8845,7 +8865,7 @@
             "Shoe.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 58,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -8861,12 +8881,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 124,
+                    "entity_id": 4194453,
                     "neighbours": [
-                        94,
+                        4194483,
                         4294967295,
                         4294967295,
-                        123
+                        4194454
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -8904,14 +8924,14 @@
             "Toe.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 59,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 123,
+                    "entity_id": 4194454,
                     "neighbours": [
-                        94,
+                        4194483,
                         4294967295,
-                        124,
+                        4194453,
                         4294967295
                     ]
                 },
@@ -8969,12 +8989,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 122,
+                    "entity_id": 4194455,
                     "neighbours": [
-                        133,
+                        4194444,
                         4294967295,
-                        130,
-                        121
+                        4194447,
+                        4194456
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -9074,12 +9094,12 @@
                     "width": 334.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 121,
+                    "entity_id": 4194456,
                     "neighbours": [
-                        133,
-                        120,
-                        122,
-                        119
+                        4194444,
+                        4194457,
+                        4194455,
+                        4194458
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -9170,9 +9190,9 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 120,
+                    "entity_id": 4194457,
                     "neighbours": [
-                        121,
+                        4194456,
                         4294967295,
                         4294967295,
                         4294967295
@@ -9235,12 +9255,12 @@
                     "width": 2000.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 119,
+                    "entity_id": 4194458,
                     "neighbours": [
-                        133,
-                        118,
-                        121,
-                        72
+                        4194444,
+                        4194459,
+                        4194456,
+                        4194505
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -9322,12 +9342,12 @@
                     "width": 1748.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 118,
+                    "entity_id": 4194459,
                     "neighbours": [
-                        119,
+                        4194458,
                         4294967295,
                         4294967295,
-                        115
+                        4194462
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -9365,13 +9385,13 @@
             "Shin.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 44,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 117,
+                    "entity_id": 4194460,
                     "neighbours": [
-                        215,
-                        137,
+                        4194362,
+                        4194440,
                         4294967295,
                         4294967295
                     ]
@@ -9410,12 +9430,12 @@
         {
             "Environment Parent": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 116,
+                    "entity_id": 4194461,
                     "neighbours": [
                         0,
-                        55,
-                        113,
-                        136
+                        4194522,
+                        4194464,
+                        4194441
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -9486,11 +9506,11 @@
                     "width": 1748.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 115,
+                    "entity_id": 4194462,
                     "neighbours": [
-                        119,
+                        4194458,
                         4294967295,
-                        118,
+                        4194459,
                         4294967295
                     ]
                 },
@@ -9535,12 +9555,12 @@
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 114,
+                    "entity_id": 4194463,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        113
+                        4194464
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -9601,12 +9621,12 @@
                     "prefabID": 0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 113,
+                    "entity_id": 4194464,
                     "neighbours": [
                         0,
-                        112,
-                        114,
-                        116
+                        4194465,
+                        4194463,
+                        4194461
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -9618,7 +9638,7 @@
                         },
                         "cameraChild": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 112
+                            "Value": 4194465
                         },
                         "cameraOffset": {
                             "Type": "glm::vec3",
@@ -9808,7 +9828,7 @@
                         0.0
                     ],
                     "impactSmoothness": true,
-                    "isMainCamera": false,
+                    "isMainCamera": true,
                     "luminanceLearningRate": 10.0,
                     "maxLuminance": 10.0,
                     "minLuminance": 9.999999747378752e-05,
@@ -9834,9 +9854,9 @@
                     "prefabID": 1
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 112,
+                    "entity_id": 4194465,
                     "neighbours": [
-                        113,
+                        4194464,
                         4294967295,
                         4294967295,
                         4294967295
@@ -9877,14 +9897,14 @@
             "Hand.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 16,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 111,
+                    "entity_id": 4194466,
                     "neighbours": [
-                        59,
-                        42,
-                        49,
+                        4194518,
+                        4194535,
+                        4194528,
                         4294967295
                     ]
                 },
@@ -9923,14 +9943,14 @@
             "Thigh.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 46,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 110,
+                    "entity_id": 4194467,
                     "neighbours": [
-                        82,
-                        47,
-                        215,
+                        4194495,
+                        4194530,
+                        4194362,
                         4294967295
                     ]
                 },
@@ -9988,12 +10008,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 109,
+                    "entity_id": 4194468,
                     "neighbours": [
-                        71,
+                        4194506,
                         4294967295,
                         4294967295,
-                        128
+                        4194449
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10042,15 +10062,15 @@
             "PinkieUpper.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 32,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 108,
+                    "entity_id": 4194469,
                     "neighbours": [
-                        58,
-                        89,
-                        135,
-                        93
+                        4194519,
+                        4194488,
+                        4194442,
+                        4194484
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10088,12 +10108,12 @@
             "LowerThumb.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 20,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 107,
+                    "entity_id": 4194470,
                     "neighbours": [
-                        50,
+                        4194527,
                         4294967295,
                         4294967295,
                         4294967295
@@ -10134,14 +10154,14 @@
             "Sword": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 41,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 106,
+                    "entity_id": 4194471,
                     "neighbours": [
-                        58,
-                        41,
-                        61,
+                        4194519,
+                        4194536,
+                        4194516,
                         4294967295
                     ]
                 },
@@ -10182,12 +10202,12 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 105,
+                    "entity_id": 4194472,
                     "neighbours": [
-                        102,
-                        101,
-                        53,
-                        78
+                        4194475,
+                        4194476,
+                        4194524,
+                        4194499
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -10195,7 +10215,7 @@
                     "scriptableFieldMap": {
                         "actualBoundingObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 101
+                            "Value": 4194476
                         },
                         "levelToTurnOff": {
                             "Type": "SliceEngine::GameObject",
@@ -10261,12 +10281,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 104,
+                    "entity_id": 4194473,
                     "neighbours": [
-                        66,
+                        4194511,
                         4294967295,
-                        87,
-                        85
+                        4194490,
+                        4194492
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -10306,12 +10326,12 @@
         {
             "Trigger Boxes": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 103,
+                    "entity_id": 4194474,
                     "neighbours": [
-                        116,
-                        54,
-                        55,
-                        102
+                        4194461,
+                        4194523,
+                        4194522,
+                        4194475
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10348,12 +10368,12 @@
         {
             "Toggling boxes": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 102,
+                    "entity_id": 4194475,
                     "neighbours": [
-                        116,
-                        53,
-                        103,
-                        139
+                        4194461,
+                        4194524,
+                        4194474,
+                        4194438
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10409,9 +10429,9 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 101,
+                    "entity_id": 4194476,
                     "neighbours": [
-                        105,
+                        4194472,
                         4294967295,
                         4294967295,
                         4294967295
@@ -10452,13 +10472,13 @@
             "RingMid.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 28,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 100,
+                    "entity_id": 4194477,
                     "neighbours": [
-                        140,
-                        62,
+                        4194437,
+                        4194515,
                         4294967295,
                         4294967295
                     ]
@@ -10516,9 +10536,9 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 99,
+                    "entity_id": 4194478,
                     "neighbours": [
-                        53,
+                        4194524,
                         4294967295,
                         4294967295,
                         4294967295
@@ -10558,11 +10578,11 @@
         {
             "Lvl 0_1": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 98,
+                    "entity_id": 4194479,
                     "neighbours": [
-                        136,
+                        4194441,
                         4294967295,
-                        88,
+                        4194489,
                         4294967295
                     ]
                 },
@@ -10591,7 +10611,7 @@
                         },
                         "levelDirectorObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 136
+                            "Value": 4194441
                         },
                         "levelIndex": {
                             "Type": "int",
@@ -10607,7 +10627,7 @@
                         },
                         "respawnPoint": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 64
+                            "Value": 4194513
                         },
                         "slimeSpawnRate": {
                             "Type": "float",
@@ -10678,14 +10698,14 @@
             "Toe.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 54,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 97,
+                    "entity_id": 4194480,
                     "neighbours": [
-                        233,
+                        4194344,
                         4294967295,
-                        230,
+                        4194347,
                         4294967295
                     ]
                 },
@@ -10724,14 +10744,14 @@
             "LegIK.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 55,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 96,
+                    "entity_id": 4194481,
                     "neighbours": [
-                        43,
+                        4194534,
                         4294967295,
-                        233,
+                        4194344,
                         4294967295
                     ]
                 },
@@ -10770,14 +10790,14 @@
             "LegIKController.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 56,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 95,
+                    "entity_id": 4194482,
                     "neighbours": [
-                        83,
-                        94,
-                        43,
+                        4194494,
+                        4194483,
+                        4194534,
                         4294967295
                     ]
                 },
@@ -10816,15 +10836,15 @@
             "Feet.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 57,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 94,
+                    "entity_id": 4194483,
                     "neighbours": [
-                        95,
-                        124,
+                        4194482,
+                        4194453,
                         4294967295,
-                        73
+                        4194504
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10862,15 +10882,15 @@
             "MiddleUpper.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 35,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 93,
+                    "entity_id": 4194484,
                     "neighbours": [
-                        58,
-                        92,
-                        108,
-                        61
+                        4194519,
+                        4194485,
+                        4194469,
+                        4194516
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -10908,13 +10928,13 @@
             "MiddleMid.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 36,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 92,
+                    "entity_id": 4194485,
                     "neighbours": [
-                        93,
-                        86,
+                        4194484,
+                        4194491,
                         4294967295,
                         4294967295
                     ]
@@ -10954,13 +10974,13 @@
             "UpperArm.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 22,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 91,
+                    "entity_id": 4194486,
                     "neighbours": [
-                        51,
-                        52,
+                        4194526,
+                        4194525,
                         4294967295,
                         4294967295
                     ]
@@ -11000,7 +11020,7 @@
             "Sleeve.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 24,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -11016,12 +11036,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 90,
+                    "entity_id": 4194487,
                     "neighbours": [
-                        52,
+                        4194525,
                         4294967295,
                         4294967295,
-                        58
+                        4194519
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -11059,13 +11079,13 @@
             "PinkieMid.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 33,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 89,
+                    "entity_id": 4194488,
                     "neighbours": [
-                        108,
-                        76,
+                        4194469,
+                        4194501,
                         4294967295,
                         4294967295
                     ]
@@ -11104,12 +11124,12 @@
         {
             "Lvl 0": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 88,
+                    "entity_id": 4194489,
                     "neighbours": [
-                        136,
+                        4194441,
                         4294967295,
                         4294967295,
-                        98
+                        4194479
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -11137,7 +11157,7 @@
                         },
                         "levelDirectorObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 136
+                            "Value": 4194441
                         },
                         "levelIndex": {
                             "Type": "int",
@@ -11153,7 +11173,7 @@
                         },
                         "respawnPoint": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 64
+                            "Value": 4194513
                         },
                         "slimeSpawnRate": {
                             "Type": "float",
@@ -11239,12 +11259,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 87,
+                    "entity_id": 4194490,
                     "neighbours": [
-                        66,
+                        4194511,
                         4294967295,
-                        75,
-                        104
+                        4194502,
+                        4194473
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -11285,12 +11305,12 @@
             "MiddleLower.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 37,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 86,
+                    "entity_id": 4194491,
                     "neighbours": [
-                        92,
+                        4194485,
                         4294967295,
                         4294967295,
                         4294967295
@@ -11346,12 +11366,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 85,
+                    "entity_id": 4194492,
                     "neighbours": [
-                        66,
+                        4194511,
                         4294967295,
-                        104,
-                        84
+                        4194473,
+                        4194493
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -11479,11 +11499,11 @@
                     }
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 84,
+                    "entity_id": 4194493,
                     "neighbours": [
-                        66,
-                        79,
-                        85,
+                        4194511,
+                        4194498,
+                        4194492,
                         4294967295
                     ]
                 },
@@ -11492,7 +11512,7 @@
                     "scriptableFieldMap": {
                         "player": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 66
+                            "Value": 4194511
                         }
                     }
                 },
@@ -11531,14 +11551,14 @@
             "Player_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 2,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 83,
+                    "entity_id": 4194494,
                     "neighbours": [
-                        84,
-                        82,
-                        79,
+                        4194493,
+                        4194495,
+                        4194498,
                         4294967295
                     ]
                 },
@@ -11577,15 +11597,15 @@
             "Groin": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 3,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 82,
+                    "entity_id": 4194495,
                     "neighbours": [
-                        83,
-                        57,
+                        4194494,
+                        4194520,
                         4294967295,
-                        45
+                        4194532
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -11623,7 +11643,7 @@
             "Belt": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 5,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -11639,12 +11659,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 81,
+                    "entity_id": 4194496,
                     "neighbours": [
-                        57,
+                        4194520,
                         4294967295,
                         4294967295,
-                        80
+                        4194497
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -11682,14 +11702,14 @@
             "LowerChest": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 6,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 80,
+                    "entity_id": 4194497,
                     "neighbours": [
-                        57,
-                        77,
-                        81,
+                        4194520,
+                        4194500,
+                        4194496,
                         4294967295
                     ]
                 },
@@ -11728,7 +11748,7 @@
             "Body": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 1,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -11744,12 +11764,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 79,
+                    "entity_id": 4194498,
                     "neighbours": [
-                        84,
+                        4194493,
                         4294967295,
                         4294967295,
-                        83
+                        4194494
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -11789,11 +11809,11 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 78,
+                    "entity_id": 4194499,
                     "neighbours": [
-                        102,
-                        214,
-                        105,
+                        4194475,
+                        4194363,
+                        4194472,
                         4294967295
                     ]
                 },
@@ -11802,7 +11822,7 @@
                     "scriptableFieldMap": {
                         "actualBoundingObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 214
+                            "Value": 4194363
                         },
                         "levelToTurnOff": {
                             "Type": "SliceEngine::GameObject",
@@ -11853,13 +11873,13 @@
             "UpperChest": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 7,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 77,
+                    "entity_id": 4194500,
                     "neighbours": [
-                        80,
-                        74,
+                        4194497,
+                        4194503,
                         4294967295,
                         4294967295
                     ]
@@ -11899,12 +11919,12 @@
             "PinkieLower.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 34,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 76,
+                    "entity_id": 4194501,
                     "neighbours": [
-                        89,
+                        4194488,
                         4294967295,
                         4294967295,
                         4294967295
@@ -11960,12 +11980,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 75,
+                    "entity_id": 4194502,
                     "neighbours": [
-                        66,
+                        4194511,
                         4294967295,
-                        67,
-                        87
+                        4194510,
+                        4194490
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -12006,15 +12026,15 @@
             "Neck": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 8,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 74,
+                    "entity_id": 4194503,
                     "neighbours": [
-                        77,
-                        70,
+                        4194500,
+                        4194507,
                         4294967295,
-                        65
+                        4194512
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -12052,14 +12072,14 @@
             "LegIK.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 60,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 73,
+                    "entity_id": 4194504,
                     "neighbours": [
-                        95,
+                        4194482,
                         4294967295,
-                        94,
+                        4194483,
                         4294967295
                     ]
                 },
@@ -12117,12 +12137,12 @@
                     "width": 565.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 72,
+                    "entity_id": 4194505,
                     "neighbours": [
-                        133,
-                        71,
-                        119,
-                        127
+                        4194444,
+                        4194506,
+                        4194458,
+                        4194450
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -12190,10 +12210,10 @@
                     "width": 446.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 71,
+                    "entity_id": 4194506,
                     "neighbours": [
-                        72,
-                        109,
+                        4194505,
+                        4194468,
                         4294967295,
                         4294967295
                     ]
@@ -12209,8 +12229,8 @@
                     "Direction": "Positive",
                     "contained": false,
                     "enabled": true,
-                    "fill": 109,
-                    "handle": 128,
+                    "fill": 4194468,
+                    "handle": 4194449,
                     "value": 0.800000011920929
                 },
                 "struct SliceEngine::SpriteRenderer": {
@@ -12253,13 +12273,13 @@
             "Head": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 9,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 70,
+                    "entity_id": 4194507,
                     "neighbours": [
-                        74,
-                        69,
+                        4194503,
+                        4194508,
                         4294967295,
                         4294967295
                     ]
@@ -12299,7 +12319,7 @@
             "Hair": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 10,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -12315,12 +12335,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 69,
+                    "entity_id": 4194508,
                     "neighbours": [
-                        70,
+                        4194507,
                         4294967295,
                         4294967295,
-                        68
+                        4194509
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -12358,7 +12378,7 @@
             "Helmet": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 11,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -12374,11 +12394,11 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 68,
+                    "entity_id": 4194509,
                     "neighbours": [
-                        70,
+                        4194507,
                         4294967295,
-                        69,
+                        4194508,
                         4294967295
                     ]
                 },
@@ -12432,12 +12452,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 67,
+                    "entity_id": 4194510,
                     "neighbours": [
-                        66,
+                        4194511,
                         4294967295,
                         4294967295,
-                        75
+                        4194502
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -12532,12 +12552,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 66,
+                    "entity_id": 4194511,
                     "neighbours": [
                         0,
-                        67,
-                        141,
-                        34
+                        4194510,
+                        4194436,
+                        4194543
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -12703,7 +12723,7 @@
                         },
                         "playerModel": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 84
+                            "Value": 4194493
                         },
                         "playerSword": {
                             "Type": "SliceEngine::GameObject",
@@ -12778,15 +12798,15 @@
             "Shoulder.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 12,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 65,
+                    "entity_id": 4194512,
                     "neighbours": [
-                        77,
-                        63,
-                        74,
-                        51
+                        4194500,
+                        4194514,
+                        4194503,
+                        4194526
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -12823,9 +12843,9 @@
         {
             "Respawn Point_01": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 64,
+                    "entity_id": 4194513,
                     "neighbours": [
-                        139,
+                        4194438,
                         4294967295,
                         4294967295,
                         4294967295
@@ -12866,13 +12886,13 @@
             "UpperArm.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 13,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 63,
+                    "entity_id": 4194514,
                     "neighbours": [
-                        65,
-                        59,
+                        4194512,
+                        4194518,
                         4294967295,
                         4294967295
                     ]
@@ -12912,12 +12932,12 @@
             "RingLower.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 29,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 62,
+                    "entity_id": 4194515,
                     "neighbours": [
-                        100,
+                        4194477,
                         4294967295,
                         4294967295,
                         4294967295
@@ -12958,15 +12978,15 @@
             "IndexUpper.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 38,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 61,
+                    "entity_id": 4194516,
                     "neighbours": [
-                        58,
-                        60,
-                        93,
-                        106
+                        4194519,
+                        4194517,
+                        4194484,
+                        4194471
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13004,13 +13024,13 @@
             "IndexMid.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 39,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 60,
+                    "entity_id": 4194517,
                     "neighbours": [
-                        61,
-                        48,
+                        4194516,
+                        4194529,
                         4294967295,
                         4294967295
                     ]
@@ -13050,13 +13070,13 @@
             "Forearm.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 14,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 59,
+                    "entity_id": 4194518,
                     "neighbours": [
-                        63,
-                        49,
+                        4194514,
+                        4194528,
                         4294967295,
                         4294967295
                     ]
@@ -13096,14 +13116,14 @@
             "Hand.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 25,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 58,
+                    "entity_id": 4194519,
                     "neighbours": [
-                        52,
-                        56,
-                        90,
+                        4194525,
+                        4194521,
+                        4194487,
                         4294967295
                     ]
                 },
@@ -13142,15 +13162,15 @@
             "Hips": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 4,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 57,
+                    "entity_id": 4194520,
                     "neighbours": [
-                        82,
-                        81,
+                        4194495,
+                        4194496,
                         4294967295,
-                        215
+                        4194362
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13188,7 +13208,7 @@
             "HandSleeve.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 26,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -13204,12 +13224,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 56,
+                    "entity_id": 4194521,
                     "neighbours": [
-                        58,
+                        4194519,
                         4294967295,
                         4294967295,
-                        140
+                        4194437
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13262,12 +13282,12 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 55,
+                    "entity_id": 4194522,
                     "neighbours": [
-                        116,
+                        4194461,
                         4294967295,
                         4294967295,
-                        103
+                        4194474
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -13323,9 +13343,9 @@
                     ]
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 54,
+                    "entity_id": 4194523,
                     "neighbours": [
-                        103,
+                        4194474,
                         4294967295,
                         4294967295,
                         4294967295
@@ -13371,12 +13391,12 @@
                     "mTest": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 53,
+                    "entity_id": 4194524,
                     "neighbours": [
-                        102,
-                        99,
+                        4194475,
+                        4194478,
                         4294967295,
-                        105
+                        4194472
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -13384,7 +13404,7 @@
                     "scriptableFieldMap": {
                         "actualBoundingObject": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 99
+                            "Value": 4194478
                         },
                         "levelToTurnOff": {
                             "Type": "SliceEngine::GameObject",
@@ -13392,7 +13412,7 @@
                         },
                         "levelToTurnOn": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 46
+                            "Value": 4194531
                         },
                         "startOn": {
                             "Type": "bool",
@@ -13435,13 +13455,13 @@
             "Forearm.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 23,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 52,
+                    "entity_id": 4194525,
                     "neighbours": [
-                        91,
-                        90,
+                        4194486,
+                        4194487,
                         4294967295,
                         4294967295
                     ]
@@ -13481,14 +13501,14 @@
             "Shoulder.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 21,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 51,
+                    "entity_id": 4194526,
                     "neighbours": [
-                        77,
-                        91,
-                        65,
+                        4194500,
+                        4194486,
+                        4194512,
                         4294967295
                     ]
                 },
@@ -13527,14 +13547,14 @@
             "UpperThumb.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 19,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 50,
+                    "entity_id": 4194527,
                     "neighbours": [
-                        111,
-                        107,
-                        42,
+                        4194466,
+                        4194470,
+                        4194535,
                         4294967295
                     ]
                 },
@@ -13573,7 +13593,7 @@
             "Sleeve.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 15,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -13589,12 +13609,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 49,
+                    "entity_id": 4194528,
                     "neighbours": [
-                        59,
+                        4194518,
                         4294967295,
                         4294967295,
-                        111
+                        4194466
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13632,12 +13652,12 @@
             "IndexLower.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 40,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 48,
+                    "entity_id": 4194529,
                     "neighbours": [
-                        60,
+                        4194517,
                         4294967295,
                         4294967295,
                         4294967295
@@ -13678,13 +13698,13 @@
             "Shin.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 47,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 47,
+                    "entity_id": 4194530,
                     "neighbours": [
-                        110,
-                        46,
+                        4194467,
+                        4194531,
                         4294967295,
                         4294967295
                     ]
@@ -13724,7 +13744,7 @@
             "ShoeGuard.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 48,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -13740,9 +13760,9 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 46,
+                    "entity_id": 4194531,
                     "neighbours": [
-                        47,
+                        4194530,
                         4294967295,
                         4294967295,
                         4294967295
@@ -13783,15 +13803,15 @@
             "LegPole.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 49,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 45,
+                    "entity_id": 4194532,
                     "neighbours": [
-                        83,
+                        4194494,
                         4294967295,
-                        82,
-                        44
+                        4194495,
+                        4194533
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13829,15 +13849,15 @@
             "LegPole.R": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 50,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 44,
+                    "entity_id": 4194533,
                     "neighbours": [
-                        83,
+                        4194494,
                         4294967295,
-                        45,
-                        43
+                        4194532,
+                        4194534
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13875,15 +13895,15 @@
             "LegIKController.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 51,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 43,
+                    "entity_id": 4194534,
                     "neighbours": [
-                        83,
-                        233,
-                        44,
-                        95
+                        4194494,
+                        4194344,
+                        4194533,
+                        4194482
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13921,15 +13941,15 @@
             "UpperFinger.L": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 17,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 42,
+                    "entity_id": 4194535,
                     "neighbours": [
-                        111,
-                        234,
+                        4194466,
+                        4194343,
                         4294967295,
-                        50
+                        4194527
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -13967,7 +13987,7 @@
             "SwordHandle": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 42,
-                    "skeleton_root": 84
+                    "skeleton_root": 4194493
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -13983,9 +14003,9 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 41,
+                    "entity_id": 4194536,
                     "neighbours": [
-                        106,
+                        4194471,
                         4294967295,
                         4294967295,
                         4294967295
@@ -14048,12 +14068,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 40,
+                    "entity_id": 4194537,
                     "neighbours": [
-                        39,
+                        4194538,
                         4294967295,
                         4294967295,
-                        210
+                        4194367
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14121,11 +14141,11 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 39,
+                    "entity_id": 4194538,
                     "neighbours": [
-                        170,
-                        40,
-                        38,
+                        4194407,
+                        4194537,
+                        4194539,
                         4294967295
                     ]
                 },
@@ -14134,7 +14154,7 @@
                     "scriptableFieldMap": {
                         "backTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 235
+                            "Value": 4194342
                         },
                         "defaultWidth": {
                             "Type": "int",
@@ -14146,11 +14166,11 @@
                         },
                         "frontTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 236
+                            "Value": 4194341
                         },
                         "glitchRectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 40
+                            "Value": 4194537
                         },
                         "hoverWidth": {
                             "Type": "int",
@@ -14158,7 +14178,7 @@
                         },
                         "rectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 210
+                            "Value": 4194367
                         },
                         "textToShow": {
                             "Type": "std::string",
@@ -14238,12 +14258,12 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 38,
+                    "entity_id": 4194539,
                     "neighbours": [
-                        170,
+                        4194407,
                         4294967295,
                         4294967295,
-                        39
+                        4194538
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14281,15 +14301,15 @@
             "LegIKController.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 64,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 315,
+                    "entity_id": 4194540,
                     "neighbours": [
-                        248,
-                        316,
-                        313,
-                        325
+                        4194329,
+                        4194541,
+                        4194346,
+                        4194333
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14327,15 +14347,15 @@
             "Feet.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 65,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 316,
+                    "entity_id": 4194541,
                     "neighbours": [
-                        315,
-                        317,
+                        4194540,
+                        4194542,
                         4294967295,
-                        323
+                        4194548
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14373,7 +14393,7 @@
             "Shoe.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 66,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -14389,12 +14409,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 317,
+                    "entity_id": 4194542,
                     "neighbours": [
-                        316,
+                        4194541,
                         4294967295,
                         4294967295,
-                        318
+                        4194566
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14460,12 +14480,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 34,
+                    "entity_id": 4194543,
                     "neighbours": [
                         0,
                         4294967295,
-                        66,
-                        3
+                        4194511,
+                        4194574
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14503,7 +14523,7 @@
             "Shoe.L_3": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 66,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -14519,12 +14539,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 319,
+                    "entity_id": 4194544,
                     "neighbours": [
-                        316,
+                        4194541,
                         4294967295,
-                        318,
-                        320
+                        4194566,
+                        4194545
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14562,7 +14582,7 @@
             "Shoe.L_4": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 66,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -14578,12 +14598,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 320,
+                    "entity_id": 4194545,
                     "neighbours": [
-                        316,
+                        4194541,
                         4294967295,
-                        319,
-                        321
+                        4194544,
+                        4194546
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -14621,14 +14641,14 @@
             "Toe.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 67,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 321,
+                    "entity_id": 4194546,
                     "neighbours": [
-                        316,
-                        322,
-                        320,
+                        4194541,
+                        4194547,
+                        4194545,
                         4294967295
                     ]
                 },
@@ -14667,12 +14687,12 @@
             "Toe.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 68,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 322,
+                    "entity_id": 4194547,
                     "neighbours": [
-                        321,
+                        4194546,
                         4294967295,
                         4294967295,
                         4294967295
@@ -14713,14 +14733,14 @@
             "LegIK.L_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 69,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 323,
+                    "entity_id": 4194548,
                     "neighbours": [
-                        315,
-                        324,
-                        316,
+                        4194540,
+                        4194549,
+                        4194541,
                         4294967295
                     ]
                 },
@@ -14759,12 +14779,12 @@
             "LegIK.L_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 70,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 324,
+                    "entity_id": 4194549,
                     "neighbours": [
-                        323,
+                        4194548,
                         4294967295,
                         4294967295,
                         4294967295
@@ -14805,13 +14825,13 @@
             "RingLower.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 31,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 281,
+                    "entity_id": 4194550,
                     "neighbours": [
-                        280,
-                        282,
+                        4194354,
+                        4194377,
                         4294967295,
                         4294967295
                     ]
@@ -14870,11 +14890,11 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 26,
+                    "entity_id": 4194551,
                     "neighbours": [
-                        24,
-                        229,
-                        25,
+                        4194553,
+                        4194348,
+                        4194552,
                         4294967295
                     ]
                 },
@@ -14883,7 +14903,7 @@
                     "scriptableFieldMap": {
                         "backTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 212
+                            "Value": 4194365
                         },
                         "defaultWidth": {
                             "Type": "int",
@@ -14895,11 +14915,11 @@
                         },
                         "frontTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 213
+                            "Value": 4194364
                         },
                         "glitchRectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 229
+                            "Value": 4194348
                         },
                         "hoverWidth": {
                             "Type": "int",
@@ -14907,7 +14927,7 @@
                         },
                         "rectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 211
+                            "Value": 4194366
                         },
                         "textToShow": {
                             "Type": "std::string",
@@ -14987,12 +15007,12 @@
                     "width": 360.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 25,
+                    "entity_id": 4194552,
                     "neighbours": [
-                        24,
+                        4194553,
                         4294967295,
                         4294967295,
-                        26
+                        4194551
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15078,11 +15098,11 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 24,
+                    "entity_id": 4194553,
                     "neighbours": [
-                        205,
-                        25,
-                        17,
+                        4194372,
+                        4194552,
+                        4194560,
                         4294967295
                     ]
                 },
@@ -15178,11 +15198,11 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 23,
+                    "entity_id": 4194554,
                     "neighbours": [
-                        19,
+                        4194558,
                         4294967295,
-                        22,
+                        4194555,
                         4294967295
                     ]
                 },
@@ -15254,12 +15274,12 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 22,
+                    "entity_id": 4194555,
                     "neighbours": [
-                        19,
+                        4194558,
                         4294967295,
-                        21,
-                        23
+                        4194556,
+                        4194554
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15316,12 +15336,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 21,
+                    "entity_id": 4194556,
                     "neighbours": [
-                        19,
+                        4194558,
                         4294967295,
-                        20,
-                        22
+                        4194557,
+                        4194555
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15392,12 +15412,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 20,
+                    "entity_id": 4194557,
                     "neighbours": [
-                        19,
+                        4194558,
                         4294967295,
                         4294967295,
-                        21
+                        4194556
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15465,11 +15485,11 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 19,
+                    "entity_id": 4194558,
                     "neighbours": [
-                        17,
-                        20,
-                        18,
+                        4194560,
+                        4194557,
+                        4194559,
                         4294967295
                     ]
                 },
@@ -15478,7 +15498,7 @@
                     "scriptableFieldMap": {
                         "backTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 22
+                            "Value": 4194555
                         },
                         "defaultWidth": {
                             "Type": "int",
@@ -15490,11 +15510,11 @@
                         },
                         "frontTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 23
+                            "Value": 4194554
                         },
                         "glitchRectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 20
+                            "Value": 4194557
                         },
                         "hoverWidth": {
                             "Type": "int",
@@ -15502,7 +15522,7 @@
                         },
                         "rectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 21
+                            "Value": 4194556
                         },
                         "textToShow": {
                             "Type": "std::string",
@@ -15582,12 +15602,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 18,
+                    "entity_id": 4194559,
                     "neighbours": [
-                        17,
+                        4194560,
                         4294967295,
                         4294967295,
-                        19
+                        4194558
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15673,12 +15693,12 @@
                     "width": 100.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 17,
+                    "entity_id": 4194560,
                     "neighbours": [
-                        205,
-                        18,
-                        208,
-                        24
+                        4194372,
+                        4194559,
+                        4194369,
+                        4194553
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -15773,11 +15793,11 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 16,
+                    "entity_id": 4194561,
                     "neighbours": [
-                        12,
+                        4194565,
                         4294967295,
-                        15,
+                        4194562,
                         4294967295
                     ]
                 },
@@ -15849,12 +15869,12 @@
                     "width": 356.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 15,
+                    "entity_id": 4194562,
                     "neighbours": [
-                        12,
+                        4194565,
                         4294967295,
-                        14,
-                        16
+                        4194563,
+                        4194561
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15911,12 +15931,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 14,
+                    "entity_id": 4194563,
                     "neighbours": [
-                        12,
+                        4194565,
                         4294967295,
-                        13,
-                        15
+                        4194564,
+                        4194562
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -15987,12 +16007,12 @@
                     "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 13,
+                    "entity_id": 4194564,
                     "neighbours": [
-                        12,
+                        4194565,
                         4294967295,
                         4294967295,
-                        14
+                        4194563
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -16060,11 +16080,11 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 12,
+                    "entity_id": 4194565,
                     "neighbours": [
-                        208,
-                        13,
-                        209,
+                        4194369,
+                        4194564,
+                        4194368,
                         4294967295
                     ]
                 },
@@ -16073,7 +16093,7 @@
                     "scriptableFieldMap": {
                         "backTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 15
+                            "Value": 4194562
                         },
                         "defaultWidth": {
                             "Type": "int",
@@ -16085,11 +16105,11 @@
                         },
                         "frontTextObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 16
+                            "Value": 4194561
                         },
                         "glitchRectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 13
+                            "Value": 4194564
                         },
                         "hoverWidth": {
                             "Type": "int",
@@ -16097,7 +16117,7 @@
                         },
                         "rectObj": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 14
+                            "Value": 4194563
                         },
                         "textToShow": {
                             "Type": "std::string",
@@ -16144,7 +16164,7 @@
             "Shoe.L_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 66,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -16160,12 +16180,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 318,
+                    "entity_id": 4194566,
                     "neighbours": [
-                        316,
+                        4194541,
                         4294967295,
-                        317,
-                        319
+                        4194542,
+                        4194544
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -16285,12 +16305,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 10,
+                    "entity_id": 4194567,
                     "neighbours": [
-                        6,
+                        4194571,
                         4294967295,
-                        7,
-                        4294967295
+                        4194570,
+                        4194575
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -16307,7 +16327,7 @@
                     ],
                     "position": [
                         -1.971960425376892,
-                        0.7980338931083679,
+                        0.7511513829231262,
                         0.9351596832275391
                     ],
                     "rotation": [
@@ -16328,7 +16348,7 @@
             "Cube_3": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 1,
-                    "skeleton_root": 7
+                    "skeleton_root": 4194570
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -16344,11 +16364,11 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 9,
+                    "entity_id": 4194568,
                     "neighbours": [
-                        7,
+                        4194570,
                         4294967295,
-                        8,
+                        4194569,
                         4294967295
                     ]
                 },
@@ -16387,7 +16407,7 @@
             "Cube_2": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 1,
-                    "skeleton_root": 7
+                    "skeleton_root": 4194570
                 },
                 "struct SliceEngine::Renderer": {
                     "castsShadow": true,
@@ -16403,12 +16423,12 @@
                     "skinned": true
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 8,
+                    "entity_id": 4194569,
                     "neighbours": [
-                        7,
+                        4194570,
                         4294967295,
                         4294967295,
-                        9
+                        4194568
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -16481,12 +16501,12 @@
                     "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 7,
+                    "entity_id": 4194570,
                     "neighbours": [
-                        6,
-                        8,
-                        245,
-                        10
+                        4194571,
+                        4194569,
+                        4194332,
+                        4194567
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -16523,11 +16543,11 @@
         {
             "Cinematic": {
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 6,
+                    "entity_id": 4194571,
                     "neighbours": [
                         0,
-                        245,
-                        3,
+                        4194332,
+                        4194574,
                         4294967295
                     ]
                 },
@@ -16566,12 +16586,12 @@
             "LegIK.R_end": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 77,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 5,
+                    "entity_id": 4194572,
                     "neighbours": [
-                        4,
+                        4194573,
                         4294967295,
                         4294967295,
                         4294967295
@@ -16612,14 +16632,14 @@
             "LegIK.R_1": {
                 "struct SliceEngine::Bone": {
                     "frame_idx": 76,
-                    "skeleton_root": 245
+                    "skeleton_root": 4194332
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 4,
+                    "entity_id": 4194573,
                     "neighbours": [
-                        325,
-                        5,
-                        326,
+                        4194333,
+                        4194572,
+                        4194334,
                         4294967295
                     ]
                 },
@@ -16686,12 +16706,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 3,
+                    "entity_id": 4194574,
                     "neighbours": [
                         0,
                         4294967295,
-                        34,
-                        6
+                        4194543,
+                        4194571
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -16703,7 +16723,7 @@
                         },
                         "cinematicPlayer": {
                             "Type": "SliceEngine::GameObject",
-                            "Value": 245
+                            "Value": 4194332
                         }
                     }
                 },
@@ -16734,6 +16754,199 @@
                         4.670593738555908,
                         2.0951426029205322,
                         4.686045169830322
+                    ]
+                }
+            }
+        },
+        {
+            "CinematicUICanvas": {
+                "struct SliceEngine::Canvas": {
+                    "canvas_type": "Overlay",
+                    "componentEnabled": true,
+                    "graphics_raycast": true,
+                    "sort_order": 0
+                },
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 1080.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 0.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 4194575,
+                    "neighbours": [
+                        4194571,
+                        4194576,
+                        4194567,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "CinematicUICanvas",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        17.17932891845703
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "Image_4": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 150.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 75.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Top",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 4194576,
+                    "neighbours": [
+                        4194575,
+                        4294967295,
+                        4294967295,
+                        4194577
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Image_4",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "texture": "15644028420850910905"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        1.900052547454834,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "Image_5": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 150.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": -75.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Bottom",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 4194577,
+                    "neighbours": [
+                        4194575,
+                        4294967295,
+                        4194576,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Image_5",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "texture": "15644028420850910905"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 }
             }

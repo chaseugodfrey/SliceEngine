@@ -11,6 +11,8 @@ namespace SliceEngine
     {
         public GameObject bagObject;
         public GameObject cinematicCamera;
+        public GameObject topBar;
+        public GameObject bottomBar;
        // public GameObject cameraStartingPos;
 
 
@@ -19,6 +21,7 @@ namespace SliceEngine
         private Coroutine fadeOutRoutine = null;
         private bool fadingIn = false;
         private const float TransitionDuration = 1.0f;
+        private const float uiDuration = 2.0f;
 
         public override void OnCreate()
         {
@@ -140,7 +143,10 @@ namespace SliceEngine
             }
 
             if (animState == 0)
+            {
                 GetComponent<Animator>().SetBool("Cinematic", true);
+                StartCoroutine(UIAnimation());
+            }
 
 
             fadeInRoutine = null;
@@ -191,6 +197,30 @@ namespace SliceEngine
             //CoroutineManager.StopAllCoroutines(_transitionRunner);
         }
 
+        public IEnumerator UIAnimation()
+        {
+            float elapsedTime = 0f;
+            float startingTopBar = topBar.GetComponent<RectTransform>().Pos_Y;
+            float startingBottomBar = bottomBar.GetComponent<RectTransform>().Pos_Y;
+            float endingTopBar = startingTopBar - 75.0f;
+            float endingBottomBar = startingBottomBar + 75.0f;
 
+            while (elapsedTime < uiDuration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
+
+                float topPos = Utilities.Lerp(startingTopBar, endingTopBar, t);
+                float bottomPos = Utilities.Lerp(startingBottomBar, endingBottomBar, t);
+
+                topBar.GetComponent<RectTransform>().Pos_Y = (int)topPos;
+                bottomBar.GetComponent<RectTransform>().Pos_Y = (int)bottomPos;           
+
+                yield return null;
+            }
+
+            topBar.GetComponent<RectTransform>().Pos_Y = (int)endingTopBar;
+            bottomBar.GetComponent<RectTransform>().Pos_Y = (int)endingBottomBar;
+        }
     }
 }
