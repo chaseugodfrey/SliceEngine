@@ -776,7 +776,6 @@ namespace SliceEditor
 	void InspectorWindow::DisplayCamera(entt::entity entity)
 	{		
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
-		auto mainGameCam = SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera();
 
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
@@ -784,13 +783,12 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
-			bool isMainCamera = false;
-			if (mainGameCam.has_value() && mainGameCam.value() == entity)
-				isMainCamera = true;
-			if (BoolInputHeader(mRegistry, "Is Main Camera", "##main_camera", isMainCamera))
+			if (BoolInputHeader(mRegistry, "Is Main Camera", "##main_camera", cam.isMainCamera))
 			{
-				if (isMainCamera)
+				if (cam.isMainCamera)
 					SliceEngine::Core::GetInstance()->GetRenderManager()->SetMainGameCamera(entity);
+				else
+					SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera().reset();
 			}
 
 
