@@ -7,7 +7,7 @@
             "isSpatial": false,
             "key": "UIClick",
             "maxDistance": 30.0,
-            "maxInstances": 8,
+            "maxInstances": 1,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 0.0,
@@ -145,6 +145,20 @@
         },
         {
             "AudioClips": [
+                13612963309126088302
+            ],
+            "isSpatial": false,
+            "key": "Dash",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
                 10305650555020226811,
                 15218661569640235272,
                 16799327444022259943
@@ -157,20 +171,6 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.6000000238418579,
-            "volumeRollOff": 1
-        },
-        {
-            "AudioClips": [
-                13612963309126088302
-            ],
-            "isSpatial": false,
-            "key": "Dash",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.5,
             "volumeRollOff": 1
         },
         {

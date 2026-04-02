@@ -1,6 +1,6 @@
 [
     {
-        "LoseScreen_Final": {
+        "LoseScreenFinal": {
             "struct SliceEngine::Canvas": {
                 "canvas_type": "Overlay",
                 "componentEnabled": true,
@@ -8,9 +8,9 @@
                 "sort_order": 0
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 0
             },
@@ -28,18 +28,18 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242996,
+                "entity_id": 1048585,
                 "neighbours": [
-                    0,
-                    5242997,
-                    2097262,
+                    4294967295,
+                    1048584,
+                    4294967295,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "LoseScreen_Final",
+                "mName": "LoseScreenFinal",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -70,9 +70,9 @@
     {
         "BlackBack": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 1
             },
@@ -90,12 +90,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242997,
+                "entity_id": 1048584,
                 "neighbours": [
-                    5242996,
+                    1048585,
                     4294967295,
                     4294967295,
-                    5242998
+                    1048583
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -105,6 +105,7 @@
                 "mTag": "default"
             },
             "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.5,
                 "componentEnabled": true,
                 "raycast_target": false,
                 "rgba": [
@@ -143,9 +144,9 @@
     {
         "Overlay": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 2
             },
@@ -163,12 +164,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242998,
+                "entity_id": 1048583,
                 "neighbours": [
-                    5242996,
+                    1048585,
                     4294967295,
-                    5242997,
-                    5242999
+                    1048584,
+                    1048582
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -178,6 +179,7 @@
                 "mTag": "default"
             },
             "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.5,
                 "componentEnabled": true,
                 "raycast_target": true,
                 "rgba": [
@@ -220,9 +222,9 @@
     {
         "LoseScreenButtons": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 3
             },
@@ -240,12 +242,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242999,
+                "entity_id": 1048582,
                 "neighbours": [
-                    5242996,
-                    5243000,
-                    5242998,
-                    5243002
+                    1048585,
+                    1048581,
+                    1048583,
+                    1048579
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -311,9 +313,9 @@
                 "transition": "Sprite"
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 4
             },
@@ -331,12 +333,12 @@
                 "width": 346.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243000,
+                "entity_id": 1048581,
                 "neighbours": [
-                    5242999,
+                    1048582,
                     4294967295,
                     4294967295,
-                    5243001
+                    1048580
                 ]
             },
             "struct SliceEngine::Script": {
@@ -359,6 +361,7 @@
                 "mTag": "default"
             },
             "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.0,
                 "componentEnabled": true,
                 "raycast_target": true,
                 "rgba": [
@@ -426,9 +429,9 @@
                 "transition": "Sprite"
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 5
             },
@@ -446,11 +449,11 @@
                 "width": 346.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243001,
+                "entity_id": 1048580,
                 "neighbours": [
-                    5242999,
+                    1048582,
                     4294967295,
-                    5243000,
+                    1048581,
                     4294967295
                 ]
             },
@@ -474,6 +477,7 @@
                 "mTag": "default"
             },
             "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.0,
                 "componentEnabled": true,
                 "raycast_target": true,
                 "rgba": [
@@ -512,9 +516,9 @@
     {
         "LoseScreenText": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
+                "prefabGUID": "16548521812362130607",
                 "prefabHandle": {
-                    "GUID": ""
+                    "GUID": "16548521812362130607"
                 },
                 "prefabID": 6
             },
@@ -532,11 +536,11 @@
                 "width": 830.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243002,
+                "entity_id": 1048579,
                 "neighbours": [
-                    5242996,
+                    1048585,
                     4294967295,
-                    5242999,
+                    1048582,
                     4294967295
                 ]
             },
@@ -547,6 +551,7 @@
                 "mTag": "default"
             },
             "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.5,
                 "componentEnabled": true,
                 "raycast_target": false,
                 "rgba": [
