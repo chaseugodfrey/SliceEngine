@@ -2401,6 +2401,23 @@ namespace SliceEngine
 		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
 	}
 
+	static void Camera_SetFOV(unsigned int entityID, float fov)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().pov = fov;
+	}
+
+	static float Camera_GetFOV(unsigned int entityID)
+	{
+		float ret{};
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			ret = go.GetComponent<Camera>().pov;
+
+		return ret;
+	}
+
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -3311,6 +3328,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 		ADD_INTERNAL_CALL(Camera_SetGamma);
 		ADD_INTERNAL_CALL(Camera_GetGamma);
+		ADD_INTERNAL_CALL(Camera_SetFOV);
+		ADD_INTERNAL_CALL(Camera_GetFOV);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
