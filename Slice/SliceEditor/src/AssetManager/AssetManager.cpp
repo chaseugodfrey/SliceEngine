@@ -462,6 +462,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "White256";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT] = "NormalMap";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT] = "Shader Default";
 	}
 
 	void AssetManager::CreateAssetMaps()
@@ -492,6 +493,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Font].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::CustomShader].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT);
 		
 		//Loop Through and Add the Respective GUIDs
 		for (const auto& [guid, filename] : mGUIDtoFilename)
@@ -1089,6 +1091,35 @@ namespace SliceEditor
 
 				break;
 			}
+			case AssetType::CustomShader:
+			{
+				meta = std::make_unique<CustomShaderData>();
+				CustomShaderData* derived = dynamic_cast<CustomShaderData*>(meta.get());
+
+				auto defaultShaderGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
+
+				if (!resourceMgr->CheckResource(defaultShaderGUID))
+				{
+					SLICE_LOG_ERROR("Failed to load default Custom Shader");
+					break;
+				}
+				auto defaultShader = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(defaultShaderGUID).get();
+				nlohmann::json metaJson;
+
+				
+
+
+
+				std::ofstream output(filePath);
+
+				if (output.is_open())
+				{
+					output << metaJson.dump(4);
+					output.close();
+				}
+
+				break;
+			}
 			default:
 			{
 				SLICE_LOG_ERROR("CAN'T CREATE DEFAULT FOR UNSUPPORTED TYPES");
@@ -1219,6 +1250,11 @@ namespace SliceEditor
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
 		assetEntry["name"] = "Font Default";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT;
+		assetEntry["name"] = "Shader Default";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 	}
