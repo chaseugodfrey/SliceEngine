@@ -331,6 +331,7 @@ namespace SliceEngine
 		.property("cloudsSecondSmoothness", &Camera::cloudsSecondCloudSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("cloudsSecondColor", &Camera::cloudsSecondColor)
+		.property("isMainCamera", &Camera::isMainCamera)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
