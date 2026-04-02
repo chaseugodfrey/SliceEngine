@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
 #include <Animator/AnimatorWindow.h>
+#include <Graphics/RenderManager.h>
 
 namespace SliceEditor
 {
@@ -775,12 +776,23 @@ namespace SliceEditor
 	void InspectorWindow::DisplayCamera(entt::entity entity)
 	{		
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(entity);
+		auto mainGameCam = SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera();
 
 		if (ImGui::TreeNodeEx("Camera", mBaseFlags))
 		{
 			DisplayComponentHeader<SliceEngine::Camera>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
+
+			bool isMainCamera = false;
+			if (mainGameCam.has_value() && mainGameCam.value() == entity)
+				isMainCamera = true;
+			if (BoolInputHeader(mRegistry, "Is Main Camera", "##main_camera", isMainCamera))
+			{
+				if (isMainCamera)
+					SliceEngine::Core::GetInstance()->GetRenderManager()->SetMainGameCamera(entity);
+			}
+
 
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
