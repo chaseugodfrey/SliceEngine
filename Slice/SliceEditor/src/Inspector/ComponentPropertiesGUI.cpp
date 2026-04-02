@@ -546,23 +546,30 @@ namespace SliceEditor
 	{
 		static SliceEngine::GameObject oldVal{};
 
+		static bool elementHighlight = false;
 		bool changed = false;
+		bool publishEvent = false;
 		std::string propertyLabelID = property_label;
 		std::string goName;
+		GameObjectScriptSelectedUpdate event;
 
 		ImGui::Text(propertyLabelID.c_str());
-		ImGui::SameLine(150.f);
+		ImGui::SameLine(125.f);
 
-		if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+		bool temp = elementHighlight;
+		std::string checkboxLabel = std::string(id) + "checkbox";
+		if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
 		{
-			Entity entity = val.GetEntity();
-			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			elementHighlight = temp;
+			event.toAdd = elementHighlight;
+			if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
 			{
-				GameObjectScriptSelectedUpdate event;
+				Entity entity = val.GetEntity();
 				event.entity = entity;
-				EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 			}
+			publishEvent = true;
 		}
+		ImGui::SameLine();
 
 		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
@@ -587,6 +594,15 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
+
+				event.toAdd = false;
+				elementHighlight = false;
+				if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+				{
+					Entity entity = val.GetEntity();
+					event.entity = entity;
+				}
+				publishEvent = true;
 				oldVal = val;
 				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
 				val = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
@@ -598,6 +614,11 @@ namespace SliceEditor
 			}
 
 			ImGui::EndDragDropTarget();
+		}
+
+		if (publishEvent)
+		{
+			EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 		}
 
 		return changed;
@@ -939,7 +960,21 @@ namespace SliceEditor
 				std::string goName = " ";
 
 				ImGui::Text(elementPropertyLabel.c_str());
-				ImGui::SameLine(150.f);
+				ImGui::SameLine(125.f);
+				std::string checkboxLabel = "##checkbox" + elementPropertyLabel;
+				bool temp = elementHighlights[idx];
+				if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
+				{
+					elementHighlights[idx] = temp;
+					event.toAdd = elementHighlights[idx];
+					if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+					{
+						Entity entity = entry.GetEntity();
+						event.entity = entity;
+					}
+					publishEvent = true;
+				}
+				ImGui::SameLine();
 				ImGui::SetNextItemWidth(200.0f);
 				//ImGui::BeginDisabled();
 				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
@@ -963,6 +998,17 @@ namespace SliceEditor
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 					{
+						//Unselect the old GameObject script object highlight and prepare the event for publishing first.
+						event.toAdd = false;
+						elementHighlights[idx] = false;
+						if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+						{
+							Entity entity = entry.GetEntity();
+							event.entity = entity;
+						}
+						publishEvent = true;
+						//The rest of the logic.
+						changed = true;
 						oldList = list;
 						entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
 						entry = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
@@ -972,7 +1018,7 @@ namespace SliceEditor
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
 						editFunc("Edit", std::string(property_label), list, entry, idx);
 						changedVars[idx] = MultiSelect::CHANGED;
-						changed = true;
+
 					}
 
 					ImGui::EndDragDropTarget();
@@ -990,23 +1036,6 @@ namespace SliceEditor
 					changedVars[idx] = MultiSelect::REMOVED;
 					changed = true;
 				}
-				ImGui::SameLine();
-				std::string checkboxLabel = "##checkbox" + elementPropertyLabel;
-				
-				bool temp = elementHighlights[idx];
-				if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
-				{
-					elementHighlights[idx] = temp;
-					event.toAdd = elementHighlights[idx];
-					if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
-					{
-						Entity entity = entry.GetEntity();
-						event.entity = entity;
-					}
-					publishEvent = true;
-				}
-
-
 				idx++;
 			}
 			ImGui::Dummy(ImVec2(0, 0));
