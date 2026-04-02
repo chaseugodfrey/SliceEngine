@@ -569,6 +569,14 @@ namespace SliceEditor
 			}
 			publishEvent = true;
 		}
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("Tick this to highlight the GO in the scene.");
+				ImGui::EndTooltip();
+			}
+		}
 		ImGui::SameLine();
 
 		//ImGui::BeginDisabled();
@@ -973,6 +981,15 @@ namespace SliceEditor
 						event.entity = entity;
 					}
 					publishEvent = true;
+				}
+
+				if (ImGui::IsItemHovered())
+				{
+					if (ImGui::BeginTooltip())
+					{
+						ImGui::Text("Tick this to highlight the GO in the scene.");
+						ImGui::EndTooltip();
+					}
 				}
 				ImGui::SameLine();
 				ImGui::SetNextItemWidth(200.0f);
