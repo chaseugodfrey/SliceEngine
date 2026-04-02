@@ -29,9 +29,11 @@ namespace SliceEngine
             }
         }
 
+        
+
         public override void OnSliderValue(float value)
         {
-            SliceLog.Log("Help pls");
+            
             if (audioParameter == "Master")
             {
                 AudioManager.SetMasterVolume(value);

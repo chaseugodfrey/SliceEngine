@@ -36,11 +36,6 @@
             "path": "Resources/13183890450193241601.seq"
         },
         {
-            "guid": 17435409685680308052,
-            "name": "Default/GolemController.controller",
-            "path": "Resources/17435409685680308052.controller"
-        },
-        {
             "guid": 10656676371875731217,
             "name": "Dylan/Environment Assets/Containers.fbx",
             "path": "Resources/10656676371875731217.mdl"
@@ -119,6 +114,11 @@
             "guid": 13558558778031782028,
             "name": "Animations/Open.seq",
             "path": "Resources/13558558778031782028.seq"
+        },
+        {
+            "guid": 9696569742711998388,
+            "name": "Audio/UI_BUTTON PRESS.wav",
+            "path": "Resources/9696569742711998388.wav"
         },
         {
             "guid": 11539692136567283186,
@@ -216,6 +216,31 @@
             "path": "Resources/13284413020070553060.wav"
         },
         {
+            "guid": 10230791056562210482,
+            "name": "Material/EnemySpawner_m.mat",
+            "path": "Resources/10230791056562210482.mat"
+        },
+        {
+            "guid": 15812733968228765909,
+            "name": "Prefabs/FX_Environment_Sparks.prefab",
+            "path": "Resources/15812733968228765909.prefab"
+        },
+        {
+            "guid": 14082461890577180591,
+            "name": "Prefabs/LoadNextScene_trigger.prefab",
+            "path": "Resources/14082461890577180591.prefab"
+        },
+        {
+            "guid": 11171167347396630330,
+            "name": "Audio/PAUSE_TRANSITION_IN.wav",
+            "path": "Resources/11171167347396630330.wav"
+        },
+        {
+            "guid": 11443324886659557821,
+            "name": "Models/CrystalOnly.fbx",
+            "path": "Resources/11443324886659557821.mdl"
+        },
+        {
             "guid": 17624821668510436491,
             "name": "Audio/Boss_Smash.wav",
             "path": "Resources/17624821668510436491.wav"
@@ -244,6 +269,21 @@
             "guid": 13041463372070095102,
             "name": "Prefabs/Camera.prefab",
             "path": "Resources/13041463372070095102.prefab"
+        },
+        {
+            "guid": 16595515136771715194,
+            "name": "[00]Player/Player.skl",
+            "path": "Resources/16595515136771715194.skl"
+        },
+        {
+            "guid": 10765653969898630233,
+            "name": "Audio/PAUSE_MENU_BGLOOP.wav",
+            "path": "Resources/10765653969898630233.wav"
+        },
+        {
+            "guid": 13381338543100516247,
+            "name": "Dylan/Environment Assets/A4_DoorGate_L.fbx",
+            "path": "Resources/13381338543100516247.mdl"
         },
         {
             "guid": 17313277275196544424,
@@ -396,19 +436,34 @@
             "path": "Resources/16718206024600063472.prefab"
         },
         {
-            "guid": 16810191101304633330,
-            "name": "Default/InputTestScene.scene",
-            "path": "Resources/16810191101304633330.scene"
-        },
-        {
             "guid": 9563528329987127914,
             "name": "Audio/MultiHit_Slime.wav",
             "path": "Resources/9563528329987127914.wav"
         },
         {
+            "guid": 16810191101304633330,
+            "name": "Default/InputTestScene.scene",
+            "path": "Resources/16810191101304633330.scene"
+        },
+        {
             "guid": 11965650020329806019,
             "name": "Dylan/Environment Assets/Wires_M.fbx",
             "path": "Resources/11965650020329806019.mdl"
+        },
+        {
+            "guid": 15644028420850910905,
+            "name": "Textures/Black512.png",
+            "path": "Resources/15644028420850910905.dds"
+        },
+        {
+            "guid": 17796201263138003786,
+            "name": "Audio/PAUSE_TRANSITION_OUT.wav",
+            "path": "Resources/17796201263138003786.wav"
+        },
+        {
+            "guid": 10032291836713932683,
+            "name": "Dylan/fuck/L3Arena_Roof_Normal2048.png",
+            "path": "Resources/10032291836713932683.dds"
         },
         {
             "guid": 11243930446659405203,
@@ -639,6 +694,11 @@
             "guid": 9602260240288243331,
             "name": "Default/Gid_Working_Scene.temp",
             "path": "Resources/9602260240288243331.scene"
+        },
+        {
+            "guid": 17435409685680308052,
+            "name": "Default/GolemController.controller",
+            "path": "Resources/17435409685680308052.controller"
         },
         {
             "guid": 15165306197574362894,
@@ -1156,14 +1216,14 @@
             "path": "Resources/11440354555383964401.mdl"
         },
         {
-            "guid": 10933882404783559696,
-            "name": "Dylan/A4Cargo_Roughness2048.jpg",
-            "path": "Resources/10933882404783559696.dds"
-        },
-        {
             "guid": 13873935784383077662,
             "name": "Prefabs/FX_PlayerSlam.prefab",
             "path": "Resources/13873935784383077662.prefab"
+        },
+        {
+            "guid": 10933882404783559696,
+            "name": "Dylan/A4Cargo_Roughness2048.jpg",
+            "path": "Resources/10933882404783559696.dds"
         },
         {
             "guid": 12570677495392260031,
@@ -1459,16 +1519,6 @@
             "guid": 9736457320308890432,
             "name": "Prefabs/FX_OrbitalLaser.prefab",
             "path": "Resources/9736457320308890432.prefab"
-        },
-        {
-            "guid": 16595515136771715194,
-            "name": "[00]Player/Player.skl",
-            "path": "Resources/16595515136771715194.skl"
-        },
-        {
-            "guid": 13381338543100516247,
-            "name": "Dylan/Environment Assets/A4_DoorGate_L.fbx",
-            "path": "Resources/13381338543100516247.mdl"
         },
         {
             "guid": 13642435283238726926,
@@ -2016,16 +2066,6 @@
             "path": "Resources/11802395134181122315.dds"
         },
         {
-            "guid": 15644028420850910905,
-            "name": "Textures/Black512.png",
-            "path": "Resources/15644028420850910905.dds"
-        },
-        {
-            "guid": 10032291836713932683,
-            "name": "Dylan/fuck/L3Arena_Roof_Normal2048.png",
-            "path": "Resources/10032291836713932683.dds"
-        },
-        {
             "guid": 16305566517841464315,
             "name": "Dylan/fuck/L3Arena_Roughness2048.png",
             "path": "Resources/16305566517841464315.dds"
@@ -2399,26 +2439,6 @@
             "guid": 11864011536008048090,
             "name": "Material/EnemySlime_Eye_m.mat",
             "path": "Resources/11864011536008048090.mat"
-        },
-        {
-            "guid": 10230791056562210482,
-            "name": "Material/EnemySpawner_m.mat",
-            "path": "Resources/10230791056562210482.mat"
-        },
-        {
-            "guid": 15812733968228765909,
-            "name": "Prefabs/FX_Environment_Sparks.prefab",
-            "path": "Resources/15812733968228765909.prefab"
-        },
-        {
-            "guid": 14082461890577180591,
-            "name": "Prefabs/LoadNextScene_trigger.prefab",
-            "path": "Resources/14082461890577180591.prefab"
-        },
-        {
-            "guid": 11443324886659557821,
-            "name": "Models/CrystalOnly.fbx",
-            "path": "Resources/11443324886659557821.mdl"
         },
         {
             "guid": 14579481185500843548,
@@ -3694,6 +3714,11 @@
             "guid": 17813598671886575559,
             "name": "[00]Player/SliderHandle.png",
             "path": "Resources/17813598671886575559.dds"
+        },
+        {
+            "guid": 12283587655735059049,
+            "name": "[00]Player/SystemsPausedTitle.png",
+            "path": "Resources/12283587655735059049.dds"
         },
         {
             "guid": 14902726949443017334,

@@ -15,6 +15,8 @@ namespace SliceEngine
         public GameObject closeSettingsButton;
         public GameObject menuCanvasObj;
         public GameObject settingsContent;
+        public GameObject flickerImage;
+        public GameObject systemsTitle;
 
         public GameObject audioSettingsPage;
         public GameObject graphicsSettingsPage;
@@ -30,8 +32,10 @@ namespace SliceEngine
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
 
+        private RectTransform systemsPausedTrans;
 
         private SpriteRenderer graphicsSprite;
+        private SpriteRenderer flickerImageSprite;
         private FontRenderer graphicsFont;
 
         private RectTransform frontBgTrans;
@@ -54,10 +58,19 @@ namespace SliceEngine
 
         private bool isAudioPageSelected = true;
 
+        public float flickerSpeed = 0.05f;
+        public float flickerTotalDuration = 0.5f;
+        private float flickerTimer = 0f;
+
         public override void OnCreate()
         {
             if (settingsFrontBG != null) frontBgTrans = settingsFrontBG.GetComponent<RectTransform>();
             if (settingsSliders != null) settingsSliders.SetActive(false);
+
+            if(flickerImage != null)
+            {
+                flickerImageSprite = flickerImage.GetComponent<SpriteRenderer>();
+            }
 
             if (miniTitleTextObj != null)
             {
@@ -77,6 +90,11 @@ namespace SliceEngine
                 
             }
 
+            if(systemsTitle != null)
+            {
+                systemsPausedTrans = systemsTitle.GetComponent<RectTransform>();
+            }
+
             if (audioLabel != null)
             {
                 audioFont = audioLabel.GetComponent<FontRenderer>();
@@ -92,108 +110,130 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (flickerImageSprite != null)
+            {
+                flickerTimer += Time.deltaTimeUnscaled;
+                Vector4 color = flickerImageSprite.Colour;
+
+                if (flickerTimer < flickerTotalDuration)
+                {
+                    float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
+                    color.w = Utilities.Lerp(0.5f, 0.0f, t);
+                }
+                else
+                {
+                    color.w = 0.0f;
+                }
+
+                flickerImageSprite.Colour = color;
+            }
+
             if (isOpening || animationTimer > 0f)
-            {
-                if (isOpening)
-                {
-                    animationTimer += Time.deltaTimeUnscaled / duration;
-                }
-                else
-                {
-                    animationTimer -= Time.deltaTimeUnscaled / duration;
-                }
-
-                animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);
-                float bgProgress = Utilities.InverseLerp(0f, 0.5f, animationTimer);
-
-                if (frontBgTrans != null)
-                {
-                    float currentHeight = Utilities.SmoothStep(defaultHeight, finalHeight, bgProgress);
-                    frontBgTrans.Height = (int)currentHeight;
-                }
-
-                bool isFullyOpen = animationTimer >= 1.0f && isOpening;
-
-                // Manage visibility of elements
-                if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);
-                if (closeSettingsButton != null) closeSettingsButton.SetActive(isFullyOpen);
-                if (returnToTitleButton != null) returnToTitleButton.SetActive(isFullyOpen);
-
-                if (isFullyOpen)
-                {
-                    if (settingsContent != null) settingsContent.SetActive(true);
-                    if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudioPageSelected);
-                    if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudioPageSelected);
-                    UpdateTitleText();
-                }
-                else
-                {
-
-                    //if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
-                    //if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
-                    if (settingsContent != null) settingsContent.SetActive(false);
-                }
-                
-                if (animationTimer <= 0f && !isOpening)
-                {
-                    isActive = false;
-                    if (menuCanvasObj != null)
-                    {
-                        menuCanvasObj.SetActive(true);
-                    }
-                    this.gameObject.SetActive(false);
-                }
-            }
-        }
-
-        private void UpdateButtonVisuals()
         {
-            // Update Audio Button
-            SliceLog.Log("isAudioPageSelected : " + isAudioPageSelected);
-            //if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
-            //if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
-            //if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
-
-            // Update Graphics Button
-            //if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
-            //if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
-            //if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
-
-            if (audioSprite != null)
+            if (isOpening)
             {
-                audioSprite.SetEnabled(isAudioPageSelected);
+                animationTimer += Time.deltaTimeUnscaled / duration;
+            }
+            else
+            {
+                animationTimer -= Time.deltaTimeUnscaled / duration;
+            }
+
+            animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);
+            float bgProgress = Utilities.InverseLerp(0f, 0.5f, animationTimer);
+
+            if (frontBgTrans != null)
+            {
+                float currentHeight = Utilities.SmoothStep(defaultHeight, finalHeight, bgProgress);
+                float currentWidth = Utilities.SmoothStep(0, 572, bgProgress);
+                frontBgTrans.Height = (int)currentHeight;
+                systemsPausedTrans.Width = (int)currentWidth *(-1);
                 
             }
-            if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
 
-            if (graphicsSprite != null)
+            bool isFullyOpen = animationTimer >= 1.0f && isOpening;
+
+            // Manage visibility of elements
+            if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);
+            if (closeSettingsButton != null) closeSettingsButton.SetActive(isFullyOpen);
+            if (returnToTitleButton != null) returnToTitleButton.SetActive(isFullyOpen);
+
+            if (isFullyOpen)
             {
-                graphicsSprite.SetEnabled(!isAudioPageSelected);
+                if (settingsContent != null) settingsContent.SetActive(true);
+                if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudioPageSelected);
+                if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudioPageSelected);
+                UpdateTitleText();
             }
-            if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
-        }
-
-        private void UpdateTitleText()
-        {
-            if (miniTitleText != null)
+            else
             {
-                miniTitleText.Text_val = isAudioPageSelected ? "ADJUST AUDIO SETTINGS" : "ADJUST PREFERRED BRIGHTNESS";
-            }
-        }
 
-        public void StartSettingsPopupAnimation(bool opening)
-        {
-            this.gameObject.SetActive(true);
-            isOpening = opening;
-            UpdateButtonVisuals();
-            isActive = true;
-            
-            
-            if (!opening)
-            {
+                //if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
+                //if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
                 if (settingsContent != null) settingsContent.SetActive(false);
             }
+            
+            if (animationTimer <= 0f && !isOpening)
+            {
+                isActive = false;
+                if (menuCanvasObj != null)
+                {
+                    menuCanvasObj.SetActive(true);
+                }
+                this.gameObject.SetActive(false);
+            }
         }
+    }
+
+    private void UpdateButtonVisuals()
+    {
+        // Update Audio Button
+        SliceLog.Log("isAudioPageSelected : " + isAudioPageSelected);
+        //if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
+        //if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+        //if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+        // Update Graphics Button
+        //if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
+        //if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
+        //if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+        if (audioSprite != null)
+        {
+            audioSprite.SetEnabled(isAudioPageSelected);
+            
+        }
+        if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+        if (graphicsSprite != null)
+        {
+            graphicsSprite.SetEnabled(!isAudioPageSelected);
+        }
+        if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
+    }
+
+    private void UpdateTitleText()
+    {
+        if (miniTitleText != null)
+        {
+            miniTitleText.Text_val = isAudioPageSelected ? "ADJUST AUDIO SETTINGS" : "ADJUST PREFERRED BRIGHTNESS";
+        }
+    }
+
+    public void StartSettingsPopupAnimation(bool opening)
+    {
+        this.gameObject.SetActive(true);
+        isOpening = opening;
+        flickerTimer = 0f; // Reset flicker timer
+        UpdateButtonVisuals();
+        isActive = true;
+        
+        
+        if (!opening)
+        {
+            if (settingsContent != null) settingsContent.SetActive(false);
+        }
+    }
 
         public void SwitchToPage(bool isAudio)
         {

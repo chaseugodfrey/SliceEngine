@@ -55,6 +55,7 @@ namespace SliceEngine
         public override void OnButtonClick()
         {
 
+            AudioSettings.PlaySFX("UIClick");
 
             if (mainController != null)
             {
