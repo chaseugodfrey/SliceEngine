@@ -14,7 +14,7 @@ namespace SliceEngine
        // public GameObject cameraStartingPos;
 
 
-        public int animID = 0;
+        public int animState = 0;
         private Coroutine fadeInRoutine = null;
         private Coroutine fadeOutRoutine = null;
         private bool fadingIn = false;
@@ -53,7 +53,7 @@ namespace SliceEngine
 
         public void ToggleRenderer(bool toRender)
         {
-            return;
+            
             GameObject[] children = gameObject.GetAllChildren();
 
             foreach(GameObject child in children)
@@ -80,6 +80,11 @@ namespace SliceEngine
         {
             switch (state)
             {
+                case "ToRender":
+                    {
+                        ToggleRenderer(true);
+                    }
+                    break;
                 case "First":
                     if (bagObject.HasComponent<RigidBody>())
                     {
@@ -88,7 +93,10 @@ namespace SliceEngine
                     // for the bag dropping
                 break;
                 case "Second":
+                    animState++;
+                    StartCinematicAnimation();
                     // for moving the camera to the next position in the 2nd animation
+
                 break;
             }
         }
@@ -131,8 +139,9 @@ namespace SliceEngine
                 SceneManager._transitionRenderer.SetEnabled(false);
             }
 
+            if (animState == 0)
+                GetComponent<Animator>().SetBool("Cinematic", true);
 
-            GetComponent<Animator>().SetBool("Cinematic", true);
 
             fadeInRoutine = null;
             
@@ -160,7 +169,18 @@ namespace SliceEngine
             //  cinematicCamera.GetComponent<Transform>().Position = cameraStartingPos.GetComponent<Transform>().WorldPosition;
             Camera.SetMainCamera(cinematicCamera);
             Console.WriteLine("End of Fade out coroutine");
-            ToggleRenderer(true);
+
+            if (animState == 1)
+            {
+                // move the camera to where its behind the player for 2nd animation
+                cinematicCamera.GetComponent<Transform>().Position = new Vector3(-0.054f, 1.811f, -1.345f);
+                cinematicCamera.GetComponent<Transform>().Rotation = new Vector3(0.0f, -89.4f, 0.0f);
+            }
+
+            //ToggleRenderer(true);
+
+             if (animState == 1)
+                GetComponent<Animator>().SetBool("Cinematic2", true);
 
             fadeOutRoutine = null;
             if (fadeInRoutine == null)
