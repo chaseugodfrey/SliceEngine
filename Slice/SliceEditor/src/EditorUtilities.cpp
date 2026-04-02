@@ -440,7 +440,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Shader"))
 				{
-
+					CreateFile_ShaderFile(reg, descPath);
 				}
 
 				ImGui::EndMenu();
@@ -534,6 +534,11 @@ namespace SliceEditor
 		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath)
 		{
 			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
+		}
+
+		void CreateFile_ShaderFile(Registry& reg, std::filesystem::path descPath)
+		{
+			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::CustomShader);
 		}
 
 #pragma region Assets

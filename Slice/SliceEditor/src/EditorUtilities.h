@@ -55,6 +55,7 @@ namespace SliceEditor
 
 		//File Creation
 		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath);
+		void CreateFile_ShaderFile(Registry& reg, std::filesystem::path descPath);
 
 		//Asset Drops
 		

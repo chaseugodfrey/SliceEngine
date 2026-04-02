@@ -394,9 +394,6 @@ namespace SliceEditor
 			break;
 		case AssetType::CustomShader:
 			metaData = std::make_unique<CustomShaderData>();
-			
-			defaultGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
-
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
@@ -559,7 +556,7 @@ namespace SliceEditor
 			return &mAssetTypeToGUIDs[AssetType::Prefab];
 		}
 
-		if (assetType == "Custom Shader")
+		if (assetType == "CustomShader")
 		{
 			return &mAssetTypeToGUIDs[AssetType::CustomShader];
 		}
@@ -1081,7 +1078,7 @@ namespace SliceEditor
 				
 				break;
 			}
-			case AssetType::Controller:
+			case AssetType::Controller: // Not doing anything
 			{
 				meta = std::make_unique<StateMachineData>();
 				// Create a file in asset folder
@@ -1095,29 +1092,7 @@ namespace SliceEditor
 			{
 				meta = std::make_unique<CustomShaderData>();
 				CustomShaderData* derived = dynamic_cast<CustomShaderData*>(meta.get());
-
-				auto defaultShaderGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
-
-				if (!resourceMgr->CheckResource(defaultShaderGUID))
-				{
-					SLICE_LOG_ERROR("Failed to load default Custom Shader");
-					break;
-				}
-				auto defaultShader = resourceMgr->get<SliceEngine::SliceEngineTypes::CustomShader>(defaultShaderGUID).get();
-				nlohmann::json metaJson;
-
-				
-
-
-
-				std::ofstream output(filePath);
-
-				if (output.is_open())
-				{
-					output << metaJson.dump(4);
-					output.close();
-				}
-
+				derived->SerializeDefaultAsset(filePath);
 				break;
 			}
 			default:
@@ -1129,7 +1104,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(filePath, meta.get(), true);
+		//CreateResource(filePath, meta.get(), true);
 	}
 
 	void AssetManager::CreateAssetManifest()
