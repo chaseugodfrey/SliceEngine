@@ -28,11 +28,11 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097169,
+                "entity_id": 5242996,
                 "neighbours": [
                     0,
-                    5242895,
-                    2097183,
+                    5242997,
+                    2097262,
                     4294967295
                 ]
             },
@@ -90,12 +90,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5242895,
+                "entity_id": 5242997,
                 "neighbours": [
-                    2097169,
+                    5242996,
                     4294967295,
                     4294967295,
-                    3145744
+                    5242998
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -163,12 +163,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145744,
+                "entity_id": 5242998,
                 "neighbours": [
-                    2097169,
+                    5242996,
                     4294967295,
-                    5242895,
-                    2097164
+                    5242997,
+                    5242999
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -240,12 +240,12 @@
                 "width": 1920.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097164,
+                "entity_id": 5242999,
                 "neighbours": [
-                    2097169,
-                    2097163,
-                    3145744,
-                    2097161
+                    5242996,
+                    5243000,
+                    5242998,
+                    5243002
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -331,13 +331,26 @@
                 "width": 346.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097163,
+                "entity_id": 5243000,
                 "neighbours": [
-                    2097164,
+                    5242999,
                     4294967295,
                     4294967295,
-                    2097162
+                    5243001
                 ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.MenuButton",
+                "scriptableFieldMap": {
+                    "buttonType": {
+                        "Type": "int",
+                        "Value": 9
+                    },
+                    "sceneToLoad": {
+                        "Type": "std::string",
+                        "Value": ""
+                    }
+                }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
@@ -433,11 +446,11 @@
                 "width": 346.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097162,
+                "entity_id": 5243001,
                 "neighbours": [
-                    2097164,
+                    5242999,
                     4294967295,
-                    2097163,
+                    5243000,
                     4294967295
                 ]
             },
@@ -446,7 +459,7 @@
                 "scriptableFieldMap": {
                     "buttonType": {
                         "Type": "int",
-                        "Value": 0
+                        "Value": 8
                     },
                     "sceneToLoad": {
                         "Type": "std::string",
@@ -519,11 +532,11 @@
                 "width": 830.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097161,
+                "entity_id": 5243002,
                 "neighbours": [
-                    2097169,
+                    5242996,
                     4294967295,
-                    2097164,
+                    5242999,
                     4294967295
                 ]
             },
