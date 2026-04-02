@@ -23,6 +23,11 @@ namespace SliceEngine
             get { return FunctionCalls.Camera_GetGamma(); }
             set { FunctionCalls.Camera_SetGamma(value); }
         }
+        public float FOV
+        {
+            get { return FunctionCalls.Camera_GetFOV(gameObject.mID); }
+            set { FunctionCalls.Camera_SetFOV(gameObject.mID, value); }
+        }
         public void SetImpactFrame(bool enable)
         {
             FunctionCalls.Camera_ToggleImpactFrames(gameObject.mID, enable);

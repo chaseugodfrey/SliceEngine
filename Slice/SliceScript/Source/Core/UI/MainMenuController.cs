@@ -12,6 +12,7 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject MainMenuCanvas;
+        
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
@@ -111,6 +112,7 @@ namespace SliceEngine
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
+                AudioSettings.PlaySFX("PauseTransitionOut");
             }
         }
 

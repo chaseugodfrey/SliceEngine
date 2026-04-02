@@ -10,12 +10,15 @@ namespace SliceEngine
     public class SettingsBGAnimation : SliceBehaviour
     {
         private bool playAnim = false;
+        
         private SpriteAnimator bgAnimation;
+        
         public SettingsBorderAnimation borderAnim;
 
         public override void OnCreate()
         {
             bgAnimation = GetComponent<SpriteAnimator>();
+            
         }
 
         public override void OnUpdate(float dt)
@@ -23,7 +26,11 @@ namespace SliceEngine
             if (bgAnimation != null && playAnim)
             {
                 bgAnimation.IsPlaying = true;
+                AudioSettings.PlaySFX("PauseTransitionIn");
             }
+
+           
+            
         }
 
         public override void OnSpriteAnimLoop()

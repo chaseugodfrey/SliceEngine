@@ -28,7 +28,7 @@ namespace SliceEditor
 		eventManager->Subscribe<AssetFileChangedEvent, &SessionManager::OnAssetFileChanged>(this);
 		eventManager->Subscribe<PrefabInspectedEvent, &SessionManager::PrefabInspected>(this);
 		eventManager->Subscribe<ShaderGraphInspectedEvent, &SessionManager::ShaderGraphInspected>(this);
-		eventManager->Subscribe<GameObjectScriptSelected, &SessionManager::HighlightGameObjects>(this);
+		eventManager->Subscribe<GameObjectScriptSelectedUpdate, &SessionManager::HighlightGameObjects>(this);
 
 		mAnimatorData = std::make_unique<AnimatorData>();
 		//CreateEntityNodes();
@@ -43,25 +43,21 @@ namespace SliceEditor
 			mPrefabNodes.clear();
 		}
 
-		if (mHighlightGOs)
-		{
-			mGOScriptTimer -= static_cast<float>(SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime());
+		//if (mHighlightGOs)
+		//{
+		//	//mGOScriptTimer -= static_cast<float>(SliceEngine::Core::GetInstance()->GetFramerateManager()->getDeltaTime());
 
-			if (mGOScriptTimer <= FLT_EPSILON)
-			{
-				mGOScriptTimer = 0.0f;
-				for (auto entity : mHighlightedGameObjects)
-				{
-					if (mEntityNodes.find(entity) != mEntityNodes.end())
-					{
-						mEntityNodes[entity].get()->isScriptSelected = false;
-					}
-				}
+		//	for (auto entity : mHighlightedGameObjects)
+		//	{
+		//		if (mEntityNodes.find(entity) != mEntityNodes.end())
+		//		{
+		//			mEntityNodes[entity].get()->isScriptSelected = false;
+		//		}
+		//	}
 
-				mHighlightedGameObjects.clear();
-				mHighlightGOs = false;
-			}
-		}
+		//	mHighlightedGameObjects.clear();
+		//	mHighlightGOs = false;
+		//}
 	}
 
 
@@ -227,16 +223,28 @@ namespace SliceEditor
 		mEntityNodes.erase(entity);
 	}
 
-	void SessionManager::HighlightGameObjects(const GameObjectScriptSelected& event)
+	void SessionManager::HighlightGameObjects(const GameObjectScriptSelectedUpdate& event)
 	{
-		mGOScriptTimer = 5.0f; //TODO Add to Preferences
+		//mGOScriptTimer = 5.0f; //TODO Add to Preferences
 		mHighlightGOs = true;
-		for (auto entity : event.entities)
+		if(event.toAdd) //Adding to the highlighted game objects
 		{
-			mHighlightedGameObjects.push_back(entity);
-			if (mEntityNodes.find(entity) != mEntityNodes.end())
+			mHighlightedGameObjects.push_back(event.entity);
+			if (mEntityNodes.find(event.entity) != mEntityNodes.end())
 			{
-				mEntityNodes[entity].get()->isScriptSelected = true;
+				mEntityNodes[event.entity].get()->isScriptSelected = true;
+			}
+		}
+		else //Remove from highlighted GOs
+		{
+			mHighlightedGameObjects.erase
+			(
+				std::remove(mHighlightedGameObjects.begin(), mHighlightedGameObjects.end(), event.entity), mHighlightedGameObjects.end()
+			);
+
+			if (mEntityNodes.find(event.entity) != mEntityNodes.end())
+			{
+				mEntityNodes[event.entity].get()->isScriptSelected = false;
 			}
 		}
 	}

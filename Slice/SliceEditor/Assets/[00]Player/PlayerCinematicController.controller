@@ -37,6 +37,20 @@
                     "hasExitTime": false,
                     "sourceState": "AnyState",
                     "targetState": "Cinematic"
+                },
+                 {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Cinematic2",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "Cinematic2"
                 }
             ]
         },

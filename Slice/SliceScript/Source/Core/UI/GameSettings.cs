@@ -74,17 +74,6 @@ namespace SliceEngine
             if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
 
-        //public void OpenPauseMenu()
-        //{
-        //    if (borderAnim != null)
-        //    {
-        //        borderAnim.StartSettingsPopupAnimation(true);
-        //    }
-
-        //    isSettingsOpen = true;
-        //    Cursor.state = Cursor.STATE.DEFAULT;
-        //    Time.timeScale = 0.0f;
-        //}
 
 
         public void ResumeGame()
