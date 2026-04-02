@@ -382,11 +382,15 @@ namespace SliceEngine
 
 		if (camEntity.has_value())
 		{
+			if (camSys.mainCam.has_value())
+				Core::GetInstance()->GetRegistry().get<Camera>(camSys.mainCam.value()).isMainCamera = false;
+
 			camSys.mainCam.emplace(cam);
 
 			// Sync exposure
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 			camera.gamma = mSessionGamma;
+			camera.isMainCamera = true;
 		}
 		else
 			SLICE_LOG_ERROR("Setting to a non camera entity");

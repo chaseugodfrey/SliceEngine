@@ -270,6 +270,7 @@ namespace SliceEngine
 		unsigned char postRenderToggles{};
 		glm::mat4 V{};
 		glm::mat4 P{};
+		bool isMainCamera{ false };
 		bool componentEnabled{ true };
 		bool lumSelected{ false };
 		bool camLoaded{ false };
