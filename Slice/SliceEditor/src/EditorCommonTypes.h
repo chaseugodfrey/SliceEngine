@@ -416,6 +416,8 @@ namespace SliceEditor
 
 			auto& stateMap = mStateMachineAsset->stateMap;
 
+			mStateNodes.clear();
+			mNameToStateID.clear();
 			create_default();
 
 			for (auto& [name, state] : stateMap)
