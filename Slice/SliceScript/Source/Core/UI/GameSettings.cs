@@ -11,7 +11,9 @@ namespace SliceEngine
     {
         
         private GameObject settingsPopup;
+        private GameObject bgAnimationObject;
         private SettingsBorderAnimation borderAnim;
+        private SettingsBGAnimation bgAnim;
 
         
         private bool isSettingsOpen = false;
@@ -19,6 +21,8 @@ namespace SliceEngine
         public override void OnCreate()
         {
             settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
+            bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
+
 
             
             if (settingsPopup != null)
@@ -36,7 +40,17 @@ namespace SliceEngine
                 settingsPopup.SetActive(false);
             }
 
-            
+            if (bgAnimationObject != null)
+            {
+                bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
+                if (bgAnim != null)
+                {
+                    bgAnim.borderAnim = borderAnim;
+                }
+                bgAnimationObject.SetActive(false);
+            }
+
+
             isSettingsOpen = false;
         }
 
@@ -75,6 +89,9 @@ namespace SliceEngine
 
         public void ResumeGame()
         {
+            isSettingsOpen = false;
+
+
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
@@ -83,7 +100,6 @@ namespace SliceEngine
             // Force close everything
             if (settingsPopup != null) settingsPopup.SetActive(false);
             
-            isSettingsOpen = false;
 
             SliceLog.Console("Resume");
 
@@ -93,13 +109,19 @@ namespace SliceEngine
 
         public void OpenSubSettings()
         {
-            if (borderAnim != null)
+
+            isSettingsOpen = true;
+
+            if (bgAnim != null)
+            {
+                bgAnim.StartSettingsBGAnimation(true);
+            }
+            else if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(true);
             }
 
-            
-            isSettingsOpen = true;
+
             Cursor.state = Cursor.STATE.DEFAULT;
             Time.timeScale = 0.0f;
         }

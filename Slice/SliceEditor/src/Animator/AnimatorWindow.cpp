@@ -152,10 +152,10 @@ namespace SliceEditor
 		ImGui::BeginChild("##left_region", ImVec2(0.3f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 
 		ImGui::SeparatorText("Parameters");
-		if (ImGui::Button("+##add_param"))
+		/*if (ImGui::Button("+##add_param"))
 		{
 			ImGui::OpenPopup("AddParam_Popup");
-		}
+		}*/
 
 		if (ImGui::BeginPopupContextItem("AddParam_Popup"))
 		{
@@ -186,6 +186,7 @@ namespace SliceEditor
 		{
 			if(!mAnimatorData->empty())
 			{
+				mAnimatorData->LoadFromAsset(mCurrentAnimator->stateMachine.EFSM);
 				int param_id{};
 				for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
 				{
@@ -270,6 +271,8 @@ namespace SliceEditor
 		{
 			if (!mAnimatorData->empty())
 			{
+				mAnimatorData->LoadFromAsset(mCurrentAnimator->stateMachine.EFSM);
+
 				for (auto& [id, node] : mAnimatorData->mStateNodes)
 				{
 					DrawStateNode(&node);
