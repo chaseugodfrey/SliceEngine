@@ -110,6 +110,10 @@ namespace SliceEngine
 			}
 
 			temp.entryState = ctrlJson["entryState"];
+            auto entry_pos = ctrlJson.find("entryNodePosition");
+            auto exit_pos = ctrlJson.find("exitNodePosition");
+            temp.entryPosition = entry_pos != ctrlJson.end() ? entry_pos->get<glm::vec2>() : glm::vec2(0.0f);
+            temp.exitPosition = exit_pos != ctrlJson.end() ? exit_pos->get<glm::vec2>() : glm::vec2(0.0f);
 
             if (ctrlJson.contains("parameters"))
             {

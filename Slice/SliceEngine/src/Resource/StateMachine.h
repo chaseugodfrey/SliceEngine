@@ -96,6 +96,8 @@ namespace SliceEngine
 		public:
 
 			std::unordered_map<std::string, State> stateMap;
+			glm::vec2 entryPosition{};
+			glm::vec2 exitPosition{};
 			std::string entryState;
 			State* currState = nullptr;
 			State* anyState = nullptr;

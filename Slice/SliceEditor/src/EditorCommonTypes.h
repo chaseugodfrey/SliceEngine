@@ -404,6 +404,63 @@ namespace SliceEditor
 			return true;
 		}
 
+		void LoadFromAsset(const SliceEngine::SliceEngineTypes::StateMachine& stateMachine)
+		{
+			StateMachineData data{};
+
+			data.stateMap = stateMachine.stateMap;
+			data.entryPosition = stateMachine.entryPosition;
+			data.exitPosition = stateMachine.exitPosition;
+
+			mStateMachineAsset = std::make_unique<StateMachineData>(data);
+
+			auto& stateMap = mStateMachineAsset->stateMap;
+
+			create_default();
+
+			for (auto& [name, state] : stateMap)
+			{
+				create_state_node(name);
+			}
+
+			for (auto& [sourceId, sourceNode] : mStateNodes)
+			{
+				if (sourceNode.name == "Entry")
+				{
+					auto it = mNameToStateID.find(data.entryState);
+					if (it == mNameToStateID.end())
+						continue;
+
+					create_link(sourceNode, mStateNodes.at(it->second));
+
+					continue;
+				}
+
+				else if (sourceNode.name == "Exit")
+				{
+					continue;
+				}
+
+				auto& sourceState = stateMap.at(sourceNode.name);
+
+				for (auto& transition : sourceState.transitions)
+				{
+					auto targetStateName = transition.targetState;
+
+					auto it = mNameToStateID.find(targetStateName);
+					if (it == mNameToStateID.end())
+						continue;
+
+					auto targetId = mNameToStateID.at(targetStateName);
+					auto& targetNode = mStateNodes.at(targetId);
+
+					create_link(sourceNode, targetNode);
+					transition.id = static_cast<int>(mTransitionNodes.size() - 1);
+					sourceNode.transitionIds.push_back(transition.id);
+				}
+			}
+		}
+
 		std::optional<std::reference_wrapper<StateNode>> GetStateNode(int state_id)
 		{
 			auto it1 = mStateNodes.find(static_cast<const unsigned short>(state_id));

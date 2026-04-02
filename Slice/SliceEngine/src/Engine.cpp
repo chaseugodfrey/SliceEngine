@@ -1094,7 +1094,7 @@ namespace SliceEngine
 
 
 		frm->StartSystem("Sprite Animation");
-		sSpriteAnim.Update(deltaTimeScaled);
+		sSpriteAnim.Update(deltaTimeUnscaled);
 		frm->EndSystem("Sprite Animation");
 
 		frm->StartSystem("Canvas");

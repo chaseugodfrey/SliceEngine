@@ -2729,8 +2729,17 @@ namespace SliceEditor
 		if (!anim_data)
 			return;
 
-		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (!animator)
+			return;
+
+		/*auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
 		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;*/
+
+		auto state_it = animator->stateMachine.EFSM.stateMap.find(node->name);
+		if (state_it == animator->stateMachine.EFSM.stateMap.end())
 			return;
 
 		auto& state = state_it->second;
