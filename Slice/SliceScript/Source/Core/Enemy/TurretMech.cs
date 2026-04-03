@@ -159,7 +159,7 @@ namespace SliceEngine
                 coreLight.enabled = true;
 
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
-                Vector3 origin = transform.WorldPosition;
+                Vector3 origin = firingOffset.WorldPosition;
                 Vector3 target = playerPos + offset;
                 Vector3 toPlayer = target - origin;
                 RayCastHit hit;
