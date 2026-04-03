@@ -32,7 +32,7 @@ namespace SliceEngine
         public bool activeSelf { get; set; } = true;
 
         // Whether this component is enabled (can override in derived types)
-        public bool enabled { get; set; } = true;
+        virtual public bool enabled { get; set; } = true;
 
         // Transform shortcut (like Unity's transform)
         public Transform transform => gameObject?.GetComponent<Transform>();

@@ -11,6 +11,12 @@ namespace SliceEngine
             gameObject = entity;
         }
 
+        override public bool enabled
+        {
+            get { return FunctionCalls.Light_GetEnabled(gameObject.mID); }
+            set { FunctionCalls.Light_SetEnabled(gameObject.mID, value); }
+        }
+
         public enum LightType : uint
         {
             DIRECTIONAL,

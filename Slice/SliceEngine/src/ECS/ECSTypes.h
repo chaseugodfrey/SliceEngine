@@ -820,7 +820,7 @@ namespace SliceEngine
 		bool graphic_raycastable{ true };				//bool that determines if images in its hierachy can be raycasted
 														//only for overlay canvas
 
-		bool billboardX{ false }, billboardY{ false };	//only for world
+		bool billboardX{ false }, billboardY{ false }, billboardZ{ false };	//only for world
 
 		RTTR_ENABLE();
 	};
