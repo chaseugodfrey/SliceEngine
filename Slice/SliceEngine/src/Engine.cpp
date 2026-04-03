@@ -619,7 +619,8 @@ namespace SliceEngine
 		.property("graphics_raycast", &Canvas::graphic_raycastable)
 		.property("componentEnabled", &Canvas::componentEnabled)
 		.property("billboardX", &Canvas::billboardX)
-		.property("billboardY", &Canvas::billboardY);
+		.property("billboardY", &Canvas::billboardY)
+		.property("billboardZ", &Canvas::billboardZ);
 
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
