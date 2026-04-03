@@ -93,7 +93,22 @@ namespace SliceEngine
 	// Custom Shader
 	std::unique_ptr<SliceEngineTypes::CustomShader> Type<SliceEngineTypes::CustomShader>::Load(ResourceManager& resourceMgr, const std::string& path)
 	{
-		return std::make_unique<SliceEngineTypes::CustomShader>(SliceEngineTypes::CustomShader::LoadCShader(path));
+		std::filesystem::path file(path);
+
+		if (std::filesystem::exists(path))
+			return std::make_unique<SliceEngineTypes::CustomShader>(SliceEngineTypes::CustomShader::LoadCShader(path));
+
+		// load default model
+		uint64_t defaultID = std::stoull(path);
+
+		if (defaultID == Type<SliceEngineTypes::CustomShader>::defaultResourceGUID)
+		{
+			auto t = std::make_unique<SliceEngineTypes::CustomShader>();
+			t->LoadDefault();
+			return t;
+		}
+
+		return nullptr;
 	}
 
 	void Type<SliceEngineTypes::CustomShader>::Destroy(SliceEngineTypes::CustomShader& resource, ResourceManager& resourceMgr)

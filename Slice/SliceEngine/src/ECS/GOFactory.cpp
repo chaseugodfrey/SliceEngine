@@ -835,6 +835,14 @@ namespace SliceEngine
 		return go;
 	}
 
+	GameObject GOFactory::CreateGO_Light()
+	{
+		auto go = CreateGO("Light");
+		go.AddComponent<Light>();
+		go.GetComponent<Light>().type = Light::Light_Spot;
+		return go;
+	}
+
 	GameObject GOFactory::CreateGO_Canvas()
 	{
 		auto canvas = CreateGO("Canvas");

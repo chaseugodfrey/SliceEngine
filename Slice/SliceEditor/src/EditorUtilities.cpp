@@ -150,6 +150,27 @@ namespace SliceEditor
 			return go;
 		}
 
+		SliceEngine::GameObject GameObject_CreateLight(entt::entity parent, HistoryManager* history, bool isPrefabInspected)
+		{
+			auto& factory = SliceEngine::FactoryInstance;
+			auto go = factory.CreateGO_Light();
+
+			if (parent != entt::null)
+				factory.SetParent(go.GetEntity(), parent);
+
+			if (isPrefabInspected)
+			{
+				SliceEngine::Core::GetInstance()->GetSystem<SliceEngine::PrefabSystem>().AddToPrefab(go.GetEntity(), parent);
+			}
+
+			if (history)
+			{
+				history->AddCommand(std::make_unique<CreateEntityCommand>(go.GetEntity()));
+			}
+
+			return go;
+		}
+
 		SliceEngine::GameObject GameObject_CreateModel(SliceEngine::GUID guid, SliceEngine::GUID skeleGUID, SliceEngine::GUID animGUID, entt::entity parent, HistoryManager* history, bool isPrefabInspected)
 		{
 			auto& factory = SliceEngine::FactoryInstance;
@@ -440,7 +461,7 @@ namespace SliceEditor
 
 				if (ImGui::MenuItem("Shader"))
 				{
-
+					CreateFile_ShaderFile(reg, descPath);
 				}
 
 				ImGui::EndMenu();
@@ -457,6 +478,11 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Camera"))
 			{
 				EditorUtilities::GameObject_CreateCam(parent, history);
+			}
+
+			if (ImGui::MenuItem("Light"))
+			{
+				EditorUtilities::GameObject_CreateLight(parent, history, isPrefabInspected);
 			}
 
 			if (ImGui::BeginMenu("3D Object"))
@@ -534,6 +560,11 @@ namespace SliceEditor
 		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath)
 		{
 			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::Material);
+		}
+
+		void CreateFile_ShaderFile(Registry& reg, std::filesystem::path descPath)
+		{
+			reg.GetAssetManager().CreateDefaultAsset(descPath, AssetType::CustomShader);
 		}
 
 #pragma region Assets
