@@ -10,7 +10,7 @@ namespace SliceEngine
 
         // Bullet settings
         public string projectilePrefabName = "Projectile";
-        public float projPerSecond = 10.0f;
+        //public float projPerSecond = 10.0f;
         public float bulletSpeed = 100.0f;
         public Vector3 bulletScale = new Vector3(1);
         public int bulletDamage = 1;
