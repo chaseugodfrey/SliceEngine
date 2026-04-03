@@ -425,6 +425,55 @@ namespace SliceEngine
 	{
 		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 	}
+	void RenderManager::CopyMainCamSettings(Camera& othCam)
+	{
+		auto currCam = GetGameCamera();
+		if (currCam.has_value())
+		{
+			auto& actlCam = Core::GetInstance()->GetRegistry().get<Camera>(currCam.value());
+			
+			othCam.pov = actlCam.pov;
+			othCam.near = actlCam.near;
+			othCam.far = actlCam.far;
+			othCam.luminanceLearningRate = actlCam.luminanceLearningRate;
+			othCam.fogColor = actlCam.fogColor;
+			othCam.fogIntensity = actlCam.fogIntensity;
+			othCam.bloomFilterRadius = actlCam.bloomFilterRadius;
+			othCam.bloomStrength = actlCam.bloomStrength;
+			othCam.bloomLimit = actlCam.bloomLimit;
+			othCam.exposure = actlCam.exposure;
+			othCam.gamma = actlCam.gamma;
+			othCam.whiteBalance = actlCam.whiteBalance;
+			othCam.minLuminance = actlCam.minLuminance;
+			othCam.maxLuminance = actlCam.maxLuminance;
+			othCam.godRayFilterRadius = actlCam.godRayFilterRadius;
+			othCam.godRayStrength = actlCam.godRayStrength;
+			othCam.vignetteCenter = actlCam.vignetteCenter;
+			othCam.vignetteIntensity = actlCam.vignetteIntensity;
+			othCam.vignetteSmoothness = actlCam.vignetteSmoothness;
+			othCam.impactPos = actlCam.impactPos;
+			othCam.impactColor = actlCam.impactColor;
+			othCam.impactColor2 = actlCam.impactColor2;
+			othCam.impactSmooth = actlCam.impactSmooth;
+			othCam.impactEpilepsy = actlCam.impactEpilepsy;
+			othCam.impactAngle = actlCam.impactAngle;
+			othCam.impactNoise1 = actlCam.impactNoise1;
+			othCam.impactNoise2 = actlCam.impactNoise2;
+			othCam.impactBlend = actlCam.impactBlend;
+			othCam.cloudsHeight = actlCam.cloudsHeight;
+			othCam.cloudsAmplitude = actlCam.cloudsAmplitude;
+			othCam.cloudsIntensity = actlCam.cloudsIntensity;
+			othCam.cloudsSmoothness = actlCam.cloudsSmoothness;
+			othCam.cloudsCutoff = actlCam.cloudsCutoff;
+			othCam.cloudsColor = actlCam.cloudsColor;
+			othCam.cloudsSecondCloudOffset = actlCam.cloudsSecondCloudOffset;
+			othCam.cloudsSecondCloudAmplitude = actlCam.cloudsSecondCloudAmplitude;
+			othCam.cloudsSecondCloudIntensity = actlCam.cloudsSecondCloudIntensity;
+			othCam.cloudsSecondCloudSmoothness = actlCam.cloudsSecondCloudSmoothness;
+			othCam.cloudsSecondColor = actlCam.cloudsSecondColor;
+			othCam.postRenderToggles = actlCam.postRenderToggles;
+		}
+	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
 		auto& camTrans = cam.GetComponent<Transform>();
@@ -599,25 +648,19 @@ namespace SliceEngine
 			CheckGLError();
 
 			// Special case for Post Processings
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
+				RenderGroundCloud(cam);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
 				RenderFog(cam);
 
 			RenderAvgLum(cam);
-
 			//----------------------------------------------------------------
-			// Post Processings
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
-				RenderGroundCloud(cam);
-
+			// Post Processings - idk
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
 				RenderBloom(cam, true);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
-				RenderVignette(cam);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
-				RenderImpact(cam);
 
 			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
@@ -626,6 +669,13 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 				RenderDebug(cam);
 			}
+
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
+				RenderVignette(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
+				RenderImpact(cam);
+
+
 
 			RenderGammaCorrection(cam);
 		}
@@ -1168,6 +1218,7 @@ namespace SliceEngine
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
 		glDepthMask(GL_TRUE);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 		CheckGLError();
 	}
 	void RenderManager::RenderFog(Entity cam)
