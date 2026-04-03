@@ -540,6 +540,7 @@ namespace SliceEditor
 			case Canvas::WORLD:
 				BoolInputHeader(mRegistry, "Billboard X", "##canvasbillx", canvas.billboardX);
 				BoolInputHeader(mRegistry, "Billboard Y", "##canvasbilly", canvas.billboardY);
+				BoolInputHeader(mRegistry, "Billboard Z", "##canvasbillz", canvas.billboardZ);
 				break;
 			}
 

@@ -136,8 +136,12 @@ namespace SliceEngine {
 		//borrowed from particle system
 		auto possibleCam = Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
 		glm::mat3 camRot{ 1.f };
-		if (possibleCam.has_value())
-			camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRegistry().get<Camera>(possibleCam.value()).V));
+		if (possibleCam.has_value()) {
+			auto& cam = Core::GetInstance()->GetRegistry().get<Camera>(possibleCam.value());
+			auto& tform = Core::GetInstance()->GetRegistry().get<Transform>(possibleCam.value());
+			camRot = glm::mat3(glm::inverse(cam.V));
+		//	cam_pos = tform.GetWorldPosition();
+		}
 
 		billboard = glm::quat_cast(camRot);
 
@@ -645,14 +649,28 @@ namespace SliceEngine {
 				auto euler = glm::eulerAngles(r);
 				auto s = canvas_tform.GetWorldScale();
 
+			//	auto to_cam = (cam_pos - t);
 				if (ctx.billboardX) {
 					euler.x = 0;
 				}
 				if (ctx.billboardY) {
 					euler.y = 0;
 				}
-				if(ctx.billboardX || ctx.billboardY)
+				if (ctx.billboardZ) {
+					euler.z = 0;
+				}
+				if (ctx.billboardX || ctx.billboardY)
 					r = billboard * glm::quat(euler);
+			//	auto lookat = glm::quatLookAt(to_cam, { 0.f,1.f,0.f });
+				
+			/*	if (ctx.billboardX) {
+					euler.x = 0;
+				}
+				if (ctx.billboardY) {
+					euler.y = 0;
+				}
+				if(ctx.billboardX || ctx.billboardY)
+					r = billboard * glm::quat(euler);*/
 	
 				auto mr = glm::mat4_cast(r);
 				canvas_tform.transform = glm::scale(glm::translate(glm::identity<glm::mat4>(), t) * mr, s);
