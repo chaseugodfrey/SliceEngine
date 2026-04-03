@@ -20,7 +20,8 @@ namespace SliceEngine
 {
     public class PreferenceSettings
     {
-        public void Initialize()
+
+        public static void Initialize()
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
             Console.WriteLine("AHAHAHAHHAHA");
@@ -73,7 +74,7 @@ namespace SliceEngine
                 {
                     case "Gamma":
                         {
-                            Camera.gamma =  float.Parse(item.Value);
+                            Camera.Gamma =  float.Parse(item.Value);
                         }
                         break;
                     case "Master Volume":
@@ -95,6 +96,18 @@ namespace SliceEngine
             }
         }
 
+        public static void RestoreDefaults()
+        {
+            Camera.Gamma = 4.5f;
+
+            
+
+            AudioManager.SetMasterVolume(1.0f);
+            AudioManager.SetCategoryVolume("BGM",1.0f);
+            AudioManager.SetCategoryVolume("SFX",1.0f);
+            
+        }
+
         public static void SavePreferences()
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
@@ -105,6 +118,7 @@ namespace SliceEngine
             preferences["Master Volume"] = AudioManager.GetMasterVolume().ToString();
             preferences["BGM Volume"] = AudioManager.GetCategoryVolume("BGM").ToString();
             preferences["SFX Volume"] = AudioManager.GetCategoryVolume("SFX").ToString();
+            string filePath = Application.GetFilePath("GamePreference.txt");
 
             string[] lines = new string[4];
             int counter = 0;
