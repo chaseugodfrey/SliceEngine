@@ -22,9 +22,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
-#include <DetourNavMesh.h>
-#include <DetourNavMeshQuery.h>
-#include <DetourCrowd.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -271,6 +268,7 @@ namespace SliceEngine
 		unsigned char postRenderToggles{};
 		glm::mat4 V{};
 		glm::mat4 P{};
+		bool isMainCamera{ false };
 		bool componentEnabled{ true };
 		bool lumSelected{ false };
 		bool camLoaded{ false };
@@ -992,51 +990,9 @@ namespace SliceEngine
 		float value{ 0 };
 	};
 
-	// Not a component but a base data obj for nav mesh
-	struct NavMeshObj
-	{
-		dtNavMesh* navMesh;
-		dtNavMeshQuery* navMeshQuery;
-		dtCrowd *navMeshCrowd;
-	};
-
-	struct NavMeshDebugObj
-	{
-		struct data
-		{
-			uint32_t vao;
-			uint32_t vbo;
-			uint32_t drawCnt;
-		};
-
-		data data[2];
-	};
 
 	// Component
-	struct NavAgent
-	{
-		bool componentEnabled{ true };
-		glm::vec3 target = glm::vec3(0.0f);
-		std::vector<glm::vec3> currentPath;
-		int currentPathIndex = 0;
 
-		float speed = 2.0f;
-		bool hasNewTarget = false;
-		int crowdAgentID = -1;
-	};
-
-	//struct NavMeshLink
-	//{
-	//	glm::vec3 startLink;
-	//	glm::vec3 endLink;
-	//	bool bidirectional;
-	//	float radius;
-	//};
-
-	struct NavObstacle
-	{
-		bool isObstacle = false;
-	};
 }
 
 #endif

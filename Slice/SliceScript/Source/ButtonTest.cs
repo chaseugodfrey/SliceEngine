@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SliceEngine
 {
-    public class Button : SliceBehaviour
+    public class ButtonTest : SliceBehaviour
     {
         public override void OnButtonClick()
         {

@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
 #include <Animator/AnimatorWindow.h>
+#include <Graphics/RenderManager.h>
 
 namespace SliceEditor
 {
@@ -782,6 +783,15 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
+			if (BoolInputHeader(mRegistry, "Is Main Camera", "##main_camera", cam.isMainCamera))
+			{
+				if (cam.isMainCamera)
+					SliceEngine::Core::GetInstance()->GetRenderManager()->SetMainGameCamera(entity);
+				else
+					SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera().reset();
+			}
+
+
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
 			DragFloatInputHeader(mRegistry, "Near", "##cam_near", cam.near, "%.1f", 0.1f, FLT_MAX);
@@ -1068,52 +1078,6 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplayNavAgent(entt::entity entity)
-	{
-		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavAgent>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Agent", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
-
-			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
-
-			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
-
-			ImGui::TreePop();
-		}
-
-	}
-
-	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	//{
-	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-	//	{
-	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-	//		
-	//		
-	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-	//		ImGui::TreePop();
-	//	}
-
-
-	//		//ImGui::TreePop();
-	//	}
-
-	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
-	{
-		auto& navObstacle = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavObstacle>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Obstacle", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavObstacle>(entity);
-
-			BoolInputHeader(mRegistry, "Is Obstacle: ", "##isNavObstacle", navObstacle.isObstacle);
-			ImGui::TreePop();
-		}
-	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -2307,13 +2271,6 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavAgent>())
-			{
-				if (ImGui::Selectable("Add Nav Agent"))
-				{
-					reg.emplace<SliceEngine::NavAgent>(entity);
-				}
-			}
 
 			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
 			//{
@@ -2323,13 +2280,6 @@ namespace SliceEditor
 			//	}
 			//}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
-			{
-				if (ImGui::Selectable("Add Nav Obstacle"))
-				{
-					reg.emplace<SliceEngine::NavObstacle>(entity);
-				}
-			}
 
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
@@ -2603,23 +2553,6 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavAgent>(entity))
-			{
-				DisplayNavAgent(node->entity);
-				ImGui::Separator();
-			}
-
-			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			//{
-			//	DisplayNavMeshLink(node->entity);
-			//	ImGui::Separator();
-			//}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
-			{
-				DisplayNavObstacle(node->entity);
-				ImGui::Separator();
-			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
@@ -2681,7 +2614,7 @@ namespace SliceEditor
 
 		//if (metapath.has_value())
 		mat.DeserializeAsset(node->fullPath);
-		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "Custom Shader"))
+		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "CustomShader"))
 		{
 			mat.SerializeAsset(node->fullPath);
 			return;
@@ -2709,12 +2642,16 @@ namespace SliceEditor
 		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
 		for (auto& i : shdr.get()->dataIn)
 		{
+			auto datInMat = mat.data.find(i.name);
+			if (datInMat == mat.data.end())
+				continue;
+
 			switch (i.dataType)
 			{
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
 			{
 				std::string s = "##Material_Bool_" + i.name;
-				bool tempBool{ std::get<bool>(mat.data.find(i.name)->second) };
+				bool tempBool{ std::get<bool>(datInMat->second) };
 				if (BoolInputHeader(mRegistry, i.name.c_str(), s.c_str(), tempBool))
 				{
 					mat.data[i.name] = tempBool;
@@ -2725,28 +2662,28 @@ namespace SliceEditor
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
 			{
 				std::string s = "##Material_Uint_" + i.name;
-				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(mat.data.find(i.name)->second), "%.u", 0, UINT_MAX))
+				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(datInMat->second), "%.u", 0, UINT_MAX))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
 			{
 				std::string s = "##Material_Int_" + i.name;
-				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(mat.data.find(i.name)->second), "%.d", -INT_MAX, INT_MAX))
+				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(datInMat->second), "%.d", -INT_MAX, INT_MAX))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 			{
 				std::string s = "##Material_Float_" + i.name;
-				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(datInMat->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
 			{
 				std::string s = "##Material_Texture_" + i.name;
-				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(datInMat->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
@@ -2799,14 +2736,24 @@ namespace SliceEditor
 	void InspectorWindow::DisplayState(StateNode* node)
 	{
 		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+		auto animator = mRegistry.GetManager<SessionManager>("Session")->currentAnimator;
 
 		ImGui::SeparatorText("State");
 
 		if (!anim_data)
 			return;
 
-		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (!animator)
+			return;
+
+		/*auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
 		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+			return;
+
+		auto& state = state_it->second;*/
+
+		auto state_it = animator->stateMachine.EFSM.stateMap.find(node->name);
+		if (state_it == animator->stateMachine.EFSM.stateMap.end())
 			return;
 
 		auto& state = state_it->second;
@@ -2814,6 +2761,39 @@ namespace SliceEditor
 		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
 
 		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
+		
+		float speedBuffer{ 1 };
+
+		//mCurrentAnimator->Handle_skeleton.IsValid()
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+		}
+		else
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+
+		}
+
+		DragFloatInputHeader(mRegistry, "Speed:", "##anim_speed", speedBuffer, "%0.3f", 0.1f, 10.0f);
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		else
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		
 
 		ImGui::SeparatorText("Transitions");
 

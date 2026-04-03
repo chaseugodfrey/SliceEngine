@@ -54,7 +54,8 @@ namespace SliceEngine
 			{
 				if (animator.is_bone)
 				{ 
-					if (animator.curr_anim_pkg.animations.size() > 0)
+					if (animator.curr_anim_pkg.animations.size() > 0 && animator.curr_anim_pkg.animations.size() > animator.stateMachine.EFSM.currState->curr_anim_idx
+						&& animator.curr_anim_pkg.animations.size() > animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx)
 					{
 						auto& prevanim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.stateMap[animator.stateMachine.EFSM.prevState].curr_anim_idx];
 						auto& curranim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
@@ -81,8 +82,9 @@ namespace SliceEngine
 		{
 			//Bone animation
 			if (animator.Handle_skeleton.IsValid()) {
-				if(animator.curr_anim_pkg.animations.size() > 0)
+				if(animator.curr_anim_pkg.animations.size() > 0 && animator.curr_anim_pkg.animations.size() > animator.stateMachine.EFSM.currState->curr_anim_idx)
 				{
+					
 					auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 					if (anim.duration <= 0.0f)
 					{
@@ -91,7 +93,7 @@ namespace SliceEngine
 					}
 					else
 					{
-						animator.current_time += dt;
+						animator.current_time += dt * animator.stateMachine.EFSM.currState->animationSpeed;
 
 						// publish animation key frame event
 						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
@@ -139,7 +141,7 @@ namespace SliceEngine
 					}
 					else
 					{
-						animator.current_time += dt;
+						animator.current_time += dt * animator.stateMachine.EFSM.currState->animationSpeed;
 
 						// publish animation key frame event
 						unsigned int currentFrame = static_cast<unsigned int>(animator.current_time * anim.fps);
@@ -195,7 +197,7 @@ namespace SliceEngine
 				
 				if (animator.is_bone)
 				{
-					if (animator.curr_anim_pkg.animations.size() > 0)
+					if (animator.curr_anim_pkg.animations.size() > 0 && animator.curr_anim_pkg.animations.size() > animator.stateMachine.EFSM.currState->curr_anim_idx)
 					{
 						auto const& anim = animator.curr_anim_pkg.animations[animator.stateMachine.EFSM.currState->curr_anim_idx];
 

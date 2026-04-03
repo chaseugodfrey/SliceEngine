@@ -152,10 +152,10 @@ namespace SliceEditor
 		ImGui::BeginChild("##left_region", ImVec2(0.3f * ImGui::GetWindowWidth(), 0.0f), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
 
 		ImGui::SeparatorText("Parameters");
-		if (ImGui::Button("+##add_param"))
+		/*if (ImGui::Button("+##add_param"))
 		{
 			ImGui::OpenPopup("AddParam_Popup");
-		}
+		}*/
 
 		if (ImGui::BeginPopupContextItem("AddParam_Popup"))
 		{
@@ -186,6 +186,8 @@ namespace SliceEditor
 		{
 			if(!mAnimatorData->empty())
 			{
+				// Removed LoadFromAsset every frame to prevent selection flickering
+				// mAnimatorData->LoadFromAsset(mCurrentAnimator->stateMachine.EFSM);
 				int param_id{};
 				for (auto& [name, param] : mAnimatorData->mStateMachineAsset->parameters)
 				{
@@ -270,14 +272,17 @@ namespace SliceEditor
 		{
 			if (!mAnimatorData->empty())
 			{
+				// Removed LoadFromAsset every frame to prevent selection flickering
+				// mAnimatorData->LoadFromAsset(mCurrentAnimator->stateMachine.EFSM);
+
 				for (auto& [id, node] : mAnimatorData->mStateNodes)
 				{
-					DrawStateNode(&node);
+					DrawStateNode(node.get());
 				}
 
 				for (auto& [id, link] : mAnimatorData->mTransitionNodes)
 				{
-					DrawTransitionLinkNode(&link);
+					DrawTransitionLinkNode(link.get());
 				}
 			}
 		}
@@ -597,6 +602,12 @@ namespace SliceEditor
 		auto guid = mCurrentAnimator->Handle_stateMachine.getGUID();
 		mSessionManager->LoadAnimatorData(guid);
 		mAnimatorData = mSessionManager->GetAnimatorData();
+		
+		// Ensure internal editor representation is synced with component once upon loading
+		if (mAnimatorData)
+			mAnimatorData->LoadFromAsset(mCurrentAnimator->stateMachine.EFSM);
+
+		mSessionManager->currentAnimator = mCurrentAnimator;
 
 		// Set Initial Node Positions
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
@@ -639,7 +650,7 @@ namespace SliceEditor
 			return;
 		}
 
-		auto stateName = mAnimatorData->mStateNodes.at(id).name;
+		auto stateName = mAnimatorData->mStateNodes.at(id)->name;
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
 		auto state_it = stateMap.find(stateName);
 
@@ -683,13 +694,13 @@ namespace SliceEditor
 	void AnimatorWindow::SelectNode(uint16_t id)
 	{
 		auto& node = mAnimatorData->mStateNodes.at(id);
-		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(node.get());
 	}
 
 	void AnimatorWindow::SelectLink(uint16_t id)
 	{
 		auto& node = mAnimatorData->mTransitionNodes.at(id);
-		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(&node);
+		mRegistry.GetManager<SelectionManager>("Selection")->SelectSingle(node.get());
 	}
 
 	void AnimatorWindow::AddLink(uint16_t sourceId,std::string targetState)
@@ -701,7 +712,7 @@ namespace SliceEditor
 			SLICE_LOG_ERROR("State not found in State Map.");
 			return;
 		}
-		StateNode& sourceNode = mAnimatorData->mStateNodes.at(sourceId);
+		StateNode& sourceNode = *mAnimatorData->mStateNodes.at(sourceId);
 		if (std::strcmp(sourceNode.name.c_str(), "Entry") == 0)
 		{
 			auto node_it = mAnimatorData->mNameToStateID.find(targetState);
@@ -712,7 +723,7 @@ namespace SliceEditor
 			}
 
 			int targetId = mAnimatorData->mNameToStateID.at(targetState);
-			StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
+			StateNode& targetNode = *mAnimatorData->mStateNodes.at(targetId);
 			mAnimatorData->create_link(sourceNode, targetNode);
 
 			mAnimatorData->mStateMachineAsset.get()->entryState = targetState;
@@ -735,7 +746,7 @@ namespace SliceEditor
 			}
 
 			int targetId = mAnimatorData->mNameToStateID.at(targetState);
-			StateNode& targetNode = mAnimatorData->mStateNodes.at(targetId);
+			StateNode& targetNode = *mAnimatorData->mStateNodes.at(targetId);
 			mAnimatorData->create_link(sourceNode, targetNode);
 
 			SliceEngine::SliceEngineTypes::State& sourceState = stateMap.at(sourceNode.name);
@@ -751,7 +762,7 @@ namespace SliceEditor
 			tmpTransition.exitTime = 1.0f;
 			tmpTransition.sourceState = sourceNode.name;
 			tmpTransition.targetState = targetState;
-			tmpTransition.id = static_cast<int>(mAnimatorData->mTransitionNodes.size() - 1);
+			tmpTransition.id = static_cast<int>(mAnimatorData->mTransitionNodes.size()) - 1;
 			sourceState.transitions.push_back(tmpTransition);
 
 			std::pair<std::string, rttr::variant> tmpParam{};
@@ -775,7 +786,7 @@ namespace SliceEditor
 			return false;
 		}
 
-		auto& state_node = mAnimatorData->mStateNodes.at(static_cast<const unsigned short>(transition_it->second.source_id));
+		auto& state_node = *mAnimatorData->mStateNodes.at(static_cast<const unsigned short>(transition_it->second->source_id));
 		
 		auto& stateMap = mAnimatorData->mStateMachineAsset->stateMap;
 		if (std::strcmp(state_node.name.c_str(), "Entry") == 0)

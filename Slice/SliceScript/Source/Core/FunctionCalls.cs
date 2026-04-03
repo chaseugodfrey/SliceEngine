@@ -27,6 +27,10 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Camera_GetGamma();
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Camera_GetFOV(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetFOV(uint entityID, float fov);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactFrameWorldPosition(uint entityID, ref Vector3 position);
@@ -685,29 +689,6 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
 
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_Stop(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_GetSpeed(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_ComponentState(uint entityID, bool componentState);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_HasPath(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_GetComponentEnabled(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
 
 
 
@@ -765,6 +746,10 @@ namespace SliceEngine
         internal extern static float Slider_GetValue(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Slider_SetValue(uint entityID, float value);
+
+        /************************* Button *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Button_SetEnabled(uint entityID, bool enabled);
 
         /************************* Font *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]

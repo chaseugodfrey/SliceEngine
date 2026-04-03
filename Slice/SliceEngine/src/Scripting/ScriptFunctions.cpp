@@ -2401,6 +2401,23 @@ namespace SliceEngine
 		return Core::GetInstance()->GetRenderManager()->GetSessionGamma();
 	}
 
+	static void Camera_SetFOV(unsigned int entityID, float fov)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().pov = fov;
+	}
+
+	static float Camera_GetFOV(unsigned int entityID)
+	{
+		float ret{};
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			ret = go.GetComponent<Camera>().pov;
+
+		return ret;
+	}
+
 	static void Camera_ToggleImpactFrames(unsigned int entityID, bool isEnable)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -2542,86 +2559,6 @@ namespace SliceEngine
 
 #pragma endregion
 
-#pragma region NAVIGATION FUNCTIONS
-
-
-	// Helper to get the agent component
-	static NavAgent* GetNavAgent(uint32_t entityID)
-	{
-		auto* core = SliceEngine::Core::GetInstance();
-
-		entt::registry& registry = core->GetRegistry();
-
-		entt::entity e = (entt::entity)entityID;
-		if (!registry.valid(e))
-		{
-			return nullptr;
-		}
-
-		return registry.try_get<NavAgent>(e);
-	}
-
-	static void NavAgent_ComponentState(uint32_t entityID, bool componentState)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-
-		if (agent)
-		{
-			agent->componentEnabled = componentState;
-		}
-	}
-
-	static void NavAgent_SetDestination(uint32_t entityID, glm::vec3* target)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		if (agent)
-		{
-			agent->target = *target;
-			agent->hasNewTarget = true;
-		}
-	}
-
-	static void NavAgent_Stop(uint32_t entityID)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		if (agent)
-		{
-			agent->currentPath.clear();
-			agent->currentPathIndex = 0;
-			agent->hasNewTarget = false;
-		}
-	}
-
-	static float NavAgent_GetSpeed(uint32_t entityID)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		return agent ? agent->speed : 0.0f;
-	}
-
-	static void NavAgent_SetSpeed(uint32_t entityID, float speed)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		if (agent) agent->speed = speed;
-	}
-
-	static bool NavAgent_HasPath(uint32_t entityID)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		// Returns true if path is not empty
-		return agent && !agent->currentPath.empty();
-
-	}
-	static bool NavAgent_GetComponentEnabled(uint32_t entityID)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		return agent->componentEnabled;
-	}
-	static void NavAgent_SetComponentEnabled(uint32_t entityID, bool isEnabled)
-	{
-		NavAgent* agent = GetNavAgent(entityID);
-		if (agent) agent->componentEnabled = isEnabled;
-	}
-#pragma endregion
 
 #pragma region UI FUNCTIONS
 	//Rect Transform
@@ -2822,6 +2759,22 @@ namespace SliceEngine
 			rect.right = value;
 		}
 	}
+
+#pragma region ButtonRenderer
+
+	static void Button_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		GameObject GO = FactoryInstance.GetGOByEntity((Entity)entityID);
+
+		if (GO.HasComponent<Button>())
+		{
+			auto& button = GO.GetComponent<Button>();
+			button.componentEnabled = enabled;
+		}
+	}
+
+
+#pragma endregion
 
 	//Font Renderer
 	static void FontRenderer_SetEnabled(uint32_t entityID, bool enabled)
@@ -3339,13 +3292,13 @@ namespace SliceEngine
 		RegisterComponent<Animator>();
 		RegisterComponent<ColliderShape>();
 		RegisterComponent<RigidBody>();
-		RegisterComponent<NavAgent>();
 		RegisterComponent<Slider>();
 		RegisterComponent<AudioSource>();
 		RegisterComponent<RectTransform>();
 		RegisterComponent<SpriteRenderer>();
 		RegisterComponent<SpriteRendererGammaOverride>();
 		RegisterComponent<SpriteAnimator>();
+		RegisterComponent<Button>();
 		RegisterComponent<FontRenderer>();
 		RegisterComponent<Renderer>();
 		RegisterComponent<Camera>();
@@ -3375,6 +3328,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
 		ADD_INTERNAL_CALL(Camera_SetGamma);
 		ADD_INTERNAL_CALL(Camera_GetGamma);
+		ADD_INTERNAL_CALL(Camera_SetFOV);
+		ADD_INTERNAL_CALL(Camera_GetFOV);
 		ADD_INTERNAL_CALL(Camera_ToggleImpactFrames);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameWorldPosition);
 		ADD_INTERNAL_CALL(Camera_SetImpactFrameColor1);
@@ -3640,16 +3595,6 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(GetCurrAnimFPS);
 		ADD_INTERNAL_CALL(SafeToChange);
 
-		// Navigation
-		ADD_INTERNAL_CALL(GetNavAgent);
-		ADD_INTERNAL_CALL(NavAgent_ComponentState);
-		ADD_INTERNAL_CALL(NavAgent_SetDestination);
-		ADD_INTERNAL_CALL(NavAgent_Stop);
-		ADD_INTERNAL_CALL(NavAgent_GetSpeed);
-		ADD_INTERNAL_CALL(NavAgent_SetSpeed);
-		ADD_INTERNAL_CALL(NavAgent_HasPath);
-		ADD_INTERNAL_CALL(NavAgent_GetComponentEnabled);
-		ADD_INTERNAL_CALL(NavAgent_SetComponentEnabled);
 
 		//UI
 		ADD_INTERNAL_CALL(RectTransform_GetHoriAlign);
@@ -3687,6 +3632,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Slider_GetValue);
 		ADD_INTERNAL_CALL(Slider_SetValue);
 
+		ADD_INTERNAL_CALL(Button_SetEnabled);
 
 		ADD_INTERNAL_CALL(FontRenderer_SetEnabled);
 		ADD_INTERNAL_CALL(FontRenderer_SetColor);

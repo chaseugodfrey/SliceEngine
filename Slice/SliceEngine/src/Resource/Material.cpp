@@ -27,7 +27,7 @@ namespace SliceEngine
 			// figure out default textures
 			//temp.albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			//temp.albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(temp.albedo.mGUID);
-			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
+			temp.shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>((GUID)DefaultResourceIDs::CSHADER_DEFAULT);
 			temp.color = temp.color2 = glm::vec4(1.f);
 			temp.isTranslucent = false;
 			temp.isIgnoreLighting = false;
@@ -119,7 +119,7 @@ namespace SliceEngine
 		 {
 			//albedo.mGUID = (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 			//albedo = Core::GetInstance()->GetResourceManager()->get<Texture>(albedo.mGUID);
-			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/default.cshader");
+			shader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>((GUID)DefaultResourceIDs::CSHADER_DEFAULT);
 			color = color2 = glm::vec4(1.f, 1.f, 1.f, 1.f);
 			isTranslucent = false;
 			isIgnoreLighting = false;

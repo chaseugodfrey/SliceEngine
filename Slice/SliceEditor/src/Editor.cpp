@@ -173,7 +173,6 @@ namespace SliceEditor
 		// to add save engine changes if needed
 		Save();
 
-		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
 

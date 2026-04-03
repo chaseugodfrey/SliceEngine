@@ -61,7 +61,6 @@ namespace SliceEditor
 
 		AddWindow<ContentBrowserWindow>("ContentBrowser");
 		AddWindow<ProfilerWindow>("Profiler");
-		AddWindow<NavigationWindow>();
 		AddWindow<SceneViewWindow>();
 		//AddWindow<PrefabViewWindow>();
 		AddWindow<GameViewWindow>();
@@ -72,6 +71,7 @@ namespace SliceEditor
 		AddWindow<ConsoleWindow>();
 
 		EventManager::GetInstance()->Subscribe<OnGameStopEvent, &WindowManager::QuitGameEvent>(this);
+		EventManager::GetInstance()->Subscribe<UndoDisabledEvent, &WindowManager::SetUndoDisabled>(this);
 	}
 
 	void WindowManager::Update()
@@ -96,6 +96,7 @@ namespace SliceEditor
 		DrawProjectSettings();
 		DrawSaveSceneAsPopup();
 		DrawNewScenePopup();
+		DrawUndoDisabledPopup();
 		
 		for (auto& window : list)
 		{
@@ -955,6 +956,27 @@ namespace SliceEditor
 		}
 	}
 
+	void WindowManager::DrawUndoDisabledPopup()
+	{
+		if (undoDisabledEvent)
+		{
+			ImGui::OpenPopup("I'm Sorry Designers D: ##undoDisabledPopup");
+		}
+
+		if (ImGui::BeginPopupModal("I'm Sorry Designers D: ##undoDisabledPopup", &undoDisabledEvent))
+		{
+			ImGui::Text("Im sorry designers but undo is disabled while Multi-Selecting");
+
+			if (ImGui::Button("Close this Pop-up"))
+			{
+				undoDisabledEvent = false;
+				ImGui::CloseCurrentPopup();
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
 	void WindowManager::QuitGameEvent(OnGameStopEvent e)
 	{
 		isPlaying = false;
@@ -973,6 +995,11 @@ namespace SliceEditor
 			else
 				mask |= bit;
 		}
+	}
+
+	void WindowManager::SetUndoDisabled()
+	{
+		undoDisabledEvent = true;
 	}
 
 	//void WindowManager::SetTheme_Microsoft()
