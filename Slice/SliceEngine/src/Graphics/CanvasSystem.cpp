@@ -168,7 +168,8 @@ namespace SliceEngine {
 		CheckGLError();
 
 		glEnable(GL_BLEND);
-		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
 		CheckGLError();
 		const GLuint null_eid = entt::null;
 
