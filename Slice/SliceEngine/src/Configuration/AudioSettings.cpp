@@ -486,7 +486,7 @@ namespace SliceEngine
             }
         }
 
-        // Create a unique temporary Game Object for this sound instance
+        
         std::string uniqueName = "OneShot_" + key;
         auto newAudioObject = FactoryInstance.CreateGO(uniqueName);
         newAudioObject.AddComponent<AudioSource>();

@@ -12,6 +12,7 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject MainMenuCanvas;
+
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
@@ -19,7 +20,7 @@ namespace SliceEngine
         private float animationTimer = 0f;
 
         public string textToShow = "";
-        
+
 
         public override void OnCreate()
         {
@@ -30,16 +31,7 @@ namespace SliceEngine
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                if (borderAnim != null)
-                {
-                    borderAnim.menuCanvasObj = MainMenuCanvas;
-                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
-                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
-                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
-                }
+                
                 settingsPopup.SetActive(false);
             }
 
@@ -56,9 +48,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            if (Input.IsKeyPressed(Keys.KEY_ESC))
             {
-                if(isSettingsOpen)
+                if (isSettingsOpen)
                 {
                     CloseSettings();
                 }
@@ -111,6 +103,7 @@ namespace SliceEngine
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
+                AudioSettings.PlaySFX("PauseTransitionOut");
             }
         }
 

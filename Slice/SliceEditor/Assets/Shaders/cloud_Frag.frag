@@ -260,37 +260,29 @@ float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx)
 {
     vec3 L = normalize(l); 
     
-    // -l is EXACTLY the Fragment's position relative to the Light!
-    // Multiply this directly by the Spotlight's VP matrix
     vec4 vLightPos = uLight[lightIdx].VP * vec4(-l, 1.0);
     
-    // Prevent reverse-projection artifacts if the fragment is behind the spotlight
     if (vLightPos.w <= 0.0) return 1.0; 
     
     vec3 projCoords = vLightPos.xyz / vLightPos.w;
     projCoords = projCoords * 0.5 + 0.5;
 
-    // Out of bounds check
     if(projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
-    {
         return 1.0; 
-    }
 
-    // Using radial linear distance to match the spherical depth stored in your cubemap
     float currentDepth = dist / uLight[lightIdx].uFarPlane; 
     
-    float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
+	float bias = max(0.005 * (1.0 - dot(n, L)), 0.0005);
     float shadow = 0.0;
     
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowCubeMap, 0).xy); 
     float layer = float(uLight[lightIdx].shadowNum); 
     int face = uLight[lightIdx].spotShadowNum;
 
-    for(int x = -1; x <= 1; ++x)
+    for(int x = -2; x <= 2; ++x)
     {
-        for(int y = -1; y <= 1; ++y)
+        for(int y = -2; y <= 2; ++y)
         {
-            // Convert 2D PCF offsets into a 3D Cubemap vector
             vec2 offsetUV = projCoords.xy + vec2(x,y) * texelSize;
             vec3 cubeDir = UVToCubeDir(offsetUV, face);
             
@@ -299,7 +291,7 @@ float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx)
         }
     }
 
-    return shadow / 9.0;
+    return shadow / 25.0;
 }
 
 vec3 GetRandDir(vec3 seed)

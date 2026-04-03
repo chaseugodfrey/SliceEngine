@@ -2,6 +2,20 @@
     "SFXEntries": [
         {
             "AudioClips": [
+                9696569742711998388
+            ],
+            "isSpatial": false,
+            "key": "UIClick",
+            "maxDistance": 30.0,
+            "maxInstances": 1,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
                 17943067432173391513
             ],
             "isSpatial": false,
@@ -131,6 +145,20 @@
         },
         {
             "AudioClips": [
+                13612963309126088302
+            ],
+            "isSpatial": false,
+            "key": "Dash",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
                 10305650555020226811,
                 15218661569640235272,
                 16799327444022259943
@@ -143,20 +171,6 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.6000000238418579,
-            "volumeRollOff": 1
-        },
-        {
-            "AudioClips": [
-                13612963309126088302
-            ],
-            "isSpatial": false,
-            "key": "Dash",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.5,
             "volumeRollOff": 1
         },
         {
@@ -227,6 +241,34 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.4000000059604645,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                11171167347396630330
+            ],
+            "isSpatial": false,
+            "key": "PauseTransitionIn",
+            "maxDistance": 30.0,
+            "maxInstances": 1,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                17796201263138003786
+            ],
+            "isSpatial": false,
+            "key": "PauseTransitionOut",
+            "maxDistance": 30.0,
+            "maxInstances": 1,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 0.5,
             "volumeRollOff": 1
         }
     ]

@@ -16,6 +16,7 @@ DigiPen Institute of Technology is prohibited.
 #ifndef EDITOR_COMMON_TYPES_H
 #define EDITOR_COMMON_TYPES_H
 
+#include <memory>
 #include "AssetManager/AssetTypes.h"
 
 namespace SliceEditor
@@ -218,8 +219,8 @@ namespace SliceEditor
 	struct AnimatorData
 	{
 		std::unique_ptr<StateMachineData> mStateMachineAsset;
-		std::unordered_map<uint16_t, StateNode> mStateNodes;
-		std::unordered_map<uint16_t, TransitionLinkNode> mTransitionNodes;
+		std::unordered_map<uint16_t, std::unique_ptr<StateNode>> mStateNodes;
+		std::unordered_map<uint16_t, std::unique_ptr<TransitionLinkNode>> mTransitionNodes;
 		std::unordered_map<std::string, uint16_t> mNameToStateID;
 
 		using State = SliceEngine::SliceEngineTypes::State;
@@ -254,10 +255,10 @@ namespace SliceEditor
 
 		void create_state_node(std::string name)
 		{
-			StateNode node{};
-			node.id = static_cast<int>(mStateNodes.size());
-			node.in_id = node.id * 2;
-			node.out_id = node.in_id + 1;
+			auto node = std::make_unique<StateNode>();
+			node->id = static_cast<int>(mStateNodes.size());
+			node->in_id = node->id * 2;
+			node->out_id = node->in_id + 1;
 
 			for (auto& [nm, id] : mNameToStateID)
 			{
@@ -268,21 +269,22 @@ namespace SliceEditor
 				}
 			}
 
-			node.name = name;
-			mStateNodes.emplace(node.id, node);
-			mNameToStateID.emplace(name, node.id);
+			node->name = name;
+			uint16_t id = static_cast<uint16_t>(node->id);
+			mStateNodes.emplace(id, std::move(node));
+			mNameToStateID.emplace(name, id);
 		}
 
 		void create_link(StateNode const& source, StateNode const& target)
 		{
-			TransitionLinkNode link;
-			link.id = static_cast<int>(mTransitionNodes.size());
-			link.source_id = source.id;
-			link.target_id = target.id;
-			link.source_out_id = source.out_id;
-			link.target_in_id = target.in_id;
+			auto link = std::make_unique<TransitionLinkNode>();
+			link->id = static_cast<int>(mTransitionNodes.size());
+			link->source_id = source.id;
+			link->target_id = target.id;
+			link->source_out_id = source.out_id;
+			link->target_in_id = target.in_id;
 
-			mTransitionNodes.emplace(link.id, link);
+			mTransitionNodes.emplace(static_cast<uint16_t>(link->id), std::move(link));
 
 		}
 
@@ -290,7 +292,7 @@ namespace SliceEditor
 		{
 			if (!mStateNodes.empty())
 			{
-				if (mStateNodes.at(0).name == "Entry" && mStateNodes.at(0).name == "Exit")
+				if (mStateNodes.at(0)->name == "Entry" && mStateNodes.at(1)->name == "Exit")
 					return;
 			}
 
@@ -324,7 +326,7 @@ namespace SliceEditor
 				auto it = mStateNodes.find(static_cast<const unsigned short>(state_id));
 				if (it != mStateNodes.end())
 				{
-					state_map.at(it->second.name).mNodePos = glm::vec2(pos.x, pos.y);
+					state_map.at(it->second->name).mNodePos = glm::vec2(pos.x, pos.y);
 				}
 			}
 		}
@@ -366,23 +368,23 @@ namespace SliceEditor
 
 			for (auto& [sourceId, sourceNode] : mStateNodes)
 			{
-				if (sourceNode.name == "Entry")
+				if (sourceNode->name == "Entry")
 				{
 					auto it = mNameToStateID.find(data.entryState);
 					if (it == mNameToStateID.end())
 						continue;
 					
-					create_link(sourceNode, mStateNodes.at(it->second));
+					create_link(*sourceNode, *mStateNodes.at(it->second));
 
 					continue;
 				}
 
-				else if (sourceNode.name == "Exit")
+				else if (sourceNode->name == "Exit")
 				{
 					continue;
 				}
 
-				auto& sourceState = stateMap.at(sourceNode.name);
+				auto& sourceState = stateMap.at(sourceNode->name);
 				
 				for (auto& transition : sourceState.transitions)
 				{
@@ -393,11 +395,11 @@ namespace SliceEditor
 						continue;
 
 					auto targetId = mNameToStateID.at(targetStateName);
-					auto& targetNode = mStateNodes.at(targetId);
+					auto& targetNode = *mStateNodes.at(targetId);
 
-					create_link(sourceNode, targetNode);
-					transition.id = static_cast<int>(mTransitionNodes.size() - 1);
-					sourceNode.transitionIds.push_back(transition.id);
+					create_link(*sourceNode, targetNode);
+					transition.id = static_cast<int>(mTransitionNodes.size()) - 1;
+					sourceNode->transitionIds.push_back(transition.id);
 				}
 			}
 
@@ -427,23 +429,23 @@ namespace SliceEditor
 
 			for (auto& [sourceId, sourceNode] : mStateNodes)
 			{
-				if (sourceNode.name == "Entry")
+				if (sourceNode->name == "Entry")
 				{
 					auto it = mNameToStateID.find(data.entryState);
 					if (it == mNameToStateID.end())
 						continue;
 
-					create_link(sourceNode, mStateNodes.at(it->second));
+					create_link(*sourceNode, *mStateNodes.at(it->second));
 
 					continue;
 				}
 
-				else if (sourceNode.name == "Exit")
+				else if (sourceNode->name == "Exit")
 				{
 					continue;
 				}
 
-				auto& sourceState = stateMap.at(sourceNode.name);
+				auto& sourceState = stateMap.at(sourceNode->name);
 
 				for (auto& transition : sourceState.transitions)
 				{
@@ -454,11 +456,11 @@ namespace SliceEditor
 						continue;
 
 					auto targetId = mNameToStateID.at(targetStateName);
-					auto& targetNode = mStateNodes.at(targetId);
+					auto& targetNode = *mStateNodes.at(targetId);
 
-					create_link(sourceNode, targetNode);
+					create_link(*sourceNode, targetNode);
 					transition.id = static_cast<int>(mTransitionNodes.size() - 1);
-					sourceNode.transitionIds.push_back(transition.id);
+					sourceNode->transitionIds.push_back(transition.id);
 				}
 			}
 		}
@@ -469,7 +471,7 @@ namespace SliceEditor
 			if (it1 == mStateNodes.end())
 				return std::nullopt;
 
-			return it1->second;
+			return *(it1->second);
 		}
 
 		std::optional<std::reference_wrapper<StateNode>> GetStateNode(std::string name)
@@ -509,7 +511,7 @@ namespace SliceEditor
 			if (it1 == mTransitionNodes.end())
 				return std::nullopt;
 
-			return it1->second;
+			return *(it1->second);
 		}
 
 		std::optional<std::reference_wrapper<State>> GetState(const Transition& transition)

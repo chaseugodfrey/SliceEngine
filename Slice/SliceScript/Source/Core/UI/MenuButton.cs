@@ -14,7 +14,7 @@ namespace SliceEngine
         
         
         private AudioSource btnAudio;
-        
+        private FontRenderer fontComp;
         
 
 
@@ -41,7 +41,7 @@ namespace SliceEngine
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
 
-
+            fontComp = GetComponent<FontRenderer>();
             
 
         }
@@ -55,6 +55,7 @@ namespace SliceEngine
         public override void OnButtonClick()
         {
 
+            AudioSettings.PlaySFX("UIClick");
 
             if (mainController != null)
             {
@@ -87,12 +88,20 @@ namespace SliceEngine
             }
 
             
-            if (gameSettingsController != null)
+            else if (gameSettingsController != null)
             {
                 if (buttonType == 5) // Resume
                 {
                     gameSettingsController.ResumeGame();
 
+                }
+
+                else if(buttonType == 8)
+                {
+                    Bootstrap.LevelDirector.LoadNextLevel();
+                }else if(buttonType == 9)
+                {
+                    Bootstrap.LevelDirector.RestartLevel();
                 }
                 //else if (buttonType == 1) // Open Settings (Sub-menu)
                 //{
@@ -128,12 +137,18 @@ namespace SliceEngine
 
         public override void OnButtonHover()
         {
-            
+            if(buttonType == 0 || buttonType == 1 || buttonType == 2)
+            {
+                fontComp.Colour = new Vector4(203.0f *(1.0f /256.0f), 203.0f * (1.0f / 256.0f), 203.0f * (1.0f / 256.0f), 1.0f);
+            }
         }
 
         public override void OnButtonExitHover()
         {
-
+            if (buttonType == 0 || buttonType == 1 || buttonType == 2)
+            {
+                fontComp.Colour = new Vector4(1.0f,1.0f,1.0f,1.0f);
+            }
         }
 
         public override void OnButtonRelease()

@@ -9,13 +9,13 @@ namespace SliceEngine
 {
     public class GameSettings : SliceBehaviour
     {
-        
+
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
-        
+
         private bool isSettingsOpen = false;
 
         public override void OnCreate()
@@ -24,19 +24,11 @@ namespace SliceEngine
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
 
 
-            
+
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                if (borderAnim != null)
-                {
-                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
-                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
-                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
-                }
+                
                 settingsPopup.SetActive(false);
             }
 
@@ -74,17 +66,6 @@ namespace SliceEngine
             if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
 
-        //public void OpenPauseMenu()
-        //{
-        //    if (borderAnim != null)
-        //    {
-        //        borderAnim.StartSettingsPopupAnimation(true);
-        //    }
-
-        //    isSettingsOpen = true;
-        //    Cursor.state = Cursor.STATE.DEFAULT;
-        //    Time.timeScale = 0.0f;
-        //}
 
 
         public void ResumeGame()
@@ -99,7 +80,7 @@ namespace SliceEngine
 
             // Force close everything
             if (settingsPopup != null) settingsPopup.SetActive(false);
-            
+
 
             SliceLog.Console("Resume");
 
