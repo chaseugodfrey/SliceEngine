@@ -108,7 +108,7 @@ namespace SliceEngine
 		void GatherDrawCalls();
 		void Update(float dt);
 		void SortTranslucent(Entity camEntity);
-		void UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 relPos);
+		void UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 relPos, int numCopies = 1);
 		void SingleDraw(GLuint mShader, const Entity& entity, DrawType drawType, glm::vec3 relPos);
 
 		const int mMaxInstance = 255;
