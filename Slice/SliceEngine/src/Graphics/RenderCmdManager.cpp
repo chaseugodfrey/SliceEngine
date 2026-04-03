@@ -313,6 +313,7 @@ namespace SliceEngine
 				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
 				SetColor(data, sprite->rgba);
 				data.entityID = (uint32_t)ui;
+				data.notLightAffected = sprite->not_light_affected;
 
 				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
 				if (ui_mat.color.a > 0.999f)
