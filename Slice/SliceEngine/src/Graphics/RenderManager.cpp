@@ -1675,7 +1675,7 @@ namespace SliceEngine
 	float RenderManager::CalcPointLightFar(const glm::vec3& scale, const float lightIntensity)
 	{
 		float maxS = fmaxf(scale.x, fmaxf(scale.y, scale.z));
-		return fmaxf(maxS * log10f(lightIntensity), 1.f) * mPointLightFar;
+		return (log10f(lightIntensity) + maxS) * mPointLightFar;
 	}
 
 	const glm::mat4& RenderManager::GetViewMatrix() const { return V; }

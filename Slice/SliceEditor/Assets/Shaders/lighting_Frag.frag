@@ -294,16 +294,16 @@ float getShadowSideMulti(vec3 n, vec3 l, float dist) // Removed wPos from parame
     // Using radial linear distance to match the spherical depth stored in your cubemap
     float currentDepth = dist / uLight[lightIdx].uFarPlane; 
     
-    float bias = max(0.05 * (1.0 - dot(n, L)), 0.005) * (uLight[lightIdx].uFarPlane / 20.0);
+    float bias = max(0.005 * (1.0 - dot(n, L)), 0.0005);
     float shadow = 0.0;
     
     vec2 texelSize = 1.0 / vec2(textureSize(uShadowCubeMap, 0).xy); 
     float layer = float(uLight[lightIdx].shadowNum); 
     int face = uLight[lightIdx].spotShadowNum;
-
-    for(int x = -1; x <= 1; ++x)
+	
+    for(int x = -2; x <= 2; ++x)
     {
-        for(int y = -1; y <= 1; ++y)
+        for(int y = -2; y <= 2; ++y)
         {
             // Convert 2D PCF offsets into a 3D Cubemap vector
             vec2 offsetUV = projCoords.xy + vec2(x,y) * texelSize;
@@ -314,7 +314,7 @@ float getShadowSideMulti(vec3 n, vec3 l, float dist) // Removed wPos from parame
         }
     }
 
-    return shadow / 9.0;
+    return shadow / 25.0;
 }
 
 vec3 GetRandDir(vec3 seed)

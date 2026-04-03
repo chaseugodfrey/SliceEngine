@@ -683,6 +683,8 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
 .property("text", &FontRenderer::text)
+.property("offsetx", &FontRenderer::offset_x)
+.property("offsety", &FontRenderer::offset_y)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
 

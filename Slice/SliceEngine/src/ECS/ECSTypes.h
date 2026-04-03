@@ -915,6 +915,8 @@ namespace SliceEngine
 
 
 		float font_size{};
+
+		float offset_x{}, offset_y{};	//some hardcoded offset
 		float line_spacing{};	//multiplier of font_size
 		
 		std::string text{"Hello World"};
