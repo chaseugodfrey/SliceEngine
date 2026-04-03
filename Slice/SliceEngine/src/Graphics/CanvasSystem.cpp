@@ -132,6 +132,16 @@ namespace SliceEngine {
 		empty.width = 0.f; empty.height = 0.f;
 
 		world_space_ui.clear();
+
+		//borrowed from particle system
+		auto possibleCam = Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
+		glm::mat3 camRot{ 1.f };
+		if (possibleCam.has_value())
+			camRot = glm::mat3(glm::inverse(Core::GetInstance()->GetRegistry().get<Camera>(possibleCam.value()).V));
+
+		billboard = glm::quat_cast(camRot);
+
+
 		for (auto entity : view) {
 			world_space_z = 0.f;
 			get_child_ui(entity, entity, entity, empty, force);
@@ -168,8 +178,8 @@ namespace SliceEngine {
 		CheckGLError();
 
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	//	glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
+	//	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
 		CheckGLError();
 		const GLuint null_eid = entt::null;
 
@@ -387,8 +397,8 @@ namespace SliceEngine {
 
 				//Use rect as the text box
 				//position the pen
-				float left_ref = rect.final_x -(float)rect.final_width / 2;
-				float top_ref = rect.final_y +(float)rect.final_height / 2;
+				float left_ref = rect.final_x - (float)rect.final_width / 2 + font_render.offset_x;
+				float top_ref = rect.final_y +(float)rect.final_height / 2 + font_render.offset_y;
 				float x_pen = left_ref;
 				float y_pen = top_ref - font_render.font_size;
 
@@ -608,21 +618,70 @@ namespace SliceEngine {
 		if (ctx.canvas_type == Canvas::WORLD) {
 
 			auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
+			auto& canvas_tform = mRegistry->get<Transform>(canvas_entity);
 			if (node == parent) {	//canvas
-				auto const& canvas_tform = mRegistry->get<Transform>(canvas_entity);
+
+				//when using transform system to calculate
 				//convert canvas space to world space
-				canvas_rect.scale_x = 1.f;
-				canvas_rect.scale_y = 1.f;// (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+				//canvas_rect.scale_x = 1.f;
+				//canvas_rect.scale_y = 1.f;// (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+
+
+				//ensure no 0 scale
+				//auto v = glm::epsilonEqual<3, float>(canvas_tform.scale, glm::vec3{}, glm::epsilon<float>());
+				//if (v.x || v.y || v.z) {
+				//	return;
+				//}
+				////remove the s and t component
+				//glm::vec3 inv_scale = { 1.f / canvas_tform.scale.x, 1.f / canvas_tform.scale.y , 1.f / canvas_tform.scale.z };
+				//glm::mat4 t = glm::scale(canvas_tform.transform, inv_scale);
+				//glm::quat inv_rot = glm::inverse(canvas_tform.rotation);
+				//glm::mat4 r = glm::mat4_cast(inv_rot);
+				//t *= r;
+
+				//manual
+				auto t = canvas_tform.GetWorldPosition();
+				auto r = canvas_tform.GetWorldRotation();
+				auto euler = glm::eulerAngles(r);
+				auto s = canvas_tform.GetWorldScale();
+
+				if (ctx.billboardX) {
+					euler.x = 0;
+				}
+				if (ctx.billboardY) {
+					euler.y = 0;
+				}
+				if(ctx.billboardX || ctx.billboardY)
+					r = billboard * glm::quat(euler);
+	
+				auto mr = glm::mat4_cast(r);
+				canvas_tform.transform = glm::scale(glm::translate(glm::identity<glm::mat4>(), t) * mr, s);
 			}
 			else {					//child of canvas
 				//update world pos?
 				//rotation of child is always 0
 				//scale of child is relative to immediate parent
 				//pos of child is child - parent
-				auto& c_tform = mRegistry->get<Transform>(node);
-				//auto& p_tform = mRegistry->get<Transform>(parent);
 
-				c_tform.rotation = glm::identity<glm::quat>();
+				auto& c_tform = mRegistry->get<Transform>(node);
+
+				//here we go again
+
+				////calculate manually to allow billboarding
+				auto s = glm::vec3{ rect.final_width / canvas_rect.final_width,
+									rect.final_height / canvas_rect.final_height,
+									1.f };
+
+				auto mr = glm::mat4_cast(glm::quat({ 0, 0, rect.final_rot }));
+
+				auto t = glm::vec3{ (rect.final_x - canvas_rect.final_x) / canvas_rect.final_width,
+									(rect.final_y - canvas_rect.final_y) / canvas_rect.final_height,
+									world_space_z };
+
+				c_tform.transform = glm::scale(glm::translate(canvas_tform.transform, t) * mr, s);
+
+				//when using transform system to calculate
+			/*	c_tform.rotation = glm::identity<glm::quat>();
 				c_tform.eulerAnglesHint = glm::vec3();
 				c_tform.scale.x = rect.final_width / p_rect.final_width; 
 				c_tform.scale.y = rect.final_height / p_rect.final_height; 
@@ -631,7 +690,9 @@ namespace SliceEngine {
 				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y / canvas_rect.final_height;
 				c_tform.position.z = world_space_z;
 				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
-				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
+				rect.scale_y = p_rect.scale_y / c_tform.scale.y;*/
+
+
 				world_space_z += 0.0001f;
 				if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
 					world_space_ui.insert(node);
