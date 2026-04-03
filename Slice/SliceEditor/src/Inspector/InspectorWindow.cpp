@@ -512,6 +512,9 @@ namespace SliceEditor
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
 			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
 			
+			DragFloatInputHeader(mRegistry, "Offset X", "##font_offsetx", font.offset_x, "%.1f", -100.f, 100.f);
+			DragFloatInputHeader(mRegistry, "Offset Y", "##font_offsety", font.offset_y, "%.1f", -100.f, 100.f);
+
 
 			ImGui::TreePop();
 		}

@@ -397,8 +397,8 @@ namespace SliceEngine {
 
 				//Use rect as the text box
 				//position the pen
-				float left_ref = rect.final_x -(float)rect.final_width / 2;
-				float top_ref = rect.final_y +(float)rect.final_height / 2;
+				float left_ref = rect.final_x - (float)rect.final_width / 2 + font_render.offset_x;
+				float top_ref = rect.final_y +(float)rect.final_height / 2 + font_render.offset_y;
 				float x_pen = left_ref;
 				float y_pen = top_ref - font_render.font_size;
 
@@ -651,8 +651,9 @@ namespace SliceEngine {
 				if (ctx.billboardY) {
 					euler.y = 0;
 				}
-
-				r = billboard * glm::quat(euler);
+				if(ctx.billboardX || ctx.billboardY)
+					r = billboard * glm::quat(euler);
+	
 				auto mr = glm::mat4_cast(r);
 				canvas_tform.transform = glm::scale(glm::translate(glm::identity<glm::mat4>(), t) * mr, s);
 			}
