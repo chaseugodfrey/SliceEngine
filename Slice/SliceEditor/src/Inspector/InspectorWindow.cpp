@@ -529,9 +529,16 @@ namespace SliceEditor
 			static std::vector<std::string> canvas_types{ "Overlay", "World Space"};
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
 
-			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
-
-			BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+			switch (canvas.canvas_type) {
+			case Canvas::OVERLAY:
+				DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
+				BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+				break;
+			case Canvas::WORLD:
+				BoolInputHeader(mRegistry, "Billboard X", "##canvasbillx", canvas.billboardX);
+				BoolInputHeader(mRegistry, "Billboard Y", "##canvasbilly", canvas.billboardY);
+				break;
+			}
 
 			ImGui::TreePop();
 		}

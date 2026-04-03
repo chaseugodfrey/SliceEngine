@@ -617,7 +617,9 @@ namespace SliceEngine
 		.property("canvas_type", &Canvas::canvas_type)
 		.property("sort_order", &Canvas::sort_order)
 		.property("graphics_raycast", &Canvas::graphic_raycastable)
-		.property("componentEnabled", &Canvas::componentEnabled);
+		.property("componentEnabled", &Canvas::componentEnabled)
+		.property("billboardX", &Canvas::billboardX)
+		.property("billboardY", &Canvas::billboardY);
 
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
@@ -919,16 +921,16 @@ namespace SliceEngine
 			OnPlayStarted();
 		}
 
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		frm->EndSystem("Canvas");
-
 		// regular transform update
 		frm->StartSystem("Transform");
 		sTransform.Update(deltaTimeScaled);
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		frm->EndSystem("Canvas");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(deltaTimeUnscaled);
