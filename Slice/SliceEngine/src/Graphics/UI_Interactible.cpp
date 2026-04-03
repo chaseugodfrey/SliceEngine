@@ -90,9 +90,6 @@ namespace SliceEngine {
 		
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;
-				//fill_rect.left = 0;
-				//fill_rect.right = 0;
-
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
 				if (direction == Positive) {
 					fill_rect.bot = 0;

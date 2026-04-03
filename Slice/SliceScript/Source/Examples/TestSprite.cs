@@ -8,15 +8,13 @@ namespace SliceEngine
 {
     public class TestSprite : SliceBehaviour
     {
-        SpriteAnimator sprite;
+        SpriteRenderer sprite;
         //RectTransform rect;
         public override void OnCreate()
         {
-            sprite = GetComponent<SpriteAnimator>();
-            SliceLog.Log("Creating sprite anim test script");
-            //sprite.CurrentFrame = 5;
-            //sprite.IsPlaying = false;
-            //sprite.Loop = false;
+            sprite = GetComponent<SpriteRenderer>();
+            SliceLog.Log("Creating sprite renderer test script");
+            sprite.Colour = new Vector4(0.2f, 0.8f, 0.5f, 0.8f);
         }
 
         public override void OnUpdate(float dt)

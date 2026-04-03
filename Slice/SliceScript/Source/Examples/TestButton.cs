@@ -8,11 +8,10 @@ namespace SliceEngine
 {
     public class TestButtonSlider : SliceBehaviour
     {
-        public override void OnButtonHover()
+        public override void OnSliderValue(float val)
         {
-            SliceLog.Log("On Hover");
+            SliceLog.Log("Slider value set: " + val);
         }
-
 
     }
 }

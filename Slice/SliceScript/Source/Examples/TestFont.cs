@@ -22,7 +22,7 @@ namespace SliceEngine
                 "\nColor: " + text.Colour);
 
             text.Colour = (new Vector4(1.0f, 0.0f, 0.0f, 1.0f));
-            text.Fontsize = (30);
+            text.Fontsize = (60);
             text.Linespacing = (1.2f);
             text.Text_val = ("testing setting text from script :) \nThis can have multiple lines");
 

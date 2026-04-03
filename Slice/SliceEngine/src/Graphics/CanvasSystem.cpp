@@ -550,7 +550,7 @@ namespace SliceEngine {
 					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
 				}
 				else {
-					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,1.f,0,1.f }));
 				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
