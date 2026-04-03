@@ -101,6 +101,7 @@
     <Compile Include="Source\Core\Enemy\LandmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMechTrigger.cs" />
     <Compile Include="Source\Core\Enemy\RotatingMech.cs" />
+    <Compile Include="Source\Core\Enemy\TurretMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMechWall.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Source\Core\Systems\IInitializable.cs" />
     <Compile Include="Source\Core\Systems\Input.cs" />
     <Compile Include="Source\Core\Systems\Keys.cs" />
+    <Compile Include="Source\Core\Systems\PreferenceSettings.cs" />
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />

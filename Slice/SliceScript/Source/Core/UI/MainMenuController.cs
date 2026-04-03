@@ -31,16 +31,7 @@ namespace SliceEngine
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                if (borderAnim != null)
-                {
-                    borderAnim.menuCanvasObj = MainMenuCanvas;
-                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
-                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
-                    borderAnim.miniTitleObj = FindGameObjectWithName("MiniTitleText");
-                }
+                
                 settingsPopup.SetActive(false);
             }
 

@@ -891,7 +891,7 @@ namespace SliceEngine
             animator.SetBool("Idle", false);
             animator.SetBool("Walk", false);
             animator.SetBool("JumpLoop", false);
-            animator.SetBool("Fall", false);
+            //animator.SetBool("Fall", false);
             animator.SetBool("Land", false);
         }
 
@@ -955,8 +955,10 @@ namespace SliceEngine
                     //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
-                    if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
-                        animator.SetBool("Fall", true);
+                    if (animator.SafeToChange("JumpLoop") && (String.Compare(animator.GetCurrAnimName(), "JumpLoop") != 0))
+                        animator.SetBool("JumpLoop", true);
+                    //if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
+                    //    animator.SetBool("Fall", true);
                     break;
                 case MovementState.Landing:
                     if (animator.SafeToChange("Land") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
@@ -966,7 +968,7 @@ namespace SliceEngine
                     {
                         if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
                         {
-                            //Console.WriteLine("Setting it again");
+                            Console.WriteLine("Setting it again");
                             animator.SetBool("Dash", true);
                         }
                     }

@@ -27,25 +27,25 @@ namespace SliceEngine
         public GameObject returnToTitleButton;
 
         public GameObject miniTitleObj;
+        public List<GameObject> audioSliders = new List<GameObject>() { null };
+        public GameObject gammaSlider;
 
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
 
         private RectTransform systemsPausedTrans;
         private RectTransform miniTitleTrans;
+        private FontRenderer miniTitleText;
+        private RectTransform[] audioSliderTrans;
 
         private SpriteRenderer graphicsSprite;
         private SpriteRenderer flickerImageSprite;
         private FontRenderer graphicsFont;
 
         private RectTransform frontBgTrans;
-        private FontRenderer miniTitleText;
 
-        private Vector4 highlightSpriteColor = new Vector4(151f / 255f, 63f / 255f, 0f, 0f);
         private Vector4 highlightFontColor = new Vector4(68f / 255f, 51f / 255f, 20f / 255f, 1f);
 
-
-        private Vector4 defaultSpriteColor = new Vector4(1f, 1f, 1f, 1f);
         private Vector4 defaultFontColor = new Vector4(1f, 1f, 1f, 1f);
 
         public int defaultHeight = 0;
@@ -54,7 +54,6 @@ namespace SliceEngine
         private float animationTimer = 0f;
         private bool isOpening = false;
         private bool isActive = false;
-        public bool useGlitch = true;
 
         private bool isAudioPageSelected = true;
 
@@ -104,6 +103,19 @@ namespace SliceEngine
             {
                 graphicsFont = graphicsButton.GetComponent<FontRenderer>();
             }
+
+            if(audioSliders.Count > 0)
+            {
+                audioSliderTrans = new RectTransform[audioSliders.Count];
+
+                for(int i = 0; i < audioSliders.Count; i++)
+                {
+                    if (audioSliders[i] != null)
+                    {
+                        audioSliderTrans[i] = audioSliders[i].GetComponent<RectTransform>();
+                    }
+                }
+            }
         }
 
 
@@ -120,7 +132,7 @@ namespace SliceEngine
                     if (flickerTimer < flickerTotalDuration)
                     {
                         float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
-                        color.w = Utilities.Lerp(0.5f, 0.0f, t);
+                        color.w = Utilities.Lerp(1.0f, 0.0f, t);
                     }
                     else
                     {
@@ -132,11 +144,11 @@ namespace SliceEngine
                     if (flickerTimer < flickerTotalDuration)
                     {
                         float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
-                        color.w = Utilities.Lerp(0.0f, 0.5f, t);
+                        color.w = Utilities.Lerp(0.0f, 1.0f, t);
                     }
                     else
                     {
-                        color.w = 0.5f;
+                        color.w = 1.0f;
                     }
                 }
 
@@ -161,12 +173,22 @@ namespace SliceEngine
                 {
                     float currentHeight = Utilities.SmoothStep(defaultHeight, finalHeight, bgProgress);
                     float currentWidth = Utilities.SmoothStep(1500, -572, bgProgress);
+                    
+                    float currentSliderWidth = Utilities.SmoothStep(0, -1161, bgProgress);
+                    float currentMiniTitleWidth = Utilities.SmoothStep(800, -302, bgProgress);
                     frontBgTrans.Height = (int)currentHeight;
                     systemsPausedTrans.Right = (int)currentWidth;
+                    
+                    miniTitleTrans.Right = (int)currentMiniTitleWidth;
+
+                    for(int i = 0; i < audioSliders.Count; i++)
+                    {
+                        audioSliderTrans[i].Right = (int)currentSliderWidth;
+                    }
 
                 }
 
-                bool isFullyOpen = animationTimer >= 0.5f && isOpening;
+                bool isFullyOpen = true;
 
                 // Manage visibility of elements
                 if (returnToTitleButton != null) returnToTitleButton.SetActive(isFullyOpen);
@@ -202,14 +224,7 @@ namespace SliceEngine
         {
             // Update Audio Button
             SliceLog.Log("isAudioPageSelected : " + isAudioPageSelected);
-            //if (audioBtnComp != null) audioBtnComp.SetEnabled(!isAudioPageSelected);
-            //if (audioSprite != null) audioSprite.Colour = isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
-            //if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
-
-            // Update Graphics Button
-            //if (graphicsBtnComp != null) graphicsBtnComp.SetEnabled(isAudioPageSelected);
-            //if (graphicsSprite != null) graphicsSprite.Colour = !isAudioPageSelected ? highlightSpriteColor : defaultSpriteColor;
-            //if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
+            
 
             if (audioSprite != null)
             {
