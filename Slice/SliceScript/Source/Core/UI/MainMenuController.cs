@@ -12,15 +12,15 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject MainMenuCanvas;
-        
+
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
         private bool isSettingsOpen = false;
-        
+        private float animationTimer = 0f;
 
         public string textToShow = "";
-        
+
 
         public override void OnCreate()
         {
@@ -33,13 +33,13 @@ namespace SliceEngine
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 if (borderAnim != null)
                 {
-                    borderAnim.coreElements[1] = MainMenuCanvas;
-                    borderAnim.pages[0] = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.pages[1] = FindGameObjectWithName("GraphicsSettingsPage");
-
-                    borderAnim.coreElements[4] = FindGameObjectWithName("ReturnToTitleButton");
-
-                    borderAnim.titleElements[0] = FindGameObjectWithName("MiniTitleText");
+                    borderAnim.menuCanvasObj = MainMenuCanvas;
+                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
+                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
+                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
+                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
+                    borderAnim.miniTitleObj = FindGameObjectWithName("MiniTitleText");
                 }
                 settingsPopup.SetActive(false);
             }
@@ -57,9 +57,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            if (Input.IsKeyPressed(Keys.KEY_ESC))
             {
-                if(isSettingsOpen)
+                if (isSettingsOpen)
                 {
                     CloseSettings();
                 }
