@@ -119,10 +119,10 @@ namespace SliceEditor
 
 		mSelectionType = node->type;
 
-		if (!suppressHistory)
+		/*if (!suppressHistory)
 		{
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
-		}
+		}*/
 	}
 
 	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
@@ -176,9 +176,11 @@ namespace SliceEditor
 			}
 		}
 
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));*/
 
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}
 
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
@@ -195,6 +197,8 @@ namespace SliceEditor
 
 	void SelectionManager::AddBetweenEntities(SelectionNode* otherNode)
 	{
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 		auto& mainNode = mSelectionOrder.back();
 		if (mainNode->type == SelectionType::ENTITY && otherNode->type == SelectionType::ENTITY)
 		{
@@ -365,8 +369,8 @@ namespace SliceEditor
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));*/
 
 		ClearSelection(suppressHistory);
 
@@ -395,11 +399,12 @@ namespace SliceEditor
 
 	void SelectionManager::ClearSelection(bool suppressHistory)
 	{
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
 		if (mSelectedNodes.empty())
 			return;
 
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));*/
 
 		for (auto& node : mSelectedNodes)
 		{
