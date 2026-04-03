@@ -298,7 +298,16 @@ namespace SliceEngine {
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
 
 				uniform_loc = glGetUniformLocation(shader, "gamma");
-				glUniform1f(uniform_loc, cam_gamma);
+
+				if (auto* gamma_override = mRegistry->try_get<SpriteRendererGammaOverride>(element.first)) {
+					if(gamma_override->componentEnabled)
+						glUniform1f(uniform_loc, gamma_override->gamma / 100.f);
+					else
+						glUniform1f(uniform_loc, cam_gamma);
+				}
+				else {
+					glUniform1f(uniform_loc, cam_gamma);
+				}
 
 				uniform_loc = glGetUniformLocation(shader, "uv");
 				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {

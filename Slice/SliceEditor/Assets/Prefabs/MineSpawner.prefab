@@ -2,9 +2,9 @@
     {
         "MineSpawner": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16481484577159867839",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "16481484577159867839"
+                    "GUID": ""
                 },
                 "prefabID": 0
             },
@@ -22,11 +22,11 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097241,
+                "entity_id": 11534711,
                 "neighbours": [
-                    4294967295,
-                    2097240,
-                    4294967295,
+                    0,
+                    11534715,
+                    3145863,
                     4294967295
                 ]
             },
@@ -43,9 +43,9 @@
                     0.0
                 ],
                 "position": [
-                    -23.799549102783203,
-                    6.571606636047363,
-                    -14.704853057861328
+                    1410.775146484375,
+                    349.5120849609375,
+                    -368.6990966796875
                 ],
                 "rotation": [
                     1.0,
@@ -62,7 +62,7 @@
         }
     },
     {
-        "TriggerZone": {
+        "TriggerZone_1": {
             "struct SliceEngine::ColliderShape": {
                 "componentEnabled": true,
                 "isTrigger": true,
@@ -72,20 +72,20 @@
                     0.0
                 ],
                 "sphereData": {
-                    "radius": 21.399999618530273
+                    "radius": 25.0
                 }
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "16481484577159867839",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "16481484577159867839"
+                    "GUID": ""
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097240,
+                "entity_id": 11534715,
                 "neighbours": [
-                    2097241,
+                    11534711,
                     4294967295,
                     4294967295,
                     4294967295
@@ -96,19 +96,19 @@
                 "scriptableFieldMap": {
                     "launchSpeedMax": {
                         "Type": "float",
-                        "Value": 10.0
+                        "Value": 6.0
                     },
                     "launchSpeedMin": {
                         "Type": "float",
-                        "Value": 5.0
+                        "Value": 2.0
                     },
                     "launchUpwardForce": {
                         "Type": "float",
-                        "Value": 8.0
+                        "Value": 20.0
                     },
                     "minSpawnRadius": {
                         "Type": "float",
-                        "Value": 7.0
+                        "Value": 2.0
                     },
                     "mineCount": {
                         "Type": "int",
@@ -120,14 +120,18 @@
                     },
                     "spawnRadius": {
                         "Type": "float",
-                        "Value": 20.0
+                        "Value": 6.0
+                    },
+                    "timeBetweenMines": {
+                        "Type": "float",
+                        "Value": 0.15000000596046448
                     }
                 }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "TriggerZone",
+                "mName": "TriggerZone_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {

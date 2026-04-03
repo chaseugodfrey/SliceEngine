@@ -1,0 +1,91 @@
+{
+    "entryNodePosition": [
+        170.0,
+        106.0
+    ],
+    "entryState": "Idle",
+    "exitNodePosition": [
+        108.0,
+        265.0
+    ],
+    "parameters": {
+        "Idle": false,
+        "Cinematic": false,
+        "Cinematic2": false
+    },
+    "stateMap": {
+        "AnyState": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                270.0,
+                286.0
+            ],
+            "stateName": "AnyState",
+            "transitions": [
+                 {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Cinematic",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "Cinematic"
+                },
+                 {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Cinematic2",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "Cinematic2"
+                }
+            ]
+        },
+        "Cinematic": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "Cinematic",
+            "transitions": []
+        },
+        "Cinematic2": {
+            "currAnimIdx": 1,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                458.0,
+                242.0
+            ],
+            "stateName": "Cinematic2",
+            "transitions": []
+        },
+        "Idle": {
+            "currAnimIdx": 2,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "Idle",
+            "transitions": []
+        }
+    }
+}

@@ -109,6 +109,7 @@ namespace SliceEngine
         // Internal References
         private CameraController camera;
         public GameObject playerModel;
+        public GameObject playerSword;
         RigidBody rigidBody;
         Animator animator;
         AudioSource audio;
@@ -123,6 +124,7 @@ namespace SliceEngine
         float attackTimer = 0.0f;
         bool attackQueued;
         public float shieldDuration = 0.5f;
+        public bool canAttack = false;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
@@ -962,40 +964,20 @@ namespace SliceEngine
                     break;
                 case MovementState.GroundDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                         if (hasInput)
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
                         {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            {
-                                //Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                            //Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
 
                 case MovementState.AirDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                        if (hasInput)
-                        {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            { 
-                                Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                        { 
+                            Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
@@ -1066,7 +1048,6 @@ namespace SliceEngine
                 default:
                     break;
             }
-
         }
 
         private void HandleMovementInputs()
@@ -1081,6 +1062,8 @@ namespace SliceEngine
 
         private void HandleAttackInputs()
         {
+            if (!canAttack) { return; }
+
             if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
 
             if (Input.IsKeyPressed(Keys.KEY_E) 
@@ -1276,7 +1259,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return -forward.Normalize();
+                return forward.Normalize();
             }
 
             if (camera != null)

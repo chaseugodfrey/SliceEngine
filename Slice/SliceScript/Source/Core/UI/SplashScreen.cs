@@ -17,7 +17,7 @@ namespace SliceEngine
         private float elapsedTime = 0.0f;
         private float skipDuration = 0.75f;
         private float skipTime = 0.0f;
-        private uint curr_img = 0;
+        private uint curr_img = 1;
 
         private bool sceneChanged = false;
 
@@ -29,9 +29,9 @@ namespace SliceEngine
             {
                 all_images = SplashScreenCanvas.GetAllChildren();
 
-                foreach(GameObject img in all_images)
+                for(int i = 1; i < all_images.Length; i++)
                 {
-                    SpriteRenderer img_renderer =img.GetComponent<SpriteRenderer>();
+                    SpriteRenderer img_renderer = all_images[i].GetComponent<SpriteRenderer>();
 
                     img_renderer.SetEnabled(true);
 
@@ -55,11 +55,8 @@ namespace SliceEngine
 
                     float alpha = Utilities.EaseInOut(mid);
 
-                    SpriteRenderer img_renderer = all_images[curr_img].GetComponent<SpriteRenderer>();
 
-                    Vector4 color = img_renderer.Colour;
-                    color.w = alpha;
-                    img_renderer.Colour = color;
+                    ChangeAlpha(all_images[curr_img], alpha);
                 }
                 else
                 {
@@ -97,6 +94,15 @@ namespace SliceEngine
         public void StartGameMenu()
         {
             SceneManager.LoadScene("MenuScene");
+        }
+
+        public void ChangeAlpha(GameObject obj, float alpha)
+        {
+            SpriteRenderer img_renderer = obj.GetComponent<SpriteRenderer>();
+
+            Vector4 color = img_renderer.Colour;
+            color.w = alpha;
+            img_renderer.Colour = color;
         }
     }
 }

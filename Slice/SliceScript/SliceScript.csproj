@@ -59,12 +59,12 @@
     <Compile Include="Source\Core\Components\Animator.cs" />
     <Compile Include="Source\Core\Components\Audio.cs" />
     <Compile Include="Source\Core\Components\AudioSource.cs" />
+    <Compile Include="Source\Core\Components\Button.cs" />
     <Compile Include="Source\Core\Components\ColliderShape.cs" />
     <Compile Include="Source\Core\Components\Component.cs" />
     <Compile Include="Source\Core\Components\FontRenderer.cs" />
     <Compile Include="Source\Core\Components\LayerMask.cs" />
     <Compile Include="Source\Core\Components\Light.cs" />
-    <Compile Include="Source\Core\Components\NavAgent.cs" />
     <Compile Include="Source\Core\Components\ParticleSystem.cs" />
     <Compile Include="Source\Core\Components\Physics.cs" />
     <Compile Include="Source\Core\Components\Prefab.cs" />
@@ -75,6 +75,7 @@
     <Compile Include="Source\Core\Components\Slider.cs" />
     <Compile Include="Source\Core\Components\SpriteAnimator.cs" />
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
+    <Compile Include="Source\Core\Components\SpriteRendererGammaOverride.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
@@ -82,10 +83,6 @@
     <Compile Include="Source\Core\Enemy\AirmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\DamagePlayerOnContact.cs" />
     <Compile Include="Source\Core\Enemy\EnemyBase.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyChase.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyCrystal.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyGrunt.cs" />
-    <Compile Include="Source\Core\Enemy\EnemyGruntStates.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\BaseLevel.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelDirector.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\LevelHill.cs" />
@@ -96,9 +93,6 @@
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleBoundingBox.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjective.cs" />
     <Compile Include="Source\Core\Enemy\EnemyLevels\ToggleObjectiveDone.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySlime.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySlimeStates.cs" />
-    <Compile Include="Source\Core\Enemy\EnemySpawner.cs" />
     <Compile Include="Source\Core\Enemy\EnemyState.cs" />
     <Compile Include="Source\Core\Enemy\Entity.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMech.cs" />
@@ -133,12 +127,12 @@
     <Compile Include="Source\Core\Math\Vector2.cs" />
     <Compile Include="Source\Core\Math\Vector3.cs" />
     <Compile Include="Source\Core\Math\Vector4.cs" />
-    <Compile Include="Source\Core\Navigation\WaypointSystem.cs" />
     <Compile Include="Source\Core\Player\CameraController.cs" />
     <Compile Include="Source\Core\Player\GeneralHitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox.cs" />
     <Compile Include="Source\Core\Player\Hitbox_Enemy.cs" />
     <Compile Include="Source\Core\Player\PlayerAnimatorEvents.cs" />
+    <Compile Include="Source\Core\Player\PlayerCinematic.cs" />
     <Compile Include="Source\Core\Player\PlayerController(Backup).cs" />
     <Compile Include="Source\Core\Player\PlayerController.cs" />
     <Compile Include="Source\Core\Player\PlayerHitBox.cs" />
@@ -160,16 +154,19 @@
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\Core\TriggerBoxes\BossStateTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBoxShowEnemy.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\EnemyDialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\KillPlayerTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\PlayerInteractTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
     <Compile Include="Source\Core\UI\GameSettings.cs" />
     <Compile Include="Source\Core\UI\HUD_Manager.cs" />
     <Compile Include="Source\Core\UI\MainMenuController.cs" />
     <Compile Include="Source\Core\UI\MenuButton.cs" />
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
+    <Compile Include="Source\Core\UI\SettingsBGAnimation.cs" />
     <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
     <Compile Include="Source\Core\UI\SplashScreen.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
@@ -193,6 +190,7 @@
     <Compile Include="Source\Examples\TestNavigation.cs" />
     <Compile Include="Source\Examples\TestParabola.cs" />
     <Compile Include="Source\Examples\TestRandomness.cs" />
+    <Compile Include="Source\Examples\TestRayCast.cs" />
     <Compile Include="Source\Examples\TestRectTransform.cs" />
     <Compile Include="Source\Examples\TestSFX.cs" />
     <Compile Include="Source\Examples\TestSprite.cs" />
@@ -209,7 +207,6 @@
     <Compile Include="Source\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />
     <Compile Include="Source\Level1\IntroController.cs" />
-    <Compile Include="Source\Level1\L1ArenaSpawner.cs" />
     <Compile Include="Source\Level1\L1FallingPillar.cs" />
     <Compile Include="Source\Level1\L1MovingPlatform.cs" />
     <Compile Include="Source\Level2\EnemyHUD.cs" />
@@ -220,7 +217,6 @@
     <Compile Include="Source\Old_Test_Spawner.cs" />
     <Compile Include="Source\ParticleSpawner.cs" />
     <Compile Include="Source\Payload.cs" />
-    <Compile Include="Source\PlayerTestNavAgent.cs" />
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>

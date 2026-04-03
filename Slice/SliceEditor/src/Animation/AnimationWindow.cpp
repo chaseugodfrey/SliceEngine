@@ -76,6 +76,8 @@ namespace SliceEditor
 					tmpEnt = entity;
 					return true;
 				}
+
+				return true;
 			}
 
 			// if retrieved ptr is null, unload animator and destroy data
@@ -776,7 +778,7 @@ namespace SliceEditor
 				}
 			}
 		}
-
+		
 		// run timeline here temporarily
 
 		ImGui::EndGroup();
@@ -1073,7 +1075,10 @@ namespace SliceEditor
 						for (size_t step = 0; step < core->GetFramerateManager()->getCurrentNumberOfSteps(); ++step)
 						{
 							float dt = static_cast<float>(core->GetFramerateManager()->getFixedDeltaTime());
-							mCurrentTime += dt;
+							if(!isSkeleton)
+								mCurrentTime += dt * mCurrentAnimator->stateMachine.EFSM.stateMap[mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].name].animationSpeed;
+							else
+								mCurrentTime += dt * mCurrentAnimator->stateMachine.EFSM.stateMap[mCurrentAnimator->curr_anim_pkg.animations[mCurrentClipIndex].name].animationSpeed;
 						}
 					}
 
