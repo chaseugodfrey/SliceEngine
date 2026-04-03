@@ -2391,6 +2391,21 @@ namespace SliceEngine
 		rm->SetMainGameCamera((Entity)entityID);
 	}
 
+	static void Camera_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			go.GetComponent<Camera>().componentEnabled = enabled;
+	}
+	static bool Camera_GetEnabled(uint32_t entityID)
+	{
+		bool ret = false;
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Camera>())
+			ret = go.GetComponent<Camera>().componentEnabled;
+		return ret;
+	}
+
 	static void Camera_SetGamma(float gamma)
 	{
 		Core::GetInstance()->GetRenderManager()->SetSessionGamma(gamma);
@@ -2484,6 +2499,21 @@ namespace SliceEngine
 #pragma endregion
 
 #pragma region LIGHT
+	static void Light_SetEnabled(uint32_t entityID, bool enabled)
+	{
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			go.GetComponent<Light>().componentEnabled = enabled;
+	}
+	static bool Light_GetEnabled(uint32_t entityID)
+	{
+		bool ret = false;
+		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
+		if (go.IsValid() && go.HasComponent<Light>())
+			ret = go.GetComponent<Light>().componentEnabled;
+		return ret;
+	}
+
 	static void Light_SetCastShadow(unsigned int entityID, bool target)
 	{
 		auto go = FactoryInstance.GetGOByEntity((Entity)entityID);
@@ -3326,6 +3356,8 @@ namespace SliceEngine
 
 		//Camera
 		ADD_INTERNAL_CALL(Camera_SetMainCamera);
+		ADD_INTERNAL_CALL(Camera_SetEnabled);
+		ADD_INTERNAL_CALL(Camera_GetEnabled);
 		ADD_INTERNAL_CALL(Camera_SetGamma);
 		ADD_INTERNAL_CALL(Camera_GetGamma);
 		ADD_INTERNAL_CALL(Camera_SetFOV);
@@ -3341,6 +3373,8 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Camera_SetImpactBlend);
 
 		//Light
+		ADD_INTERNAL_CALL(Light_SetEnabled);
+		ADD_INTERNAL_CALL(Light_GetEnabled);
 		ADD_INTERNAL_CALL(Light_SetCastShadow);
 		ADD_INTERNAL_CALL(Light_GetCastShadow);
 		ADD_INTERNAL_CALL(Light_SetColor);
