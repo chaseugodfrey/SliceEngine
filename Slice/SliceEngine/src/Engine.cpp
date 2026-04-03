@@ -654,6 +654,7 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .constructor<>()
 .property("texture", &SpriteRenderer::textureHandle)
 .property("rgba", &SpriteRenderer::rgba)
+.property("alphathreshold", &SpriteRenderer::alphathreshold)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
 

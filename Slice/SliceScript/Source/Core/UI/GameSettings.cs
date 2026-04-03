@@ -30,12 +30,12 @@ namespace SliceEngine
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 if (borderAnim != null)
                 {
-                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
-                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
-                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
+                    borderAnim.pages[0] = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.pages[1] = FindGameObjectWithName("GraphicsSettingsPage");
+                    
+                    borderAnim.coreElements[4] = FindGameObjectWithName("ReturnToTitleButton");
+
+                    borderAnim.titleElements[0] = FindGameObjectWithName("MiniTitleText");
                 }
                 settingsPopup.SetActive(false);
             }
