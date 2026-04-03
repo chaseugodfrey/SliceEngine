@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "AnimationWindow.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include <Systems/SceneSystem.h>
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
@@ -445,19 +446,26 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("SequencePackage"))
+			if(mCurrentAnimator)
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
+				if (ImGui::AcceptDragDropPayload("SequencePackage"))
 				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
-					if (mCurrentAnimator->Handle_Anims.IsValid())
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
 					{
-						mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
-						mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
-						auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
-						if (anim)
-							LoadDataFromAnimator(anim, tmpEnt);
+						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+						mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
+						if (mCurrentAnimator->Handle_Anims.IsValid())
+						{
+							mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
+							mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
+							auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+							if (anim)
+							{
+								LoadDataFromAnimator(anim, tmpEnt);
+								auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+								anim_data->LoadFromAsset(anim->stateMachine.EFSM);
+							}
+						}
 					}
 				}
 			}
@@ -1253,13 +1261,19 @@ namespace SliceEditor
 				switch (mOpenSRTVar)
 				{
 				case 0:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),trf->position});
+					//mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.push_back({ static_cast<unsigned int>(currentFrame),trf->position });
+					InsertNewKey(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform, { static_cast<unsigned int>(currentFrame),trf->position });
+					InsertNewKey(customAnimClips[mCurrentClipIndex].transform, { static_cast<unsigned int>(currentFrame),trf->position });
 					break;
 				case 1:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
+					//mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
+					InsertNewKey(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
+					InsertNewKey(customAnimClips[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
 					break;
 				case 2:
-					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),trf->scale });
+					//mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),trf->scale });
+					InsertNewKey(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale, { static_cast<unsigned int>(currentFrame),trf->scale });
+					InsertNewKey(customAnimClips[mCurrentClipIndex].scale, { static_cast<unsigned int>(currentFrame),trf->scale });
 					break;
 				}
 				
@@ -1291,17 +1305,17 @@ namespace SliceEditor
 				{
 				case 0:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
-					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					customAnimClips[mCurrentClipIndex].transform.erase(customAnimClips[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Position";
 					break;
 				case 1:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
-					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					customAnimClips[mCurrentClipIndex].transform.erase(customAnimClips[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Rotation";
 					break;
 				case 2:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
-					//customAnimClips[mCurrentClipIndex].transform.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					customAnimClips[mCurrentClipIndex].transform.erase(customAnimClips[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
 					propToDel = "Scale";
 					break;
 				}
@@ -1390,5 +1404,14 @@ namespace SliceEditor
 				anims.animations.push_back(addAnim);
 			}
 		}
+	}
+	void AnimationWindow::InsertNewKey(std::vector<std::pair<unsigned int, glm::vec3>>& vec, std::pair<unsigned int, glm::vec3> key)
+	{
+		auto it = std::lower_bound(vec.begin(), vec.end(), key,
+			[](const std::pair<unsigned int, glm::vec3>& a, const std::pair<unsigned int, glm::vec3>& b) {
+				return a.first < b.first;
+			});
+
+		vec.insert(it, key);
 	}
 }

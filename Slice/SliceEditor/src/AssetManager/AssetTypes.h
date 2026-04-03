@@ -1152,7 +1152,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
-		std::map<std::string, rttr::variant> parameters{};
+		std::unordered_map<std::string, rttr::variant> parameters{};
 		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap{};
 		glm::vec2 entryPosition{};
 		glm::vec2 exitPosition{};
@@ -1214,6 +1214,9 @@ namespace SliceEditor
 			j["mNodePos"] = s.mNodePos;
 			j["fps"] = s.fps;
 			j["speed"] = s.animationSpeed;
+			j["autoTransition"] = s.autoTransition;
+			j["nextTransition"] = s.nextTransition;
+
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -1290,7 +1293,8 @@ namespace SliceEditor
 			j.at("fps").get_to(s.fps);
 			//j.at("speed").get_to(s.animationSpeed);
 			s.animationSpeed = j.value("speed", 1.0f);
-
+			s.autoTransition = j.value("autoTransition", false);
+			s.nextTransition = j.value("nextTransition", 0);
 
 			s.transitions.clear();
 			const auto& transitions_json = j.at("transitions");
