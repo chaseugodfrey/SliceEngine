@@ -22,6 +22,7 @@ namespace SliceEngine
         private bool fadingIn = false;
         private const float TransitionDuration = 1.0f;
         private const float uiDuration = 2.0f;
+        private const float fovDuration = 4.0f;
 
         public override void OnCreate()
         {
@@ -101,6 +102,18 @@ namespace SliceEngine
                     // for moving the camera to the next position in the 2nd animation
 
                 break;
+                case "StartFadeOut":
+                    {
+                        cinematicCamera.GetComponent<Animator>().SetBool("FadeOut", true);
+                        StartCoroutine(FOVAnimation());
+                    }
+                    break;
+                case "End":
+                    {
+                        animState++;
+                        StartCinematicAnimation();
+                    }
+                    break;
             }
         }
 
@@ -149,6 +162,10 @@ namespace SliceEngine
             }
 
 
+
+            
+
+
             fadeInRoutine = null;
             
         }
@@ -179,14 +196,21 @@ namespace SliceEngine
             if (animState == 1)
             {
                 // move the camera to where its behind the player for 2nd animation
-                cinematicCamera.GetComponent<Transform>().Position = new Vector3(-0.054f, 1.811f, -1.345f);
-                cinematicCamera.GetComponent<Transform>().Rotation = new Vector3(0.0f, -89.4f, 0.0f);
+                //cinematicCamera.GetComponent<Transform>().Position = new Vector3(-0.054f, 1.811f, -1.345f);
+                //cinematicCamera.GetComponent<Transform>().Rotation = new Vector3(0.0f, -89.4f, 0.0f);
+
+                cinematicCamera.GetComponent<Animator>().SetBool("Idle2", true);
             }
 
             //ToggleRenderer(true);
 
              if (animState == 1)
                 GetComponent<Animator>().SetBool("Cinematic2", true);
+
+            if (animState == 2)
+            {
+                Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
+            }
 
             fadeOutRoutine = null;
             if (fadeInRoutine == null)
@@ -221,6 +245,27 @@ namespace SliceEngine
 
             topBar.GetComponent<RectTransform>().Pos_Y = (int)endingTopBar;
             bottomBar.GetComponent<RectTransform>().Pos_Y = (int)endingBottomBar;
+        }
+    
+        public IEnumerator FOVAnimation()
+        {
+                float elapsedTime = 0f;
+                float startingFOV = cinematicCamera.GetComponent<Camera>().FOV;
+                float endingFOV = startingFOV + 5.0f;
+
+
+                while (elapsedTime < fovDuration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = Utilities.InverseLerp(0, fovDuration, elapsedTime);
+    
+                    float currentFOV = Utilities.Lerp(startingFOV, endingFOV, t);
+                    cinematicCamera.GetComponent<Camera>().FOV = currentFOV;
+    
+                    yield return null;
+                }
+    
+                cinematicCamera.GetComponent<Camera>().FOV = endingFOV;
         }
     }
 }

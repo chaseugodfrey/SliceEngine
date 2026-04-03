@@ -1,0 +1,102 @@
+{
+    "entryNodePosition": [
+        170.0,
+        106.0
+    ],
+    "entryState": "Idle",
+    "exitNodePosition": [
+        108.0,
+        265.0
+    ],
+    "parameters": {
+        "Idle": false,
+        "Idle2": false,
+        "FadeOut": false
+    },
+    "stateMap": {
+        "AnyState": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                270.0,
+                286.0
+            ],
+            "stateName": "AnyState",
+            "transitions": [
+                 {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "FadeOut",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "FadeOut"
+                },
+                {
+                    "conditions": [
+                        {
+                            "comparisonOP": "IsTrue",
+                            "paramName": "Idle2",
+                            "value": null
+                        }
+                    ],
+                    "entryTime": 0.0,
+                    "exitTime": 1.0,
+                    "hasExitTime": false,
+                    "sourceState": "AnyState",
+                    "targetState": "Idle2"
+                }
+            ]
+        },
+        "FadeOut": {
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "FadeOut",
+            "transitions": []
+        },
+        "Idle2": {
+            "currAnimIdx": 1,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "Idle2",
+            "transitions": []
+        },
+        "Idle": {
+            "currAnimIdx": 2,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "Idle",
+            "transitions": []
+        },
+        "Idle3": {
+            "currAnimIdx": 3,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                428.0,
+                242.0
+            ],
+            "stateName": "Idle3",
+            "transitions": []
+        }
+    }
+}

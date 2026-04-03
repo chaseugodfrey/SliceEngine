@@ -17,7 +17,7 @@ namespace SliceEngine
         private SettingsBGAnimation bgAnim;
 
         private bool isSettingsOpen = false;
-        private float animationTimer = 0f;
+        
 
         public string textToShow = "";
         
@@ -33,13 +33,13 @@ namespace SliceEngine
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 if (borderAnim != null)
                 {
-                    borderAnim.menuCanvasObj = MainMenuCanvas;
-                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
-                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
-                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
-                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
-                    borderAnim.miniTitleTextObj = FindGameObjectWithName("MiniTitleText");
+                    borderAnim.coreElements[1] = MainMenuCanvas;
+                    borderAnim.pages[0] = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.pages[1] = FindGameObjectWithName("GraphicsSettingsPage");
+
+                    borderAnim.coreElements[4] = FindGameObjectWithName("ReturnToTitleButton");
+
+                    borderAnim.titleElements[0] = FindGameObjectWithName("MiniTitleText");
                 }
                 settingsPopup.SetActive(false);
             }
