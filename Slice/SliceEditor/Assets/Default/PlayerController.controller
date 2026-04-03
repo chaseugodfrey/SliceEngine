@@ -665,7 +665,7 @@
 	"Fall": {
             "currAnimIdx": 0,
             "fps": 0,
-            "isLoop": true,
+            "isLoop": false,
             "mNodePos": [
                 0.0,
                 0.0
@@ -880,15 +880,15 @@
                     "conditions": [
                         {
                             "comparisonOP": "IsTrue",
-                            "paramName": "Fall",
+                            "paramName": "JumpLoop",
                             "value": null
                         }
                     ],
-                                        "entryTime": 0.0,
+                    "entryTime": 0.0,
                     "exitTime": 1.0,
                     "hasExitTime": true,
                     "sourceState": "Dash",
-                    "targetState": "Fall"
+                    "targetState": "JumpLoop"
                 }
             ]
         }

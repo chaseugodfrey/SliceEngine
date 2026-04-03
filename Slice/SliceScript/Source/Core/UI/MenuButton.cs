@@ -88,12 +88,20 @@ namespace SliceEngine
             }
 
             
-            if (gameSettingsController != null)
+            else if (gameSettingsController != null)
             {
                 if (buttonType == 5) // Resume
                 {
                     gameSettingsController.ResumeGame();
 
+                }
+
+                else if(buttonType == 8)
+                {
+                    Bootstrap.LevelDirector.LoadNextLevel();
+                }else if(buttonType == 9)
+                {
+                    Bootstrap.LevelDirector.RestartLevel();
                 }
                 //else if (buttonType == 1) // Open Settings (Sub-menu)
                 //{
