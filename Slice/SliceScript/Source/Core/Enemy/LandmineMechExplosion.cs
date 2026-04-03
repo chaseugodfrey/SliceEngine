@@ -23,6 +23,11 @@ namespace SliceEngine
 
         ColliderShape cs;
 
+        Renderer r;
+        Vector4 startColour = new Vector4(0.25f, 0.0f, 0.0f, 1.0f);
+        Vector4 endColour = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+        float colTimer = 0.0f;
+        public float colLerpTime = 0.5f;
         public void Triggered()
         {
             triggered = true;
@@ -33,12 +38,12 @@ namespace SliceEngine
             base.OnCreate();
             cs = GetComponent<ColliderShape>();
             cs.ComponentEnabled = false;
+            r = GetComponent<Renderer>();
         }
 
         public override void OnFixedUpdate(float dt)
         {
             base.OnFixedUpdate(dt);
-
             if (triggered)
             {
                 if (timer < jumpTime)
@@ -54,6 +59,16 @@ namespace SliceEngine
                     cs.ComponentEnabled = true;
                     StartCoroutine(Suicide());
                 }
+            }
+            else
+            {
+                //colTimer += dt;
+
+                //// Smooth oscillation between 0 and 1
+                //float colorT = (float)Math.Sin(colTimer * (Math.PI / colLerpTime)) * 0.5f + 0.5f;
+
+                //Vector4 currentColor = Vector4.Lerp(startColour, endColour, colorT);
+                //r.SetColor(currentColor);
             }
         }
 

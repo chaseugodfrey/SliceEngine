@@ -9,8 +9,6 @@ namespace SliceEngine
 {
     public class Hitbox_Enemy : SliceBehaviour
     {
-        private List<EnemySlime> enemiesInRange = new List<EnemySlime>();
-        public List<EnemySlime> EnemiesInRange => enemiesInRange;
         public delegate void Attack();
         public Attack OnAttack;
 

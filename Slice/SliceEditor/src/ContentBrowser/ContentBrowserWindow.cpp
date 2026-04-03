@@ -142,14 +142,16 @@ namespace SliceEditor
 				flags |= ImGuiTreeNodeFlags_Leaf;
 			}
 
-			if (ImGui::TreeNodeEx(node.fileName.c_str(), flags))
-			{
-				if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
-				{
-					SelectFolder(node);
-					currentCategoryIndex = -1;
-				}
+			bool isOpen = ImGui::TreeNodeEx(node.fileName.c_str(), flags);
 
+			if (ImGui::IsItemHovered() && ImGui::IsItemClicked(ImGuiMouseButton_Left))
+			{
+				SelectFolder(node);
+				currentCategoryIndex = -1;
+			}
+
+			if(isOpen)
+			{
 				for (auto& entry : node.children)
 				{
 					DisplayFolders(entry.second);
@@ -539,6 +541,7 @@ namespace SliceEditor
 					DisplayFontData(data);
 					//DisplayAudioData(data);
 				}
+				break;
 			case AssetType::SequencePackage:
 				if (auto* data = static_cast<SequencePkgData*>(file.metaData.get()))
 				{
@@ -670,20 +673,37 @@ namespace SliceEditor
 			ImGui::EndCombo();
 		}
 
-		static std::vector<std::string> compressionFormatNames{ "BC1", "BC3", "BC4", "BC5", "BC7"};
-		Label("Compression Format: ");
-		if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
-		{
-			for (int i = 0; i < compressionFormatNames.size(); ++i)
+		if (data->usage_type == UsageType::Color) {
+			static std::vector<std::string> compressionFormatNames{ "BC1", "BC3", "BC4", "BC5", "BC7" };
+			Label("Compression Format: ");
+			if (ImGui::BeginCombo("##Compression Format: ", compressionFormatNames[(int)data->cmp_format].c_str()))
 			{
-				if (ImGui::Selectable(compressionFormatNames[i].c_str()))
+				for (int i = 0; i < compressionFormatNames.size(); ++i)
 				{
-					data->cmp_format = (CompressionFormat)i;
-				}
-			}
-			ImGui::EndCombo();
-		}
+					if (i != 2 && i != 3) {	//skip bc4 and 5
 
+						if (ImGui::Selectable(compressionFormatNames[i].c_str()))
+						{
+							data->cmp_format = (CompressionFormat)i;
+						}
+					}
+				}
+				ImGui::EndCombo();
+			}
+
+			Label("Is SRGB: ");
+			if (ImGui::Checkbox("##issrgb", &data->is_srgb))
+			{
+
+			}
+
+			Label("Premultiply Alpha: ");
+			if (ImGui::Checkbox("##premultiply", &data->premultiply_alpha))
+			{
+
+			}
+		}
+	
 		Label("Compression Quality: ");
 		if (ImGui::DragFloat("##Comp_Quality", &data->comp_quality, 0.1f, 0.0f, 1.0f, "%.1f"))
 		{
@@ -717,12 +737,6 @@ namespace SliceEditor
 		{
 			mip = std::clamp(mip, 1, 12);
 			data->mip_count = static_cast<unsigned char>(mip);
-		}
-
-		Label("Premultiply Alpha: ");
-		if (ImGui::Checkbox("##premultiply", &data->premultiply_alpha))
-		{
-
 		}
 	}
 

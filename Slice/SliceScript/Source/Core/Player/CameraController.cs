@@ -44,6 +44,7 @@ namespace SliceEngine
         public override void OnCreate()
         {
             //SliceLog.Log("Rotation: x<" + transform.Rotation.x + ">y<" + transform.Rotation.y + ">z<" + transform.Rotation.z);
+            Camera.SetMainCamera(cameraChild);
         }
 
         public void Initialize()

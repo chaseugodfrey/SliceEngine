@@ -55,6 +55,13 @@ namespace SliceEditor
 	{
 		//std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
 		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
+		if (mSelectedNodes.size() > 0)
+		{
+			if (node == GetLastSelectedNode())
+			{
+				return;
+			}
+		}
 
 		ClearSelection(true);
 		//mSelectedEntities.insert(entity);

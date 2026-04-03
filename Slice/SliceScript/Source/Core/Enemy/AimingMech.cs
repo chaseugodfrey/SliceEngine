@@ -49,30 +49,27 @@ namespace SliceEngine
 
         GameObject wings;
 
-        public GameObject CreateBullet(Vector3 startPos, Vector3 angle)
+        public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
             GameObject newBullet = CreateGameObject(prefabPath);
 
             Transform t = newBullet.GetComponent<Transform>();
             t.Position = startPos;
-            t.Scale = bulletScale;            
+            t.Scale = bulletScale;
 
-            // Get forward direction from original rotation
-            Vector3 forward = Quaternion.FromEuler(angle) * Vector3.Forward;
-
-            // Apply small random deviation
-            forward += new Vector3(
+            // Apply bloom (spread)
+            direction += new Vector3(
                 SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
                 SliceRandom.RangeFloat(-bloomAmount, bloomAmount),
                 0f
             ) * 0.01f;
 
-            // Normalize so speed stays consistent
-            forward = forward.Normalize();
+            // Normalize
+            direction = direction.Normalize();
 
-            // Convert back to rotation
-            t.Rotation = Quaternion.LookRotation(forward).ToEuler();
+            // Set bullet rotation
+            t.Rotation = Quaternion.LookRotation(direction).ToEuler();
 
             Projectile p = newBullet.As<Projectile>();
             p.SetUp();
@@ -133,7 +130,7 @@ namespace SliceEngine
             // Bobbing motion
             bobTimer += dt;
 
-            Vector3 pos = transform.Position;
+            Vector3 pos = transform.WorldPosition;
             pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
 
             transform.Position = pos;
@@ -141,68 +138,93 @@ namespace SliceEngine
             if (!active)
                 return;
 
-            float distanceToPlayer = Utilities.Distance3D(pos, Bootstrap.Player.transform.Position);
-            Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
+            Vector3 playerPos = Bootstrap.Player.transform.WorldPosition;
+            float distanceToPlayer = Utilities.Distance3D(transform.WorldPosition, playerPos);
             if (distanceToPlayer <= maxAimRange)
-            {
-                if (playerVel.SquareMagnitude() > 1.0f)
+            {                
+                Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
+                Vector3 origin = transform.WorldPosition;
+                Vector3 target = playerPos + offset;
+                Vector3 toPlayer = target - origin;
+                RayCastHit hit;
+                if (Physics.Raycast(origin, toPlayer, out hit, LayerMask.GetCollisionMask("LineOfSight"), QueryTriggerInteraction.Ignore))
                 {
-                    float timeToHit = distanceToPlayer / bulletSpeed;
-                    Vector3 predictedPos = Bootstrap.Player.transform.Position + playerVel * timeToHit;
-                    Vector3 aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
-
-                    this.transform.LookAt(aimTarget, new Vector3(0, 1, 0));
-                }
-                else
-                {
-                    this.transform.LookAt(
-                    Bootstrap.Player.transform.Position + new Vector3(0, aimVerticalOffset, 0),
-                    new Vector3(0, 1, 0));
-                }
-
-                bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.5f;
-
-                if (shouldTelegraph != telegraphed)
-                {
-                    telegraphed = shouldTelegraph;
-                    SetTelegraph();
-                }
-
-                if (!isBursting)
-                {
-                    burstTimer += dt;
-
-                    if (burstTimer >= timeBetweenBursts)
+                    if (hit.transform.gameObject.tag == "Player")
                     {
-                        burstTimer = 0f;
-                        isBursting = true;
-                        shotsFiredInBurst = 0;
-                        shotTimer = 0f;
-                    }
-                }
-                else
-                {
-                    shotTimer += dt;
+                        Vector3 playerVel = Bootstrap.Player.GetComponent<RigidBody>().Velocity * predictionStrength;
+                        Vector3 lookTarget = target;
+                        Vector3 aimTarget;
 
-                    if (shotTimer >= timeBetweenShotsInBurst)
-                    {
-                        shotTimer = 0f;
+                        bool usePrediction = ((shotsFiredInBurst + 1) % 3 != 0);
 
-                        Transform t = this.GetComponent<Transform>();
-
-                        // Fire bullet
-                        CreateBullet(t.WorldPosition, t.WorldRotationQuat.ToEuler());
-
-                        // Spawn firing FX
-                        CreateFiringFX(t.WorldPosition, t.WorldRotationQuat.ToEuler());
-
-                        shotsFiredInBurst++;
-
-                        if (shotsFiredInBurst >= bulletsPerBurst)
+                        if (usePrediction && playerVel.SquareMagnitude() > 1.0f)
                         {
-                            isBursting = false;
+                            float timeToHit = distanceToPlayer / bulletSpeed;
+                            Vector3 predictedPos = playerPos + playerVel * timeToHit;
+                            aimTarget = predictedPos + new Vector3(0, aimVerticalOffset, 0);
+                        }
+                        else
+                        {
+                            aimTarget = playerPos + new Vector3(0, aimVerticalOffset, 0);
+                        }
+
+                        Vector3 shootDir = (aimTarget - transform.WorldPosition).Normalize();
+
+                        this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
+
+                        bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
+
+                        if (shouldTelegraph != telegraphed)
+                        {
+                            telegraphed = shouldTelegraph;
+                            SetTelegraph();
+                        }
+
+                        if (!isBursting)
+                        {
+                            burstTimer += dt;
+
+                            if (burstTimer >= timeBetweenBursts)
+                            {
+                                burstTimer = 0f;
+                                isBursting = true;
+                                shotsFiredInBurst = 0;
+                                shotTimer = 0f;
+                            }
+                        }
+                        else
+                        {
+                            shotTimer += dt;
+
+                            if (shotTimer >= timeBetweenShotsInBurst)
+                            {
+                                shotTimer = 0f;
+
+                                // Fire bullet
+                                CreateBullet(transform.WorldPosition, shootDir);
+
+                                // Spawn firing FX
+                                CreateFiringFX(transform.WorldPosition, transform.WorldRotationQuat.ToEuler());
+
+                                shotsFiredInBurst++;
+
+                                if (shotsFiredInBurst >= bulletsPerBurst)
+                                {
+                                    isBursting = false;
+                                }
+                            }
                         }
                     }
+                    else
+                    {
+                        telegraphed = false;
+                        SetTelegraph();
+                    }
+                }
+                else
+                {
+                    telegraphed = false;
+                    SetTelegraph();
                 }
             }
             else

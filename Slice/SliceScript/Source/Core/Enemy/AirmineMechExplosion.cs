@@ -15,8 +15,6 @@ namespace SliceEngine
 
         float timer = 0.0f;
 
-        public Vector3 jumpVelocity = new Vector3(0.0f, 5.0f, 0.0f);
-        public float jumpTime = 0.15f;
         public float lingerTime = 0.1f;
 
         public int damage = 5;
@@ -41,12 +39,7 @@ namespace SliceEngine
 
             if (triggered)
             {
-                if (timer < jumpTime)
-                {
-                    timer += dt;
-                    transform.Translate(jumpVelocity * dt);
-                }
-                else if (!hasExploded)
+                if (!hasExploded)
                 {
                     hasExploded = true;
 

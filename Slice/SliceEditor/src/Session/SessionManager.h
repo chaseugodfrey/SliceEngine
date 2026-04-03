@@ -28,7 +28,7 @@ namespace SliceEditor
 		std::atomic<bool> isSavingScene{ false };
 		std::atomic<bool> isSavingDone{ false };
 		double duration = 0.0f;
-		float mGOScriptTimer = 0.0f;
+		//float mGOScriptTimer = 0.0f;
 
 	public:
 		SessionManager(Registry& reg);
@@ -46,7 +46,7 @@ namespace SliceEditor
 		void UpdateEntityNodes();
 		void AddEntityNode(entt::entity entity);
 		void RemoveEntityNode(entt::entity entity);
-		void HighlightGameObjects(const GameObjectScriptSelected& event);
+		void HighlightGameObjects(const GameObjectScriptSelectedUpdate& event);
 
 		//Scene Functions
 		void OnSceneSave(OnSceneSaveEvent);
@@ -79,6 +79,8 @@ namespace SliceEditor
 		void ClearAnimatorData();
 		AnimatorData* GetAnimatorData();
 
+		// Animator
+		SliceEngine::Animator* currentAnimator;
 	};
 
 }

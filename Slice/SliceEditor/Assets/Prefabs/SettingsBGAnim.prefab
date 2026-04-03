@@ -1,0 +1,155 @@
+[
+    {
+        "SettingsBGAnim": {
+            "struct SliceEngine::Canvas": {
+                "canvas_type": "Overlay",
+                "componentEnabled": true,
+                "graphics_raycast": true,
+                "sort_order": 0
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0.0,
+                "height": 1080.0,
+                "hori_pivot": "Center",
+                "left": 0.0,
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "right": 0.0,
+                "rotation": 0.0,
+                "top": 0.0,
+                "vert_pivot": "Middle",
+                "width": 1920.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340126,
+                "neighbours": [
+                    7340065,
+                    7340127,
+                    7340060,
+                    7340083
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SettingsBGAnim",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "SettingsBGSpriteSheet": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0.0,
+                "height": 1080.0,
+                "hori_pivot": "Center",
+                "left": 0.0,
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "right": 0.0,
+                "rotation": 0.0,
+                "top": 0.0,
+                "vert_pivot": "Middle",
+                "width": 1920.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340127,
+                "neighbours": [
+                    7340126,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.SettingsBGAnimation"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SettingsBGSpriteSheet",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteAnimator": {
+                "col": "2",
+                "componentEnabled": true,
+                "fps": 10.0,
+                "is_playing": true,
+                "loop": false,
+                "num_frames": "6",
+                "row": "3"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "14338372231222513210"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

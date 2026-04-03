@@ -24,6 +24,7 @@ namespace SliceEngine
 			if (gameCameras.empty())
 			{
 				mainCam = entity;
+				cam.isMainCamera = true;
 			}
 
 			gameCameras.push_back(entity);
@@ -76,7 +77,10 @@ namespace SliceEngine
 		{
 			// get the next camera in the vector
 			if (!gameCameras.empty())
+			{
 				mainCam = *gameCameras.begin();
+				reg.get<Camera>(*gameCameras.begin()).isMainCamera = true;
+			}
 			else
 				// if game camera is empty, then set it to a null opt
 				mainCam = std::nullopt;

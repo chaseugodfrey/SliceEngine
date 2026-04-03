@@ -42,7 +42,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
-#include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
 #include "Configuration/AudioSettings.cpp"
 
@@ -332,6 +331,7 @@ namespace SliceEngine
 		.property("cloudsSecondSmoothness", &Camera::cloudsSecondCloudSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("cloudsSecondColor", &Camera::cloudsSecondColor)
+		.property("isMainCamera", &Camera::isMainCamera)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
@@ -654,8 +654,14 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .constructor<>()
 .property("texture", &SpriteRenderer::textureHandle)
 .property("rgba", &SpriteRenderer::rgba)
+.property("alphathreshold", &SpriteRenderer::alphathreshold)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<SpriteRendererGammaOverride>(typeid(SpriteRendererGammaOverride).name())
+.constructor<>()
+.property("gamma", &SpriteRendererGammaOverride::gamma)
+.property("componentEnabled", &SpriteRendererGammaOverride::componentEnabled);
 
 rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .constructor<>()
@@ -664,7 +670,8 @@ rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
 .property("fps", &SpriteAnimator::fps)
 .property("row", &SpriteAnimator::row)
 .property("col", &SpriteAnimator::col)
-.property("num_frames", &SpriteAnimator::num_frames);
+.property("num_frames", &SpriteAnimator::num_frames)
+.property("componentEnabled", &SpriteAnimator::componentEnabled);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
@@ -676,14 +683,6 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("text", &FontRenderer::text)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
-rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
-	.constructor<>()
-	.property("speed", &NavAgent::speed)
-	.property("target", &NavAgent::target)
-	.property("hasNewTarget", &NavAgent::hasNewTarget)
-	.property("currentPath", &NavAgent::currentPath)
-	.property("currentPathIndex", &NavAgent::currentPathIndex)
-	.property("componentEnabled", &NavAgent::componentEnabled);
 
 //rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 //.constructor<>()
@@ -692,9 +691,6 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 //.property("bidirectional", &NavMeshLink::bidirectional)
 //.property("currentPath", &NavMeshLink::radius);
 
-rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
-.constructor<>()
-.property("navobstacle", &NavObstacle::isObstacle);
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
@@ -785,7 +781,6 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
-		Core::GetInstance()->InitSystem<NavigationSystem>();
 
 
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
@@ -795,7 +790,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
-		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
@@ -1054,7 +1048,6 @@ namespace SliceEngine
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
 		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
 		//frm->StartSystem("Fixed Dt Loop");
@@ -1100,13 +1093,10 @@ namespace SliceEngine
 		gScriptSystem->OnUpdate(deltaTimeScaled);
 		frm->EndSystem("Script");
 
-		frm->StartSystem("Navigation System");
-		sNav.Update(deltaTimeScaled);
-		frm->EndSystem("Navigation System");
 
 
 		frm->StartSystem("Sprite Animation");
-		sSpriteAnim.Update(deltaTimeScaled);
+		sSpriteAnim.Update(deltaTimeUnscaled);
 		frm->EndSystem("Sprite Animation");
 
 		frm->StartSystem("Canvas");

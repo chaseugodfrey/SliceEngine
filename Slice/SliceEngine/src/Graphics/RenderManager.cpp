@@ -25,7 +25,6 @@ DigiPen Institute of Technology is prohibited.
 #include "LightingSystem.h"
 #include "Physics/PhysicsSystem.h"
 #include "Systems/ParticleSystemManager.h"
-#include "Navigation/NavigationSystem.h"
 #include "Core/EventManager.h"
 
 #include "Resource/Shader.h"
@@ -383,11 +382,15 @@ namespace SliceEngine
 
 		if (camEntity.has_value())
 		{
+			if (camSys.mainCam.has_value())
+				Core::GetInstance()->GetRegistry().get<Camera>(camSys.mainCam.value()).isMainCamera = false;
+
 			camSys.mainCam.emplace(cam);
 
 			// Sync exposure
 			auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 			camera.gamma = mSessionGamma;
+			camera.isMainCamera = true;
 		}
 		else
 			SLICE_LOG_ERROR("Setting to a non camera entity");
@@ -775,28 +778,6 @@ namespace SliceEngine
 			CheckGLError();
 		}
 
-		// Draw Recast Navigation Data
-		if (!prefabCam && Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_NAVMESH_TAG)
-		{
-			SetShader(ShaderPaths[S_BASIC]);
-			ForceCamNormalVP(cam);
-			BindCameraDepth(cam);
-			GLint uniformLoc = glGetUniformLocation(mCurrShader.second, "uColor");
-			auto& navDatOpt = Core::GetInstance()->GetSystem<NavigationSystem>().GetNavMeshDebugData();
-			if (navDatOpt.has_value())
-			{
-				auto& navDat = navDatOpt.value();
-				//glUniform4f(uniformLoc, mNavMeshDebugColor_Base.r, mNavMeshDebugColor_Base.g, mNavMeshDebugColor_Base.b, mNavMeshDebugColor_Base.a);
-				glUniform4f(uniformLoc, 0.f, 0.f, 0.7f, 0.4f);
-				glBindVertexArray(navDat.data[0].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat.data[0].drawCnt);
-				glUniform4f(uniformLoc, 0.f, 0.2f, 0.25f, 0.85f);
-				//glUniform4f(uniformLoc, mNavMeshDebugColor_Bounds.r, mNavMeshDebugColor_Bounds.g, mNavMeshDebugColor_Bounds.b, mNavMeshDebugColor_Bounds.a);
-				glBindVertexArray(navDat.data[1].vao);
-				glDrawArrays(GL_TRIANGLES, 0, navDat.data[1].drawCnt);
-			}
-			CheckGLError();
-		}
 
 		// Draw Debug Grid Lines
 		if(Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_GRID_TAG)

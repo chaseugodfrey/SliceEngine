@@ -53,7 +53,7 @@ namespace SliceEngine
             {
                 float angle = i * angleStep;
 
-                CreateLaser(transform.Position, new Vector3(0, angle, 0));
+                CreateLaser(transform.WorldPosition, new Vector3(0, angle, 0));
             }
         }
 

@@ -35,7 +35,6 @@ namespace SliceEngine
         int jumpCounter = 0;
 
         GameObject enemy;
-        NavAgent enemyAgent;
         RigidBody enemyRb;
         bool isEnemyKnockedBack = false;
         float knockbackTimer = 0.0f;
@@ -51,7 +50,6 @@ namespace SliceEngine
             enemy = FindGameObjectWithName("Enemy");
             if (enemy != null)
             {
-                enemyAgent = enemy.GetComponent<NavAgent>();
                 enemyRb = enemy.GetComponent<RigidBody>();
             }
             else
@@ -333,7 +331,7 @@ namespace SliceEngine
             //Console.WriteLine("anime time here in player.cs line 242 : " + animator.GetCurrAnimTime().ToString());
 
             // Monitor Enemy Landing Logic
-            if (isEnemyKnockedBack && enemyRb != null && enemyAgent != null)
+/*            if (isEnemyKnockedBack && enemyRb != null && enemyAgent != null)
             {
                 knockbackTimer += dt;
 
@@ -356,14 +354,14 @@ namespace SliceEngine
                         FunctionCalls.Log("Enemy Landed: Resuming Navigation");
                     }
                 }
-            }
+            }*/
         }
 
         public override void OnCollideEnter(uint other)
         {
             if (enemy != null && other == enemy.mID)
             {
-                FunctionCalls.Log("PlayerTest: OnCollideEnter");
+/*                FunctionCalls.Log("PlayerTest: OnCollideEnter");
                 if (enemyAgent != null && enemyAgent.ComponentIsEnabled(enemy))
                 {
                     enemyAgent.SetComponentIsEnabled(enemy, false);
@@ -375,7 +373,7 @@ namespace SliceEngine
                     Vector3 force = new Vector3(5.0f, 8.0f, 0.0f);
                     enemyRb.AddForce(force, ForceMode.Impulse);
                     FunctionCalls.Log("Collision with Enemy: Applied Knockback (Nav Disabled)");
-                }
+                }*/
             }
         }
 
