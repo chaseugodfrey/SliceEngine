@@ -12,15 +12,17 @@ namespace SliceEngine
     public class CollapsingPipe : SliceBehaviour
     {
         public float collapseTime = 3f;
-
-        Vector3 collapsedState = new Vector3(0.01f, 1.0f, 1.0f);
+        public bool isCollapsed = false;
+        Vector3 collapsedScale = new Vector3(0.01f, 1.0f, 1.0f);
+        public Vector3 initialScale;
 
         public override void OnAwake()
         {
-
+            initialScale = transform.Scale;
+            transform.Scale = collapsedScale;
         }
 
-        public override void OnUpdate(float dt)
+        public override void OnFixedUpdate(float dt)
         {
             if (Input.IsKeyPressed(Keys.KEY_C))
             {
@@ -34,9 +36,8 @@ namespace SliceEngine
             while (timer < collapseTime)
             {
                 timer += Time.deltaTime;
-                transform.Scale = Vector3.Lerp(Vector3.One, collapsedState, timer / collapseTime);
+                transform.Scale = Vector3.Lerp(initialScale, collapsedScale, timer / collapseTime);
                 yield return null;
-
             }
         }
 
@@ -46,7 +47,7 @@ namespace SliceEngine
             while (timer <= collapseTime)
             {
                 timer += Time.deltaTime;
-                transform.Scale = Vector3.Lerp(collapsedState, Vector3.One, timer / collapseTime);
+                transform.Scale = Vector3.Lerp(collapsedScale, initialScale, timer / collapseTime);
                 yield return null;
             }
         }

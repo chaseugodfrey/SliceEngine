@@ -93,7 +93,7 @@ namespace SliceEngine
                     }
                     else
                     {
-                        SliceLog.Console("No next state queued, defaulting to summon state.");
+                        SliceLog.Console("No next state queued, defaulting to slam state.");
                         bossController.bossSM.ChangeState(bossController.slamState);
                     }
                 }
@@ -101,7 +101,7 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-
+                bossController.isMovementDone = false;
             }
         }
 
@@ -245,7 +245,7 @@ namespace SliceEngine
             {
                 owner.GetComponent<RigidBody>().gravityFactor = 0.0f;
                 bossController.StopAllCoroutines();
-                bossController.StartCoroutine(bossController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, ogPosition, 1.2f));
+                bossController.StartCoroutine(bossController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, ogPosition, 0.8f));
                 bossController.bossSM.ChangeState(bossController.idleState);
             }
 
@@ -276,7 +276,7 @@ namespace SliceEngine
 
                 bossController.isInvulnerable = true;
                 hasGen = bossController.canRecharge = bossController.SetupRecharging();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.0f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 0.8f));
                 bossController.ReturnFollowingProjectiles();
                 bossController.stateQueue.Clear();
             }
@@ -440,7 +440,8 @@ namespace SliceEngine
                 SliceLog.Console("Orbital State.");
                 Vector3 finalPos = bossController.landingPositionObj.GetComponent<Transform>().WorldPosition;
                 bossController.StopAllCoroutines();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, finalPos, 3.0f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, finalPos, 1.2f));
+                bossController.isFiringDone = false;
             }
 
             public override void OnUpdate(float dt)
@@ -462,20 +463,17 @@ namespace SliceEngine
 
                     if (bossController.isFiringDone)
                     {
-                        bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.0f));
+                        bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 0.8f));
                         bossController.bossSM.ChangeState(bossController.idleState);
                     }
                 }
             }
 
-            public override void OnFixedUpdate(float dt)
-            {
-
-            }
-
             public override void OnExit()
             {
+                isFiring = false;
                 bossController.isFiringDone = false;
+                bossController.isMovementDone = false;
             }
         }
 
@@ -542,7 +540,7 @@ namespace SliceEngine
 
         public bool canRecharge = true;
         bool isInvulnerable = false;
-        bool isMovementDone = false;
+        public bool isMovementDone = false;
         bool isFiringDone = false;
         bool isGrounded = false;
         bool isShieldDestroyed = false;
