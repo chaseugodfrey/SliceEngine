@@ -20,9 +20,9 @@ namespace SliceEngine
 {
     public class PreferenceSettings
     {
-        Dictionary<string, string> preferences = new Dictionary<string, string>();
         public void Initialize()
         {
+            Dictionary<string, string> preferences = new Dictionary<string, string>();
             Console.WriteLine("AHAHAHAHHAHA");
             // Load preference or create if doesn't exist
             string filePath = Application.GetFilePath("GamePreference.txt");
@@ -45,7 +45,6 @@ namespace SliceEngine
                         SliceLog.Log($"Loaded preference: {key} = {value}");
                     }
                 }
-
             }
             else
             {
@@ -57,9 +56,7 @@ namespace SliceEngine
                 preferences["SFX Volume"] = AudioManager.GetCategoryVolume("SFX").ToString();
 
                 string[] lines = new string[4];
-
                 int counter = 0;
-
                 foreach (var item in preferences)
                 {
                     lines[counter] = item.Key + "=" + item.Value;
@@ -69,6 +66,55 @@ namespace SliceEngine
                 File.WriteAllLines(filePath, lines);
             }
 
+            // Set the values again
+            foreach(var item in preferences)
+            {
+                switch(item.Key)
+                {
+                    case "Gamma":
+                        {
+                            Camera.gamma =  float.Parse(item.Value);
+                        }
+                        break;
+                    case "Master Volume":
+                        {
+                            AudioManager.SetMasterVolume(float.Parse(item.Value));  
+                        }
+                        break;
+                    case "BGM Volume":
+                        {
+                            AudioManager.SetCategoryVolume("BGM", float.Parse(item.Value));
+                        }
+                        break;
+                    case "SFX Volume":
+                        {
+                            AudioManager.SetCategoryVolume("SFX", float.Parse(item.Value));
+                        }
+                        break;
+                }
+            }
+        }
+
+        public static void SavePreferences()
+        {
+            Dictionary<string, string> preferences = new Dictionary<string, string>();
+
+            // We only got 4 settings to save
+            // We just hardcode the default by reading from the engine values
+            preferences["Gamma"] = Camera.Gamma.ToString();
+            preferences["Master Volume"] = AudioManager.GetMasterVolume().ToString();
+            preferences["BGM Volume"] = AudioManager.GetCategoryVolume("BGM").ToString();
+            preferences["SFX Volume"] = AudioManager.GetCategoryVolume("SFX").ToString();
+
+            string[] lines = new string[4];
+            int counter = 0;
+            foreach (var item in preferences)
+            {
+                lines[counter] = item.Key + "=" + item.Value;
+                counter++;
+            }
+
+            File.WriteAllLines(filePath, lines);
         }
     }
 }
