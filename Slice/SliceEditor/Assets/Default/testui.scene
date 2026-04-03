@@ -21,8 +21,8 @@
                     "neighbours": [
                         80,
                         4294967295,
-                        81,
-                        4294967295
+                        4294967295,
+                        79
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -38,9 +38,9 @@
                         1.0,
                         1.0,
                         1.0,
-                        1.0
+                        0.5372549295425415
                     ],
-                    "texture": "12265452490082529584"
+                    "texture": "17753361635269803423"
                 },
                 "struct SliceEngine::SpriteRendererGammaOverride": {
                     "componentEnabled": true,
@@ -65,7 +65,7 @@
                     ],
                     "scale": [
                         1.0,
-                        1.0,
+                        5.0,
                         1.0
                     ]
                 }
@@ -78,7 +78,7 @@
                     "height": 400.0,
                     "hori_pivot": "Center",
                     "left": 0.0,
-                    "pos_x": -134.89999389648438,
+                    "pos_x": -365.6000061035156,
                     "pos_y": 0.0,
                     "right": 0.0,
                     "rotation": 0.0,
@@ -92,7 +92,7 @@
                         80,
                         4294967295,
                         79,
-                        82
+                        4294967295
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -140,7 +140,9 @@
         {
             "Canvas_2": {
                 "struct SliceEngine::Canvas": {
-                    "canvas_type": "Overlay",
+                    "billboardX": true,
+                    "billboardY": true,
+                    "canvas_type": "World Space",
                     "componentEnabled": true,
                     "graphics_raycast": true,
                     "sort_order": 0
@@ -162,7 +164,7 @@
                     "entity_id": 80,
                     "neighbours": [
                         0,
-                        79,
+                        82,
                         75,
                         4294967295
                     ]
@@ -175,24 +177,24 @@
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
+                        19.899999618530273,
+                        16.600000381469727,
+                        13.0
                     ],
                     "position": [
-                        0.0,
-                        0.0,
+                        -6.091527462005615,
+                        1.1337153911590576,
                         0.0
                     ],
                     "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
+                        0.9655534625053406,
+                        0.1859755665063858,
+                        0.12191557884216309,
+                        0.13511541485786438
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
+                        7.400000095367432,
+                        5.0,
                         1.0
                     ]
                 }
@@ -205,7 +207,7 @@
                     "height": 400.0,
                     "hori_pivot": "Center",
                     "left": 0.0,
-                    "pos_x": 0.0,
+                    "pos_x": -134.1999969482422,
                     "pos_y": 0.0,
                     "right": 0.0,
                     "rotation": 0.0,
@@ -218,7 +220,7 @@
                     "neighbours": [
                         80,
                         4294967295,
-                        4294967295,
+                        82,
                         81
                     ]
                 },
@@ -246,9 +248,9 @@
                         0.0
                     ],
                     "position": [
+                        -0.06989586353302002,
                         0.0,
-                        0.0,
-                        0.0
+                        1.568947672843933
                     ],
                     "rotation": [
                         1.0,
@@ -473,6 +475,8 @@
         {
             "Canvas_1": {
                 "struct SliceEngine::Canvas": {
+                    "billboardX": false,
+                    "billboardY": false,
                     "canvas_type": "Overlay",
                     "componentEnabled": true,
                     "graphics_raycast": true,
@@ -3531,7 +3535,7 @@
                     "cloudsSmoothness": 0.0027000000700354576,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 42,
+                    "depthTex": 43,
                     "far": 200.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -3564,13 +3568,14 @@
                         0.0
                     ],
                     "impactSmoothness": false,
+                    "isMainCamera": true,
                     "luminanceLearningRate": 10.0,
                     "maxLuminance": 10.0,
                     "minLuminance": 9.999999747378752e-05,
                     "near": 0.009999999776482582,
                     "postRenderTag": "0",
                     "pov": 60.0,
-                    "textureID": 41,
+                    "textureID": 42,
                     "translucentSelectCutoff": 0.20000000298023224,
                     "vignetteCenter": [
                         0.5,
@@ -3834,6 +3839,8 @@
         {
             "Canvas": {
                 "struct SliceEngine::Canvas": {
+                    "billboardX": false,
+                    "billboardY": false,
                     "canvas_type": "World Space",
                     "componentEnabled": true,
                     "graphics_raycast": true,
