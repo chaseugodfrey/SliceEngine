@@ -12,9 +12,13 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject MainMenuCanvas;
+        private GameObject beforeGammaImage;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
+        //private PreferenceSettings preferenceSettings;
+
+        private SpriteRendererGammaOverride spriteGammaOverride;
 
         private bool isSettingsOpen = false;
         private float animationTimer = 0f;
@@ -27,6 +31,8 @@ namespace SliceEngine
             settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
+            beforeGammaImage = FindGameObjectWithName("BeforeImage");
+
 
             if (settingsPopup != null)
             {
@@ -44,6 +50,16 @@ namespace SliceEngine
                 }
                 bgAnimationObject.SetActive(false);
             }
+
+            if (beforeGammaImage != null)
+            {
+                spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
+            }
+
+            PreferenceSettings.Initialize();
+
+            spriteGammaOverride.Gamma = Camera.Gamma *10.0f;
+
         }
 
         public override void OnUpdate(float dt)
@@ -67,6 +83,19 @@ namespace SliceEngine
             if (sceneName != "")
             {
                 SceneManager.LoadScene(sceneName);
+            }
+        }
+
+        public void RestoreDefaults()
+        {
+            
+            PreferenceSettings.RestoreDefaults();
+
+            //spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (borderAnim != null)
+            {
+                borderAnim.SyncSlidersToEngine();
             }
         }
 
@@ -100,11 +129,17 @@ namespace SliceEngine
         {
             isSettingsOpen = false;
 
+            PreferenceSettings.SavePreferences();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
                 AudioSettings.PlaySFX("PauseTransitionOut");
             }
+
+
         }
 
 

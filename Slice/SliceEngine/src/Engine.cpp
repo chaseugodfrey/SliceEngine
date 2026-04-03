@@ -43,7 +43,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
 #include "Systems/LayerManager.h"
-#include "Configuration/AudioSettings.cpp"
+#include "Configuration/AudioSettings.h"
 
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
