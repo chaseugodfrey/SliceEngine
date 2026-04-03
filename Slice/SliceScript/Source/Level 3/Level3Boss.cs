@@ -53,7 +53,7 @@ namespace SliceEngine
         {
             Level3Boss bossController;
 
-            float timerMax = 3.0f;
+            float timerMax = 1.0f;
             float timer;
 
             BaseState nextState;
@@ -449,9 +449,9 @@ namespace SliceEngine
                 {
                     if (!isFiring)
                     {
-                        //bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.Position, radius, 20, 0.5f));
-                        bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
-                            - bossController.transform.WorldPosition, radius, 20, 0.5f));
+                        bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 20, 0.5f));
+                        //bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
+                        //    - bossController.transform.WorldPosition, radius, 20, 0.5f));
                         //if (!bossController.canRecharge)
                         //    bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
 
@@ -462,6 +462,7 @@ namespace SliceEngine
 
                     if (bossController.isFiringDone)
                     {
+                        bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.0f));
                         bossController.bossSM.ChangeState(bossController.idleState);
                     }
                 }
@@ -747,7 +748,9 @@ namespace SliceEngine
             finalPos.y = go.GetComponent<Transform>().Position.y;
             go.GetComponent<Transform>().Position = position;
 
-            return null;
+            isFiringDone = true;
+
+            yield return null;
         }
 
         IEnumerator FireOrbitalLaserRow(Vector3 startPos, Vector3 dir, float distance, int count, float interval)
@@ -777,11 +780,14 @@ namespace SliceEngine
                 Vector3 finalPos = new Vector3(startPos.x + randomSphere.x, startPos.y, startPos.z + randomSphere.y);
                 GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
                 Transform tr = go.GetComponent<Transform>();
-                float height = tr.Position.y;
-                tr.Position = new Vector3(finalPos.x, height, finalPos.z);
+                //float height = tr.WorldPosition.y;
+                //tr.Position = new Vector3(finalPos.x, height, finalPos.z);
+                tr.Position = finalPos;
                 count--;
                 yield return new WaitForSeconds(interval);
             }
+
+            isFiringDone = true;
         }
 
         public GameObject CreateOrbitalLaser(float diameter, float height, float tracktime, float lifetime, float trackspeed)

@@ -156,9 +156,17 @@ namespace SliceEngine
         public override void OnTriggerEnter(uint other)
         {
             GameObject collidedGO = FindGameObjectWithID(other);
-            if (collidedGO != null && collidedGO.tag == "Player")
+            if (collidedGO != null)
             {
-                isPlayerIn = true;
+                if (collidedGO.tag == "Player")
+                    isPlayerIn = true;
+
+                //if (collidedGO.tag == "OrbitalGround")
+                //{
+                //    Vector3 pos = collidedGO.GetComponent<Transform>().WorldPosition;
+                //    signallingLaser.GetComponent<Transform>().Position = new Vector3(transform.Position.x, pos.y + 0.1f, transform.Position.z);
+                //}
+                    
             }
         }
 
@@ -171,7 +179,7 @@ namespace SliceEngine
         IEnumerator Suicide()
         {
             yield return new WaitForSeconds(lingerTime);
-            camera.SetImpactFrame(false);
+            //camera.SetImpactFrame(false);
             gameObject.Destroy();
         }
 
