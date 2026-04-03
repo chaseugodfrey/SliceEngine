@@ -11,11 +11,13 @@ namespace SliceEngine
 
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
+        private GameObject bgCloseAnimationObject;
         private GameObject MainMenuCanvas;
         private GameObject beforeGammaImage;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
+        private SettingsCloseBGAnimation bgCloseAnim;
         //private PreferenceSettings preferenceSettings;
 
         private SpriteRendererGammaOverride spriteGammaOverride;
@@ -92,7 +94,7 @@ namespace SliceEngine
             PreferenceSettings.RestoreDefaults();
 
             //spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
-
+            SliceLog.Log("gererere");
             if (borderAnim != null)
             {
                 borderAnim.SyncSlidersToEngine();
@@ -115,12 +117,13 @@ namespace SliceEngine
 
             if (bgAnim != null)
             {
+                AudioSettings.PlaySFX("PauseTransitionIn");
                 bgAnim.StartSettingsBGAnimation(true);
             }
-            else if (borderAnim != null)
-            {
-                borderAnim.StartSettingsPopupAnimation(true);
-            }
+            //else if (borderAnim != null)
+            //{
+            //    borderAnim.StartSettingsPopupAnimation(true);
+            //}
 
             if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
@@ -132,6 +135,8 @@ namespace SliceEngine
             PreferenceSettings.SavePreferences();
 
             spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            
 
             if (borderAnim != null)
             {

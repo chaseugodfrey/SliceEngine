@@ -32,6 +32,7 @@ namespace SliceEngine
         
         public List<GameObject> audioSliders = new List<GameObject>() { null };
         public GameObject gammaSlider;
+        public GameObject bgCloseAnimationObject;
 
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
@@ -124,6 +125,11 @@ namespace SliceEngine
                         audioSliderTrans[i] = audioSliders[i].GetComponent<RectTransform>();
                     }
                 }
+            }
+
+            if(bgCloseAnimationObject != null)
+            {
+                bgCloseAnimationObject.SetActive(false);
             }
         }
 
@@ -220,11 +226,28 @@ namespace SliceEngine
 
                 if (animationTimer <= 0f && !isOpening)
                 {
-                    isActive = false;
-                    if (menuCanvasObj != null)
+                    //isActive = false;
+                    //if (menuCanvasObj != null)
+                    //{
+                    //    menuCanvasObj.SetActive(true);
+                    //}
+                    //this.gameObject.SetActive(false);
+
+                    if (bgCloseAnimationObject != null)
                     {
+                        var closeAnim = bgCloseAnimationObject.As<SettingsCloseBGAnimation>();
+                        if (closeAnim != null)
+                        {
+                            // Start the spritesheet closing animation
+                            closeAnim.StartSettingsBGAnimation(true);
+                        }
+                    }
+                    else if (menuCanvasObj != null)
+                    {
+                        // Fallback: If no anim, just show the menu immediately
                         menuCanvasObj.SetActive(true);
                     }
+
                     this.gameObject.SetActive(false);
                 }
             }
@@ -232,9 +255,11 @@ namespace SliceEngine
 
         public void SyncSlidersToEngine()
         {
+            
 
             if (gammaSlider != null)
             {
+                
                 var sliderComp = gammaSlider.GetComponent<Slider>();
                 if (sliderComp != null)
                 {
@@ -246,13 +271,15 @@ namespace SliceEngine
             // Update Audio Sliders visual
             for (int i = 0; i < audioSliders.Count; i++)
             {
+                
                 if (audioSliders[i] != null)
                 {
-                    var volumeScript = audioSliders[i].As<VolumeSlider>();
+                    VolumeSlider volumeScript = audioSliders[i].As<VolumeSlider>();
                     var sliderComp = audioSliders[i].GetComponent<Slider>();
 
                     if (volumeScript != null && sliderComp != null)
                     {
+                        //SliceLog.Log("Master Vol : " + AudioManager.GetMasterVolume());
                         if (volumeScript.audioParameter == "Master")
                         {
                             sliderComp.SetValue(AudioManager.GetMasterVolume());
@@ -299,6 +326,8 @@ namespace SliceEngine
             {
                 if (settingsContent != null) settingsContent.SetActive(false);
             }
+
+
         }
 
         public void SwitchToPage(bool isAudio)

@@ -94,10 +94,11 @@ namespace SliceEngine
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
+                AudioSettings.PlaySFX("PauseTransitionOut");
             }
 
             // Force close everything
-            if (settingsPopup != null) settingsPopup.SetActive(false);
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
 
 
             SliceLog.Console("Resume");
@@ -128,6 +129,7 @@ namespace SliceEngine
 
             if (bgAnim != null)
             {
+                AudioSettings.PlaySFX("PauseTransitionIn");
                 bgAnim.StartSettingsBGAnimation(true);
             }
             else if (borderAnim != null)
