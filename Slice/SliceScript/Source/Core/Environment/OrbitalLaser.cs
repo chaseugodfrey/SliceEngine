@@ -27,7 +27,8 @@ namespace SliceEngine
         GameObject[] innerLaser;
         GameObject signallingLaser;
         //public float damageDuration = 1.8f;
-        Camera camera;
+
+        OrbitalLaserCamManager camManager;
 
         bool isPlayerIn = false;
         float impactY;
@@ -55,10 +56,8 @@ namespace SliceEngine
 
         public override void OnAwake()
         {
-            GameObject[] cameras = gameObject.FindGameObjectsWithTag("mainCam");
-            if (cameras[0] != null)
-                SliceLog.Console("Camera found for orbital laser");
-            camera = cameras[0].GetComponent<Camera>();
+            GameObject[] manager = FindGameObjectsWithTag("OrbitalCamManager");
+            camManager = manager[0].As<OrbitalLaserCamManager>();
             impactY = transform.Position.y * 3.0f;
         }
 
@@ -79,9 +78,8 @@ namespace SliceEngine
                 }
 
                 var pos = transform.Position;
-                pos.y = impactY;
-                camera.SetImpactFramePosition(pos);
-                camera.SetImpactFrame(true);
+                pos.y = -1000.0f;
+                camManager.Hit(pos);
             }
 
             if (!done)
@@ -209,7 +207,6 @@ namespace SliceEngine
         public override void OnEntityDestroy(uint id)
         {
             CreateParticleEnd();
-            camera.SetImpactFrame(false);
         }
 
         void CreateParticleEnd()
