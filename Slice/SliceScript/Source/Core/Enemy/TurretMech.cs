@@ -1,26 +1,27 @@
 using SliceEngine;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SliceEngine
 {
-    public class AimingMech : SliceBehaviour
+    public class TurretMech : EnemyBase
     {
         public List<Projectile> allProjectiles = new List<Projectile>();
 
         // Bullet settings
         public string projectilePrefabName = "Projectile";
         //public float projPerSecond = 10.0f;
-        public float bulletSpeed = 100.0f;
+        public float bulletSpeed = 500.0f;
         public Vector3 bulletScale = new Vector3(1);
         public int bulletDamage = 1;
-        public float distanceBeforeDestroyBullet = 250.0f;
+        public float distanceBeforeDestroyBullet = 1000.0f;
 
         // Aim settings
         public float aimVerticalOffset = 1f;
-        public float bloomAmount = 5.0f;
-        public bool active = false;
-        public float maxAimRange = 100.0f;
+        public float bloomAmount = 0.0f;
+        public float minAimRange = 50.0f;
+        public float maxAimRange = 200.0f;
         public float predictionStrength = 0.75f;
 
         // Burst settings
@@ -38,17 +39,16 @@ namespace SliceEngine
         float shotTimer = 0f;
         bool isBursting = false;
 
-        // Bobbing
-        float bobTimer = 0f;
-        float bobAmplitude = 1.0f;
-        float bobFrequency = 1.5f;
-        float baseY = 0f;
-
         GameObject telegraph;
         bool telegraphed = false;
 
-        GameObject wings;
+        Transform firingOffset;
+        Transform vrot;
+        Renderer coreRenderer;
+        Light coreLight;
 
+        Vector4 colourActivated;
+        Vector4 colourDeactivated = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
         public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
@@ -103,22 +103,40 @@ namespace SliceEngine
             t.Rotation = rotation;
         }
 
+        public void CreateDamagedFX(Vector3 position, Vector3 rotation)
+        {
+            GameObject fx = CreateGameObject("Prefabs/FX_TurretMechDamaged.prefab");
+            fx.GetComponent<Transform>().Position = position;
+
+            Transform t = fx.GetComponent<Transform>();
+            t.Position = position;
+            t.Rotation = rotation;
+        }
+
         public override void OnCreate()
         {
             base.OnCreate();
 
-            baseY = transform.Position.y;
-
             GameObject[] children = gameObject.GetAllChildren();
             foreach (GameObject child in children)
             {
-                if (child.tag == "AimingMechWings")
-                {
-                    wings = child;
-                }
                 if (child.tag == "Telegraph")
                 {
                     telegraph = child;
+                }
+                if (child.tag == "FiringOffset")
+                {
+                    firingOffset = child.GetComponent<Transform>();
+                }
+                if (child.tag == "VRot")
+                {
+                    vrot = child.GetComponent<Transform>();
+                }
+                if (child.tag == "Core")
+                {
+                    coreRenderer = child.GetComponent<Renderer>();
+                    coreLight = child.GetComponent<Light>();
+                    colourActivated = coreRenderer.GetColor();
                 }
             }
         }
@@ -127,23 +145,21 @@ namespace SliceEngine
         {
             base.OnFixedUpdate(dt);
 
-            // Bobbing motion
-            bobTimer += dt;
-
             Vector3 pos = transform.Position;
-            pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
-
-            transform.Position = pos;
 
             if (!active)
                 return;
 
             Vector3 playerPos = Bootstrap.Player.transform.WorldPosition;
             float distanceToPlayer = Utilities.Distance3D(transform.WorldPosition, playerPos);
-            if (distanceToPlayer <= maxAimRange)
-            {                
+
+            if (distanceToPlayer <= maxAimRange && distanceToPlayer >= minAimRange)
+            {
+                coreRenderer.SetColor(colourActivated);
+                coreLight.enabled = true;
+
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
-                Vector3 origin = transform.WorldPosition;
+                Vector3 origin = firingOffset.WorldPosition;
                 Vector3 target = playerPos + offset;
                 Vector3 toPlayer = target - origin;
                 RayCastHit hit;
@@ -170,7 +186,31 @@ namespace SliceEngine
 
                         Vector3 shootDir = (aimTarget - transform.WorldPosition).Normalize();
 
-                        this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
+                        Vector3 hTarget = new Vector3(
+                            aimTarget.x,
+                            transform.WorldPosition.y,
+                            aimTarget.z
+                        );
+
+                        transform.LookAt(hTarget, new Vector3(0, 1, 0));
+
+                        Vector3 worldDir = aimTarget - vrot.WorldPosition;
+
+                        // Convert to hrot local space
+                        Vector3 forward = transform.Forward; // Z axis
+                        Vector3 up = transform.Up;           // Y axis
+
+                        // Project onto axes
+                        float forwardDot = Vector3.Dot(worldDir, forward);
+                        float upDot = Vector3.Dot(worldDir, up);
+
+                        // Calculate pitch (up/down)
+                        float pitch = -Utilities.Rad2Deg((float)Math.Atan2(upDot, forwardDot));
+
+                        pitch = Utilities.Clamp(pitch, -60f, 60f);
+
+                        // Apply ONLY X rotation
+                        vrot.Rotation = new Vector3(pitch, 0f, 0f);
 
                         bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
 
@@ -204,7 +244,7 @@ namespace SliceEngine
                                 CreateBullet(transform.WorldPosition, shootDir);
 
                                 // Spawn firing FX
-                                CreateFiringFX(transform.WorldPosition, transform.WorldRotationQuat.ToEuler());
+                                CreateFiringFX(firingOffset.GetComponent<Transform>().WorldPosition, transform.WorldRotationQuat.ToEuler());
 
                                 shotsFiredInBurst++;
 
@@ -222,20 +262,40 @@ namespace SliceEngine
                     }
                 }
                 else
-                {
+                {                    
                     telegraphed = false;
                     SetTelegraph();
                 }
             }
             else
             {
+                if (distanceToPlayer < minAimRange)
+                {
+                    coreRenderer.SetColor(colourDeactivated);
+                    coreLight.enabled = false;
+                    vrot.Rotation = new Vector3(15.0f, 0f, 0f);
+                }
                 telegraphed = false;
                 SetTelegraph();
             }
+        }
 
-            AimingMechWings amw = wings.As<AimingMechWings>();
-            float denom = Utilities.Max(shotTimer + burstTimer, 0.0001f);
-            amw.rotateSpeedMultiplier = Utilities.Clamp(5.0f / denom, 0.0f, 10.0f);
+        public override void TakeDamage(int amount, GameObject source = null)
+        {
+            SliceLog.Console($"Take Damage called for {amount}");
+
+            base.TakeDamage(amount, source);
+        }
+
+        protected override void OnDamaged(GameObject source)
+        {
+            CreateDamagedFX(transform.WorldPosition, Vector3.Zero);
+            base.OnDamaged(source);
+        }
+
+        public override void OnDeath()
+        {
+            base.OnDeath();
         }
     }
 }

@@ -61,13 +61,15 @@ namespace SliceEngine
 
             cycle += dt;
 
-            float calc = (float)(1f * Math.Sin(speed * cycle));
+            float calc = (float)(Math.Sin(speed * cycle));
 
-            transform.Position= middlePos + (differenceHalfed * calc);
+            Vector3 targetPos = middlePos + (differenceHalfed * calc);
 
-            
+            // Calculate movement delta
+            Vector3 delta = targetPos - transform.Position;
 
-            //this.GetComponent<Transform>().Position += this.GetComponent<Transform>().Forward.Normalize() * speed * dt; 
+            // Move relative instead of snapping
+            transform.Translate(delta); 
         }
     }
 }
