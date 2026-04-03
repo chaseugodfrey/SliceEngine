@@ -678,6 +678,14 @@ namespace SliceEditor
 			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
+			
+			ImGui::Text("Copy Main Cam");
+			ImGui::SameLine(150.0f);
+			if(ImGui::Button("##copy_mainCam", ImVec2(20, 0)))
+				SliceEngine::Core::GetInstance()->GetRenderManager()->CopyMainCamSettings(camObj->camera);
+			
+
+
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
 			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", camObj->camera.gamma, "%.1f", 0.001f, 100.0f);

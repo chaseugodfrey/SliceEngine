@@ -512,6 +512,9 @@ namespace SliceEditor
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
 			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
 			
+			DragFloatInputHeader(mRegistry, "Offset X", "##font_offsetx", font.offset_x, "%.1f", -100.f, 100.f);
+			DragFloatInputHeader(mRegistry, "Offset Y", "##font_offsety", font.offset_y, "%.1f", -100.f, 100.f);
+
 
 			ImGui::TreePop();
 		}
@@ -529,9 +532,17 @@ namespace SliceEditor
 			static std::vector<std::string> canvas_types{ "Overlay", "World Space"};
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
 
-			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
-
-			BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+			switch (canvas.canvas_type) {
+			case Canvas::OVERLAY:
+				DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
+				BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+				break;
+			case Canvas::WORLD:
+				BoolInputHeader(mRegistry, "Billboard X", "##canvasbillx", canvas.billboardX);
+				BoolInputHeader(mRegistry, "Billboard Y", "##canvasbilly", canvas.billboardY);
+				BoolInputHeader(mRegistry, "Billboard Z", "##canvasbillz", canvas.billboardZ);
+				break;
+			}
 
 			ImGui::TreePop();
 		}
@@ -800,7 +811,10 @@ namespace SliceEditor
 			ImGui::SeparatorText("Post-Processing FX");
 
 			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
-			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f);
+			if (DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f))
+			{
+				SliceEngine::Core::GetInstance()->GetRenderManager()->SetSessionGamma(cam.gamma);
+			}
 			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", cam.whiteBalance, "%.1f", 0.001f, 100.0f);
 			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
 			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);

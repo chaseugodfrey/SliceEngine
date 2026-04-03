@@ -73,6 +73,11 @@ namespace SliceEngine
 
 	void Type<SliceEngineTypes::Texture>::Reload(SliceEngineTypes::Texture* resource, ResourceManager& mgr, const std::string& path)
 	{
+		resource->DestroyTexture();
+		SliceEngineTypes::Texture::LoadTexture(resource, path);
+		//resource->LoadTexture
+		//resource.load
+	//	resource = Load(mgr, path);
 	}
 
 	//Shader

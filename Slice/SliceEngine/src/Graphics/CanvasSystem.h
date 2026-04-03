@@ -90,6 +90,8 @@ namespace SliceEngine
 		float world_space_z{};
 		float cam_gamma{};	//store it local
 
+		glm::quat billboard{};
+
 		static constexpr unsigned int Font_Max_Instance = 200;
 
 		struct Font_Instance {
