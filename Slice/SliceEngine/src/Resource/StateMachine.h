@@ -74,9 +74,12 @@ namespace SliceEngine
 			int fps{};
 			float animationTime{};
 			float animationSpeed{1};
+			int nextTransition{};
+
 
 			bool isLoop { false };
 			bool isFinish{ false };
+			bool autoTransition{ false };
 
 			std::vector<Transition> transitions;
 			Transition const* transitionUsed{ nullptr };
