@@ -67,6 +67,8 @@ namespace SliceEngine
             j.at("fps").get_to(s.fps);
 
             s.animationSpeed = j.value("speed", 1.0f);
+            s.autoTransition = j.value("autoTransition", false);
+            s.nextTransition = j.value("nextTransition", 0);
 
             const nlohmann::json& transitionsArray = j.at("transitions");
 
