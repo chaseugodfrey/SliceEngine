@@ -871,7 +871,7 @@ namespace SliceEngine
 		glm::vec4 uv{ 0.f,1.f,0.f,1.f };
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 
-		bool not_light_affected{ false };	//only for world space ui
+		bool light_affected{ false };	//only for world space ui
 		bool raycast_target{ true };
 		RTTR_ENABLE();
 	};

@@ -294,49 +294,52 @@ namespace SliceEngine
 		for (Entity ui : ui_entities) {
 			auto const& tform = core->GetRegistry().get<Transform>(ui);
 			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
-				ui_mat.color = sprite->rgba;
-				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
-				ui_mat.data["U_Start"] = sprite->uv[0];
-				ui_mat.data["U_End"] = sprite->uv[1];
-				ui_mat.data["V_Start"] = sprite->uv[2];
-				ui_mat.data["V_End"] = sprite->uv[3];
+				if (sprite->componentEnabled) {
 
-				ui_mat.isTranslucent = ui_mat.color.a < 0.999f;
+					ui_mat.color = sprite->rgba;
+					ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
+					ui_mat.data["U_Start"] = sprite->uv[0];
+					ui_mat.data["U_End"] = sprite->uv[1];
+					ui_mat.data["V_Start"] = sprite->uv[2];
+					ui_mat.data["V_End"] = sprite->uv[3];
 
-				RCK_ModelT mdlDet = GetModelDetails(
-					model.getGUID().GetGUID(),
-					0,
-					false
-				);
-				BasicIDat data;
-				data.mdlMtx = tform.transform;
-				//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
-				SetColor(data, sprite->rgba);
-				data.entityID = (uint32_t)ui;
-				data.notLightAffected = sprite->not_light_affected;
+					ui_mat.isTranslucent = ui_mat.color.a < 0.999f;
 
-				RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
-				if (ui_mat.color.a > 0.999f)
-				{
-					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->opaqueS);
-					key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
-				}
-				else
-				{
-					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
-					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
-				}
-				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
-				{
-					TranslucentCmd tc{ key, data };
-					SingleExtAppend(tc.ext, &ui_mat);
-					translucentCmds.emplace_back(tc);
-				}
-				else
-				{
-					AppendRenderCmd(renderCmds[key], data, &ui_mat);
-					renderCmds[key].numVar =
-						static_cast<uint32_t>(ui_mat.shader.get()->dataIn.size());
+					RCK_ModelT mdlDet = GetModelDetails(
+						model.getGUID().GetGUID(),
+						0,
+						false
+					);
+					BasicIDat data;
+					data.mdlMtx = tform.transform;
+					//data.texID = GetTextureDetails(material->albedo.get()->bindless_id);
+					SetColor(data, sprite->rgba);
+					data.entityID = (uint32_t)ui;
+					data.notLightAffected = !sprite->light_affected;
+
+					RCK_Size key = (static_cast<RCK_Size>(mdlDet) << RCK_ModelOffset);
+					if (ui_mat.color.a > 0.999f)
+					{
+						uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->opaqueS);
+						key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+					}
+					else
+					{
+						uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
+						key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
+					}
+					if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
+					{
+						TranslucentCmd tc{ key, data };
+						SingleExtAppend(tc.ext, &ui_mat);
+						translucentCmds.emplace_back(tc);
+					}
+					else
+					{
+						AppendRenderCmd(renderCmds[key], data, &ui_mat);
+						renderCmds[key].numVar =
+							static_cast<uint32_t>(ui_mat.shader.get()->dataIn.size());
+					}
 				}
 			}
 			if (auto font = core->GetRegistry().try_get<FontRenderer>(ui)) {
