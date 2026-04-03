@@ -607,14 +607,6 @@ namespace SliceEngine
 			RenderAvgLum(cam);
 
 			//----------------------------------------------------------------
-			// Debug / QOL Stuffs
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
-			{
-				LoadSettings(GPS_DEBUG);
-				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
-				RenderDebug(cam);
-			}
-
 			// Post Processings
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
 				RenderGroundCloud(cam);
@@ -627,6 +619,14 @@ namespace SliceEngine
 				RenderVignette(cam);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
 				RenderImpact(cam);
+
+			// Debug / QOL Stuffs
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
+			{
+				LoadSettings(GPS_DEBUG);
+				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
+				RenderDebug(cam);
+			}
 
 			RenderGammaCorrection(cam);
 		}

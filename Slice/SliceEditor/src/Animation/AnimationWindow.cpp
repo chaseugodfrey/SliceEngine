@@ -658,8 +658,8 @@ namespace SliceEditor
 						targetAnimPath = targetAnimPath / "Animations";
 						//std::filesystem::current_path(target);
 
-						ImGui::OpenPopup("SaveAnim_Popup");
 					}
+					ImGui::OpenPopup("SaveAnim_Popup");
 				}
 
 				if (ImGui::BeginPopupModal("SaveAnim_Popup", nullptr))
