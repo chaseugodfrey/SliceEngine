@@ -151,8 +151,7 @@ namespace SliceEditor
         {
             if (addEvent.filePath.extension() == key)
             {
-                if (value.first == AssetType::Texture || value.first == AssetType::Model ||
-                    value.first == AssetType::Controller || value.first == AssetType::Material)
+                if (value.first == AssetType::Texture || value.first == AssetType::Model)
                 {
                     return;
                 }

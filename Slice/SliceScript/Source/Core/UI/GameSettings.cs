@@ -9,13 +9,13 @@ namespace SliceEngine
 {
     public class GameSettings : SliceBehaviour
     {
-        
+
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
-        
+
         private bool isSettingsOpen = false;
 
         public override void OnCreate()
@@ -24,18 +24,18 @@ namespace SliceEngine
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
 
 
-            
+
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
                 if (borderAnim != null)
                 {
-                    borderAnim.pages[0] = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.pages[1] = FindGameObjectWithName("GraphicsSettingsPage");
-                    
-                    borderAnim.coreElements[4] = FindGameObjectWithName("ReturnToTitleButton");
-
-                    borderAnim.titleElements[0] = FindGameObjectWithName("MiniTitleText");
+                    borderAnim.audioSettingsPage = FindGameObjectWithName("AudioSettingsPage");
+                    borderAnim.graphicsSettingsPage = FindGameObjectWithName("GraphicsSettingsPage");
+                    //borderAnim.audioButton = FindGameObjectWithName("AudioButton");
+                    //borderAnim.graphicsButton = FindGameObjectWithName("GraphicsButton");
+                    borderAnim.returnToTitleButton = FindGameObjectWithName("ReturnToTitleButton");
+                    borderAnim.miniTitleObj = FindGameObjectWithName("MiniTitleText");
                 }
                 settingsPopup.SetActive(false);
             }
@@ -88,7 +88,7 @@ namespace SliceEngine
 
             // Force close everything
             if (settingsPopup != null) settingsPopup.SetActive(false);
-            
+
 
             SliceLog.Console("Resume");
 

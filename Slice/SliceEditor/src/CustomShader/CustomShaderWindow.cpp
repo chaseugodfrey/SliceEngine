@@ -757,87 +757,57 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopup("NodeEditor_Popup"))
 			{
-				int popUp = 0;
-				if (ImGui::Selectable("Make New Editable"))
-					popUp = 1;
-				if (ImGui::Selectable("Maths"))
-					popUp = 2;
-				if (ImGui::Selectable("Utilities"))
-					popUp = 3;
-				if (ImGui::Selectable("Vector Manipulation"))
-					popUp = 4;
-
-				ImGui::EndPopup();
-
-				if(popUp == 1)
-					ImGui::OpenPopup("Make_Editables_Popup");
-				else if(popUp == 2)
-					ImGui::OpenPopup("Math_Popup");
-				else if(popUp == 3)
-					ImGui::OpenPopup("Utilities_Popup");
-				else if(popUp == 4)
-					ImGui::OpenPopup("Vector_Popup");
-			}
-			if (ImGui::BeginPopup("Make_Editables_Popup"))
-			{
-				if (ImGui::Selectable("Make Bool"))
-					newNodeID = CreateEditable(CST::CSHAD_T::BOOL);
-				if (ImGui::Selectable("Make int"))
-					newNodeID = CreateEditable(CST::CSHAD_T::INT);
-				if (ImGui::Selectable("Make uint"))
-					newNodeID = CreateEditable(CST::CSHAD_T::UINT);
-				if (ImGui::Selectable("Make float"))
-					newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
-				if (ImGui::Selectable("Make Texture"))
-					newNodeID = CreateEditable(CST::CSHAD_T::SAMPLER);
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("Math_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Make New Editable"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::MATH)
-						continue;
+					//if (ImGui::MenuItem("Make Bool"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::BOOL);
+					//if (ImGui::MenuItem("Make int"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::INT);
+					//if (ImGui::MenuItem("Make uint"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::UINT);
+					if (ImGui::MenuItem("Make float"))
+						newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
+					if (ImGui::MenuItem("Make Texture"))
+						newNodeID = CreateEditable(CST::CSHAD_T::SAMPLER);
 
-					std::string createName{ "Math: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
-
-				ImGui::EndPopup();
-			}
-			if (ImGui::BeginPopup("Utilities_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Maths"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::UTILITIES)
-						continue;
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::MATH)
+							continue;
 
-					std::string createName{ "Util: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
-
-				ImGui::EndPopup();
-			}
-			if (ImGui::BeginPopup("Vector_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Utilities"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::VECTOR_MANIP)
-						continue;
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::UTILITIES)
+							continue;
 
-					std::string createName{ "Vec: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
+				if (ImGui::BeginMenu("Vector Manipulation"))
+				{
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::VECTOR_MANIP)
+							continue;
+
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
+				}
 
 				ImGui::EndPopup();
 			}

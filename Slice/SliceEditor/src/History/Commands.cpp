@@ -69,7 +69,7 @@ namespace SliceEditor
 		//go.AddComponent<ComponentType>(oldValue);
 	}
 
-	void SelectNodeCommand::Redo()
+	/*void SelectNodeCommand::Redo()
 	{
 		message = "Selected " + ConvertSelectionTypeToString(oldNodes);
 		sSelection.SelectMultiple(newNodes, true);
@@ -79,7 +79,7 @@ namespace SliceEditor
 	{
 		message = "Selected " + ConvertSelectionTypeToString(newNodes);
 		sSelection.SelectMultiple(oldNodes, true);
-	}
+	}*/
 
 	std::string const Command::GetCommandMessage()
 	{
