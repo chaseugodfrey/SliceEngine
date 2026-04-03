@@ -73,7 +73,7 @@ namespace SliceEngine
                 {
                     case "Gamma":
                         {
-                            Camera.gamma =  float.Parse(item.Value);
+                            Camera.Gamma =  float.Parse(item.Value);
                         }
                         break;
                     case "Master Volume":
@@ -98,6 +98,8 @@ namespace SliceEngine
         public static void SavePreferences()
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
+
+            string filePath = Application.GetFilePath("GamePreference.txt");
 
             // We only got 4 settings to save
             // We just hardcode the default by reading from the engine values
