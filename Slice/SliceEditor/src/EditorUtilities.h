@@ -22,6 +22,7 @@ namespace SliceEditor
 		SliceEngine::GameObject GameObject_CreateCapsule(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreateCylinder(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 		SliceEngine::GameObject GameObject_CreateCam(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
+		SliceEngine::GameObject GameObject_CreateLight(entt::entity parent = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
 
 		//2D Objects
 		SliceEngine::GameObject GameObject_CreateCanvas(entt::entity = entt::null, HistoryManager* history = nullptr, bool isPrefabInspected = false);
@@ -55,6 +56,7 @@ namespace SliceEditor
 
 		//File Creation
 		void CreateFile_MaterialFile(Registry& reg, std::filesystem::path descPath);
+		void CreateFile_ShaderFile(Registry& reg, std::filesystem::path descPath);
 
 		//Asset Drops
 		
