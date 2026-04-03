@@ -17,8 +17,18 @@ namespace SliceEngine
             }
         }
 
+        public override void OnUpdate(float dt)
+        {
+            
+        }
+
         public override void OnSliderValue(float value)
         {
+            if(Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
+            {
+                AudioSettings.PlaySFX("UIClick");
+            }
+
             gammaValue = value * 10;
             Camera.Gamma = gammaValue;
         }

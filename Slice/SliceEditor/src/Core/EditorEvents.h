@@ -42,6 +42,11 @@ namespace SliceEditor
 
 	};
 
+	struct UndoDisabledEvent
+	{
+
+	};
+
 	struct RedoEvent
 	{
 

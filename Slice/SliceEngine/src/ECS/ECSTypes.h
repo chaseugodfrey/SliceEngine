@@ -110,12 +110,12 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
-		glm::vec3 GetWorldPosition()
+		glm::vec3 GetWorldPosition() const
 		{
 			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
 		}
 
-		glm::quat GetWorldRotation()
+		glm::quat GetWorldRotation() const
 		{
 			glm::mat4 rotMat = transform;
 
@@ -133,7 +133,7 @@ namespace SliceEngine
 			return glm::quat_cast(rotMat);
 		}
 
-		glm::vec3 GetWorldScale()
+		glm::vec3 GetWorldScale() const
 		{
 			glm::vec3 _scale{};
 			_scale.x = glm::length(glm::vec3(transform[0]));
@@ -817,8 +817,10 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		Type canvas_type{ OVERLAY };
 		unsigned int sort_order{};	//smaller number = draw first = behind others
-		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
-									//only for overlay canvas
+		bool graphic_raycastable{ true };				//bool that determines if images in its hierachy can be raycasted
+														//only for overlay canvas
+
+		bool billboardX{ false }, billboardY{ false }, billboardZ{ false };	//only for world
 
 		RTTR_ENABLE();
 	};
@@ -913,6 +915,8 @@ namespace SliceEngine
 
 
 		float font_size{};
+
+		float offset_x{}, offset_y{};	//some hardcoded offset
 		float line_spacing{};	//multiplier of font_size
 		
 		std::string text{"Hello World"};

@@ -37,6 +37,8 @@ namespace SliceEditor
 
 		void DrawSavePopupModal();
 
+		void DrawUndoDisabledPopup();
+
 		void QuitGameEvent(OnGameStopEvent e);
 
 		bool projectSettingsPopupOpen{ false };
@@ -47,6 +49,7 @@ namespace SliceEditor
 		bool preferenceSettingsPopupOpen{ false };
 		bool isPlaying{ false }; // --TODO-- Change Reading from Somewhere else(?)
 		bool isPaused{ false };
+		bool undoDisabledEvent{ false };
 
 	public:
 		
@@ -124,6 +127,7 @@ namespace SliceEditor
 		void CloseSaveScenePopup();
 
 		void MenuToggleBit(const char* label, unsigned char& mask, unsigned char bit);
+		void SetUndoDisabled();
 	};
 }
 
