@@ -977,7 +977,7 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
-		if (!mDirLightFound)
+		if (!mDirLightFound || !dirLightDat.hasShadow)
 			return;
 		SetShader(ShaderPaths[S_SHADOW]);
 		LinkFrameBufferSettings(FB_NIL, 0);
