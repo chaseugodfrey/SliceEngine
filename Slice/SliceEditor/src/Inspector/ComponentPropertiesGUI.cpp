@@ -546,23 +546,38 @@ namespace SliceEditor
 	{
 		static SliceEngine::GameObject oldVal{};
 
+		static bool elementHighlight = false;
 		bool changed = false;
+		bool publishEvent = false;
 		std::string propertyLabelID = property_label;
 		std::string goName;
+		GameObjectScriptSelectedUpdate event;
 
 		ImGui::Text(propertyLabelID.c_str());
-		ImGui::SameLine(150.f);
+		ImGui::SameLine(125.f);
 
-		if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+		bool temp = elementHighlight;
+		std::string checkboxLabel = std::string(id) + "checkbox";
+		if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
 		{
-			Entity entity = val.GetEntity();
-			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
+			elementHighlight = temp;
+			event.toAdd = elementHighlight;
+			if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
 			{
-				GameObjectScriptSelected event;
-				event.entities.push_back(entity);
-				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+				Entity entity = val.GetEntity();
+				event.entity = entity;
+			}
+			publishEvent = true;
+		}
+		if (ImGui::IsItemHovered())
+		{
+			if (ImGui::BeginTooltip())
+			{
+				ImGui::Text("Tick this to highlight the GO in the scene.");
+				ImGui::EndTooltip();
 			}
 		}
+		ImGui::SameLine();
 
 		//ImGui::BeginDisabled();
 		if (val.GetEntity() == Entity(0) || val.GetEntity() == entt::null)
@@ -587,6 +602,15 @@ namespace SliceEditor
 		{
 			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 			{
+
+				event.toAdd = false;
+				elementHighlight = false;
+				if (val.GetEntity() != entt::null && val.GetEntity() != Entity(0))
+				{
+					Entity entity = val.GetEntity();
+					event.entity = entity;
+				}
+				publishEvent = true;
 				oldVal = val;
 				entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
 				val = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
@@ -598,6 +622,11 @@ namespace SliceEditor
 			}
 
 			ImGui::EndDragDropTarget();
+		}
+
+		if (publishEvent)
+		{
+			EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 		}
 
 		return changed;
@@ -918,20 +947,17 @@ namespace SliceEditor
 		int idx = 0;
 		bool changed = false;
 		bool publishEvent = false;
-		GameObjectScriptSelected event; //not sure if this is a good idea
+		static std::vector<bool> elementHighlights(list.size(), false);
+		GameObjectScriptSelectedUpdate event; //not sure if this is a good idea
+
+		if (list.size() != elementHighlights.size())
+		{
+			elementHighlights.resize(list.size(), false);
+		}
 		if (ImGui::TreeNodeEx(property_label, ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_AllowOverlap))
 		{
-			if (ImGui::IsItemHovered() && ImGui::IsItemClicked())
-			{
-				publishEvent = true;
-			}
 			for (auto& entry : list)
 			{
-				if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
-				{
-					Entity entity = entry.GetEntity();
-					event.entities.push_back(entity);
-				}
 
 				//To check each entry if it was changed, push_back unchanged first.
 				changedVars.push_back(MultiSelect::UNCHANGED); //it should correspond to idx
@@ -942,9 +968,32 @@ namespace SliceEditor
 				std::string goName = " ";
 
 				ImGui::Text(elementPropertyLabel.c_str());
-				ImGui::SameLine(150.f);
+				ImGui::SameLine(125.f);
+				std::string checkboxLabel = "##checkbox" + elementPropertyLabel;
+				bool temp = elementHighlights[idx];
+				if (ImGui::Checkbox(checkboxLabel.c_str(), &temp))
+				{
+					elementHighlights[idx] = temp;
+					event.toAdd = elementHighlights[idx];
+					if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+					{
+						Entity entity = entry.GetEntity();
+						event.entity = entity;
+					}
+					publishEvent = true;
+				}
+
+				if (ImGui::IsItemHovered())
+				{
+					if (ImGui::BeginTooltip())
+					{
+						ImGui::Text("Tick this to highlight the GO in the scene.");
+						ImGui::EndTooltip();
+					}
+				}
+				ImGui::SameLine();
 				ImGui::SetNextItemWidth(200.0f);
-				ImGui::BeginDisabled();
+				//ImGui::BeginDisabled();
 				if (entry.GetEntity() == Entity(0) || entry.GetEntity() == entt::null)
 				{
 					goName = " ";
@@ -959,13 +1008,24 @@ namespace SliceEditor
 					goName = "---";
 				}
 
-				ImGui::InputText(newID.c_str(), &goName);
-				ImGui::EndDisabled();
+				ImGui::InputText(newID.c_str(), &goName, ImGuiInputTextFlags_ReadOnly);
+				//ImGui::EndDisabled();
 
 				if (ImGui::BeginDragDropTarget())
 				{
 					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("gameobject"))
 					{
+						//Unselect the old GameObject script object highlight and prepare the event for publishing first.
+						event.toAdd = false;
+						elementHighlights[idx] = false;
+						if (entry.GetEntity() != entt::null && entry.GetEntity() != Entity(0))
+						{
+							Entity entity = entry.GetEntity();
+							event.entity = entity;
+						}
+						publishEvent = true;
+						//The rest of the logic.
+						changed = true;
 						oldList = list;
 						entt::entity entityDropped = *static_cast<entt::entity*>(payload->Data);
 						entry = SliceEngine::FactoryInstance.GetGOByEntity(entityDropped);
@@ -975,7 +1035,7 @@ namespace SliceEditor
 						reg.GetManager<HistoryManager>("History")->AddCommand(std::move(command));*/
 						editFunc("Edit", std::string(property_label), list, entry, idx);
 						changedVars[idx] = MultiSelect::CHANGED;
-						changed = true;
+
 					}
 
 					ImGui::EndDragDropTarget();
@@ -993,7 +1053,6 @@ namespace SliceEditor
 					changedVars[idx] = MultiSelect::REMOVED;
 					changed = true;
 				}
-
 				idx++;
 			}
 			ImGui::Dummy(ImVec2(0, 0));
@@ -1025,7 +1084,7 @@ namespace SliceEditor
 
 			if (publishEvent)
 			{
-				EventManager::GetInstance()->Publish<GameObjectScriptSelected>(event);
+				EventManager::GetInstance()->Publish<GameObjectScriptSelectedUpdate>(event);
 			}
 
 			ImGui::TreePop();
