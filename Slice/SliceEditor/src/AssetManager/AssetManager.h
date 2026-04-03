@@ -171,7 +171,8 @@ namespace SliceEditor
 		std::unordered_map<AssetType, std::string> mDefaultNames =
 		{
 			{AssetType::Material, "DefaultMaterial"},
-			{AssetType::Controller, "DefaultController"}
+			{AssetType::Controller, "DefaultController"},
+			{AssetType::CustomShader, "NewCustomShader"}
 		};
 
 		

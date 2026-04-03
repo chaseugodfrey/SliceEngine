@@ -14,7 +14,7 @@ namespace SliceEngine
         
         
         private AudioSource btnAudio;
-        
+        private FontRenderer fontComp;
         
 
 
@@ -41,7 +41,7 @@ namespace SliceEngine
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
 
-
+            fontComp = GetComponent<FontRenderer>();
             
 
         }
@@ -137,12 +137,18 @@ namespace SliceEngine
 
         public override void OnButtonHover()
         {
-            
+            if(buttonType == 0 || buttonType == 1 || buttonType == 2)
+            {
+                fontComp.Colour = new Vector4(203.0f *(1.0f /256.0f), 203.0f * (1.0f / 256.0f), 203.0f * (1.0f / 256.0f), 1.0f);
+            }
         }
 
         public override void OnButtonExitHover()
         {
-
+            if (buttonType == 0 || buttonType == 1 || buttonType == 2)
+            {
+                fontComp.Colour = new Vector4(1.0f,1.0f,1.0f,1.0f);
+            }
         }
 
         public override void OnButtonRelease()
