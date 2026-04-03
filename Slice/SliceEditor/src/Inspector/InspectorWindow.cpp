@@ -2760,22 +2760,48 @@ namespace SliceEditor
 		if (!animator)
 			return;
 
-		/*auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
-		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+		auto state_it_data = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it_data == anim_data->mStateMachineAsset->stateMap.end())
 			return;
 
-		auto& state = state_it->second;*/
+		auto& state_data = state_it_data->second;
 
 		auto state_it = animator->stateMachine.EFSM.stateMap.find(node->name);
 		if (state_it == animator->stateMachine.EFSM.stateMap.end())
 			return;
 
-		auto& state = state_it->second;
+		SliceEngine::SliceEngineTypes::State& state = state_it->second;
 
-		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+		std::string newStateName = state.stateName;
+
+		if (StringInputHeader(mRegistry, "Name", "##state_name", newStateName));
+
+		if(std::strcmp(newStateName.c_str(),node->name.c_str()) != 0)
+		{
+			if (std::strcmp(animator->stateMachine.EFSM.entryState.c_str(), node->name.c_str()) == 0)
+			{
+				animator->stateMachine.EFSM.entryState = newStateName;
+			}
+
+			auto nodeHandle = animator->stateMachine.EFSM.stateMap.extract(node->name);
+			if (!nodeHandle.empty())
+			{
+				nodeHandle.mapped().stateName = newStateName;
+				nodeHandle.key() = newStateName;
+				
+				animator->stateMachine.EFSM.stateMap.insert(std::move(nodeHandle));
+
+				node->name = newStateName;
+			}
+
+			anim_data->LoadFromAsset(animator->stateMachine.EFSM);
+		}
 
 		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
 
+		BoolInputHeader(mRegistry, "Auto Transition", "##state_auto_transition", state.autoTransition);
+
+		DragIntInputHeader(mRegistry, "Next Transition", "##state_next_transition", state.nextTransition);
 		
 		float speedBuffer{ 1 };
 

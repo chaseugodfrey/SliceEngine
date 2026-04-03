@@ -482,8 +482,6 @@ namespace SliceEditor
 			}
 		}
 
-		
-
 		auto pos = ImNodes::GetNodeEditorSpacePos(node->id);
 		mAnimatorData->set_position(node->id, pos);
 	}
