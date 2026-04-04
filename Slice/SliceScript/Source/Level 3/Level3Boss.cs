@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SliceEngine
@@ -18,6 +19,9 @@ namespace SliceEngine
             /// </summary>
             Level3Boss bossController;
             IEnumerator moveCoroutine;
+
+            bool setNarrative = false;
+            bool isNarrativeDone = false;
 
             float timer = 5.0f;
             public IntroState(GameObject owner) : base(owner)
@@ -35,11 +39,24 @@ namespace SliceEngine
 
             public override void OnUpdate(float dt)
             {
+                if (bossController.isMovementDone)
+                {
+                    bossController.Bob(timer);
+
+                    if (!setNarrative)
+                        SetNarrative();
+
+                    if (!isNarrativeDone)
+                    {
+
+                    }
+                }
+
                 timer -= dt;
                 bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
                 if (timer <= 0)
                 {
-                    bossController.bossSM.ChangeState(bossController.slamState);
+            
                 }
             }
 
@@ -47,6 +64,15 @@ namespace SliceEngine
             {
                 CoroutineManager.StopCoroutine(moveCoroutine, bossController);
             }
+
+            void SetNarrative()
+            {
+                setNarrative = true;
+                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(0, 1);
+                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene);
+            }
+
+
         }
 
         public class IdleState : BaseState
@@ -597,6 +623,8 @@ namespace SliceEngine
         public GameObject enemyHUD;
         public GameObject shieldGeneratorManager;
 
+        public GameObject Lvl3CutSceneManagerObj;
+
         Vector3 startingPosition;
         Vector3 rechargingPosition;
 
@@ -965,6 +993,12 @@ namespace SliceEngine
                 default:
                     break;
             }
+        }
+        void Bob(float time)
+        {
+            Vector3 finalPos = startingPosition;
+            finalPos.y += Utilities.Sin(time);
+            transform.Position = finalPos;
         }
     }
 }
