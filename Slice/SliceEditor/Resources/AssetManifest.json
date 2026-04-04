@@ -1,24 +1,24 @@
 {
     "assets": [
         {
-            "guid": 11845146978173266450,
-            "name": "Animations/Idle3.seq",
-            "path": "Resources/11845146978173266450.seq"
-        },
-        {
             "guid": 17602196102319901889,
             "name": "Prefabs/A3_Colliders.prefab",
             "path": "Resources/17602196102319901889.prefab"
         },
         {
-            "guid": 12382057371620338850,
-            "name": "Animations/Idle.seq",
-            "path": "Resources/12382057371620338850.seq"
+            "guid": 11845146978173266450,
+            "name": "Animations/Idle3.seq",
+            "path": "Resources/11845146978173266450.seq"
         },
         {
             "guid": 15165941912960571623,
             "name": "Prefabs/A4_Environment.prefab",
             "path": "Resources/15165941912960571623.prefab"
+        },
+        {
+            "guid": 12382057371620338850,
+            "name": "Animations/Idle.seq",
+            "path": "Resources/12382057371620338850.seq"
         },
         {
             "guid": 14864542092072910136,
@@ -29,6 +29,11 @@
             "guid": 11995933917537122948,
             "name": "Default/SplashScreen.temp",
             "path": "Resources/11995933917537122948.scene"
+        },
+        {
+            "guid": 17318744968712679034,
+            "name": "Dylan/Materials/PlayerHelmet.mat",
+            "path": "Resources/17318744968712679034.mat"
         },
         {
             "guid": 17780188480855605116,
@@ -116,6 +121,11 @@
             "path": "Resources/9892807210732649486.seq"
         },
         {
+            "guid": 10020118531813195789,
+            "name": "Dylan/Materials/PlayerBelt.mat",
+            "path": "Resources/10020118531813195789.mat"
+        },
+        {
             "guid": 10656676371875731217,
             "name": "Dylan/Environment Assets/Containers.fbx",
             "path": "Resources/10656676371875731217.mdl"
@@ -131,19 +141,19 @@
             "path": "Resources/15189273195680720916.seqpkg"
         },
         {
+            "guid": 9448825566464489886,
+            "name": "Dylan/m6/afterDam/m6AfterDam.fbx",
+            "path": "Resources/9448825566464489886.mdl"
+        },
+        {
             "guid": 12356409060795031376,
             "name": "Audio/DoubleJump.wav",
             "path": "Resources/12356409060795031376.wav"
         },
         {
-            "guid": 10250055445563547443,
-            "name": "Default/PlayerController.controller",
-            "path": "Resources/10250055445563547443.controller"
-        },
-        {
-            "guid": 9231988441795247798,
-            "name": "Prefabs/A2_Lights.prefab",
-            "path": "Resources/9231988441795247798.prefab"
+            "guid": 13425841492429186988,
+            "name": "Dylan/m6/console/m6Console.fbx",
+            "path": "Resources/13425841492429186988.mdl"
         },
         {
             "guid": 17943067432173391513,
@@ -154,6 +164,16 @@
             "guid": 17364682331498553461,
             "name": "Dylan/Environment Assets/L3_Roof.fbx",
             "path": "Resources/17364682331498553461.mdl"
+        },
+        {
+            "guid": 9231988441795247798,
+            "name": "Prefabs/A2_Lights.prefab",
+            "path": "Resources/9231988441795247798.prefab"
+        },
+        {
+            "guid": 10250055445563547443,
+            "name": "Default/PlayerController.controller",
+            "path": "Resources/10250055445563547443.controller"
         },
         {
             "guid": 12413750315274858337,
@@ -201,6 +221,11 @@
             "path": "Resources/11191840110086480230.mdl"
         },
         {
+            "guid": 15391003827552367594,
+            "name": "Dylan/Materials/PlayerShoeL.mat",
+            "path": "Resources/15391003827552367594.mat"
+        },
+        {
             "guid": 15758388833859981471,
             "name": "[00]Player/playerCinematic.fbx",
             "path": "Resources/15758388833859981471.mdl"
@@ -236,6 +261,11 @@
             "path": "Resources/13222120218213262170.dds"
         },
         {
+            "guid": 10346380098286780058,
+            "name": "Dylan/m6/console/m6Console.mat",
+            "path": "Resources/10346380098286780058.mat"
+        },
+        {
             "guid": 17507240327325162492,
             "name": "Default/TestHafiz.temp",
             "path": "Resources/17507240327325162492.scene"
@@ -266,16 +296,6 @@
             "path": "Resources/13284413020070553060.wav"
         },
         {
-            "guid": 10230791056562210482,
-            "name": "Material/EnemySpawner_m.mat",
-            "path": "Resources/10230791056562210482.mat"
-        },
-        {
-            "guid": 15812733968228765909,
-            "name": "Prefabs/FX_Environment_Sparks.prefab",
-            "path": "Resources/15812733968228765909.prefab"
-        },
-        {
             "guid": 14082461890577180591,
             "name": "Prefabs/LoadNextScene_trigger.prefab",
             "path": "Resources/14082461890577180591.prefab"
@@ -291,6 +311,16 @@
             "path": "Resources/11443324886659557821.mdl"
         },
         {
+            "guid": 15812733968228765909,
+            "name": "Prefabs/FX_Environment_Sparks.prefab",
+            "path": "Resources/15812733968228765909.prefab"
+        },
+        {
+            "guid": 10230791056562210482,
+            "name": "Material/EnemySpawner_m.mat",
+            "path": "Resources/10230791056562210482.mat"
+        },
+        {
             "guid": 17624821668510436491,
             "name": "Audio/Boss_Smash.wav",
             "path": "Resources/17624821668510436491.wav"
@@ -299,6 +329,11 @@
             "guid": 12859658446911922046,
             "name": "Dylan/fuck/L3ArenaPlatform.mat",
             "path": "Resources/12859658446911922046.mat"
+        },
+        {
+            "guid": 17681727076060904965,
+            "name": "Dylan/Materials/PlayerBag.mat",
+            "path": "Resources/17681727076060904965.mat"
         },
         {
             "guid": 14315290921715176776,
@@ -311,14 +346,14 @@
             "path": "Resources/12197213546638509204.wav"
         },
         {
-            "guid": 16866709739411514970,
-            "name": "Audio/Countdown_3.wav",
-            "path": "Resources/16866709739411514970.wav"
-        },
-        {
             "guid": 13041463372070095102,
             "name": "Prefabs/Camera.prefab",
             "path": "Resources/13041463372070095102.prefab"
+        },
+        {
+            "guid": 16866709739411514970,
+            "name": "Audio/Countdown_3.wav",
+            "path": "Resources/16866709739411514970.wav"
         },
         {
             "guid": 16595515136771715194,
@@ -361,16 +396,6 @@
             "path": "Resources/15350944272377642126.mat"
         },
         {
-            "guid": 12726154715301641573,
-            "name": "Prefabs/LandmineMech.prefab",
-            "path": "Resources/12726154715301641573.prefab"
-        },
-        {
-            "guid": 12334594099732131340,
-            "name": "Prefabs/FX_Lvl1_3_Particles.prefab",
-            "path": "Resources/12334594099732131340.prefab"
-        },
-        {
             "guid": 12706701987083786906,
             "name": "Audio/SingleHit_Slime_1.wav",
             "path": "Resources/12706701987083786906.wav"
@@ -381,14 +406,14 @@
             "path": "Resources/12851759591155610253.mat"
         },
         {
-            "guid": 10488544264024941954,
-            "name": "Dylan/Environment Assets/A4_WallPipes.fbx",
-            "path": "Resources/10488544264024941954.mdl"
-        },
-        {
             "guid": 18424890457795172249,
             "name": "Prefabs/A1_Colliders.prefab",
             "path": "Resources/18424890457795172249.prefab"
+        },
+        {
+            "guid": 10488544264024941954,
+            "name": "Dylan/Environment Assets/A4_WallPipes.fbx",
+            "path": "Resources/10488544264024941954.mdl"
         },
         {
             "guid": 9798613789018262730,
@@ -456,19 +481,24 @@
             "path": "Resources/14809529667620528652.cshader"
         },
         {
+            "guid": 15049919518660875160,
+            "name": "Prefabs/Crane.prefab",
+            "path": "Resources/15049919518660875160.prefab"
+        },
+        {
             "guid": 15125514244222615558,
             "name": "Audio/Land.wav",
             "path": "Resources/15125514244222615558.wav"
         },
         {
-            "guid": 13537746615146799233,
-            "name": "Material/BossMat.mat",
-            "path": "Resources/13537746615146799233.mat"
-        },
-        {
             "guid": 16718206024600063472,
             "name": "Prefabs/AirmineMech.prefab",
             "path": "Resources/16718206024600063472.prefab"
+        },
+        {
+            "guid": 13537746615146799233,
+            "name": "Material/BossMat.mat",
+            "path": "Resources/13537746615146799233.mat"
         },
         {
             "guid": 9563528329987127914,
@@ -521,6 +551,11 @@
             "path": "Resources/9519905501966539052.scene"
         },
         {
+            "guid": 14148108916595865508,
+            "name": "Dylan/m6/pipe2/m6pipe2Connector.fbx",
+            "path": "Resources/14148108916595865508.mdl"
+        },
+        {
             "guid": 15171955937019804702,
             "name": "CustomShader/ProjetileTest.cshader",
             "path": "Resources/15171955937019804702.cshader"
@@ -556,9 +591,19 @@
             "path": "Resources/16799538569288340419.wav"
         },
         {
+            "guid": 13210778204960685719,
+            "name": "Dylan/m6/m6Door.skl",
+            "path": "Resources/13210778204960685719.skl"
+        },
+        {
             "guid": 11944477452832270171,
             "name": "Audio/Run.wav",
             "path": "Resources/11944477452832270171.wav"
+        },
+        {
+            "guid": 11003994332556551764,
+            "name": "Dylan/m6/afterDam/m6AfterDam.mat",
+            "path": "Resources/11003994332556551764.mat"
         },
         {
             "guid": 14886466983544040807,
@@ -671,11 +716,6 @@
             "path": "Resources/13770839701972514919.scene"
         },
         {
-            "guid": 12899007606864875075,
-            "name": "Prefabs/FX_Falling_Dust.prefab",
-            "path": "Resources/12899007606864875075.prefab"
-        },
-        {
             "guid": 9385357469988052754,
             "name": "Default/AloyTest.temp",
             "path": "Resources/9385357469988052754.scene"
@@ -684,6 +724,11 @@
             "guid": 16248372091683825852,
             "name": "Default/asdas.temp",
             "path": "Resources/16248372091683825852.scene"
+        },
+        {
+            "guid": 9374786404277706325,
+            "name": "Dylan/m6/boss/Boss.skl",
+            "path": "Resources/9374786404277706325.skl"
         },
         {
             "guid": 13346568691029341814,
@@ -726,11 +771,6 @@
             "path": "Resources/17435409685680308052.controller"
         },
         {
-            "guid": 15165306197574362894,
-            "name": "Prefabs/EnemyHUD.prefab",
-            "path": "Resources/15165306197574362894.prefab"
-        },
-        {
             "guid": 17833760349980101912,
             "name": "Default/Importing_Modular_Models.scene",
             "path": "Resources/17833760349980101912.scene"
@@ -739,6 +779,21 @@
             "guid": 14128299641238629544,
             "name": "Material/DefaultMaterial.mat",
             "path": "Resources/14128299641238629544.mat"
+        },
+        {
+            "guid": 15787472546125972278,
+            "name": "[00]Player/MainMenuButtonHover.png",
+            "path": "Resources/15787472546125972278.dds"
+        },
+        {
+            "guid": 17082663247688680890,
+            "name": "Shaders/downSample.shader",
+            "path": "Resources/17082663247688680890.shader"
+        },
+        {
+            "guid": 11025623330340852624,
+            "name": "Dylan/m6/pipe2/m6pipeConnector.mat",
+            "path": "Resources/11025623330340852624.mat"
         },
         {
             "guid": 16018679418099098580,
@@ -816,6 +871,11 @@
             "path": "Resources/17382876790473484968.scene"
         },
         {
+            "guid": 13687978329426984492,
+            "name": "Dylan/m6/m6Door.mat",
+            "path": "Resources/13687978329426984492.mat"
+        },
+        {
             "guid": 10394939968376999632,
             "name": "Default/New_Eze_Working_Scene.scene",
             "path": "Resources/10394939968376999632.scene"
@@ -829,6 +889,11 @@
             "guid": 12441885447440522879,
             "name": "Default/New_Eze_Working_Scene.temp",
             "path": "Resources/12441885447440522879.scene"
+        },
+        {
+            "guid": 15680941542701123786,
+            "name": "Dylan/m6/pipe2/m6Pipe2.mat",
+            "path": "Resources/15680941542701123786.mat"
         },
         {
             "guid": 16836350407216914068,
@@ -849,11 +914,6 @@
             "guid": 9249884692167028415,
             "name": "Material/Crystal.mat",
             "path": "Resources/9249884692167028415.mat"
-        },
-        {
-            "guid": 16796344584654042637,
-            "name": "Prefabs/FX_GroundSlam.prefab",
-            "path": "Resources/16796344584654042637.prefab"
         },
         {
             "guid": 9893844877777107304,
@@ -981,6 +1041,11 @@
             "path": "Resources/16821119320208761740.mdl"
         },
         {
+            "guid": 17445112217872018681,
+            "name": "Prefabs/FX_OrbitalLaserEnd.prefab",
+            "path": "Resources/17445112217872018681.prefab"
+        },
+        {
             "guid": 15234537476789003657,
             "name": "Default/TestGideon.temp",
             "path": "Resources/15234537476789003657.scene"
@@ -989,6 +1054,11 @@
             "guid": 14705961304912718438,
             "name": "NavMesh/M5 Level 1.bin",
             "path": "Resources/14705961304912718438.bin"
+        },
+        {
+            "guid": 11826350479717401990,
+            "name": "Dylan/m6/m6Door.fbx",
+            "path": "Resources/11826350479717401990.mdl"
         },
         {
             "guid": 16483552102943977758,
@@ -1009,6 +1079,11 @@
             "guid": 12127536398453803285,
             "name": "Default/TestHafiz.scene",
             "path": "Resources/12127536398453803285.scene"
+        },
+        {
+            "guid": 18144772378702324126,
+            "name": "Dylan/m6/platforms/m6platformFinal.animpkg",
+            "path": "Resources/18144772378702324126.animpkg"
         },
         {
             "guid": 16773562439639489861,
@@ -1051,14 +1126,14 @@
             "path": "Resources/12564939983032945792.mat"
         },
         {
-            "guid": 9228686884527153836,
-            "name": "Dylan/Environment Assets/L2_Base.fbx",
-            "path": "Resources/9228686884527153836.mdl"
-        },
-        {
             "guid": 10693847718036195009,
             "name": "Prefabs/FX_Firing2.prefab",
             "path": "Resources/10693847718036195009.prefab"
+        },
+        {
+            "guid": 9228686884527153836,
+            "name": "Dylan/Environment Assets/L2_Base.fbx",
+            "path": "Resources/9228686884527153836.mdl"
         },
         {
             "guid": 17078761466630851112,
@@ -1076,6 +1151,16 @@
             "path": "Resources/9976717905200698028.dds"
         },
         {
+            "guid": 14666311418195899600,
+            "name": "Prefabs/Light_Dam_4_1.prefab",
+            "path": "Resources/14666311418195899600.prefab"
+        },
+        {
+            "guid": 12836524650917759015,
+            "name": "Dylan/Materials/playerShoe_L.png",
+            "path": "Resources/12836524650917759015.dds"
+        },
+        {
             "guid": 13029615082650480052,
             "name": "Textures/Splash/FMOD Logo Black - Transparent Background.png",
             "path": "Resources/13029615082650480052.dds"
@@ -1091,16 +1176,6 @@
             "path": "Resources/10995135506174250209.dds"
         },
         {
-            "guid": 11224059992370494678,
-            "name": "Dylan/A1Pipes_Normal4096.jpg",
-            "path": "Resources/11224059992370494678.dds"
-        },
-        {
-            "guid": 9814547225297220912,
-            "name": "Prefabs/FX_LandmineExplosion.prefab",
-            "path": "Resources/9814547225297220912.prefab"
-        },
-        {
             "guid": 14884158524094725291,
             "name": "[00]Player/ReloadButtonHover.png",
             "path": "Resources/14884158524094725291.dds"
@@ -1109,6 +1184,16 @@
             "guid": 16540479796591870349,
             "name": "Dylan/fuck/Generator_Normal2048.png",
             "path": "Resources/16540479796591870349.dds"
+        },
+        {
+            "guid": 9814547225297220912,
+            "name": "Prefabs/FX_LandmineExplosion.prefab",
+            "path": "Resources/9814547225297220912.prefab"
+        },
+        {
+            "guid": 11224059992370494678,
+            "name": "Dylan/A1Pipes_Normal4096.jpg",
+            "path": "Resources/11224059992370494678.dds"
         },
         {
             "guid": 9240057084912475259,
@@ -1154,6 +1239,11 @@
             "guid": 17091412147985065037,
             "name": "[00]Player/playerCinematic_2.skl",
             "path": "Resources/17091412147985065037.skl"
+        },
+        {
+            "guid": 16183179174960623671,
+            "name": "[00]Player/AdjustAudioSettings.png",
+            "path": "Resources/16183179174960623671.dds"
         },
         {
             "guid": 13354061019896113183,
@@ -1211,14 +1301,14 @@
             "path": "Resources/11473604109696136100.dds"
         },
         {
-            "guid": 14606407826179867827,
-            "name": "Dylan/A3Start_Normal2048.jpg",
-            "path": "Resources/14606407826179867827.dds"
-        },
-        {
             "guid": 17365031189549555498,
             "name": "Prefabs/FX_Firing1.prefab",
             "path": "Resources/17365031189549555498.prefab"
+        },
+        {
+            "guid": 14606407826179867827,
+            "name": "Dylan/A3Start_Normal2048.jpg",
+            "path": "Resources/14606407826179867827.dds"
         },
         {
             "guid": 10724009023115052591,
@@ -1281,6 +1371,16 @@
             "path": "Resources/17198371508955884240.fnt"
         },
         {
+            "guid": 18044622828764088183,
+            "name": "Dylan/fuck/L2Arena_Floors_Roughness2048.png",
+            "path": "Resources/18044622828764088183.dds"
+        },
+        {
+            "guid": 15628879990250394611,
+            "name": "Dylan/m6/dam/m6Dam_1.fbx",
+            "path": "Resources/15628879990250394611.mdl"
+        },
+        {
             "guid": 12803053135415813240,
             "name": "Dylan/A4GateWalls_Roughness2048.png",
             "path": "Resources/12803053135415813240.dds"
@@ -1289,11 +1389,6 @@
             "guid": 17414881282607485556,
             "name": "Dylan/fuck/L3Arena_Roof_Roughness2048.png",
             "path": "Resources/17414881282607485556.dds"
-        },
-        {
-            "guid": 18044622828764088183,
-            "name": "Dylan/fuck/L2Arena_Floors_Roughness2048.png",
-            "path": "Resources/18044622828764088183.dds"
         },
         {
             "guid": 15573945439928962767,
@@ -1314,6 +1409,11 @@
             "guid": 17766334169761362764,
             "name": "Dylan/A4Gate_Base2048.png",
             "path": "Resources/17766334169761362764.dds"
+        },
+        {
+            "guid": 12399348299397634341,
+            "name": "Dylan/m6/afterDam/afterDam_Base.png",
+            "path": "Resources/12399348299397634341.dds"
         },
         {
             "guid": 15693686281543589710,
@@ -1346,6 +1446,11 @@
             "path": "Resources/12180505711780853116.dds"
         },
         {
+            "guid": 11367231774260194514,
+            "name": "Dylan/Materials/playerBelt.png",
+            "path": "Resources/11367231774260194514.dds"
+        },
+        {
             "guid": 16752549707848748451,
             "name": "Dylan/Environment Assets/Platform2.fbx",
             "path": "Resources/16752549707848748451.mdl"
@@ -1359,11 +1464,6 @@
             "guid": 11961280493110372868,
             "name": "Dylan/Cargo_Base2048.jpg",
             "path": "Resources/11961280493110372868.dds"
-        },
-        {
-            "guid": 16872362188990535028,
-            "name": "Prefabs/A4_TransitionParent_1.prefab",
-            "path": "Resources/16872362188990535028.prefab"
         },
         {
             "guid": 13359655508558421815,
@@ -1441,6 +1541,11 @@
             "path": "Resources/17204023445856681576.dds"
         },
         {
+            "guid": 10913621356784439574,
+            "name": "Dylan/m6/afterDam/m6AfterDamPillar.fbx",
+            "path": "Resources/10913621356784439574.mdl"
+        },
+        {
             "guid": 17932663458364910471,
             "name": "Dylan/TunnelOld_Base2048.jpg",
             "path": "Resources/17932663458364910471.dds"
@@ -1471,6 +1576,11 @@
             "path": "Resources/16566108308588900289.mdl"
         },
         {
+            "guid": 11745466620398896664,
+            "name": "Dylan/Materials/PlayerShoeR.mat",
+            "path": "Resources/11745466620398896664.mat"
+        },
+        {
             "guid": 10810511840858761130,
             "name": "Shaders/cloud_Vert.vert",
             "path": "Resources/10810511840858761130.vert"
@@ -1486,6 +1596,11 @@
             "path": "Resources/10939417855055720880.mdl"
         },
         {
+            "guid": 16569603963006949994,
+            "name": "Dylan/m6/m6GreenEmission.mat",
+            "path": "Resources/16569603963006949994.mat"
+        },
+        {
             "guid": 12275174830626701465,
             "name": "[00]Player/GameOverBG2.png",
             "path": "Resources/12275174830626701465.dds"
@@ -1499,6 +1614,16 @@
             "guid": 9735481051535127949,
             "name": "Dylan/Dylan.temp",
             "path": "Resources/9735481051535127949.scene"
+        },
+        {
+            "guid": 15457146124636775528,
+            "name": "Shaders/pointShadow.shader",
+            "path": "Resources/15457146124636775528.shader"
+        },
+        {
+            "guid": 12931793612775450245,
+            "name": "Dylan/m6/door_Base_1.png",
+            "path": "Resources/12931793612775450245.dds"
         },
         {
             "guid": 18202326392139055252,
@@ -1536,6 +1661,16 @@
             "path": "Resources/16482265741563908225.mat"
         },
         {
+            "guid": 15512966748982858088,
+            "name": "Shaders/basicCopy.shader",
+            "path": "Resources/15512966748982858088.shader"
+        },
+        {
+            "guid": 15949886659555791563,
+            "name": "Dylan/m6/pipe2/m6pipe2.fbx",
+            "path": "Resources/15949886659555791563.mdl"
+        },
+        {
             "guid": 15904558027199311411,
             "name": "Dylan/Environment Assets/A3_Tunnels_Old.fbx",
             "path": "Resources/15904558027199311411.mdl"
@@ -1571,14 +1706,14 @@
             "path": "Resources/13790313747262579259.mdl"
         },
         {
+            "guid": 17734129292647502161,
+            "name": "Material/FogTestL1.mat",
+            "path": "Resources/17734129292647502161.mat"
+        },
+        {
             "guid": 13642435283238726926,
             "name": "Shaders/uiSprite_Vert.vert",
             "path": "Resources/13642435283238726926.vert"
-        },
-        {
-            "guid": 12904141012317186443,
-            "name": "Dylan/Environment Assets/A4_DoorGate_R.fbx",
-            "path": "Resources/12904141012317186443.mdl"
         },
         {
             "guid": 9523743905181672290,
@@ -1586,9 +1721,9 @@
             "path": "Resources/9523743905181672290.prefab"
         },
         {
-            "guid": 17734129292647502161,
-            "name": "Material/FogTestL1.mat",
-            "path": "Resources/17734129292647502161.mat"
+            "guid": 12904141012317186443,
+            "name": "Dylan/Environment Assets/A4_DoorGate_R.fbx",
+            "path": "Resources/12904141012317186443.mdl"
         },
         {
             "guid": 12510685744254781845,
@@ -1609,11 +1744,6 @@
             "guid": 10482285589553102895,
             "name": "Dylan/Environment Assets/A4_Pipes.fbx",
             "path": "Resources/10482285589553102895.mdl"
-        },
-        {
-            "guid": 10277001610364450097,
-            "name": "player.animpkg",
-            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 10140212064093200294,
@@ -1701,14 +1831,14 @@
             "path": "Resources/14739684932445338633.mdl"
         },
         {
-            "guid": 14474920984947933644,
-            "name": "Material/Explosion.mat",
-            "path": "Resources/14474920984947933644.mat"
-        },
-        {
             "guid": 11065329070634920111,
             "name": "Prefabs/A2_Environment.prefab",
             "path": "Resources/11065329070634920111.prefab"
+        },
+        {
+            "guid": 14474920984947933644,
+            "name": "Material/Explosion.mat",
+            "path": "Resources/14474920984947933644.mat"
         },
         {
             "guid": 12889777577988669380,
@@ -1736,11 +1866,6 @@
             "path": "Resources/16983590390400700094.mdl"
         },
         {
-            "guid": 13757273997469351551,
-            "name": "Prefabs/A1_Environment.prefab",
-            "path": "Resources/13757273997469351551.prefab"
-        },
-        {
             "guid": 14941793656830322641,
             "name": "Dylan/Environment Assets/External Pipes.fbx",
             "path": "Resources/14941793656830322641.mdl"
@@ -1756,14 +1881,14 @@
             "path": "Resources/11746447749538469551.mdl"
         },
         {
-            "guid": 16108474294497114739,
-            "name": "Models/Enemy_Basic_Static.skl",
-            "path": "Resources/16108474294497114739.skl"
-        },
-        {
             "guid": 17014456597090860992,
             "name": "Prefabs/Canvas.prefab",
             "path": "Resources/17014456597090860992.prefab"
+        },
+        {
+            "guid": 16108474294497114739,
+            "name": "Models/Enemy_Basic_Static.skl",
+            "path": "Resources/16108474294497114739.skl"
         },
         {
             "guid": 10465449944610204343,
@@ -1826,14 +1951,19 @@
             "path": "Resources/15374122388797591212.mdl"
         },
         {
-            "guid": 10343037686959554815,
-            "name": "Dylan/fuck/L3Arena_2.fbx",
-            "path": "Resources/10343037686959554815.mdl"
-        },
-        {
             "guid": 10481587528480518082,
             "name": "Dylan/Environment Assets/Platform1.fbx",
             "path": "Resources/10481587528480518082.mdl"
+        },
+        {
+            "guid": 12997709793430844555,
+            "name": "Dylan/m6/dam/m6PipeDam.fbx",
+            "path": "Resources/12997709793430844555.mdl"
+        },
+        {
+            "guid": 10343037686959554815,
+            "name": "Dylan/fuck/L3Arena_2.fbx",
+            "path": "Resources/10343037686959554815.mdl"
         },
         {
             "guid": 10697254268588545613,
@@ -1941,14 +2071,14 @@
             "path": "Resources/17852622417671686914.dds"
         },
         {
+            "guid": 18409444482535238828,
+            "name": "Dylan/m6/afterDam/afterDamPillar_Base.png",
+            "path": "Resources/18409444482535238828.dds"
+        },
+        {
             "guid": 13842546613932241582,
             "name": "Dylan/fuck/L2Arena_BottomPipes_Roughness2048.png",
             "path": "Resources/13842546613932241582.dds"
-        },
-        {
-            "guid": 9773132494906022418,
-            "name": "Material/AimingMechCore.mat",
-            "path": "Resources/9773132494906022418.mat"
         },
         {
             "guid": 13719758480194116527,
@@ -1976,6 +2106,11 @@
             "path": "Resources/15736715329927611755.dds"
         },
         {
+            "guid": 10233549663240338424,
+            "name": "Dylan/m6/dam/pipeDam_Base.png",
+            "path": "Resources/10233549663240338424.dds"
+        },
+        {
             "guid": 13996082141804422421,
             "name": "[97]Scenes/M6 Level 3.temp",
             "path": "Resources/13996082141804422421.scene"
@@ -1989,11 +2124,6 @@
             "guid": 15636877715968088262,
             "name": "Dylan/fuck/L2Arena_Roof_Normal2048.png",
             "path": "Resources/15636877715968088262.dds"
-        },
-        {
-            "guid": 10613563990251991526,
-            "name": "Prefabs/Camera Rig.prefab",
-            "path": "Resources/10613563990251991526.prefab"
         },
         {
             "guid": 14201342206086521552,
@@ -2011,6 +2141,11 @@
             "path": "Resources/12213741007363102559.mdl"
         },
         {
+            "guid": 15977260151332439522,
+            "name": "[00]Player/playerNoWeapon_2.fbx",
+            "path": "Resources/15977260151332439522.mdl"
+        },
+        {
             "guid": 18304660953343672452,
             "name": "Eze/Rotating_Core.fbx",
             "path": "Resources/18304660953343672452.mdl"
@@ -2024,6 +2159,11 @@
             "guid": 12750832039836663440,
             "name": "Dylan/fuck/L3Arena_CoreRings2.fbx",
             "path": "Resources/12750832039836663440.mdl"
+        },
+        {
+            "guid": 9747316344550185712,
+            "name": "Dylan/m6/dam/m6DamPipe.mat",
+            "path": "Resources/9747316344550185712.mat"
         },
         {
             "guid": 14619092371752370335,
@@ -2051,24 +2191,24 @@
             "path": "Resources/14464725476257600466.skl"
         },
         {
-            "guid": 12638191067484305032,
-            "name": "Material/EnemySlime_Inner_m.mat",
-            "path": "Resources/12638191067484305032.mat"
-        },
-        {
             "guid": 13089388570480650404,
             "name": "Prefabs/A4_TransitionParent.prefab",
             "path": "Resources/13089388570480650404.prefab"
         },
         {
-            "guid": 18342667854191844458,
-            "name": "Dylan/fuck/L3Arena_CoreRings_Roughness2048.png",
-            "path": "Resources/18342667854191844458.dds"
+            "guid": 12638191067484305032,
+            "name": "Material/EnemySlime_Inner_m.mat",
+            "path": "Resources/12638191067484305032.mat"
         },
         {
             "guid": 18256282650120352886,
             "name": "Prefabs/1.3.prefab",
             "path": "Resources/18256282650120352886.prefab"
+        },
+        {
+            "guid": 18342667854191844458,
+            "name": "Dylan/fuck/L3Arena_CoreRings_Roughness2048.png",
+            "path": "Resources/18342667854191844458.dds"
         },
         {
             "guid": 12480678044445145618,
@@ -2136,14 +2276,249 @@
             "path": "Resources/13912214859485212332.mat"
         },
         {
-            "guid": 16567500838086249144,
-            "name": "Dylan/Materials/A3End.mat",
-            "path": "Resources/16567500838086249144.mat"
+            "guid": 9911898511109175898,
+            "name": "Prefabs/Bootstrap.prefab",
+            "path": "Resources/9911898511109175898.prefab"
+        },
+        {
+            "guid": 9790900084911655028,
+            "name": "Dylan/m6/afterDam/m6AfterDamPillar.mat",
+            "path": "Resources/9790900084911655028.mat"
+        },
+        {
+            "guid": 10494040173857197462,
+            "name": "Dylan/m6/boss/Boss.fbx",
+            "path": "Resources/10494040173857197462.mdl"
+        },
+        {
+            "guid": 10286238958443715190,
+            "name": "Dylan/m6/boss/Boss.animpkg",
+            "path": "Resources/10286238958443715190.animpkg"
+        },
+        {
+            "guid": 12052541654358869986,
+            "name": "Material/PreAimMat.mat",
+            "path": "Resources/12052541654358869986.mat"
+        },
+        {
+            "guid": 16434964976376015281,
+            "name": "Shaders/vignette_Frag.frag",
+            "path": "Resources/16434964976376015281.frag"
+        },
+        {
+            "guid": 14455716360852940150,
+            "name": "Dylan/m6/boss/bossOuter_Base.png",
+            "path": "Resources/14455716360852940150.dds"
+        },
+        {
+            "guid": 16453345830123164686,
+            "name": "Shaders/pointShadow_Vert.vert",
+            "path": "Resources/16453345830123164686.vert"
+        },
+        {
+            "guid": 12265153266917397371,
+            "name": "Dylan/m6/boss/boss_Base.png",
+            "path": "Resources/12265153266917397371.dds"
+        },
+        {
+            "guid": 11867019872904042606,
+            "name": "Models/Environment_Engine_1.fbx",
+            "path": "Resources/11867019872904042606.mdl"
+        },
+        {
+            "guid": 14548837361782680919,
+            "name": "Dylan/m6/boss/boss_Emission.png",
+            "path": "Resources/14548837361782680919.dds"
+        },
+        {
+            "guid": 10449884954420082193,
+            "name": "Dylan/m6/boss/m6Boss.mat",
+            "path": "Resources/10449884954420082193.mat"
+        },
+        {
+            "guid": 11890598627656583832,
+            "name": "Dylan/m6/boss/m6BossOuter.mat",
+            "path": "Resources/11890598627656583832.mat"
+        },
+        {
+            "guid": 11046772626675135816,
+            "name": "Dylan/m6/console/console_Base_1.png",
+            "path": "Resources/11046772626675135816.dds"
+        },
+        {
+            "guid": 16115605861725276231,
+            "name": "Dylan/m6/console/console_Emission_1.png",
+            "path": "Resources/16115605861725276231.dds"
+        },
+        {
+            "guid": 14182393475950701937,
+            "name": "Dylan/m6/dam/dam_Base.png",
+            "path": "Resources/14182393475950701937.dds"
+        },
+        {
+            "guid": 17958350139979257896,
+            "name": "Dylan/Materials/playerShoe_R.png",
+            "path": "Resources/17958350139979257896.dds"
+        },
+        {
+            "guid": 13782860491680574366,
+            "name": "Dylan/m6/dam/m6Dam.mat",
+            "path": "Resources/13782860491680574366.mat"
+        },
+        {
+            "guid": 13072778675446347326,
+            "name": "Textures/Splash/GLEW Logo.png",
+            "path": "Resources/13072778675446347326.dds"
+        },
+        {
+            "guid": 15037278173515007610,
+            "name": "Dylan/m6/doorOuter_Base_1.png",
+            "path": "Resources/15037278173515007610.dds"
+        },
+        {
+            "guid": 17544676321138507548,
+            "name": "Dylan/TunnelOld_Roughness2048.jpg",
+            "path": "Resources/17544676321138507548.dds"
+        },
+        {
+            "guid": 12554525915184668716,
+            "name": "Shaders/uiFont_Frag.frag",
+            "path": "Resources/12554525915184668716.frag"
+        },
+        {
+            "guid": 12788262364597732665,
+            "name": "Dylan/m6/m6Door.animpkg",
+            "path": "Resources/12788262364597732665.animpkg"
+        },
+        {
+            "guid": 13361913144360455246,
+            "name": "Dylan/m6/m6DoorOuter.mat",
+            "path": "Resources/13361913144360455246.mat"
+        },
+        {
+            "guid": 16494430609874648269,
+            "name": "Models/Boss.animpkg",
+            "path": "Resources/16494430609874648269.animpkg"
+        },
+        {
+            "guid": 18284954354028615909,
+            "name": "Dylan/m6/m6RedEmission.mat",
+            "path": "Resources/18284954354028615909.mat"
+        },
+        {
+            "guid": 10249862843452672570,
+            "name": "Dylan/m6/m6StartArea_2.fbx",
+            "path": "Resources/10249862843452672570.mdl"
+        },
+        {
+            "guid": 10105107416661838055,
+            "name": "Editor/FontIcon.png",
+            "path": "Resources/10105107416661838055.dds"
+        },
+        {
+            "guid": 12283587655735059049,
+            "name": "[00]Player/SystemsPausedTitle.png",
+            "path": "Resources/12283587655735059049.dds"
+        },
+        {
+            "guid": 9310947278343937518,
+            "name": "Dylan/m6/pipe1/m6Pipe1.mat",
+            "path": "Resources/9310947278343937518.mat"
+        },
+        {
+            "guid": 15267696681386478815,
+            "name": "Dylan/m6/pipe1/m6pipe1Final.fbx",
+            "path": "Resources/15267696681386478815.mdl"
+        },
+        {
+            "guid": 16347007361045781305,
+            "name": "Textures/Splash/JoltPhysicsLogo.png",
+            "path": "Resources/16347007361045781305.dds"
+        },
+        {
+            "guid": 12923911479932127849,
+            "name": "Dylan/Materials/Sword.mat",
+            "path": "Resources/12923911479932127849.mat"
+        },
+        {
+            "guid": 10043144072865891740,
+            "name": "Dylan/m6/pipe1/pipeBase_M6_1.png",
+            "path": "Resources/10043144072865891740.dds"
+        },
+        {
+            "guid": 13441197947458580501,
+            "name": "Fonts/JetBrainsMono-Light.ttf",
+            "path": "Resources/13441197947458580501.fnt"
+        },
+        {
+            "guid": 11606552022304516733,
+            "name": "Dylan/m6/pipe2/pipe2Base_M6.png",
+            "path": "Resources/11606552022304516733.dds"
+        },
+        {
+            "guid": 16604016545464857810,
+            "name": "Dylan/m6/pipe2/pipe2Connector_Base.png",
+            "path": "Resources/16604016545464857810.dds"
+        },
+        {
+            "guid": 11755201146539680478,
+            "name": "Shaders/spotShadow.shader",
+            "path": "Resources/11755201146539680478.shader"
+        },
+        {
+            "guid": 18400379806743012927,
+            "name": "Editor/FolderIcon.png",
+            "path": "Resources/18400379806743012927.dds"
+        },
+        {
+            "guid": 14161965810827029091,
+            "name": "Dylan/m6/platforms/m6Platform.mat",
+            "path": "Resources/14161965810827029091.mat"
+        },
+        {
+            "guid": 14629742115567235185,
+            "name": "Dylan/m6/platforms/m6platformFinal.fbx",
+            "path": "Resources/14629742115567235185.mdl"
+        },
+        {
+            "guid": 12764864164080093377,
+            "name": "Dylan/m6/platforms/m6platformFinal.skl",
+            "path": "Resources/12764864164080093377.skl"
+        },
+        {
+            "guid": 15404679448496593859,
+            "name": "Material/Util_BoundingBox.mat",
+            "path": "Resources/15404679448496593859.mat"
+        },
+        {
+            "guid": 12204423217218559264,
+            "name": "Dylan/m6/platforms/platformBase_M6_1.png",
+            "path": "Resources/12204423217218559264.dds"
+        },
+        {
+            "guid": 16504225902674514182,
+            "name": "Dylan/m6/startArea.mat",
+            "path": "Resources/16504225902674514182.mat"
+        },
+        {
+            "guid": 15145462514056472296,
+            "name": "Prefabs/ProjectileSpawnerLevel2.prefab",
+            "path": "Resources/15145462514056472296.prefab"
+        },
+        {
+            "guid": 11166401167989678169,
+            "name": "Dylan/m6/startArea_Base_2.png",
+            "path": "Resources/11166401167989678169.dds"
         },
         {
             "guid": 17177936944894507040,
             "name": "Prefabs/A3_Lights.prefab",
             "path": "Resources/17177936944894507040.prefab"
+        },
+        {
+            "guid": 16567500838086249144,
+            "name": "Dylan/Materials/A3End.mat",
+            "path": "Resources/16567500838086249144.mat"
         },
         {
             "guid": 16995808594219792735,
@@ -2196,14 +2571,39 @@
             "path": "Resources/18116680616332746863.mat"
         },
         {
-            "guid": 16347007361045781305,
-            "name": "Textures/Splash/JoltPhysicsLogo.png",
-            "path": "Resources/16347007361045781305.dds"
+            "guid": 9622535161943288927,
+            "name": "Dylan/Materials/playerBag.png",
+            "path": "Resources/9622535161943288927.dds"
         },
         {
-            "guid": 12923911479932127849,
-            "name": "Dylan/Materials/Sword.mat",
-            "path": "Resources/12923911479932127849.mat"
+            "guid": 15142238749552838676,
+            "name": "Material/ShieldMaterialLit.mat",
+            "path": "Resources/15142238749552838676.mat"
+        },
+        {
+            "guid": 14537659488816209328,
+            "name": "Dylan/Materials/playerBody.png",
+            "path": "Resources/14537659488816209328.dds"
+        },
+        {
+            "guid": 18344649898569171694,
+            "name": "Dylan/Materials/playerBody2.png",
+            "path": "Resources/18344649898569171694.dds"
+        },
+        {
+            "guid": 16008503113081839219,
+            "name": "Models/M5 Models/StartArea_Roof.fbx",
+            "path": "Resources/16008503113081839219.mdl"
+        },
+        {
+            "guid": 16854970061523672512,
+            "name": "Dylan/Materials/playerHelmet.png",
+            "path": "Resources/16854970061523672512.dds"
+        },
+        {
+            "guid": 11462694946413433796,
+            "name": "Dylan/TunnelOld_Normal2048.jpg",
+            "path": "Resources/11462694946413433796.dds"
         },
         {
             "guid": 10011933034428700752,
@@ -2214,16 +2614,6 @@
             "guid": 9965701576297081067,
             "name": "Dylan/Materials/TunnelNew.mat",
             "path": "Resources/9965701576297081067.mat"
-        },
-        {
-            "guid": 12315229327164012932,
-            "name": "Shaders/ImpactFrame.shader",
-            "path": "Resources/12315229327164012932.shader"
-        },
-        {
-            "guid": 11375246718170446546,
-            "name": "Prefabs/Column_1.prefab",
-            "path": "Resources/11375246718170446546.prefab"
         },
         {
             "guid": 11447130267523023024,
@@ -2246,14 +2636,14 @@
             "path": "Resources/14115106649651537267.mat"
         },
         {
-            "guid": 17946928055427779045,
-            "name": "Dylan/Pipe_Base4096.jpg",
-            "path": "Resources/17946928055427779045.dds"
-        },
-        {
             "guid": 14957065566953770831,
             "name": "Prefabs/AimProjectile.prefab",
             "path": "Resources/14957065566953770831.prefab"
+        },
+        {
+            "guid": 17946928055427779045,
+            "name": "Dylan/Pipe_Base4096.jpg",
+            "path": "Resources/17946928055427779045.dds"
         },
         {
             "guid": 18000196669969852959,
@@ -2281,6 +2671,11 @@
             "path": "Resources/18117052849571324508.shader"
         },
         {
+            "guid": 15888238001111269030,
+            "name": "Prefabs/FX_LaserAttack.prefab",
+            "path": "Resources/15888238001111269030.prefab"
+        },
+        {
             "guid": 9346215947975704107,
             "name": "Dylan/TunnelNew_Base2048.jpg",
             "path": "Resources/9346215947975704107.dds"
@@ -2291,29 +2686,9 @@
             "path": "Resources/14948592974222173917.mdl"
         },
         {
-            "guid": 15888238001111269030,
-            "name": "Prefabs/FX_LaserAttack.prefab",
-            "path": "Resources/15888238001111269030.prefab"
-        },
-        {
             "guid": 11059320341547628132,
             "name": "Dylan/TunnelNew_Roughness2048.jpg",
             "path": "Resources/11059320341547628132.dds"
-        },
-        {
-            "guid": 11462694946413433796,
-            "name": "Dylan/TunnelOld_Normal2048.jpg",
-            "path": "Resources/11462694946413433796.dds"
-        },
-        {
-            "guid": 13072778675446347326,
-            "name": "Textures/Splash/GLEW Logo.png",
-            "path": "Resources/13072778675446347326.dds"
-        },
-        {
-            "guid": 17544676321138507548,
-            "name": "Dylan/TunnelOld_Roughness2048.jpg",
-            "path": "Resources/17544676321138507548.dds"
         },
         {
             "guid": 11084562470444538855,
@@ -2326,11 +2701,6 @@
             "path": "Resources/17882015253966645802.dds"
         },
         {
-            "guid": 11101819486643419222,
-            "name": "Player32.skl",
-            "path": "Resources/11101819486643419222.skl"
-        },
-        {
             "guid": 10119110391915830736,
             "name": "Editor/AudioIcon.png",
             "path": "Resources/10119110391915830736.dds"
@@ -2341,21 +2711,6 @@
             "path": "Resources/10892477363213399972.navmesh"
         },
         {
-            "guid": 11755201146539680478,
-            "name": "Shaders/spotShadow.shader",
-            "path": "Resources/11755201146539680478.shader"
-        },
-        {
-            "guid": 18400379806743012927,
-            "name": "Editor/FolderIcon.png",
-            "path": "Resources/18400379806743012927.dds"
-        },
-        {
-            "guid": 10105107416661838055,
-            "name": "Editor/FontIcon.png",
-            "path": "Resources/10105107416661838055.dds"
-        },
-        {
             "guid": 14986291756004428140,
             "name": "Prefabs/Test_Spawn.prefab",
             "path": "Resources/14986291756004428140.prefab"
@@ -2364,16 +2719,6 @@
             "guid": 15309186703193371093,
             "name": "Editor/SceneIcon.png",
             "path": "Resources/15309186703193371093.dds"
-        },
-        {
-            "guid": 14356381608158462087,
-            "name": "Prefabs/HUD Canvas Temp Wk 9.prefab",
-            "path": "Resources/14356381608158462087.prefab"
-        },
-        {
-            "guid": 12112953651546802497,
-            "name": "Prefabs/FX_Charging.prefab",
-            "path": "Resources/12112953651546802497.prefab"
         },
         {
             "guid": 11157093864669200623,
@@ -2406,11 +2751,6 @@
             "path": "Resources/13145102549352048231.dds"
         },
         {
-            "guid": 13441197947458580501,
-            "name": "Fonts/JetBrainsMono-Light.ttf",
-            "path": "Resources/13441197947458580501.fnt"
-        },
-        {
             "guid": 15137398682090265849,
             "name": "Fonts/Play.ttf",
             "path": "Resources/15137398682090265849.fnt"
@@ -2436,9 +2776,34 @@
             "path": "Resources/12106070677021771201.mdl"
         },
         {
+            "guid": 13949509492220521480,
+            "name": "Textures/Game Over 2.png",
+            "path": "Resources/13949509492220521480.dds"
+        },
+        {
+            "guid": 9236083295454303827,
+            "name": "Models/M5 Models/Initial_Shooter.animpkg",
+            "path": "Resources/9236083295454303827.animpkg"
+        },
+        {
+            "guid": 16028314570537009040,
+            "name": "Prefabs/Level3Projectile.prefab",
+            "path": "Resources/16028314570537009040.prefab"
+        },
+        {
+            "guid": 12400085700756427728,
+            "name": "Material/AimingMechCore.mat",
+            "path": "Resources/12400085700756427728.mat"
+        },
+        {
             "guid": 16267995604642909280,
             "name": "Material/AimingMechWings.mat",
             "path": "Resources/16267995604642909280.mat"
+        },
+        {
+            "guid": 12648141210579501314,
+            "name": "Prefabs/A3_Environment.prefab",
+            "path": "Resources/12648141210579501314.prefab"
         },
         {
             "guid": 11946614573278318346,
@@ -2449,11 +2814,6 @@
             "guid": 14018566679936275834,
             "name": "Models/EnemySlimeOuter.animpkg",
             "path": "Resources/14018566679936275834.animpkg"
-        },
-        {
-            "guid": 12648141210579501314,
-            "name": "Prefabs/A3_Environment.prefab",
-            "path": "Resources/12648141210579501314.prefab"
         },
         {
             "guid": 13151837897005897509,
@@ -2516,11 +2876,6 @@
             "path": "Resources/10573828308931267518.mat"
         },
         {
-            "guid": 10790654920692271120,
-            "name": "Prefabs/FX_Bloodsplatter.prefab",
-            "path": "Resources/10790654920692271120.prefab"
-        },
-        {
             "guid": 16084993839446534427,
             "name": "Material/LazerRed.mat",
             "path": "Resources/16084993839446534427.mat"
@@ -2536,19 +2891,19 @@
             "path": "Resources/12687902782278462473.mat"
         },
         {
-            "guid": 9280878231841090071,
-            "name": "Prefabs/AimingMech.prefab",
-            "path": "Resources/9280878231841090071.prefab"
-        },
-        {
-            "guid": 12482959374751952982,
-            "name": "Models/Enemy_Basic_Static.fbx",
-            "path": "Resources/12482959374751952982.mdl"
+            "guid": 14674901861374195520,
+            "name": "Prefabs/SettingsBGAnim_Final.prefab",
+            "path": "Resources/14674901861374195520.prefab"
         },
         {
             "guid": 9296099836462161293,
             "name": "Prefabs/FX_LaserPointer.prefab",
             "path": "Resources/9296099836462161293.prefab"
+        },
+        {
+            "guid": 12482959374751952982,
+            "name": "Models/Enemy_Basic_Static.fbx",
+            "path": "Resources/12482959374751952982.mdl"
         },
         {
             "guid": 10554390144329038318,
@@ -2561,19 +2916,9 @@
             "path": "Resources/16895767658385788011.mat"
         },
         {
-            "guid": 12052541654358869986,
-            "name": "Material/PreAimMat.mat",
-            "path": "Resources/12052541654358869986.mat"
-        },
-        {
             "guid": 15121433550698795629,
             "name": "Material/RotContainer.mat",
             "path": "Resources/15121433550698795629.mat"
-        },
-        {
-            "guid": 15142238749552838676,
-            "name": "Material/ShieldMaterialLit.mat",
-            "path": "Resources/15142238749552838676.mat"
         },
         {
             "guid": 12777379928587679679,
@@ -2586,11 +2931,6 @@
             "path": "Resources/13614208979118524504.mat"
         },
         {
-            "guid": 14852370317337102832,
-            "name": "Prefabs/BigRotator.prefab",
-            "path": "Resources/14852370317337102832.prefab"
-        },
-        {
             "guid": 14134728040193570933,
             "name": "Material/TempGroundMat.mat",
             "path": "Resources/14134728040193570933.mat"
@@ -2599,11 +2939,6 @@
             "guid": 17800407690632607707,
             "name": "Material/TemporaryViewMaterial.mat",
             "path": "Resources/17800407690632607707.mat"
-        },
-        {
-            "guid": 15404679448496593859,
-            "name": "Material/Util_BoundingBox.mat",
-            "path": "Resources/15404679448496593859.mat"
         },
         {
             "guid": 16951838489036553353,
@@ -2649,11 +2984,6 @@
             "guid": 13823154927796224563,
             "name": "Models/Boss.skl",
             "path": "Resources/13823154927796224563.skl"
-        },
-        {
-            "guid": 16494430609874648269,
-            "name": "Models/Boss.animpkg",
-            "path": "Resources/16494430609874648269.animpkg"
         },
         {
             "guid": 10365400057864474275,
@@ -2751,11 +3081,6 @@
             "path": "Resources/16100658801862576713.mdl"
         },
         {
-            "guid": 11867019872904042606,
-            "name": "Models/Environment_Engine_1.fbx",
-            "path": "Resources/11867019872904042606.mdl"
-        },
-        {
             "guid": 11691772434916637824,
             "name": "Shaders/luminance.shader",
             "path": "Resources/11691772434916637824.shader"
@@ -2786,19 +3111,14 @@
             "path": "Resources/14568924967666227358.dds"
         },
         {
+            "guid": 12378765857695670070,
+            "name": "Prefabs/AimingMech.prefab",
+            "path": "Resources/12378765857695670070.prefab"
+        },
+        {
             "guid": 13903676716914006364,
             "name": "Models/M5 Models/FanBlock.skl",
             "path": "Resources/13903676716914006364.skl"
-        },
-        {
-            "guid": 13949509492220521480,
-            "name": "Textures/Game Over 2.png",
-            "path": "Resources/13949509492220521480.dds"
-        },
-        {
-            "guid": 9236083295454303827,
-            "name": "Models/M5 Models/Initial_Shooter.animpkg",
-            "path": "Resources/9236083295454303827.animpkg"
         },
         {
             "guid": 18048379734453282659,
@@ -2844,11 +3164,6 @@
             "guid": 10956697085899824678,
             "name": "Models/M5 Models/RotatingEnemy_NoText.skl",
             "path": "Resources/10956697085899824678.skl"
-        },
-        {
-            "guid": 16008503113081839219,
-            "name": "Models/M5 Models/StartArea_Roof.fbx",
-            "path": "Resources/16008503113081839219.mdl"
         },
         {
             "guid": 14562410455465570620,
@@ -2911,14 +3226,24 @@
             "path": "Resources/14800216528882930636.skl"
         },
         {
-            "guid": 9550121459482425649,
-            "name": "Player32.fbx",
-            "path": "Resources/9550121459482425649.mdl"
+            "guid": 10277001610364450097,
+            "name": "player.animpkg",
+            "path": "Resources/10277001610364450097.animpkg"
         },
         {
             "guid": 16434417904281556449,
             "name": "Prefabs/BallProjectile.prefab",
             "path": "Resources/16434417904281556449.prefab"
+        },
+        {
+            "guid": 9550121459482425649,
+            "name": "Player32.fbx",
+            "path": "Resources/9550121459482425649.mdl"
+        },
+        {
+            "guid": 11101819486643419222,
+            "name": "Player32.skl",
+            "path": "Resources/11101819486643419222.skl"
         },
         {
             "guid": 11052922766209027812,
@@ -2936,6 +3261,11 @@
             "path": "Resources/9498110768119249247.prefab"
         },
         {
+            "guid": 13757273997469351551,
+            "name": "Prefabs/A1_Environment.prefab",
+            "path": "Resources/13757273997469351551.prefab"
+        },
+        {
             "guid": 12265131908922733345,
             "name": "Prefabs/A2_Colliders.prefab",
             "path": "Resources/12265131908922733345.prefab"
@@ -2944,6 +3274,11 @@
             "guid": 17913651641907742184,
             "name": "Prefabs/A4_Colliders.prefab",
             "path": "Resources/17913651641907742184.prefab"
+        },
+        {
+            "guid": 16872362188990535028,
+            "name": "Prefabs/A4_TransitionParent_1.prefab",
+            "path": "Resources/16872362188990535028.prefab"
         },
         {
             "guid": 11471319866102529418,
@@ -2971,9 +3306,34 @@
             "path": "Resources/16883852945103974428.prefab"
         },
         {
-            "guid": 9911898511109175898,
-            "name": "Prefabs/Bootstrap.prefab",
-            "path": "Resources/9911898511109175898.prefab"
+            "guid": 14852370317337102832,
+            "name": "Prefabs/BigRotator.prefab",
+            "path": "Resources/14852370317337102832.prefab"
+        },
+        {
+            "guid": 10613563990251991526,
+            "name": "Prefabs/Camera Rig.prefab",
+            "path": "Resources/10613563990251991526.prefab"
+        },
+        {
+            "guid": 11749211095255410314,
+            "name": "Prefabs/RootNode.prefab",
+            "path": "Resources/11749211095255410314.prefab"
+        },
+        {
+            "guid": 12187799030071303774,
+            "name": "Prefabs/CargoContainer.prefab",
+            "path": "Resources/12187799030071303774.prefab"
+        },
+        {
+            "guid": 12315229327164012932,
+            "name": "Shaders/ImpactFrame.shader",
+            "path": "Resources/12315229327164012932.shader"
+        },
+        {
+            "guid": 11375246718170446546,
+            "name": "Prefabs/Column_1.prefab",
+            "path": "Resources/11375246718170446546.prefab"
         },
         {
             "guid": 11942215655384402786,
@@ -3006,6 +3366,11 @@
             "path": "Resources/16843831220568304728.prefab"
         },
         {
+            "guid": 15165306197574362894,
+            "name": "Prefabs/EnemyHUD.prefab",
+            "path": "Resources/15165306197574362894.prefab"
+        },
+        {
             "guid": 13694285006182903832,
             "name": "Prefabs/EnemySlime.prefab",
             "path": "Resources/13694285006182903832.prefab"
@@ -3026,9 +3391,29 @@
             "path": "Resources/17372928666018152619.prefab"
         },
         {
+            "guid": 10790654920692271120,
+            "name": "Prefabs/FX_Bloodsplatter.prefab",
+            "path": "Resources/10790654920692271120.prefab"
+        },
+        {
             "guid": 10014957834418495784,
             "name": "Prefabs/FX_Ceiling_Dust.prefab",
             "path": "Resources/10014957834418495784.prefab"
+        },
+        {
+            "guid": 14356381608158462087,
+            "name": "Prefabs/HUD Canvas Temp Wk 9.prefab",
+            "path": "Resources/14356381608158462087.prefab"
+        },
+        {
+            "guid": 12112953651546802497,
+            "name": "Prefabs/FX_Charging.prefab",
+            "path": "Resources/12112953651546802497.prefab"
+        },
+        {
+            "guid": 12899007606864875075,
+            "name": "Prefabs/FX_Falling_Dust.prefab",
+            "path": "Resources/12899007606864875075.prefab"
         },
         {
             "guid": 10682159852150140388,
@@ -3039,6 +3424,11 @@
             "guid": 13342815008902586022,
             "name": "Prefabs/FX_Floating_Dust.prefab",
             "path": "Resources/13342815008902586022.prefab"
+        },
+        {
+            "guid": 16796344584654042637,
+            "name": "Prefabs/FX_GroundSlam.prefab",
+            "path": "Resources/16796344584654042637.prefab"
         },
         {
             "guid": 11317535923584530508,
@@ -3061,6 +3451,16 @@
             "path": "Resources/17633290530533811691.prefab"
         },
         {
+            "guid": 12726154715301641573,
+            "name": "Prefabs/LandmineMech.prefab",
+            "path": "Resources/12726154715301641573.prefab"
+        },
+        {
+            "guid": 12334594099732131340,
+            "name": "Prefabs/FX_Lvl1_3_Particles.prefab",
+            "path": "Resources/12334594099732131340.prefab"
+        },
+        {
             "guid": 18374032226299404245,
             "name": "Shaders/fog.shader",
             "path": "Resources/18374032226299404245.shader"
@@ -3076,19 +3476,9 @@
             "path": "Resources/11827098417358372075.prefab"
         },
         {
-            "guid": 10524229159868115503,
-            "name": "Prefabs/FX_OrbitalLaserEnd.prefab",
-            "path": "Resources/10524229159868115503.prefab"
-        },
-        {
             "guid": 17947387130014437828,
             "name": "Prefabs/FX_OrbitalLaserHint.prefab",
             "path": "Resources/17947387130014437828.prefab"
-        },
-        {
-            "guid": 14661040814502681250,
-            "name": "Prefabs/RotatingMechLaser.prefab",
-            "path": "Resources/14661040814502681250.prefab"
         },
         {
             "guid": 15667001206799374938,
@@ -3096,14 +3486,14 @@
             "path": "Resources/15667001206799374938.prefab"
         },
         {
-            "guid": 10329918998644614779,
+            "guid": 16934868327598064455,
             "name": "Prefabs/FX_ShieldGenDischarge.prefab",
-            "path": "Resources/10329918998644614779.prefab"
+            "path": "Resources/16934868327598064455.prefab"
         },
         {
-            "guid": 17873890341912921389,
+            "guid": 11905632532387095793,
             "name": "Prefabs/FX_ShieldGenRecharge.prefab",
-            "path": "Resources/17873890341912921389.prefab"
+            "path": "Resources/11905632532387095793.prefab"
         },
         {
             "guid": 11135335634253868912,
@@ -3131,6 +3521,16 @@
             "path": "Resources/14766180750297587102.prefab"
         },
         {
+            "guid": 10014890641284040322,
+            "name": "Shaders/pointShadow_Frag.frag",
+            "path": "Resources/10014890641284040322.frag"
+        },
+        {
+            "guid": 10573524818039757311,
+            "name": "Prefabs/FX_TurretMechDamaged.prefab",
+            "path": "Resources/10573524818039757311.prefab"
+        },
+        {
             "guid": 14519978940760992061,
             "name": "Prefabs/GameSettings.prefab",
             "path": "Resources/14519978940760992061.prefab"
@@ -3144,6 +3544,11 @@
             "guid": 16374992397585912060,
             "name": "Prefabs/GruntDeath.prefab",
             "path": "Resources/16374992397585912060.prefab"
+        },
+        {
+            "guid": 11491449163117987572,
+            "name": "Prefabs/Projectile.prefab",
+            "path": "Resources/11491449163117987572.prefab"
         },
         {
             "guid": 12675929039715353191,
@@ -3169,6 +3574,16 @@
             "guid": 14786321649691325524,
             "name": "Prefabs/L2_Lights.prefab",
             "path": "Resources/14786321649691325524.prefab"
+        },
+        {
+            "guid": 12853812666711946483,
+            "name": "Shaders/vignette.shader",
+            "path": "Resources/12853812666711946483.shader"
+        },
+        {
+            "guid": 15108778874934700353,
+            "name": "Prefabs/L3BOSS.prefab",
+            "path": "Resources/15108778874934700353.prefab"
         },
         {
             "guid": 11384763024330643729,
@@ -3201,19 +3616,9 @@
             "path": "Resources/16719948259139700223.prefab"
         },
         {
-            "guid": 16028314570537009040,
-            "name": "Prefabs/Level3Projectile.prefab",
-            "path": "Resources/16028314570537009040.prefab"
-        },
-        {
             "guid": 17084868993414741854,
             "name": "Prefabs/lightTheSecondPrefabTest_1.prefab",
             "path": "Resources/17084868993414741854.prefab"
-        },
-        {
-            "guid": 14666311418195899600,
-            "name": "Prefabs/Light_Dam_4_1.prefab",
-            "path": "Resources/14666311418195899600.prefab"
         },
         {
             "guid": 16548521812362130607,
@@ -3221,9 +3626,19 @@
             "path": "Resources/16548521812362130607.prefab"
         },
         {
+            "guid": 15854527538266710468,
+            "name": "Prefabs/ShieldGenerator.prefab",
+            "path": "Resources/15854527538266710468.prefab"
+        },
+        {
             "guid": 17337107382347881667,
             "name": "Prefabs/Lvl2New.prefab",
             "path": "Resources/17337107382347881667.prefab"
+        },
+        {
+            "guid": 16620907132552981484,
+            "name": "Prefabs/Lvl3BossPositions.prefab",
+            "path": "Resources/16620907132552981484.prefab"
         },
         {
             "guid": 12854187215604683955,
@@ -3276,19 +3691,9 @@
             "path": "Resources/17158419429946634021.prefab"
         },
         {
-            "guid": 17668763070267452915,
-            "name": "Prefabs/Projectile.prefab",
-            "path": "Resources/17668763070267452915.prefab"
-        },
-        {
             "guid": 18130444670102619476,
             "name": "Prefabs/ProjectileSpawner.prefab",
             "path": "Resources/18130444670102619476.prefab"
-        },
-        {
-            "guid": 15145462514056472296,
-            "name": "Prefabs/ProjectileSpawnerLevel2.prefab",
-            "path": "Resources/15145462514056472296.prefab"
         },
         {
             "guid": 16006012400240196549,
@@ -3306,19 +3711,14 @@
             "path": "Resources/14250560177861018153.prefab"
         },
         {
-            "guid": 11017073082793386636,
-            "name": "Prefabs/RechargeFX.prefab",
-            "path": "Resources/11017073082793386636.prefab"
-        },
-        {
-            "guid": 11749211095255410314,
-            "name": "Prefabs/RootNode.prefab",
-            "path": "Resources/11749211095255410314.prefab"
-        },
-        {
             "guid": 16623696165479466212,
             "name": "Prefabs/RootNode_1.prefab",
             "path": "Resources/16623696165479466212.prefab"
+        },
+        {
+            "guid": 9479915499138659215,
+            "name": "Prefabs/RotatingMechLaser.prefab",
+            "path": "Resources/9479915499138659215.prefab"
         },
         {
             "guid": 9223955957571950508,
@@ -3326,9 +3726,9 @@
             "path": "Resources/9223955957571950508.prefab"
         },
         {
-            "guid": 18151861927180559185,
+            "guid": 14967121011475224774,
             "name": "Prefabs/SettingsBGAnim.prefab",
-            "path": "Resources/18151861927180559185.prefab"
+            "path": "Resources/14967121011475224774.prefab"
         },
         {
             "guid": 10368395410620981651,
@@ -3341,14 +3741,19 @@
             "path": "Resources/13678697128282733922.prefab"
         },
         {
-            "guid": 14905380431956883985,
+            "guid": 13043127520857970912,
             "name": "Prefabs/Settings_Popup_Final.prefab",
-            "path": "Resources/14905380431956883985.prefab"
+            "path": "Resources/13043127520857970912.prefab"
         },
         {
-            "guid": 16402667363242966888,
-            "name": "Prefabs/ShieldGenerator.prefab",
-            "path": "Resources/16402667363242966888.prefab"
+            "guid": 11721285996748492313,
+            "name": "[97]Scenes/M6 Level 3 Simple.temp",
+            "path": "Resources/11721285996748492313.scene"
+        },
+        {
+            "guid": 16534230606521549656,
+            "name": "Prefabs/ShieldGeneratorManager.prefab",
+            "path": "Resources/16534230606521549656.prefab"
         },
         {
             "guid": 17306658556851969342,
@@ -3361,9 +3766,9 @@
             "path": "Resources/11607449992266077284.prefab"
         },
         {
-            "guid": 12139614782987072285,
-            "name": "Shaders/spotShadow_Geom.geom",
-            "path": "Resources/12139614782987072285.geom"
+            "guid": 11070830665736143253,
+            "name": "Prefabs/TurretMech.prefab",
+            "path": "Resources/11070830665736143253.prefab"
         },
         {
             "guid": 14848472795141370387,
@@ -3374,11 +3779,6 @@
             "guid": 12233641357369687249,
             "name": "Shaders/basic.shader",
             "path": "Resources/12233641357369687249.shader"
-        },
-        {
-            "guid": 15512966748982858088,
-            "name": "Shaders/basicCopy.shader",
-            "path": "Resources/15512966748982858088.shader"
         },
         {
             "guid": 14640442302982835126,
@@ -3451,16 +3851,6 @@
             "path": "Resources/15235268585299909685.vert"
         },
         {
-            "guid": 15787472546125972278,
-            "name": "[00]Player/MainMenuButtonHover.png",
-            "path": "Resources/15787472546125972278.dds"
-        },
-        {
-            "guid": 17082663247688680890,
-            "name": "Shaders/downSample.shader",
-            "path": "Resources/17082663247688680890.shader"
-        },
-        {
             "guid": 13182828767649584504,
             "name": "Shaders/downSample_Frag.frag",
             "path": "Resources/13182828767649584504.frag"
@@ -3494,21 +3884,6 @@
             "guid": 15448127459953193231,
             "name": "Shaders/luminance_Frag.frag",
             "path": "Resources/15448127459953193231.frag"
-        },
-        {
-            "guid": 15457146124636775528,
-            "name": "Shaders/pointShadow.shader",
-            "path": "Resources/15457146124636775528.shader"
-        },
-        {
-            "guid": 10014890641284040322,
-            "name": "Shaders/pointShadow_Frag.frag",
-            "path": "Resources/10014890641284040322.frag"
-        },
-        {
-            "guid": 16453345830123164686,
-            "name": "Shaders/pointShadow_Vert.vert",
-            "path": "Resources/16453345830123164686.vert"
         },
         {
             "guid": 13117561941172401132,
@@ -3551,9 +3926,9 @@
             "path": "Resources/10787808635766743373.shader"
         },
         {
-            "guid": 12554525915184668716,
-            "name": "Shaders/uiFont_Frag.frag",
-            "path": "Resources/12554525915184668716.frag"
+            "guid": 12792797510847503656,
+            "name": "[00]Player/playerWeapon.animpkg",
+            "path": "Resources/12792797510847503656.animpkg"
         },
         {
             "guid": 9324350539983501013,
@@ -3574,16 +3949,6 @@
             "guid": 12590003038627869189,
             "name": "Shaders/upSample_Frag.frag",
             "path": "Resources/12590003038627869189.frag"
-        },
-        {
-            "guid": 12853812666711946483,
-            "name": "Shaders/vignette.shader",
-            "path": "Resources/12853812666711946483.shader"
-        },
-        {
-            "guid": 16434964976376015281,
-            "name": "Shaders/vignette_Frag.frag",
-            "path": "Resources/16434964976376015281.frag"
         },
         {
             "guid": 17753361635269803423,
@@ -3659,6 +4024,11 @@
             "guid": 13098853349060669743,
             "name": "VFX Assets/SlashTex.png",
             "path": "Resources/13098853349060669743.dds"
+        },
+        {
+            "guid": 18297767795219864642,
+            "name": "[00]Player/AdjustPreferredBrightness.png",
+            "path": "Resources/18297767795219864642.dds"
         },
         {
             "guid": 9669879905142313239,
@@ -3746,14 +4116,54 @@
             "path": "Resources/9713849755191302576.mdl"
         },
         {
+            "guid": 12723141124409208946,
+            "name": "[00]Player/playerNoWeapon.fbx",
+            "path": "Resources/12723141124409208946.mdl"
+        },
+        {
+            "guid": 18168820116564590151,
+            "name": "[00]Player/playerNoWeapon.skl",
+            "path": "Resources/18168820116564590151.skl"
+        },
+        {
+            "guid": 15547911795406265056,
+            "name": "[00]Player/playerNoWeapon.animpkg",
+            "path": "Resources/15547911795406265056.animpkg"
+        },
+        {
+            "guid": 13188562293442473104,
+            "name": "[00]Player/playerNoWeapon_2.skl",
+            "path": "Resources/13188562293442473104.skl"
+        },
+        {
+            "guid": 18130833321127343377,
+            "name": "[00]Player/playerNoWeapon_2.animpkg",
+            "path": "Resources/18130833321127343377.animpkg"
+        },
+        {
             "guid": 14344363735321873368,
             "name": "[00]Player/PlayerOld.animpkg",
             "path": "Resources/14344363735321873368.animpkg"
         },
         {
+            "guid": 12653157654556031693,
+            "name": "[00]Player/playerWeapon.fbx",
+            "path": "Resources/12653157654556031693.mdl"
+        },
+        {
+            "guid": 10563383038524190141,
+            "name": "[00]Player/playerWeapon.skl",
+            "path": "Resources/10563383038524190141.skl"
+        },
+        {
             "guid": 13319959552942701002,
             "name": "[00]Player/ReloadButtonNormal.png",
             "path": "Resources/13319959552942701002.dds"
+        },
+        {
+            "guid": 13349539455941748437,
+            "name": "[00]Player/ReverseBGAnim.png",
+            "path": "Resources/13349539455941748437.dds"
         },
         {
             "guid": 15337726782565521057,
@@ -3764,11 +4174,6 @@
             "guid": 17813598671886575559,
             "name": "[00]Player/SliderHandle.png",
             "path": "Resources/17813598671886575559.dds"
-        },
-        {
-            "guid": 12283587655735059049,
-            "name": "[00]Player/SystemsPausedTitle.png",
-            "path": "Resources/12283587655735059049.dds"
         },
         {
             "guid": 14902726949443017334,
@@ -3819,11 +4224,6 @@
             "guid": 11866135807571668051,
             "name": "[97]Scenes/M6 Level 3 Simple.scene",
             "path": "Resources/11866135807571668051.scene"
-        },
-        {
-            "guid": 11721285996748492313,
-            "name": "[97]Scenes/M6 Level 3 Simple.temp",
-            "path": "Resources/11721285996748492313.scene"
         },
         {
             "guid": 9950859482049211302,

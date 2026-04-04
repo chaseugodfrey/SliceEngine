@@ -20,12 +20,14 @@ namespace SliceEngine
 {
     public class PreferenceSettings
     {
-        public void Initialize()
+        private static string filePath;
+
+        public static void Initialize()
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
             Console.WriteLine("AHAHAHAHHAHA");
             // Load preference or create if doesn't exist
-            string filePath = Application.GetFilePath("GamePreference.txt");
+            filePath = Application.GetFilePath("GamePreference.txt");
             SliceLog.Log("Loading preferences from Filepath: " + filePath);
             Console.WriteLine("BABBABABBABABA");
 
@@ -73,7 +75,7 @@ namespace SliceEngine
                 {
                     case "Gamma":
                         {
-                            Camera.gamma =  float.Parse(item.Value);
+                            Camera.Gamma =  float.Parse(item.Value);
                         }
                         break;
                     case "Master Volume":
@@ -95,8 +97,25 @@ namespace SliceEngine
             }
         }
 
+        public static void RestoreDefaults()
+        {
+            Camera.Gamma = 4.5f;
+
+            
+
+            AudioManager.SetMasterVolume(1.0f);
+            AudioManager.SetCategoryVolume("BGM",1.0f);
+            AudioManager.SetCategoryVolume("SFX",1.0f);
+            
+        }
+
         public static void SavePreferences()
         {
+            if (string.IsNullOrEmpty(filePath))
+            {
+                filePath = Application.GetFilePath("GamePreference.txt");
+            }
+
             Dictionary<string, string> preferences = new Dictionary<string, string>();
 
             // We only got 4 settings to save
@@ -118,4 +137,3 @@ namespace SliceEngine
         }
     }
 }
-        

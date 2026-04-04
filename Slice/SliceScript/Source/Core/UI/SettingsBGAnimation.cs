@@ -26,7 +26,7 @@ namespace SliceEngine
             if (bgAnimation != null && playAnim)
             {
                 bgAnimation.IsPlaying = true;
-                AudioSettings.PlaySFX("PauseTransitionIn");
+                
             }
 
            

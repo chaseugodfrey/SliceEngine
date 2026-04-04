@@ -130,7 +130,7 @@ namespace SliceEngine
             // Bobbing motion
             bobTimer += dt;
 
-            Vector3 pos = transform.WorldPosition;
+            Vector3 pos = transform.Position;
             pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
 
             transform.Position = pos;

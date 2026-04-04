@@ -77,5 +77,17 @@ namespace SliceEngine
             if (LevelDirector != null)      LevelDirector.Initialize();
             */
         }
+    
+        /// <summary>
+        /// For changing to sword player
+        /// </summary>
+        /// <param name="newPlayer"></param>
+        public void ChangePlayer(GameObject newPlayer)
+        {
+            if (newPlayer != null && newPlayer.Has<PlayerController>())
+            {
+                Player = newPlayer.As<PlayerController>();
+            }
+        }
     }
 }
