@@ -1,6 +1,7 @@
 #include <pch.h>
 #include "AnimationWindow.h"
 #include "Selection/SelectionManager.h"
+#include "Session/SessionManager.h"
 #include <Systems/SceneSystem.h>
 #include <Systems/FramerateManager.h>
 #include <Animator/AnimatorSystem.h>
@@ -445,19 +446,26 @@ namespace SliceEditor
 
 		if (ImGui::BeginDragDropTargetCustom(rect, id))
 		{
-			if (ImGui::AcceptDragDropPayload("SequencePackage"))
+			if(mCurrentAnimator)
 			{
-				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
+				if (ImGui::AcceptDragDropPayload("SequencePackage"))
 				{
-					SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
-					mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
-					if (mCurrentAnimator->Handle_Anims.IsValid())
+					if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SequencePackage"))
 					{
-						mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
-						mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
-						auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
-						if (anim)
-							LoadDataFromAnimator(anim, tmpEnt);
+						SliceEngine::GUID recievedPayload(*(SliceEngine::GUID*)payload->Data);
+						mCurrentAnimator->Handle_Anims = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::SequencePackage>(recievedPayload);
+						if (mCurrentAnimator->Handle_Anims.IsValid())
+						{
+							mCurrentAnimator->curr_anims = *mCurrentAnimator->Handle_Anims.get();
+							mCurrentAnimator->stateMachine.InitState(mCurrentAnimator->curr_anims);
+							auto anim = SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::Animator>(tmpEnt);
+							if (anim)
+							{
+								LoadDataFromAnimator(anim, tmpEnt);
+								auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+								anim_data->LoadFromAsset(anim->stateMachine.EFSM);
+							}
+						}
 					}
 				}
 			}

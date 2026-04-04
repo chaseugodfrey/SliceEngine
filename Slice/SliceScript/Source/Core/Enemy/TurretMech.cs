@@ -113,6 +113,16 @@ namespace SliceEngine
             t.Rotation = rotation;
         }
 
+        public void CreateDeathFX(Vector3 position, Vector3 rotation)
+        {
+            GameObject fx = CreateGameObject("Prefabs/FX_TurretMechDestroyed.prefab");
+            fx.GetComponent<Transform>().Position = position;
+
+            Transform t = fx.GetComponent<Transform>();
+            t.Position = position;
+            t.Rotation = rotation;
+        }
+
         public override void OnCreate()
         {
             base.OnCreate();
@@ -295,6 +305,7 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
+            CreateDeathFX(transform.WorldPosition, Vector3.Zero);
             base.OnDeath();
         }
     }

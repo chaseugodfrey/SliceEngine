@@ -12,6 +12,14 @@ namespace SliceEngine
 
         GameObject explosion;
         GameObject trigger;
+
+        public bool selfDestruct = false;
+        public float selfDestructTime = 5.0f;
+
+        public void ManuallyDetonate()
+        {
+            trigger.As<LandmineMechTrigger>().triggered = true;
+        }
         public override void OnCreate()
         {
             base.OnCreate();
@@ -37,7 +45,12 @@ namespace SliceEngine
             }
             base.OnFixedUpdate(dt);
 
-            if (trigger.As<LandmineMechTrigger>().triggered)
+            if (selfDestruct)
+            {
+                selfDestructTime -= dt;
+            }
+
+            if ((selfDestruct && selfDestructTime <= 0.0f) || trigger.As<LandmineMechTrigger>().triggered)
             {
                 triggered = true;
                 explosion.As<LandmineMechExplosion>().Triggered();

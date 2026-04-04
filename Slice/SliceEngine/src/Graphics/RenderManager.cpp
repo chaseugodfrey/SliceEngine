@@ -397,7 +397,7 @@ namespace SliceEngine
 	}
 
 	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
-	float RenderManager::GetSessionGamma() const { return mSessionGamma / 10.f; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma; }
 
 	void RenderManager::SetSessionExposure(float exposure)
 	{
@@ -411,7 +411,7 @@ namespace SliceEngine
 	}
 	void RenderManager::SetSessionGamma(float gamma)
 	{
-		float modGamma = gamma * 10.f;
+		float modGamma = gamma;
 		mSessionGamma = modGamma;
 		auto& mainCam = GetGameCamera();
 		if (mainCam.has_value())
@@ -946,7 +946,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos, 6);
 		}
 		CheckGLError();
 
@@ -1014,7 +1014,7 @@ namespace SliceEngine
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
+		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos, mNumCascadeShadow);
 
 		CheckGLError();
 	}

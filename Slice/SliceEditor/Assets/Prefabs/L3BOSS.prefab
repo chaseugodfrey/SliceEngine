@@ -10,7 +10,7 @@
                     0.0
                 ],
                 "sphereData": {
-                    "radius": 0.5
+                    "radius": 0.4000000059604645
                 }
             },
             "struct SliceEngine::Prefab": {
@@ -19,19 +19,6 @@
                     "GUID": ""
                 },
                 "prefabID": 0
-            },
-            "struct SliceEngine::Renderer": {
-                "castsShadow": true,
-                "componentEnabled": true,
-                "material": {
-                    "GUID": "13537746615146799233"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "18229435044585338891"
-                },
-                "renderTag": "0",
-                "skinned": false
             },
             "struct SliceEngine::RigidBody": {
                 "CollisionDetection": "",
@@ -50,16 +37,16 @@
                 "gravityFactor": 0.0,
                 "isKinematic": false,
                 "linearDamping": 0.05000000074505806,
-                "mass": 1.0,
+                "mass": 1000.0,
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097266,
+                "entity_id": 41943290,
                 "neighbours": [
                     0,
-                    2097267,
-                    2097280,
-                    2097202
+                    41943291,
+                    41943271,
+                    41943279
                 ]
             },
             "struct SliceEngine::Script": {
@@ -79,11 +66,11 @@
                     },
                     "currentHealth": {
                         "Type": "int",
-                        "Value": 100
+                        "Value": 0
                     },
                     "currentShield": {
                         "Type": "float",
-                        "Value": 100.0
+                        "Value": 0.0
                     },
                     "damage": {
                         "Type": "int",
@@ -95,7 +82,11 @@
                     },
                     "generalHitbox": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 2097267
+                        "Value": 41943291
+                    },
+                    "isMovementDone": {
+                        "Type": "bool",
+                        "Value": false
                     },
                     "landingPositionObj": {
                         "Type": "SliceEngine::GameObject",
@@ -103,11 +94,11 @@
                     },
                     "maxHealth": {
                         "Type": "int",
-                        "Value": 1000
+                        "Value": 500
                     },
                     "maxShield": {
                         "Type": "float",
-                        "Value": 100.0
+                        "Value": 250.0
                     },
                     "movementSpeed": {
                         "Type": "float",
@@ -139,18 +130,18 @@
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    0.0,
+                    -8.241780281066895,
                     0.0,
                     0.0
                 ],
                 "position": [
                     0.0,
-                    -35.55764389038086,
+                    440.0,
                     0.0
                 ],
                 "rotation": [
-                    1.0,
-                    0.0,
+                    0.9974146485328674,
+                    -0.07186111062765121,
                     0.0,
                     0.0
                 ],
@@ -165,20 +156,16 @@
     {
         "SlamHitBox": {
             "struct SliceEngine::ColliderShape": {
-                "boxData": {
-                    "scale": [
-                        2.799999952316284,
-                        0.20000000298023224,
-                        2.799999952316284
-                    ]
-                },
                 "componentEnabled": true,
                 "isTrigger": true,
                 "offSet": [
                     0.0,
                     0.0,
                     0.0
-                ]
+                ],
+                "sphereData": {
+                    "radius": 0.5
+                }
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -188,12 +175,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097267,
+                "entity_id": 41943291,
                 "neighbours": [
-                    2097266,
+                    41943290,
                     4294967295,
                     4294967295,
-                    2097278
+                    60817522
                 ]
             },
             "struct SliceEngine::Script": {
@@ -213,7 +200,7 @@
                 ],
                 "position": [
                     0.0,
-                    -0.4000000059604645,
+                    0.015743255615234375,
                     0.0
                 ],
                 "rotation": [
@@ -223,15 +210,32 @@
                     0.0
                 ],
                 "scale": [
-                    0.30000001192092896,
-                    0.20000000298023224,
-                    0.30000001192092896
+                    1.5,
+                    1.5,
+                    1.5
                 ]
             }
         }
     },
     {
-        "GameObject_3": {
+        "RootNode_1": {
+            "struct SliceEngine::Animator": {
+                "AnimPkg Handle": {
+                    "GUID": "10286238958443715190"
+                },
+                "Anims Pkg GUID": {
+                    "GUID": ""
+                },
+                "Skeleton Handle": {
+                    "GUID": "9374786404277706325"
+                },
+                "componentEnabled": true,
+                "current_time": 0.0,
+                "eventFrames": [],
+                "stateMachine Handle": {
+                    "GUID": "9889631494548659078"
+                }
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -239,61 +243,52 @@
                 },
                 "prefabID": 2
             },
-            "struct SliceEngine::Renderer": {
-                "castsShadow": true,
-                "componentEnabled": true,
-                "material": {
-                    "GUID": "13346568691029341814"
-                },
-                "meshOffset": "0",
-                "model": {
-                    "GUID": "10076918467013417704"
-                },
-                "renderTag": "0",
-                "skinned": false
-            },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097278,
+                "entity_id": 60817522,
                 "neighbours": [
-                    2097266,
-                    4294967295,
-                    2097267,
-                    2097299
+                    41943290,
+                    60817677,
+                    41943291,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "GameObject_3",
+                "mName": "RootNode_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
+                    -90.0,
                     0.0,
-                    0.0,
-                    30.825000762939453
+                    180.0
                 ],
                 "position": [
-                    6.103515625e-05,
-                    -0.0,
+                    0.0,
+                    0.0,
                     0.0
                 ],
                 "rotation": [
-                    0.9640374183654785,
-                    0.0,
-                    0.0,
-                    0.2657664716243744
+                    -3.0908619663705394e-08,
+                    3.0908619663705394e-08,
+                    0.7071067690849304,
+                    0.7071067690849304
                 ],
                 "scale": [
-                    1.100000023841858,
-                    0.10000000149011612,
-                    1.100000023841858
+                    0.4000000059604645,
+                    0.4000000059604645,
+                    0.4000000059604645
                 ]
             }
         }
     },
     {
-        "GameObject_4": {
+        "Boss": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 60817522
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -305,57 +300,61 @@
                 "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "13346568691029341814"
+                    "GUID": "10449884954420082193"
                 },
                 "meshOffset": "0",
                 "model": {
-                    "GUID": "10076918467013417704"
+                    "GUID": "10494040173857197462"
                 },
                 "renderTag": "0",
-                "skinned": false
+                "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097299,
+                "entity_id": 60817677,
                 "neighbours": [
-                    2097266,
+                    60817522,
+                    70254671,
                     4294967295,
-                    2097278,
-                    2097295
+                    62914572
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "GameObject_4",
+                "mName": "Boss",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
                     0.0,
                     0.0,
-                    124.94999694824219
+                    0.0
                 ],
                 "position": [
-                    6.103515625e-05,
+                    -0.011473417282104492,
                     0.0,
                     0.0
                 ],
                 "rotation": [
-                    0.4621356725692749,
+                    0.7071067094802856,
+                    -0.7071068286895752,
                     0.0,
-                    0.0,
-                    0.886809229850769
+                    0.0
                 ],
                 "scale": [
-                    1.100000023841858,
-                    0.10000000149011612,
-                    1.100000023841858
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }
     },
     {
-        "GameObject_5": {
+        "bossOuterBody": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 60817522
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -367,35 +366,35 @@
                 "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "13346568691029341814"
+                    "GUID": "11890598627656583832"
                 },
-                "meshOffset": "0",
+                "meshOffset": "5",
                 "model": {
-                    "GUID": "10076918467013417704"
+                    "GUID": "10494040173857197462"
                 },
                 "renderTag": "0",
-                "skinned": false
+                "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097295,
+                "entity_id": 70254671,
                 "neighbours": [
-                    2097266,
+                    60817677,
                     4294967295,
-                    2097299,
-                    4294967295
+                    4294967295,
+                    70254672
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "GameObject_5",
+                "mName": "bossOuterBody",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    -91.1050033569336,
                     0.0,
-                    6.150000095367432
+                    0.0,
+                    0.0
                 ],
                 "position": [
                     0.0,
@@ -403,15 +402,411 @@
                     0.0
                 ],
                 "rotation": [
-                    -0.6992471814155579,
-                    0.7128645181655884,
-                    -0.03829541429877281,
-                    -0.037563882768154144
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
                 ],
                 "scale": [
-                    1.100000023841858,
-                    0.10000000149011612,
-                    1.100000023841858
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "bossOuterBody_1": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11890598627656583832"
+                },
+                "meshOffset": "6",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 70254672,
+                "neighbours": [
+                    60817677,
+                    4294967295,
+                    70254671,
+                    73400394
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "bossOuterBody_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "bossOuterBody_2": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11890598627656583832"
+                },
+                "meshOffset": "7",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 73400394,
+                "neighbours": [
+                    60817677,
+                    4294967295,
+                    70254672,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "bossOuterBody_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_1": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "1",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 62914572,
+                "neighbours": [
+                    60817522,
+                    4294967295,
+                    60817677,
+                    62914652
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_2": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "2",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 62914652,
+                "neighbours": [
+                    60817522,
+                    4294967295,
+                    62914572,
+                    65011979
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_3": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 9
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "3",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 65011979,
+                "neighbours": [
+                    60817522,
+                    4294967295,
+                    62914652,
+                    67108941
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_4": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 60817522
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 10
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "4",
+                "model": {
+                    "GUID": "10494040173857197462"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 67108941,
+                "neighbours": [
+                    60817522,
+                    4294967295,
+                    65011979,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
                 ]
             }
         }

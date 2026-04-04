@@ -496,14 +496,14 @@ namespace SliceEditor
 					}
 				}
 
-				auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+				//auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
 
-				// 1. Get the Inverse of the Parent World Matrix
-				glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+				//// 1. Get the Inverse of the Parent World Matrix
+				//glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
 
-				// 2. Transform the manipulated world_tr into local space
-				// This gives us the exact local matrix relative to the parent
-				glm::mat4 localMatrix = invParentMatrix * world_tr;
+				//// 2. Transform the manipulated world_tr into local space
+				//// This gives us the exact local matrix relative to the parent
+				//glm::mat4 localMatrix = invParentMatrix * world_tr;
 
 				// 3. Decompose the matrix
 

@@ -2774,6 +2774,8 @@ namespace SliceEditor
 
 		std::string newStateName = state.stateName;
 
+		std::string oldStateName = node->name;
+
 		if (StringInputHeader(mRegistry, "Name", "##state_name", newStateName));
 
 		if(std::strcmp(newStateName.c_str(),node->name.c_str()) != 0)
@@ -2792,6 +2794,16 @@ namespace SliceEditor
 				animator->stateMachine.EFSM.stateMap.insert(std::move(nodeHandle));
 
 				node->name = newStateName;
+
+				state = animator->stateMachine.EFSM.stateMap[newStateName];
+			}
+
+			auto paramHandle = animator->stateMachine.EFSM.parameters.extract(oldStateName);
+			if (!paramHandle.empty())
+			{
+				paramHandle.key() = newStateName;
+
+				animator->stateMachine.EFSM.parameters.insert(std::move(paramHandle));
 			}
 
 			anim_data->LoadFromAsset(animator->stateMachine.EFSM);

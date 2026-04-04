@@ -196,7 +196,7 @@ namespace SliceEditor
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
-		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 20.0f);
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 12.0f);
 		if (font) io.FontDefault = font;
 
 		
