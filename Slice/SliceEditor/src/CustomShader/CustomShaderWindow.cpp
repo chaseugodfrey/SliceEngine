@@ -35,6 +35,7 @@ namespace SliceEditor
 
 	CustomShaderWindow::~CustomShaderWindow()
 	{
+		EventManager::GetInstance()->Unsubscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		ImNodes::EditorContextFree(*editor_context_this.get());
 		ImNodes::EditorContextFree(*editor_context_other.get());
 	}
@@ -421,6 +422,7 @@ namespace SliceEditor
 
 	void CustomShaderWindow::Init()
 	{
+		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		editor_context_this = std::make_unique<ImNodesEditorContext*>(ImNodes::EditorContextCreate());
@@ -907,55 +909,6 @@ namespace SliceEditor
 			}
 			mSelectionManager->ClearSelection();
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
-		{
-			if (mSelectionManager)
-			{
-				auto selectedNodes = mSelectionManager->GetSelectedNodes();
-
-				for (auto node : selectedNodes)
-				{
-					switch (node->type)
-					{
-					case SelectionType::SHADER_LINK_STATE:
-					{
-						auto linkNode = static_cast<ShaderLinkNode*>(node);
-						DeleteLink(linkNode->id);
-						isSaved = false;
-						break;
-					}
-					case SelectionType::SHADER_FUNCTION_STATE:
-					{
-						auto stateNode = static_cast<ShaderStateNode*>(node);
-						if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
-						{
-							if(CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
-								break;
-						}
-						if (mStateNodes.find(stateNode->id) != mStateNodes.end())
-						{
-							// Delete Attr To Node
-							if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
-							{
-								// Delete Links from in & outs
-								for (auto ins : stateNode->in_ids)
-									DeleteLinkFromAttr(ins);
-								DeleteLinkFromAttr(stateNode->out_id);
-
-								attrIDToNodeID.erase(stateNode->out_id);
-							}
-							// Delete Node
-							mStateNodes.erase(stateNode->id);
-							isSaved = false;
-						}
-						break;
-					}
-					}
-				}
-				mSelectionManager->ClearSelection();
-			}
-
-		}
 	
 		if (tempLoadPos)
 			TempLoadPosAll();
@@ -965,6 +918,53 @@ namespace SliceEditor
 			ImNodes::SnapNodeToGrid(newNodeID);
 			newNodeID = 0;
 		}
+	}
+
+	void CustomShaderWindow::DeleteButtonPress()
+	{
+		auto selectedNodes = mSelectionManager->GetSelectedNodes();
+
+		for (auto node : selectedNodes)
+		{
+			switch (node->type)
+			{
+			case SelectionType::SHADER_LINK_STATE:
+			{
+				auto linkNode = static_cast<ShaderLinkNode*>(node);
+				DeleteLink(linkNode->id);
+				isSaved = false;
+				break;
+			}
+			case SelectionType::SHADER_FUNCTION_STATE:
+			{
+				auto stateNode = static_cast<ShaderStateNode*>(node);
+				if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
+				{
+					if (CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+						break;
+				}
+				if (mStateNodes.find(stateNode->id) != mStateNodes.end())
+				{
+					// Delete Attr To Node
+					if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
+					{
+						// Delete Links from in & outs
+						for (auto ins : stateNode->in_ids)
+							DeleteLinkFromAttr(ins);
+						DeleteLinkFromAttr(stateNode->out_id);
+
+						attrIDToNodeID.erase(stateNode->out_id);
+					}
+					// Delete Node
+					mStateNodes.erase(stateNode->id);
+					isSaved = false;
+				}
+				break;
+			}
+			}
+		}
+		//mSelectionManager->ClearSelection();
+
 	}
 
 	void CustomShaderWindow::DeleteLink(int id)
