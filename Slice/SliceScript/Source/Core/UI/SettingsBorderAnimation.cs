@@ -32,7 +32,7 @@ namespace SliceEngine
         
         public List<GameObject> audioSliders = new List<GameObject>() { null };
         public GameObject gammaSlider;
-        public GameObject bgCloseAnimationObject;
+        private GameObject bgCloseAnimationObject;
 
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
@@ -126,6 +126,8 @@ namespace SliceEngine
                     }
                 }
             }
+
+            bgCloseAnimationObject = FindGameObjectWithName("SettingsCloseBGSpriteSheet");
 
             if(bgCloseAnimationObject != null)
             {
