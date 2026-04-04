@@ -163,6 +163,10 @@ namespace SliceEngine
                 StartCoroutine(UIAnimation());
             }
 
+            if (animState == 1)
+            {
+
+            }
 
 
             
@@ -211,7 +215,18 @@ namespace SliceEngine
 
             if (animState == 2)
             {
+                //GameObject oldPlayer = Bootstrap.Player.gameObject;
+                Bootstrap.Player.gameObject.As<PlayerController>().ChangeModel();
+
+                Bootstrap.Player.gameObject.GetComponent<Transform>().Position = GetComponent<Transform>().WorldPosition;
+                Bootstrap.Player.gameObject.GetComponent<Transform>().Rotation = GetComponent<Transform>().Rotation;
+
+                //Bootstrap.ChangePlayer(newPlayer);
+                //Bootstrap.Player.GetComponent<Transform>().WorldPosition
+
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
+
+                Destroy();
             }
 
             fadeOutRoutine = null;

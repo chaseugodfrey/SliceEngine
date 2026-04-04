@@ -480,6 +480,10 @@ namespace SliceEngine
         public class DeathState : BaseState
         {
             Level3Boss bossController;
+            bool triggerExplostion = false;
+            float rotTimer = 0.0f;
+            Vector3 rotDir;
+
             public DeathState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -487,11 +491,45 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-
+                bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, 0.8f));
             }
 
             public override void OnUpdate(float dt)
             {
+                if (bossController.isMovementDone)
+                {
+                    // rising
+                    bossController.transform.Position += Vector3.Up * 1.0f * dt;
+
+                    // shaking
+                    rotTimer += dt;
+
+                    if (rotTimer >= 0.5f)
+                    {
+                        float x = SliceRandom.RangeFloat(0, 360);
+                        float y = SliceRandom.RangeFloat(0, 360);
+                        float z = SliceRandom.RangeFloat(0, 360);
+
+                        rotDir = new Vector3(x, y, z);
+                        rotTimer = 0.0f;
+                    }
+
+                    // some silly animation for now
+
+                    Vector3 bossPos = bossController.transform.Position;
+
+                    Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
+                    bossController.transform.Rotation = rotDir;
+                    bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
+
+                    // jia le add explosion effects here 
+                    //if (!triggerExplostion)
+                    //{
+                    //    bossController.StartCoroutine(bossController.TriggerExplosition(bossPos, bossPos, 1, 2));
+                    //    triggerExplostion = false;
+                    //}
+                }
 
             }
 
@@ -501,6 +539,11 @@ namespace SliceEngine
             }
 
             public override void OnExit()
+            {
+
+            }
+
+            void Shake()
             {
 
             }
@@ -720,6 +763,7 @@ namespace SliceEngine
         public override void OnDeath()
         {
             isDead = true;
+            isInvulnerable = true;
             bossSM.ChangeState(deathState);
             SliceLog.Console("Boss defeated!");
         }
@@ -735,7 +779,7 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_J))
             {
-                bossSM.ChangeState(orbitalState);
+                bossSM.ChangeState(deathState);
             }
         }
 
@@ -838,6 +882,16 @@ namespace SliceEngine
             //    allProjectiles.RemoveAt(index);
             //    temp.gameObject.Destroy();
             //}
+        }
+
+        IEnumerator TriggerExplosition(Vector3 position1, Vector3 position2, float waitTime1, float waitTime2)
+        {
+            yield return new WaitForSeconds(waitTime1);
+            string prefab1 = "";
+            gameObject.CreateGameObject(prefab1).GetComponent<Transform>().Position = position1;
+            yield return new WaitForSeconds(waitTime2);
+            string prefab2 = "";
+            gameObject.CreateGameObject(prefab2).GetComponent<Transform>().Position = position2;
         }
     }
 }
