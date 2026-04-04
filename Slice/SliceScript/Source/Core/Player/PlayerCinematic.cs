@@ -55,6 +55,7 @@ namespace SliceEngine
             GetComponent<Animator>().SetBool("Cinematic", true);
             StartCoroutine(UIAnimation());
 
+            AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
         }
 
         public override void OnUpdate(float dt)
