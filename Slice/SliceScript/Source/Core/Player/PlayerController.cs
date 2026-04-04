@@ -109,7 +109,7 @@ namespace SliceEngine
         // Internal References
         private CameraController camera;
         public GameObject playerModel;
-        public GameObject playerSword;
+        public GameObject playerSwordModel;
         RigidBody rigidBody;
         Animator animator;
         AudioSource audio;
@@ -204,6 +204,9 @@ namespace SliceEngine
         {
             InitializeInternalReferences();
             InitializeHitboxes();
+
+            if (playerSwordModel != null)
+                playerSwordModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
         }
 
         public override void OnUpdate(float dt)
@@ -271,6 +274,7 @@ namespace SliceEngine
 
             if (!IsTakingInputs())
             {
+                Console.WriteLine($"Not taking inputs");
                 return;
             }
 
@@ -528,6 +532,18 @@ namespace SliceEngine
             animator = playerModel?.GetComponent<Animator>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find Animator");
             audio = gameObject.GetComponent<AudioSource>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find AudioSource");
             rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
+        }
+
+        public void ChangeModel()
+        {
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
+            playerModel = playerSwordModel;
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+            canAttack = true;
+            animator = playerModel?.GetComponent<Animator>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find Animator");
+            //audio = gameObject.GetComponent<AudioSource>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find AudioSource");
+            //rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
+
         }
 
         #endregion
