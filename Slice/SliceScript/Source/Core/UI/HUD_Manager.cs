@@ -206,7 +206,7 @@ namespace SliceEngine
 
 
             //Close dialogue box if it is the last line of the set
-            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false)
             {
                 // end of dialogue stack
                 // clear stack

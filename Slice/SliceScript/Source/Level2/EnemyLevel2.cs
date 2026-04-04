@@ -97,6 +97,8 @@ namespace SliceEngine
                 }
 
                 enemyController.movementDone = true;
+
+                AudioSettings.PlaySFX("04_01_Ozone_YouLeaveMeNoChoice");
             }
             // transitions when movement is done in onMovementFinished in EnemyLevel2 
         }
@@ -532,7 +534,7 @@ namespace SliceEngine
 
         protected uint collidedEntity = 0;
 
-        private int damageLeftTillSFX = 20;
+        private int damageLeftTillSFX = 100;
 
 
         public override void OnCreate()
@@ -627,7 +629,7 @@ namespace SliceEngine
             {
                 AudioSettings.PlaySFX("04_011_Ozone");
 
-                damageLeftTillSFX += 20;
+                damageLeftTillSFX += 100;
             }
 
         }
