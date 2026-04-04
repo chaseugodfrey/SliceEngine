@@ -408,18 +408,20 @@ namespace SliceEditor
 
 		void LoadFromAsset(const SliceEngine::SliceEngineTypes::StateMachine& stateMachine)
 		{
+			reset();
+
 			StateMachineData data{};
 
 			data.stateMap = stateMachine.stateMap;
 			data.entryPosition = stateMachine.entryPosition;
 			data.exitPosition = stateMachine.exitPosition;
+			data.entryState = stateMachine.entryState;
+			data.parameters = stateMachine.parameters;
 
 			mStateMachineAsset = std::make_unique<StateMachineData>(data);
 
 			auto& stateMap = mStateMachineAsset->stateMap;
 
-			mStateNodes.clear();
-			mNameToStateID.clear();
 			create_default();
 
 			for (auto& [name, state] : stateMap)

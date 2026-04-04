@@ -68,7 +68,7 @@ namespace SliceEngine
             {
                 float elapsed = 0f;
                 // how long it takes to lerp
-                float duration = 2.0f;
+                float duration = 5.0f;
                 Vector3 startingPos = camControl.transform.Position;
                 Quaternion startingRot = camControl.transform.RotationQuat;
                     
