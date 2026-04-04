@@ -328,7 +328,7 @@ namespace SliceEngine
             if (regularTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                regularTextObject.GetComponent<FontRenderer>().Text_val = input;
+                regularTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
@@ -344,7 +344,7 @@ namespace SliceEngine
             if (nameTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
