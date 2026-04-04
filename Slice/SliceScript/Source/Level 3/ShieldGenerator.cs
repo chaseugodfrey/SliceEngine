@@ -20,6 +20,9 @@ namespace SliceEngine
         public GameObject light;
         public GameObject vfx;
 
+        public GameObject z_Pipe;
+        CollapsingPipe z_PipeScript;
+
         //Function called when you want the enemy to be active
         public override void OnCreate()
         {
@@ -41,6 +44,9 @@ namespace SliceEngine
             }
 
             TurnOnLitGlass(false);
+
+            if (z_Pipe != null)
+                z_PipeScript = z_Pipe.As<CollapsingPipe>();
         }
 
         public override void OnAwake()
@@ -103,6 +109,8 @@ namespace SliceEngine
             vfx.SetParent(gameObject);
 
             TurnOnLitGlass(true);
+
+            z_PipeScript.StartCoroutine(z_PipeScript.ResetPipe());
         }
 
         public void GenerateShield()

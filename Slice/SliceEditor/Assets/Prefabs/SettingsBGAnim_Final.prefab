@@ -1,0 +1,242 @@
+[
+    {
+        "SettingsBGAnim_Final": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0.0,
+                "height": 1080.0,
+                "hori_pivot": "Center",
+                "left": 0.0,
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "right": 0.0,
+                "rotation": 0.0,
+                "top": 0.0,
+                "vert_pivot": "Middle",
+                "width": 1920.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 26214681,
+                "neighbours": [
+                    20971626,
+                    22020112,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SettingsBGAnim_Final",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "SettingsBGSpriteSheet": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0.0,
+                "height": 1080.0,
+                "hori_pivot": "Center",
+                "left": 0.0,
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "right": 0.0,
+                "rotation": 0.0,
+                "top": 0.0,
+                "vert_pivot": "Middle",
+                "width": 1920.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 22020112,
+                "neighbours": [
+                    26214681,
+                    4294967295,
+                    4294967295,
+                    22020212
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.SettingsBGAnimation"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SettingsBGSpriteSheet",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteAnimator": {
+                "col": "2",
+                "componentEnabled": true,
+                "fps": 20.0,
+                "is_playing": true,
+                "loop": false,
+                "num_frames": "6",
+                "row": "3"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.5,
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "14338372231222513210"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "SettingsCloseBGSpriteSheet": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0.0,
+                "height": 1080.0,
+                "hori_pivot": "Center",
+                "left": 0.0,
+                "pos_x": 0.0,
+                "pos_y": 0.0,
+                "right": 0.0,
+                "rotation": 0.0,
+                "top": 0.0,
+                "vert_pivot": "Middle",
+                "width": 1920.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 22020212,
+                "neighbours": [
+                    26214681,
+                    4294967295,
+                    22020112,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.SettingsCloseBGAnimation",
+                "scriptableFieldMap": {
+                    "MainMenuCanvas": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SettingsCloseBGSpriteSheet",
+                "mTag": "default"
+            },
+            "struct SliceEngine::SpriteAnimator": {
+                "col": "2",
+                "componentEnabled": true,
+                "fps": 20.0,
+                "is_playing": false,
+                "loop": false,
+                "num_frames": "6",
+                "row": "3"
+            },
+            "struct SliceEngine::SpriteRenderer": {
+                "alphathreshold": 0.5,
+                "componentEnabled": true,
+                "raycast_target": true,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "texture": "13349539455941748437"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

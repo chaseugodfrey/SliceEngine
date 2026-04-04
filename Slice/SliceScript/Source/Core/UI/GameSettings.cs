@@ -9,34 +9,50 @@ namespace SliceEngine
 {
     public class GameSettings : SliceBehaviour
     {
-        
+
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
+        private GameObject beforeGammaImage;
+        private GameObject pauseBGM;
+        private GameObject levelBGM;
+
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
 
-        
+        private AudioSource pauseAudioSource;
+        private AudioSource levelAudioSource;
+        //private PreferenceSettings preferenceSettings;
+
+        private SpriteRendererGammaOverride spriteGammaOverride;
+
         private bool isSettingsOpen = false;
 
         public override void OnCreate()
         {
-            settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
+            settingsPopup = FindGameObjectWithName("Settings_Popup_Levels");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
+            beforeGammaImage = FindGameObjectWithName("BeforeImage");
 
-
+            if(FindGameObjectWithName("PauseMusic") != null)
+            {
             
+                pauseBGM = FindGameObjectWithName("PauseMusic");
+
+            }
+
+            if(FindGameObjectWithName("LevelBGM") != null)
+            {
+            
+                levelBGM = FindGameObjectWithName("LevelBGM");
+
+            }
+
+
+
             if (settingsPopup != null)
             {
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
-                if (borderAnim != null)
-                {
-                    borderAnim.pages[0] = FindGameObjectWithName("AudioSettingsPage");
-                    borderAnim.pages[1] = FindGameObjectWithName("GraphicsSettingsPage");
-                    
-                    borderAnim.coreElements[4] = FindGameObjectWithName("ReturnToTitleButton");
-
-                    borderAnim.titleElements[0] = FindGameObjectWithName("MiniTitleText");
-                }
+                
                 settingsPopup.SetActive(false);
             }
 
@@ -50,6 +66,26 @@ namespace SliceEngine
                 bgAnimationObject.SetActive(false);
             }
 
+            if(beforeGammaImage!= null)
+            {
+                spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
+            }
+
+            if (pauseBGM != null)
+            {
+                pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+            }
+
+            if (levelBGM != null)
+            {
+                levelAudioSource = levelBGM.GetComponent<AudioSource>();
+            }
+
+
+
+            PreferenceSettings.Initialize();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
 
             isSettingsOpen = false;
         }
@@ -80,15 +116,29 @@ namespace SliceEngine
         {
             isSettingsOpen = false;
 
+            PreferenceSettings.SavePreferences();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Stop();
+            }
+
+            if (levelAudioSource != null)
+            {
+                levelAudioSource.IsPaused = false;
+            }
 
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
+                AudioSettings.PlaySFX("PauseTransitionOut");
             }
 
             // Force close everything
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+
 
             SliceLog.Console("Resume");
 
@@ -96,13 +146,37 @@ namespace SliceEngine
             Time.timeScale = 1.0f;
         }
 
+        public void RestoreDefaults()
+        {
+
+            PreferenceSettings.RestoreDefaults();
+
+            //spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (borderAnim != null)
+            {
+                borderAnim.SyncSlidersToEngine();
+            }
+        }
+
         public void OpenSubSettings()
         {
 
             isSettingsOpen = true;
 
+            if (levelAudioSource != null)
+            {
+                levelAudioSource.IsPaused = true;
+            }
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Play();
+            }
+
             if (bgAnim != null)
             {
+                AudioSettings.PlaySFX("PauseTransitionIn");
                 bgAnim.StartSettingsBGAnimation(true);
             }
             else if (borderAnim != null)

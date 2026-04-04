@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 10485818,
+                "entity_id": 11534740,
                 "neighbours": [
                     0,
-                    10485808,
-                    14680305,
-                    10485805
+                    11534739,
+                    12583284,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -283,9 +283,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 10485808,
+                "entity_id": 11534739,
                 "neighbours": [
-                    10485818,
+                    11534740,
                     4294967295,
                     4294967295,
                     4294967295
@@ -296,7 +296,7 @@
                 "scriptableFieldMap": {
                     "damage": {
                         "Type": "int",
-                        "Value": 2
+                        "Value": 20
                     }
                 }
             },

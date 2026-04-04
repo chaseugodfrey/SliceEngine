@@ -77,6 +77,7 @@
     <Compile Include="Source\Core\Components\SpriteRenderer.cs" />
     <Compile Include="Source\Core\Components\SpriteRendererGammaOverride.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
+    <Compile Include="Source\Core\DestroyAfterDelay.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
     <Compile Include="Source\Core\Enemy\AirmineMech.cs" />
@@ -99,6 +100,7 @@
     <Compile Include="Source\Core\Enemy\LandmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMechTrigger.cs" />
     <Compile Include="Source\Core\Enemy\RotatingMech.cs" />
+    <Compile Include="Source\Core\Enemy\TurretMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMechWall.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
@@ -149,6 +151,7 @@
     <Compile Include="Source\Core\Systems\IInitializable.cs" />
     <Compile Include="Source\Core\Systems\Input.cs" />
     <Compile Include="Source\Core\Systems\Keys.cs" />
+    <Compile Include="Source\Core\Systems\PreferenceSettings.cs" />
     <Compile Include="Source\Core\Systems\Scene.cs" />
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
@@ -168,6 +171,7 @@
     <Compile Include="Source\Core\UI\SceneTransition.cs" />
     <Compile Include="Source\Core\UI\SettingsBGAnimation.cs" />
     <Compile Include="Source\Core\UI\SettingsBorderAnimation.cs" />
+    <Compile Include="Source\Core\UI\SettingsCloseBGAnimation.cs" />
     <Compile Include="Source\Core\UI\SplashScreen.cs" />
     <Compile Include="Source\Core\UI\TutorialManager.cs" />
     <Compile Include="Source\Core\UI\UIAnimation.cs" />
@@ -197,6 +201,7 @@
     <Compile Include="Source\Examples\TestTimeScale.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
+    <Compile Include="Source\Level 3\CollapsingPipe.cs" />
     <Compile Include="Source\Level 3\CollapsingPlatform.cs" />
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
     <Compile Include="Source\Level 3\Level3Boss.cs" />

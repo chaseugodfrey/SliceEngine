@@ -17,6 +17,17 @@ namespace SliceEngine
             }
         }
 
+        public override void OnUpdate(float dt)
+        {
+            
+        }
+
+        public void RestoreDefaultGamma()
+        {
+            Camera.Gamma = 45.5f;
+            
+        }
+
         public override void OnSliderValue(float value)
         {
             if(Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))

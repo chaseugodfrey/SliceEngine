@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SliceEngine
 {
@@ -32,7 +33,7 @@ namespace SliceEngine
 
         private bool enterPressed = false;
         private bool inputOpen = false;
-        public bool dialogueDone = false;
+        public bool dialogueDone = true;
 
         bool loseScreenOpen = false;
 
@@ -44,6 +45,7 @@ namespace SliceEngine
             //    Bootstrap.Player.canInput = false;
             //}
             Cursor.state = Cursor.STATE.DISABLED;
+            dialogueDone = true;
         }
 
         public override void OnUpdate(float dt)
@@ -152,6 +154,15 @@ namespace SliceEngine
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found dialogue from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the Dialogues file from: " + filePath);
+            }
+
             if (loader != null)
             {
                 //SliceLog.Log("Loader is empty");
@@ -180,7 +191,7 @@ namespace SliceEngine
 
                     }
                     
-                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
                     SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
@@ -193,10 +204,8 @@ namespace SliceEngine
 
         private int dialogueIndex = 0;
 
-        public bool PlayDialogueForLevel(int level, int scene)
+        public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
-
-
 
             // Skip to display full line when type writer effect is playing.
             if (typing == true)
@@ -205,8 +214,9 @@ namespace SliceEngine
                 return true;
             }
 
+
             //Close dialogue box if it is the last line of the set
-            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false)
             {
                 // end of dialogue stack
                 // clear stack
@@ -222,21 +232,37 @@ namespace SliceEngine
                 return false;
             }
 
+
             // Will tick dialogue up if it is already loaded, else will load fresh set and play
             if (allDialogues[scene + "_" + level].Count > 0)
             {
                 // dialogues is not empty
                 //  tick up number
 
-                SliceLog.Log("Dialogue is not empty");
-                dialogueIndex++;
+                SliceLog.Log("Dialogue is set to:" + dialogueDone);
+
+                if (dialogueDone)
+                {
+                    SliceLog.Log("Dialogue Is fresh. Setting index to 0");
+                    dialogueIndex = 0;
+                    dialogueDone= false;
+                }
+                else
+                {
+                    SliceLog.Log("Incrementing Dialogue");
+                    dialogueIndex++;
+                }
+
+                    SliceLog.Log("Dialogue is not empty");
 
             }
             else
             {
 
+
+                return true;
                 SliceLog.Log("Dialogue is empty");
-                dialogueIndex = 0;
+
 
                 /*
                 //Loading from the list
@@ -263,20 +289,22 @@ namespace SliceEngine
 
             OpenTextBox();
             typing = true;
-            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1]));
+            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1], allDialogues[scene + "_" + level][dialogueIndex][2]));
             SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
             return true;
         }
 
-        IEnumerator TypeText(string toType)
+        IEnumerator TypeText(string toType, string audioToPlay)
         {
             //float timecounter = 0f;
             float speed = 1f / typeSpeed;
             string displaying = "";
 
-            //SliceLog.Log("To type is:" + toType);
+            AudioSettings.PlaySFX(audioToPlay);
+
+            SliceLog.Log("To type is:" + toType);
             for (int i = 0; i < toType.Length; i++)
             {
 
@@ -310,7 +338,7 @@ namespace SliceEngine
             if (regularTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                regularTextObject.GetComponent<FontRenderer>().Text_val = input;
+                regularTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
@@ -326,7 +354,7 @@ namespace SliceEngine
             if (nameTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
