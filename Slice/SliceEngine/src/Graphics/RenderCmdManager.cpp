@@ -430,7 +430,7 @@ namespace SliceEngine
 			});
 
 	}
-	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset)
+	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset, int numCopies)
 	{
 		// Tags I need
 			// Cast Shadows
@@ -453,6 +453,11 @@ namespace SliceEngine
 		// Only used for shadows, so dun need change shader
 		case DrawType::DRAW_MODELS:
 		{
+			GLint uniformLoc = glGetUniformLocation(mShader, "uNumCopies");
+			if (uniformLoc != -1)
+				glUniform1i(uniformLoc, numCopies);
+
+
 			glm::vec3 offsetDelta = lastShadowOffset - newOffset;
 			lastShadowOffset = newOffset;
 			for (auto& i : shadowRenderCmds)
@@ -489,7 +494,7 @@ namespace SliceEngine
 					{
 						size_t drawNum{ std::min(batch.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.data() + drawCounter);
-						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum));
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum * numCopies));
 						drawCounter += drawNum;
 					}
 				}
