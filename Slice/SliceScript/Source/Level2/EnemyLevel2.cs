@@ -41,11 +41,14 @@ namespace SliceEngine
                 // turn off all projectile shooters for now
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
-                    shooter.As<Projectile_Spawner>().active = false;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
+                    shooter.As<AimingMech>().active = false;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
                 }
                 // start at the starting point
                 owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+
+
+                enemyController.baseY = enemyController.transform.Position.y;
             }
 
             public override void OnUpdate(float dt)
@@ -80,7 +83,15 @@ namespace SliceEngine
                     float z = center.z + (float)Math.Sin(angle) * orbitRadius;
                     Transform enemyTransform = enemyController.projectileShooters[i].GetComponent<Transform>();
                     enemyTransform.Position = new Vector3(x, center.y, z);
+                    enemyTransform.LookAt(enemyController.transform.WorldPosition, enemyController.transform.Up);
+                    enemyTransform.RotateAxisAngle(enemyController.transform.Up, 180);
                 }
+
+                //Bobbing Code stolen from hafiz
+                Vector3 pos = enemyController.transform.Position;
+                pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                enemyController.transform.Position = pos;
             }
 
             public override void OnExit()
@@ -102,8 +113,6 @@ namespace SliceEngine
             }
             // transitions when movement is done in onMovementFinished in EnemyLevel2 
         }
-
-       
 
         public class IdleState : BaseState
         {
@@ -136,9 +145,11 @@ namespace SliceEngine
 
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
-                    shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    shooter.As<AimingMech>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
                 }
+
+                enemyController.baseY = enemyController.transform.Position.y;
 
             }
 
@@ -173,7 +184,7 @@ namespace SliceEngine
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                         // 40% chance to slam attack
-                        if (roll < 0.6f) 
+                        if (roll < 0.5f) 
                         {
                             if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
@@ -185,7 +196,7 @@ namespace SliceEngine
 
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                         }
-                        else if (roll < 0.8f && roll > 0.6f)
+                        else if (roll < 0.9f && roll > 0.5f)
                         {
                             // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
                             Console.WriteLine("pew pew pew");
@@ -212,6 +223,13 @@ namespace SliceEngine
                         }
 
                     }
+
+                    //Bobbing Code stolen from hafiz
+                    Vector3 pos = enemyController.transform.Position;
+                    pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                    enemyController.transform.Position = pos;
+
                 }
             }
         }
@@ -290,7 +308,7 @@ namespace SliceEngine
                         enemyController.ToggleHitbox(false);
                     }
 
-                    if (timer >= 10.0f)
+                    if (timer >= 5.0f)
                     {
                         enemyController.canDamage = false;
                         onCooldown = false;
@@ -322,7 +340,7 @@ namespace SliceEngine
             private float count = 0f;
             private float timer = 0f;
 
-            public string projectilePrefabName = "BallProjectile";
+            public string projectilePrefabName = "Projectile";
             public string shootFXPrefabName = "FX_Firing1";
             public float projPerSecond = 4f;
             public float bulletSpeed = 60f;
@@ -364,6 +382,11 @@ namespace SliceEngine
                 {
                     enemyController.stateMachine.ChangeState(enemyController.idleState);
                 }
+
+                Vector3 pos = enemyController.transform.Position;
+                pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                enemyController.transform.Position = pos;
             }
 
             public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
@@ -537,6 +560,13 @@ namespace SliceEngine
         private int damageLeftTillSFX = 100;
 
 
+        // Bobbing
+        float bobTimer = 0f;
+        float bobAmplitude = 3.0f;
+        float bobFrequency = 1.5f;
+        float baseY = 0f;
+
+
         public override void OnCreate()
         {
             // Initialize state machine and states
@@ -642,6 +672,7 @@ namespace SliceEngine
         public override void OnFixedUpdate(float dt)
         {
             stateMachine.OnFixedUpdate(dt);
+            bobTimer += dt;
         }
 
         public void TriggerState(string state)
