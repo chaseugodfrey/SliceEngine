@@ -10,16 +10,18 @@ namespace SliceEngine
     {
         public GameObject cinematicPlayer;
         public bool _enabled = false;
+        public bool isDone = false;
 
         public override void OnUpdate(float dt)
         {
-            if (_enabled)
+            if (_enabled && !isDone)
             {
+                cinematicPlayer.As<PlayerCinematic>().StartCinematicAnimation();
+                isDone = true;
                 // if interact
-                if (Input.IsKeyPressed(Keys.KEY_F))
-                {
-                    cinematicPlayer.As<PlayerCinematic>().StartCinematicAnimation();
-                }
+                //if (Input.IsKeyPressed(Keys.KEY_F))
+                //{
+                //}
             }
         }
 
