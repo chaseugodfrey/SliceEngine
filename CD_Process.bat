@@ -77,12 +77,16 @@ if not exist ".venv" (
 .venv\Scripts\python -m pip install -r WeightOfTheSkyInstaller\requirements.txt
 
 :: GitHub Deployment
+:: Map your Jenkins secret (gh_tokensecret) to the standard GH_TOKEN
+if defined gh_tokensecret set "GH_TOKEN=!gh_tokensecret!"
+
 if defined GH_TOKEN (
-    echo "[Token Found] Uploading to GitHub as !FINAL_TAG!..."
+    echo "[Token Found] Uploading release to GitHub as !FINAL_TAG!..."
     .venv\Scripts\python WeightOfTheSkyInstaller\upload_installer.py github !FINAL_TAG!
 ) else (
-    echo "[No Token Found] Skipping GitHub upload."
+    echo "[No Token Found] Skipping GitHub upload. Ensure gh_tokensecret is set in Jenkins."
 )
+
 
 :: Bonus Rubric Placeholder: itch.io deployment could go here
 if defined ITCH_IO_TOKEN (
