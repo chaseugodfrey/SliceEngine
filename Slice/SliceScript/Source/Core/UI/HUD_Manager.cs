@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SliceEngine
 {
@@ -149,9 +150,18 @@ namespace SliceEngine
         {
             //Load dialogues from a CSV
             // SliceLog.Log("Streaming Assets filepath: " + Application.streamingAssetsPath);
-            string filePath = Application.GetFilePath("Dialogue.csv");
+            string filePath = "Resources/Dialogue.csv";
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
+
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found dialogue from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the Dialogues file from: " + filePath);
+            }
 
             if (loader != null)
             {
