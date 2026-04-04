@@ -592,7 +592,7 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec3 fMetalRoughLightData;
+layout (location=4) out vec3 fRoughMetalLightData;
 layout (location=5) out vec3 fEmission;
 )"};
 			std::string translucentInOuts{
@@ -737,7 +737,7 @@ void main(void){
 	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
+	fRoughMetalLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
 })" };
 
 			std::string translucentFragEnd{
@@ -882,6 +882,7 @@ float GeomSmith(float nDotL, float rough)
 
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal)
 {
+	rough = max(rough, 0.04);
 	vec3 h = normalize(v + l);
 	float nDotH = clamp(dot(n, h), 0.0, 1.0);
 	float vDotH = clamp(dot(v, h), 0.0, 1.0);
@@ -890,6 +891,7 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 
 	vec3 F = SchlickFresnel(vDotH, dif, metal);
 	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metal;
 	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
 					F *
 					GeomSmith(nDotL, rough) *
@@ -1297,7 +1299,7 @@ layout (location=0)	out vec4 fFragColor; // location 0 is default GL_BACK_LEFT c
 layout (location=1) out uint fGID;
 layout (location=2) out vec3 fPositionData;
 layout (location=3) out vec3 fNormalData;
-layout (location=4) out vec3 fMetalRoughLightData;
+layout (location=4) out vec3 fRoughMetalLightData;
 layout (location=5) out vec3 fEmission;
 
 uniform float time;
@@ -1398,7 +1400,7 @@ void main(void){
 	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
-	fMetalRoughLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
+	fRoughMetalLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
 })" };
 			std::string trqStr{ R"(#version 460 core
 // Custom Shader
@@ -1672,6 +1674,7 @@ float GeomSmith(float nDotL, float rough)
 
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal)
 {
+	rough = max(rough, 0.04);
 	vec3 h = normalize(v + l);
 	float nDotH = clamp(dot(n, h), 0.0, 1.0);
 	float vDotH = clamp(dot(v, h), 0.0, 1.0);
@@ -1680,6 +1683,7 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 
 	vec3 F = SchlickFresnel(vDotH, dif, metal);
 	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metal;
 	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
 					F *
 					GeomSmith(nDotL, rough) *
