@@ -259,6 +259,22 @@ namespace SliceEngine
         }
 
         /// <summary>
+        /// Returns sine of a value (in radians).
+        /// </summary>
+        public static float Cos(float value)
+        {
+            return (float)Math.Cos(value);
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in degrees).
+        /// </summary>
+        public static float CosDeg(float degrees)
+        {
+            return (float)Math.Cos(Deg2Rad(degrees));
+        }
+
+        /// <summary>
         /// Converts degrees to radians.
         /// </summary>
         public static float Deg2Rad(float degrees)

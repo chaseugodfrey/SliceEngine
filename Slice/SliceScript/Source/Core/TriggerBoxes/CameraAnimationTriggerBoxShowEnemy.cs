@@ -46,7 +46,7 @@ namespace SliceEngine
                        
                        // Console.WriteLine("Key Pressed");
                         keyPressed = true;
-                        if (!Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene))
+                        if (!Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true))
                         {
                             animationTriggerBox.cameraSM.ChangeState(animationTriggerBox.backToPlayerState);
                             dialogueDone = true;
@@ -93,7 +93,7 @@ namespace SliceEngine
                     yield return null;
                 }
                 dialogueStarted = true;
-                Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene);
+                Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true);
                 //owner.As<CameraAnimationTriggerBox>().cameraSM.ChangeState(owner.As<CameraAnimationTriggerBox>().exitState);
             }
         }
@@ -133,7 +133,7 @@ namespace SliceEngine
 
                         // Console.WriteLine("Key Pressed");
                         keyPressed = true;
-                        if (!Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene))
+                        if (!Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true))
                         {
                             animationTriggerBox.cameraSM.ChangeState(animationTriggerBox.exitState);
                             dialogueDone = true;

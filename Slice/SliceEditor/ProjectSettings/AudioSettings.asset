@@ -103,20 +103,6 @@
         },
         {
             "AudioClips": [
-                16799538569288340419
-            ],
-            "isSpatial": false,
-            "key": "Plunge",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 0.0,
-            "volume": 1.0,
-            "volumeRollOff": 1
-        },
-        {
-            "AudioClips": [
                 9886919587323407782
             ],
             "isSpatial": false,
@@ -127,6 +113,20 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.6000000238418579,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                16799538569288340419
+            ],
+            "isSpatial": false,
+            "key": "Plunge",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 0.0,
+            "volume": 1.0,
             "volumeRollOff": 1
         },
         {
@@ -159,16 +159,16 @@
         },
         {
             "AudioClips": [
-                15572364240678359036
+                13612963309126088302
             ],
             "isSpatial": false,
-            "key": "03_05_HQ_ExpectHeavierResistance",
+            "key": "Dash",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 0.5,
             "volumeRollOff": 1
         },
         {
@@ -189,24 +189,10 @@
         },
         {
             "AudioClips": [
-                13612963309126088302
+                15572364240678359036
             ],
             "isSpatial": false,
-            "key": "Dash",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 0.5,
-            "volumeRollOff": 1
-        },
-        {
-            "AudioClips": [
-                17786160176755234489
-            ],
-            "isSpatial": false,
-            "key": "03_01_HQ_ImpossibleTask",
+            "key": "03_05_HQ_ExpectHeavierResistance",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -231,10 +217,10 @@
         },
         {
             "AudioClips": [
-                11140315501352277537
+                17786160176755234489
             ],
             "isSpatial": false,
-            "key": "04_01_HQ_GoodLuck",
+            "key": "03_01_HQ_ImpossibleTask",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -255,6 +241,20 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.20000000298023224,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                11140315501352277537
+            ],
+            "isSpatial": false,
+            "key": "04_01_HQ_GoodLuck",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
             "volumeRollOff": 1
         },
         {
@@ -287,20 +287,6 @@
         },
         {
             "AudioClips": [
-                10769164010011941517
-            ],
-            "isSpatial": false,
-            "key": "03_04_HQ_IHaveFoundAnotherPath",
-            "maxDistance": 30.0,
-            "maxInstances": 8,
-            "minDistance": 1.0,
-            "minInterval": 0.0,
-            "spatialBlend": 1.0,
-            "volume": 1.0,
-            "volumeRollOff": 1
-        },
-        {
-            "AudioClips": [
                 17624821668510436491
             ],
             "isSpatial": false,
@@ -311,6 +297,20 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 0.4000000059604645,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                10769164010011941517
+            ],
+            "isSpatial": false,
+            "key": "03_04_HQ_IHaveFoundAnotherPath",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
             "volumeRollOff": 1
         },
         {
@@ -357,19 +357,10 @@
         },
         {
             "AudioClips": [
-                18367969634826001813,
-                15238760165322170154,
-                11764578689333965803,
-                11338222846878389375,
-                10142955231851483122,
-                14579600268607083753,
-                18012277300021420185,
-                13198925956891739473,
-                15422372619810428161,
-                10300253240533462176
+                16631909477889862749
             ],
             "isSpatial": false,
-            "key": "04_011_Ozone",
+            "key": "00_HQ_Intro",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -394,16 +385,25 @@
         },
         {
             "AudioClips": [
-                16631909477889862749
+                18367969634826001813,
+                15238760165322170154,
+                11764578689333965803,
+                11338222846878389375,
+                10142955231851483122,
+                14579600268607083753,
+                18012277300021420185,
+                13198925956891739473,
+                15422372619810428161,
+                10300253240533462176
             ],
             "isSpatial": false,
-            "key": "00_HQ_Intro",
+            "key": "04_011_Ozone",
             "maxDistance": 30.0,
-            "maxInstances": 8,
+            "maxInstances": 1,
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 4.0,
             "volumeRollOff": 1
         },
         {
@@ -450,10 +450,10 @@
         },
         {
             "AudioClips": [
-                15677110296994574852
+                10809745374699142621
             ],
             "isSpatial": false,
-            "key": "01_22_HQ_Telegraph",
+            "key": "02_01_HQ_Terminal",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -464,10 +464,10 @@
         },
         {
             "AudioClips": [
-                10809745374699142621
+                15677110296994574852
             ],
             "isSpatial": false,
-            "key": "02_01_HQ_Terminal",
+            "key": "01_22_HQ_Telegraph",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -506,10 +506,10 @@
         },
         {
             "AudioClips": [
-                10936558863655818413
+                14046474744601421986
             ],
             "isSpatial": false,
-            "key": "05_01_HQ_ThisIsTheFinalPush",
+            "key": "03_02_HQ_OurLastShot",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -520,10 +520,10 @@
         },
         {
             "AudioClips": [
-                14046474744601421986
+                10936558863655818413
             ],
             "isSpatial": false,
-            "key": "03_02_HQ_OurLastShot",
+            "key": "05_01_HQ_ThisIsTheFinalPush",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,
@@ -557,7 +557,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 2.0,
             "volumeRollOff": 1
         },
         {
@@ -571,7 +571,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 2.0,
             "volumeRollOff": 1
         },
         {
@@ -585,7 +585,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 1.5,
             "volumeRollOff": 1
         },
         {
@@ -599,7 +599,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 1.5,
             "volumeRollOff": 1
         },
         {
@@ -613,7 +613,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 1.0,
+            "volume": 2.0,
             "volumeRollOff": 1
         },
         {
