@@ -27,7 +27,7 @@ namespace SliceEngine
             Dictionary<string, string> preferences = new Dictionary<string, string>();
             Console.WriteLine("AHAHAHAHHAHA");
             // Load preference or create if doesn't exist
-            filePath = ("ProjectSettings/GamePreference.txt");
+            filePath = "ProjectSettings/GamePreference.txt";
             SliceLog.Log("Loading preferences from Filepath: " + filePath);
             Console.WriteLine("BABBABABBABABA");
 

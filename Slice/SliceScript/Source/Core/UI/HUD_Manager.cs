@@ -150,7 +150,7 @@ namespace SliceEngine
         {
             //Load dialogues from a CSV
             // SliceLog.Log("Streaming Assets filepath: " + Application.streamingAssetsPath);
-            string filePath = "Resources/Dialogue.csv";
+            string filePath = Application.GetFilePath("Dialogue.csv");
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
