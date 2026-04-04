@@ -32,7 +32,7 @@ namespace SliceEngine
 
         private bool enterPressed = false;
         private bool inputOpen = false;
-        public bool dialogueDone = false;
+        public bool dialogueDone = true;
 
         bool loseScreenOpen = false;
 
@@ -44,6 +44,7 @@ namespace SliceEngine
             //    Bootstrap.Player.canInput = false;
             //}
             Cursor.state = Cursor.STATE.DISABLED;
+            dialogueDone = true;
         }
 
         public override void OnUpdate(float dt)
@@ -180,7 +181,7 @@ namespace SliceEngine
 
                     }
                     
-                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
+                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
                     SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
@@ -196,14 +197,13 @@ namespace SliceEngine
         public bool PlayDialogueForLevel(int level, int scene)
         {
 
-
-
             // Skip to display full line when type writer effect is playing.
             if (typing == true)
             {
                 typing = false;
                 return true;
             }
+
 
             //Close dialogue box if it is the last line of the set
             if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1)
@@ -222,21 +222,37 @@ namespace SliceEngine
                 return false;
             }
 
+
             // Will tick dialogue up if it is already loaded, else will load fresh set and play
             if (allDialogues[scene + "_" + level].Count > 0)
             {
                 // dialogues is not empty
                 //  tick up number
 
-                SliceLog.Log("Dialogue is not empty");
-                dialogueIndex++;
+                SliceLog.Log("Dialogue is set to:" + dialogueDone);
+
+                if (dialogueDone)
+                {
+                    SliceLog.Log("Dialogue Is fresh. Setting index to 0");
+                    dialogueIndex = 0;
+                    dialogueDone= false;
+                }
+                else
+                {
+                    SliceLog.Log("Incrementing Dialogue");
+                    dialogueIndex++;
+                }
+
+                    SliceLog.Log("Dialogue is not empty");
 
             }
             else
             {
 
+
+                return true;
                 SliceLog.Log("Dialogue is empty");
-                dialogueIndex = 0;
+
 
                 /*
                 //Loading from the list
@@ -263,20 +279,22 @@ namespace SliceEngine
 
             OpenTextBox();
             typing = true;
-            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1]));
+            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1], allDialogues[scene + "_" + level][dialogueIndex][2]));
             SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
             return true;
         }
 
-        IEnumerator TypeText(string toType)
+        IEnumerator TypeText(string toType, string audioToPlay)
         {
             //float timecounter = 0f;
             float speed = 1f / typeSpeed;
             string displaying = "";
 
-            //SliceLog.Log("To type is:" + toType);
+            AudioSettings.PlaySFX(audioToPlay);
+
+            SliceLog.Log("To type is:" + toType);
             for (int i = 0; i < toType.Length; i++)
             {
 
