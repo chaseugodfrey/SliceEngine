@@ -945,7 +945,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos, 6);
 		}
 		CheckGLError();
 
@@ -977,7 +977,7 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
-		if (!mDirLightFound)
+		if (!mDirLightFound || !dirLightDat.hasShadow)
 			return;
 		SetShader(ShaderPaths[S_SHADOW]);
 		LinkFrameBufferSettings(FB_NIL, 0);
@@ -1013,7 +1013,7 @@ namespace SliceEngine
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
+		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos, mNumCascadeShadow);
 
 		CheckGLError();
 	}
@@ -1067,13 +1067,14 @@ namespace SliceEngine
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 		auto& mesh = mdl.get()->meshes[0];
+		glBindVertexArray(mesh.vao);
 		mainDirLightFar = 0.f;
 
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "hasDirectionalLight");
+		glUniform1i(uniformLoc, mDirLightFound);
 		if (mDirLightFound)
 		{
 			mainDirLightFar = camera.far;
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-			glUniform1i(uniformLoc, 200);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
 			glUniform1i(uniformLoc, mNumCascadeShadow);
 			std::stringstream ss{};
@@ -1087,21 +1088,12 @@ namespace SliceEngine
 				else
 					glUniform1f(uniformLoc, camera.far / shadowCascadeLevels[i]);
 			}
-			glBindVertexArray(mesh.vao);
-			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-
 		}
 
-		for (size_t i{}; i < allLightData.size(); ++i)
-		{
-			auto& light = allLightData.at(i);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
+		glUniform1i(uniformLoc, allLightData.size());
 
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-			glUniform1i(uniformLoc, i);
-
-			glBindVertexArray(mesh.vao);
-			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-		}
+		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 		
 		CheckGLError();
 	}

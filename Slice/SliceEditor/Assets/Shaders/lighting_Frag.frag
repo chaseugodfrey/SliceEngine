@@ -23,10 +23,6 @@ const int isDirectional = 0;
 const int isPoint 		= 1;
 const int isSpot 		= 2;
 
-uniform mat4 V;
-uniform int lightIdx;
-uniform vec3 uCamPos;
-
 layout (std140, binding = 0) uniform lightSpaceBlock
 {
 	mat4 lightSpaceMtx[16];
@@ -36,6 +32,11 @@ layout (std140, binding = 1) uniform lights
 	Light uDirectionLight;
 	Light uLight[150];
 };
+
+uniform mat4 V;
+uniform int numLights;
+uniform int hasDirectionalLight;
+uniform vec3 uCamPos;
 uniform float cascadePlaneDist[16];
 uniform int cascadeCnt;
 
@@ -47,8 +48,8 @@ layout (binding = 4) uniform sampler2DArray uShadowTex;			// Only for shadow map
 layout (binding = 5) uniform samplerCubeArray 	uShadowCubeMap; // Only for shadow mapping (point light)
 
 float getShadowMulti(vec3 n, vec3 l, vec3 projCoords, int layer);
-float getShadowSideMulti(vec3 n, vec3 l, float dist);
-float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist);
+float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx);
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx);
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal);
 vec3 GetRandDir(vec3 seed);
 
@@ -70,7 +71,7 @@ void main(void){
 		nom = normalize(nom);
 		vec3 v = normalize(-wPos);
 		
-		if(lightIdx >= 150)
+		if(hasDirectionalLight != 0)
 		{
 			vec4 fragViewSpace = V * vec4(wPos, 1.0f);
 			float depthVal = abs(fragViewSpace.z);
@@ -97,40 +98,43 @@ void main(void){
 			vec3 l = normalize(-uDirectionLight.direction);// Surface to Light
 			float shadow = uDirectionLight.hasShadow * getShadowMulti(nom, l, projCoords, layer);
 			finalLighting += (1.0 - shadow) * microfacetModel(v, nom, uDirectionLight.color.rgb * uDirectionLight.color.a, l, dif.rgb, roughMetal.x, roughMetal.y);
-			fFragColor = vec4(finalLighting, 0.0f);
+			fFragColor += vec4(finalLighting, 0.0f);
 		}
-		else if(uLight[lightIdx].type == isPoint)
+		for(int lightIdx = 0; lightIdx < numLights; ++lightIdx)
 		{
-			vec3 l = uLight[lightIdx].position - uCamPos - wPos; // Surface to Light
-			float dist = max(length(l), 0.001);
-			vec4 lightCol = uLight[lightIdx].color;
-			lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
-
-			float shadow = uLight[lightIdx].hasShadow * getShadowCubeMulti(nom, l, length(wPos), dist);
-			l = l / dist;
-			fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
-		}
-		else if(uLight[lightIdx].type == isSpot)
-		{
-			vec3 l = uLight[lightIdx].position - uCamPos - wPos;
-    		float dist = max(length(l), 0.001);
-    		vec3 L = l / dist;
-    		vec3 lightDir = normalize(uLight[lightIdx].direction); // Spotlight's forward direction
-    		vec3 fragToLight = -L;
-
-			float theta = dot(lightDir, fragToLight);
-    		float cutOff = cos(float(uLight[lightIdx].pointAngle) / 2.0);
-
-			float epsilon = 0.05;
-    		float intensity = clamp((theta - cutOff) / epsilon, 0.0, 1.0);
-
-			if (intensity > 0.0) {
+			if(uLight[lightIdx].type == isPoint)
+			{
+				vec3 l = uLight[lightIdx].position - uCamPos - wPos; // Surface to Light
+				float dist = max(length(l), 0.001);
 				vec4 lightCol = uLight[lightIdx].color;
-				lightCol.a = lightCol.a / (dist * dist) * intensity;
-				
-				float shadow = uLight[lightIdx].hasShadow * getShadowSideMulti(nom, l, dist);
-				fFragColor = vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, L, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
-    		}
+				lightCol.a /= (dist * dist); // Insensity is normalized, so scale up by 100?
+
+				float shadow = uLight[lightIdx].hasShadow * getShadowCubeMulti(nom, l, length(wPos), dist, lightIdx);
+				l = l / dist;
+				fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, l, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
+			}
+			else if(uLight[lightIdx].type == isSpot)
+			{
+				vec3 l = uLight[lightIdx].position - uCamPos - wPos;
+    			float dist = max(length(l), 0.001);
+    			vec3 L = l / dist;
+    			vec3 lightDir = normalize(uLight[lightIdx].direction); // Spotlight's forward direction
+    			vec3 fragToLight = -L;
+
+				float theta = dot(lightDir, fragToLight);
+    			float cutOff = cos(float(uLight[lightIdx].pointAngle) / 2.0);
+
+				float epsilon = 0.05;
+    			float intensity = clamp((theta - cutOff) / epsilon, 0.0, 1.0);
+
+				if (intensity > 0.0) {
+					vec4 lightCol = uLight[lightIdx].color;
+					lightCol.a = lightCol.a / (dist * dist) * intensity;
+
+					float shadow = uLight[lightIdx].hasShadow * getShadowSideMulti(nom, l, dist, lightIdx);
+					fFragColor += vec4(((1.0 - shadow) * microfacetModel(v, nom, lightCol.rgb * lightCol.a, L, dif.rgb, roughMetal.x, roughMetal.y)), 0.0f);
+    			}
+			}
 		}
 	}
 }
@@ -234,7 +238,7 @@ vec3 gridSamplingDisk[20] = vec3[]
    vec3(0, 1,  1), vec3( 0, -1,  1), vec3( 0, -1, -1), vec3( 0, 1, -1)
 );
 
-float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist)
+float getShadowCubeMulti(vec3 n, vec3 l, float viewDist, float dist, int lightIdx)
 {
 	vec3 fragToLight = -l;
 	vec3 L = normalize(l);
@@ -271,7 +275,7 @@ vec3 UVToCubeDir(vec2 uv, int face)
     return vec3(-c.x, -c.y, -1.0);                     // -Z
 }
 
-float getShadowSideMulti(vec3 n, vec3 l, float dist) // Removed wPos from parameters!
+float getShadowSideMulti(vec3 n, vec3 l, float dist, int lightIdx) // Removed wPos from parameters!
 {
     vec3 L = normalize(l); 
     
