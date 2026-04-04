@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Serializer/JSONSerializer.h>
+#include <Graphics/TransformHelper.h>
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -210,7 +211,7 @@ namespace SliceEngine
 			{
 				startPos = comp.position;
 				startScale = comp.scale;
-				startEuler = glm::degrees(glm::eulerAngles(comp.rotation));
+				startEuler = comp.eulerAnglesHint;
 
 				initialised = true;
 			}
@@ -276,7 +277,8 @@ namespace SliceEngine
 			comp.scale = interpolate(scale, startScale);
 
 			glm::vec3 finalEuler = interpolate(rotation, startEuler);
-			comp.rotation = glm::quat(glm::radians(finalEuler));
+			
+			comp.rotation = SliceEngine::Vec3ToQuat(finalEuler);
 		}
 
 
