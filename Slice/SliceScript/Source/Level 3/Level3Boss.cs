@@ -263,6 +263,8 @@ namespace SliceEngine
             float rotSpeed = 10.0f;
             double rotTimer = 0.0;
 
+            GameObject fx;
+            bool startCharging = false;
             bool hasGen = true;
 
             public RechargingState(GameObject owner) : base(owner)
@@ -276,7 +278,7 @@ namespace SliceEngine
 
                 bossController.isInvulnerable = true;
                 hasGen = bossController.canRecharge = bossController.SetupRecharging();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 0.8f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 1.6f));
                 bossController.ReturnFollowingProjectiles();
                 bossController.stateQueue.Clear();
             }
@@ -285,6 +287,12 @@ namespace SliceEngine
             {
                 if (bossController.isMovementDone)
                 {
+                    if (!startCharging)
+                    {
+                        fx = bossController.CreateGameObject("Prefabs/FX_BossCharging.prefab");
+                        startCharging = true;
+                    }
+
                     if (hasGen)
                     {
                         rotTimer += dt;
@@ -315,7 +323,9 @@ namespace SliceEngine
 
             public override void OnExit()
             {
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.6f));
                 bossController.isInvulnerable = false;
+                fx.Destroy();
             }
         }
 
@@ -575,11 +585,13 @@ namespace SliceEngine
         public List<Level3ProjectileSpawner> projectileSpawners;
         public GameObject startingPositionObj;
         public GameObject landingPositionObj;
+        public GameObject rechargePositionObj;
         public GameObject generalHitbox;
         public GameObject enemyHUD;
         public GameObject shieldGeneratorManager;
 
         Vector3 startingPosition;
+        Vector3 rechargingPosition;
 
         public float currentShield = 100.0f;
         public float maxShield = 100.0f;
@@ -618,6 +630,7 @@ namespace SliceEngine
 
             // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
+            rechargingPosition = rechargePositionObj.GetComponent<Transform>().WorldPosition;
             currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
