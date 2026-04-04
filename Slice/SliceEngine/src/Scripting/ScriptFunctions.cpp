@@ -1790,7 +1790,7 @@ namespace SliceEngine
 		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->isPaused = paused;
-			// SoundSystem::UpdateChannelFromComponent will sync this
+			Core::GetInstance()->GetAudioManager()->SetPauseState(audioComp->channel, paused);
 		}
 	}
 
@@ -1808,6 +1808,16 @@ namespace SliceEngine
 		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->isLoop = loop;
+			if (loop)
+			{
+			
+				Core::GetInstance()->GetAudioManager()->SetLoopCount(audioComp->channel, -1);
+
+			}
+			else
+			{
+				Core::GetInstance()->GetAudioManager()->SetLoopCount(audioComp->channel, 0);
+			}
 		}
 	}
 
@@ -1825,6 +1835,7 @@ namespace SliceEngine
 		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->currentVolume = volume;
+			Core::GetInstance()->GetAudioManager()->SetChannelVolume(audioComp->channel, volume);
 		}
 	}
 
@@ -1842,6 +1853,7 @@ namespace SliceEngine
 		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->pitch = pitch;
+			Core::GetInstance()->GetAudioManager()->SetPitch(audioComp->channel, pitch);
 		}
 	}
 
@@ -1859,6 +1871,7 @@ namespace SliceEngine
 		if (auto* audioComp = GetAudioComponent(entity))
 		{
 			audioComp->spatialBlend = blend;
+			Core::GetInstance()->GetAudioManager()->SetSpatialBlend(audioComp->channel, blend);
 		}
 	}
 
@@ -1873,7 +1886,11 @@ namespace SliceEngine
 
 	static void Audio_SetPan(unsigned int entity, float pan)
 	{
-		if (auto* audioComp = GetAudioComponent(entity)) audioComp->stereoPan = pan;
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->stereoPan = pan;
+			Core::GetInstance()->GetAudioManager()->SetPan(audioComp->channel, pan);
+		}
 	}
 
 	static float Audio_GetPan(unsigned int entity)
@@ -1884,7 +1901,11 @@ namespace SliceEngine
 
 	static void Audio_SetMute(unsigned int entity, bool mute)
 	{
-		if (auto* audioComp = GetAudioComponent(entity)) audioComp->isMute = mute;
+		if (auto* audioComp = GetAudioComponent(entity))
+		{
+			audioComp->isMute = mute;
+			Core::GetInstance()->GetAudioManager()->SetMute(audioComp->channel, mute);
+		}
 	}
 
 	static bool Audio_GetMute(unsigned int entity)
@@ -1895,7 +1916,7 @@ namespace SliceEngine
 
 	static void Audio_StopAllSound()
 	{
-
+		Core::GetInstance()->GetAudioManager()->StopAllSound();
 	}
 
 	static MonoObject* GetScriptInstance(unsigned int entityID, MonoString* baseName)
@@ -3284,6 +3305,10 @@ namespace SliceEngine
 	static MonoString* Application_GetFilePath()
 	{
 		std::string path = std::filesystem::path("Assets").generic_string();
+		if(!std::filesystem::exists(path))
+		{
+			path = std::filesystem::path("Resources").generic_string();
+		}
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 

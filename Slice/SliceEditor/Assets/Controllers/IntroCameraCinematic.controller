@@ -1,0 +1,44 @@
+{
+    "entryNodePosition": [
+        232.0,
+        132.0
+    ],
+    "entryState": "Idle",
+    "exitNodePosition": [
+        170.0,
+        291.0
+    ],
+    "parameters": {
+        "Idle": false
+    },
+    "stateMap": {
+        "AnyState": {
+            "autoTransition": false,
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                332.0,
+                312.0
+            ],
+            "nextTransition": 0,
+            "speed": 1.0,
+            "stateName": "AnyState",
+            "transitions": []
+        },
+        "Idle": {
+            "autoTransition": false,
+            "currAnimIdx": 0,
+            "fps": 0,
+            "isLoop": false,
+            "mNodePos": [
+                490.0,
+                268.0
+            ],
+            "nextTransition": 0,
+            "speed": 1.0,
+            "stateName": "Idle",
+            "transitions": []
+        }
+    }
+}

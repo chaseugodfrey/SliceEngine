@@ -167,10 +167,10 @@ namespace SliceEditor
 
 		if (ImGui::BeginMenu("Window"))
 		{
-			if (ImGui::MenuItem("Undo History"))
-			{
-				AddWindow<HistoryWindow>();
-			}
+			//if (ImGui::MenuItem("Undo History"))
+			//{
+			//	AddWindow<HistoryWindow>();
+			//}
 
 			if (ImGui::MenuItem("Content Browser"))
 			{
@@ -200,11 +200,6 @@ namespace SliceEditor
 			if (ImGui::MenuItem("Scene"))
 			{
 				AddWindow<SceneViewWindow>();
-			}
-
-			if (ImGui::MenuItem("Prefab View"))
-			{
-				//AddWindow<PrefabViewWindow>();
 			}
 
 			if (ImGui::MenuItem("Profiler"))
