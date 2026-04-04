@@ -1155,7 +1155,11 @@ namespace SliceEngine
 
                 dashDir = ComputeFlatDashDir(true);
 
-                FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
+                FXDash = CreateGameObject("Prefabs/FX_Dash.prefab");
+                FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.SetParent(gameObject);
+                FXDash.GetComponent<Transform>().Rotation = Vector3.Zero;
+                FXDash = CreateGameObject("Prefabs/FX_Dashbeam.prefab");
                 FXDash.GetComponent<Transform>().Position = transform.Position;
                 FXDash.SetParent(gameObject);
                 FXDash.GetComponent<Transform>().Rotation = transform.Rotation;

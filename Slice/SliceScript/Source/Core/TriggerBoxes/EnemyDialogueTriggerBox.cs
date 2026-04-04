@@ -32,7 +32,7 @@ namespace SliceEngine
                 if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
                 {
                     enterPressed = true;
-                    if (!Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene))
+                    if (!Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true))
                     {
                         _done = true;
                     }
@@ -58,7 +58,7 @@ namespace SliceEngine
             {
                 //console.writeline("Enabled");
                 _enabled = true;
-                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene);
+                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true);
             }
         }
     }

@@ -263,6 +263,8 @@ namespace SliceEngine
             float rotSpeed = 10.0f;
             double rotTimer = 0.0;
 
+            GameObject fx;
+            bool startCharging = false;
             bool hasGen = true;
 
             public RechargingState(GameObject owner) : base(owner)
@@ -276,7 +278,7 @@ namespace SliceEngine
 
                 bossController.isInvulnerable = true;
                 hasGen = bossController.canRecharge = bossController.SetupRecharging();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 0.8f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 1.6f));
                 bossController.ReturnFollowingProjectiles();
                 bossController.stateQueue.Clear();
             }
@@ -285,6 +287,12 @@ namespace SliceEngine
             {
                 if (bossController.isMovementDone)
                 {
+                    if (!startCharging)
+                    {
+                        fx = bossController.CreateGameObject("Prefabs/FX_BossCharging.prefab");
+                        startCharging = true;
+                    }
+
                     if (hasGen)
                     {
                         rotTimer += dt;
@@ -315,7 +323,9 @@ namespace SliceEngine
 
             public override void OnExit()
             {
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.6f));
                 bossController.isInvulnerable = false;
+                fx.Destroy();
             }
         }
 
@@ -441,6 +451,7 @@ namespace SliceEngine
                 Vector3 finalPos = bossController.landingPositionObj.GetComponent<Transform>().WorldPosition;
                 bossController.StopAllCoroutines();
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, finalPos, 1.2f));
+                //bossController.StartCoroutine(bossController.RotateToDir(new Vector3(-180.0f, 0, 0), 0.5f));
                 bossController.isFiringDone = false;
             }
 
@@ -450,6 +461,7 @@ namespace SliceEngine
                 {
                     if (!isFiring)
                     {
+                        bossController.transform.LookAt(bossController.startingPosition, Vector3.Up);
                         bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 20, 0.5f));
                         //bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
                         //    - bossController.transform.WorldPosition, radius, 20, 0.5f));
@@ -459,7 +471,9 @@ namespace SliceEngine
                         isFiring = true;
                     }
 
-                    bossController.transform.Rotate(Vector3.Up * dt * 20.0f);
+
+                    //bossController.transform.Rotation = new Vector3(-180.0f, bossController.transform.Rotation.y, bossController.transform.Rotation.z);
+                    bossController.transform.Rotate(Vector3.Forward * dt * 100.0f);
 
                     if (bossController.isFiringDone)
                     {
@@ -480,6 +494,10 @@ namespace SliceEngine
         public class DeathState : BaseState
         {
             Level3Boss bossController;
+            bool triggerExplostion = false;
+            float rotTimer = 0.0f;
+            Vector3 rotDir;
+
             public DeathState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -487,11 +505,45 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-
+                bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, 0.8f));
             }
 
             public override void OnUpdate(float dt)
             {
+                if (bossController.isMovementDone)
+                {
+                    // rising
+                    bossController.transform.Position += Vector3.Up * 1.0f * dt;
+
+                    // shaking
+                    rotTimer += dt;
+
+                    if (rotTimer >= 0.5f)
+                    {
+                        float x = SliceRandom.RangeFloat(0, 360);
+                        float y = SliceRandom.RangeFloat(0, 360);
+                        float z = SliceRandom.RangeFloat(0, 360);
+
+                        rotDir = new Vector3(x, y, z);
+                        rotTimer = 0.0f;
+                    }
+
+                    // some silly animation for now
+
+                    Vector3 bossPos = bossController.transform.Position;
+
+                    Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
+                    bossController.transform.Rotation = rotDir;
+                    bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
+
+                    // jia le add explosion effects here 
+                    //if (!triggerExplostion)
+                    //{
+                    //    bossController.StartCoroutine(bossController.TriggerExplosition(bossPos, bossPos, 1, 2));
+                    //    triggerExplostion = false;
+                    //}
+                }
 
             }
 
@@ -501,6 +553,11 @@ namespace SliceEngine
             }
 
             public override void OnExit()
+            {
+
+            }
+
+            void Shake()
             {
 
             }
@@ -528,11 +585,13 @@ namespace SliceEngine
         public List<Level3ProjectileSpawner> projectileSpawners;
         public GameObject startingPositionObj;
         public GameObject landingPositionObj;
+        public GameObject rechargePositionObj;
         public GameObject generalHitbox;
         public GameObject enemyHUD;
         public GameObject shieldGeneratorManager;
 
         Vector3 startingPosition;
+        Vector3 rechargingPosition;
 
         public float currentShield = 100.0f;
         public float maxShield = 100.0f;
@@ -547,6 +606,9 @@ namespace SliceEngine
         bool isDead = false;
 
         public float areaRadius = 100.0f;
+
+        float[] thresholds = new float[] { 0.8f, 0.6f, 0.4f, 0.2f };
+        int thresholdIndex = 0;
 
         public override void OnCreate()
         {
@@ -568,6 +630,7 @@ namespace SliceEngine
 
             // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
+            rechargingPosition = rechargePositionObj.GetComponent<Transform>().WorldPosition;
             currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
@@ -670,8 +733,16 @@ namespace SliceEngine
 
         protected override void OnDamaged(GameObject source)
         {
+            float hpPercent = (float)currentHealth / (float)maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetShield((float)currentShield / (float)maxShield);
-            enemyHUD.As<Lvl3EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+            enemyHUD.As<Lvl3EnemyHUD>().SetHealth(hpPercent);
+
+            if (hpPercent <= thresholds[thresholdIndex] && thresholdIndex < thresholds.Length)
+            {
+                PlayPanicSFX();
+                thresholdIndex++;
+            }
+
         }
 
         public bool SetupRecharging()
@@ -720,6 +791,7 @@ namespace SliceEngine
         public override void OnDeath()
         {
             isDead = true;
+            isInvulnerable = true;
             bossSM.ChangeState(deathState);
             SliceLog.Console("Boss defeated!");
         }
@@ -838,6 +910,53 @@ namespace SliceEngine
             //    allProjectiles.RemoveAt(index);
             //    temp.gameObject.Destroy();
             //}
+        }
+
+        IEnumerator RotateToDir(Vector3 targetDir, float duration)
+        {
+            Transform transform = this.gameObject.GetComponent<Transform>();
+            Quaternion startRot = transform.RotationQuat;
+            Quaternion targetRot = Quaternion.LookRotation(targetDir, Vector3.Up);
+            float elapsedTime = 0.0f;
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+                float t = elapsedTime / duration;
+                transform.RotationQuat = Quaternion.Slerp(startRot, targetRot, t);
+                yield return null;
+            }
+            transform.RotationQuat = targetRot;
+        }
+
+        IEnumerator TriggerExplosition(Vector3 position1, Vector3 position2, float waitTime1, float waitTime2)
+        {
+            yield return new WaitForSeconds(waitTime1);
+            string prefab1 = "";
+            gameObject.CreateGameObject(prefab1).GetComponent<Transform>().Position = position1;
+            yield return new WaitForSeconds(waitTime2);
+            string prefab2 = "";
+            gameObject.CreateGameObject(prefab2).GetComponent<Transform>().Position = position2;
+        }
+
+        void PlayPanicSFX()
+        {
+            switch (thresholdIndex)
+            {
+                case 0:
+                    AudioSettings.PlaySFX("BossPanic1");
+                    break;
+                case 1:
+                    AudioSettings.PlaySFX("BossPanic2");
+                    break;
+                case 2:
+                    AudioSettings.PlaySFX("BossPanic3");
+                    break;
+                case 3:
+                    AudioSettings.PlaySFX("BossPanic4");
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }
