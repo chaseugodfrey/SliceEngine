@@ -1,9 +1,10 @@
-using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SliceEngine;
+using SliceScript.Source.Core.Systems;
 
 namespace SliceEngine
 {
@@ -26,16 +27,21 @@ namespace SliceEngine
         public GameObject graphicsActive;
         public GameObject returnToTitleButton;
 
-        public GameObject miniTitleObj;
+        public GameObject audioTitleObj;
+        public GameObject graphicsTitleObj;
+        
         public List<GameObject> audioSliders = new List<GameObject>() { null };
         public GameObject gammaSlider;
+        public GameObject bgCloseAnimationObject;
 
         private SpriteRenderer audioSprite;
         private FontRenderer audioFont;
 
         private RectTransform systemsPausedTrans;
-        private RectTransform miniTitleTrans;
-        private FontRenderer miniTitleText;
+        private RectTransform audioTitleTrans;
+        private RectTransform graphicsTitleTrans;
+
+        
         private RectTransform[] audioSliderTrans;
 
         private SpriteRenderer graphicsSprite;
@@ -70,12 +76,6 @@ namespace SliceEngine
                 flickerImageSprite = flickerImage.GetComponent<SpriteRenderer>();
             }
 
-            if (miniTitleObj != null)
-            {
-                miniTitleText = miniTitleObj.GetComponent<FontRenderer>();
-                miniTitleTrans = miniTitleObj.GetComponent<RectTransform>();
-            }
-
 
             if (audioActive != null)
             {
@@ -104,7 +104,17 @@ namespace SliceEngine
                 graphicsFont = graphicsButton.GetComponent<FontRenderer>();
             }
 
-            if(audioSliders.Count > 0)
+            if(audioTitleObj != null)
+            {
+                audioTitleTrans = audioTitleObj.GetComponent<RectTransform>();
+            }
+
+            if (graphicsTitleObj != null)
+            {
+                graphicsTitleTrans = graphicsTitleObj.GetComponent<RectTransform>();
+            }
+
+            if (audioSliders.Count > 0)
             {
                 audioSliderTrans = new RectTransform[audioSliders.Count];
 
@@ -115,6 +125,11 @@ namespace SliceEngine
                         audioSliderTrans[i] = audioSliders[i].GetComponent<RectTransform>();
                     }
                 }
+            }
+
+            if(bgCloseAnimationObject != null)
+            {
+                bgCloseAnimationObject.SetActive(false);
             }
         }
 
@@ -175,11 +190,12 @@ namespace SliceEngine
                     float currentWidth = Utilities.SmoothStep(1500, -572, bgProgress);
                     
                     float currentSliderWidth = Utilities.SmoothStep(0, -1161, bgProgress);
-                    float currentMiniTitleWidth = Utilities.SmoothStep(800, -302, bgProgress);
+                    float currentMiniTitleWidth = Utilities.SmoothStep(800, -303, bgProgress);
                     frontBgTrans.Height = (int)currentHeight;
                     systemsPausedTrans.Right = (int)currentWidth;
                     
-                    miniTitleTrans.Right = (int)currentMiniTitleWidth;
+                    audioTitleTrans.Right = (int)currentMiniTitleWidth;
+                    graphicsTitleTrans.Right = (int)currentMiniTitleWidth;
 
                     for(int i = 0; i < audioSliders.Count; i++)
                     {
@@ -198,7 +214,7 @@ namespace SliceEngine
                     if (settingsContent != null) settingsContent.SetActive(true);
                     if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudioPageSelected);
                     if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudioPageSelected);
-                    UpdateTitleText();
+                    
                 }
                 else
                 {
@@ -210,16 +226,72 @@ namespace SliceEngine
 
                 if (animationTimer <= 0f && !isOpening)
                 {
-                    isActive = false;
-                    if (menuCanvasObj != null)
+                    //isActive = false;
+                    //if (menuCanvasObj != null)
+                    //{
+                    //    menuCanvasObj.SetActive(true);
+                    //}
+                    //this.gameObject.SetActive(false);
+
+                    if (bgCloseAnimationObject != null)
                     {
+                        var closeAnim = bgCloseAnimationObject.As<SettingsCloseBGAnimation>();
+                        if (closeAnim != null)
+                        {
+                            // Start the spritesheet closing animation
+                            closeAnim.StartSettingsBGAnimation(true);
+                        }
+                    }
+                    else if (menuCanvasObj != null)
+                    {
+                        // Fallback: If no anim, just show the menu immediately
                         menuCanvasObj.SetActive(true);
                     }
+
                     this.gameObject.SetActive(false);
                 }
             }
         }
 
+        public void SyncSlidersToEngine()
+        {
+            
+
+            if (gammaSlider != null)
+            {
+                
+                var sliderComp = gammaSlider.GetComponent<Slider>();
+                if (sliderComp != null)
+                {
+                    //// Gamma is multiplied by 10 in your ExposureSlider, so we multiply by 0.1f here
+                    sliderComp.SetValue(Camera.Gamma * 0.1f);
+                }
+            }
+
+            // Update Audio Sliders visual
+            for (int i = 0; i < audioSliders.Count; i++)
+            {
+                
+                if (audioSliders[i] != null)
+                {
+                    VolumeSlider volumeScript = audioSliders[i].As<VolumeSlider>();
+                    var sliderComp = audioSliders[i].GetComponent<Slider>();
+
+                    if (volumeScript != null && sliderComp != null)
+                    {
+                        //SliceLog.Log("Master Vol : " + AudioManager.GetMasterVolume());
+                        if (volumeScript.audioParameter == "Master")
+                        {
+                            sliderComp.SetValue(AudioManager.GetMasterVolume());
+                        }
+                        else
+                        {
+                            sliderComp.SetValue(AudioManager.GetCategoryVolume(volumeScript.audioParameter));
+                        }
+                    }
+                }
+            }
+        }
         private void UpdateButtonVisuals()
         {
             // Update Audio Button
@@ -240,13 +312,6 @@ namespace SliceEngine
             if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
         }
 
-        private void UpdateTitleText()
-        {
-            if (miniTitleText != null)
-            {
-                miniTitleText.Text_val = isAudioPageSelected ? "ADJUST AUDIO SETTINGS" : "ADJUST PREFERRED BRIGHTNESS";
-            }
-        }
 
         public void StartSettingsPopupAnimation(bool opening)
         {
@@ -261,6 +326,8 @@ namespace SliceEngine
             {
                 if (settingsContent != null) settingsContent.SetActive(false);
             }
+
+
         }
 
         public void SwitchToPage(bool isAudio)
@@ -272,7 +339,7 @@ namespace SliceEngine
             {
                 if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudio);
                 if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudio);
-                UpdateTitleText();
+                
             }
 
             UpdateButtonVisuals();

@@ -11,10 +11,20 @@ namespace SliceEngine
 
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
+        private GameObject bgCloseAnimationObject;
         private GameObject MainMenuCanvas;
+        private GameObject pauseBGM;
+        private GameObject menuBGM;
+        private GameObject beforeGammaImage;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
+        private SettingsCloseBGAnimation bgCloseAnim;
+        private AudioSource pauseAudioSource;
+        private AudioSource menuAudioSource;
+        //private PreferenceSettings preferenceSettings;
+
+        private SpriteRendererGammaOverride spriteGammaOverride;
 
         private bool isSettingsOpen = false;
         private float animationTimer = 0f;
@@ -27,6 +37,10 @@ namespace SliceEngine
             settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
+            beforeGammaImage = FindGameObjectWithName("BeforeImage");
+            pauseBGM = FindGameObjectWithName("PauseMusic");
+            menuBGM = FindGameObjectWithName("MenuBGM");
+
 
             if (settingsPopup != null)
             {
@@ -44,6 +58,26 @@ namespace SliceEngine
                 }
                 bgAnimationObject.SetActive(false);
             }
+
+            if (beforeGammaImage != null)
+            {
+                spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
+            }
+
+            if(pauseBGM != null)
+            {
+                pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+            }
+
+            if(menuBGM != null)
+            {
+                menuAudioSource = menuBGM.GetComponent<AudioSource>();
+            }
+
+            PreferenceSettings.Initialize();
+
+            spriteGammaOverride.Gamma = Camera.Gamma *10.0f;
+
         }
 
         public override void OnUpdate(float dt)
@@ -70,6 +104,19 @@ namespace SliceEngine
             }
         }
 
+        public void RestoreDefaults()
+        {
+            
+            PreferenceSettings.RestoreDefaults();
+
+            //spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+            SliceLog.Log("gererere");
+            if (borderAnim != null)
+            {
+                borderAnim.SyncSlidersToEngine();
+            }
+        }
+
         public void BackToMenu()
         {
             SceneManager.LoadScene("MenuScene");
@@ -84,14 +131,25 @@ namespace SliceEngine
         {
             isSettingsOpen = true;
 
+            if(menuAudioSource != null)
+            {
+                menuAudioSource.IsPaused = true;
+            }
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Play();
+            }
+
             if (bgAnim != null)
             {
+                AudioSettings.PlaySFX("PauseTransitionIn");
                 bgAnim.StartSettingsBGAnimation(true);
             }
-            else if (borderAnim != null)
-            {
-                borderAnim.StartSettingsPopupAnimation(true);
-            }
+            //else if (borderAnim != null)
+            //{
+            //    borderAnim.StartSettingsPopupAnimation(true);
+            //}
 
             if (MainMenuCanvas != null) MainMenuCanvas.SetActive(false);
         }
@@ -100,11 +158,28 @@ namespace SliceEngine
         {
             isSettingsOpen = false;
 
+            PreferenceSettings.SavePreferences();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Stop();
+            }
+
+            if (menuAudioSource != null)
+            {
+                menuAudioSource.IsPaused = false;
+            }
+
+
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
                 AudioSettings.PlaySFX("PauseTransitionOut");
             }
+
+
         }
 
 

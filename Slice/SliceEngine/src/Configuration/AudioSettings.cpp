@@ -460,8 +460,17 @@ namespace SliceEngine
         }
         else
         {
+            
             int randomIndex = std::rand() % entry->AudioClips.size();
+
+            // make sure it doesn't play the last clip
+            while (randomIndex == entry->lastPlayed)
+            {
+                randomIndex = std::rand() % entry->AudioClips.size();
+            }
+
             clipGUID = entry->AudioClips[randomIndex];
+            entry->lastPlayed = randomIndex;
         }
 
         if (entry->soundGroup)
@@ -518,6 +527,8 @@ namespace SliceEngine
         // Play the sound
         audioComp.channel = audioManager->PlaySound(audioComp, audioTrans.GetWorldPosition(), glm::vec3{ 0.f });
     }
+
+
 
 
     void to_json(nlohmann::json& j, const SFXEntry& entry)

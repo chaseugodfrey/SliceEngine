@@ -397,7 +397,7 @@ namespace SliceEngine
 	}
 
 	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
-	float RenderManager::GetSessionGamma() const { return mSessionGamma / 10.f; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma; }
 
 	void RenderManager::SetSessionExposure(float exposure)
 	{
@@ -411,7 +411,7 @@ namespace SliceEngine
 	}
 	void RenderManager::SetSessionGamma(float gamma)
 	{
-		float modGamma = gamma * 10.f;
+		float modGamma = gamma;
 		mSessionGamma = modGamma;
 		auto& mainCam = GetGameCamera();
 		if (mainCam.has_value())
@@ -425,6 +425,55 @@ namespace SliceEngine
 	std::optional<Entity>& RenderManager::GetGameCamera()
 	{
 		return Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
+	}
+	void RenderManager::CopyMainCamSettings(Camera& othCam)
+	{
+		auto currCam = GetGameCamera();
+		if (currCam.has_value())
+		{
+			auto& actlCam = Core::GetInstance()->GetRegistry().get<Camera>(currCam.value());
+			
+			othCam.pov = actlCam.pov;
+			othCam.near = actlCam.near;
+			othCam.far = actlCam.far;
+			othCam.luminanceLearningRate = actlCam.luminanceLearningRate;
+			othCam.fogColor = actlCam.fogColor;
+			othCam.fogIntensity = actlCam.fogIntensity;
+			othCam.bloomFilterRadius = actlCam.bloomFilterRadius;
+			othCam.bloomStrength = actlCam.bloomStrength;
+			othCam.bloomLimit = actlCam.bloomLimit;
+			othCam.exposure = actlCam.exposure;
+			othCam.gamma = actlCam.gamma;
+			othCam.whiteBalance = actlCam.whiteBalance;
+			othCam.minLuminance = actlCam.minLuminance;
+			othCam.maxLuminance = actlCam.maxLuminance;
+			othCam.godRayFilterRadius = actlCam.godRayFilterRadius;
+			othCam.godRayStrength = actlCam.godRayStrength;
+			othCam.vignetteCenter = actlCam.vignetteCenter;
+			othCam.vignetteIntensity = actlCam.vignetteIntensity;
+			othCam.vignetteSmoothness = actlCam.vignetteSmoothness;
+			othCam.impactPos = actlCam.impactPos;
+			othCam.impactColor = actlCam.impactColor;
+			othCam.impactColor2 = actlCam.impactColor2;
+			othCam.impactSmooth = actlCam.impactSmooth;
+			othCam.impactEpilepsy = actlCam.impactEpilepsy;
+			othCam.impactAngle = actlCam.impactAngle;
+			othCam.impactNoise1 = actlCam.impactNoise1;
+			othCam.impactNoise2 = actlCam.impactNoise2;
+			othCam.impactBlend = actlCam.impactBlend;
+			othCam.cloudsHeight = actlCam.cloudsHeight;
+			othCam.cloudsAmplitude = actlCam.cloudsAmplitude;
+			othCam.cloudsIntensity = actlCam.cloudsIntensity;
+			othCam.cloudsSmoothness = actlCam.cloudsSmoothness;
+			othCam.cloudsCutoff = actlCam.cloudsCutoff;
+			othCam.cloudsColor = actlCam.cloudsColor;
+			othCam.cloudsSecondCloudOffset = actlCam.cloudsSecondCloudOffset;
+			othCam.cloudsSecondCloudAmplitude = actlCam.cloudsSecondCloudAmplitude;
+			othCam.cloudsSecondCloudIntensity = actlCam.cloudsSecondCloudIntensity;
+			othCam.cloudsSecondCloudSmoothness = actlCam.cloudsSecondCloudSmoothness;
+			othCam.cloudsSecondColor = actlCam.cloudsSecondColor;
+			othCam.postRenderToggles = actlCam.postRenderToggles;
+		}
 	}
 	void RenderManager::GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up)
 	{
@@ -600,25 +649,19 @@ namespace SliceEngine
 			CheckGLError();
 
 			// Special case for Post Processings
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
+				RenderGroundCloud(cam);
 			glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_FOG)
 				RenderFog(cam);
 
 			RenderAvgLum(cam);
-
 			//----------------------------------------------------------------
-			// Post Processings
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GROUND_CLOUD)
-				RenderGroundCloud(cam);
-
+			// Post Processings - idk
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_BLOOM)
 				RenderBloom(cam, false);
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_GODRAY)
 				RenderBloom(cam, true);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
-				RenderVignette(cam);
-			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
-				RenderImpact(cam);
 
 			// Debug / QOL Stuffs
 			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).debugRenderToggles & DEBUG_ALL_DEBUG)
@@ -627,6 +670,13 @@ namespace SliceEngine
 				LinkFrameBufferSettings(FB_FINAL, 1, mColAttachment[mCurrFinalColAttachment]);
 				RenderDebug(cam);
 			}
+
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_VIGNETTE)
+				RenderVignette(cam);
+			if (Core::GetInstance()->GetRegistry().get<Camera>(cam).postRenderToggles & RENDER_IMPACT)
+				RenderImpact(cam);
+
+
 
 			RenderGammaCorrection(cam);
 		}
@@ -896,7 +946,7 @@ namespace SliceEngine
 				glUniformMatrix4fv(uniformLoc, 1, GL_FALSE, &shadowMat[0][0]);
 			}
 
-			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos);
+			renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, light.pos, 6);
 		}
 		CheckGLError();
 
@@ -928,7 +978,7 @@ namespace SliceEngine
 	}
 	void RenderManager::RenderDirectionalShadowMaps(Entity cam)
 	{
-		if (!mDirLightFound)
+		if (!mDirLightFound || !dirLightDat.hasShadow)
 			return;
 		SetShader(ShaderPaths[S_SHADOW]);
 		LinkFrameBufferSettings(FB_NIL, 0);
@@ -964,7 +1014,7 @@ namespace SliceEngine
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, mDirLightDepthMaps, 0);
 		glClear(GL_DEPTH_BUFFER_BIT);
-		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos);
+		renderQueue.UseDrawCalls(mCurrShader.second, RenderCmdManager::DrawType::DRAW_MODELS, cameraPos, mNumCascadeShadow);
 
 		CheckGLError();
 	}
@@ -1018,13 +1068,14 @@ namespace SliceEngine
 
 		auto mdl = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT);
 		auto& mesh = mdl.get()->meshes[0];
+		glBindVertexArray(mesh.vao);
 		mainDirLightFar = 0.f;
 
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "hasDirectionalLight");
+		glUniform1i(uniformLoc, mDirLightFound);
 		if (mDirLightFound)
 		{
 			mainDirLightFar = camera.far;
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-			glUniform1i(uniformLoc, 200);
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
 			glUniform1i(uniformLoc, mNumCascadeShadow);
 			std::stringstream ss{};
@@ -1038,21 +1089,12 @@ namespace SliceEngine
 				else
 					glUniform1f(uniformLoc, camera.far / shadowCascadeLevels[i]);
 			}
-			glBindVertexArray(mesh.vao);
-			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-
 		}
 
-		for (size_t i{}; i < allLightData.size(); ++i)
-		{
-			auto& light = allLightData.at(i);
+		uniformLoc = glGetUniformLocation(mCurrShader.second, "numLights");
+		glUniform1i(uniformLoc, allLightData.size());
 
-			uniformLoc = glGetUniformLocation(mCurrShader.second, "lightIdx");
-			glUniform1i(uniformLoc, i);
-
-			glBindVertexArray(mesh.vao);
-			glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-		}
+		glDrawElements(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 		
 		CheckGLError();
 	}
@@ -1169,6 +1211,7 @@ namespace SliceEngine
 		glDrawElements(mdl.drawMode, mdl.drawCnt, GL_UNSIGNED_INT, nullptr);
 
 		glDepthMask(GL_TRUE);
+		glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, 0, 0);
 		CheckGLError();
 	}
 	void RenderManager::RenderFog(Entity cam)

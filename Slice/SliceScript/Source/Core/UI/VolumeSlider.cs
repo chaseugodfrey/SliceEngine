@@ -33,9 +33,8 @@ namespace SliceEngine
         {
             
         }
-
         
-
+        
         public override void OnSliderValue(float value)
         {
 
@@ -50,7 +49,7 @@ namespace SliceEngine
             }
             else
             {
-                SliceLog.Log(audioParameter);
+                
                 AudioManager.SetCategoryVolume(audioParameter, value);
             }
         }

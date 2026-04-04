@@ -2,10 +2,10 @@ using System;
 
 namespace SliceEngine
 {
-    public class SpriteRendererGammaOverrde : Component
+    public class SpriteRendererGammaOverride : Component
     {
-        public SpriteRendererGammaOverrde() { }
-        public SpriteRendererGammaOverrde(GameObject entity)
+        public SpriteRendererGammaOverride() { }
+        public SpriteRendererGammaOverride(GameObject entity)
         {
             gameObject = entity;
         }

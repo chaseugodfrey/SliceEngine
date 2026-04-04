@@ -72,6 +72,7 @@ namespace SliceEditor
 		void AnimatorSRTPopupEditKeyAttrib();
 
 		void UnLoadSequencePkgData(SequencePkgData& animsData, SliceEngine::SliceEngineTypes::SequencePackage& anims);
+		void InsertNewKey(std::vector<std::pair<unsigned int, glm::vec3>>& vec, std::pair<unsigned int, glm::vec3> key);
 
 	public:
 		AnimationWindow(Registry& reg) : EditorWindow(reg) {};

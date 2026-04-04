@@ -84,6 +84,8 @@ namespace SliceEngine
                 //    mainController.BackToMenu();
 
                 //}
+
+                
                 
             }
 
@@ -133,11 +135,22 @@ namespace SliceEngine
                 if (mainController != null) mainController.ToggleSettingsPages(false);
                 if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(false);
             }
+
+            else if(buttonType == 10)
+            {
+                if (mainController != null)
+                {
+                    mainController.RestoreDefaults();
+                }else if(gameSettingsController!=  null)
+                {
+                    gameSettingsController.RestoreDefaults();
+                }
+            }
         }
 
         public override void OnButtonHover()
         {
-            if(buttonType == 0 || buttonType == 1 || buttonType == 2)
+            if(buttonType == 0 || buttonType == 1 || buttonType == 2 ||buttonType ==10)
             {
                 fontComp.Colour = new Vector4(203.0f *(1.0f /256.0f), 203.0f * (1.0f / 256.0f), 203.0f * (1.0f / 256.0f), 1.0f);
             }
@@ -145,7 +158,7 @@ namespace SliceEngine
 
         public override void OnButtonExitHover()
         {
-            if (buttonType == 0 || buttonType == 1 || buttonType == 2)
+            if (buttonType == 0 || buttonType == 1 || buttonType == 2 || buttonType == 10)
             {
                 fontComp.Colour = new Vector4(1.0f,1.0f,1.0f,1.0f);
             }
