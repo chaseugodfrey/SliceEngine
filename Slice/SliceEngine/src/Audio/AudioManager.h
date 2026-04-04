@@ -145,6 +145,9 @@ namespace SliceEngine
 		void SetDopplerLevel(FMOD::Channel* channel, float dopplerLevel);
 		float GetDopplerLevel(FMOD::Channel* channel);
 
+		void SetLoopCount(FMOD::Channel* channel, int loopCount);
+		int GetLoopCount(FMOD::Channel* channel);
+
 		int GetChannelPriority(FMOD::Channel* channel);
 
 		void SetMute(FMOD::Channel* channel, bool mute);
