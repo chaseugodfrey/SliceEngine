@@ -18,6 +18,13 @@ namespace SliceEngine
         {
             FunctionCalls.Camera_SetMainCamera(go.mID);
         }
+
+        override public bool enabled
+        {
+            get { return FunctionCalls.Camera_GetEnabled(gameObject.mID); }
+            set { FunctionCalls.Camera_SetEnabled(gameObject.mID, value); }
+        }
+
         public static float Gamma
         {
             get { return FunctionCalls.Camera_GetGamma(); }

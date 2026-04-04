@@ -22,6 +22,10 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetEnabled(uint entityID, bool enable);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Camera_GetEnabled(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetGamma(float gamma);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -48,8 +52,12 @@ namespace SliceEngine
         internal extern static void Camera_SetImpactFrameDensity(uint entityID, float density);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetImpactBlend(uint entityID, float blend);
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         // Light
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetEnabled(uint entityID, bool enable);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Light_GetEnabled(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Light_SetCastShadow(uint entityID, bool castsShadow);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Light_GetCastShadow(uint entityID);
