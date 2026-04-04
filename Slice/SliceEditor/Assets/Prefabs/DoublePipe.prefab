@@ -1,0 +1,64 @@
+[
+    {
+        "DoublePipe": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9310947278343937518"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15267696681386478815"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3146257,
+                "neighbours": [
+                    3146146,
+                    4294967295,
+                    3146254,
+                    3146143
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "DoublePipe",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    108.94573974609375,
+                    66.77999877929688,
+                    77.33865356445313
+                ],
+                "rotation": [
+                    0.7071068286895752,
+                    -0.7071067094802856,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    0.9999999403953552,
+                    0.9999999403953552
+                ]
+            }
+        }
+    }
+]
