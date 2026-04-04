@@ -25,7 +25,7 @@
                 "prefabID": 0
             },
             "struct SliceEngine::Renderer": {
-                "castShadow": true,
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "9336273396156370476"
@@ -58,10 +58,10 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097164,
+                "entity_id": 14,
                 "neighbours": [
                     4294967295,
-                    2097163,
+                    15,
                     4294967295,
                     4294967295
                 ]
@@ -79,9 +79,9 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    3.5186150074005127,
-                    0.0
+                    -1.7125554084777832,
+                    4.437108993530273,
+                    0.3418346643447876
                 ],
                 "rotation": [
                     1.0,
@@ -123,7 +123,7 @@
                 "prefabID": 1
             },
             "struct SliceEngine::Renderer": {
-                "castShadow": true,
+                "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
                     "GUID": "9336273396156370476"
@@ -156,9 +156,9 @@
                 "restituition": 0.0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097163,
+                "entity_id": 15,
                 "neighbours": [
-                    2097164,
+                    14,
                     4294967295,
                     4294967295,
                     4294967295
@@ -179,7 +179,7 @@
                 "position": [
                     1.8604121208190918,
                     0.2489471435546875,
-                    2.1456422805786133
+                    3.1330935955047607
                 ],
                 "rotation": [
                     1.0,
