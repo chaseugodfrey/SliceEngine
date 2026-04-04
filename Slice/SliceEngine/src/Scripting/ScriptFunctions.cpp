@@ -3305,6 +3305,10 @@ namespace SliceEngine
 	static MonoString* Application_GetFilePath()
 	{
 		std::string path = std::filesystem::path("Assets").generic_string();
+		if(!std::filesystem::exists(path))
+		{
+			path = std::filesystem::path("Resources").generic_string();
+		}
 		return mono_string_new(mono_domain_get(), path.c_str());
 	}
 
