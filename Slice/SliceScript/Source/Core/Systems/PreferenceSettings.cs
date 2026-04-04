@@ -118,7 +118,7 @@ namespace SliceEngine
             preferences["Master Volume"] = AudioManager.GetMasterVolume().ToString();
             preferences["BGM Volume"] = AudioManager.GetCategoryVolume("BGM").ToString();
             preferences["SFX Volume"] = AudioManager.GetCategoryVolume("SFX").ToString();
-            string filePath = Application.GetFilePath("GamePreference.txt");
+            
 
             string[] lines = new string[4];
             int counter = 0;

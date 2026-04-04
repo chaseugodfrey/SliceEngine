@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,10 +10,12 @@ namespace SliceEngine
     public class OrbitalLaserCamManager : SliceBehaviour
     {
         bool isBeingHit = false;
-        bool isHit = false;
+        bool isHitLastFrame = false;
 
         public GameObject camObj;
         public Camera cam;
+        Vector3 impactPos;
+        Queue hits = new Queue();
 
         public override void OnCreate()
         {
@@ -23,10 +26,31 @@ namespace SliceEngine
         public override void OnLateUpdate(float dt)
         {
             base.OnLateUpdate(dt);
+
+            if (isBeingHit && !isHitLastFrame)
+            {
+                cam.SetImpactFrame(true);
+                isHitLastFrame = true;
+            }
+            else if (!isBeingHit && isHitLastFrame)
+            {
+                cam.SetImpactFrame(false);
+                isHitLastFrame = false;
+            }
+
+            if (isBeingHit && hits.Count != 0)
+            {
+                cam.SetImpactFramePosition((Vector3)hits.Dequeue());
+            }
+
+            isHitLastFrame = isBeingHit;
+            isBeingHit = false;
+            hits.Clear();
         }
 
-        public void Hit()
+        public void Hit(Vector3 pos)
         {
+            hits.Enqueue(pos);
             isBeingHit = true;
         }
     }

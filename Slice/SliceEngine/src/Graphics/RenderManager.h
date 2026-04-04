@@ -42,6 +42,7 @@ namespace SliceEngine
 		GameObject CreatePrefabCam();
 		void SetMainGameCamera(Entity cam);
 		std::optional<Entity>& GetGameCamera();
+		void CopyMainCamSettings(Camera& othCam);
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 		void GetCameraAxis(glm::mat3& camRot, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 		glm::mat4 DirLightMatCalc(const glm::mat4& proj, const glm::mat4& view, const glm::vec3 lightDir);
