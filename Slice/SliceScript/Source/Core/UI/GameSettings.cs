@@ -13,9 +13,14 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject beforeGammaImage;
+        private GameObject pauseBGM;
+        private GameObject levelBGM;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
+
+        private AudioSource pauseAudioSource;
+        private AudioSource levelAudioSource;
         //private PreferenceSettings preferenceSettings;
 
         private SpriteRendererGammaOverride spriteGammaOverride;
@@ -24,9 +29,23 @@ namespace SliceEngine
 
         public override void OnCreate()
         {
-            settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
+            settingsPopup = FindGameObjectWithName("Settings_Popup_Levels");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             beforeGammaImage = FindGameObjectWithName("BeforeImage");
+
+            if(FindGameObjectWithName("PauseMusic") != null)
+            {
+            
+                pauseBGM = FindGameObjectWithName("PauseMusic");
+
+            }
+
+            if(FindGameObjectWithName("LevelBGM") != null)
+            {
+            
+                levelBGM = FindGameObjectWithName("LevelBGM");
+
+            }
 
 
 
@@ -52,7 +71,17 @@ namespace SliceEngine
                 spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
             }
 
-            
+            if (pauseBGM != null)
+            {
+                pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+            }
+
+            if (levelBGM != null)
+            {
+                levelAudioSource = levelBGM.GetComponent<AudioSource>();
+            }
+
+
 
             PreferenceSettings.Initialize();
 
@@ -91,6 +120,16 @@ namespace SliceEngine
 
             spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
 
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Stop();
+            }
+
+            if (levelAudioSource != null)
+            {
+                levelAudioSource.IsPaused = false;
+            }
+
             if (borderAnim != null)
             {
                 borderAnim.StartSettingsPopupAnimation(false);
@@ -125,7 +164,15 @@ namespace SliceEngine
 
             isSettingsOpen = true;
 
-            
+            if (levelAudioSource != null)
+            {
+                levelAudioSource.IsPaused = true;
+            }
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Play();
+            }
 
             if (bgAnim != null)
             {
