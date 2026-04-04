@@ -544,6 +544,25 @@ namespace SliceEngine
 		return dopplerLevel;
 	}
 
+	void AudioManager::SetLoopCount(FMOD::Channel* channel, int loopCount)
+	{
+		if (channel)
+		{
+			channel->setLoopCount(loopCount);
+		}
+
+	}
+
+	int AudioManager::GetLoopCount(FMOD::Channel* channel)
+	{
+		if (channel)
+		{
+			int currentLoopCount = 0;
+			channel->getLoopCount(&currentLoopCount);
+			return currentLoopCount;
+		}
+	}
+
 	int AudioManager::GetChannelPriority(FMOD::Channel* channel)
 	{
 		if (!channel)
