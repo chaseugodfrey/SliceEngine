@@ -1397,7 +1397,7 @@ void main(void){
 	if(fFragColor.a < 0.00001f)
 		discard;
 
-	fNormalData = normalize(fNormalData);mic
+	fNormalData = normalize(fNormalData);
 
 	fGID = iDat[vInstance].entityID;
 	fRoughMetalLightData = vec3(roughness, metallic, float(iDat[vInstance].isIgnoreLights));
