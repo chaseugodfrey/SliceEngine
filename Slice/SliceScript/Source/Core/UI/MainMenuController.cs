@@ -13,11 +13,15 @@ namespace SliceEngine
         private GameObject bgAnimationObject;
         private GameObject bgCloseAnimationObject;
         private GameObject MainMenuCanvas;
+        private GameObject pauseBGM;
+        private GameObject menuBGM;
         private GameObject beforeGammaImage;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
         private SettingsCloseBGAnimation bgCloseAnim;
+        private AudioSource pauseAudioSource;
+        private AudioSource menuAudioSource;
         //private PreferenceSettings preferenceSettings;
 
         private SpriteRendererGammaOverride spriteGammaOverride;
@@ -34,6 +38,8 @@ namespace SliceEngine
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
             beforeGammaImage = FindGameObjectWithName("BeforeImage");
+            pauseBGM = FindGameObjectWithName("PauseMusic");
+            menuBGM = FindGameObjectWithName("MenuBGM");
 
 
             if (settingsPopup != null)
@@ -56,6 +62,16 @@ namespace SliceEngine
             if (beforeGammaImage != null)
             {
                 spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
+            }
+
+            if(pauseBGM != null)
+            {
+                pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+            }
+
+            if(menuBGM != null)
+            {
+                menuAudioSource = menuBGM.GetComponent<AudioSource>();
             }
 
             PreferenceSettings.Initialize();
@@ -115,6 +131,16 @@ namespace SliceEngine
         {
             isSettingsOpen = true;
 
+            if(menuAudioSource != null)
+            {
+                menuAudioSource.IsPaused = true;
+            }
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Play();
+            }
+
             if (bgAnim != null)
             {
                 AudioSettings.PlaySFX("PauseTransitionIn");
@@ -136,7 +162,16 @@ namespace SliceEngine
 
             spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
 
-            
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Stop();
+            }
+
+            if (menuAudioSource != null)
+            {
+                menuAudioSource.IsPaused = false;
+            }
+
 
             if (borderAnim != null)
             {
