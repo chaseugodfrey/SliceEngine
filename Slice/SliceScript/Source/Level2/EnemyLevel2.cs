@@ -532,6 +532,9 @@ namespace SliceEngine
 
         protected uint collidedEntity = 0;
 
+        private int damageLeftTillSFX = 20;
+
+
         public override void OnCreate()
         {
             // Initialize state machine and states
@@ -595,9 +598,11 @@ namespace SliceEngine
 
             Console.WriteLine($"Take Damage called for {amount}");
 
+
+
             base.TakeDamage(amount, source);
 
-
+            damageLeftTillSFX -= amount;
         }
 
         public override void OnDeath()
@@ -608,13 +613,23 @@ namespace SliceEngine
             // transition to the death state where it flies up
             //Console.WriteLine("Dying");
             stateMachine.ChangeState(deathState);
+
+            AudioSettings.PlaySFX("04_02_Ozone_InitiatingHailMAry");
         }
 
         protected override void OnDamaged(GameObject source)
         {
             Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
             CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
-            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth); 
+
+            if (damageLeftTillSFX <= 0 )
+            {
+                AudioSettings.PlaySFX("04_011_Ozone");
+
+                damageLeftTillSFX += 20;
+            }
+
         }
 
         public override void OnUpdate(float dt)

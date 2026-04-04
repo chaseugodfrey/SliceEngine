@@ -194,7 +194,7 @@ namespace SliceEngine
 
         private int dialogueIndex = 0;
 
-        public bool PlayDialogueForLevel(int level, int scene)
+        public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
 
             // Skip to display full line when type writer effect is playing.
