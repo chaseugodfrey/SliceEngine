@@ -112,8 +112,6 @@ namespace SliceEngine
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
 
-            string filePath = Application.GetFilePath("GamePreference.txt");
-
             // We only got 4 settings to save
             // We just hardcode the default by reading from the engine values
             preferences["Gamma"] = Camera.Gamma.ToString();
