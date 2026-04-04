@@ -397,7 +397,7 @@ namespace SliceEngine
 	}
 
 	float RenderManager::GetSessionExposure() const { return mSessionExposure; }
-	float RenderManager::GetSessionGamma() const { return mSessionGamma / 10.f; }
+	float RenderManager::GetSessionGamma() const { return mSessionGamma; }
 
 	void RenderManager::SetSessionExposure(float exposure)
 	{
@@ -411,7 +411,7 @@ namespace SliceEngine
 	}
 	void RenderManager::SetSessionGamma(float gamma)
 	{
-		float modGamma = gamma * 10.f;
+		float modGamma = gamma;
 		mSessionGamma = modGamma;
 		auto& mainCam = GetGameCamera();
 		if (mainCam.has_value())
