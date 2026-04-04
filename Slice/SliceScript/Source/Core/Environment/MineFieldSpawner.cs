@@ -2,6 +2,7 @@ using SliceEngine;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 namespace SliceEngine
@@ -23,28 +24,51 @@ namespace SliceEngine
 
         public float mineSelfDestructDuration = 5.0f;
 
+        Vector4 colourActivated;
+        Vector4 colourDeactivated = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
+
+        Renderer coreRenderer;
+
+        public override void OnCreate()
+        {
+            base.OnCreate();
+
+            GameObject[] children = gameObject.GetAllChildren();
+            foreach (GameObject child in children)
+            {
+                if (child.tag == "Core")
+                {
+                    coreRenderer = child.GetComponent<Renderer>();
+                    colourActivated = coreRenderer.GetColor();
+                    coreRenderer.SetColor(colourDeactivated);
+                }
+            }
+        }
+
         public override void OnFixedUpdate(float dt)
         { 
             if (triggered)
             {
                 timeBetweenTriggers += dt;
+                coreRenderer.SetColor(colourActivated);
             }
 
             if (timeBetweenTriggers >= durationBetweenTriggers)
             {
                 timeBetweenTriggers = 0.0f;
                 triggered = false;
+                coreRenderer.SetColor(colourDeactivated);
             }
         }
 
-        public override void OnTriggerEnter(uint other)
+        public override void OnTriggerStay(uint other)
         {
             if (triggered) return;
 
-            base.OnTriggerEnter(other);
-
             GameObject collidedGO = FindGameObjectWithID(other);
             if (collidedGO == null || collidedGO.tag != "Player") return;
+
+            base.OnTriggerEnter(other);
 
             triggered = true;
             
