@@ -23,7 +23,7 @@ namespace SliceEngine
             bool setNarrative = false;
             bool isNarrativeDone = false;
 
-            float timer = 5.0f;
+            float timer = 0.0f;
             public IntroState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -34,7 +34,6 @@ namespace SliceEngine
                 SliceLog.Console("Intro State.");
                 moveCoroutine = bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 3.0f);
                 bossController.StartCoroutine(moveCoroutine);
-                bossController.stateQueue.Enqueue(bossController.summonState);
             }
 
             public override void OnUpdate(float dt)
@@ -48,31 +47,35 @@ namespace SliceEngine
 
                     if (!isNarrativeDone)
                     {
+                        if (Input.IsKeyPressed(Keys.KEY_F))
+                        {
+                            Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
+                        }
 
+                        if (Bootstrap.HUDManager.dialogueIndex == 1)
+                        {
+                            bossController.bossSM.ChangeState(bossController.rechargingState);
+                            bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(1, 0.5f);
+                            isNarrativeDone = true;
+                        }
                     }
                 }
 
-                timer -= dt;
+                timer += dt;
                 bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
-                if (timer <= 0)
-                {
-            
-                }
             }
 
             public override void OnExit()
             {
-                CoroutineManager.StopCoroutine(moveCoroutine, bossController);
+
             }
 
             void SetNarrative()
             {
                 setNarrative = true;
-                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(0, 1);
-                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene);
+                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(0, 1f);
+                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
             }
-
-
         }
 
         public class IdleState : BaseState
@@ -180,6 +183,8 @@ namespace SliceEngine
                 }
 
                 timer = timerMax;
+
+                bossController.stateQueue.Enqueue(bossController.slamState);
             }
 
             public override void OnUpdate(float dt)
@@ -290,6 +295,8 @@ namespace SliceEngine
             GameObject fx;
             bool startCharging = false;
             bool hasGen = true;
+            bool isIntro = true;
+            bool isLocked = true;
 
             public RechargingState(GameObject owner) : base(owner)
             {
@@ -303,10 +310,14 @@ namespace SliceEngine
                 bossController.isInvulnerable = true;
                 bossController.isMovementDone = false;
 
-                hasGen = bossController.canRecharge = bossController.SetupRecharging();
+                if (!isIntro)
+                {
+                    hasGen = bossController.canRecharge = bossController.SetupRecharging();
+                    bossController.ReturnFollowingProjectiles();
+                    bossController.stateQueue.Clear();
+                }
+
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
-                bossController.ReturnFollowingProjectiles();
-                bossController.stateQueue.Clear();
             }
 
             public override void OnUpdate(float dt)
@@ -333,7 +344,7 @@ namespace SliceEngine
                             rotTimer = 0.0f;
                         }
 
-                        hasGen = bossController.RechargeShield();
+                        hasGen = bossController.RechargeShield(isIntro);
                         // some silly animation for now
 
                         bossController.transform.Rotation = rotDir;
@@ -345,15 +356,31 @@ namespace SliceEngine
                         bossController.stateQueue.Enqueue(bossController.summonState);
                         bossController.bossSM.ChangeState(bossController.idleState);
                     }
+
+                    if (isIntro)
+                    {
+                        if (Input.IsKeyPressed(Keys.KEY_F))
+                        {
+                            isLocked = Bootstrap.HUDManager.PlayDialogueForLevel(0, 5, false, true);
+
+                            if (!isLocked)
+                            {
+                                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().StopCutscene();
+                                bossController.isIntroCutscene = false;
+                            }
+                        }
+                    }    
                 }
             }
 
             public override void OnExit()
             {
-                startCharging = false;
-
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 2.4f));
+
+                isIntro = false;
+                startCharging = false;
                 bossController.isInvulnerable = false;
+
                 fx.Destroy();
                 fx = null;
             }
@@ -470,6 +497,8 @@ namespace SliceEngine
 
             readonly float radius = 30.0f;
 
+            int count = 0;
+
             public OrbitalState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -495,11 +524,20 @@ namespace SliceEngine
                         if (bossController.canRecharge)
                             bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 5, 1.0f));
                         else
-                            bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 10, 0.5f));
-                        //bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
-                        //    - bossController.transform.WorldPosition, radius, 20, 0.5f));
-                        //if (!bossController.canRecharge)
-                        //    bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                        {
+                            if (count < 1)
+                            {
+                                bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 10, 0.5f));
+                                count++;
+                            }
+
+                            else
+                            {
+                                bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                                count = 0;
+                            }
+
+                        }
 
                         isFiring = true;
                     }
@@ -639,6 +677,7 @@ namespace SliceEngine
         bool isGrounded = false;
         bool isShieldDestroyed = false;
         bool isDead = false;
+        bool isIntroCutscene = true;
 
         public float areaRadius = 100.0f;
 
@@ -668,7 +707,7 @@ namespace SliceEngine
             // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
             rechargingPosition = rechargePositionObj.GetComponent<Transform>().WorldPosition;
-            currentShield = maxShield;
+            //currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
@@ -790,26 +829,32 @@ namespace SliceEngine
             return hasGen;
         }
 
-        public bool RechargeShield()
+        public bool RechargeShield(bool isIntro)
         {
             var shieldManager = shieldGeneratorManager.As<ShieldGeneratorManager>();
+            bool hasGen = true;
 
-            bool hasGen = shieldManager.RegenerateShields();
+            if (!isIntro)
+                hasGen = shieldManager.RegenerateShields();
+
             if (!hasGen)
                 return false;
 
             //SliceLog.Console("Recharging...");
             isShieldDestroyed = false;
-            currentShield += restoreRate * Time.deltaTime;
+            currentShield += restoreRate * Time.deltaTime * (isIntro ? 3.0f : 1.0f);
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
             if (currentShield >= maxShield)
             {
                 currentShield = maxShield;
-                shieldManager.StopAllGenerators();
-                stateQueue.Enqueue(summonState);
-                bossSM.ChangeState(idleState);
+                if (!isIntroCutscene)
+                {
+                    shieldManager.StopAllGenerators();
+                    stateQueue.Enqueue(summonState);
+                    bossSM.ChangeState(idleState);
+                }
             }
 
             return true;
@@ -843,13 +888,15 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_J))
             {
-                bossSM.ChangeState(rechargingState);
+                TakeDamage(1000);
+                shieldGeneratorManager.As<ShieldGeneratorManager>().DestroyAllGenerators();
+                canRecharge = false;
             }
         }
 
         IEnumerator FireBigOrbitalLaser(Vector3 position)
         {
-            GameObject go = CreateOrbitalLaser(100.0f, 100.0f, 3.0f, 5.0f, 0.0f);
+            GameObject go = CreateOrbitalLaser(80.0f, 100.0f, 3.0f, 5.0f, 0.2f);
             Vector3 finalPos = position;
             finalPos.y = go.GetComponent<Transform>().Position.y;
             go.GetComponent<Transform>().Position = position;

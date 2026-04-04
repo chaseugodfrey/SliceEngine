@@ -139,8 +139,18 @@ namespace SliceEngine
             {
                 foreach (GameObject gen in generatorsFunctioning)
                 {
-                    gen.As<ShieldGenerator>().TakeDamage(1000);
+                    gen.As<ShieldGenerator>().OnDeath();
                 }
+            }
+        }
+
+        public void DestroyAllGenerators()
+        {
+            foreach (GameObject gen in generatorsLeft)
+            {
+                var sg = gen.As<ShieldGenerator>();
+                sg.OnDeath();
+                sg.ActivatePipe();
             }
         }
 
