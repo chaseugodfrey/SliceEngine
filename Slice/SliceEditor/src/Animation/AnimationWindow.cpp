@@ -682,42 +682,50 @@ namespace SliceEditor
 					{
 						if(!newAnimName.empty())
 						{
-							targetAnimPath = targetAnimPath / newAnimName;
-							if (targetAnimPath.extension() != ".seq")
+							auto it = mRegistry.GetAssetManager().mFilenameToGUID.find(newAnimName + ".seq");
+							if (it != mRegistry.GetAssetManager().mFilenameToGUID.end())
 							{
-								targetAnimPath += ".seq";
+								targetAnimPath = targetAnimPath / newAnimName;
+								if (targetAnimPath.extension() != ".seq")
+								{
+									targetAnimPath += ".seq";
+								}
+
+								SliceEngine::SliceEngineTypes::Sequence newAnim{};
+								newAnim.name = newAnimName;
+
+								std::string relativeAnimPath = "Animations/" + newAnimName + ".seq";
+
+								SequenceData animData{};
+								animData.LoadSequenceData(newAnim);
+								animData.SerializeAsset(targetAnimPath);
+
+								mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
+								//mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath];
+
+								mCurrentAnimator->curr_anims.animations.push_back(newAnim);
+								customAnimClips.push_back(newAnim);
+
+								std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
+								if (parentName)
+								{
+									std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
+									SequencePkgData parentPkg{};
+									parentPkg.DeserializeAsset(parentPath);
+									parentPkg.animations.push_back(newAnim.name);
+									parentPkg.SerializeAsset(parentPath);
+								}
+
+								newAnimName = "";
+								targetAnimPath = std::filesystem::path("Assets");;
+								ImGui::CloseCurrentPopup();
+
+								LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 							}
-
-							SliceEngine::SliceEngineTypes::Sequence newAnim{};
-							newAnim.name = newAnimName;
-
-							std::string relativeAnimPath = "Animations/" + newAnimName + ".seq";
-
-							SequenceData animData{};
-							animData.LoadSequenceData(newAnim);
-							animData.SerializeAsset(targetAnimPath);
-
-							mRegistry.GetAssetManager().CreateResource(targetAnimPath, nullptr, true);
-							//mCurrentAnimator->Handle_Anims = mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath];
-
-							mCurrentAnimator->curr_anims.animations.push_back(newAnim);
-							customAnimClips.push_back(newAnim);
-
-							std::optional<std::string> parentName = mRegistry.GetAssetManager().GetFilenameFromGUID(mCurrentAnimator->Handle_Anims.getGUID());
-							if (parentName)
+							else
 							{
-								std::filesystem::path parentPath = std::filesystem::current_path() / parentName.value();
-								SequencePkgData parentPkg{};
-								parentPkg.DeserializeAsset(parentPath);
-								parentPkg.animations.push_back(newAnim.name);
-								parentPkg.SerializeAsset(parentPath);
+								SLICE_LOG("filename exists already");
 							}
-
-							newAnimName = "";
-							targetAnimPath = std::filesystem::path("Assets");;
-							ImGui::CloseCurrentPopup();
-
-							LoadDataFromSequenceClip(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex], mCurrentClipIndex);
 						}
 					}
 
@@ -1214,6 +1222,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
+				mOpenEventPopup = false;
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -1242,6 +1251,7 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
+				mOpenEventPopup = false;
 				ImGui::CloseCurrentPopup();
 			}
 
@@ -1267,8 +1277,8 @@ namespace SliceEditor
 					break;
 				case 1:
 					//mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.push_back({ static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
-					InsertNewKey(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
-					InsertNewKey(customAnimClips[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),glm::eulerAngles(trf->rotation) });
+					InsertNewKey(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),trf->eulerAnglesHint });
+					InsertNewKey(customAnimClips[mCurrentClipIndex].rotation, { static_cast<unsigned int>(currentFrame),trf->eulerAnglesHint });
 					break;
 				case 2:
 					//mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.push_back({ static_cast<unsigned int>(currentFrame),trf->scale });
@@ -1310,12 +1320,12 @@ namespace SliceEditor
 					break;
 				case 1:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
-					customAnimClips[mCurrentClipIndex].transform.erase(customAnimClips[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					customAnimClips[mCurrentClipIndex].rotation.erase(customAnimClips[mCurrentClipIndex].rotation.begin() + mCurrentEventIndex);
 					propToDel = "Rotation";
 					break;
 				case 2:
 					mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.erase(mCurrentAnimator->curr_anims.animations[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
-					customAnimClips[mCurrentClipIndex].transform.erase(customAnimClips[mCurrentClipIndex].transform.begin() + mCurrentEventIndex);
+					customAnimClips[mCurrentClipIndex].scale.erase(customAnimClips[mCurrentClipIndex].scale.begin() + mCurrentEventIndex);
 					propToDel = "Scale";
 					break;
 				}
@@ -1380,6 +1390,9 @@ namespace SliceEditor
 
 			if (ImGui::Button("Cancel"))
 			{
+				mOpenTrfEditKeyAttrib = false;
+				mOpenSRTVarEdit = -1;
+				attrib = nullptr;
 				ImGui::CloseCurrentPopup();
 			}
 
