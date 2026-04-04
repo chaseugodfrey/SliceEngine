@@ -157,6 +157,9 @@ namespace SliceEngine
             {
                 if (owner != null)
                 {
+
+                    owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
+
                     // update movement for idle
                     if (enemyController.movementDone && !frozen)
                     {
@@ -241,7 +244,7 @@ namespace SliceEngine
             public bool attacking = false;
             public bool reset = false;
             public Vector3 originalPosition;
-
+            public Vector3 lookPosition;
             float timer = 0.0f;
 
             public SlamState(GameObject owner, EnemyLevel2 controller) : base(owner)
@@ -260,16 +263,20 @@ namespace SliceEngine
 
                 // move to the player fast
                 Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().WorldPosition;
-                targetPos.y = owner.GetComponent<Transform>().WorldPosition.y;
+                targetPos.y = enemyController.baseY;//owner.GetComponent<Transform>().WorldPosition.y;
                 enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
                 //ToggleHitbox(true);
+
+                enemyController.slamWindUpDone = false;
             }
 
             public override void OnUpdate(float dt)
             {
+
                 // only start slamming once its done moving
-                if (enemyController.movementDone && !attacking)
+                if (enemyController.slamWindUpDone && enemyController.movementDone && !attacking)
                 {
+                    //owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
                     attacking = true;
                     // save the original position before slamming
                     //originalPosition = owner.GetComponent<Transform>().Position;
@@ -335,7 +342,7 @@ namespace SliceEngine
         {
             EnemyLevel2 enemyController;
             public List<Projectile> allProjectiles = new List<Projectile>();
-            public float stateDuration = 5.0f;
+            public float stateDuration = 3.0f;
 
             private float count = 0f;
             private float timer = 0f;
@@ -548,6 +555,7 @@ namespace SliceEngine
         public float movementCooldown = 5.0f;
         public float movementTimer = 0.0f;
         public bool movementDone = false;
+        public bool slamWindUpDone = false;
         public int damage = 20;
         public bool canDamage = false;
         public List<GameObject> projectileShooters = new List<GameObject>();
@@ -710,6 +718,7 @@ namespace SliceEngine
 
             while (elapsedTime < duration)
             {
+                this.transform.LookAt(targetPos, new Vector3(0, 1, 0));
                 elapsedTime += Time.deltaTime;
                 float t = elapsedTime / duration;
                 transform.Position = Vector3.Lerp(startPos, targetPos, t);
@@ -720,6 +729,36 @@ namespace SliceEngine
             // Ensure it ends exactly at the target position
             transform.Position = targetPos; 
             OnMovementFinish();
+        }
+
+        public IEnumerator SlamWindUp(Vector3 startPos, Vector3 targetPos, float duration)
+        {
+            float elapsedTime = 0.0f;
+
+            float radius = 10f;
+            //float radiusShrinkingRate = radius / duration;
+
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+
+                float ratio = elapsedTime / duration;
+
+                float angle = ratio * 720f;
+
+                float x = startPos.x + Utilities.SinDeg(angle) * (radius * (1- ratio));
+                float y = startPos.y + (targetPos.y - startPos.y) * ratio;
+                float z = startPos.z + Utilities.CosDeg(angle) * (radius * (1 - ratio));
+                 
+
+                transform.Position = new Vector3(x, y, z );
+
+                yield return null;
+            }
+
+            transform.Position = targetPos;
+            slamWindUpDone = true;
         }
 
         public IEnumerator MoveEnemy(GameObject enemy, Vector3 targetPos, float duration)
@@ -759,6 +798,12 @@ namespace SliceEngine
                 case SlamState _:
                     SlamState slam = stateMachine.currentState as SlamState;
                     slam.originalPosition = transform.Position;
+                    if (!slamWindUpDone)
+                    {
+                        Vector3 upper = transform.Position + new Vector3(0, 20, 0);
+                        StartCoroutine(SlamWindUp(transform.Position, upper, 1));
+                    }
+
                     if (slam.reset)
                     {
                         stateMachine.ChangeState(idleState);
