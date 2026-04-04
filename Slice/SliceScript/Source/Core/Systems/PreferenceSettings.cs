@@ -112,15 +112,13 @@ namespace SliceEngine
         {
             Dictionary<string, string> preferences = new Dictionary<string, string>();
 
-            string filePath = Application.GetFilePath("GamePreference.txt");
-
             // We only got 4 settings to save
             // We just hardcode the default by reading from the engine values
             preferences["Gamma"] = Camera.Gamma.ToString();
             preferences["Master Volume"] = AudioManager.GetMasterVolume().ToString();
             preferences["BGM Volume"] = AudioManager.GetCategoryVolume("BGM").ToString();
             preferences["SFX Volume"] = AudioManager.GetCategoryVolume("SFX").ToString();
-            
+            string filePath = Application.GetFilePath("GamePreference.txt");
 
             string[] lines = new string[4];
             int counter = 0;
