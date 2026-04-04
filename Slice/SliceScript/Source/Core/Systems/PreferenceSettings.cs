@@ -99,7 +99,7 @@ namespace SliceEngine
 
         public static void RestoreDefaults()
         {
-            Camera.Gamma = 4.5f;
+            Camera.Gamma = 45.0f;
 
             
 
