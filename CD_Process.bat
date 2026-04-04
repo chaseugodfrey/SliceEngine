@@ -16,8 +16,8 @@ set "MSBUILD_EXE="!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe""
 echo "--- 1.2 DYNAMIC VERSIONING ---"
 :: Default version if parsing fails
 set "APP_VERSION=1.0.0"
-:: Parse the first "Version X.X.X" found in version.txt
-for /f "tokens=3" %%v in ('findstr /i "Version" version.txt') do (
+:: Parse the version number (e.g., 1.0.1) from '20/11/25 - Version 1.0.1'
+for /f "tokens=4" %%v in ('findstr /i "Version" version.txt') do (
     set "APP_VERSION=%%v"
     goto :found_version
 )
@@ -31,26 +31,26 @@ if defined BUILD_NUMBER (
 echo "Final Build Tag: !FINAL_TAG!"
 
 echo "--- 1.5 BUILD ENGINE PREREQUISITES ---"
-set "ENGINE_LIB=Slice\SliceEngine\SliceEngine.lib"
+:: We force a rebuild of the engine to ensure no stale libraries cause linker errors
+echo "Building Engine Prerequisites (SliceEngine.lib)..."
+pushd Slice
+call PremakeProj.bat
+if !ERRORLEVEL! neq 0 (echo "ERROR: Premake Slice failed!" & exit /b 1)
 
-if exist "%ENGINE_LIB%" (
-    echo "Engine Library Found, skipping engine build..."
-) else (
-    echo "Engine Library NOT Found, building prerequisites..."
-    pushd Slice
-    call PremakeProj.bat
-    if !ERRORLEVEL! neq 0 (echo "ERROR: Premake Slice failed!" & exit /b 1)
-    
-    echo "Building Slice Engine (EditorRelease)..."
-    %MSBUILD_EXE% Slice.sln /p:Configuration=EditorRelease /p:Platform=x64 /t:Build /m /v:m
-    if !ERRORLEVEL! neq 0 (echo "ERROR: Slice Engine build failed!" & exit /b 1)
-    popd
-)
+echo "Building Slice Engine (EditorRelease)..."
+%MSBUILD_EXE% Slice.sln /p:Configuration=EditorRelease /p:Platform=x64 /t:Rebuild /m /v:m
+if !ERRORLEVEL! neq 0 (echo "ERROR: Slice Engine build failed!" & exit /b 1)
+popd
 
 echo "--- 2. BUILD USER-FACING VERSION ---"
 set "PREMAKE_EXE=%~dp0Slice\premake\premake5.exe"
 if not exist "!PREMAKE_EXE!" (
     echo "ERROR: Premake not found!"
+    exit /b 1
+)
+
+if not exist "WeightOfTheSky\" (
+    echo "ERROR: WeightOfTheSky directory not found!"
     exit /b 1
 )
 
@@ -72,8 +72,11 @@ popd
 
 echo "--- 4. DEPLOY / UPLOAD ---"
 if not exist ".venv" (
+    echo "Creating Python virtual environment..."
     python -m venv .venv
 )
+
+echo "Installing Python dependencies..."
 .venv\Scripts\python -m pip install -r WeightOfTheSkyInstaller\requirements.txt
 
 :: GitHub Deployment
@@ -85,13 +88,6 @@ if defined GH_TOKEN (
     .venv\Scripts\python WeightOfTheSkyInstaller\upload_installer.py github !FINAL_TAG!
 ) else (
     echo "[No Token Found] Skipping GitHub upload. Ensure gh_tokensecret is set in Jenkins."
-)
-
-
-:: Bonus Rubric Placeholder: itch.io deployment could go here
-if defined ITCH_IO_TOKEN (
-    echo "Bonus: Deploying to itch.io..."
-    :: call WeightOfTheSkyInstaller\deploy_itch.bat !FINAL_TAG!
 )
 
 echo "--- CD PROCESS COMPLETE ---"
