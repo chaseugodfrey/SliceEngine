@@ -252,7 +252,8 @@ namespace SliceEngine
 		{
 			{"flipY", "vec2 flipY(vec2 n) {return vec2(n.x, 1.f-n.y);}"},
 			{"frand_Vec2", "float frand_vec2(vec2 n) {return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);}"},
-			{"sat_Vec4", "vec3 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
+			{"sat_f", "float sat_f(float x) {return clamp(x, 0.0, 1.0);}"},
+			{"sat_Vec4", "vec4 sat_Vec4(vec4 x) {return clamp(x, vec4(0.0), vec4(1.0));}"},
 			{"extractNom", R"(vec3 extractNom(vec2 v){
 	float z = sqrt(1.0 - clamp(v.x * v.x + v.y * v.y, 0.0, 1.0));
     vec3 actlNom = normalize(vec3(v.x, v.y, z));
@@ -381,14 +382,14 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"Sine", {"float %s = sin(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
 			{"Cosine", {"float %s = cos(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT}}},
 			{"Arctan", {"float %s = atan(%s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT,{CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
-			{"Sat", {"vec3 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
+			{"Sat", {"vec4 %s = sat_Vec4(%s);", "sat_Vec4", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4,{CSHAD_T::VEC4}}},
 			{"Fresnel_f", {"float %s = pow((1.0 - sat_f(dot(normalize(%s), normalize(%s)))), %s);", "sat_f", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC3, CSHAD_T::VEC3, CSHAD_T::FLOAT}}},
 
 			{"Add", {"vec4 %s = %s + %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			{"Subtract", {"vec4 %s = %s - %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			{"Multiply", {"vec4 %s = %s * %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
 			{"Dot", {"float %s = dot(%s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
-			{"Cross", {"vec4 %s = cross(%s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4, CSHAD_T::VEC4}}},
+			{"Cross", {"vec3 %s = cross(%s, %s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC3, {CSHAD_T::VEC3, CSHAD_T::VEC3}}},
 			{"Normalize", {"vec4 %s = normalize(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::VEC4, {CSHAD_T::VEC4}}},
 			{"Length", {"float %s = length(%s);", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::VEC4}}},
 			{"One_Minus_f", {"float %s = 1.f - %s;", "", ShaderGraphFunc_T::MATH, CSHAD_T::FLOAT, {CSHAD_T::FLOAT}}},
@@ -398,7 +399,7 @@ float Voronoi_Deterministic(vec2 uv float angleOffset, float cellDensity)
 			{"Min", {"vec4 %s = min(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::VEC4,CSHAD_T::VEC4}}},
 			{"Max", {"vec4 %s = max(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::VEC4,CSHAD_T::VEC4}}},
 			{"Lerp", {"vec4 %s = mix(%s, %s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::VEC4,CSHAD_T::VEC4,CSHAD_T::FLOAT}}},
-			{"SmoothStep", {"vec4 %s = smoothstep(%s, %s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::VEC4,CSHAD_T::VEC4,CSHAD_T::FLOAT}}},
+			{"SmoothStep", {"float %s = smoothstep(%s, %s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::FLOAT, {CSHAD_T::FLOAT,CSHAD_T::FLOAT,CSHAD_T::FLOAT}}},
 			
 			{"sampleTexture", {"vec4 %s = texture(%s, %s);", "", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::VEC2}}},
 			{"sampleTextureOffset", {"vec4 %s = OffsetTexture(%s, %s, %s, %s, %s);", "OffsetTexture", ShaderGraphFunc_T::UTILITIES, CSHAD_T::VEC4, {CSHAD_T::SAMPLER, CSHAD_T::FLOAT,  CSHAD_T::FLOAT, CSHAD_T::FLOAT, CSHAD_T::FLOAT}}},
