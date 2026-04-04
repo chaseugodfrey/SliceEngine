@@ -53,7 +53,7 @@ namespace SliceEngine
         {
             Level3Boss bossController;
 
-            float timerMax = 1.0f;
+            float timerMax = 3.0f;
             float timer;
 
             BaseState nextState;
@@ -68,13 +68,19 @@ namespace SliceEngine
 
                 // check shields first first
                 if (bossController.canRecharge && bossController.isShieldDestroyed)
+                    nextState = bossController.rechargingState;
+                else
                 {
-                    bossController.bossSM.ChangeState(bossController.rechargingState);
-                    return;
+                    if (bossController.stateQueue.Count > 0)
+                        nextState = bossController.stateQueue.Dequeue() as BaseState;
+                    else
+                        nextState = bossController.projectileState;
                 }
 
+                if (!bossController.canRecharge)
+                    timerMax = 1f;
+
                 timer = timerMax;
-                nextState = bossController.stateQueue.Dequeue() as BaseState;
             }
             public override void OnUpdate(float dt)
             {
@@ -86,16 +92,8 @@ namespace SliceEngine
                 timer -= dt;
                 if (timer <= 0.0f)
                 {
-                    if (nextState != null)
-                    {
-                        bossController.bossSM.ChangeState(nextState);
-                        nextState = null;
-                    }
-                    else
-                    {
-                        SliceLog.Console("No next state queued, defaulting to slam state.");
-                        bossController.bossSM.ChangeState(bossController.slamState);
-                    }
+                    bossController.bossSM.ChangeState(nextState);
+                    nextState = null;
                 }
             }
 
@@ -277,8 +275,10 @@ namespace SliceEngine
                 SliceLog.Console("Recharging State.");
 
                 bossController.isInvulnerable = true;
+                bossController.isMovementDone = false;
+
                 hasGen = bossController.canRecharge = bossController.SetupRecharging();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 1.6f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
                 bossController.ReturnFollowingProjectiles();
                 bossController.stateQueue.Clear();
             }
@@ -315,6 +315,7 @@ namespace SliceEngine
 
                     else
                     {
+                        bossController.canRecharge = bossController.shieldGeneratorManager.As<ShieldGeneratorManager>().CheckIfGeneratorsLeft();
                         bossController.stateQueue.Enqueue(bossController.summonState);
                         bossController.bossSM.ChangeState(bossController.idleState);
                     }
@@ -323,9 +324,12 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.6f));
+                startCharging = false;
+
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 2.4f));
                 bossController.isInvulnerable = false;
                 fx.Destroy();
+                fx = null;
             }
         }
 
@@ -462,7 +466,10 @@ namespace SliceEngine
                     if (!isFiring)
                     {
                         bossController.transform.LookAt(bossController.startingPosition, Vector3.Up);
-                        bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 20, 0.5f));
+                        if (bossController.canRecharge)
+                            bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 5, 1.0f));
+                        else
+                            bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 10, 0.5f));
                         //bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
                         //    - bossController.transform.WorldPosition, radius, 20, 0.5f));
                         //if (!bossController.canRecharge)
@@ -610,6 +617,8 @@ namespace SliceEngine
         float[] thresholds = new float[] { 0.8f, 0.6f, 0.4f, 0.2f };
         int thresholdIndex = 0;
 
+        public List<Coroutine> coroutines = new List<Coroutine>();
+
         public override void OnCreate()
         {
             // initializing states and statemachine
@@ -668,6 +677,7 @@ namespace SliceEngine
                 float t = elapsedTime / duration;
                 transform.Position = Vector3.Lerp(startPos, targetPos, t);
                 yield return null;
+                transform.LookAt(targetPos, Vector3.Up);
             }
 
             isMovementDone = true;
@@ -801,13 +811,11 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
                 TakeDamage(1000);
-                if (currentShield <= 0 && canRecharge && !isDead)
-                    bossSM.ChangeState(rechargingState);
             }
 
             if (Input.IsKeyPressed(Keys.KEY_J))
             {
-                bossSM.ChangeState(orbitalState);
+                bossSM.ChangeState(rechargingState);
             }
         }
 
