@@ -732,7 +732,7 @@ namespace SliceEditor
 			// technically this is done in compiling of asset
 			// but scene has no compiling so we just set it here
 
-			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			resourcePath = "Resources/" + assetName; //Lmao Exception due to lack of time
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
