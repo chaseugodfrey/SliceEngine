@@ -27,6 +27,9 @@ namespace SliceEngine
         public float moveSpeed = 2.0f;
 
         bool curState = true;
+
+        public bool active = true;
+
         public override void OnCreate()
         {
             base.OnCreate();
@@ -58,8 +61,11 @@ namespace SliceEngine
         {
             base.OnFixedUpdate(dt);
 
-            HandleMovement(dt);
-            HandleSwapping(dt);
+            if (active)
+            {
+                HandleMovement(dt);
+                HandleSwapping(dt);
+            }
         }
 
         void HandleMovement(float dt)

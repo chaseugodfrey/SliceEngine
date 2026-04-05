@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097287,
+                "entity_id": 24118045,
                 "neighbours": [
                     0,
-                    2097288,
-                    1048646,
+                    25166156,
+                    20972276,
                     4294967295
                 ]
             },
@@ -135,7 +135,7 @@
                 "colourOverLifetime": true,
                 "coneArc": 62.79999923706055,
                 "destroyOnExpire": true,
-                "duration": 1.0,
+                "duration": 0.5,
                 "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     0.0,
@@ -146,11 +146,11 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 5.0,
+                "glowIntensity": 0.10000000149011612,
                 "glowValueType": 0,
                 "hasCollision": false,
-                "ignoreLights": false,
-                "initialDelay": 0.10000000149011612,
+                "ignoreLights": true,
+                "initialDelay": 0.05000000074505806,
                 "initialLifetimeType": 1,
                 "initialRotationType": 0,
                 "innerShapeRadius": 0.0,
@@ -162,7 +162,7 @@
                     "GUID": ""
                 },
                 "maxGlowIntensity": 0.0,
-                "maxParticleLifetime": 1.5,
+                "maxParticleLifetime": 0.800000011920929,
                 "maxParticles": 5000,
                 "maxRandomColour": [
                     0.0,
@@ -177,8 +177,8 @@
                     0.0
                 ],
                 "maxRandomScale": [
-                    0.30000001192092896,
-                    0.30000001192092896,
+                    0.20000000298023224,
+                    0.20000000298023224,
                     0.0
                 ],
                 "maxRandomSpawnPos": [
@@ -186,9 +186,9 @@
                     0.0,
                     0.0
                 ],
-                "maxRandomSpeed": 8.0,
+                "maxRandomSpeed": 16.0,
                 "minGlowIntensity": 0.0,
-                "minParticleLifetime": 0.800000011920929,
+                "minParticleLifetime": 0.4000000059604645,
                 "minRandomColour": [
                     0.0,
                     0.0,
@@ -211,7 +211,7 @@
                     0.0,
                     0.10000000149011612
                 ],
-                "minRandomSpeed": 6.0,
+                "minRandomSpeed": 12.0,
                 "modelHandle": {
                     "GUID": ""
                 },
@@ -258,12 +258,17 @@
                     "0.000000": [
                         0.0,
                         0.0,
-                        0.0
+                        1.0
                     ],
                     "0.600000": [
                         0.0,
                         0.0,
                         0.6000000238418579
+                    ],
+                    "1.000000": [
+                        0.0,
+                        0.0,
+                        0.0
                     ]
                 },
                 "sizeMapIntermediary": [
@@ -284,7 +289,7 @@
                         ]
                     ],
                     [
-                        0.0,
+                        1.0,
                         [
                             0.0,
                             0.0,
@@ -367,12 +372,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097288,
+                "entity_id": 25166156,
                 "neighbours": [
-                    2097287,
+                    24118045,
                     4294967295,
                     4294967295,
-                    1048645
+                    28311866
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -436,7 +441,7 @@
                 "colourOverLifetime": false,
                 "coneArc": 90.0,
                 "destroyOnExpire": false,
-                "duration": 0.20000000298023224,
+                "duration": 0.15000000596046448,
                 "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     0.0,
@@ -450,7 +455,7 @@
                 "glowIntensity": 1.0,
                 "glowValueType": 0,
                 "hasCollision": false,
-                "ignoreLights": false,
+                "ignoreLights": true,
                 "initialDelay": 0.0,
                 "initialLifetimeType": 0,
                 "initialRotationType": 1,
@@ -458,7 +463,7 @@
                 "isLocalSpace": false,
                 "isRepeating": false,
                 "isRotation3D": false,
-                "lifetime": 0.20000000298023224,
+                "lifetime": 0.15000000596046448,
                 "materialHandle": {
                     "GUID": ""
                 },
@@ -631,11 +636,11 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048645,
+                "entity_id": 28311866,
                 "neighbours": [
-                    2097287,
+                    24118045,
                     4294967295,
-                    2097288,
+                    25166156,
                     4294967295
                 ]
             },
