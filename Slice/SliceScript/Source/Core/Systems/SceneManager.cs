@@ -32,6 +32,11 @@ namespace SliceEngine
                 _transitionRunner.StartCoroutine(FadeInRoutine());
             }
         }
+        public static void LoadWithoutTransition(string name)
+        {
+            FunctionCalls.Audio_StopAllSound();
+            FunctionCalls.Scene_LoadScene(name);
+        }
 
         public static void LoadScene(string name)
         {
