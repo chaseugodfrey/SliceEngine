@@ -90,5 +90,18 @@ if defined GH_TOKEN (
     echo "[No Token Found] Skipping GitHub upload. Ensure gh_tokensecret is set in Jenkins."
 )
 
+:: Bonus Rubric: itch.io deployment
+:: Map your Jenkins secret (itch_tokensecret) to ITCH_IO_TOKEN
+if defined itch_tokensecret set "ITCH_IO_TOKEN=!itch_tokensecret!"
+
+if defined ITCH_IO_TOKEN (
+    echo "[Token Found] Deploying to itch.io as !FINAL_TAG!..."
+    pushd WeightOfTheSkyInstaller
+    call deploy_itch.bat
+    popd
+) else (
+    echo "[No Token Found] Skipping itch.io upload. Ensure itch_tokensecret is set in Jenkins."
+)
+
 echo "--- CD PROCESS COMPLETE ---"
 exit /b 0
