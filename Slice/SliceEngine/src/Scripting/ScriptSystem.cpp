@@ -1737,7 +1737,7 @@ namespace SliceEngine
             case ScriptCollisionType::CollideExit:
             {
                 //mEntityCollisionMap[event.entity].erase(event.other);
-                mCollideMap.erase(event.other);
+                mCollideMap[event.entity].erase(event.other);
                 scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
             }
                 break;

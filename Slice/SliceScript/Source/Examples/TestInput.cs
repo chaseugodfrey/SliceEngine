@@ -12,25 +12,25 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
-            if (Input.IsKeyPressed(Keys.KEY_P))
-            {
-                Cursor.state = Cursor.STATE.DISABLED;
-            }
+            //if (Input.IsKeyPressed(Keys.KEY_P))
+            //{
+            //    Cursor.state = Cursor.STATE.DISABLED;
+            //}
 
-            if (Input.IsKeyPressed(Keys.KEY_O))
-            {
-                Cursor.state = Cursor.STATE.DEFAULT;
-            }
+            //if (Input.IsKeyPressed(Keys.KEY_O))
+            //{
+            //    Cursor.state = Cursor.STATE.DEFAULT;
+            //}
 
-            if (Input.IsKeyDown(Keys.KEY_0))
-            {
-                Bootstrap.HUDManager.GameWinScreen();
-            }
+            //if (Input.IsKeyDown(Keys.KEY_0))
+            //{
+            //    Bootstrap.HUDManager.GameWinScreen();
+            //}
 
-            if (Input.IsKeyDown(Keys.KEY_9))
-            {
-                Bootstrap.HUDManager.GameLoseScreen();
-            }
+            //if (Input.IsKeyDown(Keys.KEY_9))
+            //{
+            //    Bootstrap.HUDManager.GameLoseScreen();
+            //}
 
             //var mouseDelta = Input.GetMouseDelta();
 

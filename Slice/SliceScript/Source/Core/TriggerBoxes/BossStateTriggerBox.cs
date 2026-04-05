@@ -19,6 +19,8 @@ namespace SliceEngine
         private bool _enabled = false;
         public string stateToTrigger = "Idle";
         public GameObject enemy;
+        public GameObject BGMAudioSourceObject;
+        private AudioSource BGMAudioSource;
 
         public override void OnUpdate(float dt)
         {
@@ -30,6 +32,8 @@ namespace SliceEngine
 
                 if (enemy != null && enemy .Has<EnemyLevel2>())
                 {
+                    //BGMAudioSource.enabled  = true;
+                    BGMAudioSource.Play();
                     enemy.As<EnemyLevel2>().TriggerState(stateToTrigger);
                 }
             }
@@ -115,6 +119,7 @@ namespace SliceEngine
                 //console.writeline("Enabled");
                 _enabled = true;
                 //Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene);
+                BGMAudioSource = BGMAudioSourceObject.GetComponent<AudioSource>();
             }
         }
 

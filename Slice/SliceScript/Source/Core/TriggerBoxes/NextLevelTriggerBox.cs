@@ -115,7 +115,7 @@ namespace SliceEngine
 
             GameObject hit = gameObject.FindGameObjectWithID(other);
             //DoorModel = gameObject.FindGameObjectWithName("Door_1"); if (DoorModel == null) SliceLog.Warn("DoorController cannot find RootNode");
-            animator = DoorModel?.GetComponent<Animator>(); if (DoorModel == null) SliceLog.Warn("DoorController cannot find Animator");
+            //animator = DoorModel?.GetComponent<Animator>(); if (DoorModel == null) SliceLog.Warn("DoorController cannot find Animator");
 
             if (hit.Has<PlayerController>() && Bootstrap.Player == hit.As<PlayerController>() && !_enabled)
             {
