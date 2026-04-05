@@ -53,6 +53,7 @@ namespace SliceEngine
             //  cinematicCamera.GetComponent<Transform>().Position = cameraStartingPos.GetComponent<Transform>().WorldPosition;
             Camera.SetMainCamera(cinematicCamera);
             GetComponent<Animator>().SetBool("Cinematic", true);
+            AudioSettings.PlaySFX("Cinematic1_2");
             StartCoroutine(UIAnimation(true));
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
