@@ -12,10 +12,14 @@ namespace SliceEngine
     public class Lvl3CutsceneManager : SliceBehaviour
     {
         public bool isActive;
+        public GameObject BossObj;
         public GameObject CameraRigObj;
         public GameObject CameraObj;
+        public GameObject ArenaObj;
+        public GameObject ArenaPivotObj;
         public GameObject a_camPivot1;
         public GameObject b_camPivot2;
+        public GameObject c_camPivot3;
 
         public float z_transitionDurationToDeath = 1.5f;
 
@@ -44,11 +48,14 @@ namespace SliceEngine
             {
                 a_camPivot1.GetComponent<Transform>(),
                 b_camPivot2.GetComponent<Transform>(),
+                c_camPivot3.GetComponent<Transform>()
             };
             currentCamIndex = 0;
 
-            bossTr = gameObject.FindGameObjectsWithTag("Boss")[0].GetComponent<Transform>();
+            bossTr = BossObj.GetComponent<Transform>();
             trackBoss = true;
+
+            StartCoroutine(IntroCutScene());
         }
 
         public void CutToCam(int index, float time)
@@ -118,6 +125,9 @@ namespace SliceEngine
 
                 else
                 {
+                    camRigTr.RotationQuat = camTransforms[currentCamIndex].WorldRotationQuat;
+                    camRigTr.Position = camTransforms[currentCamIndex].WorldPosition;
+
                     isActive = false;
                     cutToCamBool = false;
                     cutFromCamBool = false;
@@ -125,54 +135,119 @@ namespace SliceEngine
             }
         }
 
-        public IEnumerator DeathFadeInOut()
+        public IEnumerator IntroCutScene()
         {
-            fadeInOut = StartCoroutine(FadeOutRoutine());
-            while (fadeInOut != null)
+            // cam
+
+            // transforms
+            Transform ArenaTr = ArenaObj.GetComponent<Transform>();
+            Transform ArenaPivotTr = ArenaPivotObj.GetComponent<Transform>();
+            Transform BossTr = BossObj.GetComponent<Transform>();
+            Transform PlayerTr = Bootstrap.Player.GetComponent<Transform>();
+
+            // positions
+            Vector3 BossInitialPos = BossTr.WorldPosition;
+            Vector3 ArenaInitialPos = ArenaTr.WorldPosition;
+            Vector3 CamRigInitialPos = ArenaPivotTr.WorldPosition;
+            Vector3 PlayerInitialPos = PlayerTr.WorldPosition;
+
+            Vector3 ArenaNewPos = new Vector3(ArenaInitialPos.x, ArenaInitialPos.y - 150.0f, ArenaInitialPos.z);
+            Vector3 CamRigNewPos = new Vector3(CamRigInitialPos.x, CamRigInitialPos.y - 150.0f, CamRigInitialPos.z);
+
+            camInitialPos = camRigTr.WorldPosition;
+
+            float maxTime = 6.0f;
+            float elapsedTime = 0.0f;
+
+            // hide objects
+            BossTr.Position = Vector3.Zero;
+            Bootstrap.CameraController.LockCamera = true;
+            Bootstrap.Player.SetPlayerLock(true);
+            
+            // rise up
+            while (elapsedTime < maxTime)
             {
+                float t = elapsedTime / maxTime;
+                float rate = Utilities.SmoothStep(0.0f, 1.0f, t);
+
+
+                camRigTr.Position = ArenaPivotTr.WorldPosition;
+                camRigTr.Rotation = ArenaPivotTr.Rotation;
+                PlayerTr.Position = ArenaPivotTr.WorldPosition;
+                ArenaTr.Position = Vector3.Lerp(ArenaNewPos, ArenaInitialPos, rate);
+
+                Vector3 PlayerNewPos = new Vector3(PlayerInitialPos.x, ArenaTr.Position.y, PlayerInitialPos.x);
+                PlayerTr.Position = PlayerNewPos;
+                elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            CameraRigObj.As<CameraController>().LockCamera = true;
+            elapsedTime = 0.0f;
+            maxTime = 0.1f;
 
-            camRigTr.transform.Position = camTransforms[0].WorldPosition;
-            camRigTr.transform.Rotation = camTransforms[0].Rotation;
+            PlayerTr.Position = ArenaPivotTr.WorldPosition;
 
-            fadeInOut = StartCoroutine(FadeInRoutine());
-            while (fadeInOut != null)
+            BossTr.Position = BossInitialPos;
+            Bootstrap.CameraController.LockCamera = false;
+            Bootstrap.Player.SetPlayerLock(false);
+
+            while (elapsedTime < maxTime)
             {
+                elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
+            BossObj.As<Level3Boss>().StartBoss();
         }
 
-        public IEnumerator FadeInRoutine()
+        public IEnumerator DeathFadeInOut(Transform boss)
         {
-            float elapsedTime = 0f;
             if (SceneManager._transitionRenderer != null)
             {
                 SceneManager._transitionRenderer.SetEnabled(true);
             }
-            SetRectAlpha(1.0f); // Start black
+
+            float elapsedTime = 0.0f;
+
+            while (elapsedTime < z_transitionDurationToDeath)
+            {
+                SetRectAlpha(elapsedTime / z_transitionDurationToDeath);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            elapsedTime = 0.0f;
+            SetRectAlpha(1.0f);
+
+            CutToCam(2, 0);
+            CameraRigObj.As<CameraController>().LockCamera = true;
+            Bootstrap.Player.SetPlayerLock(true);
+
+            while (elapsedTime < z_transitionDurationToDeath * 0.5f)
+            {
+                elapsedTime += Time.deltaTime;
+                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                yield return null;
+            }
+
+            elapsedTime = 0.0f;
 
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, z_transitionDurationToDeath, elapsedTime);
-                float alpha = Utilities.Lerp(1.0f, 0.0f, t); // 1 -> 0
-
-                SetRectAlpha(alpha);
+                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                SetRectAlpha(1.0f - (elapsedTime / z_transitionDurationToDeath));
                 yield return null;
             }
 
-            Console.Write("End of fade in routine");
-            SetRectAlpha(0.0f); // Ensure fully transparent
+            elapsedTime = 0.0f;
+            SetRectAlpha(0.0f);
 
-            if (SceneManager._transitionRenderer != null)
+            while (elapsedTime < z_transitionDurationToDeath)
             {
-                SceneManager._transitionRenderer.SetEnabled(false);
+                elapsedTime += Time.deltaTime;
+                yield return null;
             }
-
-            fadeInOut = null;
         }
 
         public IEnumerator FadeOutRoutine()
@@ -184,15 +259,12 @@ namespace SliceEngine
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, z_transitionDurationToDeath, elapsedTime);
-                float alpha = Utilities.Lerp(0.0f, 1.0f, t); // 0 -> 1
+                float alpha = Utilities.Lerp(0.0f, 1.0f, elapsedTime / z_transitionDurationToDeath); // 0 -> 1
                                                              //Console.WriteLine("Stuck in fade out routine");
                 SetRectAlpha(alpha);
                 yield return null;
             }
             SetRectAlpha(1.0f); // Ensure fully black
-
-
 
             fadeInOut = null;
         }
@@ -201,7 +273,6 @@ namespace SliceEngine
         {
             if (SceneManager._transitionRenderer != null)
             {
-
                 Vector4 color = SceneManager._transitionRenderer.Colour;
                 color.w = alpha;
                 SceneManager._transitionRenderer.Colour = color;

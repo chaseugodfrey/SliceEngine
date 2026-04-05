@@ -335,6 +335,9 @@ namespace SliceEditor
 		case AssetType::Font:
 			CompileFontAsset(metaPath);
 			break;
+		case AssetType::CSV:
+			CompileCSVAsset(static_cast<CSVData*>(metaData));
+			break;
 		}
 
 		mGUIDtoFilename[metaData->guid] = metaData->assetName;
@@ -804,6 +807,25 @@ namespace SliceEditor
 		}
 	}
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+
+	void AssetManager::CompileCSVAsset(CSVData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 

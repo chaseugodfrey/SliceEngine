@@ -79,6 +79,11 @@ namespace SliceEngine
             if (!active) return;
 
             DestroyTrigger?.Invoke(this.gameObject);
+            DestroyShieldGen();
+        }
+
+        public void DestroyShieldGen()
+        {
             active = false;
             generating = false;
             hitbox.ComponentEnabled = false;
@@ -94,6 +99,7 @@ namespace SliceEngine
 
             vfx = gameObject.CreateGameObject("Prefabs/FX_ShieldGenDischarge.prefab");
             vfx.GetComponent<Transform>().Position = transform.Position;
+
         }
 
         public void StartGenerating()

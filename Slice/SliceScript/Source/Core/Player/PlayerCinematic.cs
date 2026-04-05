@@ -57,6 +57,7 @@ namespace SliceEngine
             StartCoroutine(UIAnimation());
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
+            Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
         }
 
         public override void OnUpdate(float dt)
@@ -187,8 +188,8 @@ namespace SliceEngine
 
             if (animState == 2)
             {
-                Bootstrap.CameraController.LockCamera = false;
-                Bootstrap.Player.SetPlayerLock(false);
+                //Bootstrap.CameraController.LockCamera = false;
+                //Bootstrap.Player.SetPlayerLock(false);
             }
 
 
@@ -230,6 +231,9 @@ namespace SliceEngine
                 cinematicSword.Destroy();
 
                 cinematicCamera.GetComponent<Animator>().SetBool("Idle2", true);
+
+                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+
             }
 
             //ToggleRenderer(true);
@@ -249,6 +253,7 @@ namespace SliceEngine
                 //Bootstrap.Player.GetComponent<Transform>().WorldPosition
 
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
+                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
                 Destroy();
             }
 
@@ -285,6 +290,7 @@ namespace SliceEngine
 
             topBar.GetComponent<RectTransform>().Pos_Y = (int)endingTopBar;
             bottomBar.GetComponent<RectTransform>().Pos_Y = (int)endingBottomBar;
+
         }
     
         public IEnumerator FOVAnimation()

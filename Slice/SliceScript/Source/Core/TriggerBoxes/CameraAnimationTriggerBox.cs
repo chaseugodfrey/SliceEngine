@@ -103,8 +103,8 @@ namespace SliceEngine
 
             // cause i dont want to modify the original animation trigger box
             // ill have to hard code it here
-            public Vector3 startingPos = new Vector3(720.8f, 70.0f,  -651.2f);
-            public Vector3 endingPos = new Vector3(723.0f, 30.5f, -490.0f);
+            public Vector3 startingPos = new Vector3(720.8f, 75.0f,  -651.2f);
+            public Vector3 endingPos = new Vector3(723.0f, 30.5f, -500.0f);
             public Vector3 startingRot = new Vector3(180.0f, -3.07f, 180.0f);
 
             private Coroutine fadeInRoutine = null;
@@ -132,6 +132,8 @@ namespace SliceEngine
                 }
 
                 AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
+
+                Bootstrap.HUDManager.PlayDialogueForLevel(69,2, true, true);
             }
 
             public override void OnUpdate(float dt)
@@ -141,7 +143,7 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                
+                //Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
             }
 
             public IEnumerator LerpToSword()
@@ -164,6 +166,8 @@ namespace SliceEngine
                     Vector3 targetPos = endingPos;
 
                     camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
+
+
                     if (elapsed >= (duration - 0.2f))
                     {
                         cinematicPlayer.As<PlayerCinematic>().StartCinematicAnimationNoFade();
