@@ -72,12 +72,12 @@ namespace SliceEngine
                 }
                 else
                 {
-                    // 3. The 3-second wait
+                    
                     endTimer += dt;
 
                     if (endTimer >= displayDuration)
                     {
-                        // Replace "Menu" with the exact name of your menu scene
+                        
                         SceneManager.LoadScene("MenuScene");
                     }
                 }
