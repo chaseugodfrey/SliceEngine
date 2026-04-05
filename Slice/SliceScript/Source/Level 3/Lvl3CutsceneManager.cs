@@ -12,10 +12,12 @@ namespace SliceEngine
     public class Lvl3CutsceneManager : SliceBehaviour
     {
         public bool isActive;
+        public GameObject BossObj;
         public GameObject CameraRigObj;
         public GameObject CameraObj;
         public GameObject a_camPivot1;
         public GameObject b_camPivot2;
+        public GameObject c_camPivot3;
 
         public float z_transitionDurationToDeath = 1.5f;
 
@@ -44,10 +46,11 @@ namespace SliceEngine
             {
                 a_camPivot1.GetComponent<Transform>(),
                 b_camPivot2.GetComponent<Transform>(),
+                c_camPivot3.GetComponent<Transform>()
             };
             currentCamIndex = 0;
 
-            bossTr = gameObject.FindGameObjectsWithTag("Boss")[0].GetComponent<Transform>();
+            bossTr = BossObj.GetComponent<Transform>();
             trackBoss = true;
         }
 
@@ -118,6 +121,9 @@ namespace SliceEngine
 
                 else
                 {
+                    camRigTr.RotationQuat = camTransforms[currentCamIndex].WorldRotationQuat;
+                    camRigTr.Position = camTransforms[currentCamIndex].WorldPosition;
+
                     isActive = false;
                     cutToCamBool = false;
                     cutFromCamBool = false;
@@ -125,54 +131,54 @@ namespace SliceEngine
             }
         }
 
-        public IEnumerator DeathFadeInOut()
+        public IEnumerator DeathFadeInOut(Transform boss)
         {
-            fadeInOut = StartCoroutine(FadeOutRoutine());
-            while (fadeInOut != null)
-            {
-                yield return null;
-            }
-
-            CameraRigObj.As<CameraController>().LockCamera = true;
-
-            camRigTr.transform.Position = camTransforms[0].WorldPosition;
-            camRigTr.transform.Rotation = camTransforms[0].Rotation;
-
-            fadeInOut = StartCoroutine(FadeInRoutine());
-            while (fadeInOut != null)
-            {
-                yield return null;
-            }
-        }
-
-        public IEnumerator FadeInRoutine()
-        {
-            float elapsedTime = 0f;
             if (SceneManager._transitionRenderer != null)
             {
                 SceneManager._transitionRenderer.SetEnabled(true);
             }
-            SetRectAlpha(1.0f); // Start black
+
+            float elapsedTime = 0.0f;
+
+            while (elapsedTime < z_transitionDurationToDeath)
+            {
+                SetRectAlpha(elapsedTime / z_transitionDurationToDeath);
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+            
+            elapsedTime = 0.0f;
+            SetRectAlpha(1.0f);
+
+            CutToCam(2, 0);
+            CameraRigObj.As<CameraController>().LockCamera = true;
+            Bootstrap.Player.SetPlayerLock(true);
+
+            while (elapsedTime < z_transitionDurationToDeath * 0.5f)
+            {
+                elapsedTime += Time.deltaTime;
+                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                yield return null;
+            }
+
+            elapsedTime = 0.0f;
 
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, z_transitionDurationToDeath, elapsedTime);
-                float alpha = Utilities.Lerp(1.0f, 0.0f, t); // 1 -> 0
-
-                SetRectAlpha(alpha);
+                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                SetRectAlpha(1.0f - (elapsedTime / z_transitionDurationToDeath));
                 yield return null;
             }
 
-            Console.Write("End of fade in routine");
-            SetRectAlpha(0.0f); // Ensure fully transparent
+            elapsedTime = 0.0f;
+            SetRectAlpha(0.0f);
 
-            if (SceneManager._transitionRenderer != null)
+            while (elapsedTime < z_transitionDurationToDeath)
             {
-                SceneManager._transitionRenderer.SetEnabled(false);
+                elapsedTime += Time.deltaTime;
+                yield return null;
             }
-
-            fadeInOut = null;
         }
 
         public IEnumerator FadeOutRoutine()
@@ -184,15 +190,12 @@ namespace SliceEngine
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                float t = Utilities.InverseLerp(0, z_transitionDurationToDeath, elapsedTime);
-                float alpha = Utilities.Lerp(0.0f, 1.0f, t); // 0 -> 1
+                float alpha = Utilities.Lerp(0.0f, 1.0f, elapsedTime / z_transitionDurationToDeath); // 0 -> 1
                                                              //Console.WriteLine("Stuck in fade out routine");
                 SetRectAlpha(alpha);
                 yield return null;
             }
             SetRectAlpha(1.0f); // Ensure fully black
-
-
 
             fadeInOut = null;
         }
@@ -201,7 +204,6 @@ namespace SliceEngine
         {
             if (SceneManager._transitionRenderer != null)
             {
-
                 Vector4 color = SceneManager._transitionRenderer.Colour;
                 color.w = alpha;
                 SceneManager._transitionRenderer.Colour = color;
