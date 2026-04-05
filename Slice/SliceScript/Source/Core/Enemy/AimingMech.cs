@@ -139,6 +139,7 @@ namespace SliceEngine
 
             if (fireSFXSourceObject != null && fireSFXSourceObject.HasComponent<AudioSource>())
             {
+                SliceLog.Console("Adding");
                 fireSFXSource = fireSFXSourceObject.GetComponent<AudioSource>();
             }
 
