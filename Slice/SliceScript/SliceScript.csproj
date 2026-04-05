@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="Source\Attack_1.cs" />
     <Compile Include="Source\ButtonTest.cs" />
+    <Compile Include="Source\CameraFXStart.cs" />
     <Compile Include="Source\Core\Application.cs" />
     <Compile Include="Source\Core\AudioSettings.cs" />
     <Compile Include="Source\Core\Boss\AttackSetManager.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\DestroyAfterDelay.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMechFollow.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
     <Compile Include="Source\Core\Enemy\AirmineMech.cs" />
     <Compile Include="Source\Core\Enemy\AirmineMechExplosion.cs" />
@@ -99,6 +101,7 @@
     <Compile Include="Source\Core\Enemy\LandmineMech.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMechExplosion.cs" />
     <Compile Include="Source\Core\Enemy\LandmineMechTrigger.cs" />
+    <Compile Include="Source\Core\Enemy\MineSpawnerMech.cs" />
     <Compile Include="Source\Core\Enemy\RotatingMech.cs" />
     <Compile Include="Source\Core\Enemy\TurretMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMech.cs" />
@@ -206,6 +209,7 @@
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
     <Compile Include="Source\Level 3\Level3Boss.cs" />
     <Compile Include="Source\Level 3\Level3ProjectileSpawner.cs" />
+    <Compile Include="Source\Level 3\Lvl3CutsceneManager.cs" />
     <Compile Include="Source\Level 3\Lvl3EnemyHUD.cs" />
     <Compile Include="Source\Level 3\OrbitalLaserCamManager.cs" />
     <Compile Include="Source\Level 3\ProjectileSpawnParent.cs" />

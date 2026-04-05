@@ -66,8 +66,6 @@ namespace SliceEngine
             if (!active) return;
             if (!generating) return;
 
-            SliceLog.Console("SHIELD GENERATOR is taking damage");
-
             base.TakeDamage(1, source);
         }
 
@@ -78,7 +76,14 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
+            if (!active) return;
+
             DestroyTrigger?.Invoke(this.gameObject);
+            DestroyShieldGen();
+        }
+
+        public void DestroyShieldGen()
+        {
             active = false;
             generating = false;
             hitbox.ComponentEnabled = false;
@@ -89,15 +94,12 @@ namespace SliceEngine
             GameObject go = gameObject.CreateGameObject("Prefabs/FX_Environment_Sparks.prefab");
             go.GetComponent<Transform>().Position = transform.Position;
 
-            //Vector3 force = Bootstrap.Player.transform.Position - transform.Position;
-            //force = force.Normalize();
-            //toplid.GetComponent<RigidBody>().AddForce(force * 10.0f, ForceMode.Impulse);
-
             if (vfx != null)
                 vfx.Destroy();
 
             vfx = gameObject.CreateGameObject("Prefabs/FX_ShieldGenDischarge.prefab");
             vfx.GetComponent<Transform>().Position = transform.Position;
+
         }
 
         public void StartGenerating()
@@ -109,8 +111,7 @@ namespace SliceEngine
             vfx.SetParent(gameObject);
 
             TurnOnLitGlass(true);
-
-            z_PipeScript.StartCoroutine(z_PipeScript.ResetPipe());
+            ActivatePipe();
         }
 
         public void GenerateShield()
@@ -133,6 +134,11 @@ namespace SliceEngine
             glass.SetActive(!isOn);
             glassLit.SetActive(isOn);
             light.SetActive(isOn);
+        }
+
+        public void ActivatePipe()
+        {
+            z_PipeScript.StartCoroutine(z_PipeScript.ResetPipe());
         }
     }
 }

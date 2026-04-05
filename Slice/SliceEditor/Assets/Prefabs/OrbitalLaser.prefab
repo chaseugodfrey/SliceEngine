@@ -1,6 +1,28 @@
 [
     {
         "OrbitalLaser": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.699999988079071,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 163.10000610351563,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 129,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "15605811065976597761",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": -0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::ColliderShape": {
                 "componentEnabled": true,
                 "cylinderData": {
@@ -22,11 +44,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 97517768,
+                "entity_id": 197133007,
                 "neighbours": [
                     0,
-                    97517767,
-                    97517774,
+                    205520967,
+                    29360250,
                     4294967295
                 ]
             },
@@ -105,12 +127,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 97517767,
+                "entity_id": 205520967,
                 "neighbours": [
-                    97517768,
+                    197133007,
                     4294967295,
                     4294967295,
-                    97517766
+                    225443937
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -167,12 +189,12 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 97517766,
+                "entity_id": 225443937,
                 "neighbours": [
-                    97517768,
+                    197133007,
                     4294967295,
-                    97517767,
-                    97517763
+                    205520967,
+                    240124608
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -518,11 +540,11 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 97517763,
+                "entity_id": 240124608,
                 "neighbours": [
-                    97517768,
+                    197133007,
                     4294967295,
-                    97517766,
+                    225443937,
                     4294967295
                 ]
             },

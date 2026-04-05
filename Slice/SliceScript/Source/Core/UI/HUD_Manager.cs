@@ -66,7 +66,7 @@ namespace SliceEngine
             //    }
             //}
 
-           
+            
 
         }
 
@@ -202,7 +202,7 @@ namespace SliceEngine
         //string[] for listed things 0 = name, 1 = text
         //private List<string[]> levelDialogues = new List<string[]>();
 
-        private int dialogueIndex = 0;
+        public int dialogueIndex = 0;
 
         public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
@@ -216,7 +216,7 @@ namespace SliceEngine
 
 
             //Close dialogue box if it is the last line of the set
-            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || (allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false))
             {
                 // end of dialogue stack
                 // clear stack
@@ -322,6 +322,8 @@ namespace SliceEngine
             }
 
             SetTextBox(toType);
+            typing = false;
+
 
             yield break;
         }

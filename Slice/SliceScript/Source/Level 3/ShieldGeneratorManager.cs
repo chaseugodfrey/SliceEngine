@@ -10,6 +10,9 @@ namespace SliceEngine
         public List<GameObject> generatorsLeft;
         public List<GameObject> generatorsFunctioning;
 
+        public GameObject RegeneratorTop;
+        public GameObject RegeneratorBot;
+
         public GameObject Boss;
 
         int index = 0;
@@ -43,11 +46,7 @@ namespace SliceEngine
 
         public bool StartGenerators(int count)
         {
-            if (generatorsLeft.Count <= 0)
-            {
-                SliceLog.Console("No Generators left!");
-                return false;
-            }
+            CheckIfGeneratorsLeft();
 
             SliceLog.Console("generatorsLeft count: " + generatorsLeft.Count);
 
@@ -55,6 +54,8 @@ namespace SliceEngine
                 count = generatorsLeft.Count;
 
             generatorsFunctioning.Clear();
+
+            TurnOnOffRegenerators(true);
 
             SliceLog.Console("Attempting to start " + count + " generators.");
 
@@ -92,8 +93,21 @@ namespace SliceEngine
             return true;
         }
 
+        public bool CheckIfGeneratorsLeft()
+        {
+            if (generatorsLeft.Count <= 0)
+            {
+                SliceLog.Console("No Generators left!");
+                return false;
+            }
+
+            return true;
+        }
+
         public void StopAllGenerators()
         {
+            TurnOnOffRegenerators(false);
+
             foreach (GameObject gen in generatorsFunctioning)
             {
                 gen.As<ShieldGenerator>().StopGenerating();
@@ -125,9 +139,27 @@ namespace SliceEngine
             {
                 foreach (GameObject gen in generatorsFunctioning)
                 {
-                    gen.As<ShieldGenerator>().TakeDamage(1000);
+                    gen.As<ShieldGenerator>().OnDeath();
                 }
             }
+        }
+
+        public void DestroyAllGenerators()  
+        {
+            foreach (GameObject gen in generatorsLeft)
+            {
+                var sg = gen.As<ShieldGenerator>();
+                sg.ActivatePipe();
+                sg.DestroyShieldGen();
+            }
+
+            generatorsLeft.Clear();
+        }
+
+        void TurnOnOffRegenerators(bool active)
+        {
+            RegeneratorTop.As<RotatingEnvironment>().StartOrStopRotating(active, 1f);
+            RegeneratorBot.As<RotatingEnvironment>().StartOrStopRotating(active, 1f);
         }
     }
 }

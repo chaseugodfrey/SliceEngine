@@ -29,9 +29,12 @@ namespace SliceEngine
         //public float damageDuration = 1.8f;
 
         OrbitalLaserCamManager camManager;
+        bool beginDeath = false;
 
         bool isPlayerIn = false;
         float impactY;
+
+        AudioSource audioSource;
 
         public override void OnCreate()
         {
@@ -56,6 +59,7 @@ namespace SliceEngine
 
         public override void OnAwake()
         {
+            audioSource = GetComponent<AudioSource>();
             GameObject[] manager = FindGameObjectsWithTag("OrbitalCamManager");
             camManager = manager[0].As<OrbitalLaserCamManager>();
             impactY = transform.Position.y * 3.0f;
@@ -88,7 +92,12 @@ namespace SliceEngine
             }
             else
             {
-                StartCoroutine(Suicide());
+                if (!beginDeath)
+                {
+                    audioSource.Play();
+                    StartCoroutine(Suicide());
+                    beginDeath = true;
+                }
             }
 
             //this.GetComponent<Transform>().Position = cachedPosition;
@@ -177,7 +186,6 @@ namespace SliceEngine
         IEnumerator Suicide()
         {
             yield return new WaitForSeconds(lingerTime);
-            //camera.SetImpactFrame(false);
             gameObject.Destroy();
         }
 

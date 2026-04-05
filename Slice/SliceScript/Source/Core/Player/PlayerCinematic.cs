@@ -14,6 +14,7 @@ namespace SliceEngine
         public GameObject topBar;
         public GameObject bottomBar;
         public string newPlayerPrefab;
+        public GameObject cinematicSword;
 
         // public GameObject cameraStartingPos;
 
@@ -25,12 +26,12 @@ namespace SliceEngine
         private const float TransitionDuration = 1.0f;
         private const float uiDuration = 2.0f;
         private const float fovDuration = 4.0f;
-
+        private Vector3 swordPos; // cause it gets destroyed before i need the pos
         public override void OnCreate()
         {
             //cinematicSM = new StateMachine();
             //startingState = new StartingState(gameObject);
-
+            swordPos = cinematicSword.GetComponent<Transform>().WorldPosition;
             // hide it on start
             ToggleRenderer(false);
             ToggleBagVisibility(false);
@@ -56,6 +57,7 @@ namespace SliceEngine
             StartCoroutine(UIAnimation());
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
+            Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
         }
 
         public override void OnUpdate(float dt)
@@ -186,8 +188,8 @@ namespace SliceEngine
 
             if (animState == 2)
             {
-                Bootstrap.CameraController.LockCamera = false;
-                Bootstrap.Player.SetPlayerLock(false);
+                //Bootstrap.CameraController.LockCamera = false;
+                //Bootstrap.Player.SetPlayerLock(false);
             }
 
 
@@ -226,8 +228,12 @@ namespace SliceEngine
                 // move the camera to where its behind the player for 2nd animation
                 //cinematicCamera.GetComponent<Transform>().Position = new Vector3(-0.054f, 1.811f, -1.345f);
                 //cinematicCamera.GetComponent<Transform>().Rotation = new Vector3(0.0f, -89.4f, 0.0f);
+                cinematicSword.Destroy();
 
                 cinematicCamera.GetComponent<Animator>().SetBool("Idle2", true);
+
+                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+
             }
 
             //ToggleRenderer(true);
@@ -241,13 +247,13 @@ namespace SliceEngine
                 Bootstrap.Player.gameObject.As<PlayerController>().ChangeModel();
 
                 Bootstrap.Player.gameObject.GetComponent<Transform>().Position = GetComponent<Transform>().WorldPosition;
-                Bootstrap.Player.gameObject.GetComponent<Transform>().Rotation = GetComponent<Transform>().Rotation;
+                Bootstrap.Player.gameObject.GetComponent<Transform>().LookAt(swordPos, Bootstrap.Player.gameObject.GetComponent<Transform>().Up);
 
                 //Bootstrap.ChangePlayer(newPlayer);
                 //Bootstrap.Player.GetComponent<Transform>().WorldPosition
 
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
-
+                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
                 Destroy();
             }
 
@@ -284,6 +290,7 @@ namespace SliceEngine
 
             topBar.GetComponent<RectTransform>().Pos_Y = (int)endingTopBar;
             bottomBar.GetComponent<RectTransform>().Pos_Y = (int)endingBottomBar;
+
         }
     
         public IEnumerator FOVAnimation()
