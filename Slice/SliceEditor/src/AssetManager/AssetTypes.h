@@ -486,7 +486,13 @@ namespace SliceEditor
 			nlohmann::json metaJson;
 	
 			metaJson["Animations"] = animations;
-			metaJson["Animation_guids"] = animation_guids;
+
+			std::vector<uint64_t> tmpUint{};
+			for (auto v : animation_guids)
+			{
+				tmpUint.push_back(v.GetGUID());
+			}
+			metaJson["Animation_guids"] = tmpUint;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
