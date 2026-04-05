@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -203,12 +201,12 @@
     <Compile Include="Source\Examples\TestTimeScale.cs" />
     <Compile Include="Source\Examples\TestTransforms.cs" />
     <Compile Include="Source\GroundCheck.cs" />
-    <Compile Include="Source\Level 3\Lvl3CutsceneManager.cs" />
     <Compile Include="Source\Level 3\CollapsingPipe.cs" />
     <Compile Include="Source\Level 3\CollapsingPlatform.cs" />
     <Compile Include="Source\Level 3\EnemyLevel3.cs" />
     <Compile Include="Source\Level 3\Level3Boss.cs" />
     <Compile Include="Source\Level 3\Level3ProjectileSpawner.cs" />
+    <Compile Include="Source\Level 3\Lvl3CutsceneManager.cs" />
     <Compile Include="Source\Level 3\Lvl3EnemyHUD.cs" />
     <Compile Include="Source\Level 3\OrbitalLaserCamManager.cs" />
     <Compile Include="Source\Level 3\ProjectileSpawnParent.cs" />

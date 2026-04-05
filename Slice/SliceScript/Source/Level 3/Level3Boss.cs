@@ -577,9 +577,10 @@ namespace SliceEngine
             public override void OnEnter()
             {
                 var cutsceneManager = bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>();
-                cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut());
+                cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut(bossController.transform));
                 bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, 0.8f));
+
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, cutsceneManager.z_transitionDurationToDeath * 2));
             }
 
             public override void OnUpdate(float dt)
@@ -592,7 +593,7 @@ namespace SliceEngine
                     // shaking
                     rotTimer += dt;
 
-                    if (rotTimer >= 0.5f)
+                    if (rotTimer >= 0.25f)
                     {
                         float x = SliceRandom.RangeFloat(0, 360);
                         float y = SliceRandom.RangeFloat(0, 360);
@@ -604,11 +605,7 @@ namespace SliceEngine
 
                     // some silly animation for now
 
-                    //Vector3 bossPos = bossController.transform.Position;
-
-                    //Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
-                    //bossController.transform.Rotation = rotDir;
-                    //bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
+                    bossController.transform.Rotation = rotDir;
 
                     // jia le add explosion effects here 
                     //if (!triggerExplostion)
