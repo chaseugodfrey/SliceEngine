@@ -510,7 +510,7 @@ namespace SliceEngine
                     // so 0 is attack 1, 1 is attack 2, 3 is for dash
                     // 2 is removed now
                     case 3:
-                        attackAction = DashAttack;
+                        //attackAction = DashAttack;
                         break;
                 }
                 attackHitboxes[i].HitBoxListeners += attackAction;
