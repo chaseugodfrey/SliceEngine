@@ -100,7 +100,7 @@ namespace SliceEngine
 
                 else if(buttonType == 8)
                 {
-                    Bootstrap.LevelDirector.LoadNextLevel();
+                    SceneManager.LoadScene("MenuScene");
                 }else if(buttonType == 9)
                 {
                     Bootstrap.LevelDirector.RestartLevel();

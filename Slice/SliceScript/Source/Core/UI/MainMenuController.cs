@@ -51,6 +51,7 @@ namespace SliceEngine
 
             if (bgAnimationObject != null)
             {
+                
                 bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
                 if (bgAnim != null)
                 {
