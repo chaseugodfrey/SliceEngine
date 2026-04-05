@@ -2,7 +2,7 @@
 
 Module Code: CSD3451/UXG3450
 
-Milestone: 5
+Milestone: 6
 Team: SR3C
 Engine Name: Slice Engine
 
@@ -57,7 +57,7 @@ Role: Systems Designer & Technical Designer
 
 This file will contain the guide to the Slice Engine. Enjoy your time here(or not).
 This document provides an overview of the setup and controls for efficient utilization of our game engine.
-It also details major changes to the engine since Milestone 4.
+It also details major changes to the engine since Milestone 5.
 
 ## Setup
 The game engine solution was developed in Visual Studio 2022.
@@ -80,7 +80,37 @@ When running the engine for the first time, the engine will take a while to star
 
 ------------------------------------------------------------------------------------------------------
 
-## Changes Since Milestone 4
+## Changes Since Milestone 5
+### Graphics & Rendering
+- **Cascading Shadow Maps (CSM):** Implemented CSM to significantly improve shadow quality and performance in large-scale environments.
+- **Advanced Lighting:** Added support for Spotlights and improved translucent material emission.
+- **Post-Processing Enhancements:** Introduced Gamma correction sliders and Bloom limit exposure controls for fine-tuned visual polish.
+- **Combat Visuals:** Implemented "Impact Frames" and blending logic for high-impact combat feedback.
+- **Skybox Controls:** Added direct editor settings for skybox configuration and atmospheric adjustment.
+
+### Core Systems & Stability
+- **Framerate Manager Overhaul:** Resolved critical timing and delta-time resetting issues that occurred during editor-to-play transitions.
+- **Entity Stability:** Major fixes to the Prefab and GameObject cloning systems, ensuring reliable instantiation of complex entities.
+- **Texture Compiler v2:** Updated the texture compiler to support Gamma/sRGB correction and improved compression workflows.
+
+### Editor & UX
+- **Bulk Editing Expansion:** Extended multi-selection support to include Lists and Float values in the Inspector.
+- **Hierarchy Management:** Integrated Shift-Select functionality for rapid multi-object manipulation in the Hierarchy window.
+- **Scene Transitions:** Finalized runtime scene transition logic, enabling seamless movement between game levels.
+- **Splash Screen:** Implemented a fully functional, customizable splash screen system for game launches.
+
+### Physics & Scripting API
+- **LayerMask API Refinement:** Overhauled the LayerMask system to provide more intuitive physics query control from C#.
+- **Scripting Extensions:** Exposed Renderer component toggles, Sprite Animator controls, and Unscaled Delta Time to the C# scripting layer.
+- **Safety Guards:** Added JoltID validation and convex radius safety checks to prevent physics-driven crashes.
+
+### Deployment & Content
+- **Itch.io Integration:** Established automated deployment pipelines for publishing builds directly to Itch.io.
+- **Level 3 Finalization:** Completed the architecture for the Level 3 boss fight, including orbital laser mechanics and synchronized cinematic dialogue.
+
+------------------------------------------------------------------------------------------------------
+
+## Changes in Milestone 5
 ### Graphics & Rendering
 - **Shader Graph System:** Introduced a node-based Shader Graph for custom material effects and dynamic shader generation.
 - **Advanced Post-Processing:** Added support for Godrays (independent of Bloom), Glow effects for particles, and a dedicated Post-Processing debug view.
