@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -161,11 +159,11 @@
     <Compile Include="Source\Core\Systems\SceneManager.cs" />
     <Compile Include="Source\Core\Systems\Time.cs" />
     <Compile Include="Source\Core\TriggerBoxes\BossStateTriggerBox.cs" />
-    <Compile Include="Source\Core\TriggerBoxes\IntroPretextCinematic.cs" />
     <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\CameraAnimationTriggerBoxShowEnemy.cs" />
     <Compile Include="Source\Core\TriggerBoxes\DialogueTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\EnemyDialogueTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\IntroPretextCinematic.cs" />
     <Compile Include="Source\Core\TriggerBoxes\KillPlayerTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\PlayerInteractTriggerBox.cs" />
