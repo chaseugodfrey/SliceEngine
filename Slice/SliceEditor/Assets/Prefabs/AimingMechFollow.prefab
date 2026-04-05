@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388659,
+                "entity_id": 7340207,
                 "neighbours": [
                     0,
-                    6291493,
-                    8388664,
+                    7340206,
+                    7340241,
                     4294967295
                 ]
             },
@@ -107,10 +107,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291493,
+                "entity_id": 7340206,
                 "neighbours": [
-                    8388659,
-                    6291491,
+                    7340207,
+                    7340205,
                     4294967295,
                     4294967295
                 ]
@@ -153,6 +153,10 @@
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
                         "Value": 500.0
+                    },
+                    "fireSFXSourceObject": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 7340199
                     },
                     "firingFXPrefabName": {
                         "Type": "std::string",
@@ -225,12 +229,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291491,
+                "entity_id": 7340205,
                 "neighbours": [
-                    6291493,
-                    4194337,
+                    7340206,
+                    7340204,
                     4294967295,
-                    9437228
+                    7340201
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -291,12 +295,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194337,
+                "entity_id": 7340204,
                 "neighbours": [
-                    6291491,
+                    7340205,
                     4294967295,
                     4294967295,
-                    10485810
+                    7340203
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -357,12 +361,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 10485810,
+                "entity_id": 7340203,
                 "neighbours": [
-                    6291491,
+                    7340205,
                     4294967295,
-                    4194337,
-                    9437220
+                    7340204,
+                    7340202
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -423,11 +427,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9437220,
+                "entity_id": 7340202,
                 "neighbours": [
-                    6291491,
+                    7340205,
                     4294967295,
-                    10485810,
+                    7340203,
                     4294967295
                 ]
             },
@@ -485,12 +489,12 @@
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9437228,
+                "entity_id": 7340201,
                 "neighbours": [
-                    6291493,
-                    7340075,
-                    6291491,
-                    4294967295
+                    7340206,
+                    7340200,
+                    7340205,
+                    7340199
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -547,9 +551,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7340075,
+                "entity_id": 7340200,
                 "neighbours": [
-                    9437228,
+                    7340201,
                     4294967295,
                     4294967295,
                     4294967295
@@ -582,6 +586,77 @@
                     1.0,
                     250.0,
                     1.0
+                ]
+            }
+        }
+    },
+    {
+        "AimAudio": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.800000011920929,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": true,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 1000.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "14930422140598177221",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340199,
+                "neighbours": [
+                    7340206,
+                    4294967295,
+                    7340201,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "AimAudio",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.70710688829422,
+                    0.0,
+                    0.7071066498756409,
+                    0.0
+                ],
+                "scale": [
+                    2.000000476837158,
+                    2.0,
+                    2.000000476837158
                 ]
             }
         }

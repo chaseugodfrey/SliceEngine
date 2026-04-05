@@ -139,6 +139,7 @@ namespace SliceEngine
 
             if (fireSFXSourceObject != null && fireSFXSourceObject.HasComponent<AudioSource>())
             {
+                SliceLog.Console("Adding");
                 fireSFXSource = fireSFXSourceObject.GetComponent<AudioSource>();
             }
 
@@ -204,7 +205,7 @@ namespace SliceEngine
                         if (!isBursting)
                         {
                             //AUDIO
-                            fireSFXSource.Stop();
+                            //fireSFXSource.Stop();
                             burstTimer += dt;
 
                             if (burstTimer >= timeBetweenBursts)
@@ -220,7 +221,7 @@ namespace SliceEngine
                             shotTimer += dt;
 
                             //AUDIO
-                            fireSFXSource.Play();
+                            //fireSFXSource.Play();
 
                             if (shotTimer >= timeBetweenShotsInBurst)
                             {
