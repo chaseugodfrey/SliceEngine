@@ -568,7 +568,7 @@ namespace SliceEngine
             bool triggerExplostion = false;
             float rotTimer = 0.0f;
             Vector3 rotDir;
-
+            float moveTimer = 0.0f;
             public DeathState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -587,34 +587,37 @@ namespace SliceEngine
             {
                 if (bossController.isMovementDone)
                 {
-                    // rising
-                    bossController.transform.Position += Vector3.Up * 1.0f * dt;
-
-                    // shaking
-                    rotTimer += dt;
-
-                    if (rotTimer >= 0.25f)
+                    if (!triggerExplostion)
                     {
-                        float x = SliceRandom.RangeFloat(0, 360);
-                        float y = SliceRandom.RangeFloat(0, 360);
-                        float z = SliceRandom.RangeFloat(0, 360);
+                        moveTimer += dt;
+                        // rising
+                        bossController.transform.Position += Vector3.Up * 1.0f * dt;
 
-                        rotDir = new Vector3(x, y, z);
-                        rotTimer = 0.0f;
+                        // shaking
+                        rotTimer += dt;
+
+                        if (rotTimer >= 0.25f)
+                        {
+                            float x = SliceRandom.RangeFloat(0, 360);
+                            float y = SliceRandom.RangeFloat(0, 360);
+                            float z = SliceRandom.RangeFloat(0, 360);
+
+                            rotDir = new Vector3(x, y, z);
+                            rotTimer = 0.0f;
+                        }
+
+                        // some silly animation for now
+
+                        bossController.transform.Rotation = rotDir;
+
+                        if (moveTimer > 4.0f)
+                        {
+                            var explosion = bossController.CreateGameObject("Prefabs/FX_FinalExplosion.prefab");
+                            explosion.GetComponent<Transform>().Position = bossController.transform.Position;
+                            triggerExplostion = true;
+                        }
                     }
-
-                    // some silly animation for now
-
-                    bossController.transform.Rotation = rotDir;
-
-                    // jia le add explosion effects here 
-                    //if (!triggerExplostion)
-                    //{
-                    //    bossController.StartCoroutine(bossController.TriggerExplosition(bossPos, bossPos, 1, 2));
-                    //    triggerExplostion = false;
-                    //}
                 }
-
             }
 
             public override void OnFixedUpdate(float dt)

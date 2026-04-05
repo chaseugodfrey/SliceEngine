@@ -12,7 +12,7 @@ namespace SliceEngine
     public class Lvl3CutsceneManager : SliceBehaviour
     {
         public bool isActive;
-        public GameObject Lvl3BossHud;
+        public GameObject BossObj;
         public GameObject CameraRigObj;
         public GameObject CameraObj;
         public GameObject a_camPivot1;
@@ -50,7 +50,7 @@ namespace SliceEngine
             };
             currentCamIndex = 0;
 
-            bossTr = gameObject.FindGameObjectsWithTag("Boss")[0].GetComponent<Transform>();
+            bossTr = BossObj.GetComponent<Transform>();
             trackBoss = true;
         }
 
@@ -174,10 +174,9 @@ namespace SliceEngine
             elapsedTime = 0.0f;
             SetRectAlpha(0.0f);
 
-            while (elapsedTime < z_transitionDurationToDeath * 5.0f)
+            while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
                 yield return null;
             }
         }
