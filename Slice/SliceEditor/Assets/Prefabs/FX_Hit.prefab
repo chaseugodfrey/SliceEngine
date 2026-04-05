@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 24118045,
+                "entity_id": 875,
                 "neighbours": [
                     0,
-                    25166156,
-                    20972276,
+                    876,
+                    1049418,
                     4294967295
                 ]
             },
@@ -39,9 +39,9 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.0,
-                    0.0
+                    858.0447998046875,
+                    51.27915954589844,
+                    -375.7314758300781
                 ],
                 "rotation": [
                     1.0,
@@ -70,7 +70,7 @@
                 "bounciness": 0.0,
                 "bursts": [
                     [
-                        200,
+                        50,
                         1,
                         0.0,
                         0.0
@@ -163,7 +163,7 @@
                 },
                 "maxGlowIntensity": 0.0,
                 "maxParticleLifetime": 0.800000011920929,
-                "maxParticles": 5000,
+                "maxParticles": 100,
                 "maxRandomColour": [
                     0.0,
                     0.0,
@@ -372,12 +372,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 25166156,
+                "entity_id": 876,
                 "neighbours": [
-                    24118045,
+                    875,
                     4294967295,
                     4294967295,
-                    28311866
+                    877
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -469,7 +469,7 @@
                 },
                 "maxGlowIntensity": 0.0,
                 "maxParticleLifetime": 5.0,
-                "maxParticles": 200,
+                "maxParticles": 10,
                 "maxRandomColour": [
                     0.8651162981987,
                     0.806882381439209,
@@ -636,11 +636,11 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 28311866,
+                "entity_id": 877,
                 "neighbours": [
-                    24118045,
+                    875,
                     4294967295,
-                    25166156,
+                    876,
                     4294967295
                 ]
             },

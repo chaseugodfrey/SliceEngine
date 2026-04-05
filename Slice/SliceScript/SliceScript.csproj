@@ -21,8 +21,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -34,8 +33,7 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants>
-    </DefineConstants>
+    <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -81,8 +79,8 @@
     <Compile Include="Source\Core\Components\SpriteRendererGammaOverride.cs" />
     <Compile Include="Source\Core\Components\Transform.cs" />
     <Compile Include="Source\Core\DestroyAfterDelay.cs" />
-    <Compile Include="Source\Core\Enemy\AimingMechFollow.cs" />
     <Compile Include="Source\Core\Enemy\AimingMech.cs" />
+    <Compile Include="Source\Core\Enemy\AimingMechFollow.cs" />
     <Compile Include="Source\Core\Enemy\AimingMechWings.cs" />
     <Compile Include="Source\Core\Enemy\AirmineMech.cs" />
     <Compile Include="Source\Core\Enemy\AirmineMechExplosion.cs" />
