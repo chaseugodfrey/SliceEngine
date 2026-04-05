@@ -192,7 +192,7 @@ namespace SliceEngine
                     }
                     
                     allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
-                    SliceLog.Log("Added dialogue entry with " + combinedKey);
+                    //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
         }
