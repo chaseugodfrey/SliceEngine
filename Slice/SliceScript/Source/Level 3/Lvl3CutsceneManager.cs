@@ -21,6 +21,9 @@ namespace SliceEngine
         public GameObject b_camPivot2;
         public GameObject c_camPivot3;
 
+        public GameObject x_BossHud;
+        public GameObject x_PlayerHud;
+
         public float z_transitionDurationToDeath = 1.5f;
 
         Transform camRigTr;
@@ -209,12 +212,15 @@ namespace SliceEngine
 
             float elapsedTime = 0.0f;
 
+            // fade in
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 SetRectAlpha(elapsedTime / z_transitionDurationToDeath);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
+            // while black
             
             elapsedTime = 0.0f;
             SetRectAlpha(1.0f);
@@ -222,6 +228,9 @@ namespace SliceEngine
             CutToCam(2, 0);
             CameraRigObj.As<CameraController>().LockCamera = true;
             Bootstrap.Player.SetPlayerLock(true);
+
+            x_BossHud.SetActive(false);
+            x_PlayerHud.SetActive(false);
 
             while (elapsedTime < z_transitionDurationToDeath * 0.5f)
             {
@@ -231,6 +240,8 @@ namespace SliceEngine
             }
 
             elapsedTime = 0.0f;
+
+            // fade out
 
             while (elapsedTime < z_transitionDurationToDeath)
             {
@@ -242,21 +253,11 @@ namespace SliceEngine
 
             elapsedTime = 0.0f;
             SetRectAlpha(0.0f);
-
-            while (elapsedTime < 12.0f)
-            {
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
-
-            Bootstrap.LevelDirector.LoadNextLevel();
-
         }
 
         public IEnumerator FadeOutRoutine()
         {
             float elapsedTime = 0f;
-            if (SceneManager._transitionRenderer != null) SceneManager._transitionRenderer.SetEnabled(true);
             SetRectAlpha(0.0f); // Start transparent
 
             while (elapsedTime < z_transitionDurationToDeath)

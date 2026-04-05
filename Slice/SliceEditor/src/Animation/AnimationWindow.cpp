@@ -713,6 +713,7 @@ namespace SliceEditor
 									SequencePkgData parentPkg{};
 									parentPkg.DeserializeAsset(parentPath);
 									parentPkg.animations.push_back(newAnim.name);
+									parentPkg.animation_guids.push_back(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath]);
 									parentPkg.SerializeAsset(parentPath);
 								}
 
@@ -745,7 +746,14 @@ namespace SliceEditor
 					if (animsFilePath.has_value())
 					{
 						SequencePkgData Anims{};
-						Anims.LoadSequencePkgData(mCurrentAnimator->curr_anims);
+
+						for (const auto& anim : mCurrentAnimator->curr_anims.animations)
+						{
+							Anims.animations.push_back(anim.name);
+							std::string relativeAnimPath = "Animations/" + anim.name + ".seq";
+							Anims.animation_guids.push_back(mRegistry.GetAssetManager().mFilenameToGUID[relativeAnimPath]);
+						}
+	
 
 						Anims.SerializeAsset(mRegistry.GetAssetManager().mAssetDirectory / animsFilePath.value());
 					}

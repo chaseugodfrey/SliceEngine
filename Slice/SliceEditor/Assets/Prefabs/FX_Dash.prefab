@@ -175,11 +175,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 31457290,
+                "entity_id": 16777813,
                 "neighbours": [
                     0,
-                    33554445,
-                    31457292,
+                    17825845,
+                    16777277,
                     4294967295
                 ]
             },
@@ -255,7 +255,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.3499999940395355,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": false,
@@ -481,12 +481,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 33554445,
+                "entity_id": 17825845,
                 "neighbours": [
-                    31457290,
+                    16777813,
                     4294967295,
                     4294967295,
-                    49283076
+                    17826006
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -561,7 +561,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.3499999940395355,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": false,
@@ -787,12 +787,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 49283076,
+                "entity_id": 17826006,
                 "neighbours": [
-                    31457290,
+                    16777813,
                     4294967295,
-                    33554445,
-                    53477945
+                    17825845,
+                    18874583
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -867,7 +867,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.3499999940395355,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": false,
@@ -1093,12 +1093,12 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 53477945,
+                "entity_id": 18874583,
                 "neighbours": [
-                    31457290,
+                    16777813,
                     4294967295,
-                    49283076,
-                    61865989
+                    17826006,
+                    18875229
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1173,7 +1173,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.3499999940395355,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": false,
@@ -1399,12 +1399,12 @@
                 "prefabID": 4
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 61865989,
+                "entity_id": 18875229,
                 "neighbours": [
-                    31457290,
+                    16777813,
                     4294967295,
-                    53477945,
-                    66060855
+                    18874583,
+                    19922996
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1527,7 +1527,7 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 1.0,
+                "glowIntensity": 0.3499999940395355,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": true,
@@ -1711,11 +1711,11 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 66060855,
+                "entity_id": 19922996,
                 "neighbours": [
-                    31457290,
+                    16777813,
                     4294967295,
-                    61865989,
+                    18875229,
                     4294967295
                 ]
             },

@@ -35,7 +35,7 @@ namespace SliceEngine
                 moveCoroutine = bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 3.0f);
                 bossController.StartCoroutine(moveCoroutine);
             }
-
+            
             public override void OnUpdate(float dt)
             {
                 if (bossController.isMovementDone)
@@ -568,6 +568,9 @@ namespace SliceEngine
             float rotTimer = 0.0f;
             Vector3 rotDir;
             float moveTimer = 0.0f;
+            float maxTimer = 1;
+
+            AudioSource audioSource;
             public DeathState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -575,11 +578,15 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
+                bossController.ReturnFollowingProjectiles();
+                bossController.StopAllCoroutines();
                 var cutsceneManager = bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>();
                 cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut(bossController.transform));
                 bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
 
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, cutsceneManager.z_transitionDurationToDeath * 2));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, cutsceneManager.z_transitionDurationToDeath));
+
+                audioSource = bossController.FindGameObjectsWithTag("BGMPlayer")[0].GetComponent<AudioSource>();
             }
 
             public override void OnUpdate(float dt)
@@ -589,33 +596,42 @@ namespace SliceEngine
                     if (!triggerExplostion)
                     {
                         moveTimer += dt;
+
+                        audioSource.Volume -= dt * 0.5f;
+                        if (audioSource.Volume < 0.0f)
+                            audioSource.Volume = 0.0f;
+
                         // rising
                         bossController.transform.Position += Vector3.Up * 1.0f * dt;
 
-                        // shaking
-                        rotTimer += dt;
-
-                        if (rotTimer >= 0.25f)
+                        if (moveTimer > 7f)
                         {
-                            float x = SliceRandom.RangeFloat(0, 360);
-                            float y = SliceRandom.RangeFloat(0, 360);
-                            float z = SliceRandom.RangeFloat(0, 360);
+                            audioSource.Volume = 0.0f;
+                            audioSource.Stop();
 
-                            rotDir = new Vector3(x, y, z);
-                            rotTimer = 0.0f;
-                        }
-
-                        // some silly animation for now
-
-                        bossController.transform.Rotation = rotDir;
-
-                        if (moveTimer > 4.0f)
-                        {
                             var explosion = bossController.CreateGameObject("Prefabs/FX_FinalExplosion.prefab");
                             explosion.GetComponent<Transform>().Position = bossController.transform.Position;
                             triggerExplostion = true;
                         }
                     }
+
+                    // shaking
+                    rotTimer += dt;
+
+                    if (rotTimer >= maxTimer)
+                    {
+                        float x = SliceRandom.RangeFloat(0, 360);
+                        float y = SliceRandom.RangeFloat(0, 360);
+                        float z = SliceRandom.RangeFloat(0, 360);
+
+                        rotDir = new Vector3(x, y, z);
+                        rotTimer = 0.0f;
+                        maxTimer *= 0.75f;
+                    }
+
+                    // some silly animation for now
+
+                    bossController.transform.Rotation = rotDir;
                 }
             }
 
@@ -824,7 +840,21 @@ namespace SliceEngine
             }
             else
             {
-                base.TakeDamage(damage);
+                //source = source ?? gameObject;
+                if (source == null)
+                {
+                    source = gameObject;
+                }
+                //Console.WriteLine("Enitity taking damage");
+                //Debug.Log($"{name} taking {amount} damage");
+                this.currentHealth -= damage;
+                if (this.currentHealth > 0) { OnDamaged(source); }
+                if (this.currentHealth <= 0)
+                {
+                    currentHealth = 0; // Ensure health doesn't go below zero
+                    OnDamaged(source);
+                    OnDeath();
+                }
             }
         }
 
@@ -834,12 +864,14 @@ namespace SliceEngine
             enemyHUD.As<Lvl3EnemyHUD>().SetShield((float)currentShield / (float)maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(hpPercent);
 
-            if (hpPercent <= thresholds[thresholdIndex] && thresholdIndex < thresholds.Length)
+            if (thresholdIndex < thresholds.Length)
             {
-                PlayPanicSFX();
-                thresholdIndex++;
+                if (hpPercent <= thresholds[thresholdIndex])
+                {
+                    PlayPanicSFX();
+                    thresholdIndex++;
+                }
             }
-
         }
 
         public bool SetupRecharging()
@@ -892,6 +924,7 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
+            AudioSettings.PlaySFX("05_03_Ozone_Death");
             isDead = true;
             isInvulnerable = true;
             bossSM.ChangeState(deathState);
@@ -907,8 +940,15 @@ namespace SliceEngine
 
             if (Input.IsKeyPressed(Keys.KEY_J))
             {
+                StopAllCoroutines();
+                Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().StopAllCoroutines();
+                var manager = shieldGeneratorManager.As<ShieldGeneratorManager>();
+                manager.DestroyAllGenerators();
+                manager.StopAllCoroutines();
+
                 TakeDamage(1000);
-                shieldGeneratorManager.As<ShieldGeneratorManager>().DestroyAllGenerators();
+                TakeDamage(1000);
+
                 canRecharge = false;
             }
         }
@@ -1045,16 +1085,16 @@ namespace SliceEngine
             switch (thresholdIndex)
             {
                 case 0:
-                    AudioSettings.PlaySFX("BossPanic1");
+                    AudioSettings.PlaySFX("05_02_BossPanick1");
                     break;
                 case 1:
-                    AudioSettings.PlaySFX("BossPanic2");
+                    AudioSettings.PlaySFX("05_02_BossPanick2");
                     break;
                 case 2:
-                    AudioSettings.PlaySFX("BossPanic3");
+                    AudioSettings.PlaySFX("05_02_BossPanick3");
                     break;
                 case 3:
-                    AudioSettings.PlaySFX("BossPanic4");
+                    AudioSettings.PlaySFX("05_02_BossPanick4");
                     break;
                 default:
                     break;

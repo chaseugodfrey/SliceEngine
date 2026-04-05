@@ -17,12 +17,12 @@
                     "width": 421.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 2097156,
+                    "entity_id": 11534568,
                     "neighbours": [
-                        2097159,
+                        13631723,
                         4294967295,
-                        2097158,
-                        2097157
+                        13631722,
+                        13631721
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -76,7 +76,7 @@
                     "hori_pivot": "Center",
                     "left": 0.0,
                     "pos_x": 0.0,
-                    "pos_y": 1400.0,
+                    "pos_y": -1500.0,
                     "right": 0.0,
                     "rotation": 0.0,
                     "top": 0.0,
@@ -84,20 +84,28 @@
                     "width": 928.5
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 2097157,
+                    "entity_id": 13631721,
                     "neighbours": [
-                        2097159,
+                        13631723,
                         4294967295,
-                        2097156,
+                        11534568,
                         4294967295
                     ]
                 },
                 "struct SliceEngine::Script": {
                     "scriptName": "SliceEngine.CreditsText",
                     "scriptableFieldMap": {
+                        "displayDuration": {
+                            "Type": "float",
+                            "Value": 3.0
+                        },
+                        "fadeSpeed": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
                         "scrollSpeed": {
                             "Type": "float",
-                            "Value": 50.0
+                            "Value": 45.0
                         }
                     }
                 },
@@ -160,12 +168,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 2097158,
+                    "entity_id": 13631722,
                     "neighbours": [
-                        2097159,
+                        13631723,
                         4294967295,
                         4294967295,
-                        2097156
+                        11534568
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -236,12 +244,12 @@
                     "width": 1920.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 2097159,
+                    "entity_id": 13631723,
                     "neighbours": [
                         0,
-                        2097158,
-                        2097160,
-                        4294967295
+                        13631722,
+                        13631724,
+                        13631725
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -309,7 +317,7 @@
                     "cloudsSmoothness": 0.0027000000700354576,
                     "componentEnabled": true,
                     "debugRenderTag": "0",
-                    "depthTex": 42,
+                    "depthTex": 50,
                     "far": 3000.0,
                     "fogColor": [
                         0.20000000298023224,
@@ -349,7 +357,7 @@
                     "near": 0.009999999776482582,
                     "postRenderTag": "8",
                     "pov": 60.0,
-                    "textureID": 41,
+                    "textureID": 49,
                     "translucentSelectCutoff": 0.20000000298023224,
                     "vignetteCenter": [
                         0.5,
@@ -361,18 +369,82 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 2097160,
+                    "entity_id": 13631724,
                     "neighbours": [
                         0,
                         4294967295,
                         4294967295,
-                        2097159
+                        13631723
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
                     "mName": "Camera",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "BGM": {
+                "struct SliceEngine::AudioSource": {
+                    "category": "SFX",
+                    "componentEnabled": true,
+                    "currentVolume": 1.0,
+                    "directOcclusion": 0.0,
+                    "dopplerLevel": 1.0,
+                    "isLoop": true,
+                    "isMute": false,
+                    "isPaused": false,
+                    "maxDistance": 500.0,
+                    "minDistance": 1.0,
+                    "pitch": 1.0,
+                    "playOnAwake": true,
+                    "playPreview": false,
+                    "priority": 128,
+                    "reverbOcclusion": 0.0,
+                    "soundGUID": "14299615246917021776",
+                    "spatialBlend": 0.0,
+                    "spread": 1.0,
+                    "stereoPan": 0.0,
+                    "volumeRollOff": "Linear"
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631725,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        13631723,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "BGM",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
