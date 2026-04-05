@@ -339,7 +339,7 @@ namespace SliceEngine
         }
         private void TurnOffHitboxes()
         {
-            attackHitbox.TurnOff();
+            attackHitbox?.TurnOff();
         }
 
         public void StartAttackRecovery()
@@ -440,6 +440,8 @@ namespace SliceEngine
 
         private void InitializeHitboxes()
         {
+            if (attackHitboxGO == null) { return;  }
+
             attackHitbox = attackHitboxGO.As<GeneralHitbox>();
             HitBoxTriggerEvent attackAction;
             attackAction = Attack1;
