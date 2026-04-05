@@ -18,7 +18,8 @@ namespace SliceEngine
             private bool dialogueDone = false;
             private bool dialogueStarted = false;
             private bool keyPressed = false;
-            
+
+            Vector3 offset = new Vector3(-15, 0, 0);
             public IntroEnemyState(GameObject owner) : base(owner)
             {
                 animationTriggerBox = owner.As<CameraAnimationTriggerBoxShowEnemy>();
@@ -84,7 +85,7 @@ namespace SliceEngine
 
                     float smoothT = t * t * (3f - 2f * t);
 
-                    Vector3 targetPos = animationTriggerBox.enemyToTarget.GetComponent<Transform>().Position;
+                    Vector3 targetPos = animationTriggerBox.enemyToTarget.GetComponent<Transform>().Position + offset;
                     camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
 
                     Quaternion targetRot = Quaternion.LookRotation(animationTriggerBox.enemyToTarget.GetComponent<Transform>().Backward);

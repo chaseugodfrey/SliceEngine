@@ -34,13 +34,15 @@ namespace SliceEngine
                 SliceLog.Console("Intro State.");
                 moveCoroutine = bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 3.0f);
                 bossController.StartCoroutine(moveCoroutine);
+
+                bossController.baseY = bossController.startingPosition.y;
             }
             
             public override void OnUpdate(float dt)
             {
                 if (bossController.isMovementDone)
                 {
-                    bossController.Bob(timer);
+                    //bossController.Bob(timer);
 
                     if (!setNarrative)
                         SetNarrative();
@@ -63,6 +65,13 @@ namespace SliceEngine
 
                 timer += dt;
                 bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
+
+                // EZE's Insertion
+                // Bobbing Code stolen from hafiz
+                Vector3 pos = bossController.transform.Position;
+                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                bossController.transform.Position = pos;
             }
 
             public override void OnExit()
@@ -124,6 +133,14 @@ namespace SliceEngine
                     bossController.bossSM.ChangeState(nextState);
                     nextState = null;
                 }
+
+                // EZE's Insertion
+                // Bobbing Code stolen from hafiz
+                Vector3 pos = bossController.transform.Position;
+                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                bossController.transform.Position = pos;
+
             }
 
             public override void OnExit()
@@ -184,6 +201,13 @@ namespace SliceEngine
                 timer = timerMax;
 
                 bossController.stateQueue.Enqueue(bossController.slamState);
+
+                // EZE's Insertion
+                // Bobbing Code stolen from hafiz
+                Vector3 pos = bossController.transform.Position;
+                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                bossController.transform.Position = pos;
             }
 
             public override void OnUpdate(float dt)
@@ -225,7 +249,7 @@ namespace SliceEngine
                 timer = 0.0f;
 
                 Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
-                targetPos.y = owner.GetComponent<Transform>().Position.y;
+                targetPos.y = bossController.baseY;//owner.GetComponent<Transform>().Position.y;
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, targetPos, 0.8f));
                 ogPosition = targetPos;
 
@@ -335,18 +359,18 @@ namespace SliceEngine
 
                         if (rotTimer >= 0.5f)
                         {
-                            float x = SliceRandom.RangeFloat(0, 360);
-                            float y = SliceRandom.RangeFloat(0, 360);
-                            float z = SliceRandom.RangeFloat(0, 360);
+                            //float x = SliceRandom.RangeFloat(0, 360);
+                            //float y = SliceRandom.RangeFloat(0, 360);
+                            //float z = SliceRandom.RangeFloat(0, 360);
 
-                            rotDir = new Vector3(x, y, z);
+                            //rotDir = new Vector3(x, y, z);
                             rotTimer = 0.0f;
                         }
 
                         hasGen = bossController.RechargeShield(isIntro);
                         // some silly animation for now
 
-                        bossController.transform.Rotation = rotDir;
+                        //bossController.transform.Rotation = rotDir;
                     }
 
                     else
@@ -370,6 +394,13 @@ namespace SliceEngine
                         }
                     }    
                 }
+
+                // EZE's Insertion
+                // Bobbing Code stolen from hafiz
+                Vector3 pos = bossController.transform.Position;
+                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                bossController.transform.Position = pos;
             }
 
             public override void OnExit()
@@ -451,6 +482,14 @@ namespace SliceEngine
                     FireBullet();
                     shootTimer = shootRate;
                 }
+
+
+                // EZE's Insertion
+                // Bobbing Code stolen from hafiz
+                Vector3 pos = bossController.transform.Position;
+                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                bossController.transform.Position = pos;
             }
 
             public override void OnFixedUpdate(float dt)
@@ -723,6 +762,16 @@ namespace SliceEngine
 
         public List<Coroutine> coroutines = new List<Coroutine>();
 
+        // EZE'S INSERT FOR BOSS 2 CONSISTENCY
+        // Bobbing
+        float bobTimer = 0f;
+        float bobAmplitude = 3.0f;
+        float bobFrequency = 1.5f;
+        float baseY = 0f;
+        // EZE'S INSERT FOR BOSS 2 CONSISTENCY
+
+
+
         public override void OnCreate()
         {
             // initializing states and statemachine
@@ -766,6 +815,7 @@ namespace SliceEngine
         { 
             // if u want fixed update calls in state machine
             bossSM.OnFixedUpdate(dt);
+            bobTimer += dt;
         }
 
         public virtual IEnumerator MoveToPoint(Vector3 startPos, Vector3 targetPos, float duration)
@@ -1104,7 +1154,7 @@ namespace SliceEngine
         void Bob(float time)
         {
             Vector3 finalPos = startingPosition;
-            finalPos.y += Utilities.Sin(time);
+            finalPos.y += Utilities.Sin(time * bobFrequency) * bobAmplitude;
             transform.Position = finalPos;
         }
 
