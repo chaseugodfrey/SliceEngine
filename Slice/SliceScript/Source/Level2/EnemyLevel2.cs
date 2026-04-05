@@ -489,7 +489,7 @@ namespace SliceEngine
                         (float)Math.Sin(angle) * orbitRadius
                         );
 
-                    enemyController.projectileShooters[i].As<Projectile_Spawner>().active = false;
+                    enemyController.projectileShooters[i].As<AimingMech>().active = false;
 
                     // move back to the starting position
                     Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + targetLocalPos;
@@ -638,8 +638,6 @@ namespace SliceEngine
 
             Console.WriteLine($"Take Damage called for {amount}");
 
-
-
             base.TakeDamage(amount, source);
 
             damageLeftTillSFX -= amount;
@@ -659,7 +657,7 @@ namespace SliceEngine
 
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
+            //Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
             CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
             enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth); 
 
@@ -675,6 +673,12 @@ namespace SliceEngine
         public override void OnUpdate(float dt)
         {
             stateMachine.OnUpdate(dt);
+
+            if (Input.IsKeyPressed(Keys.KEY_0))
+            {
+                TakeDamage(800);
+            }
+
         }
 
         public override void OnFixedUpdate(float dt)

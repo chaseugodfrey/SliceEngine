@@ -118,6 +118,7 @@ namespace SliceEngine
 		const int mSkyboxDim = 1024;
 
 		const unsigned int DIRECTIONAL_SHADOW_DIMENSION = 512;
+		const float DIRECTIONAL_MAX_DIST = 400.f;
 		const unsigned int SHADOW_DIMENSION = 1024;
 		struct ShadowCamDir
 		{

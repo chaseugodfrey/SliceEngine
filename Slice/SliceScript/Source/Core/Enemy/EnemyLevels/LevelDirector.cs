@@ -227,7 +227,7 @@ namespace SliceEngine
 
         public void Win()
         {
-            Bootstrap.HUDManager.GameWinScreen();
+            //Bootstrap.HUDManager.GameWinScreen();
         }
 
         public void LoadNextLevel()
