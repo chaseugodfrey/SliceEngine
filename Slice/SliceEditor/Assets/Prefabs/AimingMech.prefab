@@ -9,12 +9,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097577,
+                "entity_id": 2097289,
                 "neighbours": [
                     0,
-                    2097576,
-                    549,
-                    4294967295
+                    2097288,
+                    2097258,
+                    2097270
                 ]
             },
             "struct SliceEngine::Script": {
@@ -41,20 +41,20 @@
                         "Value": [
                             0.5,
                             0.5,
-                            1.0
+                            2.0
                         ]
                     },
                     "bulletSpeed": {
                         "Type": "float",
-                        "Value": 90.0
+                        "Value": 200.0
                     },
                     "bulletsPerBurst": {
                         "Type": "int",
-                        "Value": 20
+                        "Value": 10
                     },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
-                        "Value": 250.0
+                        "Value": 500.0
                     },
                     "firingFXPrefabName": {
                         "Type": "std::string",
@@ -62,7 +62,7 @@
                     },
                     "maxAimRange": {
                         "Type": "float",
-                        "Value": 100.0
+                        "Value": 200.0
                     },
                     "predictionStrength": {
                         "Type": "float",
@@ -91,18 +91,18 @@
             "struct SliceEngine::Transform": {
                 "euler_hint": [
                     0.0,
-                    0.0,
+                    -90.0,
                     0.0
                 ],
                 "position": [
-                    583.8250732421875,
-                    47.604393005371094,
-                    -15.474411010742188
+                    612.6087646484375,
+                    58.69230651855469,
+                    0.0
                 ],
                 "rotation": [
-                    1.0,
+                    -0.7071067690849304,
                     0.0,
-                    0.0,
+                    0.7071067690849304,
                     0.0
                 ],
                 "scale": [
@@ -114,7 +114,7 @@
         }
     },
     {
-        "AimingMechMesh_1": {
+        "AimingMechMesh": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 1,
                 "skeleton_root": 0
@@ -127,18 +127,18 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097576,
+                "entity_id": 2097288,
                 "neighbours": [
-                    2097577,
-                    2097575,
+                    2097289,
+                    2097287,
                     4294967295,
-                    2097572
+                    2097284
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 1,
-                "mName": "AimingMechMesh_1",
+                "mLayer": 0,
+                "mName": "AimingMechMesh",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -167,7 +167,7 @@
         }
     },
     {
-        "Shooter_1": {
+        "Shooter": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 2,
                 "skeleton_root": 0
@@ -193,18 +193,18 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097575,
+                "entity_id": 2097287,
                 "neighbours": [
-                    2097576,
+                    2097288,
                     4294967295,
                     4294967295,
-                    2097574
+                    2097286
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 5,
-                "mName": "Shooter_1",
+                "mLayer": 0,
+                "mName": "Shooter",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -233,22 +233,10 @@
         }
     },
     {
-        "Core_1": {
+        "Core": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 3,
                 "skeleton_root": 0
-            },
-            "struct SliceEngine::Light": {
-                "angle": 90.0,
-                "castsShadow": false,
-                "color": [
-                    1.0,
-                    0.0,
-                    0.0
-                ],
-                "componentEnabled": true,
-                "intensity": 5.0,
-                "type": "Point"
             },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
@@ -261,7 +249,7 @@
                 "castsShadow": true,
                 "componentEnabled": true,
                 "material": {
-                    "GUID": "12400085700756427728"
+                    "GUID": "9336273396156370476"
                 },
                 "meshOffset": "1",
                 "model": {
@@ -271,18 +259,18 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097574,
+                "entity_id": 2097286,
                 "neighbours": [
-                    2097576,
+                    2097288,
                     4294967295,
-                    2097575,
-                    2097573
+                    2097287,
+                    2097285
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 5,
-                "mName": "Core_1",
+                "mLayer": 0,
+                "mName": "Core",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -311,7 +299,7 @@
         }
     },
     {
-        "Wings_1": {
+        "Wings": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 8,
                 "skeleton_root": 0
@@ -337,11 +325,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097573,
+                "entity_id": 2097285,
                 "neighbours": [
-                    2097576,
+                    2097288,
                     4294967295,
-                    2097574,
+                    2097286,
                     4294967295
                 ]
             },
@@ -354,20 +342,20 @@
                     },
                     "rotateSpeedMultiplier": {
                         "Type": "float",
-                        "Value": 1.0
+                        "Value": 3.370788097381592
                     }
                 }
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 5,
-                "mName": "Wings_1",
+                "mLayer": 0,
+                "mName": "Wings",
                 "mTag": "AimingMechWings"
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    0.0,
-                    0.0,
+                    -160.19204711914063,
+                    -0.0,
                     0.0
                 ],
                 "position": [
@@ -376,8 +364,8 @@
                     0.0
                 ],
                 "rotation": [
-                    1.0,
-                    0.0,
+                    -0.17199745774269104,
+                    0.9850974082946777,
                     0.0,
                     0.0
                 ],
@@ -390,7 +378,7 @@
         }
     },
     {
-        "FX_LaserPointer_1": {
+        "FX_LaserPointer": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -399,18 +387,18 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097572,
+                "entity_id": 2097284,
                 "neighbours": [
-                    2097577,
-                    2097571,
-                    2097576,
+                    2097289,
+                    2097283,
+                    2097288,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 1,
-                "mName": "FX_LaserPointer_1",
+                "mLayer": 0,
+                "mName": "FX_LaserPointer",
                 "mTag": "Telegraph"
             },
             "struct SliceEngine::Transform": {
@@ -420,8 +408,8 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    0.0,
+                    -1.7881393432617188e-07,
+                    -9.5367431640625e-05,
                     1.0
                 ],
                 "rotation": [
@@ -431,15 +419,15 @@
                     0.0
                 ],
                 "scale": [
-                    1.0000001192092896,
-                    1.0,
+                    0.10000000149011612,
+                    0.10000000149011612,
                     1.0
                 ]
             }
         }
     },
     {
-        "LaserPointer_1": {
+        "LaserPointer": {
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -461,9 +449,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 2097571,
+                "entity_id": 2097283,
                 "neighbours": [
-                    2097572,
+                    2097284,
                     4294967295,
                     4294967295,
                     4294967295
@@ -471,8 +459,8 @@
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
-                "mLayer": 1,
-                "mName": "LaserPointer_1",
+                "mLayer": 0,
+                "mName": "LaserPointer",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -484,7 +472,7 @@
                 "position": [
                     0.0,
                     0.0,
-                    50.0
+                    125.0
                 ],
                 "rotation": [
                     0.7071067690849304,
@@ -493,9 +481,9 @@
                     0.0
                 ],
                 "scale": [
-                    0.10000000149011612,
-                    100.0,
-                    0.10000000149011612
+                    1.0,
+                    250.0,
+                    1.0
                 ]
             }
         }

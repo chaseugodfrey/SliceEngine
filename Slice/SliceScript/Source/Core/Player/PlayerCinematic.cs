@@ -33,6 +33,7 @@ namespace SliceEngine
 
             // hide it on start
             ToggleRenderer(false);
+            ToggleBagVisibility(false);
         }
 
         public void StartCinematicAnimation()
@@ -43,6 +44,18 @@ namespace SliceEngine
                 fadeOutRoutine = StartCoroutine(FadeOutRoutine());
                // fadingIn = true;
             }
+        }
+
+        public void StartCinematicAnimationNoFade()
+        {
+            cinematicCamera.SetActive(true);
+            // move the camera to where it should be for the cinematic
+            //  cinematicCamera.GetComponent<Transform>().Position = cameraStartingPos.GetComponent<Transform>().WorldPosition;
+            Camera.SetMainCamera(cinematicCamera);
+            GetComponent<Animator>().SetBool("Cinematic", true);
+            StartCoroutine(UIAnimation());
+
+            AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
         }
 
         public override void OnUpdate(float dt)
@@ -89,6 +102,7 @@ namespace SliceEngine
                 case "ToRender":
                     {
                         ToggleRenderer(true);
+                        ToggleBagVisibility(true);
                     }
                     break;
                 case "First":
@@ -100,14 +114,16 @@ namespace SliceEngine
                 break;
                 case "Second":
                     animState++;
-                    StartCinematicAnimation();
+                   // GetComponent<Animator>().SetBool("Cinematic2", true);
+                      StartCinematicAnimation();
                     // for moving the camera to the next position in the 2nd animation
 
-                break;
+                    break;
                 case "StartFadeOut":
                     {
                         cinematicCamera.GetComponent<Animator>().SetBool("FadeOut", true);
                         StartCoroutine(FOVAnimation());
+                        bagObject.Destroy();
                     }
                     break;
                 case "End":
@@ -163,9 +179,19 @@ namespace SliceEngine
                 StartCoroutine(UIAnimation());
             }
 
+            if (animState == 1)
+            {
+
+            }
+
+            if (animState == 2)
+            {
+                Bootstrap.CameraController.LockCamera = false;
+                Bootstrap.Player.SetPlayerLock(false);
+            }
 
 
-            
+
 
 
             fadeInRoutine = null;
@@ -211,7 +237,18 @@ namespace SliceEngine
 
             if (animState == 2)
             {
+                //GameObject oldPlayer = Bootstrap.Player.gameObject;
+                Bootstrap.Player.gameObject.As<PlayerController>().ChangeModel();
+
+                Bootstrap.Player.gameObject.GetComponent<Transform>().Position = GetComponent<Transform>().WorldPosition;
+                Bootstrap.Player.gameObject.GetComponent<Transform>().Rotation = GetComponent<Transform>().Rotation;
+
+                //Bootstrap.ChangePlayer(newPlayer);
+                //Bootstrap.Player.GetComponent<Transform>().WorldPosition
+
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
+
+                Destroy();
             }
 
             fadeOutRoutine = null;
@@ -268,6 +305,23 @@ namespace SliceEngine
                 }
     
                 cinematicCamera.GetComponent<Camera>().FOV = endingFOV;
+        }
+
+        public void ToggleBagVisibility(bool visible)
+        {
+            GameObject[] children = bagObject.GetAllChildren();
+            float alpha = visible ? 1.0f : 0.0f;
+
+            foreach (GameObject child in children)
+            {
+                if (child.HasComponent<Renderer>())
+                {
+                    Vector4 col = child.GetComponent<Renderer>().GetColor();
+                    col.w = alpha;
+                    child.GetComponent<Renderer>().SetColor(col);
+                }
+            }
+
         }
     }
 }

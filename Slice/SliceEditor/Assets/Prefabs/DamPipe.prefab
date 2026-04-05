@@ -1,0 +1,138 @@
+[
+    {
+        "DamPipe": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "9747316344550185712"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12997709793430844555"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3146223,
+                "neighbours": [
+                    3146146,
+                    3146209,
+                    3145751,
+                    3146270
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "DamPipe",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    255.2006378173828,
+                    -88.26268005371094,
+                    0.05061536654829979
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.8999999761581421,
+                    0.8999999165534973,
+                    0.8999999165534973
+                ]
+            }
+        }
+    },
+    {
+        "Connector_1_1_2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11025623330340852624"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14148108916595865508"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 3146209,
+                "neighbours": [
+                    3146223,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Connector_1_1_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    145.0,
+                    0.0
+                ],
+                "position": [
+                    143.3311767578125,
+                    -102.40998840332031,
+                    115.5201416015625
+                ],
+                "rotation": [
+                    0.21263109147548676,
+                    0.21263112127780914,
+                    0.6743797063827515,
+                    0.6743797659873962
+                ],
+                "scale": [
+                    1.7777782678604126,
+                    1.7777780294418335,
+                    1.7777782678604126
+                ]
+            }
+        }
+    }
+]

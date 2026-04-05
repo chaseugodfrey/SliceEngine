@@ -12,6 +12,8 @@ namespace SliceEngine
     public class DialogueTriggerBox : SliceBehaviour
     {
         public int setOfThisTrigger = 0;
+        public bool LocksCamera = true;
+        public bool LocksControls = true;
 
         //public delegate void HitBoxTriggerEvent(GameObject hit);
         //public event HitBoxTriggerEvent HitBoxListeners;
@@ -20,6 +22,8 @@ namespace SliceEngine
         private bool _done = false;
         private bool _enabled = false;
         private bool enterPressed = false;
+        
+
 
         public override void OnUpdate(float dt)
         {
@@ -30,7 +34,7 @@ namespace SliceEngine
                 if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
                 {
                     enterPressed = true;
-                    if (!Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene))
+                    if (!Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, LocksCamera, LocksControls))
                     {
                         _done = true;
                     }
@@ -123,7 +127,7 @@ namespace SliceEngine
             {
                 //console.writeline("Enabled");
                 _enabled = true;
-                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene);
+                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, LocksCamera, LocksControls);
             }
         }
 

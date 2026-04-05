@@ -27,7 +27,7 @@ namespace SliceEngine
             Dictionary<string, string> preferences = new Dictionary<string, string>();
             Console.WriteLine("AHAHAHAHHAHA");
             // Load preference or create if doesn't exist
-            filePath = Application.GetFilePath("GamePreference.txt");
+            filePath = "ProjectSettings/GamePreference.txt";
             SliceLog.Log("Loading preferences from Filepath: " + filePath);
             Console.WriteLine("BABBABABBABABA");
 
@@ -52,6 +52,7 @@ namespace SliceEngine
             {
                 // We only got 4 settings to save
                 // We just hardcode the default by reading from the engine values
+                SliceLog.Log("Could not find the GamePreferences file from: " + filePath);
                 preferences["Gamma"] = Camera.Gamma.ToString();
                 preferences["Master Volume"] = AudioManager.GetMasterVolume().ToString();
                 preferences["BGM Volume"] = AudioManager.GetCategoryVolume("BGM").ToString();

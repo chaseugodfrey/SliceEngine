@@ -30,7 +30,7 @@ namespace SliceEngine
         {
             if (currIndex >= triggerBox.Count) return;
 
-            Bootstrap.HUDManager.As<HUD_Manager>().PlayDialogueForLevel(triggerBox[currIndex].As<LevelTutorial>().tutorialIndex, scene);
+            //Bootstrap.HUDManager.As<HUD_Manager>().PlayDialogueForLevel(triggerBox[currIndex].As<LevelTutorial>().tutorialIndex, scene);
             currIndex++;
         }
     }

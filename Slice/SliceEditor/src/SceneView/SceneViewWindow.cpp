@@ -220,8 +220,12 @@ namespace SliceEditor
 						if (go.HasComponent<SliceEngine::Transform>())
 						{
 							auto targetTr = go.GetComponent<SliceEngine::Transform>();
+
+							glm::vec3 worldScale = targetTr.GetWorldScale();
+
+
 							
-							glm::vec3 camPos = targetTr.position + glm::vec3(-2.0f, 0.0f, 0.0f);
+							glm::vec3 camPos = targetTr.GetWorldPosition() + (glm::vec3(-2.0f, 0.5f, 0.0f) * worldScale);
 
 							cam_tr->position = camPos;
 						}

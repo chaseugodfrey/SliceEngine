@@ -1,0 +1,232 @@
+{
+    "Main": {
+        "Add": {
+            "Node161": [
+                "Node154",
+                "Node140"
+            ],
+            "Node21": [
+                "Node79",
+                "Node48"
+            ],
+            "Node221": [
+                "Node41",
+                "Node209"
+            ]
+        },
+        "Arctan": {
+            "Node25": [
+                "Node34",
+                "Node82"
+            ]
+        },
+        "Clamp": {
+            "Node29": [
+                "Node61",
+                "Node65",
+                "Node76"
+            ]
+        },
+        "Cosine": {
+            "Node34": [
+                "time"
+            ]
+        },
+        "Cross": {
+            "Node37": [
+                "Node21",
+                "Node69"
+            ]
+        },
+        "Dot": {
+            "Node41": [
+                "Node69",
+                "Node69"
+            ]
+        },
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node221"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node56"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node85"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "Node133"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "Node73"
+            ]
+        },
+        "Flip_Y_Vec2": {
+            "Node45": [
+                "Node29"
+            ]
+        },
+        "Fresnel_f": {
+            "Node48": [
+                "vNom",
+                "vPos",
+                "One"
+            ]
+        },
+        "GetA": {
+            "Node180": [
+                "Node161"
+            ]
+        },
+        "GetB": {
+            "Node174": [
+                "Node161"
+            ]
+        },
+        "GetG": {
+            "Node177": [
+                "Node161"
+            ]
+        },
+        "GetR": {
+            "Node171": [
+                "Node161"
+            ]
+        },
+        "Gradient_Noise_f": {
+            "Node133": [
+                "Node79",
+                "Node82"
+            ]
+        },
+        "Length": {
+            "Node53": [
+                "Node37"
+            ]
+        },
+        "Lerp": {
+            "Node56": [
+                "Node61",
+                "Node65",
+                "Node76"
+            ]
+        },
+        "Max": {
+            "Node61": [
+                "Node76",
+                "Node65"
+            ]
+        },
+        "Min": {
+            "Node65": [
+                "Node53",
+                "Node76"
+            ]
+        },
+        "Multiply": {
+            "Node69": [
+                "Node90",
+                "One"
+            ]
+        },
+        "Normalize": {
+            "Node73": [
+                "Node37"
+            ]
+        },
+        "One_Minus_f": {
+            "Node76": [
+                "Node53"
+            ]
+        },
+        "Sat": {
+            "Node79": [
+                "Node25"
+            ]
+        },
+        "SetA": {
+            "Node197": [
+                "Node187",
+                "Node180"
+            ]
+        },
+        "SetB": {
+            "Node209": [
+                "Node205",
+                "Node171"
+            ]
+        },
+        "SetG": {
+            "Node205": [
+                "Node201",
+                "Node174"
+            ]
+        },
+        "SetR": {
+            "Node201": [
+                "Node197",
+                "Node177"
+            ]
+        },
+        "Sine": {
+            "Node82": [
+                "time"
+            ]
+        },
+        "SmoothStep": {
+            "Node85": [
+                "Node56",
+                "Node29",
+                "Node45"
+            ]
+        },
+        "Subtract": {
+            "Node90": [
+                "Node21",
+                "Node48"
+            ]
+        },
+        "Vec4_f": {
+            "Node187": [
+                "Node171",
+                "Node177",
+                "Node174",
+                "Node180"
+            ]
+        },
+        "sampleTexture": {
+            "Node154": [
+                "Texture_One",
+                "vUV"
+            ]
+        },
+        "sampleTextureOffset": {
+            "Node140": [
+                "Texture_One",
+                "color2",
+                "One",
+                "color2",
+                "One"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "One": 1.0
+        },
+        "Ints": {},
+        "Textures": {
+            "Texture_One": 11697903386653029786
+        },
+        "Uints": {}
+    }
+}
