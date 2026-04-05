@@ -208,7 +208,7 @@ namespace SliceEngine
                         if (!isBursting)
                         {
                             //AUDIO
-                            fireSFXSource.Stop();
+                            //fireSFXSource.Stop();
                             burstTimer += dt;
 
                             if (burstTimer >= timeBetweenBursts)
