@@ -316,6 +316,7 @@ namespace SliceEngine
                     bossController.stateQueue.Clear();
                 }
 
+                SliceLog.Console(bossController.rechargingPosition);
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
             }
 
@@ -707,7 +708,8 @@ namespace SliceEngine
 
             // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
-            rechargingPosition = rechargePositionObj.GetComponent<Transform>().WorldPosition;
+            rechargingPosition = rechargePositionObj.GetComponent<Transform>().Position;
+
             //currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);

@@ -13,7 +13,7 @@ namespace SliceEngine
     {
         public float collapseTime = 3f;
         public bool isCollapsed = false;
-        Vector3 collapsedScale = new Vector3(0.01f, 1.0f, 1.0f);
+        Vector3 collapsedScale = new Vector3(1.0f, 0.01f, 1.0f);
         public Vector3 initialScale;
 
         public override void OnAwake()
