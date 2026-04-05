@@ -1011,7 +1011,7 @@ namespace SliceEngine
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
-			sCanvas.UpdateHierachy(true);
+			//sCanvas.UpdateHierachy(true);
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
