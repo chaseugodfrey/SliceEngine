@@ -61,17 +61,19 @@ namespace SliceEngine
                             isNarrativeDone = true;
                         }
                     }
+
+                    // EZE's Insertion
+                    // Bobbing Code stolen from hafiz
+                    Vector3 pos = bossController.transform.Position;
+                    pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
+
+                    bossController.transform.Position = pos;
                 }
 
                 timer += dt;
                 bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
 
-                // EZE's Insertion
-                // Bobbing Code stolen from hafiz
-                Vector3 pos = bossController.transform.Position;
-                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
 
-                bossController.transform.Position = pos;
             }
 
             public override void OnExit()
@@ -133,6 +135,10 @@ namespace SliceEngine
                     bossController.bossSM.ChangeState(nextState);
                     nextState = null;
                 }
+
+
+                if (!bossController.isMovementDone)
+                    return;
 
                 // EZE's Insertion
                 // Bobbing Code stolen from hafiz
@@ -340,7 +346,7 @@ namespace SliceEngine
                     bossController.stateQueue.Clear();
                 }
 
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.startingPosition, bossController.rechargingPosition, 2.4f));
             }
 
             public override void OnUpdate(float dt)
@@ -394,18 +400,11 @@ namespace SliceEngine
                         }
                     }    
                 }
-
-                // EZE's Insertion
-                // Bobbing Code stolen from hafiz
-                Vector3 pos = bossController.transform.Position;
-                pos.y = bossController.baseY + Utilities.Sin(bossController.bobTimer * bossController.bobFrequency) * bossController.bobAmplitude;
-
-                bossController.transform.Position = pos;
             }
 
             public override void OnExit()
             {
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 2.4f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.rechargingPosition, bossController.startingPosition, 2.4f));
 
                 isIntro = false;
                 startCharging = false;
@@ -504,6 +503,7 @@ namespace SliceEngine
 
             void FireBullet()
             {
+                bossController.GetComponent<AudioSource>().Play();
                 var bossTr = bossController.GetComponent<Transform>();
                 Vector3 dirToPlayer = (playerTr.Position - bossController.transform.Position).Normalize();
                 Vector3 finalPos = bossTr.Position + dirToPlayer * 2.0f + offsets[rand.Next(offsets.Length)] * offsetRange;
