@@ -56,6 +56,7 @@ namespace SliceEngine
                     float alpha = Utilities.EaseInOut(mid);
 
 
+
                     ChangeAlpha(all_images[curr_img], alpha);
                 }
                 else
@@ -103,6 +104,26 @@ namespace SliceEngine
             Vector4 color = img_renderer.Colour;
             color.w = alpha;
             img_renderer.Colour = color;
+
+            RectTransform rect = obj.GetComponent<RectTransform>();
+            if (rect != null)
+            {
+                rect.Width += 3;
+                rect.Height += 1;
+            }
+
+
+        }
+
+        public void ChangeDimension(GameObject obj, float width, float height)
+        {
+
+            //RectTransform rect = obj.GetComponent<RectTransform>();
+            //if (rect != null)
+            //{
+            //    rect.Width += (int)width;
+            //    rect.Height += (int)height;
+            //}
         }
     }
 }
