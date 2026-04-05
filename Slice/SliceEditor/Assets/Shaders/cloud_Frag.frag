@@ -168,6 +168,7 @@ float GeomSmith(float nDotL, float rough)
 
 vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float rough, float metal)
 {
+	rough = max(rough, 0.04);
 	vec3 h = normalize(v + l);
 	float nDotH = clamp(dot(n, h), 0.0, 1.0);
 	float vDotH = clamp(dot(v, h), 0.0, 1.0);
@@ -176,6 +177,7 @@ vec3 microfacetModel(vec3 v, vec3 n, vec3 lightCol, vec3 l, vec3 dif, float roug
 
 	vec3 F = SchlickFresnel(vDotH, dif, metal);
 	vec3 kD = 1.0 - F;
+	kD *= 1.0 - metal;
 	vec3 specBRDF_nom = GgxDistribution(nDotH, rough) *
 					F *
 					GeomSmith(nDotL, rough) *

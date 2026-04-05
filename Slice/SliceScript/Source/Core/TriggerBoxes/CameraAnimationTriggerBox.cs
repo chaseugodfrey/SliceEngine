@@ -100,11 +100,10 @@ namespace SliceEngine
         {
             private CameraAnimationTriggerBox animationTriggerBox;
             public GameObject cinematicPlayer;
-            public GameObject cinematicSword;
 
             // cause i dont want to modify the original animation trigger box
             // ill have to hard code it here
-            public Vector3 startingPos = new Vector3(720.8f, 40.0f,  -651.2f);
+            public Vector3 startingPos = new Vector3(720.8f, 70.0f,  -651.2f);
             public Vector3 endingPos = new Vector3(723.0f, 30.5f, -490.0f);
             public Vector3 startingRot = new Vector3(180.0f, -3.07f, 180.0f);
 
@@ -116,12 +115,12 @@ namespace SliceEngine
             public SwordIntroState(GameObject owner) : base(owner)
             {
                 animationTriggerBox = owner.As<CameraAnimationTriggerBox>();
-                cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
-                cinematicSword = owner.FindGameObjectsWithTag("CinematicSword")[0];
             }
 
             public override void OnEnter()
             {
+                cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
+
                 Bootstrap.CameraController.LockCamera = true;
                 //  Bootstrap.Player.PlayerMovementState = PlayerController.MovementState.Falling;
                 Bootstrap.Player.SetPlayerLock(true);
@@ -131,6 +130,8 @@ namespace SliceEngine
                 {
                     fadeOutRoutine = animationTriggerBox.StartCoroutine(FadeOutRoutine());
                 }
+
+                AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
             }
 
             public override void OnUpdate(float dt)
@@ -160,7 +161,7 @@ namespace SliceEngine
 
                     float smoothT = t * t * (3f - 2f * t);
 
-                    Vector3 targetPos = endingPos;//cinematicSword.GetComponent<Transform>().Position;//Bootstrap.Player.transform.Position;
+                    Vector3 targetPos = endingPos;
 
                     camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
                     if (elapsed >= (duration - 0.2f))
@@ -173,35 +174,7 @@ namespace SliceEngine
 
                     yield return null;
                 }
-                cinematicSword.Destroy();
             }
-
-            public IEnumerator LookAtSword()
-            {
-                float elapsed = 0f;
-                // how long it takes to lerp
-                float duration = 1.0f;
-                Quaternion startingQuat = camControl.transform.RotationQuat;
-
-                while (elapsed < duration)
-                {
-                    elapsed += Time.deltaTime;
-                    float t = elapsed / duration;
-
-                    float smoothT = t * t * (3f - 2f * t);
-
-                    Quaternion targetRot = Quaternion.LookRotation(cinematicSword.GetComponent<Transform>().Forward);
-                    camControl.transform.RotationQuat = Quaternion.Slerp(startingQuat, targetRot, smoothT);
-
-                    yield return null;
-                }
-
-                // when its done moving and looking at the sword
-                // exit and start the cinematic cutscene
-                animationTriggerBox.cameraSM.ChangeState(animationTriggerBox.exitState);
-            }
-
-
             public IEnumerator FadeInRoutine()
             {
                 float elapsedTime = 0f;
