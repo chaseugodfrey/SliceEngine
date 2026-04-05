@@ -246,6 +246,9 @@ namespace SliceEngine
             while (elapsedTime < 12.0f)
             {
                 elapsedTime += Time.deltaTime;
+
+                SetRectAlpha(elapsedTime / 12.0f); // Start transparent
+
                 yield return null;
             }
 
@@ -256,7 +259,6 @@ namespace SliceEngine
         public IEnumerator FadeOutRoutine()
         {
             float elapsedTime = 0f;
-            if (SceneManager._transitionRenderer != null) SceneManager._transitionRenderer.SetEnabled(true);
             SetRectAlpha(0.0f); // Start transparent
 
             while (elapsedTime < z_transitionDurationToDeath)
