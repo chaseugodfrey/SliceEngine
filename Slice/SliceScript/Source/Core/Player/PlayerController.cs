@@ -484,7 +484,7 @@ namespace SliceEngine
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            //console.writeline("Player Taking Damage. Current Health: ");
+            SliceLog.Console("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 

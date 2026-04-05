@@ -173,6 +173,7 @@ namespace SliceEngine
 
             camInitialPos = camTr.Position;
             
+            ArenaObj.GetComponent<AudioSource>().Play();
             // rise up
             while (elapsedTime < maxTime)
             {
@@ -183,13 +184,14 @@ namespace SliceEngine
                 camRigTr.Rotation = ArenaPivotTr.Rotation;
 
                 ArenaTr.Position = Vector3.Lerp(ArenaNewPos, ArenaInitialPos, rate);
-                PlayerTr.Position = Vector3.Zero;
+                PlayerTr.Position = Vector3.One * 10000.0f;
                 //Vector3 PlayerNewPos = new Vector3(PlayerInitialPos.x, ArenaTr.Position.y, PlayerInitialPos.x);
                 //PlayerTr.Position = PlayerNewPos;
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
+            PlayerTr.GetComponent<RigidBody>().Velocity = Vector3.Zero;
             elapsedTime = 0.0f;
             maxTime = 0.1f;
             Bootstrap.Player.SetActive(true);
@@ -219,6 +221,14 @@ namespace SliceEngine
 
             float elapsedTime = 0.0f;
 
+            while (elapsedTime < 0.25f)
+            {
+                elapsedTime += Time.deltaTime;
+                yield return null;
+
+            }
+
+            elapsedTime = 0.0f;
             // fade in
             while (elapsedTime < z_transitionDurationToDeath)
             {
@@ -228,7 +238,7 @@ namespace SliceEngine
             }
 
             // while black
-            
+
             elapsedTime = 0.0f;
             SetRectAlpha(1.0f);
 
@@ -248,6 +258,7 @@ namespace SliceEngine
 
             elapsedTime = 0.0f;
 
+
             // fade out
 
             while (elapsedTime < z_transitionDurationToDeath)
@@ -260,6 +271,7 @@ namespace SliceEngine
 
             elapsedTime = 0.0f;
             SetRectAlpha(0.0f);
+
         }
 
         public IEnumerator FadeOutRoutine()
