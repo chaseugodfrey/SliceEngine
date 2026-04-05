@@ -202,7 +202,7 @@ namespace SliceEngine
         //string[] for listed things 0 = name, 1 = text
         //private List<string[]> levelDialogues = new List<string[]>();
 
-        private int dialogueIndex = 0;
+        public int dialogueIndex = 0;
 
         public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
