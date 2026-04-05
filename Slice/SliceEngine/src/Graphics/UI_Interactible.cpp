@@ -31,23 +31,23 @@ namespace SliceEngine {
 
 		///auto& self_node = reg.get<SceneGraph>(self);
 	
-		int handle_pos{};
+		float handle_pos{};
 		if (axis == X_Axis) {
-			handle_pos = (int)(rect.final_width * value);
+			handle_pos = rect.final_width * value;
 
-			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
-			
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {			
 				auto& handle_rect = reg.get<RectTransform>(handle);
-				handle_rect.vert_pivot = RectTransform::MIDDLE;
-				handle_rect.pos_y = 0;
+				if (contained) {
+					handle_pos = (rect.final_width - handle_rect.final_width) * value + handle_rect.final_width * 0.5f;
+				}
 
 				if (direction == Positive) {
 					handle_rect.hori_pivot = RectTransform::LEFT;
-					handle_rect.pos_x = handle_pos;
+					handle_rect.pos_x = (int)handle_pos;
 				}
 				else {
 					handle_rect.hori_pivot = RectTransform::RIGHT;
-					handle_rect.pos_x = -handle_pos;
+					handle_rect.pos_x = -(int)handle_pos;
 				}
 			}
 
@@ -55,29 +55,26 @@ namespace SliceEngine {
 			
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
-				//fill_rect.top = 0;
-				//fill_rect.bot = 0;
-
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;
 				if (direction == Positive) {
 					fill_rect.left = 0;
-					fill_rect.right = (int)rect.final_width - handle_pos;
+					fill_rect.right = rect.final_width - handle_pos;
 				}
 				else {
 					fill_rect.right = 0;
-					fill_rect.left = (int)rect.final_width - handle_pos;
+					fill_rect.left = rect.final_width - handle_pos;
 				}
 			}
 		}
 		else {
-			handle_pos = (int)(rect.final_height * value);
+			handle_pos = rect.final_height * value;
 
 			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
 		
 				auto& handle_rect = reg.get<RectTransform>(handle);
-				//ensure that handle's settings r fixed
-				handle_rect.hori_pivot = RectTransform::CENTER;
-				handle_rect.pos_x = 0;
+				if (contained) {
+					handle_pos = (rect.final_height - handle_rect.final_height) * value + handle_rect.final_height * 0.5f;
+				}
 
 				if (direction == Positive) {
 					handle_rect.vert_pivot = RectTransform::BOTTOM;
@@ -99,11 +96,11 @@ namespace SliceEngine {
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
 				if (direction == Positive) {
 					fill_rect.bot = 0;
-					fill_rect.top = (int)rect.final_height - handle_pos;
+					fill_rect.top = rect.final_height - handle_pos;
 				}
 				else {
 					fill_rect.top = 0;
-					fill_rect.bot = (int)rect.final_height - handle_pos;
+					fill_rect.bot = rect.final_height - handle_pos;
 				}
 			}
 		}
@@ -187,7 +184,7 @@ namespace SliceEngine {
 
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<buttonEntity>();
+		auto view = core->GetRegistry().view<buttonEntity>(entt::exclude<InactiveEntity>);
 
 		auto default_event = ButtonSystem::Events::Cancel;
 		for (auto entity : view) {
@@ -274,7 +271,11 @@ namespace SliceEngine {
 	//Set the color/sprite guid of the image depending on state
 	void ButtonSystem::update_button(Entity button_entity, Events event) {
 		auto& button = mRegistry->get<Button>(button_entity);
-		assert(button.componentEnabled);
+		if (!button.componentEnabled) {
+			return;
+		}
+
+
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;

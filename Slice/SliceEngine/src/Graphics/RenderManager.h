@@ -42,6 +42,7 @@ namespace SliceEngine
 		GameObject CreatePrefabCam();
 		void SetMainGameCamera(Entity cam);
 		std::optional<Entity>& GetGameCamera();
+		void CopyMainCamSettings(Camera& othCam);
 		void GetCameraAxis(GameObject& cam, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 		void GetCameraAxis(glm::mat3& camRot, glm::vec3& forward, glm::vec3& right, glm::vec3& up);
 		glm::mat4 DirLightMatCalc(const glm::mat4& proj, const glm::mat4& view, const glm::vec3 lightDir);
@@ -50,8 +51,10 @@ namespace SliceEngine
 		unsigned int ObjectPick(int mouseX, int mouseY);
 		unsigned int GetPickedID();
 
-		float GetSessionExposure() const { return mSessionExposure; }
+		float GetSessionExposure() const;
+		float GetSessionGamma() const;
 		void SetSessionExposure(float exposure);
+		void SetSessionGamma(float gamma);
 
 		// Rendering functions
 		void CalculateVP(Entity cam);
@@ -61,20 +64,24 @@ namespace SliceEngine
 		// Rendering calls
 		void Render();
 		void RenderDebug(Entity cam);
-		void RenderPointShadowMaps();
+		void RenderPerspectiveShadowMaps();
 		void RenderDirectionalShadowMaps(Entity cam);
 		void RenderSkybox();
 		void RenderSkyboxLighting(Entity cam);
 		void RenderLighting(Entity cam);
+		void RenderAvgLum(Entity cam);
 		void RenderGroundCloud(Entity cam);
 		void RenderFog(Entity cam);
 		void RenderBloom(Entity cam, bool specifallyGodRay);
 		void RenderVignette(Entity cam);
+		void RenderImpact(Entity cam);
 		void RenderGammaCorrection(Entity cam);
 		void Draw(); // Basically just copies the main camera texture to draw onto screen framebuffer
 		// Utility functions
 		void ForceSetCustomShader(const std::string& sh, GLuint s);
 		bool UniformExists(const char* str, GLint& ref);
+		void GatherLights();
+		void GatherNearbyLights();
 		float CalcPointLightFar(const glm::vec3& scale, const float lightIntensity);
 		const glm::mat4& GetViewMatrix() const;
 		const glm::mat4& GetProjMatrix() const;
@@ -89,15 +96,17 @@ namespace SliceEngine
 		GLuint SkyboxIrradianceMap{};
 		int numLightsFound{};
 		float mainDirLightFar{};
-		#define mMaxPointLights 20
+		#define mMaxPointLights 10
+		const size_t mMaxLights{150};
 		const int mNumCascadeShadow = 5; // num of textures, below is -1 from this to account for 0
 		const float shadowCascadeLevels[4]{ 40.f, 15.f, 6.f, 2.4f };
 
 	private:
 		const float mBloomFilterMult = 0.001f;
 		const float mBloomStrengthMult = 0.1f;
-		const float mExposureMult = 0.1f;
+		const float mExposureMult = 0.01f;
 		float mSessionExposure{ 10.f };
+		float mSessionGamma{ 45.454545f };
 		const int mMaxBloom =  5;
 		const float mLightZDist = 50.f;
 		const float mZBufferShadow = 400.f;
@@ -143,6 +152,7 @@ namespace SliceEngine
 			S_BASIC						,
 			S_SHADOW				,
 			S_POINT_SHADOW	,
+			S_SPOT_SHADOW,
 			S_SKYBOX					,
 			S_SKYBOX_Light		,
 			S_LIGHTING				,
@@ -159,8 +169,11 @@ namespace SliceEngine
 			S_UPSCALING			,
 			S_BLOOM_JOIN		,
 			S_VIGNETTE				,
+			S_IMPACT				,
 			S_SKY_IRRADIANCE	,
 			S_SKY_GENERATE		,
+			S_LUMINANCE,
+			S_EXT_LUMINANCE,
 			S_FINAL						,
 			S_COPY						
 		};
@@ -170,6 +183,7 @@ namespace SliceEngine
 			{ ShaderOpt::S_BASIC,           "Shaders/basic.shader" },
 			{ ShaderOpt::S_SHADOW,          "Shaders/shadow.shader" },
 			{ ShaderOpt::S_POINT_SHADOW,    "Shaders/pointShadow.shader" },
+			{ ShaderOpt::S_SPOT_SHADOW,		"Shaders/spotShadow.shader" },
 			{ ShaderOpt::S_SKYBOX,          "Shaders/skybox.shader" },
 			{ ShaderOpt::S_SKYBOX_Light,    "Shaders/skyboxLight.shader" },
 			{ ShaderOpt::S_LIGHTING,        "Shaders/lighting.shader" },
@@ -186,8 +200,11 @@ namespace SliceEngine
 			{ ShaderOpt::S_UPSCALING,       "Shaders/upSample.shader" },
 			{ ShaderOpt::S_BLOOM_JOIN,      "Shaders/bloomJoin.shader" },
 			{ ShaderOpt::S_VIGNETTE,        "Shaders/vignette.shader" },
+			{ ShaderOpt::S_IMPACT,			"Shaders/ImpactFrame.shader" },
 			{ ShaderOpt::S_SKY_IRRADIANCE,  "Shaders/skyboxIrr.shader" },
 			{ ShaderOpt::S_SKY_GENERATE,    "Shaders/skyboxGeneration.shader" },
+			{ ShaderOpt::S_LUMINANCE,		"Shaders/luminance.shader" },
+			{ ShaderOpt::S_EXT_LUMINANCE,	"Shaders/Extractluminance.shader" },
 			{ ShaderOpt::S_FINAL,           "Shaders/final.shader" },
 			{ ShaderOpt::S_COPY,            "Shaders/basicCopy.shader" }
 		};
@@ -204,6 +221,8 @@ namespace SliceEngine
 			GOUT_GODRAY,
 			GOUT_DEBUG_OUTLINE,
 			GOUT_DEBUG_OUTLINE_BLURED,
+			GOUT_LUM_EXTRACT,
+			GOUT_IMPACT,
 			GOUT_FINAL,
 			GOUT_POST,
 			GOUT_TOTAL
@@ -242,12 +261,15 @@ namespace SliceEngine
 		struct LightDat
 		{
 			glm::vec3 pos;
-			//float hasShadow;
 			float uFarPlane;
 			glm::vec3 dir;
 			int type;
 			glm::vec4 col;
-			//glm::vec3 padding;
+			int hasShadow;
+			int shadowNum;
+			int spotShadowNum;
+			float pointAngle;
+			glm::mat4 pointlightMtx;
 		};
 #pragma endregion
 		FBOType mCurrFBO{ FB_TOTAL };
@@ -263,7 +285,12 @@ namespace SliceEngine
 		unsigned int mIDHovered{};
 		float mTime{};
 
-		LightDat lightData[mMaxPointLights + 1]{};
+		bool mDirLightFound{ false };
+		LightDat dirLightDat;
+		std::vector<LightDat> allLightData{}; // for raw data
+		std::vector<size_t> sortedLights; // for sorting
+		std::unordered_set<size_t> activeShadowSet{};
+		std::vector<size_t> dirtyShadows{};
 
 		Handle<SliceEngineTypes::Shader> shaderHandle;
 		std::pair<std::string, GLuint> mCurrShader;
@@ -289,8 +316,7 @@ namespace SliceEngine
 		void SetShader(std::string sh);
 		void ClearBuffer(BufferClearSetting setting);
 		void ToggleFinalTexture();
-		void SetUniformVec3(GLuint uniformLoc, const glm::vec3& vec);
-		void GatherNearbyLights(Entity cam);
+		void SetUniformVec3(GLint uniformLoc, const glm::vec3& vec);
 
 		void AddDebugRaysToDraw(const DebugDrawRayEvent&);
 

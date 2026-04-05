@@ -109,6 +109,7 @@ namespace SliceEngine
         // Internal References
         private CameraController camera;
         public GameObject playerModel;
+        public GameObject playerSwordModel;
         RigidBody rigidBody;
         Animator animator;
         AudioSource audio;
@@ -123,6 +124,7 @@ namespace SliceEngine
         float attackTimer = 0.0f;
         bool attackQueued;
         public float shieldDuration = 0.5f;
+        public bool canAttack = false;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
@@ -189,6 +191,8 @@ namespace SliceEngine
         public float flickerDuration = 0.05f;
         public bool iFrames = false;
 
+        Coroutine shakeCoroutine = null;
+
         public void Initialize()
         {
             camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
@@ -200,6 +204,9 @@ namespace SliceEngine
         {
             InitializeInternalReferences();
             InitializeHitboxes();
+
+            if (playerSwordModel != null)
+                playerSwordModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
         }
 
         public override void OnUpdate(float dt)
@@ -267,6 +274,7 @@ namespace SliceEngine
 
             if (!IsTakingInputs())
             {
+                Console.WriteLine($"Not taking inputs");
                 return;
             }
 
@@ -295,7 +303,8 @@ namespace SliceEngine
                 // Ground attacking
                 PlayerCurrentAttack = CurrentAttack.GroundAttack;
                 attackCounter++;
-                if (attackCounter > 3) attackCounter = 1;
+                // changing this to 2 to remove the 3rd attack
+                if (attackCounter > 2) attackCounter = 1;
 
                 switch (attackCounter)
                 {
@@ -322,15 +331,6 @@ namespace SliceEngine
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
-                    case 3:
-                        attackTimer = attackDuration[2];
-                        StartCoroutine(AttackDelay(attackDelay[2], () => attackHitboxes[2].TurnOn()));
-
-                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                        {
-                           // AudioSettings.PlaySFX("A3");
-                        }
-                        break;
                     default:
                         break;
                 }
@@ -343,7 +343,7 @@ namespace SliceEngine
                 RayCastHit hitInfo;
                 
                 // Check if can plunge by raycasting down to see distance to ground
-                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
+                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal);
                 if (hit)
                 {
                     GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
@@ -401,11 +401,6 @@ namespace SliceEngine
                         if (animator.SafeToChange("AttackToIdle2"))
                             animator.SetBool("AttackToIdle2", true);
                     }
-                    if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle3") != 0))
-                    {
-                        if (animator.SafeToChange("AttackToIdle3"))
-                            animator.SetBool("AttackToIdle3", true);
-                    }
                 }
                 else if (PlayerCurrentAttack == CurrentAttack.PlungeLand)
                 {
@@ -446,7 +441,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 1");
+                //SliceLog.Console($"Attacking enemy in attack 1");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
@@ -456,16 +451,7 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 2");
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
-                AudioSettings.PlaySFX("SwordHit");
-            }
-        }
-        private void Attack3(GameObject target)
-        {
-            EnemyBase enemy = target.As<EnemyBase>();
-            if (enemy != null)
-            {
+                //Console.WriteLine($"Attacking enemy in attack 2");
                 enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
@@ -520,9 +506,9 @@ namespace SliceEngine
                     case 1:
                         attackAction = Attack2;
                         break;
-                    case 2:
-                        attackAction = Attack3;
-                        break;
+                    // ill leave hitbox3 in the list of attackHitboxNames for now
+                    // so 0 is attack 1, 1 is attack 2, 3 is for dash
+                    // 2 is removed now
                     case 3:
                         attackAction = DashAttack;
                         break;
@@ -548,6 +534,18 @@ namespace SliceEngine
             rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
         }
 
+        public void ChangeModel()
+        {
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
+            playerModel = playerSwordModel;
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+            canAttack = true;
+            animator = playerModel?.GetComponent<Animator>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find Animator");
+            //audio = gameObject.GetComponent<AudioSource>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find AudioSource");
+            //rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
+
+        }
+
         #endregion
 
         #region On Overrides
@@ -558,21 +556,31 @@ namespace SliceEngine
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
+            //iFrames = true;
+            //StartCoroutine(iFrameAnimation(0.5f));
             AudioSettings.PlaySFX("PlayerHit");
+            if (shakeCoroutine != null)
+            {
+                if (shakeCoroutine.isActive)
+                {
+                    CoroutineManager.StopCoroutine(shakeCoroutine);
+                }
+            }
 
-            Bootstrap.CameraController.Shake(0.1f, 1f);
+
+            shakeCoroutine = Bootstrap.CameraController.Shake(0.2f, 1.0f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
-            SliceLog.Log("Returned");
+            //SliceLog.Log("Returned");
 
             Transform vfxTransform = vfx.GetComponent<Transform>();
-            SliceLog.Log("Getting Transform");
+            //SliceLog.Log("Getting Transform");
 
-            vfxTransform.Position = transform.Position;
-            SliceLog.Log("Set");
+            vfxTransform.Position = transform.Position + new Vector3(0, 1.0f, 0);
+            //SliceLog.Log("Set");
 
             vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
-            SliceLog.Log("Rotating");
+            //SliceLog.Log("Rotating");
         }
         private GameObject SpawnVFX(string path)
         {
@@ -587,6 +595,9 @@ namespace SliceEngine
                 Console.WriteLine("Destroying projectile");
                 return;
             }
+
+            if (iFrames)
+                return;
             //source = source ?? gameObject;
             if (source == null)
             {
@@ -896,7 +907,7 @@ namespace SliceEngine
             animator.SetBool("Idle", false);
             animator.SetBool("Walk", false);
             animator.SetBool("JumpLoop", false);
-            animator.SetBool("Fall", false);
+            //animator.SetBool("Fall", false);
             animator.SetBool("Land", false);
         }
 
@@ -960,8 +971,10 @@ namespace SliceEngine
                     //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
-                    if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
-                        animator.SetBool("Fall", true);
+                    if (animator.SafeToChange("JumpLoop") && (String.Compare(animator.GetCurrAnimName(), "JumpLoop") != 0))
+                        animator.SetBool("JumpLoop", true);
+                    //if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
+                    //    animator.SetBool("Fall", true);
                     break;
                 case MovementState.Landing:
                     if (animator.SafeToChange("Land") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
@@ -969,40 +982,20 @@ namespace SliceEngine
                     break;
                 case MovementState.GroundDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                         if (hasInput)
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
                         {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            {
-                                //Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                            Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
 
                 case MovementState.AirDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                        if (hasInput)
-                        {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            { 
-                                Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                        { 
+                            Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
@@ -1062,14 +1055,6 @@ namespace SliceEngine
                                 }
                                 break;
                             }
-                        case 3:
-                            {
-                                if (String.Compare(animator.GetCurrAnimName(), "Attack3") != 0 && (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0))
-                                {
-                                    animator.SetBool("Attack3", true);
-                                }
-                                break;
-                            }
                     }
                     break;
                 case CurrentAttack.PlungeLand:
@@ -1081,7 +1066,6 @@ namespace SliceEngine
                 default:
                     break;
             }
-
         }
 
         private void HandleMovementInputs()
@@ -1096,6 +1080,8 @@ namespace SliceEngine
 
         private void HandleAttackInputs()
         {
+            if (!canAttack) { return; }
+
             if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
 
             if (Input.IsKeyPressed(Keys.KEY_E) 
@@ -1169,7 +1155,11 @@ namespace SliceEngine
 
                 dashDir = ComputeFlatDashDir(true);
 
-                FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
+                FXDash = CreateGameObject("Prefabs/FX_Dash.prefab");
+                FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.SetParent(gameObject);
+                FXDash.GetComponent<Transform>().Rotation = Vector3.Zero;
+                FXDash = CreateGameObject("Prefabs/FX_Dashbeam.prefab");
                 FXDash.GetComponent<Transform>().Position = transform.Position;
                 FXDash.SetParent(gameObject);
                 FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
@@ -1291,7 +1281,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return -forward.Normalize();
+                return forward.Normalize();
             }
 
             if (camera != null)

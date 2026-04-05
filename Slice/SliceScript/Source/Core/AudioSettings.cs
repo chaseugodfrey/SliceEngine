@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,13 +11,25 @@ namespace SliceEngine
         public static void PlaySFX(string message)
         {
             // Console.WriteLine($"[LOG] {message}");
-            FunctionCalls.Audio_PlaySFX(message, ref Vector3.Zero);
+            FunctionCalls.Audio_PlaySFX(message, ref Vector3.Zero, 0);
         }
 
         public static void PlaySFX(string message, Vector3 position)
         {
             // Console.WriteLine($"[LOG] {message}");
-            FunctionCalls.Audio_PlaySFX(message, ref position);
+            FunctionCalls.Audio_PlaySFX(message, ref position, 0);
+        }
+
+        public static void PlaySFX(string message, GameObject parent)
+        {
+            // Console.WriteLine($"[LOG] {message}");
+            FunctionCalls.Audio_PlaySFX(message, ref Vector3.Zero, parent.mID);
+        }
+
+        public static void PlaySFX(string message, GameObject parent, Vector3 localPosition)
+        {
+            // Console.WriteLine($"[LOG] {message}");
+            FunctionCalls.Audio_PlaySFX(message, ref localPosition, parent.mID);
         }
 
     }

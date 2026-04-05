@@ -1,9 +1,10 @@
-﻿using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SliceEngine;
+using SliceScript.Source.Core.Systems;
 
 namespace SliceEngine
 {
@@ -11,118 +12,339 @@ namespace SliceEngine
     {
         public float duration = 0.5f;
         public GameObject settingsFrontBG;
-        public GameObject settingsBackBG;
-        public GameObject settingsFrontTitleBG;
-        public GameObject settingsBackTitleBG;
-        public GameObject frontTitleObj;
-        public GameObject backTitleObj;
-        public GameObject settingsSliders;
-        public GameObject closeSettingsButton;
         public GameObject menuCanvasObj;
+        public GameObject settingsContent;
+        public GameObject flickerImage;
+        public GameObject systemsTitle;
 
-        private RectTransform frontBgTrans, backBgTrans, frontTitleBgTrans, backTitleBgTrans;
-        private FontRenderer frontText, backText;
+        public GameObject audioButton;
+        public GameObject graphicsButton;
+
+        public GameObject audioSettingsPage;
+        public GameObject graphicsSettingsPage;
+
+        public GameObject audioActive;
+        public GameObject graphicsActive;
+        public GameObject returnToTitleButton;
+
+        public GameObject audioTitleObj;
+        public GameObject graphicsTitleObj;
+        
+        public List<GameObject> audioSliders = new List<GameObject>() { null };
+        public GameObject gammaSlider;
+        private GameObject bgCloseAnimationObject;
+
+        private SpriteRenderer audioSprite;
+        private FontRenderer audioFont;
+
+        private RectTransform systemsPausedTrans;
+        private RectTransform audioTitleTrans;
+        private RectTransform graphicsTitleTrans;
+
+        
+        private RectTransform[] audioSliderTrans;
+
+        private SpriteRenderer graphicsSprite;
+        private SpriteRenderer flickerImageSprite;
+        private FontRenderer graphicsFont;
+
+        private RectTransform frontBgTrans;
+
+        private Vector4 highlightFontColor = new Vector4(68f / 255f, 51f / 255f, 20f / 255f, 1f);
+
+        private Vector4 defaultFontColor = new Vector4(1f, 1f, 1f, 1f);
 
         public int defaultHeight = 0;
         public int finalHeight = 0;
-        public int defaultFrontTitleBGWidth = 0;
-        public int finalFrontTitleBGWidth = 0;
-        public int defaultBackTitleBGWidth = 0;
-        public int finalBackTitleBGWidth = 0;
-        public string textToShow = "";
 
         private float animationTimer = 0f;
         private bool isOpening = false;
         private bool isActive = false;
-        public bool useGlitch = true;
+
+        private bool isAudioPageSelected = true;
+
+        public float flickerSpeed = 0.05f;
+        public float flickerTotalDuration = 0.5f;
+        private float flickerTimer = 0f;
 
         public override void OnCreate()
         {
             if (settingsFrontBG != null) frontBgTrans = settingsFrontBG.GetComponent<RectTransform>();
-            if (settingsBackBG != null) backBgTrans = settingsBackBG.GetComponent<RectTransform>();
-            if (settingsFrontTitleBG != null) frontTitleBgTrans = settingsFrontTitleBG.GetComponent<RectTransform>();
-            if (settingsBackTitleBG != null) backTitleBgTrans = settingsBackTitleBG.GetComponent<RectTransform>();
 
-            if (frontTitleObj != null) frontText = frontTitleObj.GetComponent<FontRenderer>();
-            if (backTitleObj != null) backText = backTitleObj.GetComponent<FontRenderer>();
+            if (flickerImage != null)
+            {
+                flickerImageSprite = flickerImage.GetComponent<SpriteRenderer>();
+            }
 
-            // Ensure UI elements start hidden
-            if (settingsSliders != null) settingsSliders.SetActive(false);
-            if (closeSettingsButton != null) closeSettingsButton.SetActive(false);
+
+            if (audioActive != null)
+            {
+                audioSprite = audioActive.GetComponent<SpriteRenderer>();
+
+            }
+
+            if (graphicsActive != null)
+            {
+                graphicsSprite = graphicsActive.GetComponent<SpriteRenderer>();
+
+            }
+
+            if (systemsTitle != null)
+            {
+                systemsPausedTrans = systemsTitle.GetComponent<RectTransform>();
+            }
+
+            if (audioButton != null)
+            {
+                audioFont = audioButton.GetComponent<FontRenderer>();
+            }
+
+            if (graphicsButton != null)
+            {
+                graphicsFont = graphicsButton.GetComponent<FontRenderer>();
+            }
+
+            if(audioTitleObj != null)
+            {
+                audioTitleTrans = audioTitleObj.GetComponent<RectTransform>();
+            }
+
+            if (graphicsTitleObj != null)
+            {
+                graphicsTitleTrans = graphicsTitleObj.GetComponent<RectTransform>();
+            }
+
+            if (audioSliders.Count > 0)
+            {
+                audioSliderTrans = new RectTransform[audioSliders.Count];
+
+                for(int i = 0; i < audioSliders.Count; i++)
+                {
+                    if (audioSliders[i] != null)
+                    {
+                        audioSliderTrans[i] = audioSliders[i].GetComponent<RectTransform>();
+                    }
+                }
+            }
+
+            bgCloseAnimationObject = FindGameObjectWithName("SettingsCloseBGSpriteSheet");
+
+            if(bgCloseAnimationObject != null)
+            {
+                bgCloseAnimationObject.SetActive(false);
+            }
         }
+
+
 
         public override void OnUpdate(float dt)
         {
-            // 1. Run logic if we are opening or still in the middle of a closing animation
+            if (flickerImageSprite != null)
+            {
+                flickerTimer += Time.deltaTimeUnscaled;
+                Vector4 color = flickerImageSprite.Colour;
+
+                if (isOpening)
+                {
+                    if (flickerTimer < flickerTotalDuration)
+                    {
+                        float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
+                        color.w = Utilities.Lerp(1.0f, 0.0f, t);
+                    }
+                    else
+                    {
+                        color.w = 0.0f;
+                    }
+                }
+                else
+                {
+                    if (flickerTimer < flickerTotalDuration)
+                    {
+                        float t = Utilities.PingPong(flickerTimer, flickerSpeed) / flickerSpeed;
+                        color.w = Utilities.Lerp(0.0f, 1.0f, t);
+                    }
+                    else
+                    {
+                        color.w = 1.0f;
+                    }
+                }
+
+                flickerImageSprite.Colour = color;
+            }
+
             if (isOpening || animationTimer > 0f)
             {
-                // Directional Timer Logic
                 if (isOpening)
+                {
                     animationTimer += Time.deltaTimeUnscaled / duration;
+                }
                 else
+                {
                     animationTimer -= Time.deltaTimeUnscaled / duration;
+                }
 
-                animationTimer = Utilities.Clamp(animationTimer, 0f, 1f);
-
-                // 2. STAGE 1: Background & Title BG (0.0 to 0.5 range)
-                // InverseLerp maps the first half of the timer to a 0-1 progress factor
-                float bgProgress = Utilities.InverseLerp(0f, 0.5f, animationTimer);
+                animationTimer = Utilities.Clamp(animationTimer, 0f, 0.5f);
+                float bgProgress = Utilities.InverseLerp(0f, 0.3f, animationTimer);
 
                 if (frontBgTrans != null)
                 {
-                    // Smoothly interpolate heights and widths
                     float currentHeight = Utilities.SmoothStep(defaultHeight, finalHeight, bgProgress);
-                    float currentFrontTitleWidth = Utilities.SmoothStep(defaultFrontTitleBGWidth, finalFrontTitleBGWidth, bgProgress);
-                    float currentBackTitleWidth = Utilities.SmoothStep(defaultBackTitleBGWidth, finalBackTitleBGWidth, bgProgress);
-
-                    // Apply values to cached RectTransforms
+                    float currentWidth = Utilities.SmoothStep(1500, -572, bgProgress);
+                    
+                    float currentSliderWidth = Utilities.SmoothStep(0, -1161, bgProgress);
+                    float currentMiniTitleWidth = Utilities.SmoothStep(800, -303, bgProgress);
                     frontBgTrans.Height = (int)currentHeight;
-                    if (backBgTrans != null) backBgTrans.Height = (int)currentHeight;
+                    systemsPausedTrans.Right = (int)currentWidth;
+                    
+                    audioTitleTrans.Right = (int)currentMiniTitleWidth;
+                    graphicsTitleTrans.Right = (int)currentMiniTitleWidth;
 
-                    if (frontTitleBgTrans != null) frontTitleBgTrans.Right = (int)currentFrontTitleWidth;
-                    if (backTitleBgTrans != null) backTitleBgTrans.Right = (int)currentBackTitleWidth;
+                    for(int i = 0; i < audioSliders.Count; i++)
+                    {
+                        audioSliderTrans[i].Right = (int)currentSliderWidth;
+                    }
+
                 }
 
-                // 3. STAGE 2: Title Text Typewriter (0.5 to 1.0 range)
-                // This factor stays at 0 until the background is 50% done
-                float textProgress = Utilities.InverseLerp(0.5f, 1.0f, animationTimer);
+                bool isFullyOpen = true;
 
-                if (frontText != null && !string.IsNullOrEmpty(textToShow))
+                // Manage visibility of elements
+                if (returnToTitleButton != null) returnToTitleButton.SetActive(isFullyOpen);
+
+                if (isFullyOpen)
                 {
-                    int charactersToShow = (int)(textProgress * textToShow.Length);
-                    string currentStr = textToShow.Substring(0, charactersToShow);
+                    if (settingsContent != null) settingsContent.SetActive(true);
+                    if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudioPageSelected);
+                    if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudioPageSelected);
+                    
+                }
+                else
+                {
 
-                    frontText.Text_val = currentStr;
-                    if (backText != null) backText.Text_val = currentStr;
+                    //if (audioSettingsPage != null) audioSettingsPage.SetActive(false);
+                    //if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(false);
+                    if (settingsContent != null) settingsContent.SetActive(false);
                 }
 
-                // 4. UI Element Visibility
-                // Show sliders/button only when fully open; hide them immediately when closing starts
-                bool isFullyOpen = animationTimer >= 1.0f && isOpening;
-                if (settingsSliders != null) settingsSliders.SetActive(isFullyOpen);
-                if (closeSettingsButton != null) closeSettingsButton.SetActive(isFullyOpen);
-
-                // 5. Final Deactivation
                 if (animationTimer <= 0f && !isOpening)
                 {
-                    isActive = false;
-                    if (menuCanvasObj != null)
+                    //isActive = false;
+                    //if (menuCanvasObj != null)
+                    //{
+                    //    menuCanvasObj.SetActive(true);
+                    //}
+                    //this.gameObject.SetActive(false);
+
+                    if (bgCloseAnimationObject != null)
                     {
+                        var closeAnim = bgCloseAnimationObject.As<SettingsCloseBGAnimation>();
+                        if (closeAnim != null)
+                        {
+                            // Start the spritesheet closing animation
+                            closeAnim.StartSettingsBGAnimation(true);
+                        }
+                    }
+                    else if (menuCanvasObj != null)
+                    {
+                        // Fallback: If no anim, just show the menu immediately
                         menuCanvasObj.SetActive(true);
                     }
 
                     this.gameObject.SetActive(false);
-
                 }
             }
         }
 
-        public void StartAnimation(bool opening)
+        public void SyncSlidersToEngine()
         {
-            isOpening = opening;
-            isActive = true;
-            this.gameObject.SetActive(true);
+            
+
+            if (gammaSlider != null)
+            {
+                
+                var sliderComp = gammaSlider.GetComponent<Slider>();
+                if (sliderComp != null)
+                {
+                    //// Gamma is multiplied by 10 in your ExposureSlider, so we multiply by 0.1f here
+                    sliderComp.SetValue(Camera.Gamma * 0.1f);
+                }
+            }
+
+            // Update Audio Sliders visual
+            for (int i = 0; i < audioSliders.Count; i++)
+            {
+                
+                if (audioSliders[i] != null)
+                {
+                    VolumeSlider volumeScript = audioSliders[i].As<VolumeSlider>();
+                    var sliderComp = audioSliders[i].GetComponent<Slider>();
+
+                    if (volumeScript != null && sliderComp != null)
+                    {
+                        //SliceLog.Log("Master Vol : " + AudioManager.GetMasterVolume());
+                        if (volumeScript.audioParameter == "Master")
+                        {
+                            sliderComp.SetValue(AudioManager.GetMasterVolume());
+                        }
+                        else
+                        {
+                            sliderComp.SetValue(AudioManager.GetCategoryVolume(volumeScript.audioParameter));
+                        }
+                    }
+                }
+            }
+        }
+        private void UpdateButtonVisuals()
+        {
+            // Update Audio Button
+            SliceLog.Log("isAudioPageSelected : " + isAudioPageSelected);
+            
+
+            if (audioSprite != null)
+            {
+                audioSprite.SetEnabled(isAudioPageSelected);
+
+            }
+            if (audioFont != null) audioFont.Colour = isAudioPageSelected ? highlightFontColor : defaultFontColor;
+
+            if (graphicsSprite != null)
+            {
+                graphicsSprite.SetEnabled(!isAudioPageSelected);
+            }
+            if (graphicsFont != null) graphicsFont.Colour = !isAudioPageSelected ? highlightFontColor : defaultFontColor;
         }
 
+
+        public void StartSettingsPopupAnimation(bool opening)
+        {
+            this.gameObject.SetActive(true);
+            isOpening = opening;
+            flickerTimer = 0f; // Reset flicker timer
+            UpdateButtonVisuals();
+            isActive = true;
+
+
+            if (!opening)
+            {
+                if (settingsContent != null) settingsContent.SetActive(false);
+            }
+
+
+        }
+
+        public void SwitchToPage(bool isAudio)
+        {
+            isAudioPageSelected = isAudio;
+
+            // Apply immediately if already open
+            if (animationTimer >= 1.0f && isOpening)
+            {
+                if (audioSettingsPage != null) audioSettingsPage.SetActive(isAudio);
+                if (graphicsSettingsPage != null) graphicsSettingsPage.SetActive(!isAudio);
+                
+            }
+
+            UpdateButtonVisuals();
+        }
     }
 }

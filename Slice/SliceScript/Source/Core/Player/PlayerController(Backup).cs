@@ -676,7 +676,7 @@ namespace SliceEngine
             allowedDashDistance = dashDistance;
 
             //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}"); 
-            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal))
             {
                 if (allowedDashDistance >= dashHitInfo.distance)
                 {
@@ -725,7 +725,7 @@ namespace SliceEngine
             allowedDashDistance = airDashDistance;
 
             //console.writeline($"Creating new ray with direction {dashDir.x}, {dashDir.y}, {dashDir.z}");
-            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal))
+            if (Physics.Raycast(transform.Position + new Vector3(0f, 2f, 0f), dashDir * 1000f, out RayCastHit dashHitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal))
             {
                 if (allowedDashDistance >= dashHitInfo.distance)
                 {

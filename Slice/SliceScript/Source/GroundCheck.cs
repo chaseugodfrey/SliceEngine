@@ -8,7 +8,7 @@ namespace SliceEngine
 {
     public class GroundCheck : SliceBehaviour
     {
-        public string groundName = "Ground";
+        public string groundName = "Ground Check";
         private GameObject[] groundObject;
         public bool grounded;
 

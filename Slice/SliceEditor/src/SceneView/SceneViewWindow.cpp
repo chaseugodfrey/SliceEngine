@@ -220,8 +220,12 @@ namespace SliceEditor
 						if (go.HasComponent<SliceEngine::Transform>())
 						{
 							auto targetTr = go.GetComponent<SliceEngine::Transform>();
+
+							glm::vec3 worldScale = targetTr.GetWorldScale();
+
+
 							
-							glm::vec3 camPos = targetTr.position + glm::vec3(-2.0f, 0.0f, 0.0f);
+							glm::vec3 camPos = targetTr.GetWorldPosition() + (glm::vec3(-2.0f, 0.5f, 0.0f) * worldScale);
 
 							cam_tr->position = camPos;
 						}
@@ -496,14 +500,14 @@ namespace SliceEditor
 					}
 				}
 
-				auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
+				//auto& parentTr = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Transform>(parentEntity);
 
-				// 1. Get the Inverse of the Parent World Matrix
-				glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
+				//// 1. Get the Inverse of the Parent World Matrix
+				//glm::mat4 invParentMatrix = glm::inverse(parentTr.transform);
 
-				// 2. Transform the manipulated world_tr into local space
-				// This gives us the exact local matrix relative to the parent
-				glm::mat4 localMatrix = invParentMatrix * world_tr;
+				//// 2. Transform the manipulated world_tr into local space
+				//// This gives us the exact local matrix relative to the parent
+				//glm::mat4 localMatrix = invParentMatrix * world_tr;
 
 				// 3. Decompose the matrix
 
@@ -678,8 +682,21 @@ namespace SliceEditor
 			MenuToggleBit("Navmesh", tag, SliceEngine::RENDER_TAG::DEBUG_NAVMESH_TAG);
 			MenuToggleBit("Outline", tag, SliceEngine::RENDER_TAG::DEBUG_OUTLINE_SELECTED_TAG);
 			MenuToggleBit("Draw Rays", tag, SliceEngine::RENDER_TAG::DEBUG_DRAW_RAY_TAG);
+			
+			ImGui::Text("Copy Main Cam");
+			ImGui::SameLine(150.0f);
+			if(ImGui::Button("##copy_mainCam", ImVec2(20, 0)))
+				SliceEngine::Core::GetInstance()->GetRenderManager()->CopyMainCamSettings(camObj->camera);
+			
+
+
 			DragFloatInputHeader(mRegistry, "Translucent Cut", "##transDebug", camObj->camera.translucentSelectCutoff, "%.3f", 0.0f, 1.0f, 0.01f);
-			DragFloatInputHeader(mRegistry, "Render Distance", "##distance", camObj->camera.far, "%.3f", camObj->camera.near, FLT_MAX, 0.1f);
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+			DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", camObj->camera.gamma, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", camObj->camera.whiteBalance, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", camObj->camera.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", camObj->camera.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Luminance Rate", "##cam_luminanceLearningRate", camObj->camera.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 
 			bool isBloom = camObj->camera.postRenderToggles & SliceEngine::RENDER_TAG::RENDER_BLOOM;
 			ImGui::Text("Bloom");
@@ -690,7 +707,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", camObj->camera.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", camObj->camera.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", camObj->camera.exposure, "%.1f", 0.1f, 50.0f);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", camObj->camera.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::EndPopup();

@@ -35,6 +35,7 @@ namespace SliceEditor
 
 	CustomShaderWindow::~CustomShaderWindow()
 	{
+		EventManager::GetInstance()->Unsubscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		ImNodes::EditorContextFree(*editor_context_this.get());
 		ImNodes::EditorContextFree(*editor_context_other.get());
 	}
@@ -421,6 +422,7 @@ namespace SliceEditor
 
 	void CustomShaderWindow::Init()
 	{
+		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		editor_context_this = std::make_unique<ImNodesEditorContext*>(ImNodes::EditorContextCreate());
@@ -511,9 +513,11 @@ namespace SliceEditor
 #pragma region Drawing
 	void CustomShaderWindow::Draw()
 	{
+
 		CheckFileData();
 
 		ImGui::Begin("Shader Graph");
+
 		if(ImGui::Button("Save"))
 		{
 			SaveFileData();
@@ -549,7 +553,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -589,7 +598,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if(ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -617,7 +631,12 @@ namespace SliceEditor
 		ImNodes::EndOutputAttribute();
 		
 		if (ImNodes::IsNodeSelected(node.id))
-			SelectNode(&node);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&node);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -634,7 +653,12 @@ namespace SliceEditor
 		}
 
 		if (ImNodes::IsNodeSelected(mFinalNode.id))
-			SelectNode(&mFinalNode);
+		{
+			if (ImGui::IsWindowFocused())
+			{
+				SelectNode(&mFinalNode);
+			}
+		}
 
 		ImNodes::EndNode();
 	}
@@ -645,14 +669,100 @@ namespace SliceEditor
 			return;
 		ImNodes::Link(n.id, n.sourceAttr, n.destAttr);
 		if (ImNodes::IsLinkSelected(n.id))
-			SelectNode(&n);
+		{
+			if(ImGui::IsWindowFocused())
+			{
+				SelectNode(&n);
+			}
+		}
 	}
 #pragma endregion
 
 	void CustomShaderWindow::TempLoadPosAll()
 	{
-		float yPos{}, xPos{};
-		const float xProgress{ 150.f }, yProgress{ 50.f }, yBigProgress{ 200.f };
+		// Find Position
+		std::unordered_map<int, int> mNodeToLoadPos;// id, furthest dist from final
+		std::queue<ShaderStateNode> nodesLeftToCheck;
+
+		for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
+		{
+			auto& nodeInAddr = mFinalNode.in_ids[i];
+
+			auto linkID = attrIDToLinkID.find(nodeInAddr);
+			if (linkID != attrIDToLinkID.end())
+			{
+				auto linkNode = mTransitionNodes.find(linkID->second);
+				if (linkNode != mTransitionNodes.end())
+				{
+					auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+					if (sourceNodeID != attrIDToNodeID.end())
+					{
+						auto sourceNode = mStateNodes.find(sourceNodeID->second);
+						// The Node Connected to i "in parameter"
+						if (sourceNode != mStateNodes.end())
+						{
+							nodesLeftToCheck.push(sourceNode->second);
+							mNodeToLoadPos[sourceNode->first] = 1;
+						}
+					}
+				}
+			}
+		}
+
+		int maxDepth = 0;
+
+		while (!nodesLeftToCheck.empty())
+		{
+			ShaderStateNode node = nodesLeftToCheck.front();
+			nodesLeftToCheck.pop();
+			int newDepth = mNodeToLoadPos[node.id] + 1;
+			if (newDepth > maxDepth)
+				maxDepth = newDepth;
+			for (auto& i : node.in_ids)
+			{
+				auto linkID = attrIDToLinkID.find(i);
+				if (linkID != attrIDToLinkID.end())
+				{
+					auto linkNode = mTransitionNodes.find(linkID->second);
+					if (linkNode != mTransitionNodes.end())
+					{
+						auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+						if (sourceNodeID != attrIDToNodeID.end())
+						{
+							auto sourceNode = mStateNodes.find(sourceNodeID->second);
+							// The Node Connected to i "in parameter"
+							if (sourceNode != mStateNodes.end())
+							{
+								nodesLeftToCheck.push(sourceNode->second);
+								if (mNodeToLoadPos.find(sourceNode->first) == mNodeToLoadPos.end() 
+									|| mNodeToLoadPos[sourceNode->first] < newDepth)
+									mNodeToLoadPos[sourceNode->first] = newDepth;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Load Position
+		const float xProgress{ 150.f }, yProgress{ 50.f };
+		const float xStart{ static_cast<float>(maxDepth + 1) * 0.75f * xProgress }, yStart{ 150.f };
+		InitNodePos(mFinalNode.id, xStart, yStart);
+		std::unordered_map<int, float> depthToHeightRatio;
+
+		for (auto& [id, depth] : mNodeToLoadPos)
+		{
+			float yDepth = depthToHeightRatio[depth]; // inatilaizes if non-existant
+
+			InitNodePos(id, xStart - static_cast<float>(depth) * xProgress, yStart + yDepth);
+
+			if(mStateNodes.find(id) == mStateNodes.end())
+				depthToHeightRatio[depth] += yProgress;
+			else
+				depthToHeightRatio[depth] += yProgress * static_cast<float>(mStateNodes[id].in_ids.size() + 1);
+		}
+
+		float yPos{ yStart }, xPos{ xStart - static_cast<float>(maxDepth) * xProgress };
 		for (auto& i : mDefaultIns)
 		{
 			InitNodePos(i.first, xPos, yPos);
@@ -663,22 +773,8 @@ namespace SliceEditor
 			InitNodePos(i.first, xPos, yPos);
 			yPos += yProgress;
 		}
-		xPos += xProgress;
-		yPos = 0.f;
-		for (auto& i : mStateNodes)
-		{
-			InitNodePos(i.first, xPos, yPos);
-			yPos += yBigProgress;
-			if (yPos > 3 * yBigProgress)
-			{
-				yPos = 0.f;
-				xPos += xProgress;
-			}
-		}
-		xPos += xProgress;
 
-		InitNodePos(mFinalNode.id, xPos, yPos);
-
+		mNodeToLoadPos.clear();
 		tempLoadPos = false;
 	}
 	// -ve is go up
@@ -730,87 +826,57 @@ namespace SliceEditor
 
 			if (ImGui::BeginPopup("NodeEditor_Popup"))
 			{
-				int popUp = 0;
-				if (ImGui::Selectable("Make New Editable"))
-					popUp = 1;
-				if (ImGui::Selectable("Maths"))
-					popUp = 2;
-				if (ImGui::Selectable("Utilities"))
-					popUp = 3;
-				if (ImGui::Selectable("Vector Manipulation"))
-					popUp = 4;
-
-				ImGui::EndPopup();
-
-				if(popUp == 1)
-					ImGui::OpenPopup("Make_Editables_Popup");
-				else if(popUp == 2)
-					ImGui::OpenPopup("Math_Popup");
-				else if(popUp == 3)
-					ImGui::OpenPopup("Utilities_Popup");
-				else if(popUp == 4)
-					ImGui::OpenPopup("Vector_Popup");
-			}
-			if (ImGui::BeginPopup("Make_Editables_Popup"))
-			{
-				if (ImGui::Selectable("Make Bool"))
-					newNodeID = CreateEditable(CST::CSHAD_T::BOOL);
-				if (ImGui::Selectable("Make int"))
-					newNodeID = CreateEditable(CST::CSHAD_T::INT);
-				if (ImGui::Selectable("Make uint"))
-					newNodeID = CreateEditable(CST::CSHAD_T::UINT);
-				if (ImGui::Selectable("Make float"))
-					newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
-				if (ImGui::Selectable("Make Texture"))
-					newNodeID = CreateEditable(CST::CSHAD_T::SAMPLER);
-				ImGui::EndPopup();
-			}
-
-			if (ImGui::BeginPopup("Math_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Make New Editable"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::MATH)
-						continue;
+					//if (ImGui::MenuItem("Make Bool"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::BOOL);
+					//if (ImGui::MenuItem("Make int"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::INT);
+					//if (ImGui::MenuItem("Make uint"))
+					//	newNodeID = CreateEditable(CST::CSHAD_T::UINT);
+					if (ImGui::MenuItem("Make float"))
+						newNodeID = CreateEditable(CST::CSHAD_T::FLOAT);
+					if (ImGui::MenuItem("Make Texture"))
+						newNodeID = CreateEditable(CST::CSHAD_T::SAMPLER);
 
-					std::string createName{ "Math: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
-
-				ImGui::EndPopup();
-			}
-			if (ImGui::BeginPopup("Utilities_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Maths"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::UTILITIES)
-						continue;
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::MATH)
+							continue;
 
-					std::string createName{ "Util: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
-
-				ImGui::EndPopup();
-			}
-			if (ImGui::BeginPopup("Vector_Popup"))
-			{
-				for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+				if (ImGui::BeginMenu("Utilities"))
 				{
-					if (funcDets.FuncType != CST::ShaderGraphFunc_T::VECTOR_MANIP)
-						continue;
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::UTILITIES)
+							continue;
 
-					std::string createName{ "Vec: " + funcName };
-					if (ImGui::Selectable(createName.c_str()))
-						newNodeID = CreateNode(funcName);
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
 				}
-				if (ImGui::Selectable("<--"))
-					ImGui::OpenPopup("NodeEditor_Popup");
+				if (ImGui::BeginMenu("Vector Manipulation"))
+				{
+					for (auto& [funcName, funcDets] : CST::cShaderFuncsTemplates)
+					{
+						if (funcDets.FuncType != CST::ShaderGraphFunc_T::VECTOR_MANIP)
+							continue;
+
+						if (ImGui::MenuItem(funcName.c_str()))
+							newNodeID = CreateNode(funcName);
+					}
+					ImGui::EndMenu();
+				}
 
 				ImGui::EndPopup();
 			}
@@ -910,55 +976,6 @@ namespace SliceEditor
 			}
 			mSelectionManager->ClearSelection();
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
-		{
-			if (mSelectionManager)
-			{
-				auto selectedNodes = mSelectionManager->GetSelectedNodes();
-
-				for (auto node : selectedNodes)
-				{
-					switch (node->type)
-					{
-					case SelectionType::SHADER_LINK_STATE:
-					{
-						auto linkNode = static_cast<ShaderLinkNode*>(node);
-						DeleteLink(linkNode->id);
-						isSaved = false;
-						break;
-					}
-					case SelectionType::SHADER_FUNCTION_STATE:
-					{
-						auto stateNode = static_cast<ShaderStateNode*>(node);
-						if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
-						{
-							if(CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
-								break;
-						}
-						if (mStateNodes.find(stateNode->id) != mStateNodes.end())
-						{
-							// Delete Attr To Node
-							if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
-							{
-								// Delete Links from in & outs
-								for (auto ins : stateNode->in_ids)
-									DeleteLinkFromAttr(ins);
-								DeleteLinkFromAttr(stateNode->out_id);
-
-								attrIDToNodeID.erase(stateNode->out_id);
-							}
-							// Delete Node
-							mStateNodes.erase(stateNode->id);
-							isSaved = false;
-						}
-						break;
-					}
-					}
-				}
-				mSelectionManager->ClearSelection();
-			}
-
-		}
 	
 		if (tempLoadPos)
 			TempLoadPosAll();
@@ -968,6 +985,53 @@ namespace SliceEditor
 			ImNodes::SnapNodeToGrid(newNodeID);
 			newNodeID = 0;
 		}
+	}
+
+	void CustomShaderWindow::DeleteButtonPress()
+	{
+		auto selectedNodes = mSelectionManager->GetSelectedNodes();
+
+		for (auto node : selectedNodes)
+		{
+			switch (node->type)
+			{
+			case SelectionType::SHADER_LINK_STATE:
+			{
+				auto linkNode = static_cast<ShaderLinkNode*>(node);
+				DeleteLink(linkNode->id);
+				isSaved = false;
+				break;
+			}
+			case SelectionType::SHADER_FUNCTION_STATE:
+			{
+				auto stateNode = static_cast<ShaderStateNode*>(node);
+				if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
+				{
+					if (CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+						break;
+				}
+				if (mStateNodes.find(stateNode->id) != mStateNodes.end())
+				{
+					// Delete Attr To Node
+					if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
+					{
+						// Delete Links from in & outs
+						for (auto ins : stateNode->in_ids)
+							DeleteLinkFromAttr(ins);
+						DeleteLinkFromAttr(stateNode->out_id);
+
+						attrIDToNodeID.erase(stateNode->out_id);
+					}
+					// Delete Node
+					mStateNodes.erase(stateNode->id);
+					isSaved = false;
+				}
+				break;
+			}
+			}
+		}
+		//mSelectionManager->ClearSelection();
+
 	}
 
 	void CustomShaderWindow::DeleteLink(int id)

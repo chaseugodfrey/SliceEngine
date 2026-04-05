@@ -21,7 +21,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/InputSystem.h"
 #include "Input/ActionMapping.h"
 #include "Systems/LayerManager.h"
-#include "Navigation/NavigationSystem.h"
 #include "Configuration/ProjectSettingsManager.h"
 
 namespace SliceEngine
@@ -65,8 +64,6 @@ namespace SliceEngine
 		mFactory.RegisterComponent<Camera>();
 		mFactory.RegisterComponent<SliceEntity>();
 		mFactory.RegisterComponent<Script>();
-		mFactory.RegisterComponent<RigidBody>();
-		mFactory.RegisterComponent<ColliderShape>();
 		mFactory.RegisterComponent<AudioSource>();
 		mFactory.RegisterComponent<AudioListener>();
 		mFactory.RegisterComponent<Light>();
@@ -78,12 +75,28 @@ namespace SliceEngine
 		mFactory.RegisterComponent<RectTransform>();
 		mFactory.RegisterComponent<Canvas>();
 		mFactory.RegisterComponent<SpriteRenderer>();
+		mFactory.RegisterComponent<SpriteRendererGammaOverride>();
+		mFactory.RegisterComponent<SpriteAnimator>();
 		mFactory.RegisterComponent<FontRenderer>();
 		mFactory.RegisterComponent<Button>();
 		mFactory.RegisterComponent<Slider>();
-		mFactory.RegisterComponent<NavAgent>();
-		//mFactory.RegisterComponent<NavMeshLink>();
-		mFactory.RegisterComponent<NavObstacle>();
+
+		mFactory.RegisterComponent<RigidBody>();
+		mFactory.RegisterComponent<ColliderShape>();
+		// custom cloner to prevent jolt id and shape pointer to be copied
+		{
+			const entt::id_type id = entt::type_id<ColliderShape>().hash();
+			mFactory.mComponentCloners[id] = [](Registry& reg, Entity toClone, Entity toCreate)
+				{
+					if (auto* src = reg.try_get<ColliderShape>(toClone))
+					{
+						ColliderShape fresh = *src;
+						fresh.bodyID = JPH::BodyID();
+						fresh.shape = nullptr;
+						reg.emplace_or_replace<ColliderShape>(toCreate, fresh);
+					}
+				};
+		}
 
 		mFactory.RegisterComponent<Prefab>();
 		mResource->InitResourceManager();

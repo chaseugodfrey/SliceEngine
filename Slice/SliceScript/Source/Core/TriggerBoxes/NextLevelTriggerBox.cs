@@ -18,12 +18,26 @@ namespace SliceEngine
 
         //private bool _done = false;
         private bool _enabled = false;
+        public float LoadDelay = 1f;
         public GameObject DoorModel;
         Animator animator;
+
+        private bool counting = false;
+        float count = 0f;
 
         public override void OnUpdate(float dt)
         {
             base.OnUpdate(dt);
+
+            if (counting)
+            {
+                count += Time.deltaTime;
+                if (count >= LoadDelay)
+                {
+                    Bootstrap.LevelDirector.LoadNextLevel();
+                }
+            }
+
         }
 
         //public override void OnCreate()
@@ -92,7 +106,6 @@ namespace SliceEngine
         //    //console.writeline("Turning off General Hit box");
         //}
 
-        
 
         public override void OnTriggerEnter(uint other)
         {
@@ -101,7 +114,7 @@ namespace SliceEngine
             //base.OnTriggerEnter(other);
 
             GameObject hit = gameObject.FindGameObjectWithID(other);
-            DoorModel = gameObject.FindGameObjectWithName("Door_1"); if (DoorModel == null) SliceLog.Warn("DoorController cannot find RootNode");
+            //DoorModel = gameObject.FindGameObjectWithName("Door_1"); if (DoorModel == null) SliceLog.Warn("DoorController cannot find RootNode");
             animator = DoorModel?.GetComponent<Animator>(); if (DoorModel == null) SliceLog.Warn("DoorController cannot find Animator");
 
             if (hit.Has<PlayerController>() && Bootstrap.Player == hit.As<PlayerController>() && !_enabled)
@@ -109,7 +122,8 @@ namespace SliceEngine
                 //console.writeline("Enabled");
                 _enabled = true;
                 animator?.SetBool("Open", true);
-                Bootstrap.LevelDirector.LoadNextLevel();
+                counting = true;
+                //Bootstrap.LevelDirector.LoadNextLevel();
             }
         }
 

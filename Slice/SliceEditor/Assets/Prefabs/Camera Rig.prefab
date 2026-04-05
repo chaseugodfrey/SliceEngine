@@ -1,6 +1,14 @@
 [
     {
         "Camera Rig": {
+            "struct SliceEngine::AudioListener": {
+                "componentEnabled": true,
+                "listenerPos": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,12 +17,12 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048771,
+                "entity_id": 24117489,
                 "neighbours": [
                     0,
-                    1048770,
-                    1048762,
-                    1048773
+                    24117445,
+                    24117493,
+                    24117444
                 ]
             },
             "struct SliceEngine::Script": {
@@ -26,7 +34,7 @@
                     },
                     "cameraChild": {
                         "Type": "SliceEngine::GameObject",
-                        "Value": 4294967295
+                        "Value": 24117445
                     },
                     "cameraOffset": {
                         "Type": "glm::vec3",
@@ -55,6 +63,26 @@
                     "collisionRadius": {
                         "Type": "float",
                         "Value": 0.25
+                    },
+                    "followOffset": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            2.0,
+                            -5.0
+                        ]
+                    },
+                    "followPositionSmoothness": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "followRotationSmoothness": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "followTarget": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
                     },
                     "rectangleWidth": {
                         "Type": "float",
@@ -111,18 +139,18 @@
                     0.0
                 ],
                 "position": [
-                    0.0,
-                    12.957056045532227,
-                    -39.13051223754883
+                    -29.164661407470703,
+                    467.4540100097656,
+                    92.56031036376953
                 ],
                 "rotation": [
-                    0.9565905928611755,
-                    0.2914350926876068,
-                    0.0,
-                    0.0
+                    0.6341191530227661,
+                    0.19319087266921997,
+                    0.7162112593650818,
+                    -0.21820105612277985
                 ],
                 "scale": [
-                    1.0,
+                    0.9999999403953552,
                     1.0,
                     1.0
                 ]
@@ -132,58 +160,86 @@
     {
         "Camera": {
             "struct SliceEngine::Camera": {
-                "bloomExposure": 15.0,
+                "bloomExposure": 10.0,
                 "bloomFilterRadius": 15.0,
-                "bloomStrength": 2.0,
-                "cloudsAmplitute": 50.099998474121094,
+                "bloomLimit": 1.0,
+                "bloomStrength": 7.0,
+                "cloudsAmplitute": 136.60000610351563,
                 "cloudsColor": [
-                    0.009541153907775879,
-                    0.009541153907775879,
-                    0.009541153907775879,
-                    0.9803921580314636
+                    0.9948186278343201,
+                    0.8247201442718506,
+                    0.8247201442718506,
+                    0.05882352963089943
                 ],
-                "cloudsCutoff": 0.008999999612569809,
-                "cloudsHeight": -110.80000305175781,
-                "cloudsIntensity": 0.6000000238418579,
-                "cloudsSecondAmplitute": 49.0,
+                "cloudsCutoff": 0.23200000822544098,
+                "cloudsHeight": 304.1000061035156,
+                "cloudsIntensity": 0.10000000149011612,
+                "cloudsSecondAmplitute": 55.5,
                 "cloudsSecondColor": [
-                    0.12312585115432739,
-                    0.12312585115432739,
-                    0.12312585115432739,
-                    0.5882353186607361
+                    0.0,
+                    0.0,
+                    0.0,
+                    0.06666667014360428
                 ],
-                "cloudsSecondIntensity": 0.30000001192092896,
+                "cloudsSecondIntensity": 0.800000011920929,
                 "cloudsSecondOffset": [
                     40.0,
-                    41.5,
-                    -63.79999923706055
+                    42.099998474121094,
+                    -20.0
                 ],
-                "cloudsSecondSmoothness": 0.0027000000700354576,
-                "cloudsSmoothness": 0.0027100001461803913,
+                "cloudsSecondSmoothness": 0.0009600000339560211,
+                "cloudsSmoothness": 0.0014199999859556556,
                 "componentEnabled": true,
                 "debugRenderTag": "0",
-                "depthTex": 36,
-                "far": 9999.0,
+                "depthTex": 43,
+                "far": 5000.0,
                 "fogColor": [
-                    0.0873340368270874,
-                    0.10840298235416412,
-                    0.11858248710632324
+                    0.8963730335235596,
+                    0.42791223526000977,
+                    0.018577609211206436
                 ],
-                "fogIntensity": 2.0000001313746907e-05,
-                "godRayFilterRadius": 5.0,
-                "godRayStrength": 0.4000000059604645,
+                "fogIntensity": 4.999999987376214e-07,
+                "gamma": 45.0,
+                "godRayFilterRadius": 10.0,
+                "godRayStrength": 10.0,
                 "height": 1080,
-                "near": 0.009999999776482582,
-                "postRenderTag": "29",
+                "impactAngle": 18.0,
+                "impactBlend": 1.0,
+                "impactColor": [
+                    0.5284973978996277,
+                    0.48451387882232666,
+                    0.2546645402908325
+                ],
+                "impactColor2": [
+                    0.9430052042007446,
+                    0.5912104845046997,
+                    0.5912104845046997
+                ],
+                "impactEpilepsy": 6.230000019073486,
+                "impactNoise1": 148.0,
+                "impactNoise2": 21.0,
+                "impactPosition": [
+                    0.0,
+                    298.8999938964844,
+                    0.0
+                ],
+                "impactSmoothness": true,
+                "isMainCamera": true,
+                "luminanceLearningRate": 1000.0,
+                "maxLuminance": 10.0,
+                "minLuminance": 9.999999747378752e-05,
+                "near": 0.10000000149011612,
+                "postRenderTag": "61",
                 "pov": 60.0,
-                "textureID": 35,
+                "textureID": 42,
                 "translucentSelectCutoff": 0.20000000298023224,
                 "vignetteCenter": [
                     0.5,
                     0.5
                 ],
-                "vignetteIntensity": 0.20000000298023224,
-                "vignetteSmoothness": 0.699999988079071,
+                "vignetteIntensity": 0.30000001192092896,
+                "vignetteSmoothness": 1.0,
+                "whiteBalance": 4.300000190734863,
                 "width": 1920
             },
             "struct SliceEngine::Prefab": {
@@ -194,9 +250,9 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1048770,
+                "entity_id": 24117445,
                 "neighbours": [
-                    1048771,
+                    24117489,
                     4294967295,
                     4294967295,
                     4294967295
@@ -210,9 +266,9 @@
             },
             "struct SliceEngine::Transform": {
                 "euler_hint": [
-                    0.0,
-                    -90.0,
-                    -6.800000190734863
+                    89.99822235107422,
+                    -87.13836669921875,
+                    -89.99822235107422
                 ],
                 "position": [
                     6.07139760688824e-09,
@@ -220,10 +276,10 @@
                     -4.5
                 ],
                 "rotation": [
-                    0.7058621644973755,
-                    0.041935939341783524,
-                    -0.7058621048927307,
-                    -0.041935939341783524
+                    0.706886887550354,
+                    0.01765667274594307,
+                    -0.7068857550621033,
+                    -0.01765708439052105
                 ],
                 "scale": [
                     0.9999999403953552,

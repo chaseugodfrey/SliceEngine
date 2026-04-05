@@ -205,6 +205,8 @@ namespace SliceEngine
 		mOnButtonExitHover = scClass->GetMethod("OnButtonExitHover", 0);
 		mOnButtonRelease = scClass->GetMethod("OnButtonRelease", 0);
 		mOnSliderValue = scClass->GetMethod("OnSliderValue", 1);
+		mOnSAnimStop = scClass->GetMethod("OnSpriteAnimStop", 0);
+		mOnSAnimLoop = scClass->GetMethod("OnSpriteAnimLoop", 0);
 
 		//mOnStateEnter = scClass->GetMethod("OnStateEnter", 1);
 		//mOnStateUpdate = scClass->GetMethod("OnStateUpdate", 2);
@@ -341,6 +343,20 @@ namespace SliceEngine
 		{
 			void* param = &val;
 			mScriptClass->InvokeMethod(mMonoInstance, mOnSliderValue, &param);
+		}
+	}
+	void ScriptObject::InvokeSAnimStop()
+	{
+		if (mOnSAnimStop)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnSAnimStop);
+		}
+	}
+	void ScriptObject::InvokeSAnimLoop()
+	{
+		if (mOnSAnimLoop)
+		{
+			mScriptClass->InvokeMethod(mMonoInstance, mOnSAnimLoop);
 		}
 	}
 

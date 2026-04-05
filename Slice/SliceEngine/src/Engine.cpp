@@ -25,6 +25,7 @@ DigiPen Institute of Technology is prohibited.
 #include "Graphics/RenderManager.h"
 #include "Graphics/LightingSystem.h"
 #include "Graphics/CanvasSystem.h"
+#include "Graphics/SpriteAnimationSystem.h"
 #include "Graphics/UI_Interactible.h"
 #include "ECS/BaseSystem.h"
 #include "ECS/SliceRTTR.h"
@@ -41,9 +42,8 @@ DigiPen Institute of Technology is prohibited.
 #include "Input/ActionMapping.h"
 #include "Animator/AnimatorSystem.h"
 #include "Animator/BoneSystem.h"
-#include "Navigation/NavigationSystem.h"
 #include "Systems/LayerManager.h"
-#include "Configuration/AudioSettings.cpp"
+#include "Configuration/AudioSettings.h"
 
 #pragma region RTTR REGISTRATION STUFF
 namespace SliceEngine
@@ -250,6 +250,7 @@ namespace SliceEngine
 		.property("material", &Renderer::materialHandle)
 		.property("renderTag", &Renderer::renderTag)
 		.property("skinned", &Renderer::skinned) // If i do this, i'll need to serialize bone info and animator component
+		.property("castsShadow", &Renderer::castShadow)
 		.property("meshOffset", &Renderer::meshOffset)
 		.property("componentEnabled", &Renderer::componentEnabled);
 
@@ -293,16 +294,31 @@ namespace SliceEngine
 		.property("depthTex", &Camera::depthTex)
 		.property("debugRenderTag", &Camera::debugRenderToggles)
 		.property("postRenderTag", &Camera::postRenderToggles)
+		.property("luminanceLearningRate", &Camera::luminanceLearningRate)
 		.property("fogColor", &Camera::fogColor)
 		.property("fogIntensity", &Camera::fogIntensity)
 		.property("bloomStrength", &Camera::bloomStrength)
+		.property("bloomLimit", &Camera::bloomLimit)
 		.property("bloomFilterRadius", &Camera::bloomFilterRadius)
 		.property("bloomExposure", &Camera::exposure)
+		.property("gamma", &Camera::gamma)
+		.property("whiteBalance", &Camera::whiteBalance)
+		.property("minLuminance", &Camera::minLuminance)
+		.property("maxLuminance", &Camera::maxLuminance)
 		.property("godRayStrength", &Camera::godRayStrength)
 		.property("godRayFilterRadius", &Camera::godRayFilterRadius)
 		.property("vignetteCenter", &Camera::vignetteCenter)
 		.property("vignetteIntensity", &Camera::vignetteIntensity)
 		.property("vignetteSmoothness", &Camera::vignetteSmoothness)
+		.property("impactPosition", &Camera::impactPos)
+		.property("impactColor", &Camera::impactColor)
+		.property("impactColor2", &Camera::impactColor2)
+		.property("impactAngle", &Camera::impactAngle)
+		.property("impactSmoothness", &Camera::impactSmooth)
+		.property("impactEpilepsy", &Camera::impactEpilepsy)
+		.property("impactNoise1", &Camera::impactNoise1)
+		.property("impactNoise2", &Camera::impactNoise2)
+		.property("impactBlend", &Camera::impactBlend)
 		.property("cloudsHeight", &Camera::cloudsHeight)
 		.property("cloudsAmplitute", &Camera::cloudsAmplitude)
 		.property("cloudsIntensity", &Camera::cloudsIntensity)
@@ -315,6 +331,7 @@ namespace SliceEngine
 		.property("cloudsSecondSmoothness", &Camera::cloudsSecondCloudSmoothness)
 		.property("translucentSelectCutoff", &Camera::translucentSelectCutoff)
 		.property("cloudsSecondColor", &Camera::cloudsSecondColor)
+		.property("isMainCamera", &Camera::isMainCamera)
 		.property("componentEnabled", &Camera::componentEnabled);
 
 	rttr::registration::class_<Script>(typeid(Script).name())
@@ -383,7 +400,9 @@ namespace SliceEngine
 		.property("type", &Light::type)
 		.property("color", &Light::color)
 		.property("intensity", &Light::intensity)
-		.property("componentEnabled", &Light::componentEnabled);
+		.property("angle", &Light::angle)
+		.property("componentEnabled", &Light::componentEnabled)
+		.property("castsShadow", &Light::castsShadow);
 
 	rttr::registration::class_<GUID>("GUID")
 		.constructor<>()
@@ -598,7 +617,10 @@ namespace SliceEngine
 		.property("canvas_type", &Canvas::canvas_type)
 		.property("sort_order", &Canvas::sort_order)
 		.property("graphics_raycast", &Canvas::graphic_raycastable)
-		.property("componentEnabled", &Canvas::componentEnabled);
+		.property("componentEnabled", &Canvas::componentEnabled)
+		.property("billboardX", &Canvas::billboardX)
+		.property("billboardY", &Canvas::billboardY)
+		.property("billboardZ", &Canvas::billboardZ);
 
 	rttr::registration::class_<Button>(typeid(Button).name())
 		.constructor<>()
@@ -614,6 +636,7 @@ namespace SliceEngine
 		.property("handle", &Slider::handle)
 		.property("fill", &Slider::fill)
 		.property("value", &Slider::value)
+		.property("contained", &Slider::contained)
 		.property("enabled", &Slider::componentEnabled);
 
 rttr::registration::class_<RectTransform>(typeid(RectTransform).name())
@@ -634,8 +657,24 @@ rttr::registration::class_<SpriteRenderer>(typeid(SpriteRenderer).name())
 .constructor<>()
 .property("texture", &SpriteRenderer::textureHandle)
 .property("rgba", &SpriteRenderer::rgba)
+.property("alphathreshold", &SpriteRenderer::alphathreshold)
 .property("raycast_target", &SpriteRenderer::raycast_target)
 .property("componentEnabled", &SpriteRenderer::componentEnabled);
+
+rttr::registration::class_<SpriteRendererGammaOverride>(typeid(SpriteRendererGammaOverride).name())
+.constructor<>()
+.property("gamma", &SpriteRendererGammaOverride::gamma)
+.property("componentEnabled", &SpriteRendererGammaOverride::componentEnabled);
+
+rttr::registration::class_<SpriteAnimator>(typeid(SpriteAnimator).name())
+.constructor<>()
+.property("is_playing", &SpriteAnimator::is_playing)
+.property("loop", &SpriteAnimator::loop)
+.property("fps", &SpriteAnimator::fps)
+.property("row", &SpriteAnimator::row)
+.property("col", &SpriteAnimator::col)
+.property("num_frames", &SpriteAnimator::num_frames)
+.property("componentEnabled", &SpriteAnimator::componentEnabled);
 
 rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .constructor<>()
@@ -645,16 +684,10 @@ rttr::registration::class_<FontRenderer>(typeid(FontRenderer).name())
 .property("line_spacing", &FontRenderer::line_spacing)
 .property("alignment", &FontRenderer::alignment)
 .property("text", &FontRenderer::text)
+.property("offsetx", &FontRenderer::offset_x)
+.property("offsety", &FontRenderer::offset_y)
 .property("componentEnabled", &FontRenderer::componentEnabled);
 
-rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
-	.constructor<>()
-	.property("speed", &NavAgent::speed)
-	.property("target", &NavAgent::target)
-	.property("hasNewTarget", &NavAgent::hasNewTarget)
-	.property("currentPath", &NavAgent::currentPath)
-	.property("currentPathIndex", &NavAgent::currentPathIndex)
-	.property("componentEnabled", &NavAgent::componentEnabled);
 
 //rttr::registration::class_<NavMeshLink>(typeid(NavMeshLink).name())
 //.constructor<>()
@@ -663,9 +696,6 @@ rttr::registration::class_<NavAgent>(typeid(NavAgent).name())
 //.property("bidirectional", &NavMeshLink::bidirectional)
 //.property("currentPath", &NavMeshLink::radius);
 
-rttr::registration::class_<NavObstacle>(typeid(NavObstacle).name())
-.constructor<>()
-.property("navobstacle", &NavObstacle::isObstacle);
 
 rttr::registration::class_<Prefab>(typeid(Prefab).name())
 .constructor<>()
@@ -747,6 +777,7 @@ namespace SliceEngine
 		Core::GetInstance()->InitSystem<TransformSystem>();
 
 		Core::GetInstance()->InitSystem<CanvasSystem>();
+		Core::GetInstance()->InitSystem<SpriteAnimationSystem>();
 		Core::GetInstance()->InitSystem<ButtonSystem>();
 		Core::GetInstance()->InitSystem<SliderSystem>();
 
@@ -755,7 +786,6 @@ namespace SliceEngine
 		//Core::GetInstance()->InitSystem<NetworkSystem>();
 		Core::GetInstance()->InitSystem<AnimatorSystem>();
 		Core::GetInstance()->InitSystem<BoneSystem>();
-		Core::GetInstance()->InitSystem<NavigationSystem>();
 
 
 		Core::GetInstance()->InitSystem<PhysicsSystem>();
@@ -765,7 +795,6 @@ namespace SliceEngine
 		Core::GetInstance()->GetSystem<AudioSourceSystem>().BindToAudioSource();
 		Core::GetInstance()->GetSystem<AudioListenerSystem>().BindToAudioListener();
 		Core::GetInstance()->GetLayerManager()->Init();
-		Core::GetInstance()->GetSystem<NavigationSystem>().Init();
 		Core::GetInstance()->GetSceneSystem()->Init();
 
 		gScriptSystem->Init();
@@ -827,6 +856,7 @@ namespace SliceEngine
 
 	void Engine::Update()
 	{
+		frm->StartSystem("Misc");
 		auto core = Core::GetInstance();
 		auto sScene = Core::GetInstance()->GetSceneSystem();
 		auto sRender = core->GetRenderManager();
@@ -873,14 +903,15 @@ namespace SliceEngine
 			}
 		}
 
+		frm->EndSystem("Misc");
 		frm->StartSystem("Update Delta Time");
 		frm->updateDeltaTime();
-		frm->EndSystem("Update Delta Time");
 
 		deltaTimeUnscaled = static_cast<float>(frm->getDeltaTime());
 		deltaTimeScaled = deltaTimeUnscaled * sScene->GetTimeScale();
 		fixedDeltaTime = static_cast<float>(frm->getFixedDeltaTime());
 		fixedDeltaTimeScaled = fixedDeltaTime * sScene->GetTimeScale();
+		frm->EndSystem("Update Delta Time");
 
 		frm->StartSystem("Script");
 		gScriptSystem->UpdateScripts();
@@ -892,16 +923,16 @@ namespace SliceEngine
 			OnPlayStarted();
 		}
 
-		frm->StartSystem("Canvas");
-		sCanvas.UpdateHierachy();
-		frm->EndSystem("Canvas");
-
 		// regular transform update
 		frm->StartSystem("Transform");
 		sTransform.Update(deltaTimeScaled);
 		sTransform.UpdateTransforms();
 		prefabSys.UpdateBasePrefabs();
 		frm->EndSystem("Transform");
+
+		frm->StartSystem("Canvas");
+		sCanvas.UpdateHierachy();
+		frm->EndSystem("Canvas");
 
 		frm->StartSystem("Audio");
 		core->GetSystem<AudioSourceSystem>().Update(deltaTimeUnscaled);
@@ -979,7 +1010,7 @@ namespace SliceEngine
 			SliceEngine::gScriptSystem->OnStart();
 			sAnimator.InitSystem();
 			sButton.InitSystem();
-			sCanvas.UpdateHierachy(true);
+			//sCanvas.UpdateHierachy(true);
 			FactoryInstance.CreateGO("AudioManager");
 			isPlaying = true;
 		}
@@ -1022,8 +1053,9 @@ namespace SliceEngine
 		auto& sCanvas = core->GetSystem<CanvasSystem>();
 		auto& sButton = core->GetSystem<ButtonSystem>();
 		auto& sSlider = core->GetSystem<SliderSystem>();
-		auto& sNav = core->GetSystem<NavigationSystem>();
+		auto& sSpriteAnim = core->GetSystem<SpriteAnimationSystem>();
 
+		//frm->StartSystem("Fixed Dt Loop");
 		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
 		{
 			// game logic
@@ -1050,6 +1082,7 @@ namespace SliceEngine
 			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
 			frm->EndSystem("Transform");
 
+
 			// animation after logic and physics
 			frm->StartSystem("Animation");
 			sAnimator.Update(fixedDeltaTimeScaled);
@@ -1057,6 +1090,7 @@ namespace SliceEngine
 			sAnimator.BoneUpdate();
 			frm->EndSystem("Animation");
 		}
+		//frm->EndSystem("Fixed Dt Loop");
 
 		// regular update for scripts
 		// idk if this should be before or after simulation loop
@@ -1064,9 +1098,11 @@ namespace SliceEngine
 		gScriptSystem->OnUpdate(deltaTimeScaled);
 		frm->EndSystem("Script");
 
-		frm->StartSystem("Navigation System");
-		sNav.Update(deltaTimeScaled);
-		frm->EndSystem("Navigation System");
+
+
+		frm->StartSystem("Sprite Animation");
+		sSpriteAnim.Update(deltaTimeUnscaled);
+		frm->EndSystem("Sprite Animation");
 
 		frm->StartSystem("Canvas");
 		//glm::vec2 mouse_coord = sInputs->GetMousePosition();
@@ -1095,17 +1131,18 @@ namespace SliceEngine
 
 	void Engine::EndFrame()
 	{
-		auto _frm = Core::GetInstance()->GetFramerateManager();
+		frm->StartSystem("Update Destroyed");
 		Core::FactoryInstance.UpdateDestroyed();
 		Core::GetInstance()->GetSceneSystem()->isSceneUnloaded = true;
+		frm->EndSystem("Update Destroyed");
 
+		frm->StartSystem("GLFW Swap Buffers");
 		auto window = Core::GetInstance()->GetWindow();
 		if (glfwWindowShouldClose(window))
 			isRunning = false;
 		//auto inputs = Core::GetInstance()->GetInputSystem();
-		_frm->StartSystem("GLFW Swap Buffers");
 		glfwSwapBuffers(window);
-		_frm->EndSystem("GLFW Swap Buffers");
+		frm->EndSystem("GLFW Swap Buffers");
 	}
 
 	void Engine::Exit()

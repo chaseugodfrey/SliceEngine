@@ -36,27 +36,6 @@ namespace SliceEngine
         /// </summary>
         public void Initialize()
         {
-            //SliceLog.Log("Initialize Level Director");
-
-
-            //gameObject.FindGameObjectsWithTag("Level").Length;
-            //foreach (GameObject levelObject in gameObject.FindGameObjectsWithTag("Level"))
-            //{
-            //    int index = levelObject.As<BaseLevel>().levelIndex;
-
-            //    if (!levels.ContainsKey(index))
-            //    {
-            //        levels.Add(index, levelObject);
-            //    }
-            //    else
-            //    {
-            //        //SliceLog.Log("Duplicate Level Detected, Not ");
-            //    }
-            //}
-
-            //foreach (GameObject trigger in gameObject.FindGameObjectsWithTag("Trigger"))
-            //       levelTriggers.Add(trigger);
-
             Cursor.state = Cursor.STATE.DISABLED;
 
             foreach (GameObject trigger in levelTriggers)
@@ -80,47 +59,6 @@ namespace SliceEngine
             Console.WriteLine("Num of levels: " + levels.Count);
         }
 
-        public GameObject CreateGruntEnemy(/*Prefab prefab*/)
-        {
-            // instantiate the enemy
-            GameObject newEnemy = CreateGameObject("Prefabs/EnemyGrunt.prefab");
-            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
-            newEnemy.As<EnemyGrunt>().SetUp();
-            enemies.Add(newEnemy);
-
-            return newEnemy;
-        }
-
-        public GameObject CreateSlimeEnemy(/*Prefab prefab*/)
-        {
-            // instantiate the enemy
-            SliceLog.Log("Creating Slime Enemy");
-            GameObject newEnemy = CreateGameObject("Prefabs/EnemySlime.prefab");
-            SliceLog.Log("Creating enemy with: " + newEnemy.mID);
-            newEnemy.As<EnemySlime>().SetUp();
-            enemies.Add(newEnemy);
-
-            return newEnemy;
-        }
-
-        public int EnemyCount() { return enemies.Count; }
-
-        public void EnemyDeath(GameObject enemy)
-        {
-            // update the level that an enemy died
-            levels[currLevel].As<BaseLevel>().EnemyKilled(enemy);
-            SliceLog.Log("Killing enemy with: " + enemy.mID);
-
-            if (enemies.Remove(enemy))
-            {
-                SliceLog.Log("Enemy removed");
-            }
-            else
-            {
-                SliceLog.Log("Enemy not removed");
-            }
-        }
-
         public override void OnUpdate(float dt)
         {
             if (Input.IsKeyPressed(Keys.KEY_O))
@@ -141,7 +79,7 @@ namespace SliceEngine
 
             if (!isActive)
                 return;
-            SliceLog.Log("BBBBBBBBBBBB");
+            //SliceLog.Log("BBBBBBBBBBBB");
             if (currLevel > levels.Count)
             {
                 //SliceLog.Error("Current level is more than the number of levels");
@@ -153,19 +91,19 @@ namespace SliceEngine
                 return;
             }
 
-            SliceLog.Log("aaaaaaaaa");
+            //SliceLog.Log("aaaaaaaaa");
             // if the curr level is done
             if (levels[currLevel].As<BaseLevel>().CheckObjective() && !levelDone)
             {
                 // then move on to next level
                 levelDone = true;
-                SliceLog.Log("qqqqqqqqqqqq");
+                //SliceLog.Log("qqqqqqqqqqqq");
                 // kill all the remaining enemies
                 foreach (GameObject enemy in enemies)
                 {
                     enemy.Destroy();
                 }
-                SliceLog.Log("wwwwwwwwww");
+                //SliceLog.Log("wwwwwwwwww");
                 enemies.Clear();
             }
 

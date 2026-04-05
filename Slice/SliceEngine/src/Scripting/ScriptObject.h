@@ -155,6 +155,8 @@ namespace SliceEngine
 		MonoMethod* mOnButtonExitHover{};
 		MonoMethod* mOnButtonRelease{};
 		MonoMethod* mOnSliderValue{};
+		MonoMethod* mOnSAnimStop{};
+		MonoMethod* mOnSAnimLoop{};
 
 		// FSM Functions
 		MonoMethod* mOnStateEnter = nullptr;
@@ -232,6 +234,7 @@ namespace SliceEngine
 		/// </summary>
 		void InvokeOnEntityDestroy(unsigned int id);
 
+		/******************** UI Invokes *****************/
 		/// <summary>
 		/// Call when obj is clicked, if it has a script with an onClick function then itll run it
 		/// </summary>
@@ -242,6 +245,9 @@ namespace SliceEngine
 		void InvokeButtonOnExitHover();
 		void InvokeButtonOnRelease();
 		void InvokeOnSliderValue(float);
+
+		void InvokeSAnimStop();
+		void InvokeSAnimLoop();
 
 		/// <summary>
 		/// Call when obj collides, if it has a script with an onCollide function

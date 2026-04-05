@@ -39,7 +39,11 @@ namespace SliceEditor
 
 	void SelectionManager::Update()
 	{
-
+		if (ImGui::IsKeyPressed(ImGuiKey_O))
+		{
+			SLICE_LOG("mSelectedNode Size: " + std::to_string(mSelectedNodes.size()));
+			SLICE_LOG("mSelectedOrder Size: " + std::to_string(mSelectionOrder.size()));
+		}
 	}
 
 	void SelectionManager::RegisterListener(ISelectionListener* listener)
@@ -51,10 +55,18 @@ namespace SliceEditor
 	{
 		//std::unordered_set<entt::entity> oldSelection = mSelectedEntities;
 		std::unordered_set<SelectionNode*> oldSelection = mSelectedNodes;
+		if (mSelectedNodes.size() > 0)
+		{
+			if (node == GetLastSelectedNode())
+			{
+				return;
+			}
+		}
 
 		ClearSelection(true);
 		//mSelectedEntities.insert(entity);
 		mSelectedNodes.insert(node);
+		mSelectionOrder.push_back(node);
 		node->isSelected = true;
 
 		if (node->type == SelectionType::ENTITY)
@@ -107,10 +119,10 @@ namespace SliceEditor
 
 		mSelectionType = node->type;
 
-		if (!suppressHistory)
+		/*if (!suppressHistory)
 		{
 			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
-		}
+		}*/
 	}
 
 	void SelectionManager::SelectSingle(entt::entity entity, bool suppressHistory)
@@ -137,6 +149,7 @@ namespace SliceEditor
 		{
 			node->isSelected = true;
 			mSelectedNodes.insert(node);
+			mSelectionOrder.push_back(node);
 			if (node->type == SelectionType::ENTITY)
 			{
 				EntityNode* entNode = static_cast<EntityNode*>(node);
@@ -147,6 +160,13 @@ namespace SliceEditor
 		{
 			node->isSelected = false;
 			mSelectedNodes.erase(it);
+			auto selectIt = std::find(mSelectionOrder.begin(), mSelectionOrder.end(), node);
+
+			if (selectIt != mSelectionOrder.end())
+			{
+				mSelectionOrder.erase(selectIt);
+			}
+
 			if (node->type == SelectionType::ENTITY)
 			{
 				EntityNode* entNode = static_cast<EntityNode*>(node);
@@ -156,9 +176,11 @@ namespace SliceEditor
 			}
 		}
 
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, oldSelection, mSelectedNodes));*/
 
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
 	}
 
 	void SelectionManager::SelectSingleAdd(entt::entity entity, bool suppressHistory)
@@ -173,32 +195,182 @@ namespace SliceEditor
 
 	}
 
-	//void SelectionManager::UpdateDeslected(entt::entity entity, bool suppressHistory)
-	//{
-	//	auto it = std::find(std::begin(mSelectedEntities), std::end(mSelectedEntities), entity);
-	//	if (it != std::end(mSelectedEntities))
-	//	{
-	//		//if (!suppressHistory)
-	//		//	registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectEntityCommand>(*this, mSelectedEntities));
+	void SelectionManager::AddBetweenEntities(SelectionNode* otherNode)
+	{
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
+		registry.GetManager<HistoryManager>("History")->CreateCheckpoint();
+		auto& mainNode = mSelectionOrder.back();
+		if (mainNode->type == SelectionType::ENTITY && otherNode->type == SelectionType::ENTITY)
+		{
+			auto& mainEntity = static_cast<EntityNode*>(mainNode)->entity;
+			auto& otherEntity = static_cast<EntityNode*>(otherNode)->entity;
+			if (mainEntity == otherEntity)
+				return;
+			//Check that both have sceneGraph
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(mainEntity) && SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(otherEntity))
+			{
+				auto& mainSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(mainEntity);
+				auto& otherSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(otherEntity);
 
-	//		auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(entity);
-	//		if (go.HasComponent<SliceEngine::SelectedEntity>())
-	//			go.RemoveComponent<SliceEngine::SelectedEntity>();
-	//		
-	//		mSelectedEntities.erase(it);
-	//	}
+				//DFS to the end of the sceneGraph
+				bool onRight = SceneGraphRightTraversal(mainEntity, otherEntity);
+				if(onRight)
+				{
+					SLICE_LOG("Right/Down Shift Selection");
+					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::RIGHT);
+				}
+				else
+				{
+					SLICE_LOG("Left/Down Shift Selection");
+					ShiftAddEntities(otherEntity, SliceEngine::SceneGraph::LEFT);
+				}
+				//Making sure the last clicked node was the last to be "selected" IF it should be selected
+				if(mSelectedNodes.find(otherNode) != mSelectedNodes.end())
+				{
+					mSelectionOrder.erase
+					(
+						std::remove(mSelectionOrder.begin(), mSelectionOrder.end(), otherNode), mSelectionOrder.end()
+					);
+					mSelectionOrder.push_back(otherNode);
+				}
+			}
+		}
+	}
 
-	//	std::unordered_set<entt::entity> set{ entity };
-	//	for (auto& listener : mListeners)
-	//	{
-	//		listener->OnUpdateDeselected(set);
-	//	}
-	//}
+	void SelectionManager::ShiftAddEntities(Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
+	{
+		//auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
+		//Get the starting entity:
+		auto& mainNode = mSelectionOrder.back();
+		auto currentEntity = static_cast<EntityNode*>(mainNode)->entity; //Thjis should be true becasue i checked in the outer function
+		//Double check for sceneGraph:
+		if (!SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(currentEntity))
+		{
+			SLICE_LOG("No Scene Graph in the last selected object");
+			return;
+		}
+		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+		Entity startingEntity = currentSceneGraph.neighbours[direction];
+		Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+		if (TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT)) // The down of the current entity
+		{
+			return;
+		}
+		TraverseAndSelect(startingEntity, targetEntity, direction);
+	}
+
+	bool SelectionManager::TraverseAndSelect(Entity currentEntity, Entity targetEntity, SliceEngine::SceneGraph::Direction direction)
+	{
+		auto& entityNodes = registry.GetManager<SessionManager>("Session")->GetEntityNodes();
+		//Get the child's EntityNode to see if its even open
+		if (entityNodes.find(currentEntity) == entityNodes.end())
+		{
+			return false;
+		}
+		auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+		EntityNode* currentNode = entityNodes[currentEntity].get();
+
+		ProcessNodeSelection(currentNode); //Process Selection
+		//Go in if node is open
+		if (currentNode->nodeOpen)
+		{
+			Entity childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+			if (childEntity != entt::null) {
+				if (TraverseAndSelect(childEntity, targetEntity, SliceEngine::SceneGraph::RIGHT))
+				{
+					return true;
+				}
+			}
+		}
+		if (targetEntity == currentEntity)
+		{
+			return true;
+		}
+		//Continue iterating to the direction:
+		Entity nextSibling = currentSceneGraph.neighbours[direction];
+		if (nextSibling != entt::null) 
+		{
+			if (TraverseAndSelect(nextSibling, targetEntity, direction))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	void SelectionManager::ProcessNodeSelection(EntityNode* currentNode)
+	{
+		if (!currentNode->isSelected) //Hasnt been selected
+		{
+			currentNode->isSelected = true;
+			mSelectedNodes.insert(currentNode);
+			mSelectionOrder.push_back(currentNode);
+			SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(currentNode->entity).AddComponent<SliceEngine::SelectedEntity>();
+		}
+		else
+		{
+			currentNode->isSelected = false;
+			mSelectedNodes.erase(currentNode);
+			mSelectionOrder.erase
+			(
+				std::remove(mSelectionOrder.begin(), mSelectionOrder.end(), currentNode), mSelectionOrder.end()
+			);
+			auto go = SliceEngine::Core::GetInstance()->mFactory.GetGOByEntity(currentNode->entity);
+			if (go.HasComponent<SliceEngine::SelectedEntity>())
+				go.RemoveComponent<SliceEngine::SelectedEntity>();
+		}
+	}
+
+	bool SelectionManager::SceneGraphRightTraversal(Entity currentEntity, Entity targetEntity)
+	{
+		if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SceneGraph>(currentEntity))
+		{
+			auto& currentSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(currentEntity);
+			auto childEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::DOWN];
+
+			
+			//DOWN CHECKS
+			while (childEntity != entt::null)
+			{
+				auto& child_scene_graph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(childEntity);
+				
+				if (childEntity == targetEntity)
+				{
+					return true;
+				}
+
+				if (SceneGraphRightTraversal(childEntity, targetEntity))
+				{
+					return true;
+				}
+
+				childEntity = child_scene_graph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+
+			auto rightEntity = currentSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			//MOVING TO THE RIGHT
+			while (rightEntity != entt::null)
+			{
+				auto& rightSceneGraph = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SceneGraph>(rightEntity);
+				if (rightEntity == targetEntity)
+				{
+					return true;
+				}
+				if (SceneGraphRightTraversal(rightEntity, targetEntity))
+				{
+					return true;
+				}
+				rightEntity = rightSceneGraph.neighbours[SliceEngine::SceneGraph::RIGHT];
+			}
+
+		}
+		return false;
+	}
 
 	void SelectionManager::SelectMultiple(std::unordered_set<SelectionNode*> selectedNodes, bool suppressHistory)
 	{
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, selectedNodes));*/
 
 		ClearSelection(suppressHistory);
 
@@ -227,11 +399,12 @@ namespace SliceEditor
 
 	void SelectionManager::ClearSelection(bool suppressHistory)
 	{
+		registry.GetManager<HistoryManager>("History")->ClearFromCheckpoint();
 		if (mSelectedNodes.empty())
 			return;
 
-		if (!suppressHistory)
-			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));
+		/*if (!suppressHistory)
+			registry.GetManager<HistoryManager>("History")->AddCommand(std::make_unique<SelectNodeCommand>(*this, mSelectedNodes, std::unordered_set<SelectionNode*>{}));*/
 
 		for (auto& node : mSelectedNodes)
 		{
@@ -247,6 +420,7 @@ namespace SliceEditor
 
 		mSelectionType = SelectionType::NONE;
 		mSelectedNodes.clear();
+		mSelectionOrder.clear();
 	}
 
 	void SelectionManager::DeleteSelectedObjects()
@@ -286,5 +460,9 @@ namespace SliceEditor
 	std::unordered_set<SelectionNode*>& SelectionManager::GetSelectedNodes()
 	{
 		return mSelectedNodes;
+	}
+	SelectionNode* SelectionManager::GetLastSelectedNode()
+	{
+		return mSelectionOrder.back();
 	}
 }

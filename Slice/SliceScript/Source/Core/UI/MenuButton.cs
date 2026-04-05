@@ -11,10 +11,10 @@ namespace SliceEngine
 
         private MainMenuController mainController;
         private GameSettings gameSettingsController;
-        private UIAnimation uiAnimController;
+        
         
         private AudioSource btnAudio;
-        public GameObject uiAnimObj;
+        private FontRenderer fontComp;
         
 
 
@@ -41,21 +41,7 @@ namespace SliceEngine
                 btnAudio = audioObj.GetComponent<AudioSource>();
             }
 
-            
-
-            //GameObject startRect = FindGameObjectWithName("OverlayGameRect");
-            //if (startRect != null)
-            //{
-            //    testTrans = startRect.GetComponent<RectTransform>();
-
-            //}
-
-            if (uiAnimObj != null)
-            {
-                uiAnimController = uiAnimObj.As<UIAnimation>();
-
-            }
-
+            fontComp = GetComponent<FontRenderer>();
             
 
         }
@@ -68,12 +54,8 @@ namespace SliceEngine
 
         public override void OnButtonClick()
         {
-            if(uiAnimController!=null)
-            {
-                
-                uiAnimController.ButtonClickAnim();
 
-            }
+            AudioSettings.PlaySFX("UIClick");
 
             if (mainController != null)
             {
@@ -84,98 +66,101 @@ namespace SliceEngine
                 else if (buttonType == 1)
                 {
                     mainController.OpenSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
 
-                  
                 }
                 else if (buttonType == 2)
                 {
                     mainController.QuitGame();
                 }
+
                 else if (buttonType == 3)
                 {
                     mainController.CloseSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
-
-                    }
-                }
-                else if (buttonType == 4)
-                {
-                    mainController.BackToMenu();
 
                 }
-                else if (buttonType == 5)
-                {
-                    SliceLog.Log("Test");
-                }
+                //else if (buttonType == 4)
+                //{
+                //    mainController.BackToMenu();
+
+                //}
+
+                
+                
             }
 
-            // --- GAME SCENE ACTIONS ---
-            if (gameSettingsController != null)
+            
+            else if (gameSettingsController != null)
             {
                 if (buttonType == 5) // Resume
                 {
                     gameSettingsController.ResumeGame();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
 
-                    }
                 }
-                else if (buttonType == 1) // Open Settings (Sub-menu)
+
+                else if(buttonType == 8)
                 {
-                    gameSettingsController.OpenSubSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
-
-                    }
-                }
-                else if (buttonType == 3) // Close Settings (Back button inside popup)
+                    Bootstrap.LevelDirector.LoadNextLevel();
+                }else if(buttonType == 9)
                 {
-                    gameSettingsController.CloseSubSettings();
-                    if (uiAnimController != null)
-                    {
-                        uiAnimController.ButtonHoverState(false);
-                        uiAnimController.ResetButton();
-
-                    }
+                    Bootstrap.LevelDirector.RestartLevel();
                 }
+                //else if (buttonType == 1) // Open Settings (Sub-menu)
+                //{
+                //    gameSettingsController.OpenSubSettings();
+
+                //}
+                //else if (buttonType == 3) // Close Settings (Back button inside popup)
+                //{
+                //    gameSettingsController.CloseSubSettings();
+
+                //}
             }
 
-            if (buttonType == 4)
+            if (buttonType == 4) //
             {
                 SceneManager.LoadScene("MenuScene");
+                gameSettingsController.ResumeGame();
+                
+            }
+
+            else if(buttonType == 6) //AudioPage in Settings
+            {
+                if (mainController != null) mainController.ToggleSettingsPages(true);
+                if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(true);
+            }
+
+            else if (buttonType == 7) //GraphicsPage in Settings
+            {
+                if (mainController != null) mainController.ToggleSettingsPages(false);
+                if (gameSettingsController != null) gameSettingsController.ToggleSettingsPages(false);
+            }
+
+            else if(buttonType == 10)
+            {
+                if (mainController != null)
+                {
+                    mainController.RestoreDefaults();
+                }else if(gameSettingsController!=  null)
+                {
+                    gameSettingsController.RestoreDefaults();
+                }
             }
         }
 
         public override void OnButtonHover()
         {
-            if(uiAnimController != null)
+            if(buttonType == 0 || buttonType == 1 || buttonType == 2 ||buttonType ==10)
             {
-            
-                uiAnimController.ButtonHoverState(true);
-
+                fontComp.Colour = new Vector4(203.0f *(1.0f /256.0f), 203.0f * (1.0f / 256.0f), 203.0f * (1.0f / 256.0f), 1.0f);
             }
         }
 
         public override void OnButtonExitHover()
         {
-            if (uiAnimController != null)
+            if (buttonType == 0 || buttonType == 1 || buttonType == 2 || buttonType == 10)
             {
-
-                uiAnimController.ButtonHoverState(false);
-
+                fontComp.Colour = new Vector4(1.0f,1.0f,1.0f,1.0f);
             }
         }
 

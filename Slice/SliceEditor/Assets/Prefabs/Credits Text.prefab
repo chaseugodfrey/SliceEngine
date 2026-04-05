@@ -1,0 +1,78 @@
+[
+    {
+        "Credits Text": {
+            "struct SliceEngine::FontRenderer": {
+                "alignment": "Center",
+                "componentEnabled": true,
+                "font": "17483949530436669692",
+                "font_size": 160.0,
+                "line_spacing": 0.0,
+                "rgba": [
+                    1.0,
+                    1.0,
+                    1.0,
+                    1.0
+                ],
+                "text": "Physics Champion"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RectTransform": {
+                "bot": 0,
+                "height": 0,
+                "hori_pivot": "Center",
+                "left": 0,
+                "pos_x": 0,
+                "pos_y": 0,
+                "right": 0,
+                "rotation": 0.0,
+                "top": 0,
+                "vert_pivot": "Middle",
+                "width": 100
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 2097155,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    2097159,
+                    13
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Credits Text",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

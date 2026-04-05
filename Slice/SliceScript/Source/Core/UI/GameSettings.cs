@@ -1,4 +1,4 @@
-﻿using SliceEngine;
+using SliceEngine;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,66 +9,136 @@ namespace SliceEngine
 {
     public class GameSettings : SliceBehaviour
     {
-        private GameObject settingsPanel;
-        private GameObject settingsPopup;
-        private SettingsBorderAnimation borderAnim;
 
-        private bool isPauseMenuOpen = false;
-        private bool isSubSettingsOpen = false;
+        private GameObject settingsPopup;
+        private GameObject bgAnimationObject;
+        private GameObject beforeGammaImage;
+        private GameObject pauseBGM;
+        private GameObject levelBGM;
+
+        private SettingsBorderAnimation borderAnim;
+        private SettingsBGAnimation bgAnim;
+
+        private AudioSource pauseAudioSource;
+        private AudioSource levelAudioSource;
+        //private PreferenceSettings preferenceSettings;
+
+        private SpriteRendererGammaOverride spriteGammaOverride;
+
+        private bool isSettingsOpen = false;
 
         public override void OnCreate()
         {
-            settingsPanel = FindGameObjectWithName("GameSettings");
-            settingsPopup = FindGameObjectWithName("Settings_Popup");
+            settingsPopup = FindGameObjectWithName("Settings_Popup_Levels");
+            bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
+            beforeGammaImage = FindGameObjectWithName("BeforeImage");
 
-            if (settingsPanel != null) settingsPanel.SetActive(false);
+            if(FindGameObjectWithName("PauseMusic") != null)
+            {
+            
+                pauseBGM = FindGameObjectWithName("PauseMusic");
+
+            }
+
+            if(FindGameObjectWithName("LevelBGM") != null)
+            {
+            
+                levelBGM = FindGameObjectWithName("LevelBGM");
+
+            }
+
+
+
             if (settingsPopup != null)
             {
-                // Access the script we just built
                 borderAnim = settingsPopup.As<SettingsBorderAnimation>();
+                
                 settingsPopup.SetActive(false);
             }
 
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = false;
+            if (bgAnimationObject != null)
+            {
+                bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
+                if (bgAnim != null)
+                {
+                    bgAnim.borderAnim = borderAnim;
+                }
+                bgAnimationObject.SetActive(false);
+            }
 
-            
+            if(beforeGammaImage!= null)
+            {
+                spriteGammaOverride = beforeGammaImage.GetComponent<SpriteRendererGammaOverride>();
+            }
+
+            if (pauseBGM != null)
+            {
+                pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+            }
+
+            if (levelBGM != null)
+            {
+                levelAudioSource = levelBGM.GetComponent<AudioSource>();
+            }
+
+
+
+            PreferenceSettings.Initialize();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            isSettingsOpen = false;
         }
 
         public override void OnUpdate(float dt)
         {
-            if(Input.IsKeyPressed(Keys.KEY_ESC))
+            if (Input.IsKeyPressed(Keys.KEY_ESC) && Bootstrap.HUDManager.CheckLoseScreen() == false)
             {
-                if (isSubSettingsOpen)
+                if (isSettingsOpen)
                 {
-                    CloseSubSettings();
+                    ResumeGame();
                 }
-                // 2. If nothing is open, open the Pause Menu
-                else if (!isPauseMenuOpen)
+                else
                 {
-                    OpenPauseMenu();
-
+                    OpenSubSettings();
                 }
-
             }
         }
 
-        public void OpenPauseMenu()
+        public void ToggleSettingsPages(bool isAudio)
         {
-            if (settingsPanel != null) settingsPanel.SetActive(true);
-            isPauseMenuOpen = true;
-            Cursor.state = Cursor.STATE.DEFAULT;
-            Time.timeScale = 0.0f;
+            if (borderAnim != null) borderAnim.SwitchToPage(isAudio);
         }
+
 
 
         public void ResumeGame()
         {
+            isSettingsOpen = false;
+
+            PreferenceSettings.SavePreferences();
+
+            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Stop();
+            }
+
+            if (levelAudioSource != null)
+            {
+                levelAudioSource.IsPaused = false;
+            }
+
+            if (borderAnim != null)
+            {
+                borderAnim.StartSettingsPopupAnimation(false);
+                AudioSettings.PlaySFX("PauseTransitionOut");
+            }
+
             // Force close everything
-            if (settingsPanel != null) settingsPanel.SetActive(false);
-            if (settingsPopup != null) settingsPopup.SetActive(false);
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = false;
+            //if (settingsPopup != null) settingsPopup.SetActive(false);
+
 
             SliceLog.Console("Resume");
 
@@ -76,36 +146,58 @@ namespace SliceEngine
             Time.timeScale = 1.0f;
         }
 
+        public void RestoreDefaults()
+        {
+
+            PreferenceSettings.RestoreDefaults();
+
+            //spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+
+            if (borderAnim != null)
+            {
+                borderAnim.SyncSlidersToEngine();
+            }
+        }
+
         public void OpenSubSettings()
         {
 
-            //if (settingsPanel != null) settingsPanel.SetActive(false);
-            //if (settingsPopup != null) settingsPopup.SetActive(true);
-            if (borderAnim != null)
+            isSettingsOpen = true;
+
+            if (levelAudioSource != null)
             {
-                borderAnim.StartAnimation(true);
-            }
-            
-
-            isPauseMenuOpen = false;
-            isSubSettingsOpen = true;
-        }
-
-        public void CloseSubSettings()
-        {
-            // Hide Settings, Show Pause Menu
-            //if (settingsPopup != null) settingsPopup.SetActive(false);
-            //if (settingsPanel != null) settingsPanel.SetActive(true);
-
-            if (borderAnim != null)
-            {
-                borderAnim.StartAnimation(false);
+                levelAudioSource.IsPaused = true;
             }
 
-            isSubSettingsOpen = false;
-            isPauseMenuOpen = true;
+            if (pauseAudioSource != null)
+            {
+                pauseAudioSource.Play();
+            }
 
-            //Bootstrap.HUDManager.CursorChecking(Cursor.state);
+            if (bgAnim != null)
+            {
+                AudioSettings.PlaySFX("PauseTransitionIn");
+                bgAnim.StartSettingsBGAnimation(true);
+            }
+            else if (borderAnim != null)
+            {
+                borderAnim.StartSettingsPopupAnimation(true);
+            }
+
+
+            Cursor.state = Cursor.STATE.DEFAULT;
+            Time.timeScale = 0.0f;
         }
+
+        //public void CloseSubSettings()
+        //{
+        //    if (borderAnim != null)
+        //    {
+        //        borderAnim.StartSettingsPopupAnimation(false);
+        //    }
+
+        //    isSubSettingsOpen = false;
+        //    isPauseMenuOpen = true;
+        //}
     }
 }

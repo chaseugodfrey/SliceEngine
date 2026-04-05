@@ -2,106 +2,66 @@
     "NavMeshData": null,
     "SceneData": [
         {
-            "ScriptTestSameSize": {
-                "struct SliceEngine::Renderer": {
+            "Text": {
+                "struct SliceEngine::FontRenderer": {
+                    "alignment": "Center",
                     "componentEnabled": true,
-                    "material": {
-                        "GUID": "9336273396156370476"
-                    },
-                    "meshOffset": "0",
-                    "model": {
-                        "GUID": "4412061832024819835"
-                    },
-                    "renderTag": "0",
-                    "skinned": false
+                    "font": "10853710783587271977",
+                    "font_size": 71.9000015258789,
+                    "line_spacing": 1.25,
+                    "offsetx": 0.0,
+                    "offsety": 0.0,
+                    "rgba": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "text": "Hello World"
+                },
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 100.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 450.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 500.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 13,
+                    "entity_id": 1048590,
                     "neighbours": [
-                        0,
+                        7,
                         4294967295,
                         6,
-                        7
+                        4294967295
                     ]
-                },
-                "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.EditorTest",
-                    "scriptableFieldMap": {
-                        "GOtest": {
-                            "Type": "SliceEngine::GameObject",
-                            "Value": 6
-                        },
-                        "boolTest": {
-                            "Type": "bool",
-                            "Value": true
-                        },
-                        "floatList": {
-                            "Type": "std::vector<float>",
-                            "Value": [
-                                20.0,
-                                30.0,
-                                40.0
-                            ]
-                        },
-                        "floatTest": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "goListTest": {
-                            "Type": "std::vector<SliceEngine::GameObject>",
-                            "Value": [
-                                7,
-                                3,
-                                6
-                            ]
-                        },
-                        "intList": {
-                            "Type": "std::vector<int>",
-                            "Value": []
-                        },
-                        "intTest": {
-                            "Type": "int",
-                            "Value": 0
-                        },
-                        "stringList": {
-                            "Type": "std::vector<std::string>",
-                            "Value": []
-                        },
-                        "stringTest": {
-                            "Type": "std::string",
-                            "Value": "test"
-                        },
-                        "vec3test": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
-                        }
-                    }
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 5,
-                    "mName": "ScriptTestSameSize",
+                    "mLayer": 0,
+                    "mName": "Text",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
-                        -90.0,
+                        0.0,
                         0.0,
                         0.0
                     ],
                     "position": [
                         0.0,
-                        4.997071743011475,
-                        -1.8531907796859741
+                        0.0,
+                        0.0
                     ],
                     "rotation": [
-                        -0.7071067690849304,
-                        0.7071067690849304,
-                        -0.0,
+                        1.0,
+                        0.0,
+                        0.0,
                         0.0
                     ],
                     "scale": [
@@ -113,7 +73,7 @@
             }
         },
         {
-            "NicTestPrefabChild": {
+            "Hehehe": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
                         "scale": [
@@ -131,6 +91,98 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "9336273396156370476"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "10128043101700684016"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::RigidBody": {
+                    "CollisionDetection": "",
+                    "angularDamping": 0.05000000074505806,
+                    "freezePosition": [
+                        false,
+                        false,
+                        false
+                    ],
+                    "freezeRotation": [
+                        false,
+                        false,
+                        false
+                    ],
+                    "friction": 0.5,
+                    "gravityFactor": 1.0,
+                    "isKinematic": false,
+                    "linearDamping": 0.05000000074505806,
+                    "mass": 1.0,
+                    "restituition": 0.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        5,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Hehehe",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        4.300695896148682,
+                        5.472104072570801
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "NoScriptTest": {
+                "struct SliceEngine::ColliderShape": {
+                    "boxData": {
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    },
+                    "componentEnabled": true,
+                    "isTrigger": false,
+                    "offSet": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -165,16 +217,16 @@
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 12,
                     "neighbours": [
-                        11,
+                        0,
                         4294967295,
-                        4294967295,
-                        4294967295
+                        9,
+                        11
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
-                    "mName": "NicTestPrefabChild",
+                    "mName": "NoScriptTest",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
@@ -184,9 +236,9 @@
                         0.0
                     ],
                     "position": [
-                        3.0,
-                        3.0,
-                        3.0
+                        0.0,
+                        0.0,
+                        0.0
                     ],
                     "rotation": [
                         1.0,
@@ -203,7 +255,354 @@
             }
         },
         {
-            "NicTestPrefab": {
+            "Camera": {
+                "struct SliceEngine::Camera": {
+                    "bloomExposure": 10.0,
+                    "bloomFilterRadius": 5.0,
+                    "bloomLimit": 1.0,
+                    "bloomStrength": 0.4000000059604645,
+                    "cloudsAmplitute": 49.0,
+                    "cloudsColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsCutoff": 0.16699999570846558,
+                    "cloudsHeight": -110.0,
+                    "cloudsIntensity": 0.30000001192092896,
+                    "cloudsSecondAmplitute": 49.0,
+                    "cloudsSecondColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsSecondIntensity": 0.30000001192092896,
+                    "cloudsSecondOffset": [
+                        40.0,
+                        40.0,
+                        -20.0
+                    ],
+                    "cloudsSecondSmoothness": 0.0027000000700354576,
+                    "cloudsSmoothness": 0.0027000000700354576,
+                    "componentEnabled": true,
+                    "debugRenderTag": "0",
+                    "depthTex": 43,
+                    "far": 200.0,
+                    "fogColor": [
+                        0.20000000298023224,
+                        0.20000000298023224,
+                        0.20000000298023224
+                    ],
+                    "fogIntensity": 0.03999999910593033,
+                    "gamma": 45.454498291015625,
+                    "godRayFilterRadius": 5.0,
+                    "godRayStrength": 0.4000000059604645,
+                    "height": 1080,
+                    "impactAngle": 18.0,
+                    "impactBlend": 1.0,
+                    "impactColor": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "impactColor2": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "impactEpilepsy": 7.0,
+                    "impactNoise1": 148.0,
+                    "impactNoise2": 21.0,
+                    "impactPosition": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "impactSmoothness": false,
+                    "isMainCamera": true,
+                    "luminanceLearningRate": 10.0,
+                    "maxLuminance": 10.0,
+                    "minLuminance": 9.999999747378752e-05,
+                    "near": 0.009999999776482582,
+                    "postRenderTag": "0",
+                    "pov": 60.0,
+                    "textureID": 42,
+                    "translucentSelectCutoff": 0.20000000298023224,
+                    "vignetteCenter": [
+                        0.5,
+                        0.5
+                    ],
+                    "vignetteIntensity": 0.335999995470047,
+                    "vignetteSmoothness": 0.699999988079071,
+                    "whiteBalance": 0.9800000190734863,
+                    "width": 1920
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 11,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        12,
+                        7
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Camera",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        -2.299999952316284,
+                        0.0,
+                        -25.200000762939453
+                    ],
+                    "position": [
+                        -16.399999618530273,
+                        9.800000190734863,
+                        0.10000000149011612
+                    ],
+                    "rotation": [
+                        0.9757201671600342,
+                        -0.019586589187383652,
+                        -0.004378121346235275,
+                        -0.21809929609298706
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "ScriptTestDefault": {
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "12851759591155610253"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "4412061832024819835"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 10,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        4294967295,
+                        3
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.EditorTest",
+                    "scriptableFieldMap": {
+                        "GOtest": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 10
+                        },
+                        "boolTest": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": [
+                                6.0,
+                                7.0,
+                                8.0
+                            ]
+                        },
+                        "floatTest": {
+                            "Type": "float",
+                            "Value": 0.0
+                        },
+                        "goListTest": {
+                            "Type": "std::vector<SliceEngine::GameObject>",
+                            "Value": [
+                                5,
+                                13,
+                                13
+                            ]
+                        },
+                        "intList": {
+                            "Type": "std::vector<int>",
+                            "Value": []
+                        },
+                        "intTest": {
+                            "Type": "int",
+                            "Value": 0
+                        },
+                        "stringList": {
+                            "Type": "std::vector<std::string>",
+                            "Value": []
+                        },
+                        "stringTest": {
+                            "Type": "std::string",
+                            "Value": "test"
+                        },
+                        "vec3test": {
+                            "Type": "glm::vec3",
+                            "Value": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 5,
+                    "mName": "ScriptTestDefault",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        -90.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        -2.3325071334838867,
+                        7.158474445343018,
+                        -0.8647680878639221
+                    ],
+                    "rotation": [
+                        -0.7071067690849304,
+                        0.7071067690849304,
+                        -0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "ScriptTestChangedSize": {
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "9336273396156370476"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "4412061832024819835"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 9,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        3,
+                        12
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.EditorTest",
+                    "scriptableFieldMap": {
+                        "GOtest": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 9
+                        },
+                        "boolTest": {
+                            "Type": "bool",
+                            "Value": false
+                        },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": []
+                        },
+                        "floatTest": {
+                            "Type": "float",
+                            "Value": 3.0
+                        },
+                        "goListTest": {
+                            "Type": "std::vector<SliceEngine::GameObject>",
+                            "Value": [
+                                8,
+                                9,
+                                6,
+                                13,
+                                8
+                            ]
+                        },
+                        "intList": {
+                            "Type": "std::vector<int>",
+                            "Value": []
+                        },
+                        "intTest": {
+                            "Type": "int",
+                            "Value": 5
+                        },
+                        "stringList": {
+                            "Type": "std::vector<std::string>",
+                            "Value": []
+                        },
+                        "stringTest": {
+                            "Type": "std::string",
+                            "Value": "jojo"
+                        },
+                        "vec3test": {
+                            "Type": "glm::vec3",
+                            "Value": [
+                                3.0,
+                                4.0,
+                                5.0
+                            ]
+                        }
+                    }
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "ScriptTestChangedSize",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        1.8604121208190918,
+                        3.9107537269592285,
+                        2.1456422805786133
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "FloorQuad": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
                         "scale": [
@@ -221,9 +620,10 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
                     "componentEnabled": true,
                     "material": {
-                        "GUID": "9336273396156370476"
+                        "GUID": "10230791056562210482"
                     },
                     "meshOffset": "0",
                     "model": {
@@ -232,39 +632,19 @@
                     "renderTag": "0",
                     "skinned": false
                 },
-                "struct SliceEngine::RigidBody": {
-                    "CollisionDetection": "",
-                    "angularDamping": 0.05000000074505806,
-                    "freezePosition": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "freezeRotation": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "friction": 0.5,
-                    "gravityFactor": 1.0,
-                    "isKinematic": false,
-                    "linearDamping": 0.05000000074505806,
-                    "mass": 1.0,
-                    "restituition": 0.0
-                },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 11,
+                    "entity_id": 8,
                     "neighbours": [
                         0,
-                        12,
-                        8,
-                        3
+                        4294967295,
+                        7,
+                        5
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
-                    "mName": "NicTestPrefab",
+                    "mName": "FloorQuad",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
@@ -275,7 +655,7 @@
                     ],
                     "position": [
                         0.0,
-                        2.0,
+                        0.0,
                         0.0
                     ],
                     "rotation": [
@@ -285,9 +665,73 @@
                         0.0
                     ],
                     "scale": [
-                        2.0,
-                        2.0,
-                        2.0
+                        20.0,
+                        1.0,
+                        20.0
+                    ]
+                }
+            }
+        },
+        {
+            "Canvas": {
+                "struct SliceEngine::Canvas": {
+                    "billboardX": false,
+                    "billboardY": false,
+                    "billboardZ": false,
+                    "canvas_type": "Overlay",
+                    "componentEnabled": true,
+                    "graphics_raycast": true,
+                    "sort_order": 0
+                },
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 1080.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 0.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 7,
+                    "neighbours": [
+                        0,
+                        6,
+                        11,
+                        8
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Canvas",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 }
             }
@@ -324,25 +768,25 @@
                     "transition": "Color"
                 },
                 "struct SliceEngine::RectTransform": {
-                    "bot": 0,
-                    "height": 300,
+                    "bot": 0.0,
+                    "height": 300.0,
                     "hori_pivot": "Center",
-                    "left": 0,
-                    "pos_x": 704,
-                    "pos_y": 329,
-                    "right": 0,
+                    "left": 0.0,
+                    "pos_x": 704.0,
+                    "pos_y": 329.0,
+                    "right": 0.0,
                     "rotation": 0.0,
-                    "top": 0,
+                    "top": 0.0,
                     "vert_pivot": "Middle",
-                    "width": 400
+                    "width": 400.0
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 10,
+                    "entity_id": 6,
                     "neighbours": [
-                        9,
+                        7,
                         4294967295,
                         4294967295,
-                        4294967295
+                        1048590
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -409,7 +853,7 @@
                         0.22745098173618317,
                         0.5254902243614197
                     ],
-                    "texture": "17753361635269803423"
+                    "texture": "12836516999346286443"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
@@ -437,68 +881,7 @@
             }
         },
         {
-            "Canvas": {
-                "struct SliceEngine::Canvas": {
-                    "canvas_type": "Overlay",
-                    "componentEnabled": true,
-                    "graphics_raycast": true,
-                    "sort_order": 0
-                },
-                "struct SliceEngine::RectTransform": {
-                    "bot": 0,
-                    "height": 1080,
-                    "hori_pivot": "Center",
-                    "left": 0,
-                    "pos_x": 0,
-                    "pos_y": 0,
-                    "right": 0,
-                    "rotation": 0.0,
-                    "top": 0,
-                    "vert_pivot": "Middle",
-                    "width": 1920
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 9,
-                    "neighbours": [
-                        0,
-                        10,
-                        5,
-                        8
-                    ]
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "Canvas",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "FloorQuad": {
+            "NicTestPrefab": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
                         "scale": [
@@ -516,6 +899,7 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -527,365 +911,68 @@
                     "renderTag": "0",
                     "skinned": false
                 },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 8,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        9,
-                        11
-                    ]
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "FloorQuad",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
+                "struct SliceEngine::RigidBody": {
+                    "CollisionDetection": "",
+                    "angularDamping": 0.05000000074505806,
+                    "freezePosition": [
+                        false,
+                        false,
+                        false
                     ],
-                    "position": [
-                        0.0,
-                        0.0,
-                        0.0
+                    "freezeRotation": [
+                        false,
+                        false,
+                        false
                     ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        20.0,
-                        1.0,
-                        20.0
-                    ]
-                }
-            }
-        },
-        {
-            "ScriptTestChangedSize": {
-                "struct SliceEngine::Renderer": {
-                    "componentEnabled": true,
-                    "material": {
-                        "GUID": "9336273396156370476"
-                    },
-                    "meshOffset": "0",
-                    "model": {
-                        "GUID": "4412061832024819835"
-                    },
-                    "renderTag": "0",
-                    "skinned": false
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 7,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        13,
-                        4
-                    ]
-                },
-                "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.EditorTest",
-                    "scriptableFieldMap": {
-                        "GOtest": {
-                            "Type": "SliceEngine::GameObject",
-                            "Value": 7
-                        },
-                        "boolTest": {
-                            "Type": "bool",
-                            "Value": false
-                        },
-                        "floatList": {
-                            "Type": "std::vector<float>",
-                            "Value": []
-                        },
-                        "floatTest": {
-                            "Type": "float",
-                            "Value": 3.0
-                        },
-                        "goListTest": {
-                            "Type": "std::vector<SliceEngine::GameObject>",
-                            "Value": [
-                                8,
-                                8,
-                                8,
-                                3,
-                                8
-                            ]
-                        },
-                        "intList": {
-                            "Type": "std::vector<int>",
-                            "Value": []
-                        },
-                        "intTest": {
-                            "Type": "int",
-                            "Value": 5
-                        },
-                        "stringList": {
-                            "Type": "std::vector<std::string>",
-                            "Value": []
-                        },
-                        "stringTest": {
-                            "Type": "std::string",
-                            "Value": "jojo"
-                        },
-                        "vec3test": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                3.0,
-                                4.0,
-                                5.0
-                            ]
-                        }
-                    }
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "ScriptTestChangedSize",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        1.8604121208190918,
-                        3.7675621509552,
-                        2.1456422805786133
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "ScriptTestDefault": {
-                "struct SliceEngine::Renderer": {
-                    "componentEnabled": true,
-                    "material": {
-                        "GUID": "9336273396156370476"
-                    },
-                    "meshOffset": "0",
-                    "model": {
-                        "GUID": "4412061832024819835"
-                    },
-                    "renderTag": "0",
-                    "skinned": false
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 6,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        4294967295,
-                        13
-                    ]
-                },
-                "struct SliceEngine::Script": {
-                    "scriptName": "SliceEngine.EditorTest",
-                    "scriptableFieldMap": {
-                        "GOtest": {
-                            "Type": "SliceEngine::GameObject",
-                            "Value": 6
-                        },
-                        "boolTest": {
-                            "Type": "bool",
-                            "Value": true
-                        },
-                        "floatList": {
-                            "Type": "std::vector<float>",
-                            "Value": [
-                                6.0,
-                                7.0,
-                                8.0
-                            ]
-                        },
-                        "floatTest": {
-                            "Type": "float",
-                            "Value": 0.0
-                        },
-                        "goListTest": {
-                            "Type": "std::vector<SliceEngine::GameObject>",
-                            "Value": [
-                                11,
-                                3,
-                                3
-                            ]
-                        },
-                        "intList": {
-                            "Type": "std::vector<int>",
-                            "Value": []
-                        },
-                        "intTest": {
-                            "Type": "int",
-                            "Value": 0
-                        },
-                        "stringList": {
-                            "Type": "std::vector<std::string>",
-                            "Value": []
-                        },
-                        "stringTest": {
-                            "Type": "std::string",
-                            "Value": "test"
-                        },
-                        "vec3test": {
-                            "Type": "glm::vec3",
-                            "Value": [
-                                0.0,
-                                0.0,
-                                0.0
-                            ]
-                        }
-                    }
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 5,
-                    "mName": "ScriptTestDefault",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        -90.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        4.997071743011475,
-                        -1.8531907796859741
-                    ],
-                    "rotation": [
-                        -0.7071067690849304,
-                        0.7071067690849304,
-                        -0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "Camera": {
-                "struct SliceEngine::Camera": {
-                    "bloomExposure": 10.0,
-                    "bloomFilterRadius": 5.0,
-                    "bloomStrength": 0.4000000059604645,
-                    "cloudsAmplitute": 49.0,
-                    "cloudsColor": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        0.25
-                    ],
-                    "cloudsCutoff": 0.16699999570846558,
-                    "cloudsHeight": -110.0,
-                    "cloudsIntensity": 0.30000001192092896,
-                    "cloudsSecondAmplitute": 49.0,
-                    "cloudsSecondColor": [
-                        1.0,
-                        1.0,
-                        1.0,
-                        0.25
-                    ],
-                    "cloudsSecondIntensity": 0.30000001192092896,
-                    "cloudsSecondOffset": [
-                        40.0,
-                        40.0,
-                        -20.0
-                    ],
-                    "cloudsSecondSmoothness": 0.0027000000700354576,
-                    "cloudsSmoothness": 0.0027000000700354576,
-                    "componentEnabled": true,
-                    "debugRenderTag": "0",
-                    "depthTex": 36,
-                    "far": 200.0,
-                    "fogColor": [
-                        0.20000000298023224,
-                        0.20000000298023224,
-                        0.20000000298023224
-                    ],
-                    "fogIntensity": 0.03999999910593033,
-                    "godRayFilterRadius": 5.0,
-                    "godRayStrength": 0.4000000059604645,
-                    "height": 1080,
-                    "near": 0.009999999776482582,
-                    "postRenderTag": "0",
-                    "pov": 60.0,
-                    "textureID": 35,
-                    "translucentSelectCutoff": 0.20000000298023224,
-                    "vignetteCenter": [
-                        0.5,
-                        0.5
-                    ],
-                    "vignetteIntensity": 0.335999995470047,
-                    "vignetteSmoothness": 0.699999988079071,
-                    "width": 1920
+                    "friction": 0.5,
+                    "gravityFactor": 1.0,
+                    "isKinematic": false,
+                    "linearDamping": 0.05000000074505806,
+                    "mass": 1.0,
+                    "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 5,
                     "neighbours": [
                         0,
-                        4294967295,
                         4,
-                        9
+                        8,
+                        13
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
-                    "mName": "Camera",
+                    "mName": "NicTestPrefab",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
                         0.0,
                         0.0,
-                        -20.600000381469727
+                        0.0
                     ],
                     "position": [
-                        -13.100000381469727,
-                        4.699999809265137,
-                        -0.20000000298023224
+                        0.0,
+                        2.0,
+                        0.0
                     ],
                     "rotation": [
-                        0.9838850498199463,
+                        1.0,
                         0.0,
                         0.0,
-                        -0.1788022220134735
+                        0.0
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
-                        1.0
+                        2.0,
+                        2.0,
+                        2.0
                     ]
                 }
             }
         },
         {
-            "NoScriptTest": {
+            "NicTestPrefabChild": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
                         "scale": [
@@ -903,6 +990,7 @@
                     ]
                 },
                 "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
@@ -937,16 +1025,16 @@
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 4,
                     "neighbours": [
-                        0,
+                        5,
                         4294967295,
-                        7,
-                        5
+                        4294967295,
+                        4294967295
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
                     "mLayer": 0,
-                    "mName": "NoScriptTest",
+                    "mName": "NicTestPrefabChild",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
@@ -956,9 +1044,9 @@
                         0.0
                     ],
                     "position": [
-                        0.0,
-                        0.0,
-                        0.0
+                        3.0,
+                        3.0,
+                        3.0
                     ],
                     "rotation": [
                         1.0,
@@ -975,91 +1063,113 @@
             }
         },
         {
-            "Hehehe": {
-                "struct SliceEngine::ColliderShape": {
-                    "boxData": {
-                        "scale": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ]
-                    },
-                    "componentEnabled": true,
-                    "isTrigger": false,
-                    "offSet": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                },
+            "ScriptTestSameSize": {
                 "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
                     "componentEnabled": true,
                     "material": {
                         "GUID": "9336273396156370476"
                     },
                     "meshOffset": "0",
                     "model": {
-                        "GUID": "4412061832024819835"
+                        "GUID": "18229435044585338891"
                     },
                     "renderTag": "0",
                     "skinned": false
-                },
-                "struct SliceEngine::RigidBody": {
-                    "CollisionDetection": "",
-                    "angularDamping": 0.05000000074505806,
-                    "freezePosition": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "freezeRotation": [
-                        false,
-                        false,
-                        false
-                    ],
-                    "friction": 0.5,
-                    "gravityFactor": 1.0,
-                    "isKinematic": false,
-                    "linearDamping": 0.05000000074505806,
-                    "mass": 1.0,
-                    "restituition": 0.0
                 },
                 "struct SliceEngine::SceneGraph": {
                     "entity_id": 3,
                     "neighbours": [
                         0,
                         4294967295,
-                        11,
-                        4294967295
+                        10,
+                        9
                     ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.EditorTest",
+                    "scriptableFieldMap": {
+                        "GOtest": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 10
+                        },
+                        "boolTest": {
+                            "Type": "bool",
+                            "Value": true
+                        },
+                        "floatList": {
+                            "Type": "std::vector<float>",
+                            "Value": [
+                                20.0,
+                                30.0,
+                                40.0
+                            ]
+                        },
+                        "floatTest": {
+                            "Type": "float",
+                            "Value": 0.0
+                        },
+                        "goListTest": {
+                            "Type": "std::vector<SliceEngine::GameObject>",
+                            "Value": [
+                                9,
+                                13,
+                                10
+                            ]
+                        },
+                        "intList": {
+                            "Type": "std::vector<int>",
+                            "Value": []
+                        },
+                        "intTest": {
+                            "Type": "int",
+                            "Value": 0
+                        },
+                        "stringList": {
+                            "Type": "std::vector<std::string>",
+                            "Value": []
+                        },
+                        "stringTest": {
+                            "Type": "std::string",
+                            "Value": "test"
+                        },
+                        "vec3test": {
+                            "Type": "glm::vec3",
+                            "Value": [
+                                0.0,
+                                0.0,
+                                0.0
+                            ]
+                        }
+                    }
                 },
                 "struct SliceEngine::SliceEntity": {
                     "mActive": true,
-                    "mLayer": 0,
-                    "mName": "Hehehe",
+                    "mLayer": 5,
+                    "mName": "ScriptTestSameSize",
                     "mTag": "default"
                 },
                 "struct SliceEngine::Transform": {
                     "euler_hint": [
-                        0.0,
+                        -90.0,
                         0.0,
                         0.0
                     ],
                     "position": [
-                        0.0,
-                        0.0,
-                        0.0
+                        0.6613209843635559,
+                        4.582501411437988,
+                        -4.088134765625
                     ],
                     "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
+                        -0.7071067690849304,
+                        0.7071067690849304,
+                        -0.0,
                         0.0
                     ],
                     "scale": [
-                        1.0,
-                        1.0,
-                        1.0
+                        3.0,
+                        3.0,
+                        3.0
                     ]
                 }
             }

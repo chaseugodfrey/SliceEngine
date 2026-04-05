@@ -91,6 +91,7 @@ namespace SliceEditor
 		CustomShaderWindow(Registry& reg);
 		~CustomShaderWindow();
 
+		void DeleteButtonPress();
 		void CheckFileData();
 		void SaveFileData();
 		void Init() override;

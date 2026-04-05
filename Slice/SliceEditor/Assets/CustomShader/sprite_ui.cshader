@@ -2,7 +2,7 @@
     "Main": {
         "END_COLOR": {
             "FinalNode1": [
-                "Node21"
+                "Node29"
             ]
         },
         "END_EMISSION": {
@@ -26,21 +26,29 @@
             ]
         },
         "Multiply": {
-            "Node21": [
-                "Node29",
+            "Node29": [
+                "Node33",
                 "color"
             ]
         },
-        "sampleTexture": {
-            "Node29": [
+        "sampleTextureOffset": {
+            "Node33": [
                 "texCol",
-                "vUV"
+                "U_Start",
+                "U_End",
+                "V_Start",
+                "V_End"
             ]
         }
     },
     "Params": {
         "Bools": {},
-        "Floats": {},
+        "Floats": {
+            "U_End": 1.0,
+            "U_Start": 0.0,
+            "V_End": 1.0,
+            "V_Start": 0.0
+        },
         "Ints": {},
         "Textures": {
             "texCol": 17753361635269803423

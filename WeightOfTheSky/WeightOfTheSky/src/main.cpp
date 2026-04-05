@@ -2,7 +2,7 @@
 #include "Application/Application.h"
 
 #ifdef _WIN32
-#pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
+#pragma comment(linker, "/subsystem:console /ENTRY:mainCRTStartup")
 #endif
 
 int main()

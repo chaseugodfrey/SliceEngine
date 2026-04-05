@@ -335,6 +335,9 @@ namespace SliceEditor
 		case AssetType::Font:
 			CompileFontAsset(metaPath);
 			break;
+		case AssetType::CSV:
+			CompileCSVAsset(static_cast<CSVData*>(metaData));
+			break;
 		}
 
 		mGUIDtoFilename[metaData->guid] = metaData->assetName;
@@ -394,9 +397,6 @@ namespace SliceEditor
 			break;
 		case AssetType::CustomShader:
 			metaData = std::make_unique<CustomShaderData>();
-			
-			defaultGUID = (SliceEngine::GUID)SliceEngine::Type<SliceEngine::SliceEngineTypes::CustomShader>::defaultResourceGUID;
-
 			break;
 		case AssetType::VertShader:
 			metaData = std::make_unique<VertShaderData>();
@@ -462,6 +462,7 @@ namespace SliceEditor
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT] = "White256";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT] = "NormalMap";
 		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT] = "Font Default";
+		mGUIDtoFilename[(SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT] = "Shader Default";
 	}
 
 	void AssetManager::CreateAssetMaps()
@@ -492,6 +493,7 @@ namespace SliceEditor
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Texture].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_NORMAL_DEFAULT);
 		mAssetTypeToGUIDs[AssetType::Font].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT);
+		mAssetTypeToGUIDs[AssetType::CustomShader].push_back((SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT);
 		
 		//Loop Through and Add the Respective GUIDs
 		for (const auto& [guid, filename] : mGUIDtoFilename)
@@ -557,7 +559,7 @@ namespace SliceEditor
 			return &mAssetTypeToGUIDs[AssetType::Prefab];
 		}
 
-		if (assetType == "Custom Shader")
+		if (assetType == "CustomShader")
 		{
 			return &mAssetTypeToGUIDs[AssetType::CustomShader];
 		}
@@ -805,6 +807,25 @@ namespace SliceEditor
 		}
 	}
 	void AssetManager::CompileSceneAsset(SceneData* metaData)
+	{
+		std::filesystem::path filePath(metaData->assetPath);
+
+		try
+		{
+			std::filesystem::copy(
+				filePath,
+				metaData->resourcePath,
+				std::filesystem::copy_options::overwrite_existing
+			);
+		}
+		catch (std::filesystem::filesystem_error& e)
+		{
+			SLICE_LOG_ERROR("Error copying file: " + std::string(e.what()));
+			//return;
+		}
+	}
+
+	void AssetManager::CompileCSVAsset(CSVData* metaData)
 	{
 		std::filesystem::path filePath(metaData->assetPath);
 
@@ -1079,7 +1100,7 @@ namespace SliceEditor
 				
 				break;
 			}
-			case AssetType::Controller:
+			case AssetType::Controller: // Not doing anything
 			{
 				meta = std::make_unique<StateMachineData>();
 				// Create a file in asset folder
@@ -1087,6 +1108,13 @@ namespace SliceEditor
 				// create a default asset file at the file path
 				derived->SerializeAsset(filePath);
 
+				break;
+			}
+			case AssetType::CustomShader:
+			{
+				meta = std::make_unique<CustomShaderData>();
+				CustomShaderData* derived = dynamic_cast<CustomShaderData*>(meta.get());
+				derived->SerializeDefaultAsset(filePath);
 				break;
 			}
 			default:
@@ -1098,7 +1126,7 @@ namespace SliceEditor
 
 		// then now we initialize the other meta data variables
 		meta->InitMetaData(filePath, type, ext);
-		CreateResource(filePath, meta.get(), true);
+		//CreateResource(filePath, meta.get(), true);
 	}
 
 	void AssetManager::CreateAssetManifest()
@@ -1219,6 +1247,11 @@ namespace SliceEditor
 
 		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::FONT_BLANK_DEFAULT;
 		assetEntry["name"] = "Font Default";
+		assetEntry["path"] = "NIL";
+		manifestJSON["assets"].push_back(assetEntry);
+
+		assetEntry["guid"] = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::CSHADER_DEFAULT;
+		assetEntry["name"] = "Shader Default";
 		assetEntry["path"] = "NIL";
 		manifestJSON["assets"].push_back(assetEntry);
 	}
