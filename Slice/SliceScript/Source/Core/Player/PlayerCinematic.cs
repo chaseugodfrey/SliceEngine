@@ -57,6 +57,7 @@ namespace SliceEngine
             StartCoroutine(UIAnimation());
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
+            Bootstrap.HUDManager.PlayDialogueForLevel(420, 2, true, true);
         }
 
         public override void OnUpdate(float dt)

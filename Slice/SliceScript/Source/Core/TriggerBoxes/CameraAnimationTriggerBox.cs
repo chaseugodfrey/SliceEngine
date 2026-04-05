@@ -132,6 +132,8 @@ namespace SliceEngine
                 }
 
                 AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
+
+                Bootstrap.HUDManager.PlayDialogueForLevel(69,2, true, true);
             }
 
             public override void OnUpdate(float dt)
@@ -141,7 +143,7 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                
+                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
             }
 
             public IEnumerator LerpToSword()
@@ -164,6 +166,8 @@ namespace SliceEngine
                     Vector3 targetPos = endingPos;
 
                     camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
+
+
                     if (elapsed >= (duration - 0.2f))
                     {
                         cinematicPlayer.As<PlayerCinematic>().StartCinematicAnimationNoFade();
