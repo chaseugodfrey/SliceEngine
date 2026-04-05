@@ -1,0 +1,1326 @@
+[
+    {
+        "ArenaL2M6": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10244055333404310292"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15613894024621117421"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 12583438,
+                "neighbours": [
+                    0,
+                    8388766,
+                    18874911,
+                    8388704
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2M6",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    90.42900085449219,
+                    53.32600021362305,
+                    -3.4809999465942383
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.800000011920929,
+                    0.800000011920929
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Pipe": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18426863834965208366"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12219270075308175197"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388766,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    4294967295,
+                    8388769
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ArenaL2Pipe",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    -73.0
+                ],
+                "position": [
+                    -32.29911804199219,
+                    0.07875537872314453,
+                    -66.016357421875
+                ],
+                "rotation": [
+                    0.5684126019477844,
+                    0.568412721157074,
+                    0.42060327529907227,
+                    -0.4206032156944275
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999998807907104,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Pipe2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18426863834965208366"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12219270075308175197"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388769,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388766,
+                    8388770
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ArenaL2Pipe2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    -73.0
+                ],
+                "position": [
+                    -0.02301025390625,
+                    32.858394622802734,
+                    -65.61331939697266
+                ],
+                "rotation": [
+                    0.10451698303222656,
+                    0.6993398070335388,
+                    -0.10451705008745193,
+                    -0.6993398666381836
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999999403953552,
+                    0.9999997615814209
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Pipe2_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18426863834965208366"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12219270075308175197"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388770,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388769,
+                    8388780
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "ArenaL2Pipe2_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    90.0,
+                    -73.0
+                ],
+                "position": [
+                    -0.02301025390625,
+                    -31.709861755371094,
+                    -66.17942810058594
+                ],
+                "rotation": [
+                    0.6993398070335388,
+                    0.10451707243919373,
+                    0.6993398666381836,
+                    0.1045171320438385
+                ],
+                "scale": [
+                    0.9999998211860657,
+                    0.9999998211860657,
+                    0.9999996423721313
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Outer1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12167604598036446654"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12022585187098425864"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388780,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388770,
+                    8388771
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Outer1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008750438690185547,
+                    0.01999664306640625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999999403953552,
+                    0.9999999403953552
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Outer2": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11494241634126182690"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "13179775253732821631"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388771,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388780,
+                    24117797
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Outer2",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008750438690185547,
+                    0.01999664306640625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999998807907104,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Outer3": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10699969483962250173"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "16076854619155701044"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 24117797,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388771,
+                    8388716
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Outer3",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008750438690185547,
+                    0.01999664306640625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999997615814209,
+                    0.9999997615814209
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Outer4": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14423996430359015045"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12368958728706150043"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388716,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    24117797,
+                    8388715
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Outer4",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008750438690185547,
+                    0.01999664306640625
+                ],
+                "rotation": [
+                    1.0,
+                    3.552714949349922e-15,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999997019767761,
+                    0.9999997019767761
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2BottomPipes": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "15357188910632945838"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10993010961031175257"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388715,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388716,
+                    8388714
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2BottomPipes",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    12.399999618530273
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008749961853027344,
+                    -2.6300048828125
+                ],
+                "rotation": [
+                    0.9941509962081909,
+                    0.0,
+                    0.0,
+                    0.10799934715032578
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999996423721313,
+                    0.9999996423721313
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 9
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18287310562618067334"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10443046133706119881"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388714,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388715,
+                    8388713
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008742332458496094,
+                    95.87750244140625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999995827674866,
+                    0.9999995827674866
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Levels_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 10
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18287310562618067334"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10443046133706119881"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388713,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388714,
+                    8388712
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Levels_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008746623992919922,
+                    55.4637451171875
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999995231628418,
+                    0.9999995231628418
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Levels_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 11
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18287310562618067334"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10443046133706119881"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388712,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388713,
+                    8388711
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Levels_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008749008178710938,
+                    136.3212432861328
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999994039535522,
+                    0.9999994039535522
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Levels_1_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 12
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18287310562618067334"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10443046133706119881"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388711,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388712,
+                    8388710
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Levels_1_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008750438690185547,
+                    176.72625732421875
+                ],
+                "rotation": [
+                    1.0,
+                    3.552716219899343e-15,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999993443489075,
+                    0.9999993443489075
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Levels_1_1_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 13
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "18287310562618067334"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10443046133706119881"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388710,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388711,
+                    8388709
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Levels_1_1_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008754253387451172,
+                    216.99124145507813
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999992847442627,
+                    0.9999992847442627
+                ]
+            }
+        }
+    },
+    {
+        "ArenaL2Top": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 14
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11686821570388558388"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18039508875681242159"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388709,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388710,
+                    8388708
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "ArenaL2Top",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008757591247558594,
+                    284.8750305175781
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999991655349731,
+                    0.9999991655349731
+                ]
+            }
+        }
+    },
+    {
+        "OzonePipe": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 15
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10564918015755310058"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18203430654914264554"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388708,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388709,
+                    8388707
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "OzonePipe",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008723735809326172,
+                    2.5
+                ],
+                "rotation": [
+                    1.0,
+                    3.55271706693229e-15,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    0.9999991059303284,
+                    0.9999991059303284
+                ]
+            }
+        }
+    },
+    {
+        "OzonePipe_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 16
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10564918015755310058"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18203430654914264554"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388707,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388708,
+                    8388706
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "OzonePipe_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    90.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008723735809326172,
+                    2.5
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    4.214685134229512e-08,
+                    -4.214685134229512e-08,
+                    0.7071067690849304
+                ],
+                "scale": [
+                    1.0,
+                    0.9999990463256836,
+                    0.9999991059303284
+                ]
+            }
+        }
+    },
+    {
+        "OzonePipe_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 17
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10564918015755310058"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "18203430654914264554"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388706,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388707,
+                    8388705
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "OzonePipe_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    -90.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008723735809326172,
+                    2.5
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    4.214685134229512e-08,
+                    4.214685134229512e-08,
+                    -0.7071067690849304
+                ],
+                "scale": [
+                    1.0,
+                    0.999998927116394,
+                    0.9999990463256836
+                ]
+            }
+        }
+    },
+    {
+        "OzonePipe_1_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 18
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10997043597145013002"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14193018687241614072"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 8388705,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388706,
+                    26214864
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "OzonePipe_1_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    90.0
+                ],
+                "position": [
+                    0.0475006103515625,
+                    -0.008723735809326172,
+                    2.5
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    4.214685134229512e-08,
+                    -4.214685134229512e-08,
+                    0.7071067690849304
+                ],
+                "scale": [
+                    1.0,
+                    0.999998927116394,
+                    0.9999990463256836
+                ]
+            }
+        }
+    },
+    {
+        "OzonePipe_1_1_1_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 19
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16656233525229966354"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "17574823881666988476"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 26214864,
+                "neighbours": [
+                    12583438,
+                    4294967295,
+                    8388705,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "OzonePipe_1_1_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    90.0
+                ],
+                "position": [
+                    -409.687255859375,
+                    -0.008697032928466797,
+                    -19.24250030517578
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    -2.107342567114756e-08,
+                    -6.322028411887004e-08,
+                    0.7071067690849304
+                ],
+                "scale": [
+                    0.9999998807907104,
+                    0.9999988079071045,
+                    0.9999989867210388
+                ]
+            }
+        }
+    }
+]
