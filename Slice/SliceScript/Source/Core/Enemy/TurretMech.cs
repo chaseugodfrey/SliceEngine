@@ -45,7 +45,6 @@ namespace SliceEngine
         Transform firingOffset;
         Transform vrot;
         Renderer coreRenderer;
-        Light coreLight;
 
         Vector4 colourActivated;
         Vector4 colourDeactivated = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -145,7 +144,6 @@ namespace SliceEngine
                 if (child.tag == "Core")
                 {
                     coreRenderer = child.GetComponent<Renderer>();
-                    coreLight = child.GetComponent<Light>();
                     colourActivated = coreRenderer.GetColor();
                 }
             }
@@ -167,7 +165,6 @@ namespace SliceEngine
             {
                 coreRenderer.SetColor(colourActivated);
                 coreRenderer.SetEmissionColor(colourActivated);
-                //coreLight.enabled = true;
 
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
                 Vector3 origin = firingOffset.WorldPosition;
@@ -284,7 +281,6 @@ namespace SliceEngine
                 {
                     coreRenderer.SetColor(colourDeactivated);
                     coreRenderer.SetEmissionColor(colourDeactivated);
-                    coreLight.enabled = false;
                     vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
                 telegraphed = false;
