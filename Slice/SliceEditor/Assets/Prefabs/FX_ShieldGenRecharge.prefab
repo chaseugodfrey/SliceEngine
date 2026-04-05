@@ -1,6 +1,28 @@
 [
     {
         "FX_ShieldGenRecharge": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.800000011920929,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": true,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 244.39999389648438,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": true,
+                "playPreview": false,
+                "priority": 130,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "16871065244757135862",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,11 +31,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 15728954,
+                "entity_id": 14680169,
                 "neighbours": [
                     0,
-                    15728953,
-                    20971666,
+                    14680168,
+                    25165903,
                     4294967295
                 ]
             },
@@ -464,12 +486,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 15728953,
+                "entity_id": 14680168,
                 "neighbours": [
-                    15728954,
+                    14680169,
                     4294967295,
                     4294967295,
-                    15728950
+                    14680167
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -748,12 +770,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 15728950,
+                "entity_id": 14680167,
                 "neighbours": [
-                    15728954,
+                    14680169,
                     4294967295,
-                    15728953,
-                    15728946
+                    14680168,
+                    14680166
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1032,11 +1054,11 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 15728946,
+                "entity_id": 14680166,
                 "neighbours": [
-                    15728954,
+                    14680169,
                     4294967295,
-                    15728950,
+                    14680167,
                     4294967295
                 ]
             },
