@@ -48,7 +48,7 @@ namespace SliceEngine
         Light coreLight;
 
         Vector4 colourActivated;
-        Vector4 colourDeactivated = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
+        Vector4 colourDeactivated = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
         public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
@@ -166,7 +166,8 @@ namespace SliceEngine
             if (distanceToPlayer <= maxAimRange && distanceToPlayer >= minAimRange)
             {
                 coreRenderer.SetColor(colourActivated);
-                coreLight.enabled = true;
+                coreRenderer.SetEmissionColor(colourActivated);
+                //coreLight.enabled = true;
 
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
                 Vector3 origin = firingOffset.WorldPosition;
@@ -282,6 +283,7 @@ namespace SliceEngine
                 if (distanceToPlayer < minAimRange)
                 {
                     coreRenderer.SetColor(colourDeactivated);
+                    coreRenderer.SetEmissionColor(colourDeactivated);
                     coreLight.enabled = false;
                     vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
