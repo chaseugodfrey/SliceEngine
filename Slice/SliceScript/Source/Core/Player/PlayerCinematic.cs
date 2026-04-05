@@ -13,7 +13,6 @@ namespace SliceEngine
         public GameObject cinematicCamera;
         public GameObject topBar;
         public GameObject bottomBar;
-        public string newPlayerPrefab;
         public GameObject cinematicSword;
 
         // public GameObject cameraStartingPos;
