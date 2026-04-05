@@ -132,6 +132,10 @@ namespace SliceEngine
                 _enabled = true;
                 animator?.SetBool("Open", true);
                 counting = true;
+
+                //Call Door Opening Audio
+                AudioSettings.PlaySFX("doorOpening");
+
                 //Bootstrap.LevelDirector.LoadNextLevel();
             }
         }
