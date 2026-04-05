@@ -452,6 +452,7 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCEPACKAGE;
 
 		std::vector<std::string> animations;
+		std::vector<SliceEngine::GUID> animation_guids;
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -485,7 +486,7 @@ namespace SliceEditor
 			nlohmann::json metaJson;
 	
 			metaJson["Animations"] = animations;
-
+			metaJson["Animation_guids"] = animation_guids;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -506,16 +507,16 @@ namespace SliceEditor
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
 
 			animations = assetJson["Animations"].get<std::vector<std::string>>();
+			std::vector<uint64_t> tmpUint{};
+			tmpUint = assetJson.value<std::vector<uint64_t>>("Animation_guids", { });
+
+			animation_guids.clear();
+			for (auto v : tmpUint)
+			{
+				animation_guids.push_back(SliceEngine::GUID(v));
+			}
 
 			return true;
-		}
-
-		void LoadSequencePkgData(const SliceEngine::SliceEngineTypes::SequencePackage& newAnim)
-		{
-			for (const auto& anim : newAnim.animations)
-			{
-				animations.push_back(anim.name);
-			}
 		}
 	};
 

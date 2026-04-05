@@ -530,8 +530,10 @@ namespace SliceEngine
 	{
 		auto anim = std::make_unique<SliceEngineTypes::SequencePackage>();
 		if (!anim->LoadSequencePkgResource(path)) {
+			SLICE_LOG("Load seq pkg failed");
 			return nullptr;
 		}
+		SLICE_LOG("Load seq pkg success");
 		return anim;
 	}
 

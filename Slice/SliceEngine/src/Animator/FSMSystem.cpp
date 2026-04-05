@@ -355,8 +355,8 @@ namespace SliceEngine
 		if (!EFSM.currState)
 			return;
 
-		//if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
-			//bool ys = true;
+		//if (std::strcmp(name.c_str(), "Open") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
+			//SLICE_LOG("changing to open the door");
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
 		//if (EFSM.currState->stateName == name)

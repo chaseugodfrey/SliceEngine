@@ -224,7 +224,10 @@ namespace SliceEngine
 			
 			if (!animator.Handle_stateMachine.IsValid()) return;
 
-			animator.stateMachine.InitState(animator.curr_anim_pkg);
+			if(animator.Handle_skeleton.IsValid())
+				animator.stateMachine.InitState(animator.curr_anim_pkg);
+			else 
+				animator.stateMachine.InitState(animator.curr_anims);
 
 			animator.timeline.isPlaying = true;
 
