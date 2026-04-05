@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 namespace SliceEngine
@@ -25,6 +26,7 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
+
                 // this triggers the camera moving to where its suppose to be when the player lands
                 camControl = animationTriggerBox.camera.As<CameraController>();
 
@@ -94,6 +96,163 @@ namespace SliceEngine
             }
         }
 
+        public class SwordIntroState : BaseState
+        {
+            private CameraAnimationTriggerBox animationTriggerBox;
+            public GameObject cinematicPlayer;
+
+            // cause i dont want to modify the original animation trigger box
+            // ill have to hard code it here
+            public Vector3 startingPos = new Vector3(720.8f, 70.0f,  -651.2f);
+            public Vector3 endingPos = new Vector3(723.0f, 30.5f, -490.0f);
+            public Vector3 startingRot = new Vector3(180.0f, -3.07f, 180.0f);
+
+            private Coroutine fadeInRoutine = null;
+            private Coroutine fadeOutRoutine = null;
+            private const float TransitionDuration = 1.0f; // for the black screen fading
+            private CameraController camControl;
+
+            public SwordIntroState(GameObject owner) : base(owner)
+            {
+                animationTriggerBox = owner.As<CameraAnimationTriggerBox>();
+            }
+
+            public override void OnEnter()
+            {
+                cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
+
+                Bootstrap.CameraController.LockCamera = true;
+                //  Bootstrap.Player.PlayerMovementState = PlayerController.MovementState.Falling;
+                Bootstrap.Player.SetPlayerLock(true);
+
+                camControl = animationTriggerBox.camera.As<CameraController>();
+                if (fadeOutRoutine == null)
+                {
+                    fadeOutRoutine = animationTriggerBox.StartCoroutine(FadeOutRoutine());
+                }
+
+                AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
+            }
+
+            public override void OnUpdate(float dt)
+            {
+                
+            }
+
+            public override void OnExit()
+            {
+                
+            }
+
+            public IEnumerator LerpToSword()
+            {
+                float elapsed = 0f;
+
+                Console.WriteLine("Starting Lerp To Sword");
+                // how long it takes to lerp
+                float duration = 11.0f;
+                Vector3 startingPos = camControl.transform.Position;
+                //   Quaternion startingRot = camControl.transform.RotationQuat;
+                bool animStarted = false;
+                while (elapsed < duration)
+                {
+                    elapsed += Time.deltaTime;
+                    float t = elapsed / duration;
+
+                    float smoothT = t * t * (3f - 2f * t);
+
+                    Vector3 targetPos = endingPos;
+
+                    camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
+                    if (elapsed >= (duration - 0.2f))
+                    {
+                        cinematicPlayer.As<PlayerCinematic>().StartCinematicAnimationNoFade();
+                        break;
+                    }
+                    //Quaternion targetRot = Quaternion.LookRotation(Bootstrap.Player.transform.Forward);
+                    //camControl.transform.RotationQuat = Quaternion.Slerp(startingRot, targetRot, smoothT);
+
+                    yield return null;
+                }
+            }
+            public IEnumerator FadeInRoutine()
+            {
+                float elapsedTime = 0f;
+                if (SceneManager._transitionRenderer != null)
+                {
+                    SceneManager._transitionRenderer.SetEnabled(true);
+                }
+                SetRectAlpha(1.0f); // Start black
+
+                while (elapsedTime < TransitionDuration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
+                    float alpha = Utilities.Lerp(1.0f, 0.0f, t); // 1 -> 0
+
+                    SetRectAlpha(alpha);
+                    yield return null;
+                }
+
+                Console.Write("End of fade in routine");
+                SetRectAlpha(0.0f); // Ensure fully transparent
+
+                if (SceneManager._transitionRenderer != null)
+                {
+                    SceneManager._transitionRenderer.SetEnabled(false);
+                }
+
+                Console.WriteLine("End of Fade in effect 2222" );
+                animationTriggerBox.StartCoroutine(LerpToSword());
+
+                fadeInRoutine = null;
+
+            }
+
+            public IEnumerator FadeOutRoutine()
+            {
+                float elapsedTime = 0f;
+                if (SceneManager._transitionRenderer != null) SceneManager._transitionRenderer.SetEnabled(true);
+                SetRectAlpha(0.0f); // Start transparent
+
+                while (elapsedTime < TransitionDuration)
+                {
+                    elapsedTime += Time.deltaTime;
+                    float t = Utilities.InverseLerp(0, TransitionDuration, elapsedTime);
+                    float alpha = Utilities.Lerp(0.0f, 1.0f, t); // 0 -> 1
+                    //Console.WriteLine("Stuck in fade out routine");
+                    SetRectAlpha(alpha);
+                    yield return null;
+                }
+                SetRectAlpha(1.0f); // Ensure fully black
+
+                camControl.transform.Position = startingPos;
+                camControl.transform.Rotation = startingRot;
+
+                fadeOutRoutine = null;
+                if (fadeInRoutine == null)
+                {
+                    Console.WriteLine("Starting Fade in coroutine");
+                    fadeInRoutine = animationTriggerBox.StartCoroutine(FadeInRoutine());
+                }
+                //CoroutineManager.StopAllCoroutines(_transitionRunner);
+            }
+
+            private void SetRectAlpha(float alpha)
+            {
+                if (SceneManager._transitionRenderer != null)
+                {
+
+                    Vector4 color = SceneManager._transitionRenderer.Colour;
+                    color.w = alpha;
+                    SceneManager._transitionRenderer.Colour = color;
+                }
+            }
+
+
+
+        }
+
         // transition to this after each state so u can trigger onExit
         public class ExitState : BaseState
         {
@@ -120,6 +279,7 @@ namespace SliceEngine
         public int startingState = 0;
         public StateMachine cameraSM;
         IntroState introState;
+        SwordIntroState swordIntroState;
         public ExitState exitState;
         public int setOfThisTrigger = 0;
 
@@ -130,6 +290,7 @@ namespace SliceEngine
         {
             cameraSM = new StateMachine();
             introState = new IntroState(this.gameObject);
+            swordIntroState = new SwordIntroState(this.gameObject);
             exitState = new ExitState(this.gameObject);
         }
 
@@ -145,6 +306,9 @@ namespace SliceEngine
                 {
                     case 0:
                         cameraSM.ChangeState(introState);
+                        break;
+                    case 1:
+                        cameraSM.ChangeState(swordIntroState);
                         break;
                 }
             }

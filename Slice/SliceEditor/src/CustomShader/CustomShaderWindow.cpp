@@ -35,6 +35,7 @@ namespace SliceEditor
 
 	CustomShaderWindow::~CustomShaderWindow()
 	{
+		EventManager::GetInstance()->Unsubscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		ImNodes::EditorContextFree(*editor_context_this.get());
 		ImNodes::EditorContextFree(*editor_context_other.get());
 	}
@@ -421,6 +422,7 @@ namespace SliceEditor
 
 	void CustomShaderWindow::Init()
 	{
+		EventManager::GetInstance()->Subscribe<DeleteSelectedEntities, &CustomShaderWindow::DeleteButtonPress>(this);
 		mSelectionManager = mRegistry.GetManager<SelectionManager>("Selection");
 		mSessionManager = mRegistry.GetManager<SessionManager>("Session");
 		editor_context_this = std::make_unique<ImNodesEditorContext*>(ImNodes::EditorContextCreate());
@@ -678,8 +680,89 @@ namespace SliceEditor
 
 	void CustomShaderWindow::TempLoadPosAll()
 	{
-		float yPos{}, xPos{};
-		const float xProgress{ 150.f }, yProgress{ 50.f }, yBigProgress{ 200.f };
+		// Find Position
+		std::unordered_map<int, int> mNodeToLoadPos;// id, furthest dist from final
+		std::queue<ShaderStateNode> nodesLeftToCheck;
+
+		for (size_t i{}; i < mFinalNodeOutputNames.size(); ++i)
+		{
+			auto& nodeInAddr = mFinalNode.in_ids[i];
+
+			auto linkID = attrIDToLinkID.find(nodeInAddr);
+			if (linkID != attrIDToLinkID.end())
+			{
+				auto linkNode = mTransitionNodes.find(linkID->second);
+				if (linkNode != mTransitionNodes.end())
+				{
+					auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+					if (sourceNodeID != attrIDToNodeID.end())
+					{
+						auto sourceNode = mStateNodes.find(sourceNodeID->second);
+						// The Node Connected to i "in parameter"
+						if (sourceNode != mStateNodes.end())
+						{
+							nodesLeftToCheck.push(sourceNode->second);
+							mNodeToLoadPos[sourceNode->first] = 1;
+						}
+					}
+				}
+			}
+		}
+
+		int maxDepth = 0;
+
+		while (!nodesLeftToCheck.empty())
+		{
+			ShaderStateNode node = nodesLeftToCheck.front();
+			nodesLeftToCheck.pop();
+			int newDepth = mNodeToLoadPos[node.id] + 1;
+			if (newDepth > maxDepth)
+				maxDepth = newDepth;
+			for (auto& i : node.in_ids)
+			{
+				auto linkID = attrIDToLinkID.find(i);
+				if (linkID != attrIDToLinkID.end())
+				{
+					auto linkNode = mTransitionNodes.find(linkID->second);
+					if (linkNode != mTransitionNodes.end())
+					{
+						auto sourceNodeID = attrIDToNodeID.find(linkNode->second.sourceAttr);
+						if (sourceNodeID != attrIDToNodeID.end())
+						{
+							auto sourceNode = mStateNodes.find(sourceNodeID->second);
+							// The Node Connected to i "in parameter"
+							if (sourceNode != mStateNodes.end())
+							{
+								nodesLeftToCheck.push(sourceNode->second);
+								if (mNodeToLoadPos.find(sourceNode->first) == mNodeToLoadPos.end() 
+									|| mNodeToLoadPos[sourceNode->first] < newDepth)
+									mNodeToLoadPos[sourceNode->first] = newDepth;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Load Position
+		const float xProgress{ 150.f }, yProgress{ 50.f };
+		const float xStart{ static_cast<float>(maxDepth + 1) * 0.75f * xProgress }, yStart{ 150.f };
+		InitNodePos(mFinalNode.id, xStart, yStart);
+		std::unordered_map<int, float> depthToHeightRatio;
+
+		for (auto& [id, depth] : mNodeToLoadPos)
+		{
+			float yDepth = depthToHeightRatio[depth]; // inatilaizes if non-existant
+
+			InitNodePos(id, xStart - static_cast<float>(depth) * xProgress, yStart + yDepth);
+
+			if(mStateNodes.find(id) == mStateNodes.end())
+				depthToHeightRatio[depth] += yProgress;
+			else
+				depthToHeightRatio[depth] += yProgress * static_cast<float>(mStateNodes[id].in_ids.size() + 1);
+		}
+
+		float yPos{ yStart }, xPos{ xStart - static_cast<float>(maxDepth) * xProgress };
 		for (auto& i : mDefaultIns)
 		{
 			InitNodePos(i.first, xPos, yPos);
@@ -690,22 +773,8 @@ namespace SliceEditor
 			InitNodePos(i.first, xPos, yPos);
 			yPos += yProgress;
 		}
-		xPos += xProgress;
-		yPos = 0.f;
-		for (auto& i : mStateNodes)
-		{
-			InitNodePos(i.first, xPos, yPos);
-			yPos += yBigProgress;
-			if (yPos > 3 * yBigProgress)
-			{
-				yPos = 0.f;
-				xPos += xProgress;
-			}
-		}
-		xPos += xProgress;
 
-		InitNodePos(mFinalNode.id, xPos, yPos);
-
+		mNodeToLoadPos.clear();
 		tempLoadPos = false;
 	}
 	// -ve is go up
@@ -907,55 +976,6 @@ namespace SliceEditor
 			}
 			mSelectionManager->ClearSelection();
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey::ImGuiKey_Delete))
-		{
-			if (mSelectionManager)
-			{
-				auto selectedNodes = mSelectionManager->GetSelectedNodes();
-
-				for (auto node : selectedNodes)
-				{
-					switch (node->type)
-					{
-					case SelectionType::SHADER_LINK_STATE:
-					{
-						auto linkNode = static_cast<ShaderLinkNode*>(node);
-						DeleteLink(linkNode->id);
-						isSaved = false;
-						break;
-					}
-					case SelectionType::SHADER_FUNCTION_STATE:
-					{
-						auto stateNode = static_cast<ShaderStateNode*>(node);
-						if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
-						{
-							if(CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
-								break;
-						}
-						if (mStateNodes.find(stateNode->id) != mStateNodes.end())
-						{
-							// Delete Attr To Node
-							if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
-							{
-								// Delete Links from in & outs
-								for (auto ins : stateNode->in_ids)
-									DeleteLinkFromAttr(ins);
-								DeleteLinkFromAttr(stateNode->out_id);
-
-								attrIDToNodeID.erase(stateNode->out_id);
-							}
-							// Delete Node
-							mStateNodes.erase(stateNode->id);
-							isSaved = false;
-						}
-						break;
-					}
-					}
-				}
-				mSelectionManager->ClearSelection();
-			}
-
-		}
 	
 		if (tempLoadPos)
 			TempLoadPosAll();
@@ -965,6 +985,53 @@ namespace SliceEditor
 			ImNodes::SnapNodeToGrid(newNodeID);
 			newNodeID = 0;
 		}
+	}
+
+	void CustomShaderWindow::DeleteButtonPress()
+	{
+		auto selectedNodes = mSelectionManager->GetSelectedNodes();
+
+		for (auto node : selectedNodes)
+		{
+			switch (node->type)
+			{
+			case SelectionType::SHADER_LINK_STATE:
+			{
+				auto linkNode = static_cast<ShaderLinkNode*>(node);
+				DeleteLink(linkNode->id);
+				isSaved = false;
+				break;
+			}
+			case SelectionType::SHADER_FUNCTION_STATE:
+			{
+				auto stateNode = static_cast<ShaderStateNode*>(node);
+				if (CST::cShaderFuncsTemplates.find(stateNode->name) != CST::cShaderFuncsTemplates.end())
+				{
+					if (CST::cShaderFuncsTemplates.find(stateNode->name)->second.FuncType == CST::ShaderGraphFunc_T::IMMUTABLE)
+						break;
+				}
+				if (mStateNodes.find(stateNode->id) != mStateNodes.end())
+				{
+					// Delete Attr To Node
+					if (attrIDToNodeID.find(stateNode->out_id) != attrIDToNodeID.end())
+					{
+						// Delete Links from in & outs
+						for (auto ins : stateNode->in_ids)
+							DeleteLinkFromAttr(ins);
+						DeleteLinkFromAttr(stateNode->out_id);
+
+						attrIDToNodeID.erase(stateNode->out_id);
+					}
+					// Delete Node
+					mStateNodes.erase(stateNode->id);
+					isSaved = false;
+				}
+				break;
+			}
+			}
+		}
+		//mSelectionManager->ClearSelection();
+
 	}
 
 	void CustomShaderWindow::DeleteLink(int id)

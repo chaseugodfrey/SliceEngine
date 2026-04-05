@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SliceEngine
 {
@@ -153,6 +154,15 @@ namespace SliceEngine
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found dialogue from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the Dialogues file from: " + filePath);
+            }
+
             if (loader != null)
             {
                 //SliceLog.Log("Loader is empty");
@@ -192,7 +202,7 @@ namespace SliceEngine
         //string[] for listed things 0 = name, 1 = text
         //private List<string[]> levelDialogues = new List<string[]>();
 
-        private int dialogueIndex = 0;
+        public int dialogueIndex = 0;
 
         public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
@@ -328,7 +338,7 @@ namespace SliceEngine
             if (regularTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                regularTextObject.GetComponent<FontRenderer>().Text_val = input;
+                regularTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
@@ -344,7 +354,7 @@ namespace SliceEngine
             if (nameTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {

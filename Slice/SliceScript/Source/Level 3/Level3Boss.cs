@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SliceEngine
@@ -19,7 +20,10 @@ namespace SliceEngine
             Level3Boss bossController;
             IEnumerator moveCoroutine;
 
-            float timer = 5.0f;
+            bool setNarrative = false;
+            bool isNarrativeDone = false;
+
+            float timer = 0.0f;
             public IntroState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -30,22 +34,47 @@ namespace SliceEngine
                 SliceLog.Console("Intro State.");
                 moveCoroutine = bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 3.0f);
                 bossController.StartCoroutine(moveCoroutine);
-                bossController.stateQueue.Enqueue(bossController.summonState);
             }
 
             public override void OnUpdate(float dt)
             {
-                timer -= dt;
-                bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
-                if (timer <= 0)
+                if (bossController.isMovementDone)
                 {
-                    bossController.bossSM.ChangeState(bossController.slamState);
+                    bossController.Bob(timer);
+
+                    if (!setNarrative)
+                        SetNarrative();
+
+                    if (!isNarrativeDone)
+                    {
+                        if (Input.IsKeyPressed(Keys.KEY_F))
+                        {
+                            Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
+                        }
+
+                        if (Bootstrap.HUDManager.dialogueIndex == 1)
+                        {
+                            bossController.bossSM.ChangeState(bossController.rechargingState);
+                            bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(1, 0.5f);
+                            isNarrativeDone = true;
+                        }
+                    }
                 }
+
+                timer += dt;
+                bossController.transform.LookAt(Bootstrap.Player.GetComponent<Transform>().Position, Vector3.Up);
             }
 
             public override void OnExit()
             {
-                CoroutineManager.StopCoroutine(moveCoroutine, bossController);
+
+            }
+
+            void SetNarrative()
+            {
+                setNarrative = true;
+                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(0, 1f);
+                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
             }
         }
 
@@ -53,7 +82,7 @@ namespace SliceEngine
         {
             Level3Boss bossController;
 
-            float timerMax = 1.0f;
+            float timerMax = 3.0f;
             float timer;
 
             BaseState nextState;
@@ -68,13 +97,19 @@ namespace SliceEngine
 
                 // check shields first first
                 if (bossController.canRecharge && bossController.isShieldDestroyed)
+                    nextState = bossController.rechargingState;
+                else
                 {
-                    bossController.bossSM.ChangeState(bossController.rechargingState);
-                    return;
+                    if (bossController.stateQueue.Count > 0)
+                        nextState = bossController.stateQueue.Dequeue() as BaseState;
+                    else
+                        nextState = bossController.projectileState;
                 }
 
+                if (!bossController.canRecharge)
+                    timerMax = 1f;
+
                 timer = timerMax;
-                nextState = bossController.stateQueue.Dequeue() as BaseState;
             }
             public override void OnUpdate(float dt)
             {
@@ -86,16 +121,8 @@ namespace SliceEngine
                 timer -= dt;
                 if (timer <= 0.0f)
                 {
-                    if (nextState != null)
-                    {
-                        bossController.bossSM.ChangeState(nextState);
-                        nextState = null;
-                    }
-                    else
-                    {
-                        SliceLog.Console("No next state queued, defaulting to slam state.");
-                        bossController.bossSM.ChangeState(bossController.slamState);
-                    }
+                    bossController.bossSM.ChangeState(nextState);
+                    nextState = null;
                 }
             }
 
@@ -156,6 +183,8 @@ namespace SliceEngine
                 }
 
                 timer = timerMax;
+
+                bossController.stateQueue.Enqueue(bossController.slamState);
             }
 
             public override void OnUpdate(float dt)
@@ -266,6 +295,8 @@ namespace SliceEngine
             GameObject fx;
             bool startCharging = false;
             bool hasGen = true;
+            bool isIntro = true;
+            bool isLocked = true;
 
             public RechargingState(GameObject owner) : base(owner)
             {
@@ -277,10 +308,16 @@ namespace SliceEngine
                 SliceLog.Console("Recharging State.");
 
                 bossController.isInvulnerable = true;
-                hasGen = bossController.canRecharge = bossController.SetupRecharging();
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 1.6f));
-                bossController.ReturnFollowingProjectiles();
-                bossController.stateQueue.Clear();
+                bossController.isMovementDone = false;
+
+                if (!isIntro)
+                {
+                    hasGen = bossController.canRecharge = bossController.SetupRecharging();
+                    bossController.ReturnFollowingProjectiles();
+                    bossController.stateQueue.Clear();
+                }
+
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
             }
 
             public override void OnUpdate(float dt)
@@ -307,7 +344,7 @@ namespace SliceEngine
                             rotTimer = 0.0f;
                         }
 
-                        hasGen = bossController.RechargeShield();
+                        hasGen = bossController.RechargeShield(isIntro);
                         // some silly animation for now
 
                         bossController.transform.Rotation = rotDir;
@@ -315,17 +352,37 @@ namespace SliceEngine
 
                     else
                     {
+                        bossController.canRecharge = bossController.shieldGeneratorManager.As<ShieldGeneratorManager>().CheckIfGeneratorsLeft();
                         bossController.stateQueue.Enqueue(bossController.summonState);
                         bossController.bossSM.ChangeState(bossController.idleState);
                     }
+
+                    if (isIntro)
+                    {
+                        if (Input.IsKeyPressed(Keys.KEY_F))
+                        {
+                            isLocked = Bootstrap.HUDManager.PlayDialogueForLevel(0, 5, false, true);
+
+                            if (!isLocked)
+                            {
+                                bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().StopCutscene();
+                                bossController.isIntroCutscene = false;
+                            }
+                        }
+                    }    
                 }
             }
 
             public override void OnExit()
             {
-                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 1.6f));
+                bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.startingPosition, 2.4f));
+
+                isIntro = false;
+                startCharging = false;
                 bossController.isInvulnerable = false;
+
                 fx.Destroy();
+                fx = null;
             }
         }
 
@@ -440,6 +497,8 @@ namespace SliceEngine
 
             readonly float radius = 30.0f;
 
+            int count = 0;
+
             public OrbitalState(GameObject owner) : base(owner)
             {
                 bossController = owner.As<Level3Boss>();
@@ -462,11 +521,23 @@ namespace SliceEngine
                     if (!isFiring)
                     {
                         bossController.transform.LookAt(bossController.startingPosition, Vector3.Up);
-                        bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 20, 0.5f));
-                        //bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.WorldPosition, Bootstrap.Player.transform.WorldPosition
-                        //    - bossController.transform.WorldPosition, radius, 20, 0.5f));
-                        //if (!bossController.canRecharge)
-                        //    bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                        if (bossController.canRecharge)
+                            bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 5, 1.0f));
+                        else
+                        {
+                            if (count < 1)
+                            {
+                                bossController.StartCoroutine(bossController.FireOrbitalLaserRandomRadius(bossController.transform.WorldPosition, radius, 10, 0.5f));
+                                count++;
+                            }
+
+                            else
+                            {
+                                bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                                count = 0;
+                            }
+
+                        }
 
                         isFiring = true;
                     }
@@ -505,6 +576,8 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
+                var cutsceneManager = bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>();
+                cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut());
                 bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, 0.8f));
             }
@@ -531,11 +604,11 @@ namespace SliceEngine
 
                     // some silly animation for now
 
-                    Vector3 bossPos = bossController.transform.Position;
+                    //Vector3 bossPos = bossController.transform.Position;
 
-                    Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
-                    bossController.transform.Rotation = rotDir;
-                    bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
+                    //Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
+                    //bossController.transform.Rotation = rotDir;
+                    //bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
 
                     // jia le add explosion effects here 
                     //if (!triggerExplostion)
@@ -590,6 +663,8 @@ namespace SliceEngine
         public GameObject enemyHUD;
         public GameObject shieldGeneratorManager;
 
+        public GameObject Lvl3CutSceneManagerObj;
+
         Vector3 startingPosition;
         Vector3 rechargingPosition;
 
@@ -604,11 +679,14 @@ namespace SliceEngine
         bool isGrounded = false;
         bool isShieldDestroyed = false;
         bool isDead = false;
+        bool isIntroCutscene = true;
 
         public float areaRadius = 100.0f;
 
         float[] thresholds = new float[] { 0.8f, 0.6f, 0.4f, 0.2f };
         int thresholdIndex = 0;
+
+        public List<Coroutine> coroutines = new List<Coroutine>();
 
         public override void OnCreate()
         {
@@ -631,7 +709,7 @@ namespace SliceEngine
             // initializing values
             startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
             rechargingPosition = rechargePositionObj.GetComponent<Transform>().WorldPosition;
-            currentShield = maxShield;
+            //currentShield = maxShield;
             currentHealth = maxHealth;
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
@@ -668,6 +746,7 @@ namespace SliceEngine
                 float t = elapsedTime / duration;
                 transform.Position = Vector3.Lerp(startPos, targetPos, t);
                 yield return null;
+                transform.LookAt(targetPos, Vector3.Up);
             }
 
             isMovementDone = true;
@@ -752,26 +831,32 @@ namespace SliceEngine
             return hasGen;
         }
 
-        public bool RechargeShield()
+        public bool RechargeShield(bool isIntro)
         {
             var shieldManager = shieldGeneratorManager.As<ShieldGeneratorManager>();
+            bool hasGen = true;
 
-            bool hasGen = shieldManager.RegenerateShields();
+            if (!isIntro)
+                hasGen = shieldManager.RegenerateShields();
+
             if (!hasGen)
                 return false;
 
             //SliceLog.Console("Recharging...");
             isShieldDestroyed = false;
-            currentShield += restoreRate * Time.deltaTime;
+            currentShield += restoreRate * Time.deltaTime * (isIntro ? 3.0f : 1.0f);
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
             if (currentShield >= maxShield)
             {
                 currentShield = maxShield;
-                shieldManager.StopAllGenerators();
-                stateQueue.Enqueue(summonState);
-                bossSM.ChangeState(idleState);
+                if (!isIntroCutscene)
+                {
+                    shieldManager.StopAllGenerators();
+                    stateQueue.Enqueue(summonState);
+                    bossSM.ChangeState(idleState);
+                }
             }
 
             return true;
@@ -801,19 +886,19 @@ namespace SliceEngine
             if (Input.IsKeyPressed(Keys.KEY_L))
             {
                 TakeDamage(1000);
-                if (currentShield <= 0 && canRecharge && !isDead)
-                    bossSM.ChangeState(rechargingState);
             }
 
             if (Input.IsKeyPressed(Keys.KEY_J))
             {
-                bossSM.ChangeState(orbitalState);
+                TakeDamage(1000);
+                shieldGeneratorManager.As<ShieldGeneratorManager>().DestroyAllGenerators();
+                canRecharge = false;
             }
         }
 
         IEnumerator FireBigOrbitalLaser(Vector3 position)
         {
-            GameObject go = CreateOrbitalLaser(100.0f, 100.0f, 3.0f, 5.0f, 0.0f);
+            GameObject go = CreateOrbitalLaser(80.0f, 100.0f, 3.0f, 5.0f, 0.2f);
             Vector3 finalPos = position;
             finalPos.y = go.GetComponent<Transform>().Position.y;
             go.GetComponent<Transform>().Position = position;
@@ -957,6 +1042,12 @@ namespace SliceEngine
                 default:
                     break;
             }
+        }
+        void Bob(float time)
+        {
+            Vector3 finalPos = startingPosition;
+            finalPos.y += Utilities.Sin(time);
+            transform.Position = finalPos;
         }
     }
 }
