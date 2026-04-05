@@ -85,7 +85,7 @@ namespace SliceEngine
 
             PreferenceSettings.Initialize();
 
-            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+            spriteGammaOverride.Gamma = Camera.Gamma;
 
             isSettingsOpen = false;
         }
@@ -118,7 +118,7 @@ namespace SliceEngine
 
             PreferenceSettings.SavePreferences();
 
-            spriteGammaOverride.Gamma = Camera.Gamma * 10.0f;
+            spriteGammaOverride.Gamma = Camera.Gamma;
 
             if (pauseAudioSource != null)
             {

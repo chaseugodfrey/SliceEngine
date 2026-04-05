@@ -358,7 +358,7 @@ namespace SliceEngine
 
                     if (isIntro)
                     {
-                        if (Input.IsKeyPressed(Keys.KEY_F))
+                        if (Input.IsKeyPressed(Keys.KEY_F) && isLocked)
                         {
                             isLocked = Bootstrap.HUDManager.PlayDialogueForLevel(0, 5, false, true);
 
@@ -532,7 +532,7 @@ namespace SliceEngine
 
                             else
                             {
-                                bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position));
+                                bossController.StartCoroutine(bossController.FireBigOrbitalLaser(Bootstrap.Player.transform.Position, 8.0f));
                                 count = 0;
                             }
 
@@ -953,16 +953,17 @@ namespace SliceEngine
             }
         }
 
-        IEnumerator FireBigOrbitalLaser(Vector3 position)
+        IEnumerator FireBigOrbitalLaser(Vector3 position, float idleDuration)
         {
-            GameObject go = CreateOrbitalLaser(80.0f, 100.0f, 3.0f, 5.0f, 0.2f);
+            GameObject go = CreateOrbitalLaser(80.0f, 100.0f, 0.0f, 5.0f, 0.2f);
             Vector3 finalPos = position;
             finalPos.y = go.GetComponent<Transform>().Position.y;
             go.GetComponent<Transform>().Position = position;
 
+            yield return new WaitForSeconds(idleDuration);
+
             isFiringDone = true;
 
-            yield return null;
         }
 
         IEnumerator FireOrbitalLaserRow(Vector3 startPos, Vector3 dir, float distance, int count, float interval)
@@ -990,7 +991,7 @@ namespace SliceEngine
             {
                 Vector3 randomSphere = Utilities.RandomInsideSphere(radius);
                 Vector3 finalPos = new Vector3(startPos.x + randomSphere.x, startPos.y, startPos.z + randomSphere.y);
-                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
+                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.5f, 2.5f, 2.0f);
                 Transform tr = go.GetComponent<Transform>();
                 //float height = tr.WorldPosition.y;
                 //tr.Position = new Vector3(finalPos.x, height, finalPos.z);
