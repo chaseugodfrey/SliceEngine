@@ -490,6 +490,7 @@ namespace SliceEngine
                         );
 
                     enemyController.projectileShooters[i].As<AimingMech>().active = false;
+                    enemyController.projectileShooters[i].As<AimingMech>().ResetTelegraph();
 
                     // move back to the starting position
                     Vector3 worldTarget = enemyController.startingPosition + targetLocalPos;
