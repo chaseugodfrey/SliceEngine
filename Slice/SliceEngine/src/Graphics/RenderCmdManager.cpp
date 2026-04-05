@@ -766,12 +766,14 @@ namespace SliceEngine
 	{
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader, "skinned");
-		if (isSkin && uniformLoc != -1) {
+
+		auto core = Core::GetInstance();
+
+		auto bone = core->GetRegistry().try_get<Bone>(static_cast<Entity>(entityID));
+		if (bone && isSkin && uniformLoc != -1) {
 			glUniform1ui(uniformLoc, 1);
 
-			auto core = Core::GetInstance();
-			auto const& bone = core->GetRegistry().get<Bone>(static_cast<Entity>(entityID));
-			Entity root_entity = bone.skeleton_root;
+			Entity root_entity = bone->skeleton_root;
 			if (core->GetRegistry().any_of<Animator>(root_entity)) {
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
@@ -780,12 +782,11 @@ namespace SliceEngine
 					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
 					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 
-					glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+					glm::mat4 inverse_root = animator.inverse_map.at(bone->frame_idx);
 					uniformLoc = glGetUniformLocation(mShader, "inverse_root");
 					glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
 				}
 			}
-			else {/*SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");*/ }
 		}
 		else { glUniform1ui(uniformLoc, 0); }
 	}

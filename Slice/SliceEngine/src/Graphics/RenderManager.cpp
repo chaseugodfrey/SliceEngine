@@ -988,6 +988,8 @@ namespace SliceEngine
 		auto& camera = Core::GetInstance()->GetRegistry().get<Camera>(cam);
 		const float ar = static_cast<float>(camera.width) / static_cast<float>(camera.height);
 
+		const float actualShadowFar = std::min(camera.far, DIRECTIONAL_MAX_DIST);
+
 		std::vector<glm::mat4> lightSpaceMtx;
 		for (int i = 0; i < mNumCascadeShadow; ++i)
 		{
@@ -995,17 +997,17 @@ namespace SliceEngine
 			if (i == 0)
 			{
 				near = camera.near;
-				far = camera.far / shadowCascadeLevels[0]; // 200.f / 50.f = 4.f
+				far = actualShadowFar / shadowCascadeLevels[0]; // 200.f / 50.f = 4.f
 			}
 			else if (i == mNumCascadeShadow - 1)
 			{
-				near = camera.far / shadowCascadeLevels[i - 1];
-				far = camera.far;
+				near = actualShadowFar / shadowCascadeLevels[i - 1];
+				far = actualShadowFar;
 			}
 			else
 			{
-				near = camera.far / shadowCascadeLevels[i - 1];
-				far = camera.far / shadowCascadeLevels[i];
+				near = actualShadowFar / shadowCascadeLevels[i - 1];
+				far = actualShadowFar / shadowCascadeLevels[i];
 			}
 			const auto camProj = glm::perspective(glm::radians(camera.pov), ar, near, far);
 			lightSpaceMtx.push_back(DirLightMatCalc(camProj, V, dirLightDat.dir));
@@ -1075,7 +1077,8 @@ namespace SliceEngine
 		glUniform1i(uniformLoc, mDirLightFound);
 		if (mDirLightFound)
 		{
-			mainDirLightFar = camera.far;
+			const float actualShadowFar = std::min(camera.far, DIRECTIONAL_MAX_DIST);
+			mainDirLightFar = actualShadowFar;
 			uniformLoc = glGetUniformLocation(mCurrShader.second, "cascadeCnt");
 			glUniform1i(uniformLoc, mNumCascadeShadow);
 			std::stringstream ss{};
@@ -1085,9 +1088,9 @@ namespace SliceEngine
 				ss << "cascadePlaneDist[" << std::to_string(i) << "]";
 				uniformLoc = glGetUniformLocation(mCurrShader.second, ss.str().c_str());
 				if (i == mNumCascadeShadow - 1)
-					glUniform1f(uniformLoc, camera.far);
+					glUniform1f(uniformLoc, actualShadowFar);
 				else
-					glUniform1f(uniformLoc, camera.far / shadowCascadeLevels[i]);
+					glUniform1f(uniformLoc, actualShadowFar / shadowCascadeLevels[i]);
 			}
 		}
 
