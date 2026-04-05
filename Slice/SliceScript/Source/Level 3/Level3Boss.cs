@@ -617,7 +617,11 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-                bossController.ReturnFollowingProjectiles();
+                foreach(var spawner in bossController.projectileSpawners)
+                {
+                    spawner.DestroyChildren();
+                }
+
                 bossController.StopAllCoroutines();
                 var cutsceneManager = bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>();
                 cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut(bossController.transform));
@@ -1136,16 +1140,16 @@ namespace SliceEngine
             switch (thresholdIndex)
             {
                 case 0:
-                    AudioSettings.PlaySFX("05_02_BossPanick1");
+                    AudioSettings.PlaySFX("05_02_Ozone_Panick_1");
                     break;
                 case 1:
-                    AudioSettings.PlaySFX("05_02_BossPanick2");
+                    AudioSettings.PlaySFX("05_02_Ozone_Panick_2");
                     break;
                 case 2:
-                    AudioSettings.PlaySFX("05_02_BossPanick3");
+                    AudioSettings.PlaySFX("05_02_Ozone_Panick_3");
                     break;
                 case 3:
-                    AudioSettings.PlaySFX("05_02_BossPanick4");
+                    AudioSettings.PlaySFX("05_02_Ozone_Panick_4");
                     break;
                 default:
                     break;
