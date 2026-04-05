@@ -314,7 +314,7 @@ namespace SliceEngine
 
                         StartCoroutine(AttackDelay(attackDelay[0], () => attackHitbox.TurnOn()));
 
-                        //AudioSettings.PlaySFX("A1");
+                        AudioSettings.PlaySFX("A1");
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -324,9 +324,10 @@ namespace SliceEngine
 
                         StartCoroutine(AttackDelay(attackDelay[1], () => attackHitbox.TurnOn()));
 
+                        AudioSettings.PlaySFX("A2");
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
-                            //AudioSettings.PlaySFX("A2");
+                            //
                         }
 
                         PlayerMovementState = MovementState.Lunging;
@@ -1047,7 +1048,11 @@ namespace SliceEngine
                 jumpDurationTimer = jumpDuration;
                 Console.WriteLine($"jump Counter {jumpCounter} and movementState: {PlayerMovementState.ToString()}");
                 if (jumpCounter == 1)
+                {
+                    AudioSettings.PlaySFX("Jump");
+
                     PlayerMovementState = MovementState.Jumping;
+                }
                 else
                     PlayerMovementState = MovementState.DoubleJumping;
 
