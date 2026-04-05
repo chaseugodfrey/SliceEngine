@@ -53,5 +53,13 @@ namespace SliceEngine
                 }
             }
         }
+
+        public void DestroyChildren()
+        {
+            foreach (var child in gameObject.GetAllChildren())
+            {
+                child.Destroy();
+            }
+        }
     }
 }
