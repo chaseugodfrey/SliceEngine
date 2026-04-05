@@ -153,11 +153,14 @@ namespace SliceEngine
 			animationNames = ctrlJson["Animations"];
 			animationGUIDs = ctrlJson.value<std::vector<uint64_t>>("Animation_guids", { {} });
 
-			for (uint64_t anim : animationGUIDs)
-			{
+			//we know that names r for sure correct, but guids may not be updated yet
+			for (int i = 0; i < animationNames.size(); ++i) {
 				SLICE_LOG("Load anims from seq pkg");
 				Sequence tmpAnim{};
-				tmpAnim.LoadAnimResource(SliceEngine::GUID(anim));
+				uint64_t guid = i < animationGUIDs.size() ? animationGUIDs[i] : 0;
+				std::string const& anim_name = animationNames[i];
+
+				tmpAnim.LoadAnimResource(SliceEngine::GUID(guid), anim_name);
 
 				animations.push_back(tmpAnim);
 			}
@@ -166,26 +169,45 @@ namespace SliceEngine
 			return true;
 		}
 
-		bool Sequence::LoadAnimResource(SliceEngine::GUID const& animName)
+		bool Sequence::LoadAnimResource(SliceEngine::GUID const& animgui, std::string const& animName)
 		{
 			std::filesystem::path animationsPath = std::filesystem::current_path();
 
 			std::cout << animationsPath << std::endl;
 
-			if (animationsPath.filename() != "Resources")
-			{
-				animationsPath = animationsPath / "Resources" ;
+			if (animgui.GetGUID() != 0) {
+				SLICE_LOG("finding anim seq from guid");
 
+				if (animationsPath.filename() != "Resources")
+				{
+					animationsPath = animationsPath / "Resources";
+
+				}
+				std::cout << animationsPath << std::endl;
+
+
+				animationsPath = animationsPath / std::to_string(animgui.GetGUID());
+				if (animationsPath.extension() != ".seq")
+				{
+					animationsPath += ".seq";
+				}
+				std::cout << animationsPath << std::endl;
 			}
-			std::cout << animationsPath << std::endl;
+			else {
+				SLICE_LOG("finding anim seq from name in asset folder");
 
+				if (animationsPath.filename() != "Assets")
+				{
+					animationsPath = animationsPath / "Assets";
+					animationsPath = animationsPath / "Animations";
+				}
 
-			animationsPath = animationsPath / std::to_string(animName.GetGUID());
-			if (animationsPath.extension() != ".seq")
-			{
-				animationsPath += ".seq";
+				animationsPath = animationsPath / animName;
+				if (animationsPath.extension() != ".seq")
+				{
+					animationsPath += ".seq";
+				}
 			}
-			std::cout << animationsPath << std::endl;
 
 
 			SLICE_LOG("open anims seq file");

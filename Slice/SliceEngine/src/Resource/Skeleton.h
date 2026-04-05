@@ -136,7 +136,7 @@ namespace SliceEngine
 
 			bool initialised{ false };
 
-			bool LoadAnimResource(SliceEngine::GUID const&);
+			bool LoadAnimResource(SliceEngine::GUID const&, std::string const& name);
 			void UpdateTransforms(entt::registry& ,entt::entity& entity, float time);
 		};
 
