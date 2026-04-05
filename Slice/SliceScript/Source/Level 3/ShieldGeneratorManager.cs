@@ -144,7 +144,7 @@ namespace SliceEngine
             }
         }
 
-        public void DestroyAllGenerators()
+        public void DestroyAllGenerators()  
         {
             foreach (GameObject gen in generatorsLeft)
             {

@@ -576,6 +576,8 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
+                var cutsceneManager = bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>();
+                cutsceneManager.StartCoroutine(cutsceneManager.DeathFadeInOut());
                 bossController.GetComponent<RigidBody>().gravityFactor = 0.0f;
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.WorldPosition, bossController.startingPosition, 0.8f));
             }
@@ -602,11 +604,11 @@ namespace SliceEngine
 
                     // some silly animation for now
 
-                    Vector3 bossPos = bossController.transform.Position;
+                    //Vector3 bossPos = bossController.transform.Position;
 
-                    Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
-                    bossController.transform.Rotation = rotDir;
-                    bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
+                    //Vector3 refPos = new Vector3(bossController.startingPosition.x, bossPos.y, bossController.startingPosition.z);
+                    //bossController.transform.Rotation = rotDir;
+                    //bossController.transform.Position = refPos + bossController.transform.Up * (float)(Math.Sin(Time.time * 5.0f) * 0.5f);
 
                     // jia le add explosion effects here 
                     //if (!triggerExplostion)
