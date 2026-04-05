@@ -141,6 +141,10 @@ namespace SliceEngine
             {
                 fireSFXSource = gameObject.GetComponent<AudioSource>();
             }
+            else
+            {
+                SliceLog.Log("No Audio Source");
+            }
 
         }
 
