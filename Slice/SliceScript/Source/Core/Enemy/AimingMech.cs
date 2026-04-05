@@ -49,7 +49,7 @@ namespace SliceEngine
 
         GameObject wings;
 
-        public GameObject fireSFXSourceObject;
+        //public GameObject fireSFXSourceObject;
         AudioSource fireSFXSource;
 
         public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
@@ -137,10 +137,9 @@ namespace SliceEngine
                 }
             }
 
-            if (fireSFXSourceObject != null && fireSFXSourceObject.HasComponent<AudioSource>())
+            if (gameObject.HasComponent<AudioSource>())
             {
-                SliceLog.Console("Adding");
-                fireSFXSource = fireSFXSourceObject.GetComponent<AudioSource>();
+                fireSFXSource = gameObject.GetComponent<AudioSource>();
             }
 
         }
