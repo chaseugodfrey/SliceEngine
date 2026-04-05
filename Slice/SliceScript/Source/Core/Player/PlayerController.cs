@@ -274,7 +274,7 @@ namespace SliceEngine
 
             if (!IsTakingInputs())
             {
-                Console.WriteLine($"Not taking inputs");
+                //Console.WriteLine($"Not taking inputs");
                 return;
             }
 

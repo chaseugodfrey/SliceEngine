@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145980,
+                "entity_id": 8388659,
                 "neighbours": [
                     0,
-                    3145979,
-                    3145994,
+                    6291493,
+                    8388664,
                     4294967295
                 ]
             },
@@ -107,10 +107,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145979,
+                "entity_id": 6291493,
                 "neighbours": [
-                    3145980,
-                    3145978,
+                    8388659,
+                    6291491,
                     4294967295,
                     4294967295
                 ]
@@ -148,7 +148,7 @@
                     },
                     "bulletsPerBurst": {
                         "Type": "int",
-                        "Value": 5
+                        "Value": 4
                     },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
@@ -172,7 +172,7 @@
                     },
                     "timeBetweenBursts": {
                         "Type": "float",
-                        "Value": 5.0
+                        "Value": 6.0
                     },
                     "timeBetweenShotsInBurst": {
                         "Type": "float",
@@ -225,12 +225,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145978,
+                "entity_id": 6291491,
                 "neighbours": [
-                    3145979,
-                    3145977,
+                    6291493,
+                    4194337,
                     4294967295,
-                    3145974
+                    9437228
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -291,12 +291,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145977,
+                "entity_id": 4194337,
                 "neighbours": [
-                    3145978,
+                    6291491,
                     4294967295,
                     4294967295,
-                    3145976
+                    10485810
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -357,12 +357,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145976,
+                "entity_id": 10485810,
                 "neighbours": [
-                    3145978,
+                    6291491,
                     4294967295,
-                    3145977,
-                    3145975
+                    4194337,
+                    9437220
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -423,11 +423,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145975,
+                "entity_id": 9437220,
                 "neighbours": [
-                    3145978,
+                    6291491,
                     4294967295,
-                    3145976,
+                    10485810,
                     4294967295
                 ]
             },
@@ -485,11 +485,11 @@
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145974,
+                "entity_id": 9437228,
                 "neighbours": [
-                    3145979,
-                    3145973,
-                    3145978,
+                    6291493,
+                    7340075,
+                    6291491,
                     4294967295
                 ]
             },
@@ -547,9 +547,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 3145973,
+                "entity_id": 7340075,
                 "neighbours": [
-                    3145974,
+                    9437228,
                     4294967295,
                     4294967295,
                     4294967295
