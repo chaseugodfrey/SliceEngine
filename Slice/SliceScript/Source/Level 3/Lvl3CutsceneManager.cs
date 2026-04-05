@@ -15,6 +15,8 @@ namespace SliceEngine
         public GameObject BossObj;
         public GameObject CameraRigObj;
         public GameObject CameraObj;
+        public GameObject ArenaObj;
+        public GameObject ArenaPivotObj;
         public GameObject a_camPivot1;
         public GameObject b_camPivot2;
         public GameObject c_camPivot3;
@@ -52,6 +54,8 @@ namespace SliceEngine
 
             bossTr = BossObj.GetComponent<Transform>();
             trackBoss = true;
+
+            StartCoroutine(IntroCutScene());
         }
 
         public void CutToCam(int index, float time)
@@ -129,6 +133,71 @@ namespace SliceEngine
                     cutFromCamBool = false;
                 }
             }
+        }
+
+        public IEnumerator IntroCutScene()
+        {
+            // cam
+
+            // transforms
+            Transform ArenaTr = ArenaObj.GetComponent<Transform>();
+            Transform ArenaPivotTr = ArenaPivotObj.GetComponent<Transform>();
+            Transform BossTr = BossObj.GetComponent<Transform>();
+            Transform PlayerTr = Bootstrap.Player.GetComponent<Transform>();
+
+            // positions
+            Vector3 BossInitialPos = BossTr.WorldPosition;
+            Vector3 ArenaInitialPos = ArenaTr.WorldPosition;
+            Vector3 CamRigInitialPos = ArenaPivotTr.WorldPosition;
+            Vector3 PlayerInitialPos = PlayerTr.WorldPosition;
+
+            Vector3 ArenaNewPos = new Vector3(ArenaInitialPos.x, ArenaInitialPos.y - 150.0f, ArenaInitialPos.z);
+            Vector3 CamRigNewPos = new Vector3(CamRigInitialPos.x, CamRigInitialPos.y - 150.0f, CamRigInitialPos.z);
+
+            camInitialPos = camRigTr.WorldPosition;
+
+            float maxTime = 6.0f;
+            float elapsedTime = 0.0f;
+
+            // hide objects
+            BossTr.Position = Vector3.Zero;
+            Bootstrap.CameraController.LockCamera = true;
+            Bootstrap.Player.SetPlayerLock(true);
+            
+            // rise up
+            while (elapsedTime < maxTime)
+            {
+                float t = elapsedTime / maxTime;
+                float rate = Utilities.SmoothStep(0.0f, 1.0f, t);
+
+
+                camRigTr.Position = ArenaPivotTr.WorldPosition;
+                camRigTr.Rotation = ArenaPivotTr.Rotation;
+                PlayerTr.Position = ArenaPivotTr.WorldPosition;
+                ArenaTr.Position = Vector3.Lerp(ArenaNewPos, ArenaInitialPos, rate);
+
+                Vector3 PlayerNewPos = new Vector3(PlayerInitialPos.x, ArenaTr.Position.y, PlayerInitialPos.x);
+                PlayerTr.Position = PlayerNewPos;
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            elapsedTime = 0.0f;
+            maxTime = 0.1f;
+
+            PlayerTr.Position = ArenaPivotTr.WorldPosition;
+
+            BossTr.Position = BossInitialPos;
+            Bootstrap.CameraController.LockCamera = false;
+            Bootstrap.Player.SetPlayerLock(false);
+
+            while (elapsedTime < maxTime)
+            {
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
+            BossObj.As<Level3Boss>().StartBoss();
         }
 
         public IEnumerator DeathFadeInOut(Transform boss)
