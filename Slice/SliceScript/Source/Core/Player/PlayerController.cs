@@ -510,7 +510,9 @@ namespace SliceEngine
                     // so 0 is attack 1, 1 is attack 2, 3 is for dash
                     // 2 is removed now
                     case 3:
-                        //attackAction = DashAttack;
+                        attackAction = DashAttack;
+                        break;
+                    default:
                         break;
                 }
                 attackHitboxes[i].HitBoxListeners += attackAction;
@@ -1185,14 +1187,14 @@ namespace SliceEngine
         }
         void DashAttack(GameObject target = null)
         {
-            Console.WriteLine((target == null).ToString());
-            EnemyBase enemy = target?.As<EnemyBase>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
-                dashDurationTimer = 0f;
-                Console.WriteLine("Dealing damage using dash");
-            }
+            //Console.WriteLine((target == null).ToString());
+            //EnemyBase enemy = target?.As<EnemyBase>();
+            //if (enemy != null)
+            //{
+            //    enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
+            //    dashDurationTimer = 0f;
+            //    Console.WriteLine("Dealing damage using dash");
+            //}
         }
 
         private void GroundCheck()
