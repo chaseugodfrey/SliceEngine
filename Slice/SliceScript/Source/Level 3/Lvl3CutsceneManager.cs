@@ -243,11 +243,14 @@ namespace SliceEngine
             elapsedTime = 0.0f;
             SetRectAlpha(0.0f);
 
-            while (elapsedTime < z_transitionDurationToDeath)
+            while (elapsedTime < 12.0f)
             {
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
+            Bootstrap.LevelDirector.LoadNextLevel();
+
         }
 
         public IEnumerator FadeOutRoutine()

@@ -316,7 +316,6 @@ namespace SliceEngine
                     bossController.stateQueue.Clear();
                 }
 
-                SliceLog.Console(bossController.rechargingPosition);
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, bossController.rechargingPosition, 2.4f));
             }
 
@@ -629,11 +628,31 @@ namespace SliceEngine
             {
 
             }
+        }
 
-            void Shake()
+        public class EndState : BaseState
+        {
+            Level3Boss bossController;
+            public EndState(GameObject owner) : base(owner)
+            {
+                bossController = owner.As<Level3Boss>();
+            }
+
+            public override void OnEnter()
             {
 
             }
+
+            public override void OnUpdate(float dt)
+            {
+                
+            }
+
+            public override void OnExit()
+            {
+            }
+
+
         }
 
         #endregion
