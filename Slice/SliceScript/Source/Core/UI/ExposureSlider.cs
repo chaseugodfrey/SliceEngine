@@ -13,7 +13,7 @@ namespace SliceEngine
             slider = GetComponent<Slider>();
             if (slider != null)
             {
-                slider.SetValue(Camera.Gamma * 0.1f);
+                slider.SetValue(Camera.Gamma * 0.01f);
             }
         }
 
@@ -35,7 +35,7 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("UIClick");
             }
 
-            gammaValue = value * 10;
+            gammaValue = value * 100;
             Camera.Gamma = gammaValue;
         }
     }

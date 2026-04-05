@@ -6,14 +6,30 @@ namespace SliceEngine
     public class CreditsText : SliceBehaviour
     {
         public float scrollSpeed = 500.0f;
+        public float fadeSpeed = 1.0f;
+        public float displayDuration = 3.0f;
+
+        private GameObject thankYouImage;
 
         private RectTransform myTransform;
 
+        private SpriteRenderer thankYouSprite;
+
+
+        private bool creditsOut = false;
         private float exactPosY;
+        private float currentAlpha = 0.0f;
+        private float endTimer = 0.0f;
 
         public override void OnCreate()
         {
             myTransform = GetComponent<RectTransform>();
+
+            if(FindGameObjectWithName("ThankYou") != null)
+            {
+                thankYouImage = FindGameObjectWithName("ThankYou");
+                thankYouSprite = thankYouImage.GetComponent<SpriteRenderer>();
+            }
 
             if (myTransform != null)
             {
@@ -29,10 +45,44 @@ namespace SliceEngine
         {
             if (myTransform != null)
             {
-                exactPosY += scrollSpeed * dt;
+                if(myTransform.Pos_Y <= 1450.0f)
+                {
+                    exactPosY += scrollSpeed * dt;
 
-                myTransform.Pos_Y = (int)exactPosY;
+                    myTransform.Pos_Y = (int)exactPosY;
+
+                }
+                else
+                {
+                    creditsOut = true;
+                }
             }
+
+            if (creditsOut && thankYouSprite != null)
+            {
+                if (currentAlpha < 1.0f)
+                {
+                    // Fading logic
+                    currentAlpha += fadeSpeed * dt;
+                    if (currentAlpha > 1.0f) currentAlpha = 1.0f;
+
+                    Vector4 color = thankYouSprite.Colour;
+                    color.w = currentAlpha;
+                    thankYouSprite.Colour = color;
+                }
+                else
+                {
+                    // 3. The 3-second wait
+                    endTimer += dt;
+
+                    if (endTimer >= displayDuration)
+                    {
+                        // Replace "Menu" with the exact name of your menu scene
+                        SceneManager.LoadScene("MenuScene");
+                    }
+                }
+            }
+
         }
     }
 }
