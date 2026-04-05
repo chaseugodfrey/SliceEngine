@@ -73,6 +73,7 @@ namespace SliceEditor
 		void CompileFragShaderAsset(FragShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileCSVAsset(CSVData* metaData);
 		void CompileNavMeshAsset(NavMeshData* metaData);
 		void CompileNavMeshBinAsset(NavMeshBinData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);

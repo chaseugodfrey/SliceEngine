@@ -66,7 +66,7 @@ namespace SliceEngine
             //    }
             //}
 
-           
+            
 
         }
 
@@ -192,7 +192,7 @@ namespace SliceEngine
                     }
                     
                     allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
-                    SliceLog.Log("Added dialogue entry with " + combinedKey);
+                    //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
         }
@@ -216,7 +216,7 @@ namespace SliceEngine
 
 
             //Close dialogue box if it is the last line of the set
-            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || (allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false))
             {
                 // end of dialogue stack
                 // clear stack
@@ -322,6 +322,8 @@ namespace SliceEngine
             }
 
             SetTextBox(toType);
+            typing = false;
+
 
             yield break;
         }

@@ -33,42 +33,42 @@ namespace SliceEngine
         {
             base.OnCreate();
 
-            SliceLog.Log("Oncreatre start");
+            //SliceLog.Log("Oncreatre start");
             if (generalHitboxObject.Has<GeneralHitbox>())
             {
-                SliceLog.Log("Hitbox scirpt exists");
+                //SliceLog.Log("Hitbox scirpt exists");
                 generalHitbox = generalHitboxObject.As<GeneralHitbox>();
 
-                SliceLog.Log("Grabbed script");
+               // SliceLog.Log("Grabbed script");
             }
             else
             {
-                SliceLog.Log("Hitbox scirpt does not exist");
+                //SliceLog.Log("Hitbox scirpt does not exist");
             }
-            SliceLog.Log("Oncreatre end");
+            //SliceLog.Log("Oncreatre end");
         }
 
         public override void OnAwake()
         {
             base.OnAwake();
-            SliceLog.Log("OnAwakw start");
+            //SliceLog.Log("OnAwakw start");
             if (generalHitboxObject.Has<GeneralHitbox>())
             {
-                SliceLog.Log("Hitbox scirpt exists");
+               //SliceLog.Log("Hitbox scirpt exists");
                 generalHitbox = generalHitboxObject.As<GeneralHitbox>();
 
-                SliceLog.Log("Grabbed script");
+                //SliceLog.Log("Grabbed script");
             }
             else
             {
-                SliceLog.Log("Hitbox scirpt does not exist");
+                //SliceLog.Log("Hitbox scirpt does not exist");
             }
 
             generalHitbox.HitBoxListeners += DamagePlayer;
-            SliceLog.Log("Added event");
+            //SliceLog.Log("Added event");
             generalHitbox.TurnOn();
-            SliceLog.Log("turned on");
-            SliceLog.Log("OnAwake end");
+            //SliceLog.Log("turned on");
+           // SliceLog.Log("OnAwake end");
         }
         /*
         public void SetUp()

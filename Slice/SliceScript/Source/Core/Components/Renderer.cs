@@ -34,6 +34,18 @@ namespace SliceEngine
             return color;
         }
 
+        public void SetEmissionColor(Vector4 color)
+        {
+            FunctionCalls.Material_SetColorEmission(gameObject.mID, ref color);
+        }
+
+        public Vector4 GetEmissionColor()
+        {
+            Vector4 color;
+            FunctionCalls.Material_GetColorEmission(gameObject.mID, out color);
+            return color;
+        }
+
         public bool ComponentEnabled
         {
             get

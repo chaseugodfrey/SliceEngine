@@ -26,6 +26,7 @@ namespace SliceEngine
         private Quaternion actual_cam_quat = Quaternion.Identity;
 
         public GameObject cameraChild;
+        public Camera cam;
         public float collisionCheckOffset = 1f;
         private Vector3 defaultCameraOffset = new Vector3(0f, 0f, 0f);
         private float defaultCameraOffsetDist = 0f;
@@ -45,6 +46,7 @@ namespace SliceEngine
         {
             //SliceLog.Log("Rotation: x<" + transform.Rotation.x + ">y<" + transform.Rotation.y + ">z<" + transform.Rotation.z);
             Camera.SetMainCamera(cameraChild);
+            cam = cameraChild.GetComponent<Camera>();
         }
 
         public void Initialize()

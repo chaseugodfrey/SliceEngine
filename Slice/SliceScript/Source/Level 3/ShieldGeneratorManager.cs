@@ -149,9 +149,11 @@ namespace SliceEngine
             foreach (GameObject gen in generatorsLeft)
             {
                 var sg = gen.As<ShieldGenerator>();
-                sg.OnDeath();
                 sg.ActivatePipe();
+                sg.DestroyShieldGen();
             }
+
+            generatorsLeft.Clear();
         }
 
         void TurnOnOffRegenerators(bool active)
