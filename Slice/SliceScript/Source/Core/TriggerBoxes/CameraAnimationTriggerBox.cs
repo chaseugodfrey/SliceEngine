@@ -143,7 +143,7 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+                //Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
             }
 
             public IEnumerator LerpToSword()
