@@ -32,10 +32,15 @@ namespace SliceEngine
                 Bootstrap.Player.SetPlayerLock(true);
 
                 camControl = owner.camera.As<CameraController>();
+
                 if (fadeInRoutine == null)
                 {
                     fadeInRoutine = owner.StartCoroutine(FadeInRoutine());
                 }
+
+                camControl.transform.Position = owner.StartPos.GetComponent<Transform>().Position;
+                camControl.transform.Rotation = owner.StartPos.GetComponent<Transform>().Rotation;
+                owner.StartCoroutine(LerpThrough());
 
                 Bootstrap.HUDManager.PlayDialogueForLevel(0,0, true, true);
             }
@@ -70,7 +75,7 @@ namespace SliceEngine
                     Vector3 targetPos = owner.EndPos.GetComponent<Transform>().Position;        
                     camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
 
-                    Quaternion targetRot = Quaternion.LookRotation(Bootstrap.Player.transform.Forward);
+                    Quaternion targetRot = Quaternion.FromEuler(owner.EndPos.GetComponent<Transform>().Rotation);
                     camControl.transform.RotationQuat = Quaternion.Slerp(startingRot, targetRot, smoothT);
 
 
@@ -118,9 +123,6 @@ namespace SliceEngine
                 }
                 SetRectAlpha(1.0f); // Start black
 
-                camControl.transform.Position = owner.StartPos.GetComponent<Transform>().Position;
-                camControl.transform.Rotation = owner.StartPos.GetComponent<Transform>().Rotation;
-
                 while (elapsedTime < TransitionDuration)
                 {
                     elapsedTime += Time.deltaTime;
@@ -140,7 +142,6 @@ namespace SliceEngine
                 }
 
                 Console.WriteLine("End of Fade in effect 2222" );
-                owner.StartCoroutine(LerpThrough());
 
                 fadeInRoutine = null;
 
