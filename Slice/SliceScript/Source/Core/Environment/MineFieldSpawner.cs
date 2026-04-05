@@ -25,7 +25,7 @@ namespace SliceEngine
         public float mineSelfDestructDuration = 5.0f;
 
         Vector4 colourActivated;
-        Vector4 colourDeactivated = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
+        Vector4 colourDeactivated = new Vector4(0.92f, 0.47f, 0.21f, 1f);
 
         Renderer coreRenderer;
 
@@ -41,6 +41,7 @@ namespace SliceEngine
                     coreRenderer = child.GetComponent<Renderer>();
                     colourActivated = coreRenderer.GetColor();
                     coreRenderer.SetColor(colourDeactivated);
+                    coreRenderer.SetEmissionColor(colourDeactivated);
                 }
             }
         }
@@ -51,6 +52,7 @@ namespace SliceEngine
             {
                 timeBetweenTriggers += dt;
                 coreRenderer.SetColor(colourActivated);
+                coreRenderer.SetEmissionColor(colourActivated);
             }
 
             if (timeBetweenTriggers >= durationBetweenTriggers)
@@ -58,6 +60,7 @@ namespace SliceEngine
                 timeBetweenTriggers = 0.0f;
                 triggered = false;
                 coreRenderer.SetColor(colourDeactivated);
+                coreRenderer.SetEmissionColor(colourDeactivated);
             }
         }
 
