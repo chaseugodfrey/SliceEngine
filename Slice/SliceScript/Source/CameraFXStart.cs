@@ -21,8 +21,8 @@ namespace SliceEngine
         Vector3 shakeOffset;
         GameObject[] bossGameObjects;
 
-        float loadTimerMax = 15.0f;
-        float loadTimer = 15.0f;
+        float loadTimerMax = 12.0f;
+        float loadTimer;
         bool isSFXPlaying = false;
 
         public override void OnCreate()
