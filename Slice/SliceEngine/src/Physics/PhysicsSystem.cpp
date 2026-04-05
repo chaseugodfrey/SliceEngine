@@ -1072,6 +1072,8 @@ namespace SliceEngine
 
 	void PhysicsSystem::HandleRemovedContacts()
 	{
+		if (!contactListener->GetLastStep())
+			return;
 		bool pass = true;
 
 		for (auto& bodyPair : contactListener->GetBodiesInContact())
@@ -1544,6 +1546,11 @@ namespace SliceEngine
 
 		//SLICE_LOG("Created Jolt body with ID: " + std::to_string(colliderShape.bodyID.GetIndexAndSequenceNumber()));
 		physicsSystem->OptimizeBroadPhase();
+	}
+
+	void PhysicsSystem::SetLastStep(bool isLastStep)
+	{
+		contactListener->SetLastStep(isLastStep);
 	}
 
 	void PhysicsSystem::StepWorld(float dt)

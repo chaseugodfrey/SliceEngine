@@ -52,10 +52,11 @@ namespace SliceEngine
 
 		accumulatedTime += deltaTime;
 
-		//if (accumulatedTime >= fixedDeltaTime * 8.0f)
-		//{
-		//	accumulatedTime = 0.0f;
-		//}
+		if (accumulatedTime >= fixedDeltaTime * 8.0f)
+		{
+			// if the accumulated time exceeds a certain threshold, reset it to prevent spiral of death
+			accumulatedTime = fixedDeltaTime; 
+		}
 
 		while (accumulatedTime >= fixedDeltaTime)
 		{

@@ -136,15 +136,13 @@ namespace SliceEngine
 
 		void PreStepSync();
 
-		bool WouldCollideAt(Entity entity);
-
-		void ProcessTempMovements();
-
 		void ClearCollisionPairs();
 
 		void DeleteJoltBody(Entity entity);
 
 		void CreateJoltBody(Entity entity);
+
+		void SetLastStep(bool isLastStep);
 
 		//Helps me with seperation of interface and implementation
 	public:

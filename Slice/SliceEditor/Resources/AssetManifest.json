@@ -1371,6 +1371,16 @@
             "path": "Resources/9893844877777107304.scene"
         },
         {
+            "guid": 9919909892102733493,
+            "name": "Material/BallRedInner.mat",
+            "path": "Resources/9919909892102733493.mat"
+        },
+        {
+            "guid": 16961264227147685912,
+            "name": "Default/Player.fbx",
+            "path": "Resources/16961264227147685912.mdl"
+        },
+        {
             "guid": 9476576667990641856,
             "name": "Shaders/skyboxGeneration_Frag.frag",
             "path": "Resources/9476576667990641856.frag"
@@ -1411,14 +1421,9 @@
             "path": "Resources/10864952183179620118.scene"
         },
         {
-            "guid": 9919909892102733493,
-            "name": "Material/BallRedInner.mat",
-            "path": "Resources/9919909892102733493.mat"
-        },
-        {
-            "guid": 16961264227147685912,
-            "name": "Default/Player.fbx",
-            "path": "Resources/16961264227147685912.mdl"
+            "guid": 17485276470301423300,
+            "name": "Default/Player11.glb",
+            "path": "Resources/17485276470301423300.mdl"
         },
         {
             "guid": 17404324518387509704,
@@ -1446,16 +1451,6 @@
             "path": "Resources/9708768305466397841.scene"
         },
         {
-            "guid": 17485276470301423300,
-            "name": "Default/Player11.glb",
-            "path": "Resources/17485276470301423300.mdl"
-        },
-        {
-            "guid": 17494253650054626361,
-            "name": "Default/Player_m5.skl",
-            "path": "Resources/17494253650054626361.skl"
-        },
-        {
             "guid": 16904515665355675604,
             "name": "Shaders/instanced_Vert.vert",
             "path": "Resources/16904515665355675604.vert"
@@ -1469,6 +1464,11 @@
             "guid": 9224391399501987115,
             "name": "Material/BlackMat.mat",
             "path": "Resources/9224391399501987115.mat"
+        },
+        {
+            "guid": 17494253650054626361,
+            "name": "Default/Player_m5.skl",
+            "path": "Resources/17494253650054626361.skl"
         },
         {
             "guid": 14545403704316716500,
@@ -2761,6 +2761,11 @@
             "path": "Resources/9790900084911655028.mat"
         },
         {
+            "guid": 10494040173857197462,
+            "name": "Dylan/m6/boss/Boss.fbx",
+            "path": "Resources/10494040173857197462.mdl"
+        },
+        {
             "guid": 12052541654358869986,
             "name": "Material/PreAimMat.mat",
             "path": "Resources/12052541654358869986.mat"
@@ -2769,11 +2774,6 @@
             "guid": 10286238958443715190,
             "name": "Dylan/m6/boss/Boss.animpkg",
             "path": "Resources/10286238958443715190.animpkg"
-        },
-        {
-            "guid": 10494040173857197462,
-            "name": "Dylan/m6/boss/Boss.fbx",
-            "path": "Resources/10494040173857197462.mdl"
         },
         {
             "guid": 16434964976376015281,
@@ -3731,11 +3731,6 @@
             "path": "Resources/15884595881201833390.mdl"
         },
         {
-            "guid": 16670911289530868217,
-            "name": "Models/EnemySlimeOuter.skl",
-            "path": "Resources/16670911289530868217.skl"
-        },
-        {
             "guid": 9499795690656752971,
             "name": "Models/M5 Models/Aiming Mech.skl",
             "path": "Resources/9499795690656752971.skl"
@@ -3746,6 +3741,11 @@
             "path": "Resources/10365400057864474275.mdl"
         },
         {
+            "guid": 16670911289530868217,
+            "name": "Models/EnemySlimeOuter.skl",
+            "path": "Resources/16670911289530868217.skl"
+        },
+        {
             "guid": 14137480208595483005,
             "name": "VFX Assets/RainbowRing.png",
             "path": "Resources/14137480208595483005.dds"
@@ -3754,21 +3754,6 @@
             "guid": 10150479252312340859,
             "name": "Models/Enemy_Basic.animpkg",
             "path": "Resources/10150479252312340859.animpkg"
-        },
-        {
-            "guid": 17014456597090860992,
-            "name": "Prefabs/Canvas.prefab",
-            "path": "Resources/17014456597090860992.prefab"
-        },
-        {
-            "guid": 16108474294497114739,
-            "name": "Models/Enemy_Basic_Static.skl",
-            "path": "Resources/16108474294497114739.skl"
-        },
-        {
-            "guid": 15124670150845613275,
-            "name": "Models/Enemy_Basic_Static.animpkg",
-            "path": "Resources/15124670150845613275.animpkg"
         },
         {
             "guid": 14674901861374195520,
@@ -3786,9 +3771,19 @@
             "path": "Resources/12482959374751952982.mdl"
         },
         {
-            "guid": 15204542420308286987,
-            "name": "Models/Enemy_Blade.skl",
-            "path": "Resources/15204542420308286987.skl"
+            "guid": 17014456597090860992,
+            "name": "Prefabs/Canvas.prefab",
+            "path": "Resources/17014456597090860992.prefab"
+        },
+        {
+            "guid": 16108474294497114739,
+            "name": "Models/Enemy_Basic_Static.skl",
+            "path": "Resources/16108474294497114739.skl"
+        },
+        {
+            "guid": 15124670150845613275,
+            "name": "Models/Enemy_Basic_Static.animpkg",
+            "path": "Resources/15124670150845613275.animpkg"
         },
         {
             "guid": 13974323677986012958,
@@ -3796,14 +3791,9 @@
             "path": "Resources/13974323677986012958.mdl"
         },
         {
-            "guid": 14234336842118850163,
-            "name": "Models/Enemy_Grunt.skl",
-            "path": "Resources/14234336842118850163.skl"
-        },
-        {
-            "guid": 11086116395119990046,
-            "name": "Models/Enemy_Grunt.animpkg",
-            "path": "Resources/11086116395119990046.animpkg"
+            "guid": 15204542420308286987,
+            "name": "Models/Enemy_Blade.skl",
+            "path": "Resources/15204542420308286987.skl"
         },
         {
             "guid": 13380415666429998559,
@@ -3816,19 +3806,19 @@
             "path": "Resources/11539692136567283186.mdl"
         },
         {
+            "guid": 14234336842118850163,
+            "name": "Models/Enemy_Grunt.skl",
+            "path": "Resources/14234336842118850163.skl"
+        },
+        {
+            "guid": 11086116395119990046,
+            "name": "Models/Enemy_Grunt.animpkg",
+            "path": "Resources/11086116395119990046.animpkg"
+        },
+        {
             "guid": 18084038472398471024,
             "name": "Models/Enemy_Worm.fbx",
             "path": "Resources/18084038472398471024.mdl"
-        },
-        {
-            "guid": 17683481588848644045,
-            "name": "Models/Environment_Background_Towers.skl",
-            "path": "Resources/17683481588848644045.skl"
-        },
-        {
-            "guid": 16267972103362409246,
-            "name": "Models/Environment_Background_Towers.animpkg",
-            "path": "Resources/16267972103362409246.animpkg"
         },
         {
             "guid": 16831453681749991142,
@@ -3839,6 +3829,16 @@
             "guid": 15459697471143272539,
             "name": "Models/Environment_Background_Towers.fbx",
             "path": "Resources/15459697471143272539.mdl"
+        },
+        {
+            "guid": 17683481588848644045,
+            "name": "Models/Environment_Background_Towers.skl",
+            "path": "Resources/17683481588848644045.skl"
+        },
+        {
+            "guid": 16267972103362409246,
+            "name": "Models/Environment_Background_Towers.animpkg",
+            "path": "Resources/16267972103362409246.animpkg"
         },
         {
             "guid": 15377299341190789176,
@@ -3891,6 +3891,11 @@
             "path": "Resources/13903676716914006364.skl"
         },
         {
+            "guid": 18089386294759824964,
+            "name": "Models/M5 Models/Initial_Shooter.fbx",
+            "path": "Resources/18089386294759824964.mdl"
+        },
+        {
             "guid": 15748855514162241533,
             "name": "Shaders/cloud_Frag.frag",
             "path": "Resources/15748855514162241533.frag"
@@ -3911,9 +3916,14 @@
             "path": "Resources/9236083295454303827.animpkg"
         },
         {
-            "guid": 18089386294759824964,
-            "name": "Models/M5 Models/Initial_Shooter.fbx",
-            "path": "Resources/18089386294759824964.mdl"
+            "guid": 18048379734453282659,
+            "name": "Shaders/final_Frag.frag",
+            "path": "Resources/18048379734453282659.frag"
+        },
+        {
+            "guid": 9271664270011197698,
+            "name": "Models/M5 Models/OffsetCube.fbx",
+            "path": "Resources/9271664270011197698.mdl"
         },
         {
             "guid": 9975954260658880089,
@@ -3929,16 +3939,6 @@
             "guid": 11094779576322072639,
             "name": "Models/M5 Models/OffsetCube.animpkg",
             "path": "Resources/11094779576322072639.animpkg"
-        },
-        {
-            "guid": 18048379734453282659,
-            "name": "Shaders/final_Frag.frag",
-            "path": "Resources/18048379734453282659.frag"
-        },
-        {
-            "guid": 9271664270011197698,
-            "name": "Models/M5 Models/OffsetCube.fbx",
-            "path": "Resources/9271664270011197698.mdl"
         },
         {
             "guid": 10956697085899824678,
@@ -4031,6 +4031,11 @@
             "path": "Resources/10970488645750943030.navmesh"
         },
         {
+            "guid": 10128043101700684016,
+            "name": "player.fbx",
+            "path": "Resources/10128043101700684016.mdl"
+        },
+        {
             "guid": 14800216528882930636,
             "name": "player.skl",
             "path": "Resources/14800216528882930636.skl"
@@ -4041,9 +4046,14 @@
             "path": "Resources/10277001610364450097.animpkg"
         },
         {
-            "guid": 10128043101700684016,
-            "name": "player.fbx",
-            "path": "Resources/10128043101700684016.mdl"
+            "guid": 16434417904281556449,
+            "name": "Prefabs/BallProjectile.prefab",
+            "path": "Resources/16434417904281556449.prefab"
+        },
+        {
+            "guid": 9550121459482425649,
+            "name": "Player32.fbx",
+            "path": "Resources/9550121459482425649.mdl"
         },
         {
             "guid": 12280464610478507536,
@@ -4059,16 +4069,6 @@
             "guid": 11052922766209027812,
             "name": "Player32.animpkg",
             "path": "Resources/11052922766209027812.animpkg"
-        },
-        {
-            "guid": 16434417904281556449,
-            "name": "Prefabs/BallProjectile.prefab",
-            "path": "Resources/16434417904281556449.prefab"
-        },
-        {
-            "guid": 9550121459482425649,
-            "name": "Player32.fbx",
-            "path": "Resources/9550121459482425649.mdl"
         },
         {
             "guid": 9498110768119249247,
@@ -4841,14 +4841,14 @@
             "path": "Resources/14019125244509282815.animpkg"
         },
         {
-            "guid": 13208852870396415294,
-            "name": "[00]Player/playerBag.animpkg",
-            "path": "Resources/13208852870396415294.animpkg"
-        },
-        {
             "guid": 14890030210992444067,
             "name": "[00]Player/playerBag.fbx",
             "path": "Resources/14890030210992444067.mdl"
+        },
+        {
+            "guid": 13208852870396415294,
+            "name": "[00]Player/playerBag.animpkg",
+            "path": "Resources/13208852870396415294.animpkg"
         },
         {
             "guid": 15034213256124245522,
@@ -4871,6 +4871,11 @@
             "path": "Resources/9713849755191302576.mdl"
         },
         {
+            "guid": 12723141124409208946,
+            "name": "[00]Player/playerNoWeapon.fbx",
+            "path": "Resources/12723141124409208946.mdl"
+        },
+        {
             "guid": 18168820116564590151,
             "name": "[00]Player/playerNoWeapon.skl",
             "path": "Resources/18168820116564590151.skl"
@@ -4879,11 +4884,6 @@
             "guid": 15547911795406265056,
             "name": "[00]Player/playerNoWeapon.animpkg",
             "path": "Resources/15547911795406265056.animpkg"
-        },
-        {
-            "guid": 12723141124409208946,
-            "name": "[00]Player/playerNoWeapon.fbx",
-            "path": "Resources/12723141124409208946.mdl"
         },
         {
             "guid": 13188562293442473104,
@@ -4901,14 +4901,14 @@
             "path": "Resources/14344363735321873368.animpkg"
         },
         {
-            "guid": 10563383038524190141,
-            "name": "[00]Player/playerWeapon.skl",
-            "path": "Resources/10563383038524190141.skl"
-        },
-        {
             "guid": 12653157654556031693,
             "name": "[00]Player/playerWeapon.fbx",
             "path": "Resources/12653157654556031693.mdl"
+        },
+        {
+            "guid": 10563383038524190141,
+            "name": "[00]Player/playerWeapon.skl",
+            "path": "Resources/10563383038524190141.skl"
         },
         {
             "guid": 13319959552942701002,

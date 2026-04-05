@@ -1793,40 +1793,40 @@ namespace SliceEngine
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
-        QueueCollision(ScriptCollisionType::CollideEnter, event.entity, event.other);
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
+        //QueueCollision(ScriptCollisionType::CollideEnter, event.entity, event.other);
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            //std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
+            scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
+        }
 
-        //    //    //std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
-        //    scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
-        //}
     }
     void ScriptSystem::OnCollideStay(const OnCollisionStayEvent& event)
     {
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
-        QueueCollision(ScriptCollisionType::CollideStay, event.entity, event.other);
+        //QueueCollision(ScriptCollisionType::CollideStay, event.entity, event.other);
 
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
-        //    scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
-        //}
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideStay((unsigned int)event.other);
+        }
     }
     void ScriptSystem::OnCollideExit(const OnCollisionExitEvent& event)
     {
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
-        QueueCollision(ScriptCollisionType::CollideExit, event.entity, event.other);
+        //QueueCollision(ScriptCollisionType::CollideExit, event.entity, event.other);
 
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
-        //    scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
-        //}
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
+        }
     }
     void ScriptSystem::OnTriggerEnter(const OnTriggerEnterEvent& event)
     {
@@ -1834,13 +1834,13 @@ namespace SliceEngine
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
 
-        QueueCollision(ScriptCollisionType::TriggerEnter, event.entity, event.other);
+        //QueueCollision(ScriptCollisionType::TriggerEnter, event.entity, event.other);
 
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
-        //    scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
-        //}
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerEnter((unsigned int)event.other);
+        }
 
     }
     void ScriptSystem::OnTriggerStay(const OnTriggerStayEvent& event)
@@ -1848,26 +1848,26 @@ namespace SliceEngine
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
-        QueueCollision(ScriptCollisionType::TriggerStay, event.entity, event.other);
+        //QueueCollision(ScriptCollisionType::TriggerStay, event.entity, event.other);
 
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
-        //    scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
-        //}
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerStay((unsigned int)event.other);
+        }
     }
     void ScriptSystem::OnTriggerExit(const OnTriggerExitEvent& event)
     {
 
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
             return;
-        QueueCollision(ScriptCollisionType::TriggerExit, event.entity, event.other);
+        //QueueCollision(ScriptCollisionType::TriggerExit, event.entity, event.other);
 
-        //auto scriptInstance = mEntityInstances[event.entity];
-        //if (scriptInstance)
-        //{
-        //    scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
-        //}
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnTriggerExit((unsigned int)event.other);
+        }
     }
 
     //button funcs

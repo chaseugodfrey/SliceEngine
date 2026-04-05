@@ -1062,27 +1062,34 @@ namespace SliceEngine
 			frm->StartSystem("Script");
 			gScriptSystem->OnFixedUpdate(fixedDeltaTimeScaled);
 			frm->EndSystem("Script");
+		}
 
-			frm->StartSystem("Transform");
-			// sync matrices before physics step
-			sTransform.Update(fixedDeltaTimeScaled);
-			sTransform.UpdateTransforms();
-			frm->EndSystem("Transform");
 
+		frm->StartSystem("Transform");
+		// sync matrices before physics step
+		sTransform.Update(fixedDeltaTimeScaled);
+		sTransform.UpdateTransforms();
+		frm->EndSystem("Transform");
+
+		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+		{
 			// physics update
 			frm->StartSystem("Physics");
+			core->GetSystem<PhysicsSystem>().SetLastStep(step == static_cast<size_t>(frm->getCurrentNumberOfSteps() - 1));
 			core->GetSystem<PhysicsSystem>().PreStepSync();
 			core->GetSystem<PhysicsSystem>().StepWorld(fixedDeltaTimeScaled);
 			core->GetSystem<PhysicsSystem>().PostStepSync();
 			frm->EndSystem("Physics");
+		}
 
-			frm->StartSystem("Transform");
-			// sync matrices after physics
-			sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
-			//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
-			frm->EndSystem("Transform");
+		frm->StartSystem("Transform");
+		// sync matrices after physics
+		sTransform.PostStepSyncTransforms(Core::FactoryInstance.GetRootEntity(), glm::mat4(1.0f));
+		//	sTransform.UpdateTransforms();	//not needed since the above line resolves local and world
+		frm->EndSystem("Transform");
 
-
+		for (size_t step = 0; step < frm->getCurrentNumberOfSteps(); ++step)
+		{
 			// animation after logic and physics
 			frm->StartSystem("Animation");
 			sAnimator.Update(fixedDeltaTimeScaled);
@@ -1090,6 +1097,7 @@ namespace SliceEngine
 			sAnimator.BoneUpdate();
 			frm->EndSystem("Animation");
 		}
+
 		//frm->EndSystem("Fixed Dt Loop");
 
 		// regular update for scripts

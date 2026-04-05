@@ -24,6 +24,7 @@ namespace SliceEngine
 		std::set<std::pair<GameObject, GameObject>> collisionPairs;
 		float timer = 0.0f;
 		const float timeBetweenEvents = 1.0f;
+		bool mIsLastStep = false;
 
 	public:
 
@@ -41,7 +42,9 @@ namespace SliceEngine
 
 		void RemoveContactPair(const std::pair<GameObject, GameObject>& contactPair);
 
+		void SetLastStep(bool isLast);
 
+		bool GetLastStep() const;
 
 	};
 
