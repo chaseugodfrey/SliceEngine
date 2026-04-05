@@ -168,17 +168,16 @@ namespace SliceEngine
                     GameObject go;
 
                     if (first)
-                        go = bossController.CreateGameObject("Prefabs/Level3Projectile.prefab");
+                        go = bossController.CreateGameObject("Prefabs/AimingMechFollow.prefab");
 
                     else
                         go = bossController.projectileSpawners[i].gameObject;
                     
-                    Level3ProjectileSpawner spawner = go.As<Level3ProjectileSpawner>();
+                    AimingMechFollow spawner = go.As<AimingMechFollow>();
                     spawner.GetComponent<Transform>().Position = owner.GetComponent<Transform>().Position;
-                    spawner.active = true;
                     spawner.followTarget = true;
                     spawner.SetTarget(Bootstrap.Player.GetComponent<Transform>());
-                    spawner.offset = offsets[i] * 10;
+                    spawner.offset = offsets[i] * 20.0f;
                     bossController.projectileSpawners.Add(spawner);
                 }
 
@@ -655,7 +654,7 @@ namespace SliceEngine
 
         public Queue stateQueue;
         List<Projectile> projectiles;
-        public List<Level3ProjectileSpawner> projectileSpawners;
+        public List<AimingMechFollow> projectileSpawners;
         public GameObject startingPositionObj;
         public GameObject landingPositionObj;
         public GameObject rechargePositionObj;
@@ -714,11 +713,9 @@ namespace SliceEngine
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(currentHealth / maxHealth);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
-            projectileSpawners = new List<Level3ProjectileSpawner>();
+            projectileSpawners = new List<AimingMechFollow>();
             projectiles = new List<Projectile>();
 
-            // start
-            bossSM.ChangeState(introState);
         }
 
         public override void OnUpdate(float dt)
@@ -869,7 +866,6 @@ namespace SliceEngine
             {
                 spawner.SetTarget(transform, 5.0f);
                 spawner.offset = Vector3.Zero;
-                spawner.active = false;
             }
         }
 
@@ -1048,6 +1044,11 @@ namespace SliceEngine
             Vector3 finalPos = startingPosition;
             finalPos.y += Utilities.Sin(time);
             transform.Position = finalPos;
+        }
+
+        public void StartBoss()
+        {
+            bossSM.ChangeState(introState);
         }
     }
 }
