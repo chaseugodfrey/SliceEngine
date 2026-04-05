@@ -116,12 +116,13 @@ namespace SliceEngine
             public SwordIntroState(GameObject owner) : base(owner)
             {
                 animationTriggerBox = owner.As<CameraAnimationTriggerBox>();
-                cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
-                cinematicSword = owner.FindGameObjectsWithTag("CinematicSword")[0];
             }
 
             public override void OnEnter()
             {
+                cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
+                cinematicSword = owner.FindGameObjectsWithTag("CinematicSword")[0];
+
                 Bootstrap.CameraController.LockCamera = true;
                 //  Bootstrap.Player.PlayerMovementState = PlayerController.MovementState.Falling;
                 Bootstrap.Player.SetPlayerLock(true);
