@@ -9,11 +9,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 5243169,
+                "entity_id": 8388773,
                 "neighbours": [
                     0,
-                    6291735,
-                    4194362,
+                    8388772,
+                    15728950,
                     4294967295
                 ]
             },
@@ -99,6 +99,28 @@
     },
     {
         "AimingMech": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.30000001192092896,
+                "directOcclusion": 0.10000000149011612,
+                "dopplerLevel": 1.0,
+                "isLoop": true,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 1000.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.20000000298023224,
+                "soundGUID": "14930422140598177221",
+                "spatialBlend": 1.0,
+                "spread": 0.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -107,10 +129,10 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 6291735,
+                "entity_id": 8388772,
                 "neighbours": [
-                    5243169,
-                    8388614,
+                    8388773,
+                    8388771,
                     4294967295,
                     4294967295
                 ]
@@ -153,10 +175,6 @@
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
                         "Value": 500.0
-                    },
-                    "fireSFXSourceObject": {
-                        "Type": "SliceEngine::GameObject",
-                        "Value": 9437452
                     },
                     "firingFXPrefabName": {
                         "Type": "std::string",
@@ -229,12 +247,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388614,
+                "entity_id": 8388771,
                 "neighbours": [
-                    6291735,
-                    8388878,
+                    8388772,
+                    8388770,
                     4294967295,
-                    9437193
+                    8388767
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -295,12 +313,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388878,
+                "entity_id": 8388770,
                 "neighbours": [
-                    8388614,
+                    8388771,
                     4294967295,
                     4294967295,
-                    8388879
+                    8388769
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -361,12 +379,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388879,
+                "entity_id": 8388769,
                 "neighbours": [
-                    8388614,
+                    8388771,
                     4294967295,
-                    8388878,
-                    8388880
+                    8388770,
+                    8388768
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -427,11 +445,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8388880,
+                "entity_id": 8388768,
                 "neighbours": [
-                    8388614,
+                    8388771,
                     4294967295,
-                    8388879,
+                    8388769,
                     4294967295
                 ]
             },
@@ -489,12 +507,12 @@
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9437193,
+                "entity_id": 8388767,
                 "neighbours": [
-                    6291735,
-                    9437197,
-                    8388614,
-                    9437452
+                    8388772,
+                    8388766,
+                    8388771,
+                    4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -551,9 +569,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9437197,
+                "entity_id": 8388766,
                 "neighbours": [
-                    9437193,
+                    8388767,
                     4294967295,
                     4294967295,
                     4294967295
@@ -586,77 +604,6 @@
                     1.0,
                     250.0,
                     1.0
-                ]
-            }
-        }
-    },
-    {
-        "AimAudio": {
-            "struct SliceEngine::AudioSource": {
-                "category": "SFX",
-                "componentEnabled": true,
-                "currentVolume": 0.800000011920929,
-                "directOcclusion": 0.0,
-                "dopplerLevel": 1.0,
-                "isLoop": true,
-                "isMute": false,
-                "isPaused": false,
-                "maxDistance": 1000.0,
-                "minDistance": 1.0,
-                "pitch": 1.0,
-                "playOnAwake": false,
-                "playPreview": false,
-                "priority": 128,
-                "reverbOcclusion": 0.0,
-                "soundGUID": "14930422140598177221",
-                "spatialBlend": 1.0,
-                "spread": 1.0,
-                "stereoPan": 0.0,
-                "volumeRollOff": "Linear"
-            },
-            "struct SliceEngine::Prefab": {
-                "prefabGUID": "",
-                "prefabHandle": {
-                    "GUID": ""
-                },
-                "prefabID": 8
-            },
-            "struct SliceEngine::SceneGraph": {
-                "entity_id": 9437452,
-                "neighbours": [
-                    6291735,
-                    4294967295,
-                    9437193,
-                    4294967295
-                ]
-            },
-            "struct SliceEngine::SliceEntity": {
-                "mActive": true,
-                "mLayer": 0,
-                "mName": "AimAudio",
-                "mTag": "default"
-            },
-            "struct SliceEngine::Transform": {
-                "euler_hint": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "position": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.70710688829422,
-                    0.0,
-                    0.7071066498756409,
-                    0.0
-                ],
-                "scale": [
-                    2.000000476837158,
-                    2.0,
-                    2.000000476837158
                 ]
             }
         }
