@@ -8,103 +8,10 @@ namespace SliceEngine
 {
     public class IntroPretextCinematic : SliceBehaviour
     {
-        /// <summary>
-        /// Used only for the starting camera sequence when the player enters level 1
-        /// </summary>
-        //public class IntroState : BaseState
-        //{
-        //    private IntroPretextCinematic animationTriggerBox;
-        //    private CameraController camControl;
-        //    private bool dialogueDone = false;
-        //    private bool dialogueStarted = false;
-        //    private bool keyPressed = false;
-            
-        //    public IntroState(GameObject owner) : base(owner)
-        //    {
-        //        animationTriggerBox = owner.As<IntroPretextCinematic>();
-        //    }
-
-        //    public override void OnEnter()
-        //    {
-
-        //        // this triggers the camera moving to where its suppose to be when the player lands
-        //        camControl = animationTriggerBox.camera.As<CameraController>();
-
-        //        if (camControl != null && Bootstrap.Player != null)
-        //        {
-        //            animationTriggerBox.StartCoroutine(LerpToPlayerPosition());
-        //        }
-        //    }
-
-        //    public override void OnUpdate(float dt)
-        //    {
-        //       // Console.WriteLine($"On update {dialogueDone} and {dialogueStarted}");
-        //        if (!dialogueDone && dialogueStarted)
-        //        {
-        //            //Console.WriteLine("Dialogue started but not done");
-        //            if (Input.IsKeyDown(Keys.KEY_F) && !keyPressed)
-        //            {
-                       
-        //               // Console.WriteLine("Key Pressed");
-        //                keyPressed = true;
-        //                if (!Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true))
-        //                {
-        //                    animationTriggerBox.cameraSM.ChangeState(animationTriggerBox.exitState);
-        //                    dialogueDone = true;
-        //                }
-        //            }
-
-        //            if (Input.IsKeyReleased(Keys.KEY_F) && keyPressed)
-        //            {
-        //                keyPressed = false;
-        //            }
-        //        }
-        //    }
-
-        //    public override void OnExit()
-        //    {
-        //        // this is to turn start dialogue or turn off lock camera depending
-        //    }
-
-        //    public IEnumerator LerpToPlayerPosition()
-        //    {
-        //        float elapsed = 0f;
-        //        // how long it takes to lerp
-        //        float duration = 5.0f;
-        //        Vector3 startingPos = camControl.transform.Position;
-        //        Quaternion startingRot = camControl.transform.RotationQuat;
-                    
-        //        while (elapsed < duration)
-        //        {
-        //            elapsed += Time.deltaTime;
-        //            float t = elapsed / duration;
-
-        //            float smoothT = t * t * (3f - 2f * t);
-
-        //            Vector3 targetPos = Bootstrap.Player.transform.Position;
-
-        //            camControl.transform.Position = Vector3.Lerp(startingPos, targetPos, smoothT);
-
-        //            Quaternion targetRot = Quaternion.LookRotation(Bootstrap.Player.transform.Forward);
-        //            camControl.transform.RotationQuat = Quaternion.Slerp(startingRot, targetRot, smoothT);
-
-        //            yield return null;
-        //        }
-        //        dialogueStarted = true;
-        //        //owner.As<CameraAnimationTriggerBox>().cameraSM.ChangeState(owner.As<CameraAnimationTriggerBox>().exitState);
-        //    }
-        //}
 
         public class PretextState : BaseState
         {
             private IntroPretextCinematic owner;
-            //public GameObject cinematicPlayer;
-
-            // cause i dont want to modify the original animation trigger box
-            // ill have to hard code it here
-            //public Vector3 startingPos = new Vector3(720.8f, 75.0f,  -651.2f);
-            //public Vector3 endingPos = new Vector3(723.0f, 30.5f, -500.0f);
-            //public Vector3 startingRot = new Vector3(180.0f, -3.07f, 180.0f);
 
             private Coroutine fadeInRoutine = null;
             private Coroutine fadeOutRoutine = null;
