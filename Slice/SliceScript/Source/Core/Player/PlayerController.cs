@@ -115,9 +115,10 @@ namespace SliceEngine
         AudioSource audio;
 
         // Attacks
-        List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
-        public List<String> attackHitboxNames = new List<String>();
-        public List<int> attackDamageValues = new List<int>();
+        public GameObject attackHitboxGO;
+        public int hitDamage = 15;
+        public GeneralHitbox attackHitbox = new GeneralHitbox();
+        //List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
         public List<float> attackDelay = new List<float>();
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
@@ -311,7 +312,7 @@ namespace SliceEngine
                     case 1:
                         attackTimer = attackDuration[0];
 
-                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitboxes[0].TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitbox.TurnOn()));
 
                         //AudioSettings.PlaySFX("A1");
 
@@ -321,7 +322,7 @@ namespace SliceEngine
                     case 2:
                         attackTimer = attackDuration[1];
 
-                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitboxes[1].TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitbox.TurnOn()));
 
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
@@ -335,50 +336,15 @@ namespace SliceEngine
                         break;
                 }
             }
-            else if (PlayerCombatState != CombatState.Attacking
-                && PlayerMovementState != MovementState.MovingPlunge
-                && PlayerMovementState != MovementState.AttackingPlunge
-                && PlayerCombatState != CombatState.Shielding)
-            {
-                RayCastHit hitInfo;
-                
-                // Check if can plunge by raycasting down to see distance to ground
-                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.ToMask("Environment"), QueryTriggerInteraction.UseGlobal);
-                if (hit)
-                {
-                    GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
-
-                    if (objHit != null && objHit.tag == "Ground")
-                    {
-                        if (hitInfo.distance <= plungeMinDistance)
-                        {
-                            PlayerMovementState = MovementState.MovingPlunge;
-                            PlayerCurrentAttack = CurrentAttack.None;
-                            Console.WriteLine("Not high enough");
-                            return;
-                        }
-                    }
-                }
-
-                PlayerMovementState = MovementState.AttackingPlunge;
-                PlayerCurrentAttack = CurrentAttack.None;
-
-                if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-                {
-                    AudioSettings.PlaySFX("Plunge");
-                }
-            }
         }
         private void TurnOffHitboxes()
         {
-            foreach (var hb in attackHitboxes)
-            {
-                hb.TurnOff();
-            }
+            attackHitbox?.TurnOff();
         }
 
         public void StartAttackRecovery()
         {
+            Console.WriteLine($"Attack Recovery");
             //PlayerMovementState = MovementState.Idle;
             PlayerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
@@ -441,21 +407,12 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                //SliceLog.Console($"Attacking enemy in attack 1");
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                SliceLog.Console($"Attacking enemy in attack 1");
+                enemy.TakeDamage(hitDamage, this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
         }
-        private void Attack2(GameObject target)
-        {
-            EnemyBase enemy = target.As<EnemyBase>();
-            if (enemy != null)
-            {
-                //Console.WriteLine($"Attacking enemy in attack 2");
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
-                AudioSettings.PlaySFX("SwordHit");
-            }
-        }
+     
         private IEnumerator AttackDelay(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
@@ -463,6 +420,7 @@ namespace SliceEngine
         }
         void EndAttackState()
         {
+            Console.WriteLine("End Attack State");
             attackTimer = 0f;
             PlayerCurrentAttack = CurrentAttack.None;
             attackQueued = false;
@@ -482,42 +440,13 @@ namespace SliceEngine
 
         private void InitializeHitboxes()
         {
-            attackHitboxes.Clear();
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
-            //attackHitboxes[0].HitBoxListeners += Attack1;
+            if (attackHitboxGO == null) { return;  }
 
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
-            //attackHitboxes[1].HitBoxListeners += Attack2;
+            attackHitbox = attackHitboxGO.As<GeneralHitbox>();
+            HitBoxTriggerEvent attackAction;
+            attackAction = Attack1;
+            attackHitbox.HitBoxListeners += attackAction;
 
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[2])?.As<GeneralHitbox>());
-            //attackHitboxes[2].HitBoxListeners += Attack3;
-
-            for (int i = 0; i < attackHitboxNames.Count; i++)
-            {
-                attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[i])?.As<GeneralHitbox>());
-
-                HitBoxTriggerEvent attackAction = null;
-
-                switch (i)
-                {
-                    case 0:
-                        attackAction = Attack1;
-                        break;
-                    case 1:
-                        attackAction = Attack2;
-                        break;
-                    // ill leave hitbox3 in the list of attackHitboxNames for now
-                    // so 0 is attack 1, 1 is attack 2, 3 is for dash
-                    // 2 is removed now
-                    case 3:
-                        attackAction = DashAttack;
-                        break;
-                    default:
-                        break;
-                }
-                attackHitboxes[i].HitBoxListeners += attackAction;
-            }
-            Console.WriteLine($"Found {attackHitboxes.Count} hitboxes");
             TurnOffHitboxes();
         }
         private IEnumerator ShieldCoroutine()
@@ -812,7 +741,7 @@ namespace SliceEngine
                         vel.x *= 0.1f;
                         vel.z *= 0.1f;
                         rigidBody.Velocity = vel;
-                        attackHitboxes[dashArrayIndex].TurnOff();
+                        //attackHitboxes[dashArrayIndex].TurnOff();
                         PlayerMovementState = MovementState.Idle;
                     }
                     break;
@@ -826,7 +755,7 @@ namespace SliceEngine
 
                         Console.WriteLine($"Transitioning to falling from {PlayerMovementState.ToString()}");
 
-                        attackHitboxes[dashArrayIndex].TurnOff();
+                        //attackHitboxes[dashArrayIndex].TurnOff();
                         PlayerMovementState = MovementState.Falling;
                     }
                     break;
@@ -1183,7 +1112,7 @@ namespace SliceEngine
                     transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
                 }
             }
-            attackHitboxes[dashArrayIndex].TurnOn();
+            //attackHitboxes[dashArrayIndex].TurnOn();
         }
         void DashAttack(GameObject target = null)
         {

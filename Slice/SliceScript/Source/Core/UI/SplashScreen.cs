@@ -13,7 +13,12 @@ namespace SliceEngine
         private GameObject SplashScreenCanvas;
         private GameObject[] all_images;
 
-        private float duration = 2.0f;
+        public float growthWidth = 50.0f;
+        public float growthHeight = 20.0f;
+        public int originalWidth = 300;
+        public int originalHeight = 100;
+
+        public float duration = 2.0f;
         private float elapsedTime = 0.0f;
         private float skipDuration = 0.75f;
         private float skipTime = 0.0f;
@@ -51,13 +56,17 @@ namespace SliceEngine
                     elapsedTime += dt;
                     float normalizedTime = elapsedTime / duration;
 
-                    float mid = 1f - Math.Abs(2f * normalizedTime - 1f);
+                    if (normalizedTime > 1.0f)
+                        normalizedTime = 1.0f;
 
+                    //Alpha: fade in then fade out
+                    float mid = 1f - Math.Abs(2f * normalizedTime - 1f);
                     float alpha = Utilities.EaseInOut(mid);
 
+                    //Size
+                    float sizeT = Utilities.EaseIn(normalizedTime);
 
-
-                    ChangeAlpha(all_images[curr_img], alpha);
+                    ChangeAlpha(all_images[curr_img], alpha, sizeT);
                 }
                 else
                 {
@@ -71,24 +80,15 @@ namespace SliceEngine
                 //SliceLog.Log("all img fin, start game");
             }
 
-            if(Input.IsKeyDown(Keys.KEY_SPACEBAR))
-            { 
-                if (skipTime < skipDuration)
-                {
-                    skipTime += dt;
-                }
-                else
-                {
-                    if (!sceneChanged)
-                        StartGameMenu();
-
-                    sceneChanged = true;
-                    //SliceLog.Log("skip fin, start game");
-                }
-            }
-            else
+            if(Input.IsKeyPressed(Keys.KEY_SPACEBAR))
             {
-                skipTime = 0.0f;
+                elapsedTime = 0.0f;
+                ChangeAlpha(all_images[curr_img], 0.0f, 0.0f);
+                curr_img++;
+                if (curr_img >= all_images.Length)
+                {
+                    StartGameMenu();
+                }
             }
         }
 
@@ -97,7 +97,7 @@ namespace SliceEngine
             SceneManager.LoadScene("MenuScene");
         }
 
-        public void ChangeAlpha(GameObject obj, float alpha)
+        public void ChangeAlpha(GameObject obj, float alpha, float sizeT)
         {
             SpriteRenderer img_renderer = obj.GetComponent<SpriteRenderer>();
 
@@ -106,13 +106,15 @@ namespace SliceEngine
             img_renderer.Colour = color;
 
             RectTransform rect = obj.GetComponent<RectTransform>();
+
+
+            SliceLog.Log("Base Size: " + sizeT.ToString());
+
             if (rect != null)
-            {
-                rect.Width += 3;
-                rect.Height += 1;
+            { 
+                rect.Width = (int)originalWidth + (int)(sizeT * growthWidth);
+                rect.Height = (int)originalHeight + (int)(sizeT * growthHeight);
             }
-
-
         }
 
         public void ChangeDimension(GameObject obj, float width, float height)
