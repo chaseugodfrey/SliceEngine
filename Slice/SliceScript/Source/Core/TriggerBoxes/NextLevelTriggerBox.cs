@@ -21,19 +21,25 @@ namespace SliceEngine
         public float LoadDelay = 1f;
         public GameObject DoorModel;
         Animator animator;
+        public bool check = true;
 
         private bool counting = false;
         float count = 0f;
 
         public override void OnUpdate(float dt)
         {
+            if (!check)
+                return;
+
             base.OnUpdate(dt);
+
 
             if (counting)
             {
                 count += Time.deltaTime;
                 if (count >= LoadDelay)
                 {
+                    check = false;
                     Bootstrap.LevelDirector.LoadNextLevel();
                 }
             }
