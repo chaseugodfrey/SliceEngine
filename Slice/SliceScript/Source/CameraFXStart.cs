@@ -38,6 +38,7 @@ namespace SliceEngine
             {
                 if (!isSFXPlaying)
                 {
+                    StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.2f, camObj.GetComponent<Transform>().WorldPosition));
                     GetComponent<AudioSource>().Play();
                     isSFXPlaying = true;
                 }
@@ -67,7 +68,7 @@ namespace SliceEngine
 
             if (cameraShake)
             {
-                StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.2f, initialPos));
+                StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.4f, initialPos));
             }
 
             while (elapsedTime < delay)
