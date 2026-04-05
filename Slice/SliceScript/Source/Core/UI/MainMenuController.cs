@@ -144,6 +144,8 @@ namespace SliceEngine
             if (bgAnim != null)
             {
                 AudioSettings.PlaySFX("PauseTransitionIn");
+                GameObject settingsCanvas = FindGameObjectWithName("Settings_Popup_Canvas");
+                settingsCanvas.SetActive(true);
                 bgAnim.StartSettingsBGAnimation(true);
             }
             //else if (borderAnim != null)
