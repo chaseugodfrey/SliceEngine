@@ -49,6 +49,9 @@ namespace SliceEngine
 
         GameObject wings;
 
+        public GameObject fireSFXSourceObject;
+        AudioSource fireSFXSource;
+
         public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
@@ -80,7 +83,19 @@ namespace SliceEngine
 
             allProjectiles.Add(p);
 
+
+
             return newBullet;
+        }
+
+        public void ResetTelegraph()
+        {
+            telegraph.SetActive(false);
+            foreach (GameObject child in telegraph.GetAllChildren())
+            {
+                child.SetActive(false);
+            }
+            return;
         }
 
         public void SetTelegraph()
@@ -121,6 +136,12 @@ namespace SliceEngine
                     telegraph = child;
                 }
             }
+
+            if (fireSFXSourceObject != null && fireSFXSourceObject.HasComponent<AudioSource>())
+            {
+                fireSFXSource = fireSFXSourceObject.GetComponent<AudioSource>();
+            }
+
         }
 
         public override void OnFixedUpdate(float dt)
@@ -182,6 +203,8 @@ namespace SliceEngine
 
                         if (!isBursting)
                         {
+                            //AUDIO
+                            fireSFXSource.Stop();
                             burstTimer += dt;
 
                             if (burstTimer >= timeBetweenBursts)
@@ -196,6 +219,9 @@ namespace SliceEngine
                         {
                             shotTimer += dt;
 
+                            //AUDIO
+                            fireSFXSource.Play();
+
                             if (shotTimer >= timeBetweenShotsInBurst)
                             {
                                 shotTimer = 0f;
@@ -205,6 +231,7 @@ namespace SliceEngine
 
                                 // Spawn firing FX
                                 CreateFiringFX(transform.WorldPosition, transform.WorldRotationQuat.ToEuler());
+
 
                                 shotsFiredInBurst++;
 
