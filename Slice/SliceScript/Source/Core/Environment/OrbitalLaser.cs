@@ -24,8 +24,7 @@ namespace SliceEngine
 
         ColliderShape cs;
         public float lingerTime = 2f;
-        GameObject[] innerLaser;
-        GameObject signallingLaser;
+
         //public float damageDuration = 1.8f;
 
         OrbitalLaserCamManager camManager;
@@ -42,27 +41,12 @@ namespace SliceEngine
             cs = GetComponent<ColliderShape>();
             cs.ComponentEnabled = false;
 
-            innerLaser = gameObject.GetAllChildren();
-            foreach (GameObject child in innerLaser)
-            {
-                if (child.tag == "InnerLaser")
-                {
-                    child.GetComponent<Renderer>().ComponentEnabled = false;
-                }
-
-                if (child.tag == "SignallingLaser")
-                {
-                    signallingLaser = child;
-                }
-            }
-        }
-
-        public override void OnAwake()
-        {
             audioSource = GetComponent<AudioSource>();
             GameObject[] manager = FindGameObjectsWithTag("OrbitalCamManager");
-            camManager = manager[0].As<OrbitalLaserCamManager>();
-            impactY = transform.Position.y * 3.0f;
+
+            if (manager != null)
+                camManager = manager[0].As<OrbitalLaserCamManager>();
+
         }
 
         public override void OnUpdate(float dt)
@@ -94,19 +78,16 @@ namespace SliceEngine
             {
                 if (!beginDeath)
                 {
-                    audioSource.Play();
-                    StartCoroutine(Suicide());
                     beginDeath = true;
                 }
             }
-
-            //this.GetComponent<Transform>().Position = cachedPosition;
-
-
         }
 
         public void Tracking(float dt)
         {
+            if (Bootstrap.Player == null)
+                return;
+
             Vector3 currentPos = this.GetComponent<Transform>().Position;
             Vector3 playerPos = Bootstrap.Player.transform.WorldPosition;
 
@@ -135,14 +116,6 @@ namespace SliceEngine
             {
                 done = true;
                 cs.ComponentEnabled = true;
-
-                foreach (GameObject child in innerLaser)
-                {
-                    if (child.tag == "InnerLaser")
-                    {
-                        child.GetComponent<Renderer>().ComponentEnabled = true;
-                    }
-                }
             }
 
             this.GetComponent<Transform>().Position = cachedPosition;
@@ -183,38 +156,39 @@ namespace SliceEngine
             isPlayerIn = false;
         }
 
-        IEnumerator Suicide()
-        {
-            yield return new WaitForSeconds(lingerTime);
-            gameObject.Destroy();
-        }
-
         void ResetTickTimer()
         {
             tickTimer = 0;
         }
 
-        public void SetupLaser(float diameter, float height, float tracktime, float lifetime, float trackSpeed = 15.0f)
+        public void SetupLaser(Vector3 spawnPos, float diameter, float hintTime, float laserTime, float trackSpeed = 15.0f)
         {
-            var newScale = new Vector3(diameter, height, diameter);
-            var ps = signallingLaser.GetComponent<ParticleSystem>();
+            // overriding values here
+            hintTime = 1f;
+            laserTime = 2f;
 
-            // parent
-            transform.Scale = newScale;
+            audioSource.Play();
+            transform.Position = spawnPos;
 
-            // script
-            trackDuration = tracktime;
-            lingerTime = lifetime;
-            moveSpeed = trackSpeed;
+            var hint = gameObject.CreateGameObject("Prefabs/FX_OrbitalLaserHint.prefab");
+            hint.As<OrbitalLaserHint>().SetupLaser(spawnPos, diameter, hintTime, laserTime, trackSpeed);
 
-            // particle system
-            ps.Scale = newScale;
-            ps.Lifetime = tracktime * 0.5f;
+            StartCoroutine(SpawnFX(spawnPos, diameter, hintTime, laserTime, trackSpeed));
         }
 
-        public override void OnEntityDestroy(uint id)
+        IEnumerator SpawnFX(Vector3 spawnPos, float diameter, float hintTime, float laserTime, float trackSpeed = 15.0f)
         {
-            CreateParticleEnd();
+            yield return new WaitForSeconds(hintTime + 0.5f);
+            cs.ComponentEnabled = true;
+            var fx = gameObject.CreateGameObject("Prefabs/FX_OrbitalLaser.prefab");
+            fx.As<OrbitalLaserLight>().SetupLaser(spawnPos, diameter, laserTime);
+            StartCoroutine(DestroyLaser(laserTime + 0.1f));
+        }
+
+        IEnumerator DestroyLaser(float timer)
+        {
+            yield return new WaitForSeconds(timer);
+            gameObject.Destroy();
         }
 
         void CreateParticleEnd()
