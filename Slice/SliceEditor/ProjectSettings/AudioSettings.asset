@@ -505,6 +505,20 @@
         },
         {
             "AudioClips": [
+                10256689771714036555
+            ],
+            "isSpatial": false,
+            "key": "Explode",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.4000000059604645,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
                 15187573176385600084
             ],
             "isSpatial": false,
@@ -673,7 +687,7 @@
         },
         {
             "AudioClips": [
-                13776020901259416480
+                12918395099009470816
             ],
             "isSpatial": false,
             "key": "TurretFire",
@@ -682,7 +696,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 0.20000000298023224,
+            "volume": 0.4000000059604645,
             "volumeRollOff": 1
         },
         {
@@ -697,6 +711,20 @@
             "minInterval": 0.0,
             "spatialBlend": 1.0,
             "volume": 1.0,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                11270437979785376615
+            ],
+            "isSpatial": false,
+            "key": "MineSpawn",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.30000001192092896,
             "volumeRollOff": 1
         }
     ]

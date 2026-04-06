@@ -431,6 +431,21 @@
             "path": "Resources/17681727076060904965.mat"
         },
         {
+            "guid": 10230791056562210482,
+            "name": "Material/EnemySpawner_m.mat",
+            "path": "Resources/10230791056562210482.mat"
+        },
+        {
+            "guid": 15812733968228765909,
+            "name": "Prefabs/FX_Environment_Sparks.prefab",
+            "path": "Resources/15812733968228765909.prefab"
+        },
+        {
+            "guid": 14082461890577180591,
+            "name": "Prefabs/LoadNextScene_trigger.prefab",
+            "path": "Resources/14082461890577180591.prefab"
+        },
+        {
             "guid": 15572364240678359036,
             "name": "Audio/03_05_HQ_ExpectHeavierResistance.wav",
             "path": "Resources/15572364240678359036.wav"
@@ -444,21 +459,6 @@
             "guid": 16871065244757135862,
             "name": "Audio/ShieldGenSFX.wav",
             "path": "Resources/16871065244757135862.wav"
-        },
-        {
-            "guid": 14082461890577180591,
-            "name": "Prefabs/LoadNextScene_trigger.prefab",
-            "path": "Resources/14082461890577180591.prefab"
-        },
-        {
-            "guid": 10230791056562210482,
-            "name": "Material/EnemySpawner_m.mat",
-            "path": "Resources/10230791056562210482.mat"
-        },
-        {
-            "guid": 15812733968228765909,
-            "name": "Prefabs/FX_Environment_Sparks.prefab",
-            "path": "Resources/15812733968228765909.prefab"
         },
         {
             "guid": 9519905501966539052,
@@ -594,6 +594,11 @@
             "guid": 10936558863655818413,
             "name": "Audio/05_01_HQ_ThisIsTheFinalPush.wav",
             "path": "Resources/10936558863655818413.wav"
+        },
+        {
+            "guid": 16707998382218795955,
+            "name": "Dylan/Pipe_Connectors.fbx",
+            "path": "Resources/16707998382218795955.mdl"
         },
         {
             "guid": 15542535991721540951,
@@ -761,6 +766,16 @@
             "path": "Resources/13552891661274492760.wav"
         },
         {
+            "guid": 12918395099009470816,
+            "name": "Audio/GroundTurretFire.wav",
+            "path": "Resources/12918395099009470816.wav"
+        },
+        {
+            "guid": 15171955937019804702,
+            "name": "CustomShader/ProjetileTest.cshader",
+            "path": "Resources/15171955937019804702.cshader"
+        },
+        {
             "guid": 12352045716543518977,
             "name": "Material/ShieldGeneratorLitOff.mat",
             "path": "Resources/12352045716543518977.mat"
@@ -804,6 +819,16 @@
             "guid": 14519978940760992061,
             "name": "Prefabs/GameSettings.prefab",
             "path": "Resources/14519978940760992061.prefab"
+        },
+        {
+            "guid": 10693847718036195009,
+            "name": "Prefabs/FX_Firing2.prefab",
+            "path": "Resources/10693847718036195009.prefab"
+        },
+        {
+            "guid": 11227699706618456297,
+            "name": "Audio/NANO_BGM.wav",
+            "path": "Resources/11227699706618456297.wav"
         },
         {
             "guid": 15605811065976597761,
@@ -874,6 +899,41 @@
             "guid": 12215496347356968767,
             "name": "Prefabs/Camera Rig.prefab",
             "path": "Resources/12215496347356968767.prefab"
+        },
+        {
+            "guid": 15894454899609513178,
+            "name": "Audio/RotatingLaser.wav",
+            "path": "Resources/15894454899609513178.wav"
+        },
+        {
+            "guid": 18168832831991026069,
+            "name": "Dylan/m6/cargoArea/m6CargoHandle.fbx",
+            "path": "Resources/18168832831991026069.mdl"
+        },
+        {
+            "guid": 12899007606864875075,
+            "name": "Prefabs/FX_Falling_Dust.prefab",
+            "path": "Resources/12899007606864875075.prefab"
+        },
+        {
+            "guid": 14913784304911992572,
+            "name": "Audio/RotatingLaser_1.wav",
+            "path": "Resources/14913784304911992572.wav"
+        },
+        {
+            "guid": 10374390375323813332,
+            "name": "Audio/RotatingLaser_2.wav",
+            "path": "Resources/10374390375323813332.wav"
+        },
+        {
+            "guid": 11946614573278318346,
+            "name": "Material/idleState.png",
+            "path": "Resources/11946614573278318346.dds"
+        },
+        {
+            "guid": 13151837897005897509,
+            "name": "Material/AimProjRed.mat",
+            "path": "Resources/13151837897005897509.mat"
         },
         {
             "guid": 11944477452832270171,
@@ -1004,11 +1064,6 @@
             "guid": 16421389726626740171,
             "name": "Material/LazerImpact1.mat",
             "path": "Resources/16421389726626740171.mat"
-        },
-        {
-            "guid": 15171955937019804702,
-            "name": "CustomShader/ProjetileTest.cshader",
-            "path": "Resources/15171955937019804702.cshader"
         },
         {
             "guid": 11667369123165801013,
@@ -1856,11 +1911,6 @@
             "path": "Resources/16973179475756762521.mat"
         },
         {
-            "guid": 18168832831991026069,
-            "name": "Dylan/m6/cargoArea/m6CargoHandle.fbx",
-            "path": "Resources/18168832831991026069.mdl"
-        },
-        {
             "guid": 11046772626675135816,
             "name": "Dylan/m6/console/console_Base_1.png",
             "path": "Resources/11046772626675135816.dds"
@@ -2501,16 +2551,6 @@
             "path": "Resources/12851759591155610253.mat"
         },
         {
-            "guid": 12400085700756427728,
-            "name": "Material/AimingMechCore.mat",
-            "path": "Resources/12400085700756427728.mat"
-        },
-        {
-            "guid": 16028314570537009040,
-            "name": "Prefabs/Level3Projectile.prefab",
-            "path": "Resources/16028314570537009040.prefab"
-        },
-        {
             "guid": 13949509492220521480,
             "name": "Textures/Game Over 2.png",
             "path": "Resources/13949509492220521480.dds"
@@ -2521,6 +2561,16 @@
             "path": "Resources/9236083295454303827.animpkg"
         },
         {
+            "guid": 16028314570537009040,
+            "name": "Prefabs/Level3Projectile.prefab",
+            "path": "Resources/16028314570537009040.prefab"
+        },
+        {
+            "guid": 12400085700756427728,
+            "name": "Material/AimingMechCore.mat",
+            "path": "Resources/12400085700756427728.mat"
+        },
+        {
             "guid": 10372323955956110936,
             "name": "Material/AimingMechShooter.mat",
             "path": "Resources/10372323955956110936.mat"
@@ -2529,16 +2579,6 @@
             "guid": 16267995604642909280,
             "name": "Material/AimingMechWings.mat",
             "path": "Resources/16267995604642909280.mat"
-        },
-        {
-            "guid": 11946614573278318346,
-            "name": "Material/idleState.png",
-            "path": "Resources/11946614573278318346.dds"
-        },
-        {
-            "guid": 13151837897005897509,
-            "name": "Material/AimProjRed.mat",
-            "path": "Resources/13151837897005897509.mat"
         },
         {
             "guid": 9919909892102733493,
@@ -2936,19 +2976,9 @@
             "path": "Resources/16437058978826775180.prefab"
         },
         {
-            "guid": 12899007606864875075,
-            "name": "Prefabs/FX_Falling_Dust.prefab",
-            "path": "Resources/12899007606864875075.prefab"
-        },
-        {
             "guid": 17365031189549555498,
             "name": "Prefabs/FX_Firing1.prefab",
             "path": "Resources/17365031189549555498.prefab"
-        },
-        {
-            "guid": 10693847718036195009,
-            "name": "Prefabs/FX_Firing2.prefab",
-            "path": "Resources/10693847718036195009.prefab"
         },
         {
             "guid": 13342815008902586022,
