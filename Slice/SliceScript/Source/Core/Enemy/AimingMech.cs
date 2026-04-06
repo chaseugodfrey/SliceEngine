@@ -208,6 +208,12 @@ namespace SliceEngine
                             SetTelegraph();
 
                             //Play Fire Audio
+                            SliceLog.Console("ALOY Play Fire SFX");
+                            //fireSFXSource.Play();
+                        }
+
+                        if(telegraphed)
+                        {
                             fireSFXSource.Play();
                         }
 
@@ -243,6 +249,7 @@ namespace SliceEngine
                                 if (shotsFiredInBurst >= bulletsPerBurst)
                                 {
                                     isBursting = false;
+                                    telegraphed = false;
                                 }
                             }
                         }
