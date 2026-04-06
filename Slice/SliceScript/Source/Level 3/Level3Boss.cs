@@ -743,7 +743,7 @@ namespace SliceEngine
 
         public GameObject Lvl3CutSceneManagerObj;
 
-        Vector3 startingPosition;
+        public Vector3 startingPosition;
         Vector3 rechargingPosition;
 
         public float currentShield = 100.0f;
@@ -810,6 +810,9 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            startingPosition = startingPositionObj.GetComponent<Transform>().WorldPosition;
+            rechargingPosition = rechargePositionObj.GetComponent<Transform>().Position;
+
             // you have to call on update if u want the onUpdate to run
             Cheats();
             bossSM.OnUpdate(dt);
