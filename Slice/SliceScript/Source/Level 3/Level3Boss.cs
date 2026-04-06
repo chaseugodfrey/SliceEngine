@@ -981,7 +981,7 @@ namespace SliceEngine
 
         public override void OnDeath()
         {
-            AudioSettings.PlaySFX("05_03_Ozone_Death");
+            AudioSettings.PlaySFX("FinalExplosions");
             isDead = true;
             isInvulnerable = true;
             bossSM.ChangeState(deathState);
