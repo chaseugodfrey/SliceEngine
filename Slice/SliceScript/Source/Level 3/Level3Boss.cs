@@ -945,7 +945,7 @@ namespace SliceEngine
 
             //SliceLog.Console("Recharging...");
             isShieldDestroyed = false;
-            currentShield += restoreRate * Time.deltaTime * (isIntro ? 3.0f : 1.0f);
+            currentShield += restoreRate * Time.deltaTime * (isIntro ? 10.0f : 1.0f);
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
