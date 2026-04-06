@@ -32,6 +32,8 @@ namespace SliceEngine
 
         public IEnumerator Collapse()
         {
+            var audio = GetComponent<AudioSource>();
+            audio.Play();
             float timer = 0.0f;
             while (timer < collapseTime)
             {
@@ -39,6 +41,8 @@ namespace SliceEngine
                 transform.Scale = Vector3.Lerp(initialScale, collapsedScale, timer / collapseTime);
                 yield return null;
             }
+
+            audio.Stop();
         }
 
         public IEnumerator ResetPipe()
