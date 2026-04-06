@@ -2,6 +2,424 @@
     "NavMeshData": null,
     "SceneData": [
         {
+            "GameObject_2": {
+                "struct SliceEngine::ColliderShape": {
+                    "boxData": {
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    },
+                    "componentEnabled": true,
+                    "isTrigger": false,
+                    "offSet": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "9336273396156370476"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "4412061832024819835"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::RigidBody": {
+                    "CollisionDetection": "",
+                    "angularDamping": 0.05000000074505806,
+                    "freezePosition": [
+                        false,
+                        false,
+                        false
+                    ],
+                    "freezeRotation": [
+                        false,
+                        false,
+                        false
+                    ],
+                    "friction": 0.5,
+                    "gravityFactor": 1.0,
+                    "isKinematic": false,
+                    "linearDamping": 0.05000000074505806,
+                    "mass": 1.0,
+                    "restituition": 0.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 1048583,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        2097164,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.PlayerController",
+                    "scriptableFieldMap": {
+                        "attackDelay": {
+                            "Type": "std::vector<float>",
+                            "Value": []
+                        },
+                        "attackDuration": {
+                            "Type": "std::vector<float>",
+                            "Value": []
+                        },
+                        "attackHitboxGO": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 4294967295
+                        },
+                        "attackRecoveryDuration": {
+                            "Type": "float",
+                            "Value": 0.5
+                        },
+                        "attackWindows": {
+                            "Type": "std::vector<glm::vec3>",
+                            "Value": []
+                        },
+                        "canAttack": {
+                            "Type": "bool",
+                            "Value": false
+                        },
+                        "currentHealth": {
+                            "Type": "int",
+                            "Value": 100
+                        },
+                        "damage": {
+                            "Type": "int",
+                            "Value": 100
+                        },
+                        "dashArrayIndex": {
+                            "Type": "int",
+                            "Value": 3
+                        },
+                        "dashCooldown": {
+                            "Type": "float",
+                            "Value": 0.75
+                        },
+                        "dashDuration": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "dashSpeed": {
+                            "Type": "float",
+                            "Value": 20.0
+                        },
+                        "debugMode": {
+                            "Type": "bool",
+                            "Value": false
+                        },
+                        "fallSpeed": {
+                            "Type": "float",
+                            "Value": 20.0
+                        },
+                        "fallTimeThreshold": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "flickerDuration": {
+                            "Type": "float",
+                            "Value": 0.05000000074505806
+                        },
+                        "groundCheckDelay": {
+                            "Type": "float",
+                            "Value": 0.10000000149011612
+                        },
+                        "groundContactCount": {
+                            "Type": "int",
+                            "Value": 0
+                        },
+                        "grounded": {
+                            "Type": "bool",
+                            "Value": false
+                        },
+                        "hitDamage": {
+                            "Type": "int",
+                            "Value": 15
+                        },
+                        "hitPrefabName": {
+                            "Type": "std::string",
+                            "Value": ""
+                        },
+                        "iFrameDuration": {
+                            "Type": "float",
+                            "Value": 0.20000000298023224
+                        },
+                        "iFrames": {
+                            "Type": "bool",
+                            "Value": false
+                        },
+                        "jumpCooldown": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "jumpDuration": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "jumpHorizontalForce": {
+                            "Type": "float",
+                            "Value": 7.5
+                        },
+                        "jumpLandDuration": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "jumpMax": {
+                            "Type": "int",
+                            "Value": 2
+                        },
+                        "jumpVerticalForce": {
+                            "Type": "float",
+                            "Value": 15.0
+                        },
+                        "lungeDuration": {
+                            "Type": "float",
+                            "Value": 0.5
+                        },
+                        "lungeSpeed": {
+                            "Type": "float",
+                            "Value": 5.0
+                        },
+                        "maxHealth": {
+                            "Type": "int",
+                            "Value": 100
+                        },
+                        "moveAcceleration": {
+                            "Type": "float",
+                            "Value": 100.0
+                        },
+                        "moveDeceleration": {
+                            "Type": "float",
+                            "Value": 100.0
+                        },
+                        "movementSpeed": {
+                            "Type": "float",
+                            "Value": 5.0
+                        },
+                        "playerModel": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 4294967295
+                        },
+                        "playerSwordModel": {
+                            "Type": "SliceEngine::GameObject",
+                            "Value": 4294967295
+                        },
+                        "plungeAttackDuration": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "plungeMinDistance": {
+                            "Type": "float",
+                            "Value": 3.0
+                        },
+                        "plungeRecoveryDuration": {
+                            "Type": "float",
+                            "Value": 0.25
+                        },
+                        "plungeTerminalVelocity": {
+                            "Type": "float",
+                            "Value": 40.0
+                        },
+                        "plungeVerticalForce": {
+                            "Type": "float",
+                            "Value": 20.0
+                        },
+                        "rotationSpeed": {
+                            "Type": "float",
+                            "Value": 45.0
+                        },
+                        "shieldDuration": {
+                            "Type": "float",
+                            "Value": 0.5
+                        },
+                        "strafeMultiplier": {
+                            "Type": "float",
+                            "Value": 0.75
+                        }
+                    }
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 3,
+                    "mName": "GameObject_2",
+                    "mTag": "Player"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "GameObject": {
+                "struct SliceEngine::ColliderShape": {
+                    "boxData": {
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    },
+                    "componentEnabled": true,
+                    "isTrigger": false,
+                    "offSet": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "9336273396156370476"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "4412061832024819835"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 1048584,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        4294967295,
+                        2097163
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "GameObject",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        -5.14647102355957
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        62.0,
+                        1.0,
+                        51.099998474121094
+                    ]
+                }
+            }
+        },
+        {
+            "GameObject_1": {
+                "struct SliceEngine::ColliderShape": {
+                    "boxData": {
+                        "scale": [
+                            0.5,
+                            0.5,
+                            0.5
+                        ]
+                    },
+                    "componentEnabled": true,
+                    "isTrigger": false,
+                    "offSet": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ]
+                },
+                "struct SliceEngine::Renderer": {
+                    "castsShadow": true,
+                    "componentEnabled": true,
+                    "material": {
+                        "GUID": "9336273396156370476"
+                    },
+                    "meshOffset": "0",
+                    "model": {
+                        "GUID": "4412061832024819835"
+                    },
+                    "renderTag": "0",
+                    "skinned": false
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 2097163,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        1048584,
+                        2097165
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "GameObject_1",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        2.5857937335968018,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
             "Spawner": {
                 "struct SliceEngine::ColliderShape": {
                     "boxData": {
@@ -33,12 +451,12 @@
                     "skinned": false
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 14680078,
+                    "entity_id": 2097164,
                     "neighbours": [
                         0,
                         4294967295,
-                        15728655,
-                        4294967295
+                        2097165,
+                        1048583
                     ]
                 },
                 "struct SliceEngine::Script": {
@@ -50,11 +468,11 @@
                         },
                         "hintDuration": {
                             "Type": "float",
-                            "Value": 1.5
+                            "Value": 1.0
                         },
                         "laserDuration": {
                             "Type": "float",
-                            "Value": 2.5
+                            "Value": 2.0
                         },
                         "prefabName": {
                             "Type": "std::string",
@@ -187,12 +605,12 @@
                     "width": 1920
                 },
                 "struct SliceEngine::SceneGraph": {
-                    "entity_id": 15728655,
+                    "entity_id": 2097165,
                     "neighbours": [
                         0,
                         4294967295,
-                        44040195,
-                        14680078
+                        2097163,
+                        2097164
                     ]
                 },
                 "struct SliceEngine::SliceEntity": {
@@ -217,148 +635,6 @@
                         0.0,
                         0.0,
                         0.04858943819999695
-                    ],
-                    "scale": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                }
-            }
-        },
-        {
-            "GameObject": {
-                "struct SliceEngine::ColliderShape": {
-                    "boxData": {
-                        "scale": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ]
-                    },
-                    "componentEnabled": true,
-                    "isTrigger": false,
-                    "offSet": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                },
-                "struct SliceEngine::Renderer": {
-                    "castsShadow": true,
-                    "componentEnabled": true,
-                    "material": {
-                        "GUID": "9336273396156370476"
-                    },
-                    "meshOffset": "0",
-                    "model": {
-                        "GUID": "4412061832024819835"
-                    },
-                    "renderTag": "0",
-                    "skinned": false
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 45088776,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        4294967295,
-                        44040195
-                    ]
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "GameObject",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        0.0,
-                        -5.14647102355957
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scale": [
-                        62.0,
-                        1.0,
-                        51.099998474121094
-                    ]
-                }
-            }
-        },
-        {
-            "GameObject_1": {
-                "struct SliceEngine::ColliderShape": {
-                    "boxData": {
-                        "scale": [
-                            0.5,
-                            0.5,
-                            0.5
-                        ]
-                    },
-                    "componentEnabled": true,
-                    "isTrigger": false,
-                    "offSet": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ]
-                },
-                "struct SliceEngine::Renderer": {
-                    "castsShadow": true,
-                    "componentEnabled": true,
-                    "material": {
-                        "GUID": "9336273396156370476"
-                    },
-                    "meshOffset": "0",
-                    "model": {
-                        "GUID": "4412061832024819835"
-                    },
-                    "renderTag": "0",
-                    "skinned": false
-                },
-                "struct SliceEngine::SceneGraph": {
-                    "entity_id": 44040195,
-                    "neighbours": [
-                        0,
-                        4294967295,
-                        45088776,
-                        15728655
-                    ]
-                },
-                "struct SliceEngine::SliceEntity": {
-                    "mActive": true,
-                    "mLayer": 0,
-                    "mName": "GameObject_1",
-                    "mTag": "default"
-                },
-                "struct SliceEngine::Transform": {
-                    "euler_hint": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "position": [
-                        0.0,
-                        2.5857937335968018,
-                        0.0
-                    ],
-                    "rotation": [
-                        1.0,
-                        0.0,
-                        0.0,
-                        0.0
                     ],
                     "scale": [
                         1.0,

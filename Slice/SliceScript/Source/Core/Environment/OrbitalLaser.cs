@@ -163,6 +163,11 @@ namespace SliceEngine
 
         public void SetupLaser(Vector3 spawnPos, float diameter, float hintTime, float laserTime, float trackSpeed = 15.0f)
         {
+            // overriding values here
+            hintTime = 1f;
+            laserTime = 2f;
+
+            audioSource.Play();
             transform.Position = spawnPos;
 
             var hint = gameObject.CreateGameObject("Prefabs/FX_OrbitalLaserHint.prefab");
@@ -174,6 +179,7 @@ namespace SliceEngine
         IEnumerator SpawnFX(Vector3 spawnPos, float diameter, float hintTime, float laserTime, float trackSpeed = 15.0f)
         {
             yield return new WaitForSeconds(hintTime + 0.5f);
+            cs.ComponentEnabled = true;
             var fx = gameObject.CreateGameObject("Prefabs/FX_OrbitalLaser.prefab");
             fx.As<OrbitalLaserLight>().SetupLaser(spawnPos, diameter, laserTime);
             StartCoroutine(DestroyLaser(laserTime + 0.1f));

@@ -12,6 +12,7 @@ namespace SliceEngine
         
         public void SetupLaser(Vector3 spawnPos, float diameter, float laserTime)
         {
+            GetComponent<AudioSource>().Play();
             GameObject[] objs = gameObject.GetAllChildren();
 
             GameObject ringObj = null;

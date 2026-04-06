@@ -1,6 +1,28 @@
 [
     {
         "FX_OrbitalLaser": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 1.0,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 163.10000610351563,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.10000000149011612,
+                "soundGUID": "15605811065976597761",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": false,
                 "axis": [
@@ -36,13 +58,13 @@
                         1.0,
                         0.0,
                         0.0,
-                        0.6274510025978088
+                        1.0
                     ],
                     "0.950000": [
                         1.0,
                         0.0,
                         0.0,
-                        0.6274510025978088
+                        1.0
                     ],
                     "1.000000": [
                         1.0,
@@ -67,7 +89,7 @@
                             1.0,
                             0.0,
                             0.0,
-                            0.6274510025978088
+                            1.0
                         ]
                     ],
                     [
@@ -76,7 +98,7 @@
                             1.0,
                             0.0,
                             0.0,
-                            0.6274510025978088
+                            1.0
                         ]
                     ],
                     [
@@ -116,7 +138,7 @@
                 "isRotation3D": true,
                 "lifetime": 3.0,
                 "materialHandle": {
-                    "GUID": "9919909892102733493"
+                    "GUID": "15013141975069348310"
                 },
                 "maxGlowIntensity": 0.0,
                 "maxParticleLifetime": 3.0,
@@ -300,11 +322,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 32505861,
+                "entity_id": 1048687,
                 "neighbours": [
                     0,
-                    33554438,
-                    29360136,
+                    1048686,
+                    1048764,
                     4294967295
                 ]
             },
@@ -325,7 +347,7 @@
                 ],
                 "position": [
                     0.0,
-                    0.0,
+                    100.0,
                     0.0
                 ],
                 "rotation": [
@@ -518,12 +540,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 33554438,
+                "entity_id": 1048686,
                 "neighbours": [
-                    32505861,
+                    1048687,
                     4294967295,
                     4294967295,
-                    33554439
+                    1048685
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -824,11 +846,11 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 33554439,
+                "entity_id": 1048685,
                 "neighbours": [
-                    32505861,
+                    1048687,
                     4294967295,
-                    33554438,
+                    1048686,
                     4294967295
                 ]
             },

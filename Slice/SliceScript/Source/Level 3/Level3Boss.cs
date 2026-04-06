@@ -1007,7 +1007,7 @@ namespace SliceEngine
         IEnumerator FireBigOrbitalLaser(Vector3 position, float idleDuration)
         {
             position.y = startingPosition.y;
-            GameObject go = CreateOrbitalLaser(position, 80.0f, 0.0f, 5.0f, 0.2f);
+            GameObject go = CreateOrbitalLaser(position, 80.0f, 0.0f, 5.0f, 0.0f);
 
             go.GetComponent<Transform>().Position = position;
 
@@ -1055,6 +1055,7 @@ namespace SliceEngine
 
         public GameObject CreateOrbitalLaser(Vector3 spawnPos, float diameter, float tracktime, float lifetime, float trackspeed)
         {
+            trackspeed = 0f;
             GameObject laser = gameObject.CreateGameObject("Prefabs/OrbitalLaser.prefab");
             var laserScript = laser.As<OrbitalLaser>();
 
