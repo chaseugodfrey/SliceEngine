@@ -21,6 +21,7 @@ namespace SliceEngine
         public GameObject a_camPivot1;
         public GameObject b_camPivot2;
         public GameObject c_camPivot3;
+        public GameObject killBox;
 
         public GameObject x_BossHud;
         public GameObject x_PlayerHud;
@@ -48,6 +49,7 @@ namespace SliceEngine
 
         public override void OnAwake()
         {
+            killBox.As<KillPlayerTriggerBox>().enabled = false;
             //camCutsceneTr = a_camCutscene.GetComponent<Transform>();
             camRigTr = CameraRigObj.GetComponent<Transform>();
             camTr = CameraObj.GetComponent<Transform>();
@@ -205,6 +207,8 @@ namespace SliceEngine
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+
+            killBox.As<KillPlayerTriggerBox>().enabled = true;
 
             TriggerBoxObj.SetActive(true);
             BossObj.As<Level3Boss>().StartBoss();
