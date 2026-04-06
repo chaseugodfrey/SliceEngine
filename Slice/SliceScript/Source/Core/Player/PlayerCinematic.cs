@@ -13,7 +13,6 @@ namespace SliceEngine
         public GameObject cinematicCamera;
         public GameObject topBar;
         public GameObject bottomBar;
-        public string newPlayerPrefab;
         public GameObject cinematicSword;
 
         // public GameObject cameraStartingPos;
@@ -54,7 +53,8 @@ namespace SliceEngine
             //  cinematicCamera.GetComponent<Transform>().Position = cameraStartingPos.GetComponent<Transform>().WorldPosition;
             Camera.SetMainCamera(cinematicCamera);
             GetComponent<Animator>().SetBool("Cinematic", true);
-            StartCoroutine(UIAnimation());
+            AudioSettings.PlaySFX("Cinematic1_2");
+            StartCoroutine(UIAnimation(true));
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
             Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
@@ -178,7 +178,7 @@ namespace SliceEngine
             if (animState == 0)
             {
                 GetComponent<Animator>().SetBool("Cinematic", true);
-                StartCoroutine(UIAnimation());
+                StartCoroutine(UIAnimation(true));
             }
 
             if (animState == 1)
@@ -190,6 +190,7 @@ namespace SliceEngine
             {
                 //Bootstrap.CameraController.LockCamera = false;
                 //Bootstrap.Player.SetPlayerLock(false);
+                StartCoroutine(UIAnimation(false));
             }
 
 
@@ -266,13 +267,20 @@ namespace SliceEngine
             //CoroutineManager.StopAllCoroutines(_transitionRunner);
         }
 
-        public IEnumerator UIAnimation()
+        public IEnumerator UIAnimation(bool moveIn)
         {
             float elapsedTime = 0f;
             float startingTopBar = topBar.GetComponent<RectTransform>().Pos_Y;
             float startingBottomBar = bottomBar.GetComponent<RectTransform>().Pos_Y;
+
             float endingTopBar = startingTopBar - 75.0f;
             float endingBottomBar = startingBottomBar + 75.0f;
+
+            if (!moveIn)
+            {
+                endingTopBar = startingTopBar + 75.0f;
+                endingBottomBar = startingBottomBar - 75.0f;
+            }
 
             while (elapsedTime < uiDuration)
             {

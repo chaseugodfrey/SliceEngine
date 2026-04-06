@@ -11,6 +11,7 @@ namespace SliceEngine
 
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
+        private GameObject settingsCanvas;
         private GameObject bgCloseAnimationObject;
         private GameObject MainMenuCanvas;
         private GameObject pauseBGM;
@@ -36,6 +37,7 @@ namespace SliceEngine
         {
             settingsPopup = FindGameObjectWithName("Settings_Popup_Final");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
+            settingsCanvas = FindGameObjectWithName("Settings_Popup_Canvas");
             MainMenuCanvas = FindGameObjectWithName("MainMenu_Canvas");
             beforeGammaImage = FindGameObjectWithName("BeforeImage");
             pauseBGM = FindGameObjectWithName("PauseMusic");
@@ -51,6 +53,7 @@ namespace SliceEngine
 
             if (bgAnimationObject != null)
             {
+                
                 bgAnim = bgAnimationObject.As<SettingsBGAnimation>();
                 if (bgAnim != null)
                 {
@@ -73,6 +76,8 @@ namespace SliceEngine
             {
                 menuAudioSource = menuBGM.GetComponent<AudioSource>();
             }
+
+            
 
             PreferenceSettings.Initialize();
 
@@ -144,6 +149,8 @@ namespace SliceEngine
             if (bgAnim != null)
             {
                 AudioSettings.PlaySFX("PauseTransitionIn");
+
+                settingsCanvas.SetActive(true);
                 bgAnim.StartSettingsBGAnimation(true);
             }
             //else if (borderAnim != null)

@@ -59,7 +59,7 @@ namespace SliceEngine
         public void StartSettingsBGAnimation(bool isOpening)
         {
             playAnim = isOpening;
-            this.gameObject.SetActive(true);
+            
         }
     }
 }

@@ -198,7 +198,7 @@
             "minDistance": 1.0,
             "minInterval": 0.0,
             "spatialBlend": 1.0,
-            "volume": 0.5,
+            "volume": 0.699999988079071,
             "volumeRollOff": 1
         },
         {
@@ -287,6 +287,20 @@
         },
         {
             "AudioClips": [
+                9320300729472582241
+            ],
+            "isSpatial": false,
+            "key": "doorOpening",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
                 10769164010011941517
             ],
             "isSpatial": false,
@@ -339,6 +353,18 @@
             "minInterval": 0.0,
             "spatialBlend": 0.0,
             "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [],
+            "isSpatial": false,
+            "key": "New_Group_53",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
             "volumeRollOff": 1
         },
         {
@@ -692,6 +718,48 @@
             ],
             "isSpatial": false,
             "key": "01_13_HQ_UseItToGainDistance",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                16356765663973491194
+            ],
+            "isSpatial": false,
+            "key": "Cinematic1_2",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 1.0,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                13776020901259416480
+            ],
+            "isSpatial": false,
+            "key": "TurretFire",
+            "maxDistance": 30.0,
+            "maxInstances": 8,
+            "minDistance": 1.0,
+            "minInterval": 0.0,
+            "spatialBlend": 1.0,
+            "volume": 0.5,
+            "volumeRollOff": 1
+        },
+        {
+            "AudioClips": [
+                17868295336816648671
+            ],
+            "isSpatial": false,
+            "key": "FinalExplosions",
             "maxDistance": 30.0,
             "maxInstances": 8,
             "minDistance": 1.0,

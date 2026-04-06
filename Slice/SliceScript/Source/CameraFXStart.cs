@@ -38,6 +38,7 @@ namespace SliceEngine
             {
                 if (!isSFXPlaying)
                 {
+                    StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.2f, camObj.GetComponent<Transform>().WorldPosition));
                     GetComponent<AudioSource>().Play();
                     isSFXPlaying = true;
                 }
@@ -65,20 +66,25 @@ namespace SliceEngine
             Vector3 initialPos = camObj.GetComponent<Transform>().WorldPosition;
             float elapsedTime = 0.0f;
 
+            if (cameraShake)
+            {
+                StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.4f, initialPos));
+            }
+
             while (elapsedTime < delay)
             {
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
-            foreach (GameObject obj in bossGameObjects)
-            {
-                obj.GetComponent<Transform>().Position = Vector3.Zero;
-            }
-
             if (cameraShake)
             {
                 StartCoroutine(ShakeSequence(cameraShakeDuration, shakeIntensity, initialPos));
+            }
+
+            foreach (GameObject obj in bossGameObjects)
+            {
+                obj.GetComponent<Transform>().Position = Vector3.Zero;
             }
 
             if (impactFrame)
