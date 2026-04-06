@@ -240,12 +240,6 @@ namespace SliceEngine
 
                     SliceLog.Console("Slamming");
                     owner.GetComponent<RigidBody>().gravityFactor = 40.0f;
-                    if (!bossController.canRecharge && !isFiring)
-                    {
-                        Vector3 dir = (Bootstrap.Player.GetComponent<Transform>().WorldPosition - bossController.transform.WorldPosition).Normalize();
-                        bossController.StartCoroutine(bossController.FireOrbitalLaserRow(bossController.transform.Position, dir, 10.0f, 5, 0.3f));
-                        isFiring = true;
-                    }
                 }
 
                 if (onCooldown)
@@ -896,9 +890,9 @@ namespace SliceEngine
 
         IEnumerator FireBigOrbitalLaser(Vector3 position)
         {
-            GameObject go = CreateOrbitalLaser(80.0f, 100.0f, 3.0f, 5.0f, 0.2f);
-            Vector3 finalPos = position;
-            finalPos.y = go.GetComponent<Transform>().Position.y;
+            position.y = startingPosition.y;
+            GameObject go = CreateOrbitalLaser(position, 80.0f, 0.0f, 5.0f, 0.2f);
+
             go.GetComponent<Transform>().Position = position;
 
             isFiringDone = true;
@@ -908,11 +902,12 @@ namespace SliceEngine
 
         IEnumerator FireOrbitalLaserRow(Vector3 startPos, Vector3 dir, float distance, int count, float interval)
         {
+            startPos.y = startingPosition.y;
             isFiringDone = false;
 
             while (count > 0)
             {
-                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
+                GameObject go = CreateOrbitalLaser(startPos, 10.0f, 1.0f, 2.5f, 2.0f);
                 Transform tr = go.GetComponent<Transform>();
                 float height = tr.Position.y;
                 tr.Position = new Vector3(startPos.x, height, startPos.z);
@@ -926,16 +921,14 @@ namespace SliceEngine
 
         IEnumerator FireOrbitalLaserRandomRadius(Vector3 startPos, float radius, int count, float interval)
         {
+            startPos.y = startingPosition.y;
+
             Random rand = new Random();
             while (count > 0)
             {
                 Vector3 randomSphere = Utilities.RandomInsideSphere(radius);
                 Vector3 finalPos = new Vector3(startPos.x + randomSphere.x, startPos.y, startPos.z + randomSphere.y);
-                GameObject go = CreateOrbitalLaser(10.0f, 100.0f, 1.0f, 2.5f, 2.0f);
-                Transform tr = go.GetComponent<Transform>();
-                //float height = tr.WorldPosition.y;
-                //tr.Position = new Vector3(finalPos.x, height, finalPos.z);
-                tr.Position = finalPos;
+                GameObject go = CreateOrbitalLaser(finalPos, 10.0f, 1.5f, 2.5f, 2.0f);
                 count--;
                 yield return new WaitForSeconds(interval);
             }
@@ -943,12 +936,12 @@ namespace SliceEngine
             isFiringDone = true;
         }
 
-        public GameObject CreateOrbitalLaser(float diameter, float height, float tracktime, float lifetime, float trackspeed)
+        public GameObject CreateOrbitalLaser(Vector3 spawnPos, float diameter, float tracktime, float lifetime, float trackspeed)
         {
             GameObject laser = gameObject.CreateGameObject("Prefabs/OrbitalLaser.prefab");
             var laserScript = laser.As<OrbitalLaser>();
 
-            laserScript.SetupLaser(diameter, height, tracktime, lifetime, trackspeed);  
+            laserScript.SetupLaser(spawnPos, diameter, tracktime, lifetime, trackspeed);  
 
             return laser;
         }

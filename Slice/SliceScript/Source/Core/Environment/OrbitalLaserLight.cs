@@ -5,21 +5,38 @@ namespace SliceEngine
 {
     public class OrbitalLaserLight : SliceBehaviour
     {
-        public float moveSpeed = 5f;
-
-        public override void OnUpdate(float dt)
+        public override void OnCreate()
         {
-            base.OnUpdate(dt);
-
-            Vector3 currPos = this.GetComponent<Transform>().Position;
-
-            Vector3 direction = new Vector3(0,-1, 0);
-
-            Vector3 move = direction.Normalize() * moveSpeed * dt;  
-
-            this.GetComponent<Transform>().Position = currPos + move;
-
+            base.OnCreate();
         }
+        
+        public void SetupLaser(Vector3 spawnPos, float diameter, float laserTime)
+        {
+            GameObject[] objs = gameObject.GetAllChildren();
 
+            GameObject ringObj = null;
+
+            foreach (GameObject obj in objs)
+            {
+                if (obj.tag == "OrbitalLaserRing")
+                    ringObj = obj;
+            }
+
+            var ps = GetComponent<ParticleSystem>();
+
+            transform.Position = spawnPos;
+
+            ps.Scale = new Vector3(diameter, ps.Scale.y, diameter); ;
+            ps.Duration = laserTime;
+            ps.Lifetime = laserTime;
+
+            if (ringObj != null)
+            {
+                var ringPs = ringObj.GetComponent<ParticleSystem>();
+                ringPs.Scale = new Vector3(diameter, diameter, 1f);
+                ringPs.Duration = laserTime * 0.8f;
+                ringPs.Lifetime = laserTime * 0.8f;
+            }
+        }
     }
 }
