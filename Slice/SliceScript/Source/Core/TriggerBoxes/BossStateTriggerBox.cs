@@ -35,6 +35,7 @@ namespace SliceEngine
                     //BGMAudioSource.enabled  = true;
                     BGMAudioSource.Play();
                     enemy.As<EnemyLevel2>().TriggerState(stateToTrigger);
+                    enemy.As<EnemyLevel2>().enemyHUD.As<EnemyHUD>().HideBar(false);
                 }
             }
         }
