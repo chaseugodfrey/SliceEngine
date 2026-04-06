@@ -1,0 +1,656 @@
+[
+    {
+        "StationBig_2": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "13044449238067505801"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12288471787668499862"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 803,
+                "neighbours": [
+                    0,
+                    1048657,
+                    1049121,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "StationBig_2",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    720.89599609375,
+                    31.031999588012695,
+                    135.8820037841797
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    0.800000011920929,
+                    0.7999997735023499,
+                    0.7999997735023499
+                ]
+            }
+        }
+    },
+    {
+        "Station_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "14198799571823263406"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10090532599495555930"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048657,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    4294967295,
+                    1048870
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "Station_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    51.657470703125,
+                    169.89385986328125,
+                    -3.0862274169921875
+                ],
+                "rotation": [
+                    1.0,
+                    -7.105427357601002e-15,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048870,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048657,
+                    1048875
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -161.90841674804688,
+                    75.95844268798828,
+                    -149.39212036132813
+                ],
+                "position": [
+                    -36.5501708984375,
+                    57.163604736328125,
+                    27.105960845947266
+                ],
+                "rotation": [
+                    0.5169088840484619,
+                    0.35832223296165466,
+                    0.520074188709259,
+                    0.5778694152832031
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    1.000000238418579,
+                    0.9999998807907104
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer_2_1_1_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048875,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048870,
+                    1048874
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer_2_1_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0001449584961,
+                    -49.80274963378906,
+                    180.0
+                ],
+                "position": [
+                    13.1630859375,
+                    67.10709381103516,
+                    38.80768966674805
+                ],
+                "rotation": [
+                    -5.801329621135665e-07,
+                    -0.4210576117038727,
+                    0.9070339202880859,
+                    1.2516680953922332e-06
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer_2_1_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048874,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048875,
+                    1048873
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer_2_1_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -56.3759765625,
+                    -49.80274963378906,
+                    180.0
+                ],
+                "position": [
+                    23.9024658203125,
+                    82.09307098388672,
+                    37.83060073852539
+                ],
+                "rotation": [
+                    0.12178350239992142,
+                    -0.403061181306839,
+                    0.8682662844657898,
+                    -0.2623436152935028
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0000001192092896
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer_2_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048873,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048874,
+                    1048872
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer_2_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    89.99996948242188,
+                    -48.108760833740234,
+                    -4.347385038272478e-05
+                ],
+                "position": [
+                    12.64764404296875,
+                    66.4970474243164,
+                    24.150970458984375
+                ],
+                "rotation": [
+                    3.593885935515573e-07,
+                    0.9131589531898499,
+                    -0.4076036214828491,
+                    -4.864195943810046e-07
+                ],
+                "scale": [
+                    1.0,
+                    0.9999999403953552,
+                    1.000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer_2": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048872,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048873,
+                    1048871
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer_2",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    32.516845703125,
+                    37.114994049072266,
+                    4.969029426574707
+                ],
+                "position": [
+                    -14.9544677734375,
+                    70.1400375366211,
+                    24.634429931640625
+                ],
+                "rotation": [
+                    0.4675253927707672,
+                    0.8237927556037903,
+                    0.2590228021144867,
+                    0.18892520666122437
+                ],
+                "scale": [
+                    0.9999999403953552,
+                    1.0000001192092896,
+                    1.0000001192092896
+                ]
+            }
+        }
+    },
+    {
+        "CargoContainer": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12211386339668679919"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "15570547207600615232"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 1048871,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048872,
+                    808
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "CargoContainer",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    82.94705963134766,
+                    81.8341293334961,
+                    175.5941162109375
+                ],
+                "position": [
+                    18.8419189453125,
+                    75.21566009521484,
+                    8.137565612792969
+                ],
+                "rotation": [
+                    0.6550292372703552,
+                    -0.011265039443969727,
+                    -0.021317316219210625,
+                    0.7552187442779541
+                ],
+                "scale": [
+                    1.0000001192092896,
+                    0.9999998211860657,
+                    1.000000238418579
+                ]
+            }
+        }
+    },
+    {
+        "Tunnel_1": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "meshData": {
+                    "UwU": false
+                },
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "15150481003978053978"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "12682122120035783649"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 808,
+                "neighbours": [
+                    803,
+                    4294967295,
+                    1048871,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 4,
+                "mName": "Tunnel_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.7987060546875,
+                    303.72137451171875,
+                    -0.01120758056640625
+                ],
+                "rotation": [
+                    1.0,
+                    -7.1054265105680546e-15,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0000001192092896,
+                    1.0000001192092896
+                ]
+            }
+        }
+    }
+]

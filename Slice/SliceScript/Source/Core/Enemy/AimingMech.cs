@@ -140,6 +140,8 @@ namespace SliceEngine
             if (gameObject.HasComponent<AudioSource>())
             {
                 fireSFXSource = gameObject.GetComponent<AudioSource>();
+                fireSFXSource.Volume = 0.4f;
+                fireSFXSource.IsLoop = false;
             }
             else
             {

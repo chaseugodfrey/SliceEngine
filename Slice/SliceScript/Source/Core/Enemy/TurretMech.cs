@@ -254,6 +254,9 @@ namespace SliceEngine
                                 // Spawn firing FX
                                 CreateFiringFX(firingOffset.GetComponent<Transform>().WorldPosition, transform.WorldRotationQuat.ToEuler());
 
+                                //Play SFX
+                                AudioSettings.PlaySFX("TurretFire");
+
                                 shotsFiredInBurst++;
 
                                 if (shotsFiredInBurst >= bulletsPerBurst)
