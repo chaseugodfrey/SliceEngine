@@ -186,7 +186,7 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("PauseTransitionOut");
             }
 
-
+            settingsCanvas.SetActive(false);
         }
 
 

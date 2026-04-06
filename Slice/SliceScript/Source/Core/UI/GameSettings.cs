@@ -139,6 +139,8 @@ namespace SliceEngine
             // Force close everything
             //if (settingsPopup != null) settingsPopup.SetActive(false);
 
+            settingsPopup.SetActive(false);
+
 
             SliceLog.Console("Resume");
 
