@@ -25,7 +25,10 @@ namespace SliceEngine
         public void RestoreDefaultGamma()
         {
             Camera.Gamma = 45.5f;
-            
+            if (slider != null) //update the slider as well
+            {
+                slider.SetValue(Camera.Gamma * 0.01f);
+            }
         }
 
         public override void OnSliderValue(float value)

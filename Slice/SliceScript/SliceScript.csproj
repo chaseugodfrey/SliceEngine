@@ -166,6 +166,7 @@
     <Compile Include="Source\Core\TriggerBoxes\IntroPretextCinematic.cs" />
     <Compile Include="Source\Core\TriggerBoxes\KillPlayerTriggerBox.cs" />
     <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBox.cs" />
+    <Compile Include="Source\Core\TriggerBoxes\NextLevelTriggerBoxFallback.cs" />
     <Compile Include="Source\Core\TriggerBoxes\PlayerInteractTriggerBox.cs" />
     <Compile Include="Source\Core\UI\ExposureSlider.cs" />
     <Compile Include="Source\Core\UI\GameSettings.cs" />
@@ -213,6 +214,7 @@
     <Compile Include="Source\Level 3\Lvl3CutsceneManager.cs" />
     <Compile Include="Source\Level 3\Lvl3EnemyHUD.cs" />
     <Compile Include="Source\Level 3\OrbitalLaserCamManager.cs" />
+    <Compile Include="Source\Level 3\PlayFinalAudio.cs" />
     <Compile Include="Source\Level 3\ProjectileSpawnParent.cs" />
     <Compile Include="Source\Level 3\ShieldGenerator.cs" />
     <Compile Include="Source\Level 3\ShieldGeneratorManager.cs" />

@@ -16,13 +16,9 @@ namespace SliceEngine
         Slider health;
         public GameObject healthSliderObject;
 
-        SpriteRenderer victory;
-        public GameObject victoryObject;
-        public GameObject continueBtn;
 
-        SpriteRenderer defeat;
-        public GameObject defeatObject;
-        public GameObject retryBtn;
+        private GameObject defeatObject;
+        //public GameObject retryBtn;
 
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
@@ -45,7 +41,15 @@ namespace SliceEngine
             //    Bootstrap.Player.canInput = false;
             //}
             Cursor.state = Cursor.STATE.DISABLED;
-            dialogueDone = true;
+            if(FindGameObjectWithName("LoseScreenFinal") != null)
+            {
+                defeatObject = FindGameObjectWithName("LoseScreenFinal");
+            }
+            else
+            {
+                defeatObject = FindGameObjectWithName("DefeatPlaceholder");
+            }
+                dialogueDone = true;
         }
 
         public override void OnUpdate(float dt)
@@ -65,9 +69,6 @@ namespace SliceEngine
             //        enterPressed = false;
             //    }
             //}
-
-            
-
         }
 
 
@@ -77,16 +78,6 @@ namespace SliceEngine
             //health.SetValue(input);
             healthSliderObject.GetComponent<Slider>().SetValue(input);
             //console.writeline("Finish setting health");
-        }
-
-        public void GameWinScreen()
-        {
-            //victory.SetEnabled(true);
-            victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
-            continueBtn.SetActive(true);
-            Cursor.state = Cursor.STATE.DEFAULT;
-
-
         }
 
         //public void LoadNextLevel()
@@ -101,9 +92,19 @@ namespace SliceEngine
 
         public void GameLoseScreen()
         {
+            SliceLog.Console("Lost");
             //defeat.SetEnabled(true);
-            defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
-            retryBtn.SetActive(true);
+            if(defeatObject.HasComponent<SpriteRenderer>())
+            {
+                SpriteRenderer defeat = defeatObject.GetComponent<SpriteRenderer>();
+                defeat.SetEnabled(true);
+            }
+            else
+            {
+                defeatObject.SetActive(true);
+
+            }
+            //retryBtn.SetActive(true);
             Cursor.state = Cursor.STATE.DEFAULT;
             loseScreenOpen = true;
         }
@@ -192,7 +193,7 @@ namespace SliceEngine
                     }
                     
                     allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
-                    SliceLog.Log("Added dialogue entry with " + combinedKey);
+                    //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
         }
@@ -388,8 +389,7 @@ namespace SliceEngine
         {
             //console.writeline("HUD Ini called");
             health = healthSliderObject.GetComponent<Slider>();
-            victory = victoryObject.GetComponent<SpriteRenderer>();
-            defeat = defeatObject.GetComponent<SpriteRenderer>();
+            //defeat = defeatObject.GetComponent<SpriteRenderer>();
             LoadDialogues();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }

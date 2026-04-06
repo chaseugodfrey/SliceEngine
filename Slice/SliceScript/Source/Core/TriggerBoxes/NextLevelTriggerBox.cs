@@ -21,19 +21,25 @@ namespace SliceEngine
         public float LoadDelay = 1f;
         public GameObject DoorModel;
         Animator animator;
+        public bool check = true;
 
         private bool counting = false;
         float count = 0f;
 
         public override void OnUpdate(float dt)
         {
+            if (!check)
+                return;
+
             base.OnUpdate(dt);
+
 
             if (counting)
             {
                 count += Time.deltaTime;
                 if (count >= LoadDelay)
                 {
+                    check = false;
                     Bootstrap.LevelDirector.LoadNextLevel();
                 }
             }
@@ -115,7 +121,10 @@ namespace SliceEngine
 
             GameObject hit = gameObject.FindGameObjectWithID(other);
             //DoorModel = gameObject.FindGameObjectWithName("Door_1"); if (DoorModel == null) SliceLog.Warn("DoorController cannot find RootNode");
-            animator = DoorModel?.GetComponent<Animator>(); if (DoorModel == null) SliceLog.Warn("DoorController cannot find Animator");
+            animator = DoorModel?.GetComponent<Animator>();
+
+            if (DoorModel == null) 
+                SliceLog.Warn("DoorController cannot find Animator");
 
             if (hit.Has<PlayerController>() && Bootstrap.Player == hit.As<PlayerController>() && !_enabled)
             {
@@ -123,6 +132,10 @@ namespace SliceEngine
                 _enabled = true;
                 animator?.SetBool("Open", true);
                 counting = true;
+
+                //Call Door Opening Audio
+                AudioSettings.PlaySFX("doorOpening");
+
                 //Bootstrap.LevelDirector.LoadNextLevel();
             }
         }

@@ -17,17 +17,24 @@ namespace SliceEngine
         public GameObject CameraObj;
         public GameObject ArenaObj;
         public GameObject ArenaPivotObj;
+        public GameObject TriggerBoxObj;
         public GameObject a_camPivot1;
         public GameObject b_camPivot2;
         public GameObject c_camPivot3;
+        public GameObject killBox;
+
+        public GameObject x_BossHud;
+        public GameObject x_PlayerHud;
 
         public float z_transitionDurationToDeath = 1.5f;
 
         Transform camRigTr;
+        Transform camTr;
         Transform bossTr;
         List<Transform> camTransforms;
 
-        Quaternion camInitialRot;
+        Quaternion camRigInitialRot;
+        Vector3 camRigInitialPos;
         Vector3 camInitialPos;
         int currentCamIndex;
 
@@ -42,8 +49,10 @@ namespace SliceEngine
 
         public override void OnAwake()
         {
+            killBox.As<KillPlayerTriggerBox>().enabled = false;
             //camCutsceneTr = a_camCutscene.GetComponent<Transform>();
             camRigTr = CameraRigObj.GetComponent<Transform>();
+            camTr = CameraObj.GetComponent<Transform>();
             camTransforms = new List<Transform>
             {
                 a_camPivot1.GetComponent<Transform>(),
@@ -75,8 +84,8 @@ namespace SliceEngine
             //Camera.SetMainCamera(a_camCutscene);
 
             // Set cam initial pos
-            camInitialRot = camRigTr.WorldRotationQuat;
-            camInitialPos = camRigTr.Position;
+            camRigInitialRot = camRigTr.WorldRotationQuat;
+            camRigInitialPos = camRigTr.Position;
 
             // set current cam
             currentCamIndex = index;
@@ -112,14 +121,14 @@ namespace SliceEngine
 
                     if (cutToCamBool)
                     {
-                        camRigTr.RotationQuat = Quaternion.Slerp(camInitialRot, camTransforms[currentCamIndex].WorldRotationQuat, rate);
-                        camRigTr.Position = Vector3.Lerp(camInitialPos, camTransforms[currentCamIndex].WorldPosition, rate);
+                        camRigTr.RotationQuat = Quaternion.Slerp(camRigInitialRot, camTransforms[currentCamIndex].WorldRotationQuat, rate);
+                        camRigTr.Position = Vector3.Lerp(camRigInitialPos, camTransforms[currentCamIndex].WorldPosition, rate);
                     }
 
                     else if (cutFromCamBool)
                     {
-                        camRigTr.RotationQuat = Quaternion.Slerp(camInitialRot, camTransforms[currentCamIndex].WorldRotationQuat, rate);
-                        camRigTr.Position = Vector3.Lerp(camInitialPos, camTransforms[currentCamIndex].WorldPosition, rate);
+                        camRigTr.RotationQuat = Quaternion.Slerp(camRigInitialRot, camTransforms[currentCamIndex].WorldRotationQuat, rate);
+                        camRigTr.Position = Vector3.Lerp(camRigInitialPos, camTransforms[currentCamIndex].WorldPosition, rate);
                     }
                 }
 
@@ -154,7 +163,7 @@ namespace SliceEngine
             Vector3 ArenaNewPos = new Vector3(ArenaInitialPos.x, ArenaInitialPos.y - 150.0f, ArenaInitialPos.z);
             Vector3 CamRigNewPos = new Vector3(CamRigInitialPos.x, CamRigInitialPos.y - 150.0f, CamRigInitialPos.z);
 
-            camInitialPos = camRigTr.WorldPosition;
+            camRigInitialPos = camRigTr.WorldPosition;
 
             float maxTime = 6.0f;
             float elapsedTime = 0.0f;
@@ -163,31 +172,35 @@ namespace SliceEngine
             BossTr.Position = Vector3.Zero;
             Bootstrap.CameraController.LockCamera = true;
             Bootstrap.Player.SetPlayerLock(true);
+
+            camInitialPos = camTr.Position;
             
+            ArenaObj.GetComponent<AudioSource>().Play();
             // rise up
             while (elapsedTime < maxTime)
             {
                 float t = elapsedTime / maxTime;
                 float rate = Utilities.SmoothStep(0.0f, 1.0f, t);
 
-
                 camRigTr.Position = ArenaPivotTr.WorldPosition;
                 camRigTr.Rotation = ArenaPivotTr.Rotation;
-                PlayerTr.Position = ArenaPivotTr.WorldPosition;
-                ArenaTr.Position = Vector3.Lerp(ArenaNewPos, ArenaInitialPos, rate);
 
-                Vector3 PlayerNewPos = new Vector3(PlayerInitialPos.x, ArenaTr.Position.y, PlayerInitialPos.x);
-                PlayerTr.Position = PlayerNewPos;
+                ArenaTr.Position = Vector3.Lerp(ArenaNewPos, ArenaInitialPos, rate);
+                PlayerTr.Position = Vector3.One * 10000.0f;
+                //Vector3 PlayerNewPos = new Vector3(PlayerInitialPos.x, ArenaTr.Position.y, PlayerInitialPos.x);
+                //PlayerTr.Position = PlayerNewPos;
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
 
+            PlayerTr.GetComponent<RigidBody>().Velocity = Vector3.Zero;
             elapsedTime = 0.0f;
             maxTime = 0.1f;
-
-            PlayerTr.Position = ArenaPivotTr.WorldPosition;
-
+            Bootstrap.Player.SetActive(true);
+            PlayerTr.Position = PlayerInitialPos;
             BossTr.Position = BossInitialPos;
+            camRigTr.Position = camRigInitialPos;
+            camTr.Position = camInitialPos;
             Bootstrap.CameraController.LockCamera = false;
             Bootstrap.Player.SetPlayerLock(false);
 
@@ -197,6 +210,9 @@ namespace SliceEngine
                 yield return null;
             }
 
+            killBox.As<KillPlayerTriggerBox>().enabled = true;
+
+            TriggerBoxObj.SetActive(true);
             BossObj.As<Level3Boss>().StartBoss();
         }
 
@@ -209,19 +225,33 @@ namespace SliceEngine
 
             float elapsedTime = 0.0f;
 
+            while (elapsedTime < 0.25f)
+            {
+                elapsedTime += Time.deltaTime;
+                yield return null;
+
+            }
+
+            elapsedTime = 0.0f;
+            // fade in
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 SetRectAlpha(elapsedTime / z_transitionDurationToDeath);
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-            
+
+            // while black
+
             elapsedTime = 0.0f;
             SetRectAlpha(1.0f);
 
             CutToCam(2, 0);
             CameraRigObj.As<CameraController>().LockCamera = true;
             Bootstrap.Player.SetPlayerLock(true);
+
+            x_BossHud.SetActive(false);
+            x_PlayerHud.SetActive(false);
 
             while (elapsedTime < z_transitionDurationToDeath * 0.5f)
             {
@@ -231,6 +261,9 @@ namespace SliceEngine
             }
 
             elapsedTime = 0.0f;
+
+
+            // fade out
 
             while (elapsedTime < z_transitionDurationToDeath)
             {
@@ -243,17 +276,11 @@ namespace SliceEngine
             elapsedTime = 0.0f;
             SetRectAlpha(0.0f);
 
-            while (elapsedTime < z_transitionDurationToDeath)
-            {
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
         }
 
         public IEnumerator FadeOutRoutine()
         {
             float elapsedTime = 0f;
-            if (SceneManager._transitionRenderer != null) SceneManager._transitionRenderer.SetEnabled(true);
             SetRectAlpha(0.0f); // Start transparent
 
             while (elapsedTime < z_transitionDurationToDeath)

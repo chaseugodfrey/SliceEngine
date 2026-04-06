@@ -11,7 +11,7 @@ namespace SliceEngine
 {
     public class KillPlayerTriggerBox : SliceBehaviour
     {
-
+        public bool enabled = true;
         //public delegate void HitBoxTriggerEvent(GameObject hit);
         //public event HitBoxTriggerEvent HitBoxListeners;
         //private ColliderShape _collider;
@@ -85,6 +85,8 @@ namespace SliceEngine
 
         public override void OnTriggerEnter(uint other)
         {
+            if (!enabled) return;
+
             base.OnTriggerEnter(other);
             SliceLog.Log("Dialogue Trigger Enter called");
             //base.OnTriggerEnter(other);

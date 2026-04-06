@@ -45,10 +45,9 @@ namespace SliceEngine
         Transform firingOffset;
         Transform vrot;
         Renderer coreRenderer;
-        Light coreLight;
 
         Vector4 colourActivated;
-        Vector4 colourDeactivated = new Vector4(20.0f, 20.0f, 20.0f, 20.0f);
+        Vector4 colourDeactivated = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
         public GameObject CreateBullet(Vector3 startPos, Vector3 direction)
         {
             string prefabPath = "Prefabs/" + projectilePrefabName + ".prefab";
@@ -145,7 +144,6 @@ namespace SliceEngine
                 if (child.tag == "Core")
                 {
                     coreRenderer = child.GetComponent<Renderer>();
-                    coreLight = child.GetComponent<Light>();
                     colourActivated = coreRenderer.GetColor();
                 }
             }
@@ -166,7 +164,7 @@ namespace SliceEngine
             if (distanceToPlayer <= maxAimRange && distanceToPlayer >= minAimRange)
             {
                 coreRenderer.SetColor(colourActivated);
-                coreLight.enabled = true;
+                coreRenderer.SetEmissionColor(colourActivated);
 
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
                 Vector3 origin = firingOffset.WorldPosition;
@@ -256,6 +254,9 @@ namespace SliceEngine
                                 // Spawn firing FX
                                 CreateFiringFX(firingOffset.GetComponent<Transform>().WorldPosition, transform.WorldRotationQuat.ToEuler());
 
+                                //Play SFX
+                                AudioSettings.PlaySFX("TurretFire");
+
                                 shotsFiredInBurst++;
 
                                 if (shotsFiredInBurst >= bulletsPerBurst)
@@ -282,7 +283,7 @@ namespace SliceEngine
                 if (distanceToPlayer < minAimRange)
                 {
                     coreRenderer.SetColor(colourDeactivated);
-                    coreLight.enabled = false;
+                    coreRenderer.SetEmissionColor(colourDeactivated);
                     vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
                 telegraphed = false;

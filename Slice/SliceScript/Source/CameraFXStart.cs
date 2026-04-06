@@ -19,22 +19,57 @@ namespace SliceEngine
 
         GameObject camObj;
         Vector3 shakeOffset;
+        GameObject[] bossGameObjects;
+
+        float loadTimerMax = 12.0f;
+        float loadTimer;
+        bool isSFXPlaying = false;
 
         public override void OnCreate()
         {
             StartCoroutine(StartFXRoutine());
+            loadTimer = loadTimerMax;
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            loadTimer -= dt;
+            if (loadTimer <= loadTimerMax - 4.5f)
+            {
+                if (!isSFXPlaying)
+                {
+                    StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.2f, camObj.GetComponent<Transform>().WorldPosition));
+                    GetComponent<AudioSource>().Play();
+                    isSFXPlaying = true;
+                }
+
+                else
+                {
+                    GetComponent<AudioSource>().Volume = loadTimer / (loadTimerMax - 4.5f);
+                }
+            }
+
+            if (loadTimer <= 1)
+            {
+                SceneManager.LoadWithoutTransition("Credits");
+            }
+
         }
         private IEnumerator StartFXRoutine()
         {
             camObj = gameObject.FindGameObjectsWithTag("Camera")[0];
             GameObject[] camHolderObjs = gameObject.FindGameObjectsWithTag("mainCam");
-
-            SliceLog.Console(camHolderObjs.Length);
+            bossGameObjects = gameObject.FindGameObjectsWithTag("Boss");
             
             Camera cam = camHolderObjs[0].GetComponent<Camera>();
 
             Vector3 initialPos = camObj.GetComponent<Transform>().WorldPosition;
             float elapsedTime = 0.0f;
+
+            if (cameraShake)
+            {
+                StartCoroutine(ShakeSequence(delay, shakeIntensity * 0.4f, initialPos));
+            }
 
             while (elapsedTime < delay)
             {
@@ -47,10 +82,15 @@ namespace SliceEngine
                 StartCoroutine(ShakeSequence(cameraShakeDuration, shakeIntensity, initialPos));
             }
 
+            foreach (GameObject obj in bossGameObjects)
+            {
+                obj.GetComponent<Transform>().Position = Vector3.Zero;
+            }
+
             if (impactFrame)
             {
                 cam.SetImpactFrame(true);
-                cam.SetImpactFramePosition(new Vector3(0, 490, 0));
+                cam.SetImpactFramePosition(new Vector3(0, 404, 0));
                 cam.SetImpactFrameColor1(new Vector3(1, 1, 1));
                 cam.SetImpactFrameColor2(new Vector3(0, 0, 0));
                 cam.SetImpactFrameIsSmooth(true);

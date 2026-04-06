@@ -1,6 +1,28 @@
 [
     {
         "AimingMechBoss": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 1.0,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 1000.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": true,
+                "priority": 128,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "14930422140598177221",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
             "struct SliceEngine::Prefab": {
                 "prefabGUID": "",
                 "prefabHandle": {
@@ -9,11 +31,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194413,
+                "entity_id": 3146328,
                 "neighbours": [
                     0,
-                    4194412,
-                    22020368,
+                    3146327,
+                    3146348,
                     4294967295
                 ]
             },
@@ -46,15 +68,15 @@
                     },
                     "bulletSpeed": {
                         "Type": "float",
-                        "Value": 200.0
+                        "Value": 190.0
                     },
                     "bulletsPerBurst": {
                         "Type": "int",
-                        "Value": 5
+                        "Value": 4
                     },
                     "distanceBeforeDestroyBullet": {
                         "Type": "float",
-                        "Value": 500.0
+                        "Value": 300.0
                     },
                     "firingFXPrefabName": {
                         "Type": "std::string",
@@ -62,7 +84,7 @@
                     },
                     "maxAimRange": {
                         "Type": "float",
-                        "Value": 300.0
+                        "Value": 1000.0
                     },
                     "predictionStrength": {
                         "Type": "float",
@@ -74,7 +96,7 @@
                     },
                     "timeBetweenBursts": {
                         "Type": "float",
-                        "Value": 3.0
+                        "Value": 7.0
                     },
                     "timeBetweenShotsInBurst": {
                         "Type": "float",
@@ -106,9 +128,9 @@
                     0.0
                 ],
                 "scale": [
-                    0.5999999046325684,
+                    0.5999994277954102,
                     0.6000000238418579,
-                    0.5999999046325684
+                    0.5999994277954102
                 ]
             }
         }
@@ -127,12 +149,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194412,
+                "entity_id": 3146327,
                 "neighbours": [
-                    4194413,
-                    4194411,
+                    3146328,
+                    3146326,
                     4294967295,
-                    4194408
+                    3146323
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -193,12 +215,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194411,
+                "entity_id": 3146326,
                 "neighbours": [
-                    4194412,
+                    3146327,
                     4294967295,
                     4294967295,
-                    4194410
+                    3146325
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -233,7 +255,7 @@
         }
     },
     {
-        "Core": {
+        "Core_3": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 3,
                 "skeleton_root": 0
@@ -259,18 +281,18 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194410,
+                "entity_id": 3146325,
                 "neighbours": [
-                    4194412,
+                    3146327,
                     4294967295,
-                    4194411,
-                    4194409
+                    3146326,
+                    3146324
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Core",
+                "mName": "Core_3",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -325,11 +347,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194409,
+                "entity_id": 3146324,
                 "neighbours": [
-                    4194412,
+                    3146327,
                     4294967295,
-                    4194410,
+                    3146325,
                     4294967295
                 ]
             },
@@ -387,11 +409,11 @@
                 "prefabID": 5
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194408,
+                "entity_id": 3146323,
                 "neighbours": [
-                    4194413,
-                    4194407,
-                    4194412,
+                    3146328,
+                    3146322,
+                    3146327,
                     4294967295
                 ]
             },
@@ -449,9 +471,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 4194407,
+                "entity_id": 3146322,
                 "neighbours": [
-                    4194408,
+                    3146323,
                     4294967295,
                     4294967295,
                     4294967295
