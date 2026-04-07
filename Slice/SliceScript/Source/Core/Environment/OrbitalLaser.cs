@@ -18,7 +18,7 @@ namespace SliceEngine
 
         private float tracktimer = 0f;
         private float tickTimer = 0f;
-        private float tickRate = 0.25f;
+        private float tickRate = 1f;
         private bool done = false;
         private Vector3 cachedPosition;
 
