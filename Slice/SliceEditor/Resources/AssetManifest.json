@@ -166,16 +166,6 @@
             "path": "Resources/9485991317614083244.seq"
         },
         {
-            "guid": 18271418503383271121,
-            "name": "Textures/Splash/FMOD Logo White - Transparent Background.png",
-            "path": "Resources/18271418503383271121.dds"
-        },
-        {
-            "guid": 17606168214238140355,
-            "name": "Prefabs/Laser.prefab",
-            "path": "Resources/17606168214238140355.prefab"
-        },
-        {
             "guid": 9892807210732649486,
             "name": "Animations/Idle2.seq",
             "path": "Resources/9892807210732649486.seq"
@@ -626,6 +616,11 @@
             "path": "Resources/11734834157226971534.wav"
         },
         {
+            "guid": 13418218551234845157,
+            "name": "Prefabs/FX_OrbitalLaser.prefab",
+            "path": "Resources/13418218551234845157.prefab"
+        },
+        {
             "guid": 11548836769779280514,
             "name": "Audio/Breaking-Through-The-Stratosphere.ogg",
             "path": "Resources/11548836769779280514.wav"
@@ -706,11 +701,6 @@
             "path": "Resources/13612963309126088302.wav"
         },
         {
-            "guid": 17947387130014437828,
-            "name": "Prefabs/FX_OrbitalLaserHint.prefab",
-            "path": "Resources/17947387130014437828.prefab"
-        },
-        {
             "guid": 16422411225822138885,
             "name": "Audio/Enemy Charge_Down.wav",
             "path": "Resources/16422411225822138885.wav"
@@ -776,6 +766,21 @@
             "path": "Resources/15171955937019804702.cshader"
         },
         {
+            "guid": 17813598671886575559,
+            "name": "[00]Player/SliderHandle.png",
+            "path": "Resources/17813598671886575559.dds"
+        },
+        {
+            "guid": 18425740150564398030,
+            "name": "Dylan/Materials/PlayerFinalBody.mat",
+            "path": "Resources/18425740150564398030.mat"
+        },
+        {
+            "guid": 10256689771714036555,
+            "name": "Audio/HIT_EXPLOSION 02.mp3",
+            "path": "Resources/10256689771714036555.wav"
+        },
+        {
             "guid": 12352045716543518977,
             "name": "Material/ShieldGeneratorLitOff.mat",
             "path": "Resources/12352045716543518977.mat"
@@ -839,6 +844,11 @@
             "guid": 12997709793430844555,
             "name": "Dylan/m6/dam/m6PipeDam.fbx",
             "path": "Resources/12997709793430844555.mdl"
+        },
+        {
+            "guid": 16113045505908166540,
+            "name": "Audio/OrbitalLaserFinal.wav",
+            "path": "Resources/16113045505908166540.wav"
         },
         {
             "guid": 16595515136771715194,
@@ -946,6 +956,41 @@
             "path": "Resources/11003994332556551764.mat"
         },
         {
+            "guid": 15910912278690143450,
+            "name": "Dylan/m6/cargoArea/m6CraneHandle.mat",
+            "path": "Resources/15910912278690143450.mat"
+        },
+        {
+            "guid": 18302554428306584928,
+            "name": "Models/M5 Models/FanBlock.fbx",
+            "path": "Resources/18302554428306584928.mdl"
+        },
+        {
+            "guid": 17957090310860140017,
+            "name": "VFX Assets/GroundCracks.mat",
+            "path": "Resources/17957090310860140017.mat"
+        },
+        {
+            "guid": 11270437979785376615,
+            "name": "Audio/SpawnMines.wav",
+            "path": "Resources/11270437979785376615.wav"
+        },
+        {
+            "guid": 11686821570388558388,
+            "name": "Dylan/m6/arenaL2/m6ArenaL2Top.mat",
+            "path": "Resources/11686821570388558388.mat"
+        },
+        {
+            "guid": 18144772378702324126,
+            "name": "Dylan/m6/platforms/m6platformFinal.animpkg",
+            "path": "Resources/18144772378702324126.animpkg"
+        },
+        {
+            "guid": 16773562439639489861,
+            "name": "Material/BallRed.mat",
+            "path": "Resources/16773562439639489861.mat"
+        },
+        {
             "guid": 12510399732508655228,
             "name": "Audio/SwordHit_2.wav",
             "path": "Resources/12510399732508655228.wav"
@@ -969,6 +1014,26 @@
             "guid": 16643413166055821894,
             "name": "Dylan/m6/arenaL2/arenaL2Outer4_4K_Base.png",
             "path": "Resources/16643413166055821894.dds"
+        },
+        {
+            "guid": 9613543541079023389,
+            "name": "Audio/TurretFire2.ogg",
+            "path": "Resources/9613543541079023389.wav"
+        },
+        {
+            "guid": 15853488382656643904,
+            "name": "Models/LazerImpact.skl",
+            "path": "Resources/15853488382656643904.skl"
+        },
+        {
+            "guid": 16617600254685431326,
+            "name": "VFX Assets/ExplosionOuterMat.mat",
+            "path": "Resources/16617600254685431326.mat"
+        },
+        {
+            "guid": 17656138608147415398,
+            "name": "Material/DamagedSignal.mat",
+            "path": "Resources/17656138608147415398.mat"
         },
         {
             "guid": 14031586730247189489,
@@ -1491,36 +1556,6 @@
             "path": "Resources/18039508875681242159.mdl"
         },
         {
-            "guid": 15910912278690143450,
-            "name": "Dylan/m6/cargoArea/m6CraneHandle.mat",
-            "path": "Resources/15910912278690143450.mat"
-        },
-        {
-            "guid": 18302554428306584928,
-            "name": "Models/M5 Models/FanBlock.fbx",
-            "path": "Resources/18302554428306584928.mdl"
-        },
-        {
-            "guid": 17957090310860140017,
-            "name": "VFX Assets/GroundCracks.mat",
-            "path": "Resources/17957090310860140017.mat"
-        },
-        {
-            "guid": 11686821570388558388,
-            "name": "Dylan/m6/arenaL2/m6ArenaL2Top.mat",
-            "path": "Resources/11686821570388558388.mat"
-        },
-        {
-            "guid": 18144772378702324126,
-            "name": "Dylan/m6/platforms/m6platformFinal.animpkg",
-            "path": "Resources/18144772378702324126.animpkg"
-        },
-        {
-            "guid": 16773562439639489861,
-            "name": "Material/BallRed.mat",
-            "path": "Resources/16773562439639489861.mat"
-        },
-        {
             "guid": 18287310562618067334,
             "name": "Dylan/m6/arenaL2/m6ArenaLevels.mat",
             "path": "Resources/18287310562618067334.mat"
@@ -1574,6 +1609,11 @@
             "guid": 15888238001111269030,
             "name": "Prefabs/FX_LaserAttack.prefab",
             "path": "Resources/15888238001111269030.prefab"
+        },
+        {
+            "guid": 11293352176591717835,
+            "name": "Prefabs/FX_OrbitalLaserHint.prefab",
+            "path": "Resources/11293352176591717835.prefab"
         },
         {
             "guid": 17574133045252496360,
@@ -2336,9 +2376,9 @@
             "path": "Resources/10090532599495555930.mdl"
         },
         {
-            "guid": 15254702516840972210,
-            "name": "Dylan/m6/station/m6Station2.mat",
-            "path": "Resources/15254702516840972210.mat"
+            "guid": 17121043599462714204,
+            "name": "Models/Rotating_Core.animpkg",
+            "path": "Resources/17121043599462714204.animpkg"
         },
         {
             "guid": 18304769208901214236,
@@ -2346,9 +2386,9 @@
             "path": "Resources/18304769208901214236.prefab"
         },
         {
-            "guid": 17121043599462714204,
-            "name": "Models/Rotating_Core.animpkg",
-            "path": "Resources/17121043599462714204.animpkg"
+            "guid": 15254702516840972210,
+            "name": "Dylan/m6/station/m6Station2.mat",
+            "path": "Resources/15254702516840972210.mat"
         },
         {
             "guid": 17142943298159533497,
@@ -2474,16 +2514,6 @@
             "guid": 16008503113081839219,
             "name": "Models/M5 Models/StartArea_Roof.fbx",
             "path": "Resources/16008503113081839219.mdl"
-        },
-        {
-            "guid": 17813598671886575559,
-            "name": "[00]Player/SliderHandle.png",
-            "path": "Resources/17813598671886575559.dds"
-        },
-        {
-            "guid": 18425740150564398030,
-            "name": "Dylan/Materials/PlayerFinalBody.mat",
-            "path": "Resources/18425740150564398030.mat"
         },
         {
             "guid": 11745466620398896664,
@@ -2619,21 +2649,6 @@
             "guid": 17727881797119460253,
             "name": "Material/CrystalBase.mat",
             "path": "Resources/17727881797119460253.mat"
-        },
-        {
-            "guid": 15853488382656643904,
-            "name": "Models/LazerImpact.skl",
-            "path": "Resources/15853488382656643904.skl"
-        },
-        {
-            "guid": 16617600254685431326,
-            "name": "VFX Assets/ExplosionOuterMat.mat",
-            "path": "Resources/16617600254685431326.mat"
-        },
-        {
-            "guid": 17656138608147415398,
-            "name": "Material/DamagedSignal.mat",
-            "path": "Resources/17656138608147415398.mat"
         },
         {
             "guid": 15957715002093328400,
@@ -3031,16 +3046,6 @@
             "path": "Resources/11827098417358372075.prefab"
         },
         {
-            "guid": 12588768242097366775,
-            "name": "Shaders/debugOutlineJoin.shader",
-            "path": "Resources/12588768242097366775.shader"
-        },
-        {
-            "guid": 9736457320308890432,
-            "name": "Prefabs/FX_OrbitalLaser.prefab",
-            "path": "Resources/9736457320308890432.prefab"
-        },
-        {
             "guid": 13873935784383077662,
             "name": "Prefabs/FX_PlayerSlam.prefab",
             "path": "Resources/13873935784383077662.prefab"
@@ -3084,6 +3089,16 @@
             "guid": 11555663775554942229,
             "name": "Prefabs/LandmineMech.prefab",
             "path": "Resources/11555663775554942229.prefab"
+        },
+        {
+            "guid": 18271418503383271121,
+            "name": "Textures/Splash/FMOD Logo White - Transparent Background.png",
+            "path": "Resources/18271418503383271121.dds"
+        },
+        {
+            "guid": 17606168214238140355,
+            "name": "Prefabs/Laser.prefab",
+            "path": "Resources/17606168214238140355.prefab"
         },
         {
             "guid": 14002416690527560838,
@@ -3141,9 +3156,9 @@
             "path": "Resources/10253740419631562308.prefab"
         },
         {
-            "guid": 17131504353563661207,
+            "guid": 10933643932188229770,
             "name": "Prefabs/OrbitalLaser.prefab",
-            "path": "Resources/17131504353563661207.prefab"
+            "path": "Resources/10933643932188229770.prefab"
         },
         {
             "guid": 11579406159540853583,
@@ -3324,6 +3339,11 @@
             "guid": 12824181597489364058,
             "name": "Shaders/debugOutlineBlur_Frag.frag",
             "path": "Resources/12824181597489364058.frag"
+        },
+        {
+            "guid": 12588768242097366775,
+            "name": "Shaders/debugOutlineJoin.shader",
+            "path": "Resources/12588768242097366775.shader"
         },
         {
             "guid": 12572605930831694889,

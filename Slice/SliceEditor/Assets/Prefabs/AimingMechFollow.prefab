@@ -2,18 +2,18 @@
     {
         "AimingMechFollow": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1101,
+                "entity_id": 309,
                 "neighbours": [
-                    4294967295,
-                    1102,
-                    4294967295,
+                    0,
+                    310,
+                    100,
                     4294967295
                 ]
             },
@@ -122,17 +122,17 @@
                 "volumeRollOff": "Linear"
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1102,
+                "entity_id": 310,
                 "neighbours": [
-                    1101,
-                    1103,
+                    309,
+                    311,
                     4294967295,
                     4294967295
                 ]
@@ -170,7 +170,7 @@
                     },
                     "bulletsPerBurst": {
                         "Type": "int",
-                        "Value": 6
+                        "Value": 4
                     },
                     "chargeTime": {
                         "Type": "float",
@@ -238,31 +238,31 @@
         }
     },
     {
-        "AimingMechMesh": {
+        "AimingMechMesh_1": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 1,
                 "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1103,
+                "entity_id": 311,
                 "neighbours": [
-                    1102,
-                    1104,
+                    310,
+                    312,
                     4294967295,
-                    1107
+                    315
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "AimingMechMesh",
+                "mName": "AimingMechMesh_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -291,15 +291,15 @@
         }
     },
     {
-        "Shooter": {
+        "Shooter_1": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 2,
                 "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 3
             },
@@ -317,18 +317,18 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1104,
+                "entity_id": 312,
                 "neighbours": [
-                    1103,
+                    311,
                     4294967295,
                     4294967295,
-                    1105
+                    313
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Shooter",
+                "mName": "Shooter_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
@@ -363,9 +363,9 @@
                 "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 4
             },
@@ -383,12 +383,12 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1105,
+                "entity_id": 313,
                 "neighbours": [
-                    1103,
+                    311,
                     4294967295,
-                    1104,
-                    1106
+                    312,
+                    314
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -423,15 +423,15 @@
         }
     },
     {
-        "Wings": {
+        "Wings_1": {
             "struct SliceEngine::Bone": {
                 "frame_idx": 8,
                 "skeleton_root": 0
             },
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 5
             },
@@ -449,11 +449,11 @@
                 "skinned": true
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1106,
+                "entity_id": 314,
                 "neighbours": [
-                    1103,
+                    311,
                     4294967295,
-                    1105,
+                    313,
                     4294967295
                 ]
             },
@@ -473,7 +473,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "Wings",
+                "mName": "Wings_1",
                 "mTag": "AimingMechWings"
             },
             "struct SliceEngine::Transform": {
@@ -502,27 +502,27 @@
         }
     },
     {
-        "FX_LaserPointer": {
+        "FX_LaserPointer_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 6
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1107,
+                "entity_id": 315,
                 "neighbours": [
-                    1102,
-                    1108,
-                    1103,
+                    310,
+                    316,
+                    311,
                     4294967295
                 ]
             },
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "FX_LaserPointer",
+                "mName": "FX_LaserPointer_1",
                 "mTag": "Telegraph"
             },
             "struct SliceEngine::Transform": {
@@ -551,11 +551,11 @@
         }
     },
     {
-        "LaserPointer": {
+        "LaserPointer_1": {
             "struct SliceEngine::Prefab": {
-                "prefabGUID": "12905147949882810133",
+                "prefabGUID": "",
                 "prefabHandle": {
-                    "GUID": "12905147949882810133"
+                    "GUID": ""
                 },
                 "prefabID": 7
             },
@@ -573,9 +573,9 @@
                 "skinned": false
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 1108,
+                "entity_id": 316,
                 "neighbours": [
-                    1107,
+                    315,
                     4294967295,
                     4294967295,
                     4294967295
@@ -584,7 +584,7 @@
             "struct SliceEngine::SliceEntity": {
                 "mActive": true,
                 "mLayer": 0,
-                "mName": "LaserPointer",
+                "mName": "LaserPointer_1",
                 "mTag": "default"
             },
             "struct SliceEngine::Transform": {
