@@ -55,6 +55,9 @@ if not defined ITCH_IO_TOKEN (
     exit /b 1
 )
 
+:: Butler specifically looks for this variable name
+set "BUTLER_API_KEY=!ITCH_IO_TOKEN!"
+
 echo "Pushing !INSTALLER_PATH! to !ITCH_TARGET!..."
 !BUTLER_EXE! push "!INSTALLER_PATH!" "!ITCH_TARGET!" --userversion "!FINAL_TAG!"
 
