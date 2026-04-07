@@ -1,6 +1,19 @@
 [
     {
         "FX_OrbitalLaserHint": {
+            "struct SliceEngine::ColliderShape": {
+                "capsuleData": {
+                    "height": 0.5,
+                    "radius": 0.5
+                },
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
             "struct SliceEngine::ParticleSystem": {
                 "alwaysFaceCamera": false,
                 "axis": [
@@ -343,11 +356,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 7,
+                "entity_id": 27263462,
                 "neighbours": [
                     0,
-                    8,
-                    4,
+                    27263385,
+                    28311696,
                     4294967295
                 ]
             },
@@ -368,7 +381,7 @@
                 ],
                 "position": [
                     -26.982528686523438,
-                    50.0,
+                    400.0,
                     0.0
                 ],
                 "rotation": [
@@ -379,7 +392,7 @@
                 ],
                 "scale": [
                     0.9999998807907104,
-                    1.0,
+                    50.0,
                     1.0
                 ]
             }
@@ -754,12 +767,12 @@
                 "prefabID": 1
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 8,
+                "entity_id": 27263385,
                 "neighbours": [
-                    7,
+                    27263462,
                     4294967295,
                     4294967295,
-                    9
+                    27263370
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1188,12 +1201,12 @@
                 "prefabID": 2
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 9,
+                "entity_id": 27263370,
                 "neighbours": [
-                    7,
+                    27263462,
                     4294967295,
-                    8,
-                    10
+                    27263385,
+                    27263363
                 ]
             },
             "struct SliceEngine::SliceEntity": {
@@ -1622,11 +1635,11 @@
                 "prefabID": 3
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 10,
+                "entity_id": 27263363,
                 "neighbours": [
-                    7,
+                    27263462,
                     4294967295,
-                    9,
+                    27263370,
                     4294967295
                 ]
             },

@@ -136,6 +136,11 @@
             "path": "Resources/14614364119895987099.prefab"
         },
         {
+            "guid": 16062665461510009789,
+            "name": "Audio/PipeStart.wav",
+            "path": "Resources/16062665461510009789.wav"
+        },
+        {
             "guid": 11030689795246748446,
             "name": "Prefabs/FX_BossCharging.prefab",
             "path": "Resources/11030689795246748446.prefab"
@@ -804,6 +809,11 @@
             "guid": 10442646193600987365,
             "name": "Prefabs/AimingMechBoss.prefab",
             "path": "Resources/10442646193600987365.prefab"
+        },
+        {
+            "guid": 16469848960729546528,
+            "name": "Prefabs/OrbitalLaser.prefab",
+            "path": "Resources/16469848960729546528.prefab"
         },
         {
             "guid": 15357188910632945838,
@@ -1561,11 +1571,6 @@
             "path": "Resources/18287310562618067334.mat"
         },
         {
-            "guid": 10494040173857197462,
-            "name": "Dylan/m6/boss/Boss.fbx",
-            "path": "Resources/10494040173857197462.mdl"
-        },
-        {
             "guid": 9374786404277706325,
             "name": "Dylan/m6/boss/Boss.skl",
             "path": "Resources/9374786404277706325.skl"
@@ -1586,14 +1591,9 @@
             "path": "Resources/12052541654358869986.mat"
         },
         {
-            "guid": 16951838489036553353,
-            "name": "Material/WallMechBall.mat",
-            "path": "Resources/16951838489036553353.mat"
-        },
-        {
-            "guid": 13051430527720978661,
-            "name": "Dylan/m6/boss/Boss2.fbx",
-            "path": "Resources/13051430527720978661.mdl"
+            "guid": 10494040173857197462,
+            "name": "Dylan/m6/boss/Boss.fbx",
+            "path": "Resources/10494040173857197462.mdl"
         },
         {
             "guid": 12836516999346286443,
@@ -1626,6 +1626,16 @@
             "path": "Resources/11431601642449561925.animpkg"
         },
         {
+            "guid": 16951838489036553353,
+            "name": "Material/WallMechBall.mat",
+            "path": "Resources/16951838489036553353.mat"
+        },
+        {
+            "guid": 13051430527720978661,
+            "name": "Dylan/m6/boss/Boss2.fbx",
+            "path": "Resources/13051430527720978661.mdl"
+        },
+        {
             "guid": 16434964976376015281,
             "name": "Shaders/vignette_Frag.frag",
             "path": "Resources/16434964976376015281.frag"
@@ -1651,26 +1661,6 @@
             "path": "Resources/16039637605935715863.dds"
         },
         {
-            "guid": 14686467842621128640,
-            "name": "Dylan/m6/dam/dam2_Base.png",
-            "path": "Resources/14686467842621128640.dds"
-        },
-        {
-            "guid": 15851973335899444136,
-            "name": "Prefabs/Cover.prefab",
-            "path": "Resources/15851973335899444136.prefab"
-        },
-        {
-            "guid": 18407134581263151679,
-            "name": "Prefabs/Lvl3BossPositions.prefab",
-            "path": "Resources/18407134581263151679.prefab"
-        },
-        {
-            "guid": 10754970048379866863,
-            "name": "Dylan/m6/boss/Boss_1.fbx",
-            "path": "Resources/10754970048379866863.mdl"
-        },
-        {
             "guid": 10140212064093200294,
             "name": "Shaders/basic_Frag.frag",
             "path": "Resources/10140212064093200294.frag"
@@ -1689,6 +1679,26 @@
             "guid": 16404562313563248982,
             "name": "Dylan/m6/boss/Boss_1.animpkg",
             "path": "Resources/16404562313563248982.animpkg"
+        },
+        {
+            "guid": 14686467842621128640,
+            "name": "Dylan/m6/dam/dam2_Base.png",
+            "path": "Resources/14686467842621128640.dds"
+        },
+        {
+            "guid": 15851973335899444136,
+            "name": "Prefabs/Cover.prefab",
+            "path": "Resources/15851973335899444136.prefab"
+        },
+        {
+            "guid": 18407134581263151679,
+            "name": "Prefabs/Lvl3BossPositions.prefab",
+            "path": "Resources/18407134581263151679.prefab"
+        },
+        {
+            "guid": 10754970048379866863,
+            "name": "Dylan/m6/boss/Boss_1.fbx",
+            "path": "Resources/10754970048379866863.mdl"
         },
         {
             "guid": 16453345830123164686,
@@ -2026,21 +2036,6 @@
             "path": "Resources/18093740269750652135.dds"
         },
         {
-            "guid": 17445112217872018681,
-            "name": "Prefabs/FX_OrbitalLaserEnd.prefab",
-            "path": "Resources/17445112217872018681.prefab"
-        },
-        {
-            "guid": 11826350479717401990,
-            "name": "Dylan/m6/m6Door.fbx",
-            "path": "Resources/11826350479717401990.mdl"
-        },
-        {
-            "guid": 16483552102943977758,
-            "name": "Material/TestEnvironment_M.mat",
-            "path": "Resources/16483552102943977758.mat"
-        },
-        {
             "guid": 13210778204960685719,
             "name": "Dylan/m6/m6Door.skl",
             "path": "Resources/13210778204960685719.skl"
@@ -2054,6 +2049,21 @@
             "guid": 12788262364597732665,
             "name": "Dylan/m6/m6Door.animpkg",
             "path": "Resources/12788262364597732665.animpkg"
+        },
+        {
+            "guid": 17445112217872018681,
+            "name": "Prefabs/FX_OrbitalLaserEnd.prefab",
+            "path": "Resources/17445112217872018681.prefab"
+        },
+        {
+            "guid": 11826350479717401990,
+            "name": "Dylan/m6/m6Door.fbx",
+            "path": "Resources/11826350479717401990.mdl"
+        },
+        {
+            "guid": 16483552102943977758,
+            "name": "Material/TestEnvironment_M.mat",
+            "path": "Resources/16483552102943977758.mat"
         },
         {
             "guid": 13361913144360455246,
@@ -2216,16 +2226,6 @@
             "path": "Resources/14230226040156081348.dds"
         },
         {
-            "guid": 12802212686549223227,
-            "name": "Shaders/debugOutline_Frag.frag",
-            "path": "Resources/12802212686549223227.frag"
-        },
-        {
-            "guid": 17922737218688156309,
-            "name": "Dylan/m6/playerfinalFINAL/playerCinematic.fbx",
-            "path": "Resources/17922737218688156309.mdl"
-        },
-        {
             "guid": 18226684252991239611,
             "name": "Models/M5 Models/Box.skl",
             "path": "Resources/18226684252991239611.skl"
@@ -2239,6 +2239,31 @@
             "guid": 18081241371695335881,
             "name": "Dylan/m6/playerfinalFINAL/playerCinematic.animpkg",
             "path": "Resources/18081241371695335881.animpkg"
+        },
+        {
+            "guid": 12802212686549223227,
+            "name": "Shaders/debugOutline_Frag.frag",
+            "path": "Resources/12802212686549223227.frag"
+        },
+        {
+            "guid": 17922737218688156309,
+            "name": "Dylan/m6/playerfinalFINAL/playerCinematic.fbx",
+            "path": "Resources/17922737218688156309.mdl"
+        },
+        {
+            "guid": 13743796545282465338,
+            "name": "Dylan/m6/playerfinalFINAL/playerWeapon.skl",
+            "path": "Resources/13743796545282465338.skl"
+        },
+        {
+            "guid": 12248134250469623543,
+            "name": "Prefabs/FX_StarTrail.prefab",
+            "path": "Resources/12248134250469623543.prefab"
+        },
+        {
+            "guid": 11057404431807289978,
+            "name": "Dylan/m6/playerfinalFINAL/playerWeapon.animpkg",
+            "path": "Resources/11057404431807289978.animpkg"
         },
         {
             "guid": 14674901861374195520,
@@ -2264,21 +2289,6 @@
             "guid": 10554390144329038318,
             "name": "Material/Player_Armour_m.mat",
             "path": "Resources/10554390144329038318.mat"
-        },
-        {
-            "guid": 13743796545282465338,
-            "name": "Dylan/m6/playerfinalFINAL/playerWeapon.skl",
-            "path": "Resources/13743796545282465338.skl"
-        },
-        {
-            "guid": 12248134250469623543,
-            "name": "Prefabs/FX_StarTrail.prefab",
-            "path": "Resources/12248134250469623543.prefab"
-        },
-        {
-            "guid": 11057404431807289978,
-            "name": "Dylan/m6/playerfinalFINAL/playerWeapon.animpkg",
-            "path": "Resources/11057404431807289978.animpkg"
         },
         {
             "guid": 17305047021247885011,
@@ -2766,11 +2776,6 @@
             "path": "Resources/12687902782278462473.mat"
         },
         {
-            "guid": 12905147949882810133,
-            "name": "Prefabs/AimingMechFollow.prefab",
-            "path": "Resources/12905147949882810133.prefab"
-        },
-        {
             "guid": 11198738265174441238,
             "name": "Textures/Splash/CreditsUpdated.png",
             "path": "Resources/11198738265174441238.dds"
@@ -2909,6 +2914,11 @@
             "guid": 9393107775564695193,
             "name": "Models/Rotating_Shell.fbx",
             "path": "Resources/9393107775564695193.mdl"
+        },
+        {
+            "guid": 16316710263965049976,
+            "name": "Prefabs/AimingMechFollow.prefab",
+            "path": "Resources/16316710263965049976.prefab"
         },
         {
             "guid": 14957065566953770831,
@@ -3154,11 +3164,6 @@
             "guid": 10253740419631562308,
             "name": "Prefabs/New Rotating Lazer.prefab",
             "path": "Resources/10253740419631562308.prefab"
-        },
-        {
-            "guid": 10933643932188229770,
-            "name": "Prefabs/OrbitalLaser.prefab",
-            "path": "Resources/10933643932188229770.prefab"
         },
         {
             "guid": 11579406159540853583,
@@ -3656,14 +3661,14 @@
             "path": "Resources/14019125244509282815.animpkg"
         },
         {
-            "guid": 14890030210992444067,
-            "name": "[00]Player/playerBag.fbx",
-            "path": "Resources/14890030210992444067.mdl"
-        },
-        {
             "guid": 13208852870396415294,
             "name": "[00]Player/playerBag.animpkg",
             "path": "Resources/13208852870396415294.animpkg"
+        },
+        {
+            "guid": 14890030210992444067,
+            "name": "[00]Player/playerBag.fbx",
+            "path": "Resources/14890030210992444067.mdl"
         },
         {
             "guid": 15034213256124245522,
