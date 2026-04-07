@@ -29,6 +29,8 @@ if !ERRORLEVEL! equ 0 (
 :: 2. Check common DigiPen/Jenkins locations if not found
 if "!BUTLER_EXE!"=="" (
     for %%P in (
+        "D:\butler\butler.exe"
+        "D:\butler\butler"
         "C:\Tools\butler\butler.exe"
         "C:\butler\butler.exe"
         "%USERPROFILE%\AppData\Local\itch\bin\butler.exe"
