@@ -26,9 +26,10 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-
                 // this triggers the camera moving to where its suppose to be when the player lands
                 camControl = animationTriggerBox.camera.As<CameraController>();
+
+                Bootstrap.HUDManager.HideHUD(false);
 
                 if (camControl != null && Bootstrap.Player != null)
                 {
@@ -91,6 +92,8 @@ namespace SliceEngine
                     yield return null;
                 }
                 dialogueStarted = true;
+
+                Bootstrap.HUDManager.HideHUD(true);
                 Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true);
                 //owner.As<CameraAnimationTriggerBox>().cameraSM.ChangeState(owner.As<CameraAnimationTriggerBox>().exitState);
             }
