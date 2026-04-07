@@ -121,6 +121,7 @@ namespace SliceEngine
             {
                 cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
 
+
                 Bootstrap.CameraController.LockCamera = true;
                 //  Bootstrap.Player.PlayerMovementState = PlayerController.MovementState.Falling;
                 Bootstrap.Player.SetPlayerLock(true);
@@ -134,6 +135,7 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
 
                 Bootstrap.HUDManager.PlayDialogueForLevel(69,2, true, true);
+                Bootstrap.HUDManager.HideHUD(false);
             }
 
             public override void OnUpdate(float dt)

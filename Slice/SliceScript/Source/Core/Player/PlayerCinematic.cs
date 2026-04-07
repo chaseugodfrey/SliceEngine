@@ -254,6 +254,7 @@ namespace SliceEngine
                 //Bootstrap.Player.GetComponent<Transform>().WorldPosition
 
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
+                Bootstrap.HUDManager.HideHUD(true);
                 Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
                 Destroy();
             }
