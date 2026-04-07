@@ -59,6 +59,7 @@ namespace SliceEngine
                 {
                     DamagePlayer(Bootstrap.Player.gameObject);
                     tickTimer = tickRate;
+                    tickTimer -= dt;
                 }
                 else
                 {
