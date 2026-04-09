@@ -1,17 +1,22 @@
 @echo off
 setlocal enabledelayedexpansion
 
+:: -------------------------------------------------------------------------------------------------------------------------------------------
+:: 1. ENVIRONMENT SETUP
+:: -------------------------------------------------------------------------------------------------------------------------------------------
 echo "--- 1. ENVIRONMENT SETUP ---"
 for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.Component.MSBuild -property installationPath`) do (
   set "VS_PATH=%%i"
 )
 
+:: search for msbuild
 if not exist "!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe" (
     echo "ERROR: MSBuild 2022 not found."
     exit /b 1
 )
 
 set "MSBUILD_EXE="!VS_PATH!\MSBuild\Current\Bin\MSBuild.exe""
+
 
 echo "--- 1.2 DYNAMIC VERSIONING ---"
 :: Default version if parsing fails
@@ -42,13 +47,19 @@ echo "Building Slice Engine (EditorRelease)..."
 if !ERRORLEVEL! neq 0 (echo "ERROR: Slice Engine build failed!" & exit /b 1)
 popd
 
+
+:: -------------------------------------------------------------------------------------------------------------------------------------------
+:: 2. build user facing version
+:: -------------------------------------------------------------------------------------------------------------------------------------------
 echo "--- 2. BUILD USER-FACING VERSION ---"
+:: search for premake file
 set "PREMAKE_EXE=%~dp0Slice\premake\premake5.exe"
 if not exist "!PREMAKE_EXE!" (
     echo "ERROR: Premake not found!"
     exit /b 1
 )
 
+:: search for wots directory
 if not exist "WeightOfTheSky\" (
     echo "ERROR: WeightOfTheSky directory not found!"
     exit /b 1
@@ -64,12 +75,18 @@ echo "Building WeightOfTheSky App (Release)..."
 if !ERRORLEVEL! neq 0 (echo "ERROR: MSBuild failed!" & popd & exit /b 1)
 popd
 
+:: -------------------------------------------------------------------------------------------------------------------------------------------
+:: 3. Package installer
+:: -------------------------------------------------------------------------------------------------------------------------------------------
 echo "--- 3. PACKAGE INSTALLER ---"
 pushd WeightOfTheSkyInstaller
+:: call build insaller to package the build
 call build_installer.bat
 if !ERRORLEVEL! neq 0 (echo "ERROR: Installer packaging failed!" & exit /b 1)
 popd
 
+
+:: create python env so upload_installer can work
 echo "--- 4. DEPLOY / UPLOAD ---"
 if not exist ".venv" (
     echo "Creating Python virtual environment..."
@@ -80,9 +97,10 @@ echo "Installing Python dependencies..."
 .venv\Scripts\python -m pip install -r WeightOfTheSkyInstaller\requirements.txt
 
 :: GitHub Deployment
-:: Map your Jenkins secret (gh_tokensecret) to the standard GH_TOKEN
+:: Map Jenkins secret (gh_tokensecret) to the standard GH_TOKEN
 if defined gh_tokensecret set "GH_TOKEN=!gh_tokensecret!"
 
+:: finding the fine grain secret access token
 if defined GH_TOKEN (
     echo "[Token Found] Uploading release to GitHub as !FINAL_TAG!..."
     .venv\Scripts\python WeightOfTheSkyInstaller\upload_installer.py github !FINAL_TAG!
@@ -90,8 +108,8 @@ if defined GH_TOKEN (
     echo "[No Token Found] Skipping GitHub upload. Ensure gh_tokensecret is set in Jenkins."
 )
 
-:: Bonus Rubric: itch.io deployment
-:: Map your Jenkins secret (itch_tokensecret) to ITCH_IO_TOKEN
+:: Bonus: itch.io deployment
+:: Map the Jenkins secret (itch_tokensecret) to ITCH_IO_TOKEN
 if defined itch_tokensecret set "ITCH_IO_TOKEN=!itch_tokensecret!"
 
 if defined ITCH_IO_TOKEN (

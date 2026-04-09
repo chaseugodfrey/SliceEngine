@@ -9,7 +9,7 @@ set "INSTALLER_PATH=INSTALLER\WeightOfTheSky_Setup.exe"
 set "ITCH_TARGET=abusivebanana/weight-of-the-sky:windows"
 
 echo "--- STARTING ITCH.IO DEPLOYMENT ---"
-
+:: Find installer path 
 if not exist "!INSTALLER_PATH!" (
     echo "ERROR: Installer not found at !INSTALLER_PATH!"
     dir INSTALLER
@@ -43,6 +43,7 @@ if "!BUTLER_EXE!"=="" (
     )
 )
 
+:: let user know if butler is found on jenkins agent
 if "!BUTLER_EXE!"=="" (
     echo "ERROR: Butler CLI (butler.exe) not found anywhere."
     echo "Please ensure Butler is installed on the Jenkins Agent."
