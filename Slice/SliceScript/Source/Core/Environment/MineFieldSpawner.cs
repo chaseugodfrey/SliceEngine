@@ -119,6 +119,8 @@ namespace SliceEngine
                 lm.selfDestructTime = mineSelfDestructDuration;
 
                 yield return new WaitForSeconds(timeBetweenMines);
+
+                AudioSettings.PlaySFX("MineSpawn");
             }
 
         }

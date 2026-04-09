@@ -53,6 +53,8 @@ namespace SliceEngine
             if ((selfDestruct && selfDestructTime <= 0.0f) || trigger.As<LandmineMechTrigger>().triggered)
             {
                 triggered = true;
+
+                AudioSettings.PlaySFX("Explode");
                 explosion.As<LandmineMechExplosion>().Triggered();
                 StartCoroutine(Suicide());
             }

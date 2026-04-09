@@ -9,13 +9,17 @@ namespace SliceEngine
 {
     public class OrbitalLaserCamManager : SliceBehaviour
     {
-        bool isBeingHit = false;
-        bool isHitLastFrame = false;
+        public bool isBeingScanned = false;
+        public bool isBeingScannedLastFrame = false;
+        public bool isBeingHit = false;
+        public bool isHitLastFrame = false;
 
         public GameObject camObj;
         public Camera cam;
         Vector3 impactPos;
         Queue hits = new Queue();
+
+        GameObject canvasObj;
 
         public override void OnCreate()
         {
@@ -26,6 +30,8 @@ namespace SliceEngine
         public override void OnLateUpdate(float dt)
         {
             base.OnLateUpdate(dt);
+
+            // laser interactions
 
             if (isBeingHit && !isHitLastFrame)
             {
@@ -43,8 +49,31 @@ namespace SliceEngine
                 cam.SetImpactFramePosition((Vector3)hits.Dequeue());
             }
 
+            // hint interactions
+
+            if (canvasObj == null)
+            {
+                canvasObj = gameObject.FindGameObjectsWithTag("OrbitalLaserCanvasHint")[0];
+            }
+
+            if (isBeingScanned && !isBeingScannedLastFrame)
+            {
+                canvasObj.SetActive(true);
+                isBeingScannedLastFrame = true;
+            }
+
+            else if (!isBeingScanned && isBeingScannedLastFrame)
+            {
+                canvasObj.SetActive(false);
+                isBeingScannedLastFrame = false;
+            }
+
             isHitLastFrame = isBeingHit;
+            isBeingScannedLastFrame = isBeingScanned;
+
             isBeingHit = false;
+            isBeingScanned = false;
+
             hits.Clear();
         }
 
@@ -52,6 +81,11 @@ namespace SliceEngine
         {
             hits.Enqueue(pos);
             isBeingHit = true;
+        }
+
+        public void Scanned()
+        {
+            isBeingScanned = true;
         }
     }
 }
