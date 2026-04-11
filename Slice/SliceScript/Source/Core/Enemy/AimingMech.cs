@@ -27,6 +27,7 @@ namespace SliceEngine
         public int bulletsPerBurst = 3;
         public float timeBetweenBursts = 5f;
         public float timeBetweenShotsInBurst = 0.1f;
+        public float chargeTime = 1.5f;
 
         // FX prefab
         public string firingFXPrefabName = "FX_Firing1";
@@ -140,7 +141,7 @@ namespace SliceEngine
             if (gameObject.HasComponent<AudioSource>())
             {
                 fireSFXSource = gameObject.GetComponent<AudioSource>();
-                fireSFXSource.Volume = 0.4f;
+                fireSFXSource.Volume = 0.5f;
                 fireSFXSource.IsLoop = false;
             }
             else
@@ -199,18 +200,25 @@ namespace SliceEngine
 
                         this.transform.LookAt(lookTarget, new Vector3(0, 1, 0));
 
-                        bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
+                        bool shouldTelegraph = burstTimer >= timeBetweenBursts - chargeTime;
 
                         if (shouldTelegraph != telegraphed)
                         {
                             telegraphed = shouldTelegraph;
                             SetTelegraph();
+
+                            //Play Fire Audio
+                            SliceLog.Console("ALOY Play Fire SFX");
+                            //fireSFXSource.Play();
+                        }
+
+                        if(telegraphed)
+                        {
+                            fireSFXSource.Play();
                         }
 
                         if (!isBursting)
                         {
-                            //AUDIO
-                            //fireSFXSource.Stop();
                             burstTimer += dt;
 
                             if (burstTimer >= timeBetweenBursts)
@@ -224,9 +232,6 @@ namespace SliceEngine
                         else
                         {
                             shotTimer += dt;
-
-                            //AUDIO
-                            fireSFXSource.Play();
 
                             if (shotTimer >= timeBetweenShotsInBurst)
                             {
@@ -244,6 +249,7 @@ namespace SliceEngine
                                 if (shotsFiredInBurst >= bulletsPerBurst)
                                 {
                                     isBursting = false;
+                                    telegraphed = false;
                                 }
                             }
                         }

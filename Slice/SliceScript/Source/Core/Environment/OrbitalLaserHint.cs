@@ -11,11 +11,19 @@ namespace SliceEngine
         float moveSpeed;
         float d_diameter;
 
+        bool isScanning = false;
+
         Vector3 cachedPosition;
+        GameObject OrbitalLaserCamManager;
 
         public override void OnUpdate(float dt)
         {
             isRunning = true;
+
+            //if (isScanning)
+            //{
+            //    OrbitalLaserCamManager.As<OrbitalLaserCamManager>().Scanned();
+            //}
         }
 
         public void SetupLaser(Vector3 spawnPos, float diameter, float hintTime, float laserTime, float trackSpeed = 15.0f)
@@ -29,7 +37,9 @@ namespace SliceEngine
             hintDuration = hintTime;
             moveSpeed = trackSpeed;
 
-            ps.Scale = new Vector3(diameter, ps.Scale.y, diameter); ;
+            Vector3 newScale = new Vector3(diameter, ps.Scale.y, diameter);
+            transform.Scale = newScale;
+            ps.Scale = newScale;
             ps.Duration = hintDuration;
             ps.Lifetime = hintDuration;
 
@@ -66,6 +76,16 @@ namespace SliceEngine
             {
                 var ps1 = ring2.GetComponent<ParticleSystem>();
                 ps1.Scale = new Vector3(0.01f, diameter / 5.0f, diameter / 5.0f);
+            }
+
+            OrbitalLaserCamManager = gameObject.FindGameObjectsWithTag("OrbitalCamManager")[0];
+        }
+
+        public override void OnTriggerStay(uint other)
+        {
+            if (other == Bootstrap.Player.gameObject.mID)
+            {
+                OrbitalLaserCamManager.As<OrbitalLaserCamManager>().Scanned();
             }
         }
     }

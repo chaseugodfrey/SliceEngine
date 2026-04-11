@@ -146,7 +146,6 @@ namespace SliceEngine
 
         public IEnumerator IntroCutScene()
         {
-            // cam
 
             // transforms
             Transform ArenaTr = ArenaObj.GetComponent<Transform>();
@@ -172,6 +171,8 @@ namespace SliceEngine
             BossTr.Position = Vector3.Zero;
             Bootstrap.CameraController.LockCamera = true;
             Bootstrap.Player.SetPlayerLock(true);
+            x_BossHud.SetActive(false);
+            x_PlayerHud.SetActive(false);
 
             camInitialPos = camTr.Position;
             
@@ -192,7 +193,6 @@ namespace SliceEngine
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
-
             PlayerTr.GetComponent<RigidBody>().Velocity = Vector3.Zero;
             elapsedTime = 0.0f;
             maxTime = 0.1f;
@@ -204,6 +204,10 @@ namespace SliceEngine
             Bootstrap.CameraController.LockCamera = false;
             Bootstrap.Player.SetPlayerLock(false);
 
+            x_PlayerHud.SetActive(true);
+            x_BossHud.SetActive(true);
+
+
             while (elapsedTime < maxTime)
             {
                 elapsedTime += Time.deltaTime;
@@ -214,6 +218,8 @@ namespace SliceEngine
 
             TriggerBoxObj.SetActive(true);
             BossObj.As<Level3Boss>().StartBoss();
+
+
         }
 
         public IEnumerator DeathFadeInOut(Transform boss)

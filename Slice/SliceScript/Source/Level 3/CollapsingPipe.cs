@@ -15,6 +15,9 @@ namespace SliceEngine
         public bool isCollapsed = false;
         Vector3 collapsedScale = new Vector3(1.0f, 0.01f, 1.0f);
         public Vector3 initialScale;
+        public GameObject PipeStartAudio;
+
+
 
         public override void OnAwake()
         {
@@ -33,8 +36,10 @@ namespace SliceEngine
         public IEnumerator Collapse()
         {
             var audio = GetComponent<AudioSource>();
+            PipeStartAudio.GetComponent<AudioSource>().Play();
             audio.Play();
             float timer = 0.0f;
+
             while (timer < collapseTime)
             {
                 timer += Time.deltaTime;
@@ -47,6 +52,9 @@ namespace SliceEngine
 
         public IEnumerator ResetPipe()
         {
+            var audio = GetComponent<AudioSource>();
+            PipeStartAudio.GetComponent<AudioSource>().Play();
+            audio.Play();
             float timer = 0.0f;
             while (timer <= collapseTime)
             {
@@ -54,6 +62,7 @@ namespace SliceEngine
                 transform.Scale = Vector3.Lerp(collapsedScale, initialScale, timer / collapseTime);
                 yield return null;
             }
+            audio.Stop();
         }
     }
 }

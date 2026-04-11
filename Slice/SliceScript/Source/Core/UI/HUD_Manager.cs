@@ -15,6 +15,7 @@ namespace SliceEngine
 
         Slider health;
         public GameObject healthSliderObject;
+        public GameObject healthBarObject;
 
 
         private GameObject defeatObject;
@@ -78,6 +79,38 @@ namespace SliceEngine
             //health.SetValue(input);
             healthSliderObject.GetComponent<Slider>().SetValue(input);
             //console.writeline("Finish setting health");
+        }
+
+        public void HideHUD(bool toHideOrNotToHide)
+        {
+            //Console.WriteLine("HIDING HUD");
+            if (healthBarObject == null)
+            {
+                SliceLog.Error("No health bar assigned");
+               // Console.WriteLine("No health bar obj");
+                return;
+            }
+            
+            float alpha = toHideOrNotToHide ? 1.0f : 0.0f;
+
+            GameObject[] children = healthBarObject.GetAllChildren();
+
+            //Console.WriteLine("DOASKODSAKDOAODAKOAKDOKA");
+
+            Vector4 col = healthBarObject.GetComponent<SpriteRenderer>().Colour;
+            col.w = alpha;
+            healthBarObject.GetComponent<SpriteRenderer>().Colour = col;
+
+            foreach (GameObject go in children)
+            {
+                if (go.HasComponent<SpriteRenderer>())
+                {
+                    col = go.GetComponent<SpriteRenderer>().Colour;
+                    col.w = alpha;
+                    go.GetComponent<SpriteRenderer>().Colour = col;
+                }
+                // theres no text in hud manager, so i dont have to include it
+            }
         }
 
         //public void LoadNextLevel()

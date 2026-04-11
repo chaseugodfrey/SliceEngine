@@ -945,7 +945,7 @@ namespace SliceEngine
 
             //SliceLog.Console("Recharging...");
             isShieldDestroyed = false;
-            currentShield += restoreRate * Time.deltaTime * (isIntro ? 3.0f : 1.0f);
+            currentShield += restoreRate * Time.deltaTime * (isIntro ? 10.0f : 1.0f);
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 
@@ -997,10 +997,17 @@ namespace SliceEngine
                 manager.DestroyAllGenerators();
                 manager.StopAllCoroutines();
 
-                TakeDamage(1000);
-                TakeDamage(1000);
+                isMovementDone = true;
+                TakeDamage((int)maxShield);
+                //TakeDamage(1000);
 
                 canRecharge = false;
+            }
+
+            if (Input.IsKeyPressed(Keys.KEY_0))
+            {
+                StopAllCoroutines();
+                bossSM.ChangeState(orbitalState);
             }
         }
 

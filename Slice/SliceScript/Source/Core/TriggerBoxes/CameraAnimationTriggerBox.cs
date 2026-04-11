@@ -26,9 +26,10 @@ namespace SliceEngine
 
             public override void OnEnter()
             {
-
                 // this triggers the camera moving to where its suppose to be when the player lands
                 camControl = animationTriggerBox.camera.As<CameraController>();
+
+                Bootstrap.HUDManager.HideHUD(false);
 
                 if (camControl != null && Bootstrap.Player != null)
                 {
@@ -91,6 +92,8 @@ namespace SliceEngine
                     yield return null;
                 }
                 dialogueStarted = true;
+
+                Bootstrap.HUDManager.HideHUD(true);
                 Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true);
                 //owner.As<CameraAnimationTriggerBox>().cameraSM.ChangeState(owner.As<CameraAnimationTriggerBox>().exitState);
             }
@@ -121,6 +124,7 @@ namespace SliceEngine
             {
                 cinematicPlayer = owner.FindGameObjectsWithTag("CinematicPlayer")[0];
 
+
                 Bootstrap.CameraController.LockCamera = true;
                 //  Bootstrap.Player.PlayerMovementState = PlayerController.MovementState.Falling;
                 Bootstrap.Player.SetPlayerLock(true);
@@ -134,6 +138,7 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("03_01_HQ_ImpossibleTask");
 
                 Bootstrap.HUDManager.PlayDialogueForLevel(69,2, true, true);
+                Bootstrap.HUDManager.HideHUD(false);
             }
 
             public override void OnUpdate(float dt)
