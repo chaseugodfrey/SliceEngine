@@ -120,6 +120,14 @@ namespace SliceEngine
             return gameObjects;
         }
 
+        public GameObject FindGameObjectWithTag(string tag)
+        {
+            uint entityIDs = FunctionCalls.Entity_FindEntityWithTag(tag);
+            GameObject gameObject = new GameObject(entityIDs);
+
+            return gameObject;
+        }
+
         public GameObject CreateGameObject(string prefabName)
         {
             GameObject entity = new GameObject(FunctionCalls.CreateNewGameObject(prefabName));
@@ -168,6 +176,11 @@ namespace SliceEngine
         public void SetActive(bool input)
         {
             FunctionCalls.Entity_SetActive(mID, input);
+        }
+
+        public bool IsActive()
+        {
+            return FunctionCalls.Entity_IsActive(mID);
         }
 
         public override bool Equals(object obj)

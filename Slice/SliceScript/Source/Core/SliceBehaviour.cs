@@ -141,6 +141,13 @@ namespace SliceEngine
         {
             return gameObject.FindGameObjectWithID(id);
         }
+        public GameObject FindGameObjectWithTag(string tag)
+        {
+            uint entityIDs = FunctionCalls.Entity_FindEntityWithTag(tag);
+            GameObject gameObject = new GameObject(entityIDs);
+
+            return gameObject;
+        }
         public void Destroy()
         {
             StopAllCoroutines();
@@ -166,7 +173,7 @@ namespace SliceEngine
             FunctionCalls.Entity_SetActive(gameObject.mID, active);
         }
 
-        public bool IsActive(bool active)
+        public bool IsActive()
         {
                 return FunctionCalls.Entity_IsActive(gameObject.mID);
         }
