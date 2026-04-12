@@ -133,6 +133,42 @@ namespace SliceEngine
         {
             return new Vector3(Lerp(a.x, b.x, t), Lerp(a.y, b.y, t), Lerp(a.z, b.z, t));
         }
+
+        public static Vector4 Lerp(Vector4 a, Vector4 b, float t)
+        {
+            return new Vector4(
+                Lerp(a.x, b.x, t),
+                Lerp(a.y, b.y, t),
+                Lerp(a.z, b.z, t),
+                Lerp(a.w, b.w, t)
+            );
+        }
+
+        public static Vector3 FromHSV(float h, float s, float v)
+        {
+            float r = 0, g = 0, b = 0;
+
+            float i = (float)Math.Floor(h * 6.0f);
+            float f = h * 6.0f - i;
+
+            float p = v * (1.0f - s);
+            float q = v * (1.0f - f * s);
+            float t = v * (1.0f - (1.0f - f) * s);
+
+            int mod = (int)i % 6;
+
+            switch (mod)
+            {
+                case 0: r = v; g = t; b = p; break;
+                case 1: r = q; g = v; b = p; break;
+                case 2: r = p; g = v; b = t; break;
+                case 3: r = p; g = q; b = v; break;
+                case 4: r = t; g = p; b = v; break;
+                case 5: r = v; g = p; b = q; break;
+            }
+
+            return new Vector3(r, g, b);
+        }
         /// <summary>
         /// Calculates the normalized interpolation factor between two values.
         /// </summary>
@@ -204,6 +240,38 @@ namespace SliceEngine
         public static T Max<T>(T a, T b) where T : IComparable<T>
         {            
             return a.CompareTo(b) > 0 ? a : b;
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in radians).
+        /// </summary>
+        public static float Sin(float value)
+        {
+            return (float)Math.Sin(value);
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in degrees).
+        /// </summary>
+        public static float SinDeg(float degrees)
+        {
+            return (float)Math.Sin(Deg2Rad(degrees));
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in radians).
+        /// </summary>
+        public static float Cos(float value)
+        {
+            return (float)Math.Cos(value);
+        }
+
+        /// <summary>
+        /// Returns sine of a value (in degrees).
+        /// </summary>
+        public static float CosDeg(float degrees)
+        {
+            return (float)Math.Cos(Deg2Rad(degrees));
         }
 
         /// <summary>

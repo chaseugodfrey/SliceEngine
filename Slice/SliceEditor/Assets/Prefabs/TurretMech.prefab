@@ -1,0 +1,655 @@
+[
+    {
+        "TurretMech": {
+            "struct SliceEngine::ColliderShape": {
+                "capsuleData": {
+                    "height": 2.0,
+                    "radius": 4.0
+                },
+                "componentEnabled": true,
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RigidBody": {
+                "CollisionDetection": "",
+                "angularDamping": 0.05000000074505806,
+                "freezePosition": [
+                    false,
+                    false,
+                    false
+                ],
+                "freezeRotation": [
+                    false,
+                    false,
+                    false
+                ],
+                "friction": 0.5,
+                "gravityFactor": 0.0,
+                "isKinematic": true,
+                "linearDamping": 0.05000000074505806,
+                "mass": 1.0,
+                "restituition": 0.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194445,
+                "neighbours": [
+                    4194384,
+                    4194446,
+                    4194436,
+                    4194495
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.TurretMech",
+                "scriptableFieldMap": {
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "aimVerticalOffset": {
+                        "Type": "float",
+                        "Value": 1.0
+                    },
+                    "bloomAmount": {
+                        "Type": "float",
+                        "Value": 0.05000000074505806
+                    },
+                    "bulletDamage": {
+                        "Type": "int",
+                        "Value": 12
+                    },
+                    "bulletScale": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            1.100000023841858,
+                            1.100000023841858,
+                            10.0
+                        ]
+                    },
+                    "bulletSpeed": {
+                        "Type": "float",
+                        "Value": 600.0
+                    },
+                    "bulletsPerBurst": {
+                        "Type": "int",
+                        "Value": 1
+                    },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 40
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 0
+                    },
+                    "distanceBeforeDestroyBullet": {
+                        "Type": "float",
+                        "Value": 1000.0
+                    },
+                    "firingFXPrefabName": {
+                        "Type": "std::string",
+                        "Value": "FX_Firing1"
+                    },
+                    "maxAimRange": {
+                        "Type": "float",
+                        "Value": 150.0
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 40
+                    },
+                    "minAimRange": {
+                        "Type": "float",
+                        "Value": 20.0
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "predictionStrength": {
+                        "Type": "float",
+                        "Value": 0.949999988079071
+                    },
+                    "projectilePrefabName": {
+                        "Type": "std::string",
+                        "Value": "Projectile"
+                    },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "timeBetweenBursts": {
+                        "Type": "float",
+                        "Value": 1.5
+                    },
+                    "timeBetweenShotsInBurst": {
+                        "Type": "float",
+                        "Value": 0.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 5,
+                "mName": "TurretMech",
+                "mTag": "Enemy"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    180.0,
+                    -84.631591796875,
+                    180.0
+                ],
+                "position": [
+                    972.4651489257813,
+                    52.511260986328125,
+                    -419.12811279296875
+                ],
+                "rotation": [
+                    0.6732162833213806,
+                    0.0,
+                    -0.7394456267356873,
+                    0.0
+                ],
+                "scale": [
+                    0.9999995827674866,
+                    1.0,
+                    0.9999996423721313
+                ]
+            }
+        }
+    },
+    {
+        "TurretBase_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16267995604642909280"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194446,
+                "neighbours": [
+                    4194445,
+                    4294967295,
+                    4294967295,
+                    4194447
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "TurretBase_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    3.0517578125e-05,
+                    -2.7000045776367188,
+                    0.0047607421875
+                ],
+                "rotation": [
+                    0.70710688829422,
+                    0.0,
+                    -0.7071066498756409,
+                    0.0
+                ],
+                "scale": [
+                    6.500000953674316,
+                    1.0,
+                    6.500000476837158
+                ]
+            }
+        }
+    },
+    {
+        "TurretShell_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "16267995604642909280"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "9393107775564695193"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194447,
+                "neighbours": [
+                    4194445,
+                    4294967295,
+                    4194446,
+                    4194448
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "TurretShell_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -140.0,
+                    0.0,
+                    90.0
+                ],
+                "position": [
+                    3.0517578125e-05,
+                    -3.814697265625e-06,
+                    -6.103515625e-05
+                ],
+                "rotation": [
+                    -0.24184484779834747,
+                    0.6644629836082458,
+                    -0.6644630432128906,
+                    -0.24184489250183105
+                ],
+                "scale": [
+                    8.0,
+                    8.000001907348633,
+                    8.000000953674316
+                ]
+            }
+        }
+    },
+    {
+        "VRot_1": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 0
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194448,
+                "neighbours": [
+                    4194445,
+                    4194449,
+                    4194447,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 1,
+                "mName": "VRot_1",
+                "mTag": "VRot"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    6.103515625e-05,
+                    -1.1444091796875e-05,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    -1.4210856409267898e-14,
+                    0.0
+                ],
+                "scale": [
+                    3.999999761581421,
+                    4.0,
+                    4.0
+                ]
+            }
+        }
+    },
+    {
+        "Shooter_1": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 0
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10372323955956110936"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "14906183873967877917"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194449,
+                "neighbours": [
+                    4194448,
+                    4294967295,
+                    4294967295,
+                    4194450
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 1,
+                "mName": "Shooter_1",
+                "mTag": "Ground"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    -90.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -9.5367431640625e-07,
+                    1.100006103515625
+                ],
+                "rotation": [
+                    0.7071067690849304,
+                    0.0,
+                    -0.7071067690849304,
+                    0.0
+                ],
+                "scale": [
+                    14.999998092651367,
+                    4.0,
+                    3.999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "Core_1": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 3,
+                "skeleton_root": 0
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "12400085700756427728"
+                },
+                "meshOffset": "1",
+                "model": {
+                    "GUID": "14906183873967877917"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194450,
+                "neighbours": [
+                    4194448,
+                    4294967295,
+                    4194449,
+                    4194451
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.AimingMechWings",
+                "scriptableFieldMap": {
+                    "rotateSpeed": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
+                    "rotateSpeedMultiplier": {
+                        "Type": "float",
+                        "Value": 1.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 5,
+                "mName": "Core_1",
+                "mTag": "Core"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -9.5367431640625e-07,
+                    -0.100006103515625
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    6.999999523162842,
+                    7.0,
+                    6.999999523162842
+                ]
+            }
+        }
+    },
+    {
+        "FiringOffset_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194451,
+                "neighbours": [
+                    4194448,
+                    4294967295,
+                    4194450,
+                    4194452
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 1,
+                "mName": "FiringOffset_1",
+                "mTag": "FiringOffset"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -9.5367431640625e-07,
+                    2.0
+                ],
+                "rotation": [
+                    2.0861628513557662e-07,
+                    0.0,
+                    1.0,
+                    0.0
+                ],
+                "scale": [
+                    0.2500000596046448,
+                    0.25,
+                    0.2500000596046448
+                ]
+            }
+        }
+    },
+    {
+        "FX_LaserPointer_1_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194452,
+                "neighbours": [
+                    4194448,
+                    4194453,
+                    4194451,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 1,
+                "mName": "FX_LaserPointer_1_1_1",
+                "mTag": "Telegraph"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    -1.9073486328125e-06,
+                    0.25
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    -1.4210853021136109e-14,
+                    0.0
+                ],
+                "scale": [
+                    0.2500000298023224,
+                    0.25,
+                    0.2499999850988388
+                ]
+            }
+        }
+    },
+    {
+        "LaserPointer_1_1_1": {
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 8
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": false,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "17081988023694304057"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "10076918467013417704"
+                },
+                "renderTag": "0",
+                "skinned": false
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 4194453,
+                "neighbours": [
+                    4194452,
+                    4294967295,
+                    4294967295,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 1,
+                "mName": "LaserPointer_1_1_1",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    90.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    95.00006103515625
+                ],
+                "rotation": [
+                    0.70710688829422,
+                    0.7071066498756409,
+                    -1.2560739666260534e-14,
+                    1.2560737125161692e-14
+                ],
+                "scale": [
+                    0.10000000894069672,
+                    174.9999542236328,
+                    0.09999997913837433
+                ]
+            }
+        }
+    }
+]

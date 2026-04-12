@@ -167,16 +167,19 @@ namespace SliceEngine
 		void QueueCollision(ScriptCollisionType, Entity entity1, Entity entity2);
 		void ProcessCollisionQueue();
 
-		//button events
+		//UI Events
 		void OnButtonClick(const OnButtonClickEvent& event);
 		void OnButtonHover(const OnButtonHoverEvent& event);
 		void OnButtonExitHover(const OnButtonExitHoverEvent& event);
 		void OnButtonRelease(const OnButtonReleaseEvent& event);
 
-		void OnAnimationEvent(const AnimationEvent& event);
-
-		//Slider events
 		void OnSliderValue(const OnSliderValueEvent& event);
+
+		void OnSpriteAnimStop(const OnSpriteAnimStopEvent& event);
+		void OnSpriteAnimLoop(const OnSpriteAnimLoopEvent& event);
+
+		//Animation Event
+		void OnAnimationEvent(const AnimationEvent& event);
 
 		// Get or create
 		MonoObject* GetOrCreateManagedObject(Entity entity);

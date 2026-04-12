@@ -73,6 +73,7 @@ namespace SliceEditor
 		void CompileFragShaderAsset(FragShaderData* metaData);
 		void CompileMaterialAsset(MaterialData* metaData);
 		void CompileSceneAsset(SceneData* metaData);
+		void CompileCSVAsset(CSVData* metaData);
 		void CompileNavMeshAsset(NavMeshData* metaData);
 		void CompileNavMeshBinAsset(NavMeshBinData* metaData);
 		void CompileStateMachineAsset(StateMachineData* metaData);
@@ -171,7 +172,8 @@ namespace SliceEditor
 		std::unordered_map<AssetType, std::string> mDefaultNames =
 		{
 			{AssetType::Material, "DefaultMaterial"},
-			{AssetType::Controller, "DefaultController"}
+			{AssetType::Controller, "DefaultController"},
+			{AssetType::CustomShader, "NewCustomShader"}
 		};
 
 		

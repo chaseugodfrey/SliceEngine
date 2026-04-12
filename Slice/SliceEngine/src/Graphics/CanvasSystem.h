@@ -20,22 +20,22 @@ DigiPen Institute of Technology is prohibited.
 
 /*
 * Brief description of a canvas
-*
+* 
 * Each Canvas will have its own framebuffer,
 * and canvas elements will draw onto that framebuffer
-*
+* 
 * Depending on canvas mode: world, camera, overlay
 * will change how its drawn
-*
+* 
 * only focus on overlay for now
-*
+* 
 * most likely what will happen
 * -each canvas will search through its children and grab all 2d sprite element components(can look into dirty flag nxt time)
 * -iterate through each component and draw to a framebuffer
 * -finally draw the completed framebuffer to the final framebuffer
-*
+* 
 * likely there is only 1 shared framebuffer for overlay, that follows the reference pixel size
-* for now lock the
+* for now lock the 
 */
 
 void _CheckGLError(const char* file, int line);
@@ -88,6 +88,9 @@ namespace SliceEngine
 		std::unordered_map<uint64_t, uint64_t> eid_shader_map;
 		std::set<Entity> world_space_ui;
 		float world_space_z{};
+		float cam_gamma{};	//store it local
+
+		glm::quat billboard{};
 
 		static constexpr unsigned int Font_Max_Instance = 200;
 
@@ -98,40 +101,6 @@ namespace SliceEngine
 		unsigned int font_ssbo{};
 		static constexpr unsigned int font_binding_index = 3;
 	};
-
-
-
-	//do i need a system for 2d, prob no for now
-	//struct canvasEntity {};
-	/*
-	* Idea behind rect transform component
-	* -bypass transform component's scenegraph settings
-	* -sets transform component's values according to canvas system
-	* -rect transform will store values that are used by canvas system
-	* -dosent just contain position, but also the target rect area in the framebuffer to draw whatever renderer is used
-	*
-	* Sprite Renderer
-	* -contains handle for the texture to draw(ignore font for now, will be a font renderer component)
-	* -will be used during canvas.render to draw to the framebuffer
-	* -uses rect transform to know how to display the texture
-	*/
-	/*
-	* Rect Transform Imgui display:
-	* pos z, only used for sorting
-	*
-	* if no hori stretch
-	*	pos x, x distance in pixels from pivot
-	*	width, pixel width of the UI element
-	* else
-	*	left, x distance in pixels from left pivot
-	*	right, x distance in pixels from right pivot
-	*
-	* if no vert stretch
-	*	same as above except pos y/height/top/bot
-	*
-	* ignore rotation and scale for now, work only in abso pixels
-	*
-	*/
 }
 
 #endif

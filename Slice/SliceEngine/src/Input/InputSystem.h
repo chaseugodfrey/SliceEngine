@@ -136,7 +136,6 @@ namespace SliceEngine
         // cursor states
         void SetCursorState(CursorState state);
         CursorState GetCurrCursorState() const;
-        CursorState GetPrevCursorState() const;
         void ResetCursorState();
 
 #ifdef SLICE_INPUT_USE_GLM

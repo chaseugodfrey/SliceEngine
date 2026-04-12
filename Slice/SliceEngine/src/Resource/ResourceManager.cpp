@@ -66,6 +66,7 @@ namespace SliceEngine
 		mGUIDToResource[(GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT] = std::to_string(DefaultResourceIDs::COLOR_DEADED_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::COLOR_NORMAL_DEFAULT] = std::to_string(DefaultResourceIDs::COLOR_NORMAL_DEFAULT);
 		mGUIDToResource[(GUID)DefaultResourceIDs::FONT_BLANK_DEFAULT] = std::to_string(DefaultResourceIDs::FONT_BLANK_DEFAULT);
+		mGUIDToResource[(GUID)DefaultResourceIDs::CSHADER_DEFAULT] = std::to_string(DefaultResourceIDs::CSHADER_DEFAULT);
 	
 		// Default material
 		mGUIDToResource[(GUID)Type<SliceEngineTypes::Material>::defaultResourceGUID] = std::to_string(Type<SliceEngineTypes::Material>::defaultResourceGUID);
@@ -184,12 +185,12 @@ namespace SliceEngine
 
 	void ResourceManager::ReleaseResource(const GUID& guid)
 	{
-		//std::cout << "Resource being released " << guid.GetGUID() << " : ";
+		////std::cout << "Resource being released " << guid.GetGUID() << " : ";
 		//for(const auto& [key, val] : mFileNameToGUID)
 		//{
 		//	if (val == guid)
 		//	{
-		//		std::cout << key << std::endl;
+		//		//std::cout << key << std::endl;
 		//	}
 		//}
 		auto it = mInstances.find(guid);

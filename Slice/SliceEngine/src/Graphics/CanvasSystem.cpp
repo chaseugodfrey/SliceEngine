@@ -1,4 +1,4 @@
-/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+W/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
  file:			CanvasSystem.cpp
  author:		Elton Leosantosa
  email:			leosantosa.e@digipen.edu
@@ -120,20 +120,34 @@ namespace SliceEngine {
 	std::set<Entity> const& CanvasSystem::Get_World_UI() const {
 		return world_space_ui;
 	}
-
-	//if force updates regardless of inactive
 	void CanvasSystem::UpdateHierachy(bool force) {
+		//list of pair of entity and what type of rendering - split into 2 funcs for now
+		//std::vector<std::pair<Entity, int>> entities_to_draw;
 
 		auto core = Core::GetInstance();
 		auto view = core->GetRegistry().view<canvasEntity>();
 
 		RectTransform empty{};	//zeroed out rect transform for canvas elements to reference from
-		empty.final_height = target_height; empty.final_width = target_width;
-		empty.width = 0; empty.height = 0;
+		empty.final_height = (float)target_height; empty.final_width = (float)target_width;
+		empty.width = 0.f; empty.height = 0.f;
 
 		world_space_ui.clear();
-		world_space_z = 0.f;
+
+		//borrowed from particle system
+		auto possibleCam = Core::GetInstance()->GetSystem<CameraSystem>().mainCam;
+		glm::mat3 camRot{ 1.f };
+		if (possibleCam.has_value()) {
+			auto& cam = Core::GetInstance()->GetRegistry().get<Camera>(possibleCam.value());
+			auto& tform = Core::GetInstance()->GetRegistry().get<Transform>(possibleCam.value());
+			camRot = glm::mat3(glm::inverse(cam.V));
+		//	cam_pos = tform.GetWorldPosition();
+		}
+
+		billboard = glm::quat_cast(camRot);
+
+
 		for (auto entity : view) {
+			world_space_z = 0.f;
 			get_child_ui(entity, entity, entity, empty, force);
 		}
 	}
@@ -168,6 +182,7 @@ namespace SliceEngine {
 		CheckGLError();
 
 		glEnable(GL_BLEND);
+	//	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);	//need to make this premultiplied(one day) - maybe inside texture compiler
 		CheckGLError();
 		const GLuint null_eid = entt::null;
@@ -181,9 +196,11 @@ namespace SliceEngine {
 		if (main_cam == entt::null) {
 			return;	//not a game camera
 		}
-
+		
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 		auto& cam = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::Camera>(main_cam);
+		cam_gamma = cam.gamma / 100.f;
+		
 		glViewport(0, 0, cam.width, cam.height);
 
 		glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, cam.textureID, 0);
@@ -266,6 +283,7 @@ namespace SliceEngine {
 		int uniform_loc = glGetUniformLocation(shader, "canvas_to_ndc");
 		glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(canvas_to_ndc));
 
+
 		//Get quad
 		auto const& quad = *rm->get<SliceEngineTypes::Model>((GUID)DefaultResourceIDs::QUAD_DEFAULT).get();
 		auto const& quad_mesh = quad.meshes[0];
@@ -286,7 +304,6 @@ namespace SliceEngine {
 				uniform_loc = glGetUniformLocation(shader, "M");
 				glm::mat4 model = rect.ToMatrix();
 				glUniformMatrix4fv(uniform_loc, 1, false, glm::value_ptr(model));
-		//		CheckGLError();
 
 				auto const& sprite = mRegistry->get<SpriteRenderer>(element.first);
 				auto const& res = rm->get<SliceEngineTypes::Texture>(sprite.textureHandle);
@@ -294,10 +311,28 @@ namespace SliceEngine {
 				glBindTextureUnit(0, res.get()->texture_id);
 				uniform_loc = glGetUniformLocation(shader, "rgba");
 				glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.rgba));
-			//	CheckGLError();
+
+				uniform_loc = glGetUniformLocation(shader, "gamma");
+
+				if (auto* gamma_override = mRegistry->try_get<SpriteRendererGammaOverride>(element.first)) {
+					if(gamma_override->componentEnabled)
+						glUniform1f(uniform_loc, gamma_override->gamma / 100.f);
+					else
+						glUniform1f(uniform_loc, cam_gamma);
+				}
+				else {
+					glUniform1f(uniform_loc, cam_gamma);
+				}
+
+				uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,1,0,1 }));
+				}
 
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
-			//	CheckGLError();
 			}
 			else if (shader_guid == font_shader) {	//font
 				auto const& rect = mRegistry->get<RectTransform>(element.first);
@@ -366,8 +401,8 @@ namespace SliceEngine {
 
 				//Use rect as the text box
 				//position the pen
-				float left_ref = rect.final_x -(float)rect.final_width / 2;
-				float top_ref = rect.final_y +(float)rect.final_height / 2;
+				float left_ref = rect.final_x - (float)rect.final_width / 2 + font_render.offset_x;
+				float top_ref = rect.final_y +(float)rect.final_height / 2 + font_render.offset_y;
 				float x_pen = left_ref;
 				float y_pen = top_ref - font_render.font_size;
 
@@ -510,6 +545,14 @@ namespace SliceEngine {
 				glUniform1f(uniform_loc, sprite.alphathreshold);
 				CheckGLError();
 
+				uniform_loc = glGetUniformLocation(shader, "uv");
+				if (auto* anim = mRegistry->try_get<SpriteAnimator>(element.first)) {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(sprite.uv));
+				}
+				else {
+					glUniform4fv(uniform_loc, 1, glm::value_ptr(glm::vec4{ 0,0,0,0 }));
+				}
+
 				glDrawElements(quad_mesh.drawMode, quad_mesh.drawCnt, GL_UNSIGNED_INT, nullptr);
 				CheckGLError();
 			}
@@ -578,32 +621,97 @@ namespace SliceEngine {
 		auto& ctx = mRegistry->get<Canvas>(canvas_entity);
 		if (ctx.canvas_type == Canvas::WORLD) {
 
+			auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
+			auto& canvas_tform = mRegistry->get<Transform>(canvas_entity);
 			if (node == parent) {	//canvas
-				auto const& canvas_tform = mRegistry->get<Transform>(canvas_entity);
-				auto& canvas_rect = mRegistry->get<RectTransform>(canvas_entity);
+
+				//when using transform system to calculate
 				//convert canvas space to world space
-				canvas_rect.scale_x = (1.f / canvas_rect.final_width) / canvas_tform.scale.x;
-				canvas_rect.scale_y = (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+				//canvas_rect.scale_x = 1.f;
+				//canvas_rect.scale_y = 1.f;// (1.f / canvas_rect.final_height) / canvas_tform.scale.y;
+
+
+				//ensure no 0 scale
+				//auto v = glm::epsilonEqual<3, float>(canvas_tform.scale, glm::vec3{}, glm::epsilon<float>());
+				//if (v.x || v.y || v.z) {
+				//	return;
+				//}
+				////remove the s and t component
+				//glm::vec3 inv_scale = { 1.f / canvas_tform.scale.x, 1.f / canvas_tform.scale.y , 1.f / canvas_tform.scale.z };
+				//glm::mat4 t = glm::scale(canvas_tform.transform, inv_scale);
+				//glm::quat inv_rot = glm::inverse(canvas_tform.rotation);
+				//glm::mat4 r = glm::mat4_cast(inv_rot);
+				//t *= r;
+
+				//manual
+				auto t = canvas_tform.GetWorldPosition();
+				auto r = canvas_tform.GetWorldRotation();
+				auto euler = glm::eulerAngles(r);
+				auto s = canvas_tform.GetWorldScale();
+
+			//	auto to_cam = (cam_pos - t);
+				if (ctx.billboardX) {
+					euler.x = 0;
+				}
+				if (ctx.billboardY) {
+					euler.y = 0;
+				}
+				if (ctx.billboardZ) {
+					euler.z = 0;
+				}
+				if (ctx.billboardX || ctx.billboardY)
+					r = billboard * glm::quat(euler);
+			//	auto lookat = glm::quatLookAt(to_cam, { 0.f,1.f,0.f });
+				
+			/*	if (ctx.billboardX) {
+					euler.x = 0;
+				}
+				if (ctx.billboardY) {
+					euler.y = 0;
+				}
+				if(ctx.billboardX || ctx.billboardY)
+					r = billboard * glm::quat(euler);*/
+	
+				auto mr = glm::mat4_cast(r);
+				canvas_tform.transform = glm::scale(glm::translate(glm::identity<glm::mat4>(), t) * mr, s);
 			}
 			else {					//child of canvas
 				//update world pos?
 				//rotation of child is always 0
 				//scale of child is relative to immediate parent
 				//pos of child is child - parent
-				auto& c_tform = mRegistry->get<Transform>(node);
-				//auto& p_tform = mRegistry->get<Transform>(parent);
 
-				c_tform.rotation = glm::identity<glm::quat>();
+				auto& c_tform = mRegistry->get<Transform>(node);
+
+				//here we go again
+
+				////calculate manually to allow billboarding
+				auto s = glm::vec3{ rect.final_width / canvas_rect.final_width,
+									rect.final_height / canvas_rect.final_height,
+									1.f };
+
+				auto mr = glm::mat4_cast(glm::quat({ 0, 0, rect.final_rot }));
+
+				auto t = glm::vec3{ (rect.final_x - canvas_rect.final_x) / canvas_rect.final_width,
+									(rect.final_y - canvas_rect.final_y) / canvas_rect.final_height,
+									world_space_z };
+
+				c_tform.transform = glm::scale(glm::translate(canvas_tform.transform, t) * mr, s);
+
+				//when using transform system to calculate
+			/*	c_tform.rotation = glm::identity<glm::quat>();
 				c_tform.eulerAnglesHint = glm::vec3();
 				c_tform.scale.x = rect.final_width / p_rect.final_width; 
 				c_tform.scale.y = rect.final_height / p_rect.final_height; 
 				c_tform.scale.z = 1.f;
-				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x;
-				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y;
-				c_tform.position.z = 0;// world_space_z;
+				c_tform.position.x = (rect.final_x - p_rect.final_x) * p_rect.scale_x / canvas_rect.final_width;
+				c_tform.position.y = (rect.final_y - p_rect.final_y) * p_rect.scale_y / canvas_rect.final_height;
+				c_tform.position.z = world_space_z;
 				rect.scale_x = p_rect.scale_x / c_tform.scale.x;
-				rect.scale_y = p_rect.scale_y / c_tform.scale.y;
-				//world_space_z += 0.0000001f;
+				rect.scale_y = p_rect.scale_y / c_tform.scale.y;*/
+
+
+				world_space_z += 0.0001f;
 				if (mRegistry->any_of<SpriteRenderer, FontRenderer>(node)) {
 					world_space_ui.insert(node);
 				}
@@ -623,9 +731,12 @@ namespace SliceEngine {
 	}
 
 	glm::mat4 RectTransform::ToMatrix() const noexcept {
+		float rad = glm::radians(final_rot);
+		float c = cosf(rad);
+		float s = sinf(rad);
 		return {
-			{final_width, 0.f, 0.f, 0.f},
-			{0.f, final_height, 0.f, 0.f},
+			{final_width * c, final_width * s, 0.f, 0.f},
+			{final_height * (-s), final_height * c, 0.f, 0.f},
 			{0.f, 0.f, 1.f, 0.f},
 			{final_x, final_y, 0.f, 1.f}
 		};
@@ -648,7 +759,7 @@ namespace SliceEngine {
 			final_width = right_ref - left_ref;
 			final_x = left_ref + final_width / 2;
 
-			//std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
+			////std::cout << "left: " << left_ref << ", right: " << right_ref << std::endl;
 		}
 		else {
 			final_width = (float)width;
@@ -714,7 +825,7 @@ namespace SliceEngine {
 			case GL_OUT_OF_MEMORY:      error = "OUT_OF_MEMORY";          break;
 			case GL_INVALID_FRAMEBUFFER_OPERATION:  error = "INVALID_FRAMEBUFFER_OPERATION";  break;
 			}
-			std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
+			//std::cout << "GL_" << error.c_str() << " - " << file << ":" << line << std::endl;
 			err = glGetError();
 		}
 

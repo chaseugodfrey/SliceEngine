@@ -4,6 +4,7 @@
 #include <Input/InputSystem.h>
 #include <Input/InputTypes.h>
 #include <WindowManager/WindowManager.h>
+#include "Selection/SelectionManager.h"
 namespace SliceEditor
 {
 	void EditorInputs::Update()
@@ -81,7 +82,14 @@ namespace SliceEditor
 
 				else
 				{
-					EventManager::GetInstance()->Publish<UndoEvent>();
+					if(registry.GetManager<SelectionManager>("Selection")->GetSelectedNodes().size()  <= 1) //Disable Multi-Selection
+					{
+						EventManager::GetInstance()->Publish<UndoEvent>();
+					}
+					else
+					{
+						EventManager::GetInstance()->Publish<UndoDisabledEvent>();
+					}
 				}
 			}
 

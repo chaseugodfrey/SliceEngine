@@ -21,13 +21,13 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 {
 	// Use world space to see actual collision position
 	//JPH::RVec3 contactPoint = inManifold.GetWorldSpaceContactPointOn1(0); // First contact point in world space
-	//std::cout << "Collision at: (" << contactPoint.GetX() << ", "
+	////std::cout << "Collision at: (" << contactPoint.GetX() << ", "
 	//	<< contactPoint.GetY() << ", " << contactPoint.GetZ() << ")" << std::endl;
 
 	// Also log body positions to compare
-	//std::cout << "Body1 pos: (" << inBody1.GetPosition().GetX() << ", "
+	////std::cout << "Body1 pos: (" << inBody1.GetPosition().GetX() << ", "
 	//	<< inBody1.GetPosition().GetY() << ", " << inBody1.GetPosition().GetZ() << ")" << std::endl;
-	//std::cout << "Body2 pos: (" << inBody2.GetPosition().GetX() << ", "
+	////std::cout << "Body2 pos: (" << inBody2.GetPosition().GetX() << ", "
 	//	<< inBody2.GetPosition().GetY() << ", " << inBody2.GetPosition().GetZ() << ")" << std::endl;
 
 
@@ -48,8 +48,8 @@ void SliceEngine::MyContactListener::OnContactAdded(const JPH::Body& inBody1, co
 
 	auto& colliderShape1 = checkEntity1.GetComponent<ColliderShape>();
 	auto& colliderShape2 = checkEntity2.GetComponent<ColliderShape>();
-	//std::cout << inBody1.GetUserData() << " and " << inBody2.GetUserData() << std::endl;
-	//std::cout << (uint32_t)checkEntity1.GetEntity() << " and " << (uint32_t)checkEntity2.GetEntity()<< std::endl;
+	////std::cout << inBody1.GetUserData() << " and " << inBody2.GetUserData() << std::endl;
+	////std::cout << (uint32_t)checkEntity1.GetEntity() << " and " << (uint32_t)checkEntity2.GetEntity()<< std::endl;
 
 	
 	if (colliderShape1.isTrigger || colliderShape2.isTrigger)

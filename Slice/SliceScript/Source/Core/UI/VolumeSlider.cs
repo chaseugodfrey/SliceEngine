@@ -15,7 +15,7 @@ namespace SliceEngine
 
             if (mySlider != null)
             {
-               
+                
                 if (audioParameter == "Master")
                 {
 
@@ -29,16 +29,27 @@ namespace SliceEngine
             }
         }
 
-        public override void OnSliderValue(float value)
+        public override void OnUpdate(float dt)
         {
             
+        }
+        
+        
+        public override void OnSliderValue(float value)
+        {
+
+            if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
+            {
+                AudioSettings.PlaySFX("UIClick");
+            }
+
             if (audioParameter == "Master")
             {
                 AudioManager.SetMasterVolume(value);
             }
             else
             {
-                SliceLog.Log(audioParameter);
+                
                 AudioManager.SetCategoryVolume(audioParameter, value);
             }
         }

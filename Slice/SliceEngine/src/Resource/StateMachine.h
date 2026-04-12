@@ -73,9 +73,13 @@ namespace SliceEngine
 			unsigned int curr_anim_idx{};
 			int fps{};
 			float animationTime{};
+			float animationSpeed{1};
+			int nextTransition{};
+
 
 			bool isLoop { false };
 			bool isFinish{ false };
+			bool autoTransition{ false };
 
 			std::vector<Transition> transitions;
 			Transition const* transitionUsed{ nullptr };
@@ -95,6 +99,8 @@ namespace SliceEngine
 		public:
 
 			std::unordered_map<std::string, State> stateMap;
+			glm::vec2 entryPosition{};
+			glm::vec2 exitPosition{};
 			std::string entryState;
 			State* currState = nullptr;
 			State* anyState = nullptr;

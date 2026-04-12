@@ -121,17 +121,26 @@ namespace SliceEngine
 	{
 		if (!EFSM.currState) return;
 
-		// only 1 transition
-		/*if (EFSM.currState->transitions.size() == 1)
+		// auto transition
+		if (EFSM.currState->autoTransition)
 		{
-			if (EFSM.parameters.find(EFSM.currState->transitions[0].parameterName) != EFSM.parameters.end())
+			if(!EFSM.currState->nextTransition > EFSM.currState->transitions.size())
 			{
-				const rttr::variant& currentParamValue = EFSM.parameters[EFSM.currState->transitions[0].parameterName];
-				EFSM.nextState = EFSM.currState->transitions[0].targetState;
-				EFSM.stateCon = true;
-				return;
+				for (const SliceEngineTypes::Condition& condition : EFSM.currState->transitions[EFSM.currState->nextTransition].conditions)
+				{
+					if (EFSM.parameters.find(condition.paramName) != EFSM.parameters.end())
+					{
+						const rttr::variant& currentParamValue = EFSM.parameters[condition.paramName];
+						EFSM.nextState = EFSM.currState->transitions[EFSM.currState->nextTransition].targetState;
+						EFSM.stateCon = true;
+						EFSM.currState->transitionUsed = &EFSM.currState->transitions[EFSM.currState->nextTransition];
+						if (currentParamValue.is_type<bool>())
+							EFSM.parameters[condition.paramName] = false;
+						return;
+					}
+				}
 			}
-		}*/
+		}
 
 		for (const SliceEngineTypes::Transition& transition : EFSM.currState->transitions)
 		{
@@ -233,7 +242,7 @@ namespace SliceEngine
 			}
 			else
 			{
-				std::cout << "wassup error" << std::endl;
+				//std::cout << "wassup error" << std::endl;
 			}
 
 			EFSM.stateCon = false;
@@ -346,8 +355,8 @@ namespace SliceEngine
 		if (!EFSM.currState)
 			return;
 
-		//if (std::strcmp(name.c_str(), "PlungeToIdle") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
-			//bool ys = true;
+		//if (std::strcmp(name.c_str(), "Open") == 0 || std::strcmp(name.c_str(), "PlungeToWalk") == 0)
+			//SLICE_LOG("changing to open the door");
 
 		// maybe add a transition timer in the state to check if it is ok to change  ie save a bool to save when the state is safe to change ( mainly for has exit time)
 		//if (EFSM.currState->stateName == name)

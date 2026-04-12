@@ -1,0 +1,476 @@
+{
+    "NavMeshData": null,
+    "SceneData": [
+        {
+            "ThankYou": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 176.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 0.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 421.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 11534568,
+                    "neighbours": [
+                        13631723,
+                        4294967295,
+                        13631722,
+                        13631721
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "ThankYou",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "alphathreshold": 0.5,
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.0
+                    ],
+                    "texture": "12269335524914683074"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "Credits": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 1805.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": -1500.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 928.5
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631721,
+                    "neighbours": [
+                        13631723,
+                        4294967295,
+                        11534568,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::Script": {
+                    "scriptName": "SliceEngine.CreditsText",
+                    "scriptableFieldMap": {
+                        "displayDuration": {
+                            "Type": "float",
+                            "Value": 3.0
+                        },
+                        "fadeSpeed": {
+                            "Type": "float",
+                            "Value": 1.0
+                        },
+                        "scrollSpeed": {
+                            "Type": "float",
+                            "Value": 45.0
+                        }
+                    }
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Credits",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "alphathreshold": 0.5,
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "texture": "15183888468673846894"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "BG": {
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 1080.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 0.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631722,
+                    "neighbours": [
+                        13631723,
+                        4294967295,
+                        4294967295,
+                        11534568
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "BG",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::SpriteRenderer": {
+                    "alphathreshold": 0.5,
+                    "componentEnabled": true,
+                    "raycast_target": true,
+                    "rgba": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "texture": "11697903386653029786"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "Canvas": {
+                "struct SliceEngine::Canvas": {
+                    "billboardX": false,
+                    "billboardY": false,
+                    "billboardZ": false,
+                    "canvas_type": "Overlay",
+                    "componentEnabled": true,
+                    "graphics_raycast": true,
+                    "sort_order": 0
+                },
+                "struct SliceEngine::RectTransform": {
+                    "bot": 0.0,
+                    "height": 1080.0,
+                    "hori_pivot": "Center",
+                    "left": 0.0,
+                    "pos_x": 0.0,
+                    "pos_y": 0.0,
+                    "right": 0.0,
+                    "rotation": 0.0,
+                    "top": 0.0,
+                    "vert_pivot": "Middle",
+                    "width": 1920.0
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631723,
+                    "neighbours": [
+                        0,
+                        13631722,
+                        13631724,
+                        13631725
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Canvas",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "Camera": {
+                "struct SliceEngine::Camera": {
+                    "bloomExposure": 10.0,
+                    "bloomFilterRadius": 0.0,
+                    "bloomLimit": 1.0,
+                    "bloomStrength": 0.4000000059604645,
+                    "cloudsAmplitute": 49.0,
+                    "cloudsColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsCutoff": 0.16699999570846558,
+                    "cloudsHeight": -110.0,
+                    "cloudsIntensity": 0.30000001192092896,
+                    "cloudsSecondAmplitute": 49.0,
+                    "cloudsSecondColor": [
+                        1.0,
+                        1.0,
+                        1.0,
+                        0.25
+                    ],
+                    "cloudsSecondIntensity": 0.30000001192092896,
+                    "cloudsSecondOffset": [
+                        40.0,
+                        40.0,
+                        -20.0
+                    ],
+                    "cloudsSecondSmoothness": 0.0027000000700354576,
+                    "cloudsSmoothness": 0.0027000000700354576,
+                    "componentEnabled": true,
+                    "debugRenderTag": "0",
+                    "depthTex": 50,
+                    "far": 3000.0,
+                    "fogColor": [
+                        0.20000000298023224,
+                        0.20000000298023224,
+                        0.20000000298023224
+                    ],
+                    "fogIntensity": 0.03999999910593033,
+                    "gamma": 45.454498291015625,
+                    "godRayFilterRadius": 5.0,
+                    "godRayStrength": 0.4000000059604645,
+                    "height": 1080,
+                    "impactAngle": 18.0,
+                    "impactBlend": 1.0,
+                    "impactColor": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "impactColor2": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "impactEpilepsy": 7.0,
+                    "impactNoise1": 148.0,
+                    "impactNoise2": 21.0,
+                    "impactPosition": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "impactSmoothness": false,
+                    "isMainCamera": true,
+                    "luminanceLearningRate": 10.0,
+                    "maxLuminance": 10.0,
+                    "minLuminance": 9.999999747378752e-05,
+                    "near": 0.009999999776482582,
+                    "postRenderTag": "8",
+                    "pov": 60.0,
+                    "textureID": 49,
+                    "translucentSelectCutoff": 0.20000000298023224,
+                    "vignetteCenter": [
+                        0.5,
+                        0.5
+                    ],
+                    "vignetteIntensity": 0.335999995470047,
+                    "vignetteSmoothness": 0.699999988079071,
+                    "whiteBalance": 0.9800000190734863,
+                    "width": 1920
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631724,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        4294967295,
+                        13631723
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "Camera",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        },
+        {
+            "BGM": {
+                "struct SliceEngine::AudioSource": {
+                    "category": "SFX",
+                    "componentEnabled": true,
+                    "currentVolume": 1.0,
+                    "directOcclusion": 0.0,
+                    "dopplerLevel": 1.0,
+                    "isLoop": true,
+                    "isMute": false,
+                    "isPaused": false,
+                    "maxDistance": 500.0,
+                    "minDistance": 1.0,
+                    "pitch": 1.0,
+                    "playOnAwake": true,
+                    "playPreview": false,
+                    "priority": 128,
+                    "reverbOcclusion": 0.0,
+                    "soundGUID": "14299615246917021776",
+                    "spatialBlend": 0.0,
+                    "spread": 1.0,
+                    "stereoPan": 0.0,
+                    "volumeRollOff": "Linear"
+                },
+                "struct SliceEngine::SceneGraph": {
+                    "entity_id": 13631725,
+                    "neighbours": [
+                        0,
+                        4294967295,
+                        13631723,
+                        4294967295
+                    ]
+                },
+                "struct SliceEngine::SliceEntity": {
+                    "mActive": true,
+                    "mLayer": 0,
+                    "mName": "BGM",
+                    "mTag": "default"
+                },
+                "struct SliceEngine::Transform": {
+                    "euler_hint": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "position": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scale": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            }
+        }
+    ]
+}

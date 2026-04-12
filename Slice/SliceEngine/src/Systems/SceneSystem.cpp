@@ -15,7 +15,10 @@ DigiPen Institute of Technology is prohibited.
 #include "SceneSystem.h"
 #include "Configuration/ProjectSettingsManager.h"
 #include "Configuration/BuildSettings.h"
+#include "../Graphics/CanvasSystem.h"
+#include "../Graphics/UI_Interactible.h"
 #include "../Scripting/ScriptSystem.h"
+#include "../Animator/AnimatorSystem.h"
 
 namespace SliceEngine
 {
@@ -132,7 +135,15 @@ namespace SliceEngine
 		*/
 		gScriptSystem->isChangingScene = false;
 
+		auto& sCanvas = SliceEngine::Core::GetInstance()->GetSystem<CanvasSystem>();
+		auto& sButton = SliceEngine::Core::GetInstance()->GetSystem<ButtonSystem>();
+		auto& sAnimator = SliceEngine::Core::GetInstance()->GetSystem<AnimatorSystem>();
+
+		sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
 		gScriptSystem->UpdateScripts();
+		//sCanvas.UpdateHierachy(true);	//force all ui components to update once regardless of inactive
+		sButton.InitSystem();
+		sAnimator.InitSystem();
 
 		return true;
 	}
@@ -326,6 +337,16 @@ namespace SliceEngine
 	bool SceneSystem::CheckQueueEmpty()
 	{
 		return mSceneQueue.empty();
+	}
+
+	float SceneSystem::GetTimeScale() const
+	{
+		return timeScale;
+	}
+
+	void SceneSystem::SetTimeScale(float newTimeScale)
+	{
+		timeScale = newTimeScale;
 	}
 
 	std::filesystem::path SceneSystem::GetCurrentScenePath()

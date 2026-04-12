@@ -21,20 +21,20 @@
                 "colorValueType": 0,
                 "colour": [
                     1.0,
+                    0.5023255348205566,
                     0.0,
-                    0.0,
-                    1.0
+                    0.29411765933036804
                 ],
                 "colourLifetimeMap": {
                     "0.000000": [
                         1.0,
+                        0.501960813999176,
                         0.0,
-                        0.0,
-                        0.3921568691730499
+                        0.27450981736183167
                     ],
                     "1.000000": [
                         1.0,
-                        0.0,
+                        0.3348836898803711,
                         0.0,
                         0.0
                     ]
@@ -44,16 +44,16 @@
                         0.0,
                         [
                             1.0,
+                            0.501960813999176,
                             0.0,
-                            0.0,
-                            0.3921568691730499
+                            0.27450981736183167
                         ]
                     ],
                     [
                         1.0,
                         [
                             1.0,
-                            0.0,
+                            0.3348836898803711,
                             0.0,
                             0.0
                         ]
@@ -62,7 +62,7 @@
                 "colourOverLifetime": true,
                 "coneArc": 0.0,
                 "destroyOnExpire": true,
-                "duration": 1.0,
+                "duration": 0.5,
                 "emissionRate": 0.0,
                 "endOrbitVelocity": [
                     20.0,
@@ -73,15 +73,18 @@
                 "friction": 0.8999999761581421,
                 "gForce": 0.0,
                 "glow": true,
-                "glowIntensity": 10.0,
+                "glowIntensity": 0.4000000059604645,
                 "glowValueType": 0,
                 "hasCollision": false,
                 "ignoreLights": true,
+                "initialDelay": 0.0,
                 "initialLifetimeType": 0,
                 "initialRotationType": 0,
+                "innerShapeRadius": 0.0,
                 "isLocalSpace": false,
                 "isRepeating": false,
-                "lifetime": 0.30000001192092896,
+                "isRotation3D": false,
+                "lifetime": 0.25,
                 "materialHandle": {
                     "GUID": "16773562439639489861"
                 },
@@ -95,6 +98,11 @@
                     1.0
                 ],
                 "maxRandomRotation": 0.0,
+                "maxRandomRotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
                 "maxRandomScale": [
                     0.4000000059604645,
                     0.4000000059604645,
@@ -115,6 +123,11 @@
                     1.0
                 ],
                 "minRandomRotation": 0.0,
+                "minRandomRotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
                 "minRandomScale": [
                     1.0,
                     1.0,
@@ -141,7 +154,7 @@
                     1.0,
                     1.0
                 ],
-                "renderMode": 1,
+                "renderMode": 0,
                 "rotateOverLifetime": false,
                 "rotateSeparateAxis": false,
                 "rotateVelocity": [
@@ -150,6 +163,11 @@
                     1400.0
                 ],
                 "rotation": 0.0,
+                "rotation3D": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
                 "scale": [
                     12.0,
                     12.0,
@@ -268,11 +286,11 @@
                 "prefabID": 0
             },
             "struct SliceEngine::SceneGraph": {
-                "entity_id": 318,
+                "entity_id": 15728807,
                 "neighbours": [
                     0,
                     4294967295,
-                    245,
+                    15728839,
                     4294967295
                 ]
             },

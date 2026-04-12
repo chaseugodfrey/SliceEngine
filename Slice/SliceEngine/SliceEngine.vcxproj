@@ -59,7 +59,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
       <MinimalRebuild>false</MinimalRebuild>
@@ -87,7 +87,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>RTTR_DLL;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;JPH_ENABLE_ASSERTS;GLFW_INCLUDE_NONE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\recast\Detour\Detour\include;thirdparty\recast\Detour\DetourCrowd\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;thirdparty\entt;thirdparty\glew;thirdparty\glfw\include;thirdparty\glm;thirdparty\gli;thirdparty\JoltPhysics;thirdparty\fmod\include;thirdparty\nlohmann\include;thirdparty\rttr\include;thirdparty\Mono\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -142,6 +142,7 @@
     <ClInclude Include="src\Graphics\LightingSystem.h" />
     <ClInclude Include="src\Graphics\RenderCmdManager.h" />
     <ClInclude Include="src\Graphics\RenderManager.h" />
+    <ClInclude Include="src\Graphics\SpriteAnimationSystem.h" />
     <ClInclude Include="src\Graphics\TransformHelper.h" />
     <ClInclude Include="src\Graphics\UI_Interactible.h" />
     <ClInclude Include="src\Graphics\WorldSpaceGraphicsSystem.h" />
@@ -150,8 +151,6 @@
     <ClInclude Include="src\Input\InputSystem.h" />
     <ClInclude Include="src\Input\InputTypes.h" />
     <ClInclude Include="src\Logger\Logger.h" />
-    <ClInclude Include="src\Navigation\NavMeshUtilities.h" />
-    <ClInclude Include="src\Navigation\NavigationSystem.h" />
     <ClInclude Include="src\Networking\NetworkSystem.h" />
     <ClInclude Include="src\Physics\CollisionLayer.h" />
     <ClInclude Include="src\Physics\ContactListener.h" />
@@ -212,6 +211,7 @@
     <ClCompile Include="src\Graphics\LightingSystem.cpp" />
     <ClCompile Include="src\Graphics\RenderCmdManager.cpp" />
     <ClCompile Include="src\Graphics\RenderManager.cpp" />
+    <ClCompile Include="src\Graphics\SpriteAnimationSystem.cpp" />
     <ClCompile Include="src\Graphics\TransformHelper.cpp" />
     <ClCompile Include="src\Graphics\UI_Interactible.cpp" />
     <ClCompile Include="src\Graphics\WorldSpaceGraphicsSystem.cpp" />
@@ -219,8 +219,6 @@
     <ClCompile Include="src\Input\ActionMapping.cpp" />
     <ClCompile Include="src\Input\InputSystem.cpp" />
     <ClCompile Include="src\Logger\Logger.cpp" />
-    <ClCompile Include="src\Navigation\NavMeshUtilities.cpp" />
-    <ClCompile Include="src\Navigation\NavigationSystem.cpp" />
     <ClCompile Include="src\Networking\NetworkSystem.cpp" />
     <ClCompile Include="src\Physics\CollisionLayer.cpp" />
     <ClCompile Include="src\Physics\ContactListener.cpp" />
@@ -253,24 +251,6 @@
     <ClCompile Include="src\Systems\TransformSystem.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourCrowd.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourLocalBoundary.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourObstacleAvoidance.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathCorridor.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourPathQueue.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="thirdparty\recast\Detour\DetourCrowd\Source\DetourProximityGrid.cpp">
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

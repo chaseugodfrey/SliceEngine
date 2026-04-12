@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 
 namespace SliceEngine
 {
@@ -14,14 +15,11 @@ namespace SliceEngine
 
         Slider health;
         public GameObject healthSliderObject;
+        public GameObject healthBarObject;
 
-        SpriteRenderer victory;
-        public GameObject victoryObject;
-        public GameObject continueBtn;
 
-        SpriteRenderer defeat;
-        public GameObject defeatObject;
-        public GameObject retryBtn;
+        private GameObject defeatObject;
+        //public GameObject retryBtn;
 
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
@@ -32,7 +30,9 @@ namespace SliceEngine
 
         private bool enterPressed = false;
         private bool inputOpen = false;
-        public bool dialogueDone = false;
+        public bool dialogueDone = true;
+
+        bool loseScreenOpen = false;
 
         public override void OnCreate()
         {
@@ -42,6 +42,15 @@ namespace SliceEngine
             //    Bootstrap.Player.canInput = false;
             //}
             Cursor.state = Cursor.STATE.DISABLED;
+            if(FindGameObjectWithName("LoseScreenFinal") != null)
+            {
+                defeatObject = FindGameObjectWithName("LoseScreenFinal");
+            }
+            else
+            {
+                defeatObject = FindGameObjectWithName("DefeatPlaceholder");
+            }
+                dialogueDone = true;
         }
 
         public override void OnUpdate(float dt)
@@ -61,9 +70,6 @@ namespace SliceEngine
             //        enterPressed = false;
             //    }
             //}
-
-           
-
         }
 
 
@@ -75,14 +81,36 @@ namespace SliceEngine
             //console.writeline("Finish setting health");
         }
 
-        public void GameWinScreen()
+        public void HideHUD(bool toHideOrNotToHide)
         {
-            //victory.SetEnabled(true);
-            victoryObject.GetComponent<SpriteRenderer>().SetEnabled(true);
-            continueBtn.SetActive(true);
-            CursorChecking(Cursor.state);
+            //Console.WriteLine("HIDING HUD");
+            if (healthBarObject == null)
+            {
+                SliceLog.Error("No health bar assigned");
+               // Console.WriteLine("No health bar obj");
+                return;
+            }
+            
+            float alpha = toHideOrNotToHide ? 1.0f : 0.0f;
 
+            GameObject[] children = healthBarObject.GetAllChildren();
 
+            //Console.WriteLine("DOASKODSAKDOAODAKOAKDOKA");
+
+            Vector4 col = healthBarObject.GetComponent<SpriteRenderer>().Colour;
+            col.w = alpha;
+            healthBarObject.GetComponent<SpriteRenderer>().Colour = col;
+
+            foreach (GameObject go in children)
+            {
+                if (go.HasComponent<SpriteRenderer>())
+                {
+                    col = go.GetComponent<SpriteRenderer>().Colour;
+                    col.w = alpha;
+                    go.GetComponent<SpriteRenderer>().Colour = col;
+                }
+                // theres no text in hud manager, so i dont have to include it
+            }
         }
 
         //public void LoadNextLevel()
@@ -97,10 +125,31 @@ namespace SliceEngine
 
         public void GameLoseScreen()
         {
+            SliceLog.Console("Lost");
             //defeat.SetEnabled(true);
-            defeatObject.GetComponent<SpriteRenderer>().SetEnabled(true);
-            retryBtn.SetActive(true);
-            CursorChecking(Cursor.state);
+            if(defeatObject.HasComponent<SpriteRenderer>())
+            {
+                SpriteRenderer defeat = defeatObject.GetComponent<SpriteRenderer>();
+                defeat.SetEnabled(true);
+            }
+            else
+            {
+                defeatObject.SetActive(true);
+
+            }
+            //retryBtn.SetActive(true);
+            Cursor.state = Cursor.STATE.DEFAULT;
+            loseScreenOpen = true;
+        }
+
+        public bool CheckLoseScreen()
+        {
+            if(loseScreenOpen)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public void CursorChecking(Cursor.STATE currentCursorState)
@@ -131,6 +180,16 @@ namespace SliceEngine
 
         //                Set      
         private Dictionary<string, List<string[]>> allDialogues = new Dictionary<string, List<string[]>>();
+
+        public class PopupInfo
+        {
+            public string text;
+            public string year;
+            public string time;
+            public string iteration;
+        }
+
+        private Dictionary<int, PopupInfo> allPopups = new Dictionary<int, PopupInfo>();
         public void LoadDialogues()
         {
             //Load dialogues from a CSV
@@ -139,20 +198,17 @@ namespace SliceEngine
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
             loader.Load(filePath);
 
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found dialogue from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the Dialogues file from: " + filePath);
+            }
+
             if (loader != null)
             {
-                //SliceLog.Log("Loader is empty");
-                //Maybe add a cull here for the scene
-
-                //for (int i  = loader.RowCount -1 ; i > -1; i--)
-                //{
-                //    if (loader.GetValue<int>(i , "Scene") != currentScene)
-                //    {
-                //        loader.RemoveRow(i);
-                //    }
-                //}
-
-
                 //Sorts and adds them to the specified sets
 
                 for (int i = 0; i < loader.RowCount; i++)
@@ -167,9 +223,41 @@ namespace SliceEngine
 
                     }
                     
-                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text") });
-                    SliceLog.Log("Added dialogue entry with " + combinedKey);
+                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
+                    //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
+            }
+        }
+
+        public void LoadPopups()
+        {
+            string filePath = Application.GetFilePath("Popup.csv");
+            SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
+            loader.Load(filePath);
+
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found pop ups from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the pop up file from: " + filePath);
+            }
+
+            if (loader != null)
+            {
+                for (int i = 0; i < loader.RowCount; i++)
+                {
+                    int index = loader.GetValue<int>(i, "Index");
+                    PopupInfo info = new PopupInfo();
+
+                    info.text = loader.GetValue<string>(i, "Text");
+                    info.year = loader.GetValue<string>(i, "Year");
+                    info.time = loader.GetValue<string>(i, "Time");
+                    info.iteration = loader.GetValue<string>(i, "Iteration");
+                    allPopups.Add(index, info);
+                }
+            
             }
         }
 
@@ -178,12 +266,10 @@ namespace SliceEngine
         //string[] for listed things 0 = name, 1 = text
         //private List<string[]> levelDialogues = new List<string[]>();
 
-        private int dialogueIndex = 0;
+        public int dialogueIndex = 0;
 
-        public bool PlayDialogueForLevel(int level, int scene)
+        public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
         {
-
-
 
             // Skip to display full line when type writer effect is playing.
             if (typing == true)
@@ -192,8 +278,9 @@ namespace SliceEngine
                 return true;
             }
 
+
             //Close dialogue box if it is the last line of the set
-            if (!allDialogues.ContainsKey(scene + "_" + level) || allDialogues[scene+"_"+level].Count == dialogueIndex + 1)
+            if (!allDialogues.ContainsKey(scene + "_" + level) || (allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false))
             {
                 // end of dialogue stack
                 // clear stack
@@ -202,12 +289,13 @@ namespace SliceEngine
                 inputOpen = false;
                 dialogueDone = true;
                 //Bootstrap.Player.canInput = true;
-                dialogueIndex = 0;
+                dialogueIndex = -1;
                 //levelDialogues.Clear();
                 SetTextBox("");
                 CloseTextBox();
                 return false;
             }
+
 
             // Will tick dialogue up if it is already loaded, else will load fresh set and play
             if (allDialogues[scene + "_" + level].Count > 0)
@@ -215,15 +303,30 @@ namespace SliceEngine
                 // dialogues is not empty
                 //  tick up number
 
-                SliceLog.Log("Dialogue is not empty");
-                dialogueIndex++;
+                SliceLog.Log("Dialogue is set to:" + dialogueDone);
+
+                if (dialogueDone)
+                {
+                    SliceLog.Log("Dialogue Is fresh. Setting index to 0");
+                    dialogueIndex = 0;
+                    dialogueDone= false;
+                }
+                else
+                {
+                    SliceLog.Log("Incrementing Dialogue");
+                    dialogueIndex++;
+                }
+
+                    SliceLog.Log("Dialogue is not empty");
 
             }
             else
             {
 
+
+                return true;
                 SliceLog.Log("Dialogue is empty");
-                dialogueIndex = 0;
+
 
                 /*
                 //Loading from the list
@@ -250,20 +353,22 @@ namespace SliceEngine
 
             OpenTextBox();
             typing = true;
-            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1]));
+            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1], allDialogues[scene + "_" + level][dialogueIndex][2]));
             SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
             return true;
         }
 
-        IEnumerator TypeText(string toType)
+        IEnumerator TypeText(string toType, string audioToPlay)
         {
             //float timecounter = 0f;
             float speed = 1f / typeSpeed;
             string displaying = "";
 
-            //SliceLog.Log("To type is:" + toType);
+            AudioSettings.PlaySFX(audioToPlay);
+
+            SliceLog.Log("To type is:" + toType);
             for (int i = 0; i < toType.Length; i++)
             {
 
@@ -281,6 +386,8 @@ namespace SliceEngine
             }
 
             SetTextBox(toType);
+            typing = false;
+
 
             yield break;
         }
@@ -297,7 +404,7 @@ namespace SliceEngine
             if (regularTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                regularTextObject.GetComponent<FontRenderer>().Text_val = input;
+                regularTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
@@ -313,7 +420,7 @@ namespace SliceEngine
             if (nameTextObject.HasComponent<FontRenderer>())
             {
                 //SliceLog.Log("Has Font");
-                nameTextObject.GetComponent<FontRenderer>().Text_val = input;
+                nameTextObject.GetComponent<FontRenderer>().Text_val = input.ToUpper();
             }
             else
             {
@@ -345,9 +452,9 @@ namespace SliceEngine
         {
             //console.writeline("HUD Ini called");
             health = healthSliderObject.GetComponent<Slider>();
-            victory = victoryObject.GetComponent<SpriteRenderer>();
-            defeat = defeatObject.GetComponent<SpriteRenderer>();
+            //defeat = defeatObject.GetComponent<SpriteRenderer>();
             LoadDialogues();
+            LoadPopups();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }

@@ -14,6 +14,7 @@ DigiPen Institute of Technology is prohibited.
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Serializer/JSONSerializer.h>
+#include <Graphics/TransformHelper.h>
 
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -123,15 +124,18 @@ namespace SliceEngine
 
 		bool SequencePackage::LoadSequencePkgResource(std::string const& filename)
 		{
+			SLICE_LOG("start load seqpkg");
 			std::ifstream file(filename);
 			if (!file.is_open())
 			{
+				SLICE_LOG("fail open seq pkg");
 				return false;
 			}
 
 			nlohmann::json ctrlJson;
 			try
 			{
+				SLICE_LOG("parse seq pkg");
 				ctrlJson = nlohmann::json::parse(file);
 			}
 			catch (nlohmann::json::parse_error& e)
@@ -141,14 +145,22 @@ namespace SliceEngine
 				return false;
 			}
 
+			SLICE_LOG("parse seq pkg success");
+
 			std::vector<std::string> animationNames{};
+			std::vector<uint64_t> animationGUIDs{};
 
 			animationNames = ctrlJson["Animations"];
+			animationGUIDs = ctrlJson.value<std::vector<uint64_t>>("Animation_guids", { {} });
 
-			for (std::string anim : animationNames)
-			{
+			//we know that names r for sure correct, but guids may not be updated yet
+			for (int i = 0; i < animationNames.size(); ++i) {
+				SLICE_LOG("Load anims from seq pkg");
 				Sequence tmpAnim{};
-				tmpAnim.LoadAnimResource(anim);
+				uint64_t guid = i < animationGUIDs.size() ? animationGUIDs[i] : 0;
+				std::string const& anim_name = animationNames[i];
+
+				tmpAnim.LoadAnimResource(SliceEngine::GUID(guid), anim_name);
 
 				animations.push_back(tmpAnim);
 			}
@@ -157,27 +169,56 @@ namespace SliceEngine
 			return true;
 		}
 
-		bool Sequence::LoadAnimResource(std::string const& animName)
+		bool Sequence::LoadAnimResource(SliceEngine::GUID const& animgui, std::string const& animName)
 		{
 			std::filesystem::path animationsPath = std::filesystem::current_path();
 
-			if (animationsPath.filename() != "Animations")
-			{
-				animationsPath = animationsPath / "Assets" / "Animations";
+			std::cout << animationsPath << std::endl;
+
+			if (animgui.GetGUID() != 0) {
+				SLICE_LOG("finding anim seq from guid");
+
+				if (animationsPath.filename() != "Resources")
+				{
+					animationsPath = animationsPath / "Resources";
+
+				}
+				std::cout << animationsPath << std::endl;
+
+
+				animationsPath = animationsPath / std::to_string(animgui.GetGUID());
+				if (animationsPath.extension() != ".seq")
+				{
+					animationsPath += ".seq";
+				}
+				std::cout << animationsPath << std::endl;
+			}
+			else {
+				SLICE_LOG("finding anim seq from name in asset folder");
+
+				if (animationsPath.filename() != "Assets")
+				{
+					animationsPath = animationsPath / "Assets";
+					animationsPath = animationsPath / "Animations";
+				}
+
+				animationsPath = animationsPath / animName;
+				if (animationsPath.extension() != ".seq")
+				{
+					animationsPath += ".seq";
+				}
 			}
 
-			animationsPath = animationsPath / animName;
-			if (animationsPath.extension() != ".seq")
-			{
-				animationsPath += ".seq";
-			}
 
-
+			SLICE_LOG("open anims seq file");
 			std::ifstream file(animationsPath);
 			if (!file.is_open())
 			{
+				SLICE_LOG("open anims seq file fail");
 				return false;
 			}
+
+			SLICE_LOG("open anims seq file success");
 
 			nlohmann::json ctrlJson;
 			try
@@ -191,6 +232,8 @@ namespace SliceEngine
 				return false;
 			}
 
+			SLICE_LOG("begin reading anim seq json");
+
 			name = ctrlJson["Name"];
 			fps = ctrlJson["FPS"];
 			duration = ctrlJson["Duration"];
@@ -198,6 +241,13 @@ namespace SliceEngine
 			transform = ctrlJson["Transforms"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
 			rotation = ctrlJson["Rotations"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
 			scale = ctrlJson["Scales"].get<std::vector<std::pair<unsigned int, glm::vec3>>>();
+
+			/*if (std::strcmp(animName.c_str(), "Open") == 0)
+			{
+				std::string debug = animName + " Load anim trf " + std::to_string(transform.size());
+
+				SLICE_LOG(debug);
+			}*/
 
 			return true;
 		}
@@ -210,7 +260,7 @@ namespace SliceEngine
 			{
 				startPos = comp.position;
 				startScale = comp.scale;
-				startEuler = glm::degrees(glm::eulerAngles(comp.rotation));
+				startEuler = comp.eulerAnglesHint;
 
 				initialised = true;
 			}
@@ -276,7 +326,29 @@ namespace SliceEngine
 			comp.scale = interpolate(scale, startScale);
 
 			glm::vec3 finalEuler = interpolate(rotation, startEuler);
-			comp.rotation = glm::quat(glm::radians(finalEuler));
+			comp.rotation = SliceEngine::Vec3ToQuat(finalEuler);
+
+
+			/*Animator& animator = reg.get<Animator>(entity);
+
+			if (std::strcmp(animator.stateMachine.EFSM.currState->stateName.c_str(), "Open") == 0)
+			{
+				std::string debug = animator.stateMachine.EFSM.currState->stateName + " anim trf so far " + 
+					std::to_string(comp.position.x) + " " + std::to_string(comp.position.y) + " " + std::to_string(comp.position.z);
+
+				SLICE_LOG(debug);
+
+				debug = std::to_string(transform.size()) + "size of transforms ";
+				SLICE_LOG(debug);
+
+				for(auto& [ckey, ctrf] : transform)
+				{
+					debug = std::to_string(ckey) + " anim keys of trf " +
+						std::to_string(ctrf.x) + " " + std::to_string(ctrf.y) + " " + std::to_string(ctrf.z);
+
+					SLICE_LOG(debug);
+				}
+			}*/
 		}
 
 

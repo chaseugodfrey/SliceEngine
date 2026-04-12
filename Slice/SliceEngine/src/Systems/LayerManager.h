@@ -44,9 +44,9 @@ namespace SliceEngine
 		/// <param name="name">name of layer to remove</param>
 		void RemoveLayer(std::string name);
 
-		uint32_t GetMask(std::string name);
+		uint32_t ToMask(std::string name);
 
-		uint32_t GetMask(uint32_t index);
+		uint32_t ToMask(uint32_t index);
 
 		uint32_t GetCollisionMask(std::string name);
 

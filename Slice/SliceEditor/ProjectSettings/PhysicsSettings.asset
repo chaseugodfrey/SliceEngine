@@ -1,6 +1,6 @@
 {
-    "Broad Layer Collision Matrix": "111111111",
-    "Layer Collision Matrix": "fffffe3ffffffe3ffffffe03fffffedbffffffbbffffff13fffffe08fffffe18fffffe30",
+    "Broad Layer Collision Matrix": "11110111111",
+    "Layer Collision Matrix": "fffff83ffffff83ffffff803fffffefbffffffabfffffd1bfffffa08fffff818fffff830fffff858fffff838",
     "Layers": [
         "Default",
         "Ignore Raycast",
@@ -10,6 +10,8 @@
         "Enemies",
         "Trigger",
         "EnemyParticles",
-        "PlayerParticles"
+        "PlayerParticles",
+        "EnemyProjectile",
+        "LineOfSight"
     ]
 }

@@ -116,7 +116,7 @@ namespace SliceEngine
 		numberOflayers--;
 	}
 
-	uint32_t LayerManager::GetMask(std::string name)
+	uint32_t LayerManager::ToMask(std::string name)
 	{
 		uint32_t layer = GetLayer(name);
 
@@ -128,7 +128,7 @@ namespace SliceEngine
 		return (1u << layer);
 	}
 
-	uint32_t LayerManager::GetMask(uint32_t index)
+	uint32_t LayerManager::ToMask(uint32_t index)
 	{
 		if (index >= MAX_LAYERS)
 		{

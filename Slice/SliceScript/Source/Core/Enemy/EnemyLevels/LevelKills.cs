@@ -31,11 +31,6 @@ namespace SliceEngine
         public override void EnemyKilled(GameObject enemy)
         {
             base.EnemyKilled(enemy);
-
-            if (enemy.Has<EnemyGrunt>())
-            {
-                KillsRequired--;
-            }
         }
     }
 }

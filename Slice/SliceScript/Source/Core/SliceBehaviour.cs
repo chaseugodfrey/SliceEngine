@@ -34,6 +34,8 @@ namespace SliceEngine
         public virtual void OnAwake() { }
         //public virtual void OnEnable() { }
         public virtual void OnCreate() { }
+
+        public virtual void OnEntityDestroy(uint id) { }
         public virtual void OnUpdate(float dt) { }
         //public virtual void OnDestroy() { }
         public virtual void OnFixedUpdate(float dt) { }
@@ -57,11 +59,11 @@ namespace SliceEngine
 
         public virtual void OnButtonClick() { }
         public virtual void OnButtonHover() { }
-
         public virtual void OnButtonExitHover() { }
         public virtual void OnButtonRelease() { }
         public virtual void OnSliderValue(float value) { }
-//        public virtual void OnButtonRelease() { }
+        public virtual void OnSpriteAnimStop() { }
+        public virtual void OnSpriteAnimLoop() { }
 
         public bool HasComponent<T>() where T : Component, new()
         {
@@ -164,7 +166,7 @@ namespace SliceEngine
             FunctionCalls.Entity_SetActive(gameObject.mID, active);
         }
 
-        public bool IsActive()
+        public bool IsActive(bool active)
         {
                 return FunctionCalls.Entity_IsActive(gameObject.mID);
         }

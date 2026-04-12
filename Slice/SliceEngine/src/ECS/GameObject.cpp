@@ -109,7 +109,7 @@ namespace SliceEngine
 
 	void GameObject::Destroy()
 	{
-		std::cout << "Destryoing entity in gameobject cpp: " << (uint32_t)mEntity << std::endl;
+		////std::cout << "Destryoing entity in gameobject cpp: " << (uint32_t)mEntity << std::endl;
 		if (mEntity == entt::null)
 		{
 			SLICE_LOG("entity is null???");

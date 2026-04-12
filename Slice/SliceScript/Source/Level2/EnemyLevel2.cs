@@ -41,17 +41,20 @@ namespace SliceEngine
                 // turn off all projectile shooters for now
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
-                    shooter.As<Projectile_Spawner>().active = false;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
+                    shooter.As<AimingMech>().active = false;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = false;
                 }
                 // start at the starting point
-                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition/*.GetComponent<Transform>().WorldPosition*/;
+
+
+                enemyController.baseY = enemyController.transform.Position.y;
             }
 
             public override void OnUpdate(float dt)
             {
 
-                owner.GetComponent<Transform>().Position = enemyController.startingPosition.GetComponent<Transform>().WorldPosition;
+                owner.GetComponent<Transform>().Position = enemyController.startingPosition/*.GetComponent<Transform>().WorldPosition*/;
 
                 //timer += dt;
                 //if (timer >= 5.0f && !moved)
@@ -80,7 +83,15 @@ namespace SliceEngine
                     float z = center.z + (float)Math.Sin(angle) * orbitRadius;
                     Transform enemyTransform = enemyController.projectileShooters[i].GetComponent<Transform>();
                     enemyTransform.Position = new Vector3(x, center.y, z);
+                    enemyTransform.LookAt(enemyController.transform.WorldPosition, enemyController.transform.Up);
+                    enemyTransform.RotateAxisAngle(enemyController.transform.Up, 180);
                 }
+
+                //Bobbing Code stolen from hafiz
+                Vector3 pos = enemyController.transform.Position;
+                pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                enemyController.transform.Position = pos;
             }
 
             public override void OnExit()
@@ -97,11 +108,11 @@ namespace SliceEngine
                 }
 
                 enemyController.movementDone = true;
+
+                AudioSettings.PlaySFX("04_01_Ozone_YouLeaveMeNoChoice");
             }
             // transitions when movement is done in onMovementFinished in EnemyLevel2 
         }
-
-       
 
         public class IdleState : BaseState
         {
@@ -134,9 +145,11 @@ namespace SliceEngine
 
                 foreach (GameObject shooter in enemyController.projectileShooters)
                 {
-                    shooter.As<Projectile_Spawner>().active = true;
-                    shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
+                    shooter.As<AimingMech>().active = true;
+                    //shooter.As<Projectile_Spawner>().preAimObject.As<AlphaWiggleAnimation>().active = true;
                 }
+
+                enemyController.baseY = enemyController.transform.Position.y;
 
             }
 
@@ -144,6 +157,9 @@ namespace SliceEngine
             {
                 if (owner != null)
                 {
+
+                    owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
+
                     // update movement for idle
                     if (enemyController.movementDone && !frozen)
                     {
@@ -171,9 +187,9 @@ namespace SliceEngine
                     {
                         float roll = SliceRandom.RangeFloat(0.0f, 1.0f);
                         // 40% chance to slam attack
-                        if (roll < 0.6f) 
+                        if (roll < 0.5f) 
                         {
-                            if (enemyController.startingPosition.GetComponent<Transform>().WorldPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
+                            if (enemyController.startingPosition.Distance(Bootstrap.Player.transform.WorldPosition) > distanceFromStarting)
                             {
                                 // if its too far from the center
                                 // then transition to shooting instead
@@ -183,7 +199,7 @@ namespace SliceEngine
 
                             enemyController.stateMachine.ChangeState(enemyController.slamState);
                         }
-                        else if (roll < 0.8f && roll > 0.6f)
+                        else if (roll < 0.9f && roll > 0.5f)
                         {
                             // 40% chance to shoot something idk yet this the 2nd attack probably projectile based attack
                             Console.WriteLine("pew pew pew");
@@ -210,6 +226,13 @@ namespace SliceEngine
                         }
 
                     }
+
+                    //Bobbing Code stolen from hafiz
+                    Vector3 pos = enemyController.transform.Position;
+                    pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                    enemyController.transform.Position = pos;
+
                 }
             }
         }
@@ -221,7 +244,7 @@ namespace SliceEngine
             public bool attacking = false;
             public bool reset = false;
             public Vector3 originalPosition;
-
+            public Vector3 lookPosition;
             float timer = 0.0f;
 
             public SlamState(GameObject owner, EnemyLevel2 controller) : base(owner)
@@ -240,16 +263,20 @@ namespace SliceEngine
 
                 // move to the player fast
                 Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().WorldPosition;
-                targetPos.y = owner.GetComponent<Transform>().WorldPosition.y;
+                targetPos.y = enemyController.baseY;//owner.GetComponent<Transform>().WorldPosition.y;
                 enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().transform.Position, targetPos, 0.8f));
                 //ToggleHitbox(true);
+
+                enemyController.slamWindUpDone = false;
             }
 
             public override void OnUpdate(float dt)
             {
+
                 // only start slamming once its done moving
-                if (enemyController.movementDone && !attacking)
+                if (enemyController.slamWindUpDone && enemyController.movementDone && !attacking)
                 {
+                    //owner.GetComponent<Transform>().LookAt(Bootstrap.Player.transform.Position, new Vector3(0, 1, 0));
                     attacking = true;
                     // save the original position before slamming
                     //originalPosition = owner.GetComponent<Transform>().Position;
@@ -288,7 +315,7 @@ namespace SliceEngine
                         enemyController.ToggleHitbox(false);
                     }
 
-                    if (timer >= 10.0f)
+                    if (timer >= 5.0f)
                     {
                         enemyController.canDamage = false;
                         onCooldown = false;
@@ -315,12 +342,12 @@ namespace SliceEngine
         {
             EnemyLevel2 enemyController;
             public List<Projectile> allProjectiles = new List<Projectile>();
-            public float stateDuration = 5.0f;
+            public float stateDuration = 3.0f;
 
             private float count = 0f;
             private float timer = 0f;
 
-            public string projectilePrefabName = "BallProjectile";
+            public string projectilePrefabName = "Projectile";
             public string shootFXPrefabName = "FX_Firing1";
             public float projPerSecond = 4f;
             public float bulletSpeed = 60f;
@@ -362,6 +389,11 @@ namespace SliceEngine
                 {
                     enemyController.stateMachine.ChangeState(enemyController.idleState);
                 }
+
+                Vector3 pos = enemyController.transform.Position;
+                pos.y = enemyController.baseY + Utilities.Sin(enemyController.bobTimer * enemyController.bobFrequency) * enemyController.bobAmplitude;
+
+                enemyController.transform.Position = pos;
             }
 
             public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
@@ -457,15 +489,16 @@ namespace SliceEngine
                         (float)Math.Sin(angle) * orbitRadius
                         );
 
-                    enemyController.projectileShooters[i].As<Projectile_Spawner>().active = false;
+                    enemyController.projectileShooters[i].As<AimingMech>().active = false;
+                    enemyController.projectileShooters[i].As<AimingMech>().ResetTelegraph();
 
                     // move back to the starting position
-                    Vector3 worldTarget = enemyController.startingPosition.GetComponent<Transform>().WorldPosition + targetLocalPos;
+                    Vector3 worldTarget = enemyController.startingPosition + targetLocalPos;
                     enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 3.0f));
                 }
 
                 // Move back to the starting point
-                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition, 3.0f));
+                enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition, 3.0f));
             }
 
             public override void OnFixedUpdate(float dt)
@@ -492,7 +525,7 @@ namespace SliceEngine
                     if (idleTimer > idleTime && !secondMoved)
                     {
                         secondMoved = true;
-                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition.GetComponent<Transform>().WorldPosition + new Vector3(0, 100f, 0), 5.0f));
+                        enemyController.StartCoroutine(enemyController.MoveToPoint(owner.GetComponent<Transform>().Position, enemyController.startingPosition + new Vector3(0, 100f, 0), 5.0f));
                     }
                 }
             }
@@ -513,7 +546,8 @@ namespace SliceEngine
         public ProjectileState projectileState;
         public DeathState deathState;
 
-        public GameObject startingPosition;
+        //public GameObject startingPosition;
+        public Vector3 startingPosition = new Vector3(89.052f, 60, -2.617f);
         public GameObject enemyHUD;
 
         // Where it will move to when idle
@@ -523,6 +557,7 @@ namespace SliceEngine
         public float movementCooldown = 5.0f;
         public float movementTimer = 0.0f;
         public bool movementDone = false;
+        public bool slamWindUpDone = false;
         public int damage = 20;
         public bool canDamage = false;
         public List<GameObject> projectileShooters = new List<GameObject>();
@@ -531,6 +566,16 @@ namespace SliceEngine
         public GameObject generalHitbox;
 
         protected uint collidedEntity = 0;
+
+        private int damageLeftTillSFX = 100;
+
+
+        // Bobbing
+        float bobTimer = 0f;
+        float bobAmplitude = 3.0f;
+        float bobFrequency = 1.5f;
+        float baseY = 0f;
+
 
         public override void OnCreate()
         {
@@ -597,7 +642,7 @@ namespace SliceEngine
 
             base.TakeDamage(amount, source);
 
-
+            damageLeftTillSFX -= amount;
         }
 
         public override void OnDeath()
@@ -608,23 +653,40 @@ namespace SliceEngine
             // transition to the death state where it flies up
             //Console.WriteLine("Dying");
             stateMachine.ChangeState(deathState);
+
+            AudioSettings.PlaySFX("04_02_Ozone_InitiatingHailMAry");
         }
 
         protected override void OnDamaged(GameObject source)
         {
-            Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
+            //Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
             CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
-            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth); 
+
+            if (damageLeftTillSFX <= 0 )
+            {
+                AudioSettings.PlaySFX("04_011_Ozone");
+
+                damageLeftTillSFX += 100;
+            }
+
         }
 
         public override void OnUpdate(float dt)
         {
             stateMachine.OnUpdate(dt);
+
+            if (Input.IsKeyPressed(Keys.KEY_0))
+            {
+                TakeDamage(800);
+            }
+
         }
 
         public override void OnFixedUpdate(float dt)
         {
             stateMachine.OnFixedUpdate(dt);
+            bobTimer += dt;
         }
 
         public void TriggerState(string state)
@@ -662,6 +724,7 @@ namespace SliceEngine
 
             while (elapsedTime < duration)
             {
+                this.transform.LookAt(targetPos, new Vector3(0, 1, 0));
                 elapsedTime += Time.deltaTime;
                 float t = elapsedTime / duration;
                 transform.Position = Vector3.Lerp(startPos, targetPos, t);
@@ -672,6 +735,36 @@ namespace SliceEngine
             // Ensure it ends exactly at the target position
             transform.Position = targetPos; 
             OnMovementFinish();
+        }
+
+        public IEnumerator SlamWindUp(Vector3 startPos, Vector3 targetPos, float duration)
+        {
+            float elapsedTime = 0.0f;
+
+            float radius = 10f;
+            //float radiusShrinkingRate = radius / duration;
+
+
+            while (elapsedTime < duration)
+            {
+                elapsedTime += Time.deltaTime;
+
+                float ratio = elapsedTime / duration;
+
+                float angle = ratio * 720f;
+
+                float x = startPos.x + Utilities.SinDeg(angle) * (radius * (1- ratio));
+                float y = startPos.y + (targetPos.y - startPos.y) * ratio;
+                float z = startPos.z + Utilities.CosDeg(angle) * (radius * (1 - ratio));
+                 
+
+                transform.Position = new Vector3(x, y, z );
+
+                yield return null;
+            }
+
+            transform.Position = targetPos;
+            slamWindUpDone = true;
         }
 
         public IEnumerator MoveEnemy(GameObject enemy, Vector3 targetPos, float duration)
@@ -711,6 +804,12 @@ namespace SliceEngine
                 case SlamState _:
                     SlamState slam = stateMachine.currentState as SlamState;
                     slam.originalPosition = transform.Position;
+                    if (!slamWindUpDone)
+                    {
+                        Vector3 upper = transform.Position + new Vector3(0, 20, 0);
+                        StartCoroutine(SlamWindUp(transform.Position, upper, 1));
+                    }
+
                     if (slam.reset)
                     {
                         stateMachine.ChangeState(idleState);

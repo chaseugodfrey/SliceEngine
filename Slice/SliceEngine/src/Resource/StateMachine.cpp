@@ -66,6 +66,10 @@ namespace SliceEngine
             j.at("mNodePos").get_to(s.mNodePos);
             j.at("fps").get_to(s.fps);
 
+            s.animationSpeed = j.value("speed", 1.0f);
+            s.autoTransition = j.value("autoTransition", false);
+            s.nextTransition = j.value("nextTransition", 0);
+
             const nlohmann::json& transitionsArray = j.at("transitions");
 
             // 2. Make sure the vector is empty before filling it
@@ -108,6 +112,10 @@ namespace SliceEngine
 			}
 
 			temp.entryState = ctrlJson["entryState"];
+            auto entry_pos = ctrlJson.find("entryNodePosition");
+            auto exit_pos = ctrlJson.find("exitNodePosition");
+            temp.entryPosition = entry_pos != ctrlJson.end() ? entry_pos->get<glm::vec2>() : glm::vec2(0.0f);
+            temp.exitPosition = exit_pos != ctrlJson.end() ? exit_pos->get<glm::vec2>() : glm::vec2(0.0f);
 
             if (ctrlJson.contains("parameters"))
             {

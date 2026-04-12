@@ -12,7 +12,7 @@ namespace SliceEngine
     {
         public float speed = 1.0f;
         public int damage = 30;
-        public GameObject generalHitbox;
+        //public GameObject generalHitbox;
         public GameObject owner;
         public bool destroyOnImpact = false;
         public bool destroyOnPlayerImpact = false;
@@ -32,7 +32,7 @@ namespace SliceEngine
 
                 AudioSettings.PlaySFX("PlayerHitLazer");
 
-                CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
+               // CreateGameObject("Prefabs/FX_Hit.prefab").GetComponent<Transform>().Position = transform.Position;
 
                 if (destroyOnPlayerImpact)
                 {
@@ -51,8 +51,8 @@ namespace SliceEngine
         
         public void SetUp()
         {
-            generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
-            generalHitbox.As<GeneralHitbox>().TurnOn();
+            //generalHitbox.As<GeneralHitbox>().HitBoxListeners += DamagePlayer;
+            //generalHitbox.As<GeneralHitbox>().TurnOn();
         }
         
 
@@ -86,12 +86,24 @@ namespace SliceEngine
                 if (owner.Has<Projectile_Spawner>())
                     owner.As<Projectile_Spawner>().DestroyBullet(this);
                 else if (owner.Has<EnemyLevel2>())
-                {
-                     owner.As<EnemyLevel2>().projectileState.DestroyBullet(this); 
-                }
+                    owner.As<EnemyLevel2>().projectileState.DestroyBullet(this);
+                else if (owner.Has<SurroundAttack>())
+                    owner.As<SurroundAttack>().DestroyBullet(this);
                 else
                     gameObject.Destroy();
             }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            GameObject collidedGO = FindGameObjectWithID(other);
+            if (collidedGO != null)
+            {
+                if (collidedGO.tag == "Player")
+                    DamagePlayer(collidedGO);
+            }
+
+            DestroyProj();
         }
     }
 }

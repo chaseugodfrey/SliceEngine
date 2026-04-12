@@ -779,6 +779,16 @@ namespace SliceEngine
         mTriggerMap.clear();
         mEntityInstances.clear();
         entityAdded.clear();
+
+        // Stop all active coroutines when changing scene
+        // incase someone attaches a coroutine to a slicebehaviour that isn't an entity
+        // and thus won't be destroyed when entityDestroyed.
+        if (mCoroutineManager)
+        {
+            MonoMethod* StopAllCoroutines = mCoroutineManager->GetMethod("OnEnd", 0);
+            if (StopAllCoroutines)
+                mCoroutineManager->InvokeMethod(mCoroutineInstance->mMonoInstance, StopAllCoroutines);
+        }
     }
 
     /// <summary>
@@ -1083,9 +1093,9 @@ namespace SliceEngine
         auto& scriptComponent = reg.get<Script>(entity);
         if (HasEntityClass(scriptComponent.scriptName))
         {
-            //std::cout << "Loading" << scriptComponent.scriptName << "for entity " << (unsigned int)entity << std::endl;
-            //std::cout << "curr state " << Core::GetInstance()->GetSceneSystem()->mCurrentState << std::endl;
-            //std::cout << "next state " << Core::GetInstance()->GetSceneSystem()->mNextState << std::endl;
+            ////std::cout << "Loading" << scriptComponent.scriptName << "for entity " << (unsigned int)entity << std::endl;
+            ////std::cout << "curr state " << Core::GetInstance()->GetSceneSystem()->mCurrentState << std::endl;
+            ////std::cout << "next state " << Core::GetInstance()->GetSceneSystem()->mNextState << std::endl;
 
             if(Core::GetInstance()->GetSceneSystem()->mCurrentState != SceneState::PLAY_SCENE && Core::GetInstance()->GetSceneSystem()->mNextState == SceneState::PLAY_SCENE)
             {
@@ -1147,7 +1157,7 @@ namespace SliceEngine
         }
         else
         {
-            std::cout << "no script component name " << "for entity " << (unsigned int)entity << std::endl;
+            //std::cout << "no script component name " << "for entity " << (unsigned int)entity << std::endl;
 
             // Script not assigned yet, so add to the entity added list
             // to check later
@@ -1162,7 +1172,7 @@ namespace SliceEngine
     void ScriptSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
     {
         mCoroutineInstance->InvokeOnEntityDestroy(static_cast<unsigned int>(entity));
-
+        
 
 
         {
@@ -1181,6 +1191,8 @@ namespace SliceEngine
         {
             if (it.first == entity)
             {
+                it.second->InvokeOnEntityDestroy((unsigned int)entity);
+
     //            mono_gchandle_free(it.second->mHandle);
 				//it.second->mHandle = 0;
                 it.second->Destroy();
@@ -1552,6 +1564,8 @@ namespace SliceEngine
         eventManager->Subscribe<OnButtonExitHoverEvent, &ScriptSystem::OnButtonExitHover>(this);
         eventManager->Subscribe<OnButtonReleaseEvent, &ScriptSystem::OnButtonRelease>(this);
         eventManager->Subscribe<OnSliderValueEvent, &ScriptSystem::OnSliderValue>(this);
+        eventManager->Subscribe<OnSpriteAnimStopEvent, &ScriptSystem::OnSpriteAnimStop>(this);
+        eventManager->Subscribe<OnSpriteAnimLoopEvent, &ScriptSystem::OnSpriteAnimLoop>(this);
 
         eventManager->Subscribe< AnimationEvent, &ScriptSystem::OnAnimationEvent>(this);
     }
@@ -1723,7 +1737,7 @@ namespace SliceEngine
             case ScriptCollisionType::CollideExit:
             {
                 //mEntityCollisionMap[event.entity].erase(event.other);
-                mCollideMap.erase(event.other);
+                mCollideMap[event.entity].erase(event.other);
                 scriptInstance->InvokeOnCollideExit((unsigned int)event.other);
             }
                 break;
@@ -1784,7 +1798,7 @@ namespace SliceEngine
         //if (scriptInstance)
         //{
 
-        //    //    std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
+        //    //    //std::cout << "On collide being called for " << (uint32_t)event.other << std::endl;
         //    scriptInstance->InvokeOnCollideEnter((unsigned int)event.other);
         //}
     }
@@ -1904,6 +1918,43 @@ namespace SliceEngine
         }
     }
 
+    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeOnSliderValue(event.value);
+        }
+    }
+
+    void ScriptSystem::OnSpriteAnimStop(const OnSpriteAnimStopEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeSAnimStop();
+        }
+    }
+
+    void ScriptSystem::OnSpriteAnimLoop(const OnSpriteAnimLoopEvent& event)
+    {
+        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
+            return;
+
+        auto scriptInstance = mEntityInstances[event.entity];
+        if (scriptInstance)
+        {
+            scriptInstance->InvokeSAnimLoop();
+        }
+    }
+
+
     void ScriptSystem::OnAnimationEvent(const AnimationEvent& event)
     {
         if (mEntityInstances.find(event.entity) == mEntityInstances.end())
@@ -1940,17 +1991,6 @@ namespace SliceEngine
         // look to adding support for either string or x number of variables after this is working.
     }
 
-    void ScriptSystem::OnSliderValue(const OnSliderValueEvent& event)
-    {
-        if (mEntityInstances.find(event.entity) == mEntityInstances.end())
-            return;
-
-        auto scriptInstance = mEntityInstances[event.entity];
-        if (scriptInstance)
-        {
-            scriptInstance->InvokeOnSliderValue(event.value);
-        }
-    }
     MonoObject* ScriptSystem::GetOrCreateManagedObject(Entity entity)
     {
         if (entity == entt::null) return nullptr;

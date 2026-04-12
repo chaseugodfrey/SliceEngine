@@ -65,7 +65,7 @@ namespace SliceEngine
 
 		void ApplyBurst(ParticleSystem& ps, float dt);
 
-		glm::vec3 ComputeSphereInitialVelocity(const glm::vec3& center, const glm::vec3& position, float radius, float radialBias = 1.0f);
+		glm::vec3 ComputeSphereInitialVelocity(ParticleSystem& ps, Particle& p, float radialBias = 1.0f);
 		glm::vec3 ComputeRectInitialVelocity(ParticleSystem& ps);
 		glm::vec3 ComputeRectDirection(ParticleSystem& ps);
 		glm::vec3 ComputeCircleInitialVelocity(ParticleSystem& ps, Particle& p);

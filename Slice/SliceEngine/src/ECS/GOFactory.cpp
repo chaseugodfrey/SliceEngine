@@ -51,7 +51,7 @@ namespace SliceEngine
 		mNameToEntity.insert(std::make_pair(go.GetName(), go.GetEntity()));
 		mEntityToGO.insert(std::make_pair(go.GetEntity(), go));
 
-	//	std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
+	//	//std::cout << "Creating blank GO for prefab " << (uint32_t)entity << std::endl;
 
 		return go;
 	}
@@ -137,6 +137,9 @@ namespace SliceEngine
 		Entity entity = mRegistry.create();
 		GameObject newGO(mRegistry, entity);
 
+		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
+		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
+
 		// loop through every component cloner to clone the component onto the new entity
 		for (auto& cloner : mComponentCloners)
 		{
@@ -148,29 +151,60 @@ namespace SliceEngine
 		newGO.AddComponent<SceneGraph>();
 		newGO.GetComponent<SceneGraph>().entity_id = (uint32_t)entity;
 
-		mNameToEntity.insert(std::make_pair(newGO.GetName(), newGO.GetEntity()));
-		mEntityToGO.insert(std::make_pair(newGO.GetEntity(), newGO));
-
 		// need preserve transform if not it passes away
-		glm::vec3 pos{}, scl{};
-		glm::quat rot{};
-
 		if (newGO.HasComponent<Transform>())
 		{
 			auto& tr = newGO.GetComponent<Transform>();
-			pos = tr.position;
-			rot = tr.rotation;
-			scl = tr.scale;
+			
+			// Get the original parent and new parent
+			Entity oldParent = entt::null;
+			if (go.HasComponent<SceneGraph>())
+				oldParent = go.GetComponent<SceneGraph>().neighbours[SceneGraph::UP];
+
+			Entity newParent = parentEntity == entt::null ? mRootEntity : parentEntity;
+
+			// Calculate the original world transform matrix
+			glm::mat4 localMtx = glm::translate(glm::mat4(1.0f), tr.position) *
+				glm::mat4_cast(tr.rotation) *
+				glm::scale(glm::mat4(1.0f), tr.scale);
+
+			glm::mat4 worldMtx;
+			if (oldParent != entt::null && mRegistry.any_of<Transform>(oldParent))
+			{
+				auto& tr_old_par = mRegistry.get<Transform>(oldParent);
+				worldMtx = tr_old_par.transform * localMtx;
+			}
+			else
+			{
+				worldMtx = localMtx;
+			}
+
+			// Set the parent first (this might mess up local transform)
+			SetParent(newGO.GetEntity(), parentEntity);
+
+			// Now recalculate the local transform relative to the new parent to maintain world position
+			if (mRegistry.any_of<Transform>(newParent))
+			{
+				auto& tr_new_par = mRegistry.get<Transform>(newParent);
+				glm::mat4 relMtx = glm::inverse(tr_new_par.transform) * worldMtx;
+
+				glm::vec3 translation, scale, skew;
+				glm::vec4 perspective;
+				glm::quat rotation;
+				glm::decompose(relMtx, scale, rotation, translation, skew, perspective);
+
+				tr.position = translation;
+				tr.rotation = rotation;
+				tr.scale = scale;
+
+				// Update the matrices so they aren't stale for children
+				tr.transform_local = relMtx;
+				tr.transform = worldMtx;
+			}
 		}
-
-		SetParent(newGO.GetEntity(), parentEntity);
-
-		if (newGO.HasComponent<Transform>())
+		else
 		{
-			auto& tr = newGO.GetComponent<Transform>();
-			tr.position = pos;
-			tr.rotation = rot;
-			tr.scale = scl;
+			SetParent(newGO.GetEntity(), parentEntity);
 		}
 
 		// clone children
@@ -268,7 +302,7 @@ namespace SliceEngine
 	void GOFactory::Destroy(entt::entity entity)
 	{
 		auto go = GetGOByEntity(entity);
-		//std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
+		////std::cout << "Destryoing in go factory: " << (uint32_t)entity << std::endl;
 
 		if (mDeleteList.contains(entity))
 		{
@@ -802,6 +836,14 @@ namespace SliceEngine
 		return go;
 	}
 
+	GameObject GOFactory::CreateGO_Light()
+	{
+		auto go = CreateGO("Light");
+		go.AddComponent<Light>();
+		go.GetComponent<Light>().type = Light::Light_Spot;
+		return go;
+	}
+
 	GameObject GOFactory::CreateGO_Canvas()
 	{
 		auto canvas = CreateGO("Canvas");
@@ -998,14 +1040,14 @@ namespace SliceEngine
 	void GOFactory::DebugPrint()
 	{
 		// map size
-		std::cout << "Total GameObjects: " << mEntityToGO.size() << std::endl;
+		//std::cout << "Total GameObjects: " << mEntityToGO.size() << std::endl;
 		// name map size
-		std::cout << "Total Names: " << mNameToEntity.size() << std::endl;
+		//std::cout << "Total Names: " << mNameToEntity.size() << std::endl;
 
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
-			std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
+			//std::cout << (uint32_t)entity << " : " << mEntityToGO[entity].GetName() << std::endl;
 		}
 	}
 
@@ -1014,7 +1056,7 @@ namespace SliceEngine
 		auto entityView = mRegistry.view<SliceEntity>();
 		for (auto entity : entityView)
 		{
-			std::cout << mEntityToGO[entity].GetName() << std::endl;
+			//std::cout << mEntityToGO[entity].GetName() << std::endl;
 			
 			
 			for (auto&& [type_id, storage] : mRegistry.storage())
@@ -1022,7 +1064,7 @@ namespace SliceEngine
 				if (storage.contains(entity))
 				{
 					// each component will be here
-					std::cout << storage.type().name() << std::endl;
+					//std::cout << storage.type().name() << std::endl;
 					
 				}
 
@@ -1066,46 +1108,45 @@ namespace SliceEngine
 						continue;
 
 					// Print based on type
-					if (value.is_type<int>())
-						std::cout << property.get_name() << " = " << value.get_value<int>() << std::endl;
-					else if (value.is_type<float>())
-						std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
-					else if (value.is_type<double>())
-						std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
+					if (value.is_type<int>());
+					//std::cout << property.get_name() << " = " << value.get_value<int>() << std::endl;
+					else if (value.is_type<float>());
+					//std::cout << property.get_name() << " = " << value.get_value<float>() << std::endl;
+					else if (value.is_type<double>());
+						//std::cout << property.get_name() << " = " << value.get_value<double>() << std::endl;
 					else if (value.get_type() == rttr::type::get<uint64_t>() ||
 						value.get_type().is_derived_from(rttr::type::get<uint64_t>()))
 					{
-						std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
+						//std::cout << property.get_name() << " = " << value.get_value<uint64_t>() << std::endl;
 					}
 					else if (value.is_type<std::array<Entity, 4>>())
 					{
 						auto arr = value.get_value<std::array<Entity, 4>>();
-						std::cout << property.get_name() << " = [";
-						for (size_t i = 0; i < arr.size(); ++i)
-							std::cout << static_cast<uint32_t>(arr[i]) << (i + 1 < arr.size() ? ", " : "");
-						std::cout << "]" << std::endl;
+						//std::cout << property.get_name() << " = [";
+						for (size_t i = 0; i < arr.size(); ++i);
+							//std::cout << static_cast<uint32_t>(arr[i]) << (i + 1 < arr.size() ? ", " : "");
+						//std::cout << "]" << std::endl;
 					}
 					else if (value.is_type<glm::vec3>())
 					{
 						glm::vec3 v = value.get_value<glm::vec3>();
-						std::cout << property.get_name() << " = ("
-							<< v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
+						//std::cout << property.get_name() << " = (" << v.x << ", " << v.y << ", " << v.z << ")" << std::endl;
 					}
 					else if (value.get_type() == rttr::type::get<uint32_t>() ||
 						value.get_type().is_derived_from(rttr::type::get<uint32_t>()))
 					{
 						uint32_t u = value.get_value<uint32_t>();
-						std::cout << property.get_name() << " = " << u << std::endl;
+						//std::cout << property.get_name() << " = " << u << std::endl;
 					}
 					else if (value.is_type<std::string>() ||
 						value.get_type().is_derived_from(rttr::type::get<std::string>()))
 					{
 						std::string str = value.get_value<std::string>();
-						std::cout << property.get_name() << " = \"" << str << "\"" << std::endl;
+						//std::cout << property.get_name() << " = \"" << str << "\"" << std::endl;
 					}
 					else
 					{
-						std::cout << property.get_name() << " = <unsupported type>" << std::endl;
+						//std::cout << property.get_name() << " = <unsupported type>" << std::endl;
 					}
 				}
 			}
@@ -1153,7 +1194,7 @@ namespace SliceEngine
 			if (!mEntityToGO[Entity].HasComponent<PrefabEditingEntity>())
 				mNameToEntity.erase(mEntityToGO[Entity].GetName());
 
-			//std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
+			////std::cout << "Destryoing entity : " << (uint32_t)Entity << std::endl;
 			// idk if its okay to destroy EnTT entity before clearing from map
 			// but ill leave it like this for now
 			mEntityToGO[Entity].Destroy();

@@ -8,7 +8,6 @@ layout (binding = 0) uniform sampler2D 	uTex; // Already undergone the addition 
 layout (binding = 1) uniform sampler2D 	uPosTex;
 layout (binding = 2) uniform sampler2D  uNomTex;
 
-uniform vec3 uCamPos;
 uniform vec3 uFogColor;
 uniform float uFogIntensity;
 
@@ -16,7 +15,7 @@ void main(void){
 	vec3 hdrCol = texture(uTex, vTexCoord).rgb;
 	vec3 wPos = texture(uPosTex, vTexCoord).xyz; // In World Space
 	vec3 nom = texture(uNomTex, vTexCoord).xyz; // has nom
-	float dist = length(wPos - uCamPos);
+	float dist = length(wPos);
 	float fogFactor = 0.0;
 
 	if(any(notEqual(nom, vec3(0.0f))))

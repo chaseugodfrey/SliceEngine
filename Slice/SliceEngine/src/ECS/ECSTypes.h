@@ -22,9 +22,6 @@ DigiPen Institute of Technology is prohibited.
 #include "Resource/ResourceManager.h"
 #include "Animator/FSMSystem.h"
 #include "Resource/Skeleton.h"
-#include <DetourNavMesh.h>
-#include <DetourNavMeshQuery.h>
-#include <DetourCrowd.h>
 
 //#include "PropConfig.h"
 //#include <xprop/xproperty.h>
@@ -113,12 +110,12 @@ namespace SliceEngine
 
 		glm::vec3 eulerAnglesHint{ 0.0f, 0.0f, 0.0f };
 
-		glm::vec3 GetWorldPosition()
+		glm::vec3 GetWorldPosition() const
 		{
 			return glm::vec3(transform[3][0], transform[3][1], transform[3][2]);
 		}
 
-		glm::quat GetWorldRotation()
+		glm::quat GetWorldRotation() const
 		{
 			glm::mat4 rotMat = transform;
 
@@ -136,7 +133,7 @@ namespace SliceEngine
 			return glm::quat_cast(rotMat);
 		}
 
-		glm::vec3 GetWorldScale()
+		glm::vec3 GetWorldScale() const
 		{
 			glm::vec3 _scale{};
 			_scale.x = glm::length(glm::vec3(transform[0]));
@@ -202,6 +199,7 @@ namespace SliceEngine
 		RENDER_VIGNETTE		= 0x08,
 		RENDER_GROUND_CLOUD = 0x10,
 		RENDER_GODRAY		= 0x20,
+		RENDER_IMPACT		= 0x40,
 		RENDER_TAG_ALL		= 0xFF
 	};
 
@@ -228,17 +226,32 @@ namespace SliceEngine
 	{
 		int width{ 1920 }, height{ 1080 };
 		float pov{ 60.f }, near{ 0.01f }, far{ 3000.f };// Pov is the angle of y of the screen
-		GLuint textureID{}, depthTex{};
+		GLuint textureID{}, depthTex{}, lum[2]{};
+		float luminanceLearningRate{ 10.f };
 		glm::vec3 fogColor{ 0.2f, 0.2f, 0.2f };
 		float fogIntensity{ 0.04f };
 		float bloomFilterRadius{ 5.f };
 		float bloomStrength{ 0.4f };
+		float bloomLimit{ 1.f };
 		float exposure{ 10.f };
+		float gamma{ 45.4545f };
+		float whiteBalance{ 0.98f };
+		float minLuminance{ 0.0001f };
+		float maxLuminance{ 10.0f };
 		float godRayFilterRadius{ 5.f };
 		float godRayStrength{ 0.4f };
 		glm::vec2 vignetteCenter{ 0.5f, 0.5f };
 		float vignetteIntensity{ 0.336f };
 		float vignetteSmoothness{ 0.7f };
+		glm::vec3 impactPos{ 0.0f };
+		glm::vec3 impactColor{ 1.0f, 1.0f, 1.0f };
+		glm::vec3 impactColor2{ 0.0f, 0.0f, 0.0f };
+		bool impactSmooth{ false };
+		float impactEpilepsy{ 7.0f };
+		float impactAngle{ 18.0f };
+		float impactNoise1{ 148.0f };
+		float impactNoise2{ 21.0f };
+		float impactBlend{ 1.0f };
 
 		float cloudsHeight{ -110.f };
 		float cloudsAmplitude{ 49.f };
@@ -257,7 +270,10 @@ namespace SliceEngine
 		unsigned char postRenderToggles{};
 		glm::mat4 V{};
 		glm::mat4 P{};
+		bool isMainCamera{ false };
 		bool componentEnabled{ true };
+		bool lumSelected{ false };
+		bool camLoaded{ false };
 		RTTR_ENABLE();
 	};
 
@@ -270,8 +286,10 @@ namespace SliceEngine
 			,Light_Spot
 		};
 		bool componentEnabled{ true };
+		bool castsShadow{ true };
 		glm::vec3 color{1.0f, 1.0f, 1.0f};
 		float intensity{ 0.5f };
+		float angle{ 90.f };
 		LightType type = LightType::Light_Point;
 
 		RTTR_ENABLE();
@@ -442,9 +460,10 @@ namespace SliceEngine
 		float maxDistance = 500.0f;
 		bool playOnAwake = false;
 		bool playPreview = false;
-		//bool enablePathfinding = false;
+		bool enablePathfinding = false;
 		float directOcclusion = 0.0f;
 		float reverbOcclusion = 0.0f;
+		bool destroyOnEnd = false;
 
 		RTTR_ENABLE();
 	};
@@ -798,8 +817,10 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		Type canvas_type{ OVERLAY };
 		unsigned int sort_order{};	//smaller number = draw first = behind others
-		bool graphic_raycastable{ true };	//bool that determines if images in its hierachy can be raycasted
-									//only for overlay canvas
+		bool graphic_raycastable{ true };				//bool that determines if images in its hierachy can be raycasted
+														//only for overlay canvas
+
+		bool billboardX{ false }, billboardY{ false }, billboardZ{ false };	//only for world
 
 		RTTR_ENABLE();
 	};
@@ -824,13 +845,14 @@ namespace SliceEngine
 		VertPivot vert_pivot{ MIDDLE };// , old_vert{ MIDDLE };
 
 		//Intermediate settings used by imgui, all in local space
-		int pos_x{}, pos_y{};			//pixel coord
-		int width{ 100 }, height{ 100 };//pixel size
-		int left{}, right{}, top{}, bot{};		//only used when pivots are stretch
+		float pos_x{}, pos_y{};			//pixel coord
+		float width{ 100 }, height{ 100 };//pixel size
+		float left{}, right{}, top{}, bot{};		//only used when pivots are stretch
 
 		//Actual settings used to draw
 		float final_x{}, final_y{};				//position with center of quad as position
 		float final_width{ 100 }, final_height{ 100 };
+		float final_rot{};						//local rotation only, unaffected by parent-child relation
 
 		//scales used for world space transformation only
 		float scale_x{}, scale_y{};
@@ -848,8 +870,27 @@ namespace SliceEngine
 		bool componentEnabled{ true };
 		GUID textureHandle{ (GUID)DefaultResourceIDs::COLOR_DEADED_DEFAULT };	//resource handle for texture
 		glm::vec4 rgba{1.f, 1.f, 1.f, 1.f};
+		glm::vec4 uv{ 0.f,1.f,0.f,1.f };
 		float alphathreshold{ 0.5f };	//alpha cutoff for raycasting
 		bool raycast_target{ true };
+		RTTR_ENABLE();
+	};
+
+	struct SpriteRendererGammaOverride {
+		bool componentEnabled{ true };
+		float gamma{ 45.4545f };
+		RTTR_ENABLE();
+	};
+
+	struct SpriteAnimator {
+		bool componentEnabled{ true };
+		bool is_playing{ false };
+		bool loop{ false };
+		unsigned char row { 1 };
+		unsigned char col { 1 };
+		unsigned char num_frames { 1 };
+		float curr_frame { 0 };
+		float fps{ 1.f };
 		RTTR_ENABLE();
 	};
 
@@ -874,6 +915,8 @@ namespace SliceEngine
 
 
 		float font_size{};
+
+		float offset_x{}, offset_y{};	//some hardcoded offset
 		float line_spacing{};	//multiplier of font_size
 		
 		std::string text{"Hello World"};
@@ -948,55 +991,14 @@ namespace SliceEngine
 		float GetValue() const;	//not actually sure if this func is needed
 
 		bool componentEnabled{ true };
+		bool contained{ false };	//whether handle should be contained within the slider bg
 		//for now only allow a normalized value - 0 to 1
 		float value{ 0 };
 	};
 
-	// Not a component but a base data obj for nav mesh
-	struct NavMeshObj
-	{
-		dtNavMesh* navMesh;
-		dtNavMeshQuery* navMeshQuery;
-		dtCrowd *navMeshCrowd;
-	};
-
-	struct NavMeshDebugObj
-	{
-		struct data
-		{
-			uint32_t vao;
-			uint32_t vbo;
-			uint32_t drawCnt;
-		};
-
-		data data[2];
-	};
 
 	// Component
-	struct NavAgent
-	{
-		bool componentEnabled{ true };
-		glm::vec3 target = glm::vec3(0.0f);
-		std::vector<glm::vec3> currentPath;
-		int currentPathIndex = 0;
 
-		float speed = 2.0f;
-		bool hasNewTarget = false;
-		int crowdAgentID = -1;
-	};
-
-	//struct NavMeshLink
-	//{
-	//	glm::vec3 startLink;
-	//	glm::vec3 endLink;
-	//	bool bidirectional;
-	//	float radius;
-	//};
-
-	struct NavObstacle
-	{
-		bool isObstacle = false;
-	};
 }
 
 #endif

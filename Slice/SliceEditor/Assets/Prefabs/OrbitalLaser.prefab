@@ -1,0 +1,107 @@
+[
+    {
+        "OrbitalLaser": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.699999988079071,
+                "directOcclusion": 0.0,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 152.0,
+                "minDistance": 1.0,
+                "pitch": 1.0,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 129,
+                "reverbOcclusion": 0.0,
+                "soundGUID": "16113045505908166540",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": -0.0,
+                "volumeRollOff": "Linear"
+            },
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "cylinderData": {
+                    "height": 0.5,
+                    "radius": 0.5
+                },
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ]
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 36700276,
+                "neighbours": [
+                    0,
+                    4294967295,
+                    36700481,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.OrbitalLaser",
+                "scriptableFieldMap": {
+                    "damage": {
+                        "Type": "int",
+                        "Value": 10
+                    },
+                    "lingerTime": {
+                        "Type": "float",
+                        "Value": 2.0
+                    },
+                    "moveSpeed": {
+                        "Type": "float",
+                        "Value": 15.0
+                    },
+                    "trackDuration": {
+                        "Type": "float",
+                        "Value": 5.0
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "OrbitalLaser",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    400.0,
+                    -22.881996154785156
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    10.000000953674316,
+                    100.0,
+                    10.0
+                ]
+            }
+        }
+    }
+]

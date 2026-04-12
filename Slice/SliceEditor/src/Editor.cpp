@@ -60,7 +60,7 @@ namespace SliceEditor
 		if (action == GLFW_PRESS)
 		{
 			input->UpdateMouseMap(button, SliceEngine::KeyStates::PRESSED);
-			std::cout << "Mouse Button Pressed: " << std::endl;
+			//std::cout << "Mouse Button Pressed: " << std::endl;
 		}
 		else if (action == GLFW_RELEASE)
 		{
@@ -115,28 +115,30 @@ namespace SliceEditor
 
 		while (!glfwWindowShouldClose(core->GetWindow()))
 		{
+			engineFRM->StartFrame();
+			engineFRM->StartSystem("GLFW Swap Buffers");
 			glfwMakeContextCurrent(core->GetWindow());
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glfwPollEvents();
 			core->GetInputSystem()->UpdatePrevInput();
+			engineFRM->EndSystem("GLFW Swap Buffers");
 
-			engineFRM->StartFrame();
-			engineFRM->StartSystem("Editor");
+			engineFRM->StartSystem("Editor Update");
 			registry.Update();
 			inputs->Update();
 			if (contentBrowser)
 			{
 				AssetFileWatcher::UpdateFolder(*contentBrowser, assetManager);
 			}
-			engineFRM->EndSystem("Editor");
+			engineFRM->EndSystem("Editor Update");
 
 			//engineFRM->StartSystem("Engine");
-			engine.Update();
+			engine.Update(); //FRM already handled inside
 			//engineFRM->EndSystem("Engine");
-			engineFRM->StartSystem("Editor");
+			engineFRM->StartSystem("Editor Render");
 			Render();
-			engine.EndFrame();
-			engineFRM->EndSystem("Editor");
+			engineFRM->EndSystem("Editor Render");
+			engine.EndFrame(); //FRM already handled inside
 
 			engineFRM->EndFrame();
 			engineFRM->CalculateSystemPercentages();
@@ -171,7 +173,6 @@ namespace SliceEditor
 		// to add save engine changes if needed
 		Save();
 
-		navMesh.Clear();
 		assetManager.CleanUpSceneTemp();
 		engine.Exit();
 
@@ -195,7 +196,7 @@ namespace SliceEditor
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.Fonts->Clear(); // i dont want jetbrains, fuck that shit
-		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 14.);
+		ImFont* font = io.Fonts->AddFontFromFileTTF("Assets/Fonts/Roboto-VariableFont.ttf", 20.0f);
 		if (font) io.FontDefault = font;
 
 		

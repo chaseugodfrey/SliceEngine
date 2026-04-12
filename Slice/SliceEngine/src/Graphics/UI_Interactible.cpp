@@ -31,23 +31,23 @@ namespace SliceEngine {
 
 		///auto& self_node = reg.get<SceneGraph>(self);
 	
-		int handle_pos{};
+		float handle_pos{};
 		if (axis == X_Axis) {
-			handle_pos = (int)(rect.final_width * value);
+			handle_pos = rect.final_width * value;
 
-			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
-			
+			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {			
 				auto& handle_rect = reg.get<RectTransform>(handle);
-				handle_rect.vert_pivot = RectTransform::MIDDLE;
-				handle_rect.pos_y = 0;
+				if (contained) {
+					handle_pos = (rect.final_width - handle_rect.final_width) * value + handle_rect.final_width * 0.5f;
+				}
 
 				if (direction == Positive) {
 					handle_rect.hori_pivot = RectTransform::LEFT;
-					handle_rect.pos_x = handle_pos;
+					handle_rect.pos_x = (int)handle_pos;
 				}
 				else {
 					handle_rect.hori_pivot = RectTransform::RIGHT;
-					handle_rect.pos_x = -handle_pos;
+					handle_rect.pos_x = -(int)handle_pos;
 				}
 			}
 
@@ -55,29 +55,26 @@ namespace SliceEngine {
 			
 				auto& fill_rect = reg.get<RectTransform>(fill);
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
-				//fill_rect.top = 0;
-				//fill_rect.bot = 0;
-
 				fill_rect.hori_pivot = RectTransform::STRETCH_H;
 				if (direction == Positive) {
 					fill_rect.left = 0;
-					fill_rect.right = (int)rect.final_width - handle_pos;
+					fill_rect.right = rect.final_width - handle_pos;
 				}
 				else {
 					fill_rect.right = 0;
-					fill_rect.left = (int)rect.final_width - handle_pos;
+					fill_rect.left = rect.final_width - handle_pos;
 				}
 			}
 		}
 		else {
-			handle_pos = (int)(rect.final_height * value);
+			handle_pos = rect.final_height * value;
 
 			if (handle != entt::null && reg.valid(handle) && reg.any_of<RectTransform>(handle)) {
 		
 				auto& handle_rect = reg.get<RectTransform>(handle);
-				//ensure that handle's settings r fixed
-				handle_rect.hori_pivot = RectTransform::CENTER;
-				handle_rect.pos_x = 0;
+				if (contained) {
+					handle_pos = (rect.final_height - handle_rect.final_height) * value + handle_rect.final_height * 0.5f;
+				}
 
 				if (direction == Positive) {
 					handle_rect.vert_pivot = RectTransform::BOTTOM;
@@ -99,11 +96,11 @@ namespace SliceEngine {
 				fill_rect.vert_pivot = RectTransform::STRETCH_V;
 				if (direction == Positive) {
 					fill_rect.bot = 0;
-					fill_rect.top = (int)rect.final_height - handle_pos;
+					fill_rect.top = rect.final_height - handle_pos;
 				}
 				else {
 					fill_rect.top = 0;
-					fill_rect.bot = (int)rect.final_height - handle_pos;
+					fill_rect.bot = rect.final_height - handle_pos;
 				}
 			}
 		}
@@ -128,16 +125,16 @@ namespace SliceEngine {
 		* ismousereleased = mouse up
 		* ismousedown = ismousepressed
 		*/
-		//std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
+		////std::cout << "released: " << input.IsMouseReleased(MouseButtons::LEFT) << std::endl;
 		if (!input.IsMouseDown(MouseButtons::LEFT) || !mRegistry->any_of<Slider>(raycast_entity)) {
 			return;
 		}
-		//std::cout << "handling" << std::endl;
+		////std::cout << "handling" << std::endl;
 		auto& slider = mRegistry->get<Slider>(raycast_entity);
 		if (!slider.componentEnabled) {
 			return;
 		}
-		//std::cout << "value: " << slider.GetValue() << std::endl;
+		////std::cout << "value: " << slider.GetValue() << std::endl;
 		auto const& rect = mRegistry->get<RectTransform>(raycast_entity);
 
 		glm::vec2 direction{};
@@ -174,7 +171,7 @@ namespace SliceEngine {
 		float target_value = rel_x / rect.final_width;
 
 		//assert(target_value <= 1.f && target_value >= 0.f);
-		std::clamp(target_value, 0.f, 1.f);
+		target_value = std::clamp(target_value, 0.f, 1.f);
 		slider.SetValue(target_value, raycast_entity);
 	}
 
@@ -187,7 +184,7 @@ namespace SliceEngine {
 
 
 		auto core = Core::GetInstance();
-		auto view = core->GetRegistry().view<buttonEntity>();
+		auto view = core->GetRegistry().view<buttonEntity>(entt::exclude<InactiveEntity>);
 
 		auto default_event = ButtonSystem::Events::Cancel;
 		for (auto entity : view) {
@@ -274,7 +271,11 @@ namespace SliceEngine {
 	//Set the color/sprite guid of the image depending on state
 	void ButtonSystem::update_button(Entity button_entity, Events event) {
 		auto& button = mRegistry->get<Button>(button_entity);
-		assert(button.componentEnabled);
+		if (!button.componentEnabled) {
+			return;
+		}
+
+
 		switch (event) {
 		case Highlight:
 			button.state = Button::Highlighted;

@@ -53,34 +53,24 @@ namespace SliceEditor
 		//ref: https://www.reedbeta.com/blog/understanding-bcn-texture-compression-formats/#bc1
 		
 		//		RGBA_UNCOMPRESSED,
-		BC1,	//RGB + single bit A, color maps, cutout color maps, normal maps
-		BC2,	//rgba kind off, mostly not used anymore
+		BC1 = 0,	//RGB + single bit A, color maps, cutout color maps, normal maps
 		BC3,	//rgba, color maps with full alpha, packing color and mono maps together
-		BC4,	//grayscale, height maps, gloss maps, font atlas, any grayscale image
-		BC4s,	//bc4 but signed
+		BC4,	
 		BC5,	//2x grayscale, tangent maps
-		BC5s,	//bc5 but signed
-		BC6,	//RGB, floats, HDR
-		BC6s,	//bc6 but signed
-		BC7		//RGB/RGBA, high quality color maps, color maps with full alpha
+		BC7 	//RGB/RGBA, high quality color maps, color maps with full alpha
 	};
+	enum UsageType : std::uint8_t {
+		Color = 0,
+		Tangent_bc5,
+		Intensity_bc4
+	};
+
 	enum MipMapFilter : std::uint8_t {
-		NONE,
+		NONE = 0,
 		POINT,
 		LINEAR,
 		TRIANGLE,
 		BOX
-	};
-	enum WrapType : std::uint8_t {
-		CLAMP_TO_EDGE,
-		WRAP,
-		MIRROR
-	};
-	enum UsageType : std::uint8_t {
-		COLOR,
-		COLOR_ALPHA,
-		TANGENT_NORMAL,
-		INTENSITY
 	};
 
 	enum AudioStream : std::uint8_t
@@ -195,21 +185,53 @@ namespace SliceEditor
 		}
 	};
 
+	struct DefaultMeta : public MetaData
+	{	
+		std::filesystem::path Serialize(const std::filesystem::path&) override
+		{
+			return std::filesystem::path("");
+		}
+
+		void Deserialize(const std::filesystem::path& desc_path) override
+		{
+			std::ifstream inFile(desc_path);
+			nlohmann::json metaData;
+
+			if (!inFile.is_open())
+			{
+				SLICE_LOG_WARNING("File not found for Deserialisation!");
+				return;
+			}
+
+			else
+			{
+				inFile >> metaData;
+				inFile.close();
+			}
+
+			guid = SliceEngine::GUID(metaData["guid"].get<uint64_t>());
+			assetName = metaData["assetName"].get<std::string>();
+			assetType = metaData["assetType"].get<std::string>();
+			assetPath = metaData["assetPath"].get<std::string>();
+			resourcePath = metaData["resourcePath"].get<std::string>();
+		}
+	};
+
 	struct TextureData : public MetaData
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::TEXTURE;
 
-		CompressionFormat cmp_format{ CompressionFormat::BC3 };
-		MipMapFilter mip_filter{ MipMapFilter::BOX };
-		WrapType u_wrap{ WrapType::CLAMP_TO_EDGE };
-		WrapType v_wrap{ WrapType::CLAMP_TO_EDGE };
-		UsageType usage_type{ UsageType::COLOR };
+		UsageType usage_type{ UsageType::Color };
 
+		CompressionFormat cmp_format{ CompressionFormat::BC7 };
+		bool is_srgb{ true };
 		float comp_quality{ 1.f };
+
 		bool generateMips{ true };
+		MipMapFilter mip_filter{ MipMapFilter::BOX };
 		unsigned char mip_count{ 8 };
-		bool hasAlpha{ true };
-		unsigned char alpha_threshold{ 128 };	//used only for non-blending
+
+		bool premultiply_alpha{ false };
 
 		std::filesystem::path Serialize(const std::filesystem::path & desc_path) override
 		{
@@ -226,15 +248,14 @@ namespace SliceEditor
 
 			// specific properties to texture goes here but we dh that yet
 			// now we have specific properties :)
-			metaJson["comp_format"] = cmp_format;
-			metaJson["mip_filter"] = mip_filter;
-			metaJson["u_wrap"] = u_wrap;
-			metaJson["v_wrap"] = v_wrap;
+			metaJson["usage"] = usage_type;
+			metaJson["compression"] = cmp_format;
+			metaJson["srgb"] = is_srgb;
 			metaJson["comp_quality"] = comp_quality;
 			metaJson["generateMips"] = generateMips;
+			metaJson["mip_filter"] = mip_filter;
 			metaJson["mip_count"] = mip_count;
-			metaJson["hasAlpha"] = hasAlpha;
-			metaJson["alpha_threshold"] = alpha_threshold;
+			metaJson["premultiply"] = premultiply_alpha;
 			// now create the meta file
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -268,14 +289,16 @@ namespace SliceEditor
 			assetType = metaData["assetType"].get<std::string>();
 			assetPath = metaData["assetPath"].get<std::string>();
 			resourcePath = metaData["resourcePath"].get<std::string>();
-			cmp_format = metaData["comp_format"].get<CompressionFormat>();
-			mip_filter = metaData["mip_filter"].get<MipMapFilter>();
-			u_wrap = metaData["u_wrap"].get<WrapType>();
-			v_wrap = metaData["v_wrap"].get<WrapType>();
-			comp_quality = metaData["comp_quality"].get <float> ();
-			alpha_threshold = metaData["alpha_threshold"].get <char> ();
-			generateMips = metaData["generateMips"].get <bool> ();
-			hasAlpha = metaData["hasAlpha"].get <bool> ();
+
+			usage_type = metaData.value<UsageType>("usage", UsageType::Color);
+			cmp_format = metaData.value<CompressionFormat>("compression", CompressionFormat::BC3);
+			is_srgb = metaData.value<bool>("srgb", true);
+			comp_quality = metaData.value<float>("comp_quality", 1.f);
+			generateMips = metaData.value<bool>("generateMips", false);
+			mip_filter = metaData.value<MipMapFilter>("mip_filter", MipMapFilter::BOX);
+			mip_count = metaData.value<unsigned char>("mip_count", 8);
+
+			premultiply_alpha = metaData.value<bool>("premultiply", false);
 		}
 	};
 
@@ -429,6 +452,7 @@ namespace SliceEditor
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::SEQUENCEPACKAGE;
 
 		std::vector<std::string> animations;
+		std::vector<SliceEngine::GUID> animation_guids;
 
 		std::filesystem::path Serialize(const std::filesystem::path& desc_path) override
 		{
@@ -463,6 +487,12 @@ namespace SliceEditor
 	
 			metaJson["Animations"] = animations;
 
+			std::vector<uint64_t> tmpUint{};
+			for (auto v : animation_guids)
+			{
+				tmpUint.push_back(v.GetGUID());
+			}
+			metaJson["Animation_guids"] = tmpUint;
 
 			std::ofstream outFile(desc_path);
 			if (outFile.is_open())
@@ -483,16 +513,16 @@ namespace SliceEditor
 			nlohmann::json assetJson = nlohmann::json::parse(inFile);
 
 			animations = assetJson["Animations"].get<std::vector<std::string>>();
+			std::vector<uint64_t> tmpUint{};
+			tmpUint = assetJson.value<std::vector<uint64_t>>("Animation_guids", { });
+
+			animation_guids.clear();
+			for (auto v : tmpUint)
+			{
+				animation_guids.push_back(SliceEngine::GUID(v));
+			}
 
 			return true;
-		}
-
-		void LoadSequencePkgData(const SliceEngine::SliceEngineTypes::SequencePackage& newAnim)
-		{
-			for (const auto& anim : newAnim.animations)
-			{
-				animations.push_back(anim.name);
-			}
 		}
 	};
 
@@ -714,7 +744,7 @@ namespace SliceEditor
 			// technically this is done in compiling of asset
 			// but scene has no compiling so we just set it here
 
-			resourcePath = "Resources/" + std::to_string(guid.GetGUID()) + assetType;
+			resourcePath = "Resources/" + assetName; //Lmao Exception due to lack of time
 			nlohmann::json metaJson;
 			metaJson["guid"] = guid.GetGUID();
 			metaJson["assetName"] = assetName;
@@ -786,6 +816,102 @@ namespace SliceEditor
 			}
 
 			return std::filesystem::path(desc_path);
+		}
+		void SerializeDefaultAsset(const std::filesystem::path& desc_path)
+		{
+			std::ofstream output(desc_path);
+
+			std::string defaultTxt{ R"({
+    "Main": {
+        "END_COLOR": {
+            "FinalNode1": [
+                "Node30"
+            ]
+        },
+        "END_EMISSION": {
+            "FinalNode3": [
+                "Node74"
+            ]
+        },
+        "END_METALLIC": {
+            "FinalNode0": [
+                "Node42"
+            ]
+        },
+        "END_NORMAL": {
+            "FinalNode4": [
+                "Node34"
+            ]
+        },
+        "END_ROUGHNESS": {
+            "FinalNode2": [
+                "Node46"
+            ]
+        },
+        "Flip_Y_Vec2": {
+            "Node27": [
+                "vUV"
+            ]
+        },
+        "Multiply": {
+            "Node30": [
+                "color",
+                "Node38"
+            ],
+            "Node74": [
+                "Node545",
+                "EmissionMult"
+            ],
+            "Node545": [
+                "Node50",
+                "color2"
+            ]
+        },
+        "sampleTexture": {
+            "Node34": [
+                "NormalMap",
+                "Node27"
+            ],
+            "Node38": [
+                "albedo",
+                "Node27"
+            ],
+            "Node42": [
+                "MetallicMap",
+                "Node27"
+            ],
+            "Node46": [
+                "RoughnessMap",
+                "Node27"
+            ],
+            "Node50": [
+                "EmissionMap",
+                "Node27"
+            ]
+        }
+    },
+    "Params": {
+        "Bools": {},
+        "Floats": {
+            "EmissionMult": 1.0
+        },
+        "Ints": {},
+        "Textures": {
+            "EmissionMap": 15644028420850910905,
+            "MetallicMap": 11697903386653029786,
+            "NormalMap": 15800990347539648889,
+            "RoughnessMap": 11697903386653029786,
+            "albedo": 11697903386653029786
+        },
+        "Uints": {}
+    }
+})" };
+
+			if (output.is_open())
+			{
+				output << defaultTxt;
+				output.close();
+			}
 		}
 	};
 	struct VertShaderData : public MetaData
@@ -1038,7 +1164,7 @@ namespace SliceEditor
 	{
 		constexpr static inline uint64_t typeUUID = ResourceTypeIDs::CONTROLLER;
 
-		std::map<std::string, rttr::variant> parameters{};
+		std::unordered_map<std::string, rttr::variant> parameters{};
 		std::unordered_map<std::string, SliceEngine::SliceEngineTypes::State> stateMap{};
 		glm::vec2 entryPosition{};
 		glm::vec2 exitPosition{};
@@ -1099,6 +1225,10 @@ namespace SliceEditor
 			j["isLoop"] = s.isLoop;
 			j["mNodePos"] = s.mNodePos;
 			j["fps"] = s.fps;
+			j["speed"] = s.animationSpeed;
+			j["autoTransition"] = s.autoTransition;
+			j["nextTransition"] = s.nextTransition;
+
 
 			j["transitions"] = nlohmann::json::array();
 
@@ -1173,6 +1303,10 @@ namespace SliceEditor
 			j.at("isLoop").get_to(s.isLoop);
 			j.at("mNodePos").get_to(s.mNodePos);
 			j.at("fps").get_to(s.fps);
+			//j.at("speed").get_to(s.animationSpeed);
+			s.animationSpeed = j.value("speed", 1.0f);
+			s.autoTransition = j.value("autoTransition", false);
+			s.nextTransition = j.value("nextTransition", 0);
 
 			s.transitions.clear();
 			const auto& transitions_json = j.at("transitions");

@@ -13,14 +13,33 @@ namespace SliceEngine
             slider = GetComponent<Slider>();
             if (slider != null)
             {
-                slider.SetValue(Camera.Exposure * 0.1f);
+                slider.SetValue(Camera.Gamma * 0.01f);
+            }
+        }
+
+        public override void OnUpdate(float dt)
+        {
+            
+        }
+
+        public void RestoreDefaultGamma()
+        {
+            Camera.Gamma = 45.5f;
+            if (slider != null) //update the slider as well
+            {
+                slider.SetValue(Camera.Gamma * 0.01f);
             }
         }
 
         public override void OnSliderValue(float value)
         {
-            gammaValue = value * 10;
-            Camera.Exposure = gammaValue;
+            if(Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT))
+            {
+                AudioSettings.PlaySFX("UIClick");
+            }
+
+            gammaValue = value * 100;
+            Camera.Gamma = gammaValue;
         }
     }
 }

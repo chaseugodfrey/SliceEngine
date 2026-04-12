@@ -1,0 +1,654 @@
+[
+    {
+        "L3BOSS": {
+            "struct SliceEngine::AudioSource": {
+                "category": "SFX",
+                "componentEnabled": true,
+                "currentVolume": 0.5,
+                "directOcclusion": 0.10000000149011612,
+                "dopplerLevel": 1.0,
+                "isLoop": false,
+                "isMute": false,
+                "isPaused": false,
+                "maxDistance": 303.1000061035156,
+                "minDistance": 1.0,
+                "pitch": 0.8999999761581421,
+                "playOnAwake": false,
+                "playPreview": false,
+                "priority": 128,
+                "reverbOcclusion": 0.20000000298023224,
+                "soundGUID": "12883951480052923376",
+                "spatialBlend": 1.0,
+                "spread": 1.0,
+                "stereoPan": 0.0,
+                "volumeRollOff": "Linear"
+            },
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": false,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "sphereData": {
+                    "radius": 0.4000000059604645
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::RigidBody": {
+                "CollisionDetection": "",
+                "angularDamping": 0.05000000074505806,
+                "freezePosition": [
+                    false,
+                    false,
+                    false
+                ],
+                "freezeRotation": [
+                    true,
+                    false,
+                    true
+                ],
+                "friction": 0.5,
+                "gravityFactor": 0.0,
+                "isKinematic": false,
+                "linearDamping": 0.05000000074505806,
+                "mass": 1000.0,
+                "restituition": 0.0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 10485764,
+                "neighbours": [
+                    0,
+                    10485763,
+                    10486108,
+                    17825880
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.Level3Boss",
+                "scriptableFieldMap": {
+                    "Lvl3CutSceneManagerObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "active": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "areaRadius": {
+                        "Type": "float",
+                        "Value": 100.0
+                    },
+                    "canRecharge": {
+                        "Type": "bool",
+                        "Value": true
+                    },
+                    "currentHealth": {
+                        "Type": "int",
+                        "Value": 0
+                    },
+                    "currentShield": {
+                        "Type": "float",
+                        "Value": 0.0
+                    },
+                    "damage": {
+                        "Type": "int",
+                        "Value": 100
+                    },
+                    "enemyHUD": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "generalHitbox": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 10485763
+                    },
+                    "isMovementDone": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "landingPositionObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "maxHealth": {
+                        "Type": "int",
+                        "Value": 550
+                    },
+                    "maxShield": {
+                        "Type": "float",
+                        "Value": 250.0
+                    },
+                    "movementSpeed": {
+                        "Type": "float",
+                        "Value": 5.0
+                    },
+                    "rechargePositionObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "restoreRate": {
+                        "Type": "float",
+                        "Value": 20.0
+                    },
+                    "shield": {
+                        "Type": "bool",
+                        "Value": false
+                    },
+                    "shieldGeneratorManager": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    },
+                    "startingPosition": {
+                        "Type": "glm::vec3",
+                        "Value": [
+                            0.0,
+                            0.0,
+                            0.0
+                        ]
+                    },
+                    "startingPositionObj": {
+                        "Type": "SliceEngine::GameObject",
+                        "Value": 4294967295
+                    }
+                }
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 5,
+                "mName": "L3BOSS",
+                "mTag": "Boss"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -8.241780281066895,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    332.3282165527344,
+                    -84.3742904663086
+                ],
+                "rotation": [
+                    0.9974146485328674,
+                    -0.07186111062765121,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    13.141799926757813,
+                    13.141799926757813,
+                    13.141799926757813
+                ]
+            }
+        }
+    },
+    {
+        "SlamHitBox": {
+            "struct SliceEngine::ColliderShape": {
+                "componentEnabled": true,
+                "isTrigger": true,
+                "offSet": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "sphereData": {
+                    "radius": 0.5
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 1
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 10485763,
+                "neighbours": [
+                    10485764,
+                    4294967295,
+                    4294967295,
+                    7340287
+                ]
+            },
+            "struct SliceEngine::Script": {
+                "scriptName": "SliceEngine.GeneralHitbox"
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "SlamHitBox",
+                "mTag": "Boss"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.015743255615234375,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.5,
+                    1.5,
+                    1.5
+                ]
+            }
+        }
+    },
+    {
+        "RootNode_2": {
+            "struct SliceEngine::Animator": {
+                "AnimPkg Handle": {
+                    "GUID": "11431601642449561925"
+                },
+                "Anims Pkg GUID": {
+                    "GUID": ""
+                },
+                "Skeleton Handle": {
+                    "GUID": "17574133045252496360"
+                },
+                "componentEnabled": true,
+                "current_time": 0.0,
+                "eventFrames": [],
+                "stateMachine Handle": {
+                    "GUID": "9889631494548659078"
+                }
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 2
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340287,
+                "neighbours": [
+                    10485764,
+                    7340286,
+                    10485763,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "RootNode_2",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    -90.0,
+                    0.0,
+                    180.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    4.76837158203125e-07
+                ],
+                "rotation": [
+                    -3.0908619663705394e-08,
+                    3.0908616110991716e-08,
+                    0.70710688829422,
+                    0.7071066498756409
+                ],
+                "scale": [
+                    0.3999999463558197,
+                    0.3999999761581421,
+                    0.3999999761581421
+                ]
+            }
+        }
+    },
+    {
+        "Boss_5": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 7340287
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 3
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "0",
+                "model": {
+                    "GUID": "13051430527720978661"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340286,
+                "neighbours": [
+                    7340287,
+                    7340283,
+                    4294967295,
+                    7340285
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_5",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "bossOuterBody_3": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 7340287
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 4
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11890598627656583832"
+                },
+                "meshOffset": "3",
+                "model": {
+                    "GUID": "13051430527720978661"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340283,
+                "neighbours": [
+                    7340286,
+                    4294967295,
+                    4294967295,
+                    7340282
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "bossOuterBody_3",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "bossOuterBody_4": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 2,
+                "skeleton_root": 7340287
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 5
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "11890598627656583832"
+                },
+                "meshOffset": "4",
+                "model": {
+                    "GUID": "13051430527720978661"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340282,
+                "neighbours": [
+                    7340286,
+                    4294967295,
+                    7340283,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "bossOuterBody_4",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_6": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 7340287
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 6
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "1",
+                "model": {
+                    "GUID": "13051430527720978661"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340285,
+                "neighbours": [
+                    7340287,
+                    4294967295,
+                    7340286,
+                    7340284
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_6",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    },
+    {
+        "Boss_7": {
+            "struct SliceEngine::Bone": {
+                "frame_idx": 1,
+                "skeleton_root": 7340287
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 7
+            },
+            "struct SliceEngine::Renderer": {
+                "castsShadow": true,
+                "componentEnabled": true,
+                "material": {
+                    "GUID": "10449884954420082193"
+                },
+                "meshOffset": "2",
+                "model": {
+                    "GUID": "13051430527720978661"
+                },
+                "renderTag": "0",
+                "skinned": true
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 7340284,
+                "neighbours": [
+                    7340287,
+                    4294967295,
+                    7340285,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "Boss_7",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    0.0
+                ],
+                "position": [
+                    -0.011473417282104492,
+                    0.0,
+                    0.0
+                ],
+                "rotation": [
+                    0.7071067094802856,
+                    -0.7071068286895752,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        }
+    }
+]

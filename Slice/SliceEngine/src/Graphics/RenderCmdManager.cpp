@@ -264,7 +264,7 @@ namespace SliceEngine
 				//	key |= MRCK_OPAQUE | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				//}
 
-				//if (key & MRCK_TRANSCLUCENT)
+				//if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, material);
@@ -296,6 +296,11 @@ namespace SliceEngine
 			if (auto sprite = core->GetRegistry().try_get<SpriteRenderer>(ui)) {
 				ui_mat.color = sprite->rgba;
 				ui_mat.data["texCol"] = sprite->textureHandle.GetGUID();
+				ui_mat.data["U_Start"] = sprite->uv[0];
+				ui_mat.data["U_End"] = sprite->uv[1];
+				ui_mat.data["V_Start"] = sprite->uv[2];
+				ui_mat.data["V_End"] = sprite->uv[3];
+
 				ui_mat.isTranslucent = ui_mat.color.a < 0.999f;
 
 				RCK_ModelT mdlDet = GetModelDetails(
@@ -320,7 +325,7 @@ namespace SliceEngine
 					uint8_t shdDet = GetShaderDetails(ui_mat.shader.get()->translucentS);
 					key |= MRCK_TRANSCLUCENT | (static_cast<RCK_Size>(shdDet) << RCK_ShaderOffset);
 				}
-				if (key & MRCK_TRANSCLUCENT)
+				if ((key & MRCK_TRANSLUCENCY) == MRCK_TRANSCLUCENT)
 				{
 					TranslucentCmd tc{ key, data };
 					SingleExtAppend(tc.ext, &ui_mat);
@@ -425,7 +430,7 @@ namespace SliceEngine
 			});
 
 	}
-	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset)
+	void RenderCmdManager::UseDrawCalls(GLuint mShader, DrawType drawType, glm::vec3 newOffset, int numCopies)
 	{
 		// Tags I need
 			// Cast Shadows
@@ -448,6 +453,11 @@ namespace SliceEngine
 		// Only used for shadows, so dun need change shader
 		case DrawType::DRAW_MODELS:
 		{
+			GLint uniformLoc = glGetUniformLocation(mShader, "uNumCopies");
+			if (uniformLoc != -1)
+				glUniform1i(uniformLoc, numCopies);
+
+
 			glm::vec3 offsetDelta = lastShadowOffset - newOffset;
 			lastShadowOffset = newOffset;
 			for (auto& i : shadowRenderCmds)
@@ -484,7 +494,7 @@ namespace SliceEngine
 					{
 						size_t drawNum{ std::min(batch.size() - drawCounter, static_cast<size_t>(mMaxInstance)) };
 						glNamedBufferSubData(mIVBO, 0, sizeof(BasicIDat) * drawNum, batch.data() + drawCounter);
-						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum));
+						glDrawElementsInstanced(mesh.drawMode, mesh.drawCnt, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(drawNum * numCopies));
 						drawCounter += drawNum;
 					}
 				}
@@ -585,6 +595,7 @@ namespace SliceEngine
 
 			auto godRayShader = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::CustomShader>("CustomShader/GodRays.cshader").get()->translucentS;
 			auto* rm = Core::GetInstance()->GetRenderManager();
+			glm::vec3 camPos = Core::GetInstance()->GetRegistry().get<Transform>(mLastKnownCam).GetWorldPosition();
 
 			auto* cmds = &translucentCmds;
 			if (drawType == DrawType::DRAW_PREFAB_TRANSLUCENT)
@@ -603,6 +614,8 @@ namespace SliceEngine
 			{
 				const auto& id = i.id;
 				auto& dat = i.base;
+
+				ShiftTransformMtx(dat.mdlMtx, offsetDelta);
 
 				float distanceFromCam = std::bit_cast<float>(static_cast<uint32_t>(id & MRCK_DEPTH_SORT));
 				if (distanceFromCam > minDistTranslucent)
@@ -634,6 +647,8 @@ namespace SliceEngine
 						glUniform1f(uniformLoc, rm->skyboxData.lightingPower / 100.f);
 						uniformLoc = glGetUniformLocation(mShader, "numLights");
 						glUniform1i(uniformLoc, rm->numLightsFound);
+						uniformLoc = glGetUniformLocation(mShader, "uCamPos");
+						glUniform3f(uniformLoc, camPos.x, camPos.y, camPos.z);
 
 						uniformLoc = glGetUniformLocation(mShader, "cascadeCnt");
 						glUniform1i(uniformLoc, rm->mNumCascadeShadow);
@@ -662,9 +677,6 @@ namespace SliceEngine
 							glUniform1f(uniformLoc, camera.translucentSelectCutoff);
 						}
 					}
-
-					ShiftTransformMtx(dat.mdlMtx, offsetDelta);
-
 
 					RCK_ModelT mdlID = static_cast<RCK_ModelT>((id & MRCK_MODEL) >> RCK_ModelOffset);
 					if (mdlID != currMdlID)
@@ -754,12 +766,14 @@ namespace SliceEngine
 	{
 		GLint uniformLoc;
 		uniformLoc = glGetUniformLocation(mShader, "skinned");
-		if (isSkin && uniformLoc != -1) {
+
+		auto core = Core::GetInstance();
+
+		auto bone = core->GetRegistry().try_get<Bone>(static_cast<Entity>(entityID));
+		if (bone && isSkin && uniformLoc != -1) {
 			glUniform1ui(uniformLoc, 1);
 
-			auto core = Core::GetInstance();
-			auto const& bone = core->GetRegistry().get<Bone>(static_cast<Entity>(entityID));
-			Entity root_entity = bone.skeleton_root;
+			Entity root_entity = bone->skeleton_root;
 			if (core->GetRegistry().any_of<Animator>(root_entity)) {
 
 				auto const& animator = core->GetRegistry().get<Animator>(root_entity);
@@ -768,12 +782,11 @@ namespace SliceEngine
 					uniformLoc = glGetUniformLocation(mShader, "final_bones_matrices");
 					glUniformMatrix4fv(uniformLoc, MAX_BONES, false, glm::value_ptr(animator.GetFinalTform().data()[0]));
 
-					glm::mat4 inverse_root = animator.inverse_map.at(bone.frame_idx);
+					glm::mat4 inverse_root = animator.inverse_map.at(bone->frame_idx);
 					uniformLoc = glGetUniformLocation(mShader, "inverse_root");
 					glUniformMatrix4fv(uniformLoc, 1, false, glm::value_ptr(inverse_root[0]));
 				}
 			}
-			else {/*SLICE_LOG_ERROR("Invalid root entity for bone component when rendering");*/ }
 		}
 		else { glUniform1ui(uniformLoc, 0); }
 	}

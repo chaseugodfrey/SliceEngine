@@ -31,6 +31,7 @@ DigiPen Institute of Technology is prohibited.
 #include <WindowManager/WindowManager.h>
 #include <Systems/PrefabSystem.h>
 #include <Animator/AnimatorWindow.h>
+#include <Graphics/RenderManager.h>
 
 namespace SliceEditor
 {
@@ -54,24 +55,25 @@ namespace SliceEditor
 
 		// check what type selected nodes are
 
-		auto type = selected_nodes.begin().operator*()->type;
+		auto lastSelectedNode = mRegistry.GetManager<SelectionManager>("Selection")->GetLastSelectedNode();
+		auto type = lastSelectedNode->type;
 
 		switch (type)
 		{
 		case SelectionType::ENTITY:
-			DisplayEntity(static_cast<EntityNode*>(*selected_nodes.begin())); 
+			DisplayEntity(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::MATERIAL:
-			DisplayMaterial(static_cast<DirectoryNode*>(*selected_nodes.begin())); 
+			DisplayMaterial(static_cast<DirectoryNode*>(lastSelectedNode));
 			break;
 		case SelectionType::PREFAB_ENTITY:
-			DisplayPrefab(static_cast<EntityNode*>(*selected_nodes.begin()));
+			DisplayPrefab(static_cast<EntityNode*>(lastSelectedNode));
 			break;
 		case SelectionType::STATE:
-			DisplayState(static_cast<StateNode*>(*selected_nodes.begin()));
+			DisplayState(static_cast<StateNode*>(lastSelectedNode));
 			break;
 		case SelectionType::TRANSITION:
-			DisplayTransition(static_cast<TransitionLinkNode*>(*selected_nodes.begin()));
+			DisplayTransition(static_cast<TransitionLinkNode*>(lastSelectedNode));
 			break;
 		}
 
@@ -376,22 +378,24 @@ namespace SliceEditor
 			ComboHeader<SliceEngine::RectTransform::VertPivot>(mRegistry, "Vert Pivot", "##vertpivot", rect.vert_pivot, vert_enums);
 
 			if (rect.hori_pivot != SliceEngine::RectTransform::HoriPivot::STRETCH_H) {
-				DragIntInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Width", "##width", rect.width, "W: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos X", "##posx", rect.pos_x, "X: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Width", "##width", rect.width, "W: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Left", "##left", rect.left, "L: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Right", "##right", rect.right, "R: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Left", "##left", rect.left, "L: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Right", "##right", rect.right, "R: %.1f", -2000, 2000);	//some random ass min max
 			}
 
 			if (rect.vert_pivot != SliceEngine::RectTransform::VertPivot::STRETCH_V) {
-				DragIntInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Height", "##height", rect.height, "H: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Pos Y", "##posy", rect.pos_y, "Y: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Height", "##height", rect.height, "H: %.1f", -2000, 2000);	//some random ass min max
 			}
 			else {
-				DragIntInputHeader(mRegistry, "Top", "##top", rect.top, "T: %d", -2000, 2000);	//some random ass min max
-				DragIntInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %d", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Top", "##top", rect.top, "T: %.1f", -2000, 2000);	//some random ass min max
+				DragFloatInputHeader(mRegistry, "Bot", "##bot", rect.bot, "B: %.1f", -2000, 2000);	//some random ass min max
 			}
+
+			DragFloatInputHeader(mRegistry, "Rotation", "##rect_rot", rect.final_rot, "R: %f", 0.f, 360.f);
 			ImGui::TreePop();
 		}
 	}
@@ -418,6 +422,56 @@ namespace SliceEditor
 			SliceEngine::GUID tex_guid = sprite.textureHandle;
 			GUIDDragDropInputHeader(mRegistry, "Image", "##spriteimage", tex_guid, "Texture");
 			sprite.textureHandle = tex_guid;
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySpriteRendererGammaOverride(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteRendererGammaOverride", mBaseFlags))
+		{
+			auto& sprite = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteRendererGammaOverride>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteRendererGammaOverride>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite.componentEnabled);
+
+			DragFloatInputHeader(mRegistry, "Gamma Override", "##gammaoverride", sprite.gamma, "%.1f", 0.001f, 100.0f);
+
+			ImGui::TreePop();
+		}
+	}
+
+	void InspectorWindow::DisplaySpriteAnimator(entt::entity entity)
+	{
+		if (ImGui::TreeNodeEx("SpriteAnimator", mBaseFlags))
+		{
+			auto& sprite_anim = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::SpriteAnimator>(entity);
+
+			DisplayComponentHeader<SliceEngine::SpriteAnimator>(entity, true);
+
+			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", sprite_anim.componentEnabled);
+
+			BoolInputHeader(mRegistry, "Playing", "##spriteanimplaying", sprite_anim.is_playing);
+			BoolInputHeader(mRegistry, "Loop", "##spriteanimloop", sprite_anim.loop);
+			//i cant be bothered to make a draguint8 or wtv so ill just do this
+			unsigned int temps[3];
+			temps[0] = sprite_anim.row;
+			temps[1] = sprite_anim.col;
+			temps[2] = sprite_anim.num_frames;
+			DragUInt32InputHeader(mRegistry, "Row", "##spriterow", temps[0], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Col", "##spritecol", temps[1], "%d", 1, 16);	//16 is just some random cap
+			DragUInt32InputHeader(mRegistry, "Num Frames", "##spriteframes", temps[2], "%d", 1, 256);	//256 is 16*16
+			sprite_anim.row = temps[0];
+			sprite_anim.col = temps[1];
+			sprite_anim.num_frames = temps[2];
+
+			DragFloatInputHeader(mRegistry, "FPS", "##spritefps", sprite_anim.fps, "%.2f", 0.f, 60.f, 0.01f);
+
+		/*	unsigned int curr_temp = (unsigned int)sprite_anim.curr_frame;
+			DragUInt32InputHeader(mRegistry, "Curr Frame", "##spriteframe", curr_temp, "%d", 0, sprite_anim.num_frames - 1);
+			sprite_anim.curr_frame = curr_temp + FLT_EPSILON;*/
 
 			ImGui::TreePop();
 		}
@@ -458,6 +512,9 @@ namespace SliceEditor
 			static std::vector<std::string> alignment_enums{ "Left", "Center", "Right"};
 			ComboHeader<SliceEngine::FontRenderer::Alignment>(mRegistry, "Alignment", "##font_alignment", font.alignment, alignment_enums);
 			
+			DragFloatInputHeader(mRegistry, "Offset X", "##font_offsetx", font.offset_x, "%.1f", -100.f, 100.f);
+			DragFloatInputHeader(mRegistry, "Offset Y", "##font_offsety", font.offset_y, "%.1f", -100.f, 100.f);
+
 
 			ImGui::TreePop();
 		}
@@ -475,9 +532,17 @@ namespace SliceEditor
 			static std::vector<std::string> canvas_types{ "Overlay", "World Space"};
 			ComboHeader<SliceEngine::Canvas::Type>(mRegistry, "Canvas Type", "##canvastype", canvas.canvas_type, canvas_types);
 
-			DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
-
-			BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+			switch (canvas.canvas_type) {
+			case Canvas::OVERLAY:
+				DragUInt32InputHeader(mRegistry, "Sort Order", "##canvas_order", canvas.sort_order, "X: %u", 0, 128);	//random max
+				BoolInputHeader(mRegistry, "Graphics Raycaster", "##graphicsraycaster", canvas.graphic_raycastable);
+				break;
+			case Canvas::WORLD:
+				BoolInputHeader(mRegistry, "Billboard X", "##canvasbillx", canvas.billboardX);
+				BoolInputHeader(mRegistry, "Billboard Y", "##canvasbilly", canvas.billboardY);
+				BoolInputHeader(mRegistry, "Billboard Z", "##canvasbillz", canvas.billboardZ);
+				break;
+			}
 
 			ImGui::TreePop();
 		}
@@ -522,6 +587,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Slider>(entity, false);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", slider.componentEnabled);
+			BoolInputHeader(mRegistry, "Contained", "##slidercontained", slider.contained);
 
 			static std::vector<std::string> axis_enums{ "X Axis", "Y Axis" };
 			static std::vector<std::string> direction_enums{ "Positive", "Negative" };
@@ -570,6 +636,7 @@ namespace SliceEditor
 					SliderFloatInputHeader(mRegistry, "Pitch", "##pitch", as.pitch, "%.1f", -3.0, 3.0);
 					SliderFloatInputHeader(mRegistry, "Stereo Pan", "##stereoPan", as.stereoPan, "%.1f", -1.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Spatial Blend", "##spatialBlend", as.spatialBlend, "%.1f", 0.0, 1.0);
+					BoolInputHeader(mRegistry, "Enable Pathfinding", "##enablePathfinding", as.enablePathfinding);
 					SliderFloatInputHeader(mRegistry, "Direct Occlusion", "##directOcclusion", as.directOcclusion, "%.1f", 0.0, 1.0);
 					SliderFloatInputHeader(mRegistry, "Reverb Occlusion", "##reverbOcclusion", as.reverbOcclusion, "%.1f", 0.0, 1.0);
 					if (ImGui::CollapsingHeader("3D Sound Settings", mBaseFlags))
@@ -727,6 +794,15 @@ namespace SliceEditor
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", cam.componentEnabled);
 
+			if (BoolInputHeader(mRegistry, "Is Main Camera", "##main_camera", cam.isMainCamera))
+			{
+				if (cam.isMainCamera)
+					SliceEngine::Core::GetInstance()->GetRenderManager()->SetMainGameCamera(entity);
+				else
+					SliceEngine::Core::GetInstance()->GetRenderManager()->GetGameCamera().reset();
+			}
+
+
 			DragFloatInputHeader(mRegistry, "FOV", "##cam_fov", cam.pov, "%.1f", 1.0f, FLT_MAX);
 			ImGui::Text("Clipping Planes");
 			DragFloatInputHeader(mRegistry, "Near", "##cam_near", cam.near, "%.1f", 0.1f, FLT_MAX);
@@ -734,12 +810,22 @@ namespace SliceEditor
 
 			ImGui::SeparatorText("Post-Processing FX");
 
+			DragFloatInputHeader(mRegistry, "Exposure", "##cam_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+			if (DragFloatInputHeader(mRegistry, "Gamma", "##cam_gamma", cam.gamma, "%.1f", 0.001f, 100.0f))
+			{
+				SliceEngine::Core::GetInstance()->GetRenderManager()->SetSessionGamma(cam.gamma);
+			}
+			DragFloatInputHeader(mRegistry, "White Cutoff", "##cam_white_cutoff", cam.whiteBalance, "%.1f", 0.001f, 100.0f);
+			DragFloatInputHeader(mRegistry, "Min Luminance", "##cam_min_luminance", cam.minLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Max Luminance", "##cam_max_luminance", cam.maxLuminance, "%.2f", 0.001f, FLT_MAX, 0.01f);
+			DragFloatInputHeader(mRegistry, "Luminance Learning Rate", "##cam_luminanceLearnRate", cam.luminanceLearningRate, "%.1f", 0.1f, 1000.0f);
 			using RenderTag = SliceEngine::RENDER_TAG;
 
 			bool isBloom = cam.postRenderToggles & RenderTag::RENDER_BLOOM;
 			bool isGodray = cam.postRenderToggles & RenderTag::RENDER_GODRAY;
 			bool isFog = cam.postRenderToggles & RenderTag::RENDER_FOG;
 			bool isVignette = cam.postRenderToggles & RenderTag::RENDER_VIGNETTE;
+			bool isImpact = cam.postRenderToggles & RenderTag::RENDER_IMPACT;
 			bool isGroundCloud = cam.postRenderToggles & RenderTag::RENDER_GROUND_CLOUD;
 
 			ImGui::Text("Bloom");
@@ -753,7 +839,7 @@ namespace SliceEditor
 			{
 				DragFloatInputHeader(mRegistry, "Bloom Radius", "##cam_bloom_radius", cam.bloomFilterRadius, "%.f", 0.0f, FLT_MAX);
 				DragFloatInputHeader(mRegistry, "Bloom Strength", "##cam_bloom_strength", cam.bloomStrength, "%.1f", 0.1f, FLT_MAX);
-				DragFloatInputHeader(mRegistry, "Exposure", "##cam_bloom_exposure", cam.exposure, "%.1f", 0.1f, 50.0f);
+				DragFloatInputHeader(mRegistry, "Bloom Limit", "##cam_bloom_Limit", cam.bloomLimit, "%.1f", 0.1f, FLT_MAX);
 			}
 
 			ImGui::Text("Godrays");
@@ -783,6 +869,26 @@ namespace SliceEditor
 				float tempIntensity = cam.fogIntensity * 100.f;
 				if (DragFloatInputHeader(mRegistry, "Fog Intensity", "##cam_fog_intensity", tempIntensity, "%.1f", 0.0f, FLT_MAX))
 					cam.fogIntensity = tempIntensity / 100.f;
+			}
+
+			ImGui::Text("Impact");
+			ImGui::SameLine(150.0f);
+			if (ImGui::Checkbox("##cam_isImpact", &isImpact))
+			{
+				SetBit(cam.postRenderToggles, RenderTag::RENDER_IMPACT, isImpact);
+			}
+
+			if (isImpact)
+			{
+				DragVec3InputHeader(mRegistry, "Impact Position", "##cam_impact_position", cam.impactPos);
+				DragColor3InputHeader(mRegistry, "Impact Color", "##cam_impact_color", cam.impactColor);
+				DragColor3InputHeader(mRegistry, "Impact Color 2", "##cam_impact_color2", cam.impactColor2);
+				DragFloatInputHeader(mRegistry, "Impact Angle ?", "##cam_impact_angle", cam.impactAngle, "%.1f", 0.0f, FLT_MAX);
+				BoolInputHeader(mRegistry, "Impact Is Smooth", "##cam_impact_smooth", cam.impactSmooth);
+				DragFloatInputHeader(mRegistry, "Impact Flash Rate", "##cam_impact_epilepsy", cam.impactEpilepsy, "%.2f", -FLT_MAX, FLT_MAX, 0.01f);
+				DragFloatInputHeader(mRegistry, "Impact Sharpness", "##cam_impact_noise1", cam.impactNoise1, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Density", "##cam_impact_noise2", cam.impactNoise2, "%.1f", 0.0f, FLT_MAX);
+				DragFloatInputHeader(mRegistry, "Impact Blend", "##cam_impact_blend", cam.impactBlend, "%.2f", 0.0f, 1.0f, 0.01f);
 			}
 
 			ImGui::Text("Vignette");
@@ -986,52 +1092,6 @@ namespace SliceEditor
 		}
 	}
 
-	void InspectorWindow::DisplayNavAgent(entt::entity entity)
-	{
-		auto& agent = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavAgent>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Agent", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavAgent>(entity);
-
-			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", agent.componentEnabled);
-
-			DragFloatInputHeader(mRegistry, "Speed", "#agent_speed", agent.speed, "%.1f");
-
-			ImGui::TreePop();
-		}
-
-	}
-
-	//void InspectorWindow::DisplayNavMeshLink(entt::entity entity)
-	//{
-	//	if (ImGui::TreeNodeEx("Nav Mesh Link", mBaseFlags))
-	//	{
-	//		//auto& navLink = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavMeshLink>(entity);
-	//		DisplayComponentHeader<SliceEngine::NavMeshLink>(entity);
-	//		
-	//		
-	//		/*EntityInputHeader(mRegistry, "Start Link", "##startLink", navLink.startLink);
-	//		EntityInputHeader(mRegistry, "End Link", "##endLink", navLink.endLink);*/
-	//		ImGui::TreePop();
-	//	}
-
-
-	//		//ImGui::TreePop();
-	//	}
-
-	void InspectorWindow::DisplayNavObstacle(entt::entity entity)
-	{
-		auto& navObstacle = SliceEngine::Core::GetInstance()->GetRegistry().get<SliceEngine::NavObstacle>(entity);
-
-		if (ImGui::TreeNodeEx("Nav Obstacle", mBaseFlags))
-		{
-			DisplayComponentHeader<SliceEngine::NavObstacle>(entity);
-
-			BoolInputHeader(mRegistry, "Is Obstacle: ", "##isNavObstacle", navObstacle.isObstacle);
-			ImGui::TreePop();
-		}
-	}
 
 	void InspectorWindow::DisplaySliceScript(entt::entity entity)
 	{
@@ -1182,7 +1242,7 @@ namespace SliceEditor
 							if (it.second.mType == SliceEngine::ScriptFieldType::Float)
 							{
 								auto data = scriptRef->GetListFieldValue<float>(it.second.mName);
-								std::vector<bool> changedVars;
+								std::vector<MultiSelect> changedVars;
 								std::function<void(const char*, std::string, std::vector<float>, float, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<float> list, float val, int index)
 									{
 										if (std::strcmp(funcToExec, "Edit") == 0)
@@ -1201,7 +1261,7 @@ namespace SliceEditor
 
 								if (FloatListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, "%.3f",0.1f, 0.f,0.f, ScriptFloatListElementDifferent(selectionManager, script.scriptName, it.second.mName, data,isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
 									auto multiSetData = scriptRef->GetListFieldValue<float>(it.second.mName);
 									if (isMultipleSelection)
@@ -1295,6 +1355,7 @@ namespace SliceEditor
 							else if (it.second.mType == SliceEngine::ScriptFieldType::GameObject)
 							{
 								auto data = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+								std::vector<MultiSelect> changedVars;
 
 								std::function<void(const char*, std::string, std::vector<SliceEngine::GameObject>, SliceEngine::GameObject, int)> func = [sp = scriptRef](const char* funcToExec, std::string name, std::vector<SliceEngine::GameObject> list, SliceEngine::GameObject val, int index)
 									{
@@ -1312,10 +1373,15 @@ namespace SliceEditor
 										}
 									};
 
-								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data))
+								if (GameObjectListScriptHeader(mRegistry, func, it.second.mName.c_str(), ("##" + it.second.mName).c_str(), data, ScriptGameObjectListElementDifferent(selectionManager, script.scriptName, it.second.mName, data, isMultipleSelection), changedVars))
 								{
-									scriptRef->SetListField(it.second.mName, data);
+									//scriptRef->SetListField(it.second.mName, data);
 									SliceEngine::gScriptSystem->UpdateScriptComponent(entity);
+									auto multiSetData = scriptRef->GetListFieldValue<SliceEngine::GameObject>(it.second.mName);
+									if (isMultipleSelection)
+									{
+										ScriptGameObjectListMultiSet(selectionManager, script.scriptName, it.second.mName, multiSetData, changedVars);
+									}
 								}
 							}
 						}
@@ -2172,6 +2238,7 @@ namespace SliceEditor
 			DisplayComponentHeader<SliceEngine::Light>(entity);
 
 			BoolInputHeader(mRegistry, "Is Enabled", "##isEnabled", light.componentEnabled);
+			BoolInputHeader(mRegistry, "Casts Shadow", "##lightCastsShadow", light.castsShadow);
 
 			//DragVec3InputHeader(mRegistry, "Colour", "##c", light.color);
 			DragColor3InputHeader(mRegistry, "Colour", "##lightColor", light.color);
@@ -2181,6 +2248,9 @@ namespace SliceEditor
 			static std::vector<std::string> lightTypes { "Directional Light", "Point Light", "Spot Light" };
 
 			ComboHeader<SliceEngine::Light::LightType>(mRegistry, "Light Type", "##lightType", light.type, lightTypes);
+
+			if (light.type == 2)
+				DragFloatInputHeader(mRegistry, "angle", "##light_angle", light.angle, "%.2f", 0.0f, 90.f);
 
 			ImGui::TreePop();
 		}
@@ -2215,13 +2285,6 @@ namespace SliceEditor
 				}
 			}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavAgent>())
-			{
-				if (ImGui::Selectable("Add Nav Agent"))
-				{
-					reg.emplace<SliceEngine::NavAgent>(entity);
-				}
-			}
 
 			//if (!selectedGO.HasComponent<SliceEngine::NavMeshLink>())
 			//{
@@ -2231,13 +2294,6 @@ namespace SliceEditor
 			//	}
 			//}
 
-			if (!selectedGO.HasComponent<SliceEngine::NavObstacle>())
-			{
-				if (ImGui::Selectable("Add Nav Obstacle"))
-				{
-					reg.emplace<SliceEngine::NavObstacle>(entity);
-				}
-			}
 
 			if(!selectedGO.HasComponent<SliceEngine::ColliderShape>())
 			{
@@ -2346,6 +2402,27 @@ namespace SliceEditor
 					ui_sprite.textureHandle = (SliceEngine::GUID)SliceEngine::DefaultResourceIDs::COLOR_DEADED_DEFAULT;
 				}
 			}
+
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>()
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Gamma Override"))
+				{
+					reg.emplace<SliceEngine::SpriteRendererGammaOverride>(entity);
+				}
+			}
+
+			if (!selectedGO.HasComponent<SliceEngine::SpriteAnimator>() 
+				&& selectedGO.HasComponent<SliceEngine::RectTransform>()
+				&& selectedGO.HasComponent<SliceEngine::SpriteRenderer>())
+			{
+				if (ImGui::Selectable("Add Sprite Animator"))
+				{
+					reg.emplace<SliceEngine::SpriteAnimator>(entity);
+				}
+			}
+
 			if (!selectedGO.HasComponent<SliceEngine::FontRenderer>() && selectedGO.HasComponent<SliceEngine::RectTransform>())
 			{
 				if (ImGui::Selectable("Add Font"))
@@ -2423,6 +2500,16 @@ namespace SliceEditor
 				DisplaySpriteRenderer(node->entity);
 				ImGui::Separator();
 			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteRendererGammaOverride>(entity))
+			{
+				DisplaySpriteRendererGammaOverride(node->entity);
+				ImGui::Separator();
+			}
+			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::SpriteAnimator>(entity))
+			{
+				DisplaySpriteAnimator(node->entity);
+				ImGui::Separator();
+			}
 			if (SliceEngine::Core::GetInstance()->GetRegistry().any_of<SliceEngine::FontRenderer>(entity))
 			{
 				DisplayFontRenderer(node->entity);
@@ -2480,23 +2567,6 @@ namespace SliceEditor
 				ImGui::Separator();
 			}
 
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavAgent>(entity))
-			{
-				DisplayNavAgent(node->entity);
-				ImGui::Separator();
-			}
-
-			//if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavMeshLink>(entity))
-			//{
-			//	DisplayNavMeshLink(node->entity);
-			//	ImGui::Separator();
-			//}
-
-			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::NavObstacle>(entity))
-			{
-				DisplayNavObstacle(node->entity);
-				ImGui::Separator();
-			}
 
 			// to do: change to better format
 			if (SliceEngine::Core::GetInstance()->GetRegistry().try_get<SliceEngine::AudioSource>(entity))
@@ -2558,7 +2628,7 @@ namespace SliceEditor
 
 		//if (metapath.has_value())
 		mat.DeserializeAsset(node->fullPath);
-		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "Custom Shader"))
+		if (GUIDDragDropInputHeader(mRegistry, "Custom Shader:", "##customshdr", mat.shader, "CustomShader"))
 		{
 			mat.SerializeAsset(node->fullPath);
 			return;
@@ -2586,12 +2656,16 @@ namespace SliceEditor
 		auto shdr = SliceEngine::Core::GetInstance()->GetResourceManager()->get<SliceEngine::SliceEngineTypes::CustomShader>(mat.shader);
 		for (auto& i : shdr.get()->dataIn)
 		{
+			auto datInMat = mat.data.find(i.name);
+			if (datInMat == mat.data.end())
+				continue;
+
 			switch (i.dataType)
 			{
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::BOOL:
 			{
 				std::string s = "##Material_Bool_" + i.name;
-				bool tempBool{ std::get<bool>(mat.data.find(i.name)->second) };
+				bool tempBool{ std::get<bool>(datInMat->second) };
 				if (BoolInputHeader(mRegistry, i.name.c_str(), s.c_str(), tempBool))
 				{
 					mat.data[i.name] = tempBool;
@@ -2602,28 +2676,28 @@ namespace SliceEditor
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::UINT:
 			{
 				std::string s = "##Material_Uint_" + i.name;
-				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(mat.data.find(i.name)->second), "%.u", 0, UINT_MAX))
+				if(DragUInt32InputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<uint32_t>(datInMat->second), "%.u", 0, UINT_MAX))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::INT:
 			{
 				std::string s = "##Material_Int_" + i.name;
-				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(mat.data.find(i.name)->second), "%.d", -INT_MAX, INT_MAX))
+				if(DragIntInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<int32_t>(datInMat->second), "%.d", -INT_MAX, INT_MAX))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::FLOAT:
 			{
 				std::string s = "##Material_Float_" + i.name;
-				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(mat.data.find(i.name)->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
+				if(DragFloatInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<float>(datInMat->second), "%.2f", 0.0f, FLT_MAX, 0.01f))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
 			case SliceEngine::SliceEngineTypes::CustomShader::SP_TYPE::TEXTURE:
 			{
 				std::string s = "##Material_Texture_" + i.name;
-				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(mat.data.find(i.name)->second), "Texture"))
+				if (GUIDDragDropInputHeader(mRegistry, i.name.c_str(), s.c_str(), std::get<SliceEngine::GUID>(datInMat->second), "Texture"))
 					mat.SerializeAsset(node->fullPath);
 				break;
 			}
@@ -2676,21 +2750,102 @@ namespace SliceEditor
 	void InspectorWindow::DisplayState(StateNode* node)
 	{
 		auto anim_data = mRegistry.GetManager<SessionManager>("Session")->GetAnimatorData();
+		auto animator = mRegistry.GetManager<SessionManager>("Session")->currentAnimator;
 
 		ImGui::SeparatorText("State");
 
 		if (!anim_data)
 			return;
 
-		auto state_it = anim_data->mStateMachineAsset->stateMap.find(node->name);
-		if (state_it == anim_data->mStateMachineAsset->stateMap.end())
+		if (!animator)
 			return;
 
-		auto& state = state_it->second;
+		auto state_it_data = anim_data->mStateMachineAsset->stateMap.find(node->name);
+		if (state_it_data == anim_data->mStateMachineAsset->stateMap.end())
+			return;
 
-		StringInputHeader(mRegistry, "Name", "##state_name", state.stateName);
+		auto& state_data = state_it_data->second;
+
+		auto state_it = animator->stateMachine.EFSM.stateMap.find(node->name);
+		if (state_it == animator->stateMachine.EFSM.stateMap.end())
+			return;
+
+		SliceEngine::SliceEngineTypes::State& state = state_it->second;
+
+		std::string newStateName = state.stateName;
+
+		std::string oldStateName = node->name;
+
+		if (StringInputHeader(mRegistry, "Name", "##state_name", newStateName));
+
+		if(std::strcmp(newStateName.c_str(),node->name.c_str()) != 0)
+		{
+			if (std::strcmp(animator->stateMachine.EFSM.entryState.c_str(), node->name.c_str()) == 0)
+			{
+				animator->stateMachine.EFSM.entryState = newStateName;
+			}
+
+			auto nodeHandle = animator->stateMachine.EFSM.stateMap.extract(node->name);
+			if (!nodeHandle.empty())
+			{
+				nodeHandle.mapped().stateName = newStateName;
+				nodeHandle.key() = newStateName;
+				
+				animator->stateMachine.EFSM.stateMap.insert(std::move(nodeHandle));
+
+				node->name = newStateName;
+
+				state = animator->stateMachine.EFSM.stateMap[newStateName];
+			}
+
+			auto paramHandle = animator->stateMachine.EFSM.parameters.extract(oldStateName);
+			if (!paramHandle.empty())
+			{
+				paramHandle.key() = newStateName;
+
+				animator->stateMachine.EFSM.parameters.insert(std::move(paramHandle));
+			}
+
+			anim_data->LoadFromAsset(animator->stateMachine.EFSM);
+		}
 
 		BoolInputHeader(mRegistry, "isLoop", "##state_is_loop", state.isLoop);
+
+		BoolInputHeader(mRegistry, "Auto Transition", "##state_auto_transition", state.autoTransition);
+
+		DragIntInputHeader(mRegistry, "Next Transition", "##state_next_transition", state.nextTransition);
+		
+		float speedBuffer{ 1 };
+
+		//mCurrentAnimator->Handle_skeleton.IsValid()
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+		}
+		else
+		{
+			speedBuffer = animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed;
+
+		}
+
+		DragFloatInputHeader(mRegistry, "Speed:", "##anim_speed", speedBuffer, "%0.3f", 0.1f, 10.0f);
+
+		if (!animator->Handle_skeleton.IsValid())
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		else
+		{
+			if (std::abs(speedBuffer - animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed) > FLT_EPSILON)
+			{
+				animator->stateMachine.EFSM.stateMap[state.stateName].animationSpeed = speedBuffer;
+			}
+		}
+		
 
 		ImGui::SeparatorText("Transitions");
 

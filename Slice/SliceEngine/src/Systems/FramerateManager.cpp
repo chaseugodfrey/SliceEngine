@@ -45,7 +45,17 @@ namespace SliceEngine
 		deltaTime = curr_time - prevTime;	    // Calculate delta time
 		prevTime = curr_time;                  // Update prev_time to the current time
 
+		if (deltaTime > 0.25f) 
+		{
+			deltaTime = 0.25f;
+		}
+
 		accumulatedTime += deltaTime;
+
+		//if (accumulatedTime >= fixedDeltaTime * 8.0f)
+		//{
+		//	accumulatedTime = 0.0f;
+		//}
 
 		while (accumulatedTime >= fixedDeltaTime)
 		{
@@ -99,6 +109,7 @@ namespace SliceEngine
 	{
 		frameStartTime = Clock::now();
 		systemDurations.clear();
+		systemStartEndTimes.clear();
 	}
 
 	void FramerateManager::EndFrame()
@@ -109,6 +120,7 @@ namespace SliceEngine
 		mTotalFrameTime = frameTime;
 
 		currFPS = (frameTime > 0.0f) ? (1000.0f / frameTime) : 0.0f;
+		mPreviousSystemDurations = systemDurations;
 	}
 
 	void FramerateManager::StartSystem(const std::string &name)
@@ -138,6 +150,11 @@ namespace SliceEngine
 	const std::unordered_map<std::string, float> FramerateManager::GetSysDurations()
 	{
 		return systemDurations;
+	}
+
+	const std::unordered_map<std::string, float> FramerateManager::GetPrevSysDurations()
+	{
+		return mPreviousSystemDurations;
 	}
 
 	const float FramerateManager::GetFrameTime()
@@ -179,5 +196,6 @@ namespace SliceEngine
 			trackedTime += time;
 		}
 		mUntrackedTime = mTotalFrameTime - trackedTime;
+		//SLICE_LOG("Untracked Time on FRM Side: " + std::to_string(mUntrackedTime));
 	}
 }

@@ -292,19 +292,33 @@ namespace SliceEngine
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
 
 			auto& boxData = std::get<ColliderShape::BoxData>(colliderShape.shapeData);
-			JPH::Vec3 tempScale = boxData.scale * JPH::Vec3(fabs(transform.scale.x),
-															fabs(transform.scale.y),
-															fabs(transform.scale.z));
-			//std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
-			//std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
+
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
+			JPH::Vec3 tempScale = boxData.scale * scl;
+
+
+			////std::cout << "halfExtends<" << halfExtents.GetX() << "," << halfExtents.GetY() << "," << halfExtents.GetZ()  << ">" << std::endl;
+			////std::cout << "tempScale<" << tempScale.GetX() << "," << tempScale.GetY() << "," << tempScale.GetZ() << ">" << std::endl;
 			if ((tempScale == halfExtents) && (colliderShape.offSet == colliderShape.prevOffSet)) // in case there is issue look here future me
 			{
 				return;
 			}
 
+			// Scale the offset by the transform's world scale
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX() * scl.GetX(),
+				colliderShape.offSet.GetY() * scl.GetY(),
+				colliderShape.offSet.GetZ() * scl.GetZ()
+			);
+			// ensure minimum size for each dimension
+			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
+			tempScale.SetX(JPH::max(tempScale.GetX(), minSize));
+			tempScale.SetY(JPH::max(tempScale.GetY(), minSize));
+			tempScale.SetZ(JPH::max(tempScale.GetZ(), minSize));
+
 			JPH::BoxShapeSettings* settings = new JPH::BoxShapeSettings(tempScale);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-																	colliderShape.offSet,
+																	scaledOffset,
 																	JPH::Quat::sIdentity(),
 																	settings);
 
@@ -365,9 +379,15 @@ namespace SliceEngine
 
 			float biggestScale = std::max({ fabs(transform.scale.x), fabs(transform.scale.y), fabs(transform.scale.z) });
 
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX() * tempScaleX,
+				colliderShape.offSet.GetY() * tempScaleY,
+				colliderShape.offSet.GetZ() * tempScaleZ
+			);
+
 			JPH::SphereShapeSettings* settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-																		colliderShape.offSet,
+																		scaledOffset,
 																		JPH::Quat::sIdentity(),
 																		settings);
 			auto result = newShape.Create();
@@ -426,9 +446,15 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX()* tempScaleX,
+				colliderShape.offSet.GetY()* tempScaleHeight,
+				colliderShape.offSet.GetZ()* tempScaleZ
+			);
+
 			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight,capsuleData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-																			colliderShape.offSet,
+																			scaledOffset,
 																			JPH::Quat::sIdentity(),
 																			settings);
 			auto result = newShape.Create();
@@ -491,11 +517,19 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
 
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX()* tempScaleX,
+				colliderShape.offSet.GetY()* tempScaleHeight,
+				colliderShape.offSet.GetZ()* tempScaleZ
+			);
+
 			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				colliderShape.offSet,
+				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
+
+
 			auto result = newShape.Create();
 			if (result.HasError())
 			{
@@ -588,7 +622,7 @@ namespace SliceEngine
 			mp->SetAngularDamping(rigidBody.angularDamping);
 		}
 
-		//std::cout << (int)event.entity <<"Rigidbody modified\n";
+		////std::cout << (int)event.entity <<"Rigidbody modified\n";
 	}
 
 	//void PhysicsSystem::OnEntityEnabled(entt::registry& reg, entt::entity entity)
@@ -683,7 +717,8 @@ namespace SliceEngine
 
 		if (std::holds_alternative<ColliderShape::BoxData>(shapeData))
 		{
-			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::BoxShape* boxShape = static_cast<const JPH::BoxShape*>(wrappedShape->GetInnerShape());
 			JPH::Vec3 halfExtents = boxShape->GetHalfExtent();
 			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
@@ -693,17 +728,24 @@ namespace SliceEngine
 			if (tempScale == halfExtents)
 				return;
 
-			JPH::Vec3 newHalf(boxData.scale * scl);
+			//JPH::Vec3 newHalf(boxData.scale * scl);
 
 			// ensure minimum size for each dimension
 			const float minSize = JPH::cDefaultConvexRadius * 2.0f; //min size just in case
-			newHalf.SetX(JPH::max(newHalf.GetX(), minSize));
-			newHalf.SetY(JPH::max(newHalf.GetY(), minSize));
-			newHalf.SetZ(JPH::max(newHalf.GetZ(), minSize));
+			tempScale.SetX(JPH::max(tempScale.GetX(), minSize));
+			tempScale.SetY(JPH::max(tempScale.GetY(), minSize));
+			tempScale.SetZ(JPH::max(tempScale.GetZ(), minSize));
 
-			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX() * scl.GetX(),
+				colliderShape.offSet.GetY() * scl.GetY(),
+				colliderShape.offSet.GetZ() * scl.GetZ()
+			);
+
+			//JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(newHalf);
+			JPH::BoxShapeSettings *settings = new JPH::BoxShapeSettings(tempScale);
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				colliderShape.offSet,
+				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
 
@@ -743,7 +785,8 @@ namespace SliceEngine
 		}
 		else if (std::holds_alternative<ColliderShape::SphereData>(shapeData))
 		{
-			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(colliderShape.shape.GetPtr());
+			const JPH::RotatedTranslatedShape* wrappedShape = static_cast<const JPH::RotatedTranslatedShape*>(colliderShape.shape.GetPtr());
+			const JPH::SphereShape* sphereShape = static_cast<const JPH::SphereShape*>(wrappedShape->GetInnerShape());
 			float sphereRadius = sphereShape->GetRadius();
 
 			auto& sphereData = std::get<ColliderShape::SphereData>(colliderShape.shapeData);
@@ -759,9 +802,15 @@ namespace SliceEngine
 
 			float biggestScale = std::max({ fabs(scl.GetX()), fabs(scl.GetY()), fabs(scl.GetZ()) });
 
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX() * scl.GetX(),
+				colliderShape.offSet.GetY() * scl.GetY(),
+				colliderShape.offSet.GetZ() * scl.GetZ()
+			);
+
 			JPH::SphereShapeSettings *settings = new JPH::SphereShapeSettings(sphereData.radius * fabs(biggestScale));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				colliderShape.offSet,
+				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
 
@@ -820,9 +869,15 @@ namespace SliceEngine
 
 			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
 
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX()* scl.GetX(),
+				colliderShape.offSet.GetY()* scl.GetY(),
+				colliderShape.offSet.GetZ()* scl.GetZ()
+			);
+
 			JPH::CapsuleShapeSettings *settings = new JPH::CapsuleShapeSettings(tempScaleHeight, capsuleData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				colliderShape.offSet,
+				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
 
@@ -879,24 +934,32 @@ namespace SliceEngine
 
 			float cylinderRadius = cylinderShape->GetRadius();
 			float cylinderHeight = cylinderShape->GetHalfHeight();
+			JPH::Vec3 scl = helpers::glmtoJPH(transform.GetWorldScale());
 
 			auto& cylinderData = std::get < ColliderShape::CylinderData >(colliderShape.shapeData);
-			float tempScaleX = cylinderData.radius * fabs(transform.scale.x);
-			float tempScaleZ = cylinderData.radius * fabs(transform.scale.z);
-			float tempScaleHeight = cylinderData.height * fabs(transform.scale.y);
+			float tempScaleX = cylinderData.radius * fabs(scl.GetX());
+			float tempScaleZ = cylinderData.radius * fabs(scl.GetZ());
+			float tempScaleHeight = cylinderData.height * fabs(scl.GetY());
 
 			if (tempScaleX == cylinderRadius && tempScaleZ == cylinderRadius && tempScaleHeight == cylinderHeight && colliderShape.offSet == colliderShape.prevOffSet)
 			{
 				return;
 			}
 
-			float biggestScaleRad = std::max({ fabs(transform.scale.x), fabs(transform.scale.z) });
+			float biggestScaleRad = std::max({ fabs(scl.GetX()), fabs(scl.GetZ()) });
+
+			JPH::Vec3 scaledOffset(
+				colliderShape.offSet.GetX()* scl.GetX(),
+				colliderShape.offSet.GetY()* scl.GetY(),
+				colliderShape.offSet.GetZ()* scl.GetZ()
+			);
 
 			JPH::CylinderShapeSettings* settings = new JPH::CylinderShapeSettings(tempScaleHeight, cylinderData.radius * fabs(biggestScaleRad));
 			JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
-				colliderShape.offSet,
+				scaledOffset,
 				JPH::Quat::sIdentity(),
 				settings);
+
 			auto result = newShape.Create();
 			if (result.HasError())
 			{
@@ -1149,8 +1212,9 @@ namespace SliceEngine
 		return result.Get();
 	}
 
-	JPH::ShapeRefC PhysicsSystem::CreateSphereShape(const ColliderShape& collider) const
+	JPH::ShapeRefC PhysicsSystem::CreateSphereShape( const ColliderShape& collider) const
 	{
+		//TRS
 		const ColliderShape::SphereData& sphereData = std::get<ColliderShape::SphereData>(collider.shapeData);
 		JPH::SphereShapeSettings* shapeSetting = new JPH::SphereShapeSettings(sphereData.radius);
 		JPH::RotatedTranslatedShapeSettings newShape = JPH::RotatedTranslatedShapeSettings(
@@ -1228,9 +1292,9 @@ namespace SliceEngine
 				JPH::Vec3 normal = (v1 - v0).Cross(v2 - v0);
 				if (normal.LengthSq() < 1e-10f)
 				{
-					std::cout << "[DEGENERATE TRIANGLE SKIPPED] at ("
-						<< v0.GetX() << "," << v0.GetY() << "," << v0.GetZ() << ")"
-						<< std::endl;
+					//std::cout << "[DEGENERATE TRIANGLE SKIPPED] at ("
+						//<< v0.GetX() << "," << v0.GetY() << "," << v0.GetZ() << ")"
+						//<< std::endl;
 					continue; // skip this triangle
 				}
 
@@ -1282,7 +1346,13 @@ namespace SliceEngine
 	// componeent enable check
 	void PhysicsSystem::EntityOnEnter(entt::registry& reg, entt::entity entity)
 	{
+		auto& collider = mRegistry->get<ColliderShape>(entity);
+
 		CreateJoltBody(entity);
+
+		UpdateShapeFromTransform(entity);
+		OnColliderModified(reg, entity);
+
 	}
 
 	void PhysicsSystem::EntityOnExit(entt::registry& reg, entt::entity entity)
@@ -1342,6 +1412,8 @@ namespace SliceEngine
 
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
+		if (colliderShape.bodyID.IsInvalid())
+			return;
 		
 		// Remove body form physics world
 		physicsSystem->GetBodyInterface().RemoveBody(colliderShape.bodyID);
@@ -1353,6 +1425,12 @@ namespace SliceEngine
 
 	void PhysicsSystem::CreateJoltBody(Entity entity)
 	{
+
+		//if (entity == entt::entity(1048793))
+		//{
+		//	int a = 2;
+		//}
+
 		GameObject checkEntity = Core::GetInstance()->mFactory.GetGOByEntity(entity);
 		if (!checkEntity.HasComponent<ColliderShape>())
 			return;
@@ -1362,12 +1440,6 @@ namespace SliceEngine
 		auto& colliderShape = mRegistry->get<ColliderShape>(entity);
 
 		bool isRigibody = false;
-
-
-		if (!colliderShape.componentEnabled)
-		{
-			return;
-		}
 
 		if (checkEntity.HasComponent<RigidBody>())
 		{
@@ -1480,7 +1552,7 @@ namespace SliceEngine
 		//
 		//if (testBodyID.IsInvalid())
 		//{
-		//	std::cout << "ALOYSISU INVALID BODYID 67676767\n";
+		//	//std::cout << "ALOYSISU INVALID BODYID 67676767\n";
 		//}
 
 

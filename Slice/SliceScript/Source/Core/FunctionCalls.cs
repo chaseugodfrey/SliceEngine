@@ -11,11 +11,72 @@ namespace SliceEngine
     public static class FunctionCalls
     {
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetDeltaTimeUnscaled();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Time_GetTimeScale();
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Time_SetTimeScale(float time);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetMainCamera(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetEnabled(uint entityID, bool enable);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Camera_GetEnabled(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Camera_SetGamma(float gamma);
+
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Camera_GetGamma();
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Camera_GetFOV(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetFOV(uint entityID, float fov);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_ToggleImpactFrames(uint entityID, bool isEnable);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameWorldPosition(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameColor1(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameColor2(uint entityID, ref Vector3 position);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSmooth(uint entityID, bool isSmooth);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSpeed(uint entityID, float speed);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameSharpness(uint entityID, float sharpness);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactFrameDensity(uint entityID, float density);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Camera_SetImpactBlend(uint entityID, float blend);
+        // Light
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetEnabled(uint entityID, bool enable);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Light_GetEnabled(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetCastShadow(uint entityID, bool castsShadow);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Light_GetCastShadow(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetColor(uint entityID, ref Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_GetColor(uint entityID, out Vector3 color);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetIntensity(uint entityID, float intensity);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetIntensity(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetAngle(uint entityID, float angle);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Light_GetAngle(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Light_SetLightType(uint entityID, int lightType);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static int Light_GetLightType(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Application_GetFilePath();
@@ -93,9 +154,11 @@ namespace SliceEngine
         //End Physics
 
         //Layer
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint LayerMask_GetCollisionMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static uint LayerMask_GetMask(string layerName);
+        internal extern static uint LayerMask_ToMask(string layerName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string LayerMask_LayerToName(uint layer);
@@ -119,13 +182,13 @@ namespace SliceEngine
         internal extern static void Physics_RayUpdateMovement(uint entityID, out Vector3 d_m);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static string Audio_GetSoundName(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Play(uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_PlaySFX(string key, ref Vector3 position);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_StopAllSound();
+        internal extern static void Audio_PlaySFX(string key, ref Vector3 position, uint entityID);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Audio_Stop(uint entityID);
@@ -180,9 +243,11 @@ namespace SliceEngine
         internal extern static void Audio_SetMute(uint entityID, bool mute);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Audio_GetMute(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Audio_StopAllSound();
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void Audio_SetSoundName(uint entityID, string audioName);
+        internal extern static void Audio_SetSoundName(uint entityID, ref Audio audioName);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static bool Input_IsKeyPressed(Keys key);
@@ -632,33 +697,11 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string Entity_GetTag(uint entity);
 
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetDestination(uint entityID, ref Vector3 target);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_Stop(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_GetSpeed(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static float NavAgent_ComponentState(uint entityID, bool componentState);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static void NavAgent_SetSpeed(uint entityID, float speed);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_HasPath(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_GetComponentEnabled(uint entityID);
-
-        [MethodImplAttribute(MethodImplOptions.InternalCall)]
-        internal extern static bool NavAgent_SetComponentEnabled(uint entityID, bool isEnabled);
 
 
-        //UI
-        //*************************
+
+        /************************* UI Functions *************************/
+        /************************* Rect Transform *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_GetHoriAlign(uint entityID, out RectTransform.HoriPivot hori);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -704,13 +747,19 @@ namespace SliceEngine
         internal extern static int RectTransform_GetRight(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void RectTransform_SetRight(uint entityID, int value);
-        //*************************
 
+
+        /************************* Slider *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static float Slider_GetValue(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Slider_SetValue(uint entityID, float value);
 
+        /************************* Button *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float Button_SetEnabled(uint entityID, bool enabled);
+
+        /************************* Font *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static string FontRenderer_GetText(uint entityID);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -739,7 +788,7 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void FontRenderer_SetEnabled(uint entityID, bool enabled);
 
-
+        /************************* Sprite Renderer *************************/
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_GetColor(uint entityID, out Vector4 color);
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
@@ -748,12 +797,65 @@ namespace SliceEngine
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void SpriteRenderer_SetEnabled(uint entityID, bool enabled);
 
+        /************************* Sprite Animator *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetEnabled(uint entityID, bool enabled);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SpriteAnimator_GetPlaying(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetPlaying(uint entityID, bool value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool SpriteAnimator_GetLoop(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetLoop(uint entityID, bool value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetRows(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetRows(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetCols(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetCols(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetFrameCnt(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetFrameCnt(uint entityID, uint value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float SpriteAnimator_GetFPS(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetFPS(uint entityID, float value);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static uint SpriteAnimator_GetCurrFrame(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteAnimator_SetCurrFrame(uint entityID, uint value);
+
+        /************************* Sprite Animator *************************/
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteGammaOverride_SetEnabled(uint entityID, bool enabled);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static float SpriteGammaOverride_GetGamma(uint entityID);
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void SpriteGammaOverride_SetGamma(uint entityID, float value);
+
+        /************************* UI End *************************/
         //Material
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Renderer_GetCastShadow(uint entityID, out bool castShadow);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Renderer_SetCastShadow(uint entityID, bool castShadow);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static bool Renderer_IsEnabled(uint entityID);
+
+        [MethodImplAttribute(MethodImplOptions.InternalCall)]
+        internal extern static void Renderer_SetEnabled(uint entityID, bool enabled);
 
         [MethodImplAttribute(MethodImplOptions.InternalCall)]
         internal extern static void Material_GetColor(uint entityID, out Vector4 color);

@@ -23,7 +23,6 @@ DigiPen Institute of Technology is prohibited.
 #include <GameView/GameViewWindow.h>
 #include <Animator/AnimatorWindow.h>
 #include <Animation/AnimationWindow.h>
-#include <Navigation/NavigationWindow.h>
 #include <Configuration/PreferenceWindow.h>
 #include <Configuration/ProjectSettingsWindow.h>
 #include <Console/ConsoleWindow.h>

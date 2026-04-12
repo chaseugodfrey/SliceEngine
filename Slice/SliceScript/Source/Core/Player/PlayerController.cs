@@ -109,20 +109,23 @@ namespace SliceEngine
         // Internal References
         private CameraController camera;
         public GameObject playerModel;
+        public GameObject playerSwordModel;
         RigidBody rigidBody;
         Animator animator;
         AudioSource audio;
 
         // Attacks
-        List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
-        public List<String> attackHitboxNames = new List<String>();
-        public List<int> attackDamageValues = new List<int>();
+        public GameObject attackHitboxGO;
+        public int hitDamage = 15;
+        public GeneralHitbox attackHitbox = new GeneralHitbox();
+        //List<GeneralHitbox> attackHitboxes = new List<GeneralHitbox>();
         public List<float> attackDelay = new List<float>();
         public List<float> attackDuration = new List<float>();
         public List<Vector3> attackWindows = new List<Vector3>();
         float attackTimer = 0.0f;
         bool attackQueued;
         public float shieldDuration = 0.5f;
+        public bool canAttack = false;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
@@ -189,6 +192,8 @@ namespace SliceEngine
         public float flickerDuration = 0.05f;
         public bool iFrames = false;
 
+        Coroutine shakeCoroutine = null;
+
         public void Initialize()
         {
             camera = Bootstrap.CameraController; if (camera == null) SliceLog.Warn("PlayerController cannot find camera");
@@ -200,6 +205,9 @@ namespace SliceEngine
         {
             InitializeInternalReferences();
             InitializeHitboxes();
+
+            if (playerSwordModel != null)
+                playerSwordModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
         }
 
         public override void OnUpdate(float dt)
@@ -267,6 +275,7 @@ namespace SliceEngine
 
             if (!IsTakingInputs())
             {
+                //Console.WriteLine($"Not taking inputs");
                 return;
             }
 
@@ -295,16 +304,17 @@ namespace SliceEngine
                 // Ground attacking
                 PlayerCurrentAttack = CurrentAttack.GroundAttack;
                 attackCounter++;
-                if (attackCounter > 3) attackCounter = 1;
+                // changing this to 2 to remove the 3rd attack
+                if (attackCounter > 2) attackCounter = 1;
 
                 switch (attackCounter)
                 {
                     case 1:
                         attackTimer = attackDuration[0];
 
-                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitboxes[0].TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitbox.TurnOn()));
 
-                        //AudioSettings.PlaySFX("A1");
+                        AudioSettings.PlaySFX("A1");
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -312,73 +322,30 @@ namespace SliceEngine
                     case 2:
                         attackTimer = attackDuration[1];
 
-                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitboxes[1].TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitbox.TurnOn()));
 
+                        AudioSettings.PlaySFX("A2");
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
-                            //AudioSettings.PlaySFX("A2");
+                            //
                         }
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
                         break;
-                    case 3:
-                        attackTimer = attackDuration[2];
-                        StartCoroutine(AttackDelay(attackDelay[2], () => attackHitboxes[2].TurnOn()));
-
-                        if (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0)
-                        {
-                           // AudioSettings.PlaySFX("A3");
-                        }
-                        break;
                     default:
                         break;
-                }
-            }
-            else if (PlayerCombatState != CombatState.Attacking
-                && PlayerMovementState != MovementState.MovingPlunge
-                && PlayerMovementState != MovementState.AttackingPlunge
-                && PlayerCombatState != CombatState.Shielding)
-            {
-                RayCastHit hitInfo;
-                
-                // Check if can plunge by raycasting down to see distance to ground
-                bool hit = Physics.Raycast(transform.Position + new Vector3(0, 1, 0), new Vector3(0, -1, 0) * 1000f, out hitInfo, LayerMask.GetMask("Environment"), QueryTriggerInteraction.UseGlobal);
-                if (hit)
-                {
-                    GameObject objHit = FindGameObjectWithID(hitInfo.transform.gameObject.mID);
-
-                    if (objHit != null && objHit.tag == "Ground")
-                    {
-                        if (hitInfo.distance <= plungeMinDistance)
-                        {
-                            PlayerMovementState = MovementState.MovingPlunge;
-                            PlayerCurrentAttack = CurrentAttack.None;
-                            Console.WriteLine("Not high enough");
-                            return;
-                        }
-                    }
-                }
-
-                PlayerMovementState = MovementState.AttackingPlunge;
-                PlayerCurrentAttack = CurrentAttack.None;
-
-                if (String.Compare(animator.GetCurrAnimName(), "Plunge") == 0)
-                {
-                    AudioSettings.PlaySFX("Plunge");
                 }
             }
         }
         private void TurnOffHitboxes()
         {
-            foreach (var hb in attackHitboxes)
-            {
-                hb.TurnOff();
-            }
+            attackHitbox?.TurnOff();
         }
 
         public void StartAttackRecovery()
         {
+            Console.WriteLine($"Attack Recovery");
             //PlayerMovementState = MovementState.Idle;
             PlayerCombatState = CombatState.Recovery;
             attackResetTimer = 0f;
@@ -400,11 +367,6 @@ namespace SliceEngine
                     {
                         if (animator.SafeToChange("AttackToIdle2"))
                             animator.SetBool("AttackToIdle2", true);
-                    }
-                    if (String.Compare(animator.GetCurrAnimName(), "Attack3") == 0 && (String.Compare(animator.GetCurrAnimName(), "AttackToIdle3") != 0))
-                    {
-                        if (animator.SafeToChange("AttackToIdle3"))
-                            animator.SetBool("AttackToIdle3", true);
                     }
                 }
                 else if (PlayerCurrentAttack == CurrentAttack.PlungeLand)
@@ -446,30 +408,12 @@ namespace SliceEngine
             EnemyBase enemy = target.As<EnemyBase>();
             if (enemy != null)
             {
-                Console.WriteLine($"Attacking enemy in attack 1");
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
+                SliceLog.Console($"Attacking enemy in attack 1");
+                enemy.TakeDamage(hitDamage, this.gameObject);
                 AudioSettings.PlaySFX("SwordHit");
             }
         }
-        private void Attack2(GameObject target)
-        {
-            EnemyBase enemy = target.As<EnemyBase>();
-            if (enemy != null)
-            {
-                Console.WriteLine($"Attacking enemy in attack 2");
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
-                AudioSettings.PlaySFX("SwordHit");
-            }
-        }
-        private void Attack3(GameObject target)
-        {
-            EnemyBase enemy = target.As<EnemyBase>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(attackDamageValues[attackCounter], this.gameObject);
-                AudioSettings.PlaySFX("SwordHit");
-            }
-        }
+     
         private IEnumerator AttackDelay(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
@@ -477,6 +421,7 @@ namespace SliceEngine
         }
         void EndAttackState()
         {
+            Console.WriteLine("End Attack State");
             attackTimer = 0f;
             PlayerCurrentAttack = CurrentAttack.None;
             attackQueued = false;
@@ -496,40 +441,13 @@ namespace SliceEngine
 
         private void InitializeHitboxes()
         {
-            attackHitboxes.Clear();
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[0])?.As<GeneralHitbox>());
-            //attackHitboxes[0].HitBoxListeners += Attack1;
+            if (attackHitboxGO == null) { return;  }
 
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[1])?.As<GeneralHitbox>());
-            //attackHitboxes[1].HitBoxListeners += Attack2;
+            attackHitbox = attackHitboxGO.As<GeneralHitbox>();
+            HitBoxTriggerEvent attackAction;
+            attackAction = Attack1;
+            attackHitbox.HitBoxListeners += attackAction;
 
-            //attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[2])?.As<GeneralHitbox>());
-            //attackHitboxes[2].HitBoxListeners += Attack3;
-
-            for (int i = 0; i < attackHitboxNames.Count; i++)
-            {
-                attackHitboxes.Add(FindGameObjectWithName(attackHitboxNames[i])?.As<GeneralHitbox>());
-
-                HitBoxTriggerEvent attackAction = null;
-
-                switch (i)
-                {
-                    case 0:
-                        attackAction = Attack1;
-                        break;
-                    case 1:
-                        attackAction = Attack2;
-                        break;
-                    case 2:
-                        attackAction = Attack3;
-                        break;
-                    case 3:
-                        attackAction = DashAttack;
-                        break;
-                }
-                attackHitboxes[i].HitBoxListeners += attackAction;
-            }
-            Console.WriteLine($"Found {attackHitboxes.Count} hitboxes");
             TurnOffHitboxes();
         }
         private IEnumerator ShieldCoroutine()
@@ -548,31 +466,53 @@ namespace SliceEngine
             rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
         }
 
+        public void ChangeModel()
+        {
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(false);
+            playerModel = playerSwordModel;
+            playerModel.As<PlayerAnimatorEvents>().SetModelVisible(true);
+            canAttack = true;
+            animator = playerModel?.GetComponent<Animator>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find Animator");
+            //audio = gameObject.GetComponent<AudioSource>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find AudioSource");
+            //rigidBody = GetComponent<RigidBody>(); if (playerModel == null) SliceLog.Warn("PlayerController cannot find RigidBody");
+
+        }
+
         #endregion
 
         #region On Overrides
         protected override void OnHeal() { }
         protected override void OnDamaged(GameObject source)
         {
-            //console.writeline("Player Taking Damage. Current Health: ");
+            SliceLog.Console("Player Taking Damage. Current Health: ");
             //console.writeline(currentHealth);
             Bootstrap.HUDManager.SetHealth((float)currentHealth / (float)maxHealth);
 
+            //iFrames = true;
+            //StartCoroutine(iFrameAnimation(0.5f));
             AudioSettings.PlaySFX("PlayerHit");
+            if (shakeCoroutine != null)
+            {
+                if (shakeCoroutine.isActive)
+                {
+                    CoroutineManager.StopCoroutine(shakeCoroutine);
+                }
+            }
 
-            Bootstrap.CameraController.Shake(0.1f, 1f);
+
+            shakeCoroutine = Bootstrap.CameraController.Shake(0.2f, 1.0f);
 
             GameObject vfx = SpawnVFX(hitPrefabName);
-            SliceLog.Log("Returned");
+            //SliceLog.Log("Returned");
 
             Transform vfxTransform = vfx.GetComponent<Transform>();
-            SliceLog.Log("Getting Transform");
+            //SliceLog.Log("Getting Transform");
 
-            vfxTransform.Position = transform.Position;
-            SliceLog.Log("Set");
+            vfxTransform.Position = transform.Position + new Vector3(0, 1.0f, 0);
+            //SliceLog.Log("Set");
 
             vfxTransform.RotationQuat = Quaternion.LookRotation((source.GetComponent<Transform>().Position - transform.Position).Normalize(), Vector3.Up);
-            SliceLog.Log("Rotating");
+            //SliceLog.Log("Rotating");
         }
         private GameObject SpawnVFX(string path)
         {
@@ -587,6 +527,9 @@ namespace SliceEngine
                 Console.WriteLine("Destroying projectile");
                 return;
             }
+
+            if (iFrames)
+                return;
             //source = source ?? gameObject;
             if (source == null)
             {
@@ -799,7 +742,7 @@ namespace SliceEngine
                         vel.x *= 0.1f;
                         vel.z *= 0.1f;
                         rigidBody.Velocity = vel;
-                        attackHitboxes[dashArrayIndex].TurnOff();
+                        //attackHitboxes[dashArrayIndex].TurnOff();
                         PlayerMovementState = MovementState.Idle;
                     }
                     break;
@@ -813,7 +756,7 @@ namespace SliceEngine
 
                         Console.WriteLine($"Transitioning to falling from {PlayerMovementState.ToString()}");
 
-                        attackHitboxes[dashArrayIndex].TurnOff();
+                        //attackHitboxes[dashArrayIndex].TurnOff();
                         PlayerMovementState = MovementState.Falling;
                     }
                     break;
@@ -896,7 +839,7 @@ namespace SliceEngine
             animator.SetBool("Idle", false);
             animator.SetBool("Walk", false);
             animator.SetBool("JumpLoop", false);
-            animator.SetBool("Fall", false);
+            //animator.SetBool("Fall", false);
             animator.SetBool("Land", false);
         }
 
@@ -960,8 +903,10 @@ namespace SliceEngine
                     //Console.WriteLine("AirDashing now");
                     break;
                 case MovementState.Falling:
-                    if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
-                        animator.SetBool("Fall", true);
+                    if (animator.SafeToChange("JumpLoop") && (String.Compare(animator.GetCurrAnimName(), "JumpLoop") != 0))
+                        animator.SetBool("JumpLoop", true);
+                    //if (animator.SafeToChange("Fall") && (String.Compare(animator.GetCurrAnimName(), "Fall") != 0))
+                    //    animator.SetBool("Fall", true);
                     break;
                 case MovementState.Landing:
                     if (animator.SafeToChange("Land") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
@@ -969,40 +914,20 @@ namespace SliceEngine
                     break;
                 case MovementState.GroundDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                         if (hasInput)
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
                         {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            {
-                                //Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                            Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
 
                 case MovementState.AirDash:
                     {
-                        bool hasInput = input.SquareMagnitude() > 0.0001f;
-                        if (hasInput)
-                        {
-                            // transition to forward dash instead of back dash
-                            if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                            { 
-                                Console.WriteLine("Setting it again");
-                                animator.SetBool("Dash", true);
-                            }
-                        }
-                        else
-                        {
-                            if (animator.SafeToChange("BackDash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
-                                animator.SetBool("BackDash", true);
+                        if (animator.SafeToChange("Dash") && (String.Compare(animator.GetCurrAnimName(), "Land") != 0))
+                        { 
+                            Console.WriteLine("Setting it again");
+                            animator.SetBool("Dash", true);
                         }
                     }
                     break;
@@ -1062,14 +987,6 @@ namespace SliceEngine
                                 }
                                 break;
                             }
-                        case 3:
-                            {
-                                if (String.Compare(animator.GetCurrAnimName(), "Attack3") != 0 && (String.Compare(animator.GetCurrAnimName(), "Attack2") == 0))
-                                {
-                                    animator.SetBool("Attack3", true);
-                                }
-                                break;
-                            }
                     }
                     break;
                 case CurrentAttack.PlungeLand:
@@ -1081,7 +998,6 @@ namespace SliceEngine
                 default:
                     break;
             }
-
         }
 
         private void HandleMovementInputs()
@@ -1096,6 +1012,8 @@ namespace SliceEngine
 
         private void HandleAttackInputs()
         {
+            if (!canAttack) { return; }
+
             if (Input.IsMousePressed(MouseButtons.MOUSE_BUTTON_LEFT)) TryAttack();
 
             if (Input.IsKeyPressed(Keys.KEY_E) 
@@ -1130,7 +1048,11 @@ namespace SliceEngine
                 jumpDurationTimer = jumpDuration;
                 Console.WriteLine($"jump Counter {jumpCounter} and movementState: {PlayerMovementState.ToString()}");
                 if (jumpCounter == 1)
+                {
+                    AudioSettings.PlaySFX("Jump");
+
                     PlayerMovementState = MovementState.Jumping;
+                }
                 else
                     PlayerMovementState = MovementState.DoubleJumping;
 
@@ -1169,7 +1091,11 @@ namespace SliceEngine
 
                 dashDir = ComputeFlatDashDir(true);
 
-                FXDash = CreateGameObject("Prefabs/FX_PlayerDash.prefab");
+                FXDash = CreateGameObject("Prefabs/FX_Dash.prefab");
+                FXDash.GetComponent<Transform>().Position = transform.Position;
+                FXDash.SetParent(gameObject);
+                FXDash.GetComponent<Transform>().Rotation = Vector3.Zero;
+                FXDash = CreateGameObject("Prefabs/FX_Dashbeam.prefab");
                 FXDash.GetComponent<Transform>().Position = transform.Position;
                 FXDash.SetParent(gameObject);
                 FXDash.GetComponent<Transform>().Rotation = transform.Rotation;
@@ -1191,18 +1117,18 @@ namespace SliceEngine
                     transform.RotationQuat = Quaternion.LookRotation(dashDir, Vector3.Up);
                 }
             }
-            attackHitboxes[dashArrayIndex].TurnOn();
+            //attackHitboxes[dashArrayIndex].TurnOn();
         }
         void DashAttack(GameObject target = null)
         {
-            Console.WriteLine((target == null).ToString());
-            EnemyBase enemy = target?.As<EnemyBase>();
-            if (enemy != null)
-            {
-                enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
-                dashDurationTimer = 0f;
-                Console.WriteLine("Dealing damage using dash");
-            }
+            //Console.WriteLine((target == null).ToString());
+            //EnemyBase enemy = target?.As<EnemyBase>();
+            //if (enemy != null)
+            //{
+            //    enemy.TakeDamage(attackDamageValues[dashArrayIndex], this.gameObject);
+            //    dashDurationTimer = 0f;
+            //    Console.WriteLine("Dealing damage using dash");
+            //}
         }
 
         private void GroundCheck()
@@ -1291,7 +1217,7 @@ namespace SliceEngine
             {
                 Vector3 forward = transform.Forward;
                 forward.y = 0f;
-                return -forward.Normalize();
+                return forward.Normalize();
             }
 
             if (camera != null)
