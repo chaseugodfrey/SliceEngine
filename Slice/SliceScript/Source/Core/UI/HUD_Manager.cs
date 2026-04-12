@@ -24,6 +24,7 @@ namespace SliceEngine
         public GameObject textBoxParentObject;
         public GameObject regularTextObject;
         public GameObject nameTextObject;
+        public bool popUpOpen = false;
 
         //Letters per second
         public float typeSpeed = 5f;
@@ -175,6 +176,7 @@ namespace SliceEngine
         }
 
         private SliceCSV loader = new SliceCSV();
+        private SliceCSV popUpLoader = new SliceCSV();
         //Each entry currently needs name and text and index
         //Each set should have the index 
 
@@ -189,7 +191,7 @@ namespace SliceEngine
             public string iteration;
         }
 
-        private Dictionary<int, PopupInfo> allPopups = new Dictionary<int, PopupInfo>();
+        public Dictionary<int, PopupInfo> allPopups = new Dictionary<int, PopupInfo>();
         public void LoadDialogues()
         {
             //Load dialogues from a CSV
@@ -233,7 +235,7 @@ namespace SliceEngine
         {
             string filePath = Application.GetFilePath("Popup.csv");
             SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
-            loader.Load(filePath);
+            popUpLoader.Load(filePath);
 
             if (File.Exists(filePath))
             {
@@ -244,17 +246,17 @@ namespace SliceEngine
                 SliceLog.Log("Could not find the pop up file from: " + filePath);
             }
 
-            if (loader != null)
+            if (popUpLoader != null)
             {
-                for (int i = 0; i < loader.RowCount; i++)
+                for (int i = 0; i < popUpLoader.RowCount; i++)
                 {
-                    int index = loader.GetValue<int>(i, "Index");
+                    int index = popUpLoader.GetValue<int>(i, "Index");
                     PopupInfo info = new PopupInfo();
 
-                    info.text = loader.GetValue<string>(i, "Text");
-                    info.year = loader.GetValue<string>(i, "Year");
-                    info.time = loader.GetValue<string>(i, "Time");
-                    info.iteration = loader.GetValue<string>(i, "Iteration");
+                    info.text = popUpLoader.GetValue<string>(i, "Text");
+                    info.year = popUpLoader.GetValue<string>(i, "Year");
+                    info.time = popUpLoader.GetValue<string>(i, "Time");
+                    info.iteration = popUpLoader.GetValue<string>(i, "Iteration");
                     allPopups.Add(index, info);
                 }
             

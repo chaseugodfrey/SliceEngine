@@ -27,13 +27,21 @@ namespace SliceEngine
 
         private bool isSettingsOpen = false;
 
+        GameObject popUp;
+
         public override void OnCreate()
         {
             settingsPopup = FindGameObjectWithName("Settings_Popup_Levels");
             bgAnimationObject = FindGameObjectWithName("SettingsBGSpriteSheet");
             beforeGammaImage = FindGameObjectWithName("BeforeImage");
+            popUp = gameObject.FindGameObjectWithTag("PopUp");
 
-            if(FindGameObjectWithName("PauseMusic") != null)
+            if (popUp == null)
+            {
+                SliceLog.Error("Pop up object missing/tag not set");
+            }
+
+            if (FindGameObjectWithName("PauseMusic") != null)
             {
             
                 pauseBGM = FindGameObjectWithName("PauseMusic");
@@ -94,6 +102,15 @@ namespace SliceEngine
         {
             if (Input.IsKeyPressed(Keys.KEY_ESC) && Bootstrap.HUDManager.CheckLoseScreen() == false)
             {
+                if (popUp != null)
+                {
+                    if (Bootstrap.HUDManager.popUpOpen)
+                    {
+
+                        return;
+                    }
+                }
+
                 if (isSettingsOpen)
                 {
                     ResumeGame();
