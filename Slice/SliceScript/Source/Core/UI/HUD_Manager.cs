@@ -180,6 +180,16 @@ namespace SliceEngine
 
         //                Set      
         private Dictionary<string, List<string[]>> allDialogues = new Dictionary<string, List<string[]>>();
+
+        public class PopupInfo
+        {
+            public string text;
+            public string year;
+            public string time;
+            public string iteration;
+        }
+
+        private Dictionary<int, PopupInfo> allPopups = new Dictionary<int, PopupInfo>();
         public void LoadDialogues()
         {
             //Load dialogues from a CSV
@@ -199,18 +209,6 @@ namespace SliceEngine
 
             if (loader != null)
             {
-                //SliceLog.Log("Loader is empty");
-                //Maybe add a cull here for the scene
-
-                //for (int i  = loader.RowCount -1 ; i > -1; i--)
-                //{
-                //    if (loader.GetValue<int>(i , "Scene") != currentScene)
-                //    {
-                //        loader.RemoveRow(i);
-                //    }
-                //}
-
-
                 //Sorts and adds them to the specified sets
 
                 for (int i = 0; i < loader.RowCount; i++)
@@ -228,6 +226,38 @@ namespace SliceEngine
                     allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
                     //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
+            }
+        }
+
+        public void LoadPopups()
+        {
+            string filePath = Application.GetFilePath("Popup.csv");
+            SliceLog.Log("Loading dialogue from, App filepath: " + filePath);
+            loader.Load(filePath);
+
+            if (File.Exists(filePath))
+            {
+                SliceLog.Log("Found pop ups from, App filepath: " + filePath);
+            }
+            else
+            {
+                SliceLog.Log("Could not find the pop up file from: " + filePath);
+            }
+
+            if (loader != null)
+            {
+                for (int i = 0; i < loader.RowCount; i++)
+                {
+                    int index = loader.GetValue<int>(i, "Index");
+                    PopupInfo info = new PopupInfo();
+
+                    info.text = loader.GetValue<string>(i, "Text");
+                    info.year = loader.GetValue<string>(i, "Year");
+                    info.time = loader.GetValue<string>(i, "Time");
+                    info.iteration = loader.GetValue<string>(i, "Iteration");
+                    allPopups.Add(index, info);
+                }
+            
             }
         }
 
@@ -424,6 +454,7 @@ namespace SliceEngine
             health = healthSliderObject.GetComponent<Slider>();
             //defeat = defeatObject.GetComponent<SpriteRenderer>();
             LoadDialogues();
+            LoadPopups();
             //Input.SetCursorState(Cursor.STATE.HIDDEN);
         }
     }
