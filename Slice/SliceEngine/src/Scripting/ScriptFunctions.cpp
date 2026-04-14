@@ -1722,6 +1722,14 @@ namespace SliceEngine
 		Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFX(key, position, parent);
 	}
 
+	static unsigned int Audio_PlaySFXWithGO(MonoString* string, glm::vec3 position, uint32_t parentID)
+	{
+		std::string key = MonoToString(string);
+		Entity parent = (parentID == 0) ? entt::null : static_cast<Entity>(parentID);
+
+		return (unsigned int)Core::GetInstance()->GetProjectSettingsManager()->GetSettings<AudioSettings>()->PlaySFXWithGO(key, position, parent);
+	}
+
 	static void Audio_Stop(unsigned int entity)
 	{
 		if (auto* audioComp = GetAudioComponent(entity))
@@ -3621,6 +3629,7 @@ namespace SliceEngine
 		//ADD_INTERNAL_CALL(Audio_SetSoundName);
 		ADD_INTERNAL_CALL(Audio_Play);
 		ADD_INTERNAL_CALL(Audio_PlaySFX);
+		ADD_INTERNAL_CALL(Audio_PlaySFXWithGO);
 		ADD_INTERNAL_CALL(Audio_Stop);
 		ADD_INTERNAL_CALL(Audio_IsPlaying);
 		ADD_INTERNAL_CALL(Audio_SetPaused);

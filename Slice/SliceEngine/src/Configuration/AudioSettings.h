@@ -76,6 +76,7 @@ namespace SliceEngine
 		const int GetMaxInstances(const std::string& key);
 		void ReplaceExistingEntry(const std::string oldKey, const std::string newKey);
 		void PlaySFX(const std::string& key, glm::vec3 position = glm::vec3(0.f), Entity parent = entt::null);
+		Entity PlaySFXWithGO(const std::string& key, glm::vec3 position = glm::vec3(0.f), Entity parent = entt::null);
 		void Release();
 
 

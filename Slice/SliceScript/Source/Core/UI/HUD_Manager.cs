@@ -35,6 +35,18 @@ namespace SliceEngine
 
         bool loseScreenOpen = false;
 
+        private bool typing = false;
+
+        //string[] for listed things 0 = name, 1 = text
+        //private List<string[]> levelDialogues = new List<string[]>();
+
+        public int dialogueIndex = 0;
+        public int currentSet = 0;
+        public int dialogueScene = 0; // ngl idk if currentScene variable is the same as the dialogues so ill make a temp scene variable instead
+        public bool autoPlay = false;
+        public bool skipping = false;
+        public GameObject audioGO;
+
         public override void OnCreate()
         {
             //if (DialogueOnStart)
@@ -56,6 +68,12 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (autoPlay)
+            {
+
+            }
+
+
             //base.OnUpdate(dt);
 
             //if (inputOpen)
@@ -225,7 +243,7 @@ namespace SliceEngine
 
                     }
                     
-                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") });
+                    allDialogues[combinedKey].Add(new string[] { loader.GetValue(i, "Name"), loader.GetValue(i, "Text"), loader.GetValue(i, "AudioFileName") , loader.GetValue(i, "AudioTime")});
                     //SliceLog.Log("Added dialogue entry with " + combinedKey);
                 }
             }
@@ -263,14 +281,9 @@ namespace SliceEngine
             }
         }
 
-        private bool typing = false;
+        
 
-        //string[] for listed things 0 = name, 1 = text
-        //private List<string[]> levelDialogues = new List<string[]>();
-
-        public int dialogueIndex = 0;
-
-        public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls)
+        public bool PlayDialogueForLevel(int level, int scene, bool locksCamera, bool locksControls, bool auto = false)
         {
 
             // Skip to display full line when type writer effect is playing.
@@ -280,6 +293,36 @@ namespace SliceEngine
                 return true;
             }
 
+            // if its trying to play w the audio object
+            // then destroy it instead then go next
+            if (audioGO != null)
+            {
+                audioGO.Destroy();
+                audioGO = null;
+               //return true;
+            }
+
+            if (auto)
+            {
+                // if its already autoplaying
+                // check if its the same dialogue
+                if (autoPlay == true)
+                {
+                    if (level != currentSet || scene != dialogueScene)
+                    {
+                        autoPlay = false;
+                    }
+                    else
+                    {
+                        // idk incase its being called multiple times by accident
+                        return true;
+
+                    }
+                }
+                autoPlay = true;
+                currentSet = level;
+                dialogueScene = scene;
+            }
 
             //Close dialogue box if it is the last line of the set
             if (!allDialogues.ContainsKey(scene + "_" + level) || (allDialogues[scene+"_"+level].Count == dialogueIndex + 1 && dialogueDone == false))
@@ -290,6 +333,9 @@ namespace SliceEngine
                 currLevel++; // increment curr level to prevent reloading same dialogue set
                 inputOpen = false;
                 dialogueDone = true;
+                autoPlay = false;
+                currentSet = -1;
+                dialogueScene = -1;
                 //Bootstrap.Player.canInput = true;
                 dialogueIndex = -1;
                 //levelDialogues.Clear();
@@ -352,53 +398,78 @@ namespace SliceEngine
                 */
             }
 
-
             OpenTextBox();
+            
             typing = true;
-            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1], allDialogues[scene + "_" + level][dialogueIndex][2]));
+
+            Console.WriteLine($"All dialogue for {scene} and {level} is {allDialogues[scene + "_" + level].Count} and curr dialogue is {allDialogues[scene + "_" + level][dialogueIndex][1]} and curr time is {allDialogues[scene + "_" + level][dialogueIndex][3]}");
+            
+            StartCoroutine(TypeText(allDialogues[scene + "_" + level][dialogueIndex][1], allDialogues[scene + "_" + level][dialogueIndex][2], float.Parse(allDialogues[scene + "_" + level][dialogueIndex][3])));
+
             SetName(allDialogues[scene + "_" + level][dialogueIndex][0]);
             inputOpen = true;
             currLevel = level;
             return true;
         }
 
-        IEnumerator TypeText(string toType, string audioToPlay)
+
+
+        IEnumerator TypeText(string toType, string audioToPlay, float audioTime = 0)
         {
-            //float timecounter = 0f;
-            float speed = 1f / typeSpeed;
-            string displaying = "";
-
-            AudioSettings.PlaySFX(audioToPlay);
-
-            SliceLog.Log("To type is:" + toType);
-            for (int i = 0; i < toType.Length; i++)
+            float elapsedTime = 0;
+            if (audioToPlay != "-")
             {
+                Console.WriteLine($"Playing audio name {audioToPlay}");
+                if (audioGO != null)
+                {
+                    audioGO.Destroy();
+                    audioGO = null;
+                }
 
-                if (typing == false)
+                audioGO = AudioSettings.PlaySFXWithGO(audioToPlay);
+            }
+            else
+            {
+                Console.WriteLine("Playing a - audio name");
+            }
+            
+            typing = true;
+            int lastCharsToShow = -1;
+
+            while (typing)
+            {
+                elapsedTime += Time.deltaTime;
+
+                int charsToShow = (int)(elapsedTime * typeSpeed);
+                if (charsToShow > toType.Length)
+                    charsToShow = toType.Length;
+
+                if (charsToShow != lastCharsToShow)
+                {
+                    SetTextBox(toType.Substring(0, charsToShow));
+                    lastCharsToShow = charsToShow;
+                }
+
+                if (charsToShow >= toType.Length && elapsedTime >= audioTime)
                 {
                     break;
                 }
 
-                //SliceLog.Log("Displaying is " + displaying);
-                displaying += toType[i];
-
-                SetTextBox(displaying);
-
-                yield return new WaitForSeconds(speed);
+                yield return null;
             }
 
             SetTextBox(toType);
             typing = false;
 
+            if (autoPlay && elapsedTime > audioTime)
+            {
+                PlayDialogueForLevel(currentSet, dialogueScene, true, true);
+            }
 
             yield break;
         }
 
-
-
         #region Textbox controls
-
-
         public void SetTextBox(string input)
         {
             //SliceLog.Log("Setting Textbox");
