@@ -183,6 +183,14 @@ namespace SliceEngine
             return FunctionCalls.Entity_IsActive(mID);
         }
 
+        public uint layer
+        {
+            get
+            {
+                return FunctionCalls.Entity_GetLayer(mID);
+            }
+        }
+
         public override bool Equals(object obj)
         {
             if (obj is GameObject other)

@@ -577,10 +577,17 @@ namespace SliceEngine
             if (!grounded) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
         }
+
+        Vector3 velModifier;
+
+        public void AddVelocityModifier(Vector3 vel)
+        {
+            velModifier = vel;
+        }
         private void UpdateMovements(float dt)
         {
             Vector3 camForward = new Vector3();
-             Vector3 velTemp = rigidBody.Velocity;
+            Vector3 velTemp = rigidBody.Velocity;
             //finalMove = Vector3.Zero;
             if (camera != null)
             {
@@ -644,6 +651,7 @@ namespace SliceEngine
                 rigidBody.Velocity = velTemp;
             }
 
+
             if (PlayerMovementState == MovementState.Idle 
                 || PlayerMovementState == MovementState.Walking 
                 || PlayerMovementState == MovementState.Falling 
@@ -663,6 +671,10 @@ namespace SliceEngine
                 Vector3 horizontal = moveDirInput * movementSpeed;
                 rigidBody.Velocity = new Vector3(horizontal.x, rigidBody.Velocity.y, horizontal.z);
             }
+
+            SliceLog.Console("Checking velocity modifier: " + velModifier);
+
+            rigidBody.Velocity += velModifier;
         }
 
         void UpdateAttacks(float dt)
