@@ -75,9 +75,7 @@ namespace SliceEngine
             base.OnTriggerEnter(other);
 
             triggered = true;
-
-            AudioSettings.PlaySFX("MineSpawn");
-
+            
             StartCoroutine(WaitForSpawn());
             
         }
@@ -123,6 +121,8 @@ namespace SliceEngine
                 lm.selfDestructTime = mineSelfDestructDuration;
 
                 yield return new WaitForSeconds(timeBetweenMines);
+
+                AudioSettings.PlaySFX("MineSpawn");
             }
 
         }

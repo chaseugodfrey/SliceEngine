@@ -23,13 +23,11 @@ namespace SliceEngine
         public float minAimRange = 50.0f;
         public float maxAimRange = 200.0f;
         public float predictionStrength = 0.75f;
-        public float aimSpeed = 8f;
 
         // Burst settings
         public int bulletsPerBurst = 3;
         public float timeBetweenBursts = 5f;
         public float timeBetweenShotsInBurst = 0.1f;
-        public float telegraphDuration = 2.3f;
 
         // FX prefab
         public string firingFXPrefabName = "FX_Firing1";
@@ -43,12 +41,10 @@ namespace SliceEngine
 
         GameObject telegraph;
         bool telegraphed = false;
-        float currentPitch = 0f;
 
         Transform firingOffset;
         Transform vrot;
         Renderer coreRenderer;
-        AudioSource chargeAudio;
 
         Vector4 colourActivated;
         Vector4 colourDeactivated = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -93,7 +89,6 @@ namespace SliceEngine
             {
                 child.SetActive(telegraphed);
             }
-
             return;
         }
 
@@ -152,8 +147,6 @@ namespace SliceEngine
                     colourActivated = coreRenderer.GetColor();
                 }
             }
-
-            chargeAudio = gameObject.GetComponent<AudioSource>();
         }
 
         public override void OnFixedUpdate(float dt)
@@ -186,8 +179,7 @@ namespace SliceEngine
                         Vector3 lookTarget = target;
                         Vector3 aimTarget;
 
-                        // Disable prediction during telegraph - track player directly for accurate indicator
-                        bool usePrediction = !telegraphed && ((shotsFiredInBurst + 1) % 3 != 0);
+                        bool usePrediction = ((shotsFiredInBurst + 1) % 3 != 0);
 
                         if (usePrediction && playerVel.SquareMagnitude() > 1.0f)
                         {
@@ -208,16 +200,7 @@ namespace SliceEngine
                             aimTarget.z
                         );
 
-                        // Horizontal - lerp toward target direction for smooth tracking
-                        float lerpT = Utilities.Clamp(aimSpeed * dt, 0f, 1f);
-                        Vector3 targetHDir = new Vector3(hTarget.x - transform.WorldPosition.x, 0f, hTarget.z - transform.WorldPosition.z).Normalize();
-                        Vector3 currentHDir = new Vector3(transform.Forward.x, 0f, transform.Forward.z).Normalize();
-                        Vector3 lerpedHDir = new Vector3(
-                            currentHDir.x + (targetHDir.x - currentHDir.x) * lerpT,
-                            0f,
-                            currentHDir.z + (targetHDir.z - currentHDir.z) * lerpT
-                        ).Normalize();
-                        transform.LookAt(transform.WorldPosition + lerpedHDir, new Vector3(0, 1, 0));
+                        transform.LookAt(hTarget, new Vector3(0, 1, 0));
 
                         Vector3 worldDir = aimTarget - vrot.WorldPosition;
 
@@ -229,25 +212,20 @@ namespace SliceEngine
                         float forwardDot = Vector3.Dot(worldDir, forward);
                         float upDot = Vector3.Dot(worldDir, up);
 
-                        // Calculate target pitch (up/down)
-                        float targetPitch = -Utilities.Rad2Deg((float)Math.Atan2(upDot, forwardDot));
-                        targetPitch = Utilities.Clamp(targetPitch, -60f, 60f);
+                        // Calculate pitch (up/down)
+                        float pitch = -Utilities.Rad2Deg((float)Math.Atan2(upDot, forwardDot));
 
-                        // Vertical - lerp pitch for smooth tracking when player jumps
-                        currentPitch += (targetPitch - currentPitch) * lerpT;
-                        vrot.Rotation = new Vector3(currentPitch, 0f, 0f);
+                        pitch = Utilities.Clamp(pitch, -60f, 60f);
 
-                        bool shouldTelegraph = burstTimer >= timeBetweenBursts - telegraphDuration;
+                        // Apply ONLY X rotation
+                        vrot.Rotation = new Vector3(pitch, 0f, 0f);
+
+                        bool shouldTelegraph = burstTimer >= timeBetweenBursts - 0.75f;
 
                         if (shouldTelegraph != telegraphed)
                         {
                             telegraphed = shouldTelegraph;
                             SetTelegraph();
-
-                            if (telegraphed)
-                                chargeAudio.Play();
-                            else
-                                chargeAudio.Stop();
                         }
 
                         if (!isBursting)
@@ -272,10 +250,12 @@ namespace SliceEngine
 
                                 // Fire bullet
                                 CreateBullet(transform.WorldPosition, shootDir);
-                                AudioSettings.PlaySFX("TurretFire");
 
                                 // Spawn firing FX
                                 CreateFiringFX(firingOffset.GetComponent<Transform>().WorldPosition, transform.WorldRotationQuat.ToEuler());
+
+                                //Play SFX
+                                AudioSettings.PlaySFX("TurretFire");
 
                                 shotsFiredInBurst++;
 
@@ -288,14 +268,12 @@ namespace SliceEngine
                     }
                     else
                     {
-                        if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; }
                         telegraphed = false;
                         SetTelegraph();
                     }
                 }
                 else
-                {
-                    if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; }
+                {                    
                     telegraphed = false;
                     SetTelegraph();
                 }
@@ -308,7 +286,6 @@ namespace SliceEngine
                     coreRenderer.SetEmissionColor(colourDeactivated);
                     vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
-                if (telegraphed) chargeAudio.Stop();
                 telegraphed = false;
                 SetTelegraph();
             }

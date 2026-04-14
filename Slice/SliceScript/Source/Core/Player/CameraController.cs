@@ -40,6 +40,10 @@ namespace SliceEngine
         //private Vector2 lastMousePos;
 
         public float collisionRadius = 0.25f;
+        private float currentCameraDistance;
+        public float collisionSnapSpeed = 15f;
+        public float collisionReturnSpeed = 5f;
+        public float collisionCloseUpHeight = 1.0f;
 
 
         public override void OnCreate()
@@ -56,6 +60,7 @@ namespace SliceEngine
             defaultCameraOffset = cameraChild.GetComponent<Transform>().Position;
             defaultCameraOffsetDist = defaultCameraOffset.Magnitude();
             actual_cam_quat = transform.RotationQuat;
+            currentCameraDistance = defaultCameraOffsetDist;
         }
         public override void OnUpdate(float dt)
         {
@@ -111,25 +116,30 @@ namespace SliceEngine
 
             Vector3 dir = cameraChild.GetComponent<Transform>().WorldPosition - this.transform.WorldPosition;
 
-
-
-            //SliceLog.Log("Cam dir is " + dir);
-            float safeDist = 0f;
-
-            if (Physics.SphereCast(transform.WorldPosition + new Vector3(0, collisionCheckOffset, 0), collisionRadius, dir.Normalize() * defaultCameraOffsetDist, out RayCastHit hit, LayerMask.ToMask("Environment"), QueryTriggerInteraction.Ignore))
+            if (Physics.SphereCast(
+                transform.WorldPosition + new Vector3(0, collisionCheckOffset, 0),
+                collisionRadius,
+                dir.Normalize() * defaultCameraOffsetDist,
+                out RayCastHit hit,
+                LayerMask.ToMask("Environment"),
+                QueryTriggerInteraction.Ignore))
             {
-
-                // Place camera just before the surface using the sphere radius
-                safeDist = Utilities.Clamp<float>(Math.Max(hit.distance - collisionRadius, 0f), .2f, defaultCameraOffsetDist);
-                //SliceLog.Log("safe dist is " + safeDist);
-                cameraChild.GetComponent<Transform>().Position = defaultCameraOffset.Normalize() * safeDist;
-
+                float targetDist = Utilities.Clamp<float>(Math.Max(hit.distance - collisionRadius, 0f), 0.2f, defaultCameraOffsetDist);
+                float t = Utilities.Clamp<float>(collisionSnapSpeed * dt, 0f, 1f);
+                currentCameraDistance = currentCameraDistance + (targetDist - currentCameraDistance) * t;
             }
             else
             {
-                cameraChild.GetComponent<Transform>().Position = defaultCameraOffset;
-                //SliceLog.Log("Camera aint hitting shit");
+                float t = Utilities.Clamp<float>(collisionReturnSpeed * dt, 0f, 1f);
+                currentCameraDistance = currentCameraDistance + (defaultCameraOffsetDist - currentCameraDistance) * t;
             }
+
+            float distRatio = currentCameraDistance / defaultCameraOffsetDist;
+            float lerpedY = collisionCloseUpHeight + (defaultCameraOffset.y - collisionCloseUpHeight) * distRatio;
+            cameraChild.GetComponent<Transform>().Position = new Vector3(
+                defaultCameraOffset.x * distRatio,
+                lerpedY,
+                defaultCameraOffset.z * distRatio);
 
 
             //Vector2 mousePos = Input.GetMousePosition();

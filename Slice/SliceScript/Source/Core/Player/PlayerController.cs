@@ -148,7 +148,8 @@ namespace SliceEngine
         // Ground Check
         public float groundCheckDelay = 0.1f;
         public bool grounded;
-        public int groundContactCount;
+        public float groundCheckRadius = 0.3f;
+        public float groundNormalThreshold = 0.7f;
 
         // Jumps
         int jumpCounter = 0;
@@ -1133,45 +1134,22 @@ namespace SliceEngine
 
         private void GroundCheck()
         {
-            grounded = (groundContactCount > 0); ;
+            RayCastHit hitInfo;
+            bool hit = Physics.SphereCast(
+                transform.Position,
+                groundCheckRadius,
+                new Vector3(0, -1, 0),
+                out hitInfo,
+                Physics.DefaultRaycastLayers,
+                QueryTriggerInteraction.Ignore);
+
+            grounded = hit && hitInfo.normal.y >= groundNormalThreshold;
+
             if (grounded)
             {
                 if (PlayerMovementState != MovementState.Jumping && PlayerMovementState != MovementState.Falling)
                     jumpCounter = 0;
-                //Console.WriteLine("Resetting jump counter");
             }
-        }
-
-        public override void OnCollideEnter(uint other)
-        {
-            if (IsGround(other))
-            {
-                //Console.WriteLine($"Colliding with {other}");
-                groundContactCount++;
-            }
-        }
-
-        public override void OnCollideExit(uint other)
-        {
-            if (IsGround(other))
-            {
-              //  Console.WriteLine($"Exit Colliding with {other}");
-
-                groundContactCount--;
-                if (groundContactCount < 0)
-                {
-                    groundContactCount = 0;
-                    Console.WriteLine("Gonna reset jump counter");
-                }
-            }
-        }
-        private bool IsGround(uint id)
-        {
-            if (gameObject.FindGameObjectWithID(id).tag == "Ground")
-            {
-                return true;
-            }
-            return false;
         }
 
         bool IsTakingInputs()
