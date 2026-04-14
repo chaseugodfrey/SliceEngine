@@ -14,6 +14,14 @@ namespace SliceEngine
             FunctionCalls.Audio_PlaySFX(message, ref Vector3.Zero, 0);
         }
 
+        public static GameObject PlaySFXWithGO(string message)
+        {
+            uint goID = FunctionCalls.Audio_PlaySFXWithGO(message, ref Vector3.Zero, 0);
+            GameObject go = new GameObject(goID);
+
+            return go;
+        }
+
         public static void PlaySFX(string message, Vector3 position)
         {
             // Console.WriteLine($"[LOG] {message}");

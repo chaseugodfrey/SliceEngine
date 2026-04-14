@@ -528,6 +528,100 @@ namespace SliceEngine
         audioComp.channel = audioManager->PlaySound(audioComp, audioTrans.GetWorldPosition(), glm::vec3{ 0.f });
     }
 
+    Entity AudioSettings::PlaySFXWithGO(const std::string& key, glm::vec3 position, Entity parent)
+    {
+        auto audioManager = Core::GetInstance()->GetAudioManager();
+        SFXEntry* entry = GetSFXEntry(key);
+
+        if (!entry)
+        {
+            //SLICE_LOG_ERROR("PlaySFX: SoundGroup '%s' not found", key.c_str());
+            return entt::null;
+        }
+
+        if (entry->AudioClips.empty())
+        {
+            //SLICE_LOG_WARNING("PlaySFX: SoundGroup '%s' has no audio clips defined.", key.c_str());
+            return entt::null;
+        }
+
+        GUID clipGUID;
+        if (entry->AudioClips.size() == 1)
+        {
+            clipGUID = entry->AudioClips[0];
+        }
+        else
+        {
+
+            int randomIndex = std::rand() % entry->AudioClips.size();
+
+            // make sure it doesn't play the last clip
+            while (randomIndex == entry->lastPlayed)
+            {
+                randomIndex = std::rand() % entry->AudioClips.size();
+            }
+
+            clipGUID = entry->AudioClips[randomIndex];
+            entry->lastPlayed = randomIndex;
+        }
+
+        if (entry->soundGroup)
+        {
+            entry->soundGroup->setMaxAudible(entry->maxInstances);
+            entry->soundGroup->setMaxAudibleBehavior(FMOD_SOUNDGROUP_BEHAVIOR_FAIL);
+            entry->soundGroup->setVolume(entry->volume);
+        }
+
+        auto audioClip = Core::GetInstance()->GetResourceManager()->get<SliceEngineTypes::Audio>(clipGUID).get();
+        if (audioClip && entry->soundGroup)
+        {
+            FMOD::Sound* sound = audioClip->GetSound();
+            if (sound)
+            {
+                FMOD::SoundGroup* currentGroup = nullptr;
+                sound->getSoundGroup(&currentGroup);
+                if (currentGroup != entry->soundGroup)
+                {
+                    sound->setSoundGroup(entry->soundGroup);
+                }
+            }
+        }
+
+
+        std::string uniqueName = "OneShot_" + key;
+        auto newAudioObject = FactoryInstance.CreateGO(uniqueName);
+        newAudioObject.AddComponent<AudioSource>();
+
+        AudioSource& audioComp = newAudioObject.GetComponent<AudioSource>();
+        Transform& audioTrans = newAudioObject.GetComponent<Transform>();
+
+        // Set position or parent
+        if (parent != entt::null)
+        {
+            FactoryInstance.SetParent(newAudioObject.GetEntity(), parent);
+            audioTrans.position = position; // Local position relative to parent
+        }
+        else
+        {
+            audioTrans.position = position; // World position
+        }
+
+        // Configure AudioSource from SFXEntry
+        audioComp.soundGUID = clipGUID;
+        audioComp.currentVolume = entry->volume;
+        audioComp.spatialBlend = entry->isSpatial ? entry->spatialBlend : 0.0f;
+        audioComp.minDistance = entry->minDistance;
+        audioComp.maxDistance = entry->maxDistance;
+        audioComp.volumeRollOff = entry->volumeRollOff;
+        audioComp.playOnAwake = false;
+        audioComp.destroyOnEnd = true; // Mark for automatic destruction when sound ends
+
+        // Play the sound
+        audioComp.channel = audioManager->PlaySound(audioComp, audioTrans.GetWorldPosition(), glm::vec3{ 0.f });
+
+        return newAudioObject.GetEntity();
+    }
+
 
 
 

@@ -45,6 +45,7 @@ namespace SliceEngine
         public int dialogueScene = 0; // ngl idk if currentScene variable is the same as the dialogues so ill make a temp scene variable instead
         public bool autoPlay = false;
         public bool skipping = false;
+        public GameObject audioGO;
 
         public override void OnCreate()
         {
@@ -292,6 +293,15 @@ namespace SliceEngine
                 return true;
             }
 
+            // if its trying to play w the audio object
+            // then destroy it instead then go next
+            if (audioGO != null)
+            {
+                audioGO.Destroy();
+                audioGO = null;
+               //return true;
+            }
+
             if (auto)
             {
                 // if its already autoplaying
@@ -407,7 +417,21 @@ namespace SliceEngine
         IEnumerator TypeText(string toType, string audioToPlay, float audioTime = 0)
         {
             float elapsedTime = 0;
-            AudioSettings.PlaySFX(audioToPlay);
+            if (audioToPlay != "-")
+            {
+                Console.WriteLine($"Playing audio name {audioToPlay}");
+                if (audioGO != null)
+                {
+                    audioGO.Destroy();
+                    audioGO = null;
+                }
+
+                audioGO = AudioSettings.PlaySFXWithGO(audioToPlay);
+            }
+            else
+            {
+                Console.WriteLine("Playing a - audio name");
+            }
             
             typing = true;
             int lastCharsToShow = -1;
@@ -437,7 +461,7 @@ namespace SliceEngine
             SetTextBox(toType);
             typing = false;
 
-            if (autoPlay)
+            if (autoPlay && elapsedTime > audioTime)
             {
                 PlayDialogueForLevel(currentSet, dialogueScene, true, true);
             }
