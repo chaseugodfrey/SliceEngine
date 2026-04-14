@@ -14,6 +14,7 @@ namespace SliceEngine
         public int setOfThisTrigger = 0;
         public bool LocksCamera = true;
         public bool LocksControls = true;
+        public bool autoPlay = true;
 
         //public delegate void HitBoxTriggerEvent(GameObject hit);
         //public event HitBoxTriggerEvent HitBoxListeners;
@@ -31,6 +32,12 @@ namespace SliceEngine
 
             if (_enabled && !_done)
             {
+                if (Bootstrap.HUDManager.dialogueIndex == -1)
+                {
+                    _done = true;
+                    return;
+                }
+
                 if (Input.IsKeyDown(Keys.KEY_F) && enterPressed == false)
                 {
                     enterPressed = true;
@@ -127,7 +134,7 @@ namespace SliceEngine
             {
                 //console.writeline("Enabled");
                 _enabled = true;
-                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, LocksCamera, LocksControls);
+                Bootstrap.HUDManager.PlayDialogueForLevel(setOfThisTrigger, Bootstrap.HUDManager.currentScene, LocksCamera, LocksControls, autoPlay);
             }
         }
 

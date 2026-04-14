@@ -54,7 +54,7 @@ namespace SliceEngine
                             Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
                         }
 
-                        if (Bootstrap.HUDManager.dialogueIndex == 1)
+                        if (Bootstrap.HUDManager.dialogueIndex == 3)
                         {
                             bossController.bossSM.ChangeState(bossController.rechargingState);
                             bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(1, 0.5f);
@@ -85,7 +85,7 @@ namespace SliceEngine
             {
                 setNarrative = true;
                 bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().CutToCam(0, 1f);
-                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true);
+                Bootstrap.HUDManager.PlayDialogueForLevel(0, Bootstrap.HUDManager.currentScene, false, true, true);
             }
         }
 
@@ -382,6 +382,13 @@ namespace SliceEngine
 
                     if (isIntro)
                     {
+                        if (Bootstrap.HUDManager.dialogueIndex == -1)
+                        {
+                            bossController.Lvl3CutSceneManagerObj.As<Lvl3CutsceneManager>().StopCutscene();
+                            bossController.isIntroCutscene = false;
+                            return;
+                        }
+
                         if (Input.IsKeyPressed(Keys.KEY_F) && isLocked)
                         {
                             isLocked = Bootstrap.HUDManager.PlayDialogueForLevel(0, 5, false, true);
@@ -945,7 +952,7 @@ namespace SliceEngine
 
             //SliceLog.Console("Recharging...");
             isShieldDestroyed = false;
-            currentShield += restoreRate * Time.deltaTime * (isIntro ? 10.0f : 1.0f);
+            currentShield += restoreRate * Time.deltaTime * (isIntro ? 4.0f : 1.0f);
             currentShield = Math.Min(currentShield, maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetShield(currentShield / maxShield);
 

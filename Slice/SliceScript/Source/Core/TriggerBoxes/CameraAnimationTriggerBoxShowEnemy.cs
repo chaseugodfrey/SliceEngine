@@ -41,6 +41,12 @@ namespace SliceEngine
                // Console.WriteLine($"On update {dialogueDone} and {dialogueStarted}");
                 if (!dialogueDone && dialogueStarted)
                 {
+                    if (Bootstrap.HUDManager.dialogueIndex == -1)
+                    {
+                        animationTriggerBox.cameraSM.ChangeState(animationTriggerBox.backToPlayerState);
+                        dialogueDone = true;
+                        return;
+                    }
                     //Console.WriteLine("Dialogue started but not done");
                     if (Input.IsKeyDown(Keys.KEY_F) && !keyPressed)
                     {
@@ -94,7 +100,7 @@ namespace SliceEngine
                     yield return null;
                 }
                 dialogueStarted = true;
-                Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true);
+                Bootstrap.HUDManager.PlayDialogueForLevel(animationTriggerBox.setOfThisTrigger, Bootstrap.HUDManager.currentScene, true, true, true);
                 //owner.As<CameraAnimationTriggerBox>().cameraSM.ChangeState(owner.As<CameraAnimationTriggerBox>().exitState);
             }
         }

@@ -57,7 +57,8 @@ namespace SliceEngine
             StartCoroutine(UIAnimation(true));
 
             AudioSettings.PlaySFX("03_02_HQ_OurLastShot");
-            Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+            Bootstrap.HUDManager.typeSpeed = 30.0f;
+            //Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true, true);
         }
 
         public override void OnUpdate(float dt)
@@ -233,7 +234,7 @@ namespace SliceEngine
 
                 cinematicCamera.GetComponent<Animator>().SetBool("Idle2", true);
 
-                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+                //Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
 
             }
 
@@ -255,7 +256,7 @@ namespace SliceEngine
 
                 Camera.SetMainCamera(Bootstrap.CameraController.cameraChild);
                 Bootstrap.HUDManager.HideHUD(true);
-                Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
+                //Bootstrap.HUDManager.PlayDialogueForLevel(69, 2, true, true);
                 Destroy();
             }
 
