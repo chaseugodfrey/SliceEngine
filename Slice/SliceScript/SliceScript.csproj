@@ -21,7 +21,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorDebug\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -33,7 +34,8 @@
     <OutputPath>.\</OutputPath>
     <BaseIntermediateOutputPath>obj\EditorRelease\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)</IntermediateOutputPath>
-    <DefineConstants></DefineConstants>
+    <DefineConstants>
+    </DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -106,6 +108,7 @@
     <Compile Include="Source\Core\Enemy\TurretMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMech.cs" />
     <Compile Include="Source\Core\Enemy\WallMechWall.cs" />
+    <Compile Include="Source\Core\Environment\MovingPlatform.cs" />
     <Compile Include="Source\Core\Environment\AlphaWiggleAnimation.cs" />
     <Compile Include="Source\Core\Environment\CrystalAnimation.cs" />
     <Compile Include="Source\Core\Environment\DamagingEnvironment.cs" />

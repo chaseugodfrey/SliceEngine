@@ -1555,6 +1555,11 @@ namespace SliceEngine
 
 #pragma region LAYERMASK FUNCTIONS
 
+	static uint32_t Entity_GetLayer(unsigned int entity)
+	{
+		return Core::GetInstance()->GetRegistry().get<SliceEngine::SliceEntity>(Entity(entity)).mLayer;
+	}
+
 	static uint32_t LayerMask_GetCollisionMask(MonoString* string)
 	{
 		std::string name = MonoToString(string);
@@ -3438,6 +3443,7 @@ namespace SliceEngine
 		ADD_INTERNAL_CALL(Entity_SetActive);
 		ADD_INTERNAL_CALL(Entity_SetParent);
 		ADD_INTERNAL_CALL(Entity_IsValid);
+		ADD_INTERNAL_CALL(Entity_GetLayer);
 
 		// Transforms
 		ADD_INTERNAL_CALL(Transform_GetPosition);
