@@ -1,5 +1,6 @@
 using SliceEngine;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -35,12 +36,20 @@ namespace SliceEngine
         public string firingFXPrefabName = "FX_Firing1";
         public string telegraphFXPrefabName = "";
 
+        // SFX Objects
+        public GameObject ChargeUpAudioObject;
+        public GameObject ChargeDownAudioObject;
+        float poweringTime = 1f;
+
+
         // Internal state
         float count = 0f;
         float burstTimer = 0f;
         int shotsFiredInBurst = 0;
         float shotTimer = 0f;
         bool isBursting = false;
+        bool powered = false;
+        bool powering = false;
 
         GameObject telegraph;
         bool telegraphed = false;
@@ -172,6 +181,19 @@ namespace SliceEngine
 
             if (distanceToPlayer <= maxAimRange && distanceToPlayer >= minAimRange)
             {
+                if (!powered)
+                {
+                    powered = true;
+
+                    if (ChargeUpAudioObject.HasComponent<AudioSource>())
+                    {
+                        SliceLog.Log("HAVE AUDIO COMPONENT");
+                        AudioSource a = ChargeUpAudioObject.GetComponent<AudioSource>();
+                        a.Play();
+                    }
+
+                }
+
                 coreRenderer.SetColor(colourActivated);
                 coreRenderer.SetEmissionColor(colourActivated);
 
@@ -320,13 +342,113 @@ namespace SliceEngine
                 {
                     coreRenderer.SetColor(colourDeactivated);
                     coreRenderer.SetEmissionColor(colourDeactivated);
-                    vrot.Rotation = new Vector3(15.0f, 0f, 0f);
+
+                    if (powered)
+                    {
+                        powered = false;
+
+                        if (ChargeDownAudioObject.HasComponent<AudioSource>())
+                        {
+                            SliceLog.Log("HAVE AUDIO COMPONENT");
+                            AudioSource a = ChargeDownAudioObject.GetComponent<AudioSource>();
+                            a.Play();
+                        }
+                    }
+                    float lerpT = Utilities.Clamp(1f * dt, 0f, 1f);
+
+                    // Vertical - lerp pitch for smooth tracking when player jumps
+                    currentPitch += (15f - currentPitch) * lerpT;
+                    vrot.Rotation = new Vector3(currentPitch, 0f, 0f);
+
+
+                    //vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
                 if (telegraphed) { chargeAudio.Stop(); if (telegraphFXInstance != null) { telegraphFXInstance.Destroy(); telegraphFXInstance = null; } }
                 telegraphed = false;
                 SetTelegraph();
             }
         }
+
+        IEnumerator PowerUp()
+        {
+            powered = false;
+            powering = true;
+
+            float poweringCount = 0f;
+
+            if (ChargeUpAudioObject.HasComponent<AudioSource>())
+            {
+                ChargeUpAudioObject.GetComponent<AudioSource>().Play();
+            }
+
+            while (powering)
+            {
+                poweringCount += Time.deltaTime;
+                if (poweringCount >= poweringTime) 
+                {
+                    powering = false; 
+                }
+
+                // Rotate The fellah
+
+
+
+                yield return null; // Waits for next Frame
+            }
+
+            powering = false;
+            powered = true;
+
+
+            yield break;
+        }
+
+        IEnumerator PowerDown() 
+        {
+            powered = true;
+            powering = true;
+
+            SliceLog.Log("Powered is " + powered + " | Powering is " + powering);
+
+            float poweringCount = 0f;
+
+            AudioSource a;
+
+            if (ChargeDownAudioObject.HasComponent<AudioSource>())
+            {
+                SliceLog.Log("HAVE AUDIO COMPONENT");
+                a = ChargeDownAudioObject.GetComponent<AudioSource>();
+                a.Play();
+                SliceLog.Log( "IS it playing????? ====" + a.IsPlaying);
+            }
+            else
+            {
+                SliceLog.Log("NO AUDIO COMPONENT");
+            }
+
+                while (powering)
+                {
+                    
+                    poweringCount += Time.deltaTime;
+                    if (poweringCount >= poweringTime)
+                    {
+                        powering = false;
+                    }
+
+                    // Rotate The fellah
+
+
+
+                    yield return null; // Waits for next Frame
+                }
+
+            powering = false;
+            powered = false;
+
+
+            yield break;
+        }
+
 
         public override void TakeDamage(int amount, GameObject source = null)
         {
