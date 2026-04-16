@@ -192,6 +192,7 @@ namespace SliceEngine
         public float iFrameDuration = 0.2f;
         public float flickerDuration = 0.05f;
         public bool iFrames = false;
+        public float hitStopDuration = 0.08f;
 
         Coroutine shakeCoroutine = null;
 
@@ -502,6 +503,7 @@ namespace SliceEngine
 
 
             shakeCoroutine = Bootstrap.CameraController.Shake(0.2f, 1.0f);
+            StartCoroutine(HitStopCoroutine(hitStopDuration));
 
             GameObject vfx = SpawnVFX(hitPrefabName);
             //SliceLog.Log("Returned");
@@ -842,6 +844,18 @@ namespace SliceEngine
             animator.SetBool("JumpLoop", false);
             //animator.SetBool("Fall", false);
             animator.SetBool("Land", false);
+        }
+
+        private IEnumerator HitStopCoroutine(float duration)
+        {
+            Time.timeScale = 0.0f;
+            float elapsed = 0f;
+            while (elapsed < duration)
+            {
+                elapsed += Time.deltaTimeUnscaled;
+                yield return null;
+            }
+            Time.timeScale = 1.0f;
         }
 
         private IEnumerator iFrameAnimation(float duration)

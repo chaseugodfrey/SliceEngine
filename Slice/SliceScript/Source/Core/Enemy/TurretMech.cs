@@ -31,8 +31,9 @@ namespace SliceEngine
         public float timeBetweenShotsInBurst = 0.1f;
         public float telegraphDuration = 2.3f;
 
-        // FX prefab
+        // FX prefabs
         public string firingFXPrefabName = "FX_Firing1";
+        public string telegraphFXPrefabName = "";
 
         // Internal state
         float count = 0f;
@@ -44,6 +45,7 @@ namespace SliceEngine
         GameObject telegraph;
         bool telegraphed = false;
         float currentPitch = 0f;
+        GameObject telegraphFXInstance;
 
         Transform firingOffset;
         Transform vrot;
@@ -245,9 +247,21 @@ namespace SliceEngine
                             SetTelegraph();
 
                             if (telegraphed)
+                            {
                                 chargeAudio.Play();
+                                if (telegraphFXPrefabName != "")
+                                {
+                                    telegraphFXInstance = CreateGameObject("Prefabs/" + telegraphFXPrefabName + ".prefab");
+                                    telegraphFXInstance.SetParent(firingOffset.gameObject);
+                                    telegraphFXInstance.GetComponent<Transform>().Position = Vector3.Zero;
+                                    telegraphFXInstance.GetComponent<Transform>().Rotation = Vector3.Zero;
+                                }
+                            }
                             else
+                            {
                                 chargeAudio.Stop();
+                                if (telegraphFXInstance != null) { telegraphFXInstance.Destroy(); telegraphFXInstance = null; }
+                            }
                         }
 
                         if (!isBursting)
@@ -288,14 +302,14 @@ namespace SliceEngine
                     }
                     else
                     {
-                        if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; }
+                        if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; if (telegraphFXInstance != null) { telegraphFXInstance.Destroy(); telegraphFXInstance = null; } }
                         telegraphed = false;
                         SetTelegraph();
                     }
                 }
                 else
                 {
-                    if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; }
+                    if (telegraphed) { chargeAudio.Stop(); burstTimer = 0f; if (telegraphFXInstance != null) { telegraphFXInstance.Destroy(); telegraphFXInstance = null; } }
                     telegraphed = false;
                     SetTelegraph();
                 }
@@ -308,7 +322,7 @@ namespace SliceEngine
                     coreRenderer.SetEmissionColor(colourDeactivated);
                     vrot.Rotation = new Vector3(15.0f, 0f, 0f);
                 }
-                if (telegraphed) chargeAudio.Stop();
+                if (telegraphed) { chargeAudio.Stop(); if (telegraphFXInstance != null) { telegraphFXInstance.Destroy(); telegraphFXInstance = null; } }
                 telegraphed = false;
                 SetTelegraph();
             }
