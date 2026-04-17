@@ -25,6 +25,7 @@ namespace SliceEngine
 
         public GameObject x_BossHud;
         public GameObject x_PlayerHud;
+        public GameObject x_CinematicBars;
 
         public float z_transitionDurationToDeath = 1.5f;
 
@@ -173,6 +174,7 @@ namespace SliceEngine
             Bootstrap.Player.SetPlayerLock(true);
             x_BossHud.SetActive(false);
             x_PlayerHud.SetActive(false);
+            x_CinematicBars.SetActive(true);
 
             camInitialPos = camTr.Position;
             
@@ -206,6 +208,7 @@ namespace SliceEngine
 
             x_PlayerHud.SetActive(true);
             x_BossHud.SetActive(true);
+            x_CinematicBars.SetActive(false);
 
 
             while (elapsedTime < maxTime)
@@ -258,6 +261,7 @@ namespace SliceEngine
 
             x_BossHud.SetActive(false);
             x_PlayerHud.SetActive(false);
+            x_CinematicBars.SetActive(true);
 
             while (elapsedTime < z_transitionDurationToDeath * 0.5f)
             {
