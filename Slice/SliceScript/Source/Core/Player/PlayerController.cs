@@ -126,6 +126,10 @@ namespace SliceEngine
         bool attackQueued;
         public float shieldDuration = 0.5f;
         public bool canAttack = false;
+        public float attackRadius = 1.5f;
+        public float attackReach = 2.0f;
+        GameObject attackSfxA1GO;
+        GameObject attackSfxA2GO;
 
         //public float attackResetTime = 1f;
         private float attackResetTimer = 0f;
@@ -148,8 +152,8 @@ namespace SliceEngine
         // Ground Check
         public float groundCheckDelay = 0.1f;
         public bool grounded;
-        public float groundCheckRadius = 0.3f;
-        public float groundNormalThreshold = 0.7f;
+        public int groundContactCount;
+        private float groundedGraceTimer = 0f;
 
         // Jumps
         int jumpCounter = 0;
@@ -295,11 +299,19 @@ namespace SliceEngine
         #region Attacking
         private void ExecuteAttack()
         {
-            if (PlayerCombatState != CombatState.Attacking 
-                && PlayerMovementState != MovementState.MovingPlunge 
+            bool canGround = grounded || groundedGraceTimer > 0f;
+
+            if (PlayerCombatState == CombatState.Attacking && canGround)
+            {
+                attackQueued = true; // hold the queue, retry next frame when attack finishes
+                return;
+            }
+
+            if (PlayerCombatState != CombatState.Attacking
+                && PlayerMovementState != MovementState.MovingPlunge
                 && PlayerMovementState != MovementState.AttackingPlunge
                 && PlayerCombatState != CombatState.Shielding
-                && grounded)
+                && canGround)
             {
                 PlayerCombatState = CombatState.Attacking;
 
@@ -314,9 +326,10 @@ namespace SliceEngine
                     case 1:
                         attackTimer = attackDuration[0];
 
-                        StartCoroutine(AttackDelay(attackDelay[0], () => attackHitbox.TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[0], () => { attackHitbox.TurnOn(); ImmediateHitCheck(); }));
 
-                        AudioSettings.PlaySFX("A1");
+                        attackSfxA1GO?.Destroy();
+                        attackSfxA1GO = AudioSettings.PlaySFXWithGO("A1");
 
                         PlayerMovementState = MovementState.Lunging;
                         lungeTimer = lungeDuration;
@@ -324,9 +337,10 @@ namespace SliceEngine
                     case 2:
                         attackTimer = attackDuration[1];
 
-                        StartCoroutine(AttackDelay(attackDelay[1], () => attackHitbox.TurnOn()));
+                        StartCoroutine(AttackDelay(attackDelay[1], () => { attackHitbox.TurnOn(); ImmediateHitCheck(); }));
 
-                        AudioSettings.PlaySFX("A2");
+                        attackSfxA2GO?.Destroy();
+                        attackSfxA2GO = AudioSettings.PlaySFXWithGO("A2");
                         if (String.Compare(animator.GetCurrAnimName(), "Attack1") == 0)
                         {
                             //
@@ -356,7 +370,7 @@ namespace SliceEngine
         }
         private void AttackReset()
         {
-            if (attackResetTimer >= attackRecoveryDuration)
+            if (attackResetTimer >= attackRecoveryDuration && PlayerCombatState != CombatState.Attacking)
             {
                 if (PlayerCurrentAttack == CurrentAttack.GroundAttack)
                 {
@@ -415,7 +429,21 @@ namespace SliceEngine
                 AudioSettings.PlaySFX("SwordHit");
             }
         }
-     
+
+        private void ImmediateHitCheck()
+        {
+            Vector3 origin = transform.WorldPosition + new Vector3(0, 1f, 0);
+            if (Physics.SphereCast(origin, attackRadius, transform.Forward * attackReach,
+                out RayCastHit hit, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Collide))
+            {
+                if (hit.transform != null)
+                {
+                    Attack1(hit.transform.gameObject);
+                    attackHitbox.TurnOff();
+                }
+            }
+        }
+
         private IEnumerator AttackDelay(float delay, Action action)
         {
             yield return new WaitForSeconds(delay);
@@ -579,6 +607,9 @@ namespace SliceEngine
 
             if (!grounded) fallTimeTimer += dt;
             else fallTimeTimer = 0.0f;
+
+            if (grounded) groundedGraceTimer = groundCheckDelay;
+            else groundedGraceTimer = (groundedGraceTimer > 0f) ? groundedGraceTimer - dt : 0f;
         }
 
         Vector3 velModifier;
@@ -1160,22 +1191,45 @@ namespace SliceEngine
 
         private void GroundCheck()
         {
-            RayCastHit hitInfo;
-            bool hit = Physics.SphereCast(
-                transform.Position,
-                groundCheckRadius,
-                new Vector3(0, -1, 0),
-                out hitInfo,
-                Physics.DefaultRaycastLayers,
-                QueryTriggerInteraction.Ignore);
-
-            grounded = hit && hitInfo.normal.y >= groundNormalThreshold;
-
+            grounded = (groundContactCount > 0); ;
             if (grounded)
             {
                 if (PlayerMovementState != MovementState.Jumping && PlayerMovementState != MovementState.Falling)
                     jumpCounter = 0;
+                //Console.WriteLine("Resetting jump counter");
             }
+        }
+
+        public override void OnCollideEnter(uint other)
+        {
+            if (IsGround(other))
+            {
+                //Console.WriteLine($"Colliding with {other}");
+                groundContactCount++;
+            }
+        }
+
+        public override void OnCollideExit(uint other)
+        {
+            if (IsGround(other))
+            {
+              //  Console.WriteLine($"Exit Colliding with {other}");
+
+                groundContactCount--;
+                if (groundContactCount < 0)
+                {
+                    groundContactCount = 0;
+                    Console.WriteLine("Gonna reset jump counter");
+                }
+            }
+        }
+        private bool IsGround(uint id)
+        {
+            if (gameObject.FindGameObjectWithID(id).tag == "Ground")
+            {
+                return true;
+            }
+            return false;
         }
 
         bool IsTakingInputs()

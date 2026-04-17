@@ -1,0 +1,63 @@
+[
+    {
+        "DoorSpotLight": {
+            "struct SliceEngine::Light": {
+                "angle": 90.0,
+                "castsShadow": true,
+                "color": [
+                    1.0,
+                    0.9127417206764221,
+                    0.6227757930755615
+                ],
+                "componentEnabled": true,
+                "intensity": 900.0,
+                "type": "Spot"
+            },
+            "struct SliceEngine::Prefab": {
+                "prefabGUID": "",
+                "prefabHandle": {
+                    "GUID": ""
+                },
+                "prefabID": 0
+            },
+            "struct SliceEngine::SceneGraph": {
+                "entity_id": 48234804,
+                "neighbours": [
+                    51380464,
+                    4294967295,
+                    55574562,
+                    4294967295
+                ]
+            },
+            "struct SliceEngine::SliceEntity": {
+                "mActive": true,
+                "mLayer": 0,
+                "mName": "DoorSpotLight",
+                "mTag": "default"
+            },
+            "struct SliceEngine::Transform": {
+                "euler_hint": [
+                    0.0,
+                    0.0,
+                    35.599998474121094
+                ],
+                "position": [
+                    638.8927612304688,
+                    97.46991729736328,
+                    0.0
+                ],
+                "rotation": [
+                    0.9521294236183167,
+                    0.0,
+                    0.0,
+                    0.3056952655315399
+                ],
+                "scale": [
+                    1.0,
+                    14.5,
+                    1.0
+                ]
+            }
+        }
+    }
+]

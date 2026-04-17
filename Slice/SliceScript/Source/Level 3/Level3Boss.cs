@@ -1080,7 +1080,7 @@ namespace SliceEngine
 
         public GameObject CreateBullet(Vector3 startPos, Vector3 angle, Vector3 scale, int damage, float speed, bool destroyOnImpact, float distanceBeforeDestroy)
         {
-            string prefabName = "Projectile";
+            string prefabName = "Projectile2";
             string prefabPath = "Prefabs/" + prefabName + ".prefab";
             GameObject newBullet = gameObject.CreateGameObject(prefabPath);
             Transform tempT = newBullet.GetComponent<Transform>();

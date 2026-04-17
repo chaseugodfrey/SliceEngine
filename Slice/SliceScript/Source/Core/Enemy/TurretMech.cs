@@ -42,6 +42,11 @@ namespace SliceEngine
         float poweringTime = 1f;
 
 
+        // Hit shake settings
+        public float shakeDuration = 0.2f;
+        public float shakeMagnitude = 0.12f;
+        public float dipMagnitude = 0.1f;
+
         // Internal state
         float count = 0f;
         float burstTimer = 0f;
@@ -50,6 +55,9 @@ namespace SliceEngine
         bool isBursting = false;
         bool powered = false;
         bool powering = false;
+        bool isShaking = false;
+        Vector3 shakeOrigin;
+        bool turretDestroyed = false;
 
         GameObject telegraph;
         bool telegraphed = false;
@@ -460,11 +468,45 @@ namespace SliceEngine
         protected override void OnDamaged(GameObject source)
         {
             CreateDamagedFX(transform.WorldPosition, Vector3.Zero);
+            StartCoroutine(HitShake());
             base.OnDamaged(source);
+        }
+
+        IEnumerator HitShake()
+        {
+            if (turretDestroyed) yield break;
+
+            if (!isShaking)
+            {
+                shakeOrigin = transform.Position;
+                isShaking = true;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < shakeDuration && !turretDestroyed)
+            {
+                float x = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+                float z = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+
+                // compress down then spring back up
+                float t = elapsed / shakeDuration;
+                float y = t < 0.5f
+                    ? -dipMagnitude * (t / 0.5f)
+                    : -dipMagnitude * (1f - (t - 0.5f) / 0.5f);
+
+                transform.Position = shakeOrigin + new Vector3(x, y, z);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (!turretDestroyed)
+                transform.Position = shakeOrigin;
+            isShaking = false;
         }
 
         public override void OnDeath()
         {
+            turretDestroyed = true;
             CreateDeathFX(transform.WorldPosition, Vector3.Zero);
             base.OnDeath();
         }
