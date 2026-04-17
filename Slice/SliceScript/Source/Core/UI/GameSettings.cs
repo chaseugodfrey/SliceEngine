@@ -13,8 +13,8 @@ namespace SliceEngine
         private GameObject settingsPopup;
         private GameObject bgAnimationObject;
         private GameObject beforeGammaImage;
-        private GameObject pauseBGM;
-        private GameObject levelBGM;
+        public GameObject pauseBGM;
+        public GameObject levelBGM;
 
         private SettingsBorderAnimation borderAnim;
         private SettingsBGAnimation bgAnim;
@@ -45,14 +45,12 @@ namespace SliceEngine
             {
             
                 pauseBGM = FindGameObjectWithName("PauseMusic");
-
             }
 
             if(FindGameObjectWithName("LevelBGM") != null)
             {
             
                 levelBGM = FindGameObjectWithName("LevelBGM");
-
             }
 
 
@@ -82,6 +80,7 @@ namespace SliceEngine
             if (pauseBGM != null)
             {
                 pauseAudioSource = pauseBGM.GetComponent<AudioSource>();
+                Console.WriteLine("Pause Audio Source Found!");
             }
 
             if (levelBGM != null)
