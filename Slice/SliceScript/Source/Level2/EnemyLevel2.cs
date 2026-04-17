@@ -660,7 +660,7 @@ namespace SliceEngine
         protected override void OnDamaged(GameObject source)
         {
             //Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
-            CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position;
+            CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0,5,0);
             enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth); 
 
             if (damageLeftTillSFX <= 0 )
