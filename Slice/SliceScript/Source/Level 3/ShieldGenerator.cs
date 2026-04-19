@@ -141,6 +141,7 @@ namespace SliceEngine
             if (vfx != null)
                 vfx.Destroy();
 
+            GetComponent<AudioSource>().Play();
             StartCoroutine(DestroyAfterClose());
         }
 
