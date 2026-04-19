@@ -32,6 +32,16 @@ namespace SliceEngine
         // FX prefab
         public string firingFXPrefabName = "FX_Firing1";
 
+        // Follow settings — when followTarget is set the mech tracks a point relative to the target
+        public Transform followTarget;
+        public Vector3 followOffset;
+        public bool useCameraRelativeOffset = false;
+        public float followSpeed = 1.5f;
+        public float destinationLagSpeed = 0.8f; // how slowly the target destination itself updates — lower = more lag
+
+        private Vector3 smoothedDestination;
+        private bool destinationInitialised = false;
+
         // Internal state
         float count = 0f;
         float burstTimer = 0f;
@@ -83,8 +93,6 @@ namespace SliceEngine
             p.distanceBeforeDestroy = distanceBeforeDestroyBullet;
 
             allProjectiles.Add(p);
-
-
 
             return newBullet;
         }
@@ -155,13 +163,40 @@ namespace SliceEngine
         {
             base.OnFixedUpdate(dt);
 
+            // Follow target position using camera-relative or world-space offset
+            if (followTarget != null)
+            {
+                Vector3 worldOffset = useCameraRelativeOffset ? CameraRelativeOffset(followOffset) : followOffset;
+                Vector3 rawDestination = followTarget.WorldPosition + worldOffset;
+
+                // Stage 1: lag the destination itself so camera turns don't snap the mech immediately
+                if (!destinationInitialised)
+                {
+                    smoothedDestination = rawDestination;
+                    destinationInitialised = true;
+                }
+                smoothedDestination = new Vector3(
+                    Utilities.Lerp(smoothedDestination.x, rawDestination.x, destinationLagSpeed * dt),
+                    Utilities.Lerp(smoothedDestination.y, rawDestination.y, destinationLagSpeed * dt),
+                    Utilities.Lerp(smoothedDestination.z, rawDestination.z, destinationLagSpeed * dt)
+                );
+
+                // Stage 2: move the mech toward the smoothed destination
+                baseY = smoothedDestination.y;
+
+                Vector3 pos = transform.Position;
+                pos.x = Utilities.Lerp(pos.x, smoothedDestination.x, followSpeed * dt);
+                pos.z = Utilities.Lerp(pos.z, smoothedDestination.z, followSpeed * dt);
+                transform.Position = pos;
+            }
+
             // Bobbing motion
             bobTimer += dt;
 
-            Vector3 pos = transform.Position;
-            pos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
+            Vector3 bobPos = transform.Position;
+            bobPos.y = baseY + Utilities.Sin(bobTimer * bobFrequency) * bobAmplitude;
 
-            transform.Position = pos;
+            transform.Position = bobPos;
 
             if (!active)
                 return;
@@ -169,7 +204,7 @@ namespace SliceEngine
             Vector3 playerPos = Bootstrap.Player.transform.WorldPosition;
             float distanceToPlayer = Utilities.Distance3D(transform.WorldPosition, playerPos);
             if (distanceToPlayer <= maxAimRange)
-            {                
+            {
                 Vector3 offset = new Vector3(0, aimVerticalOffset, 0);
                 Vector3 origin = transform.WorldPosition;
                 Vector3 target = playerPos + offset;
@@ -207,9 +242,7 @@ namespace SliceEngine
                             telegraphed = shouldTelegraph;
                             SetTelegraph();
 
-                            //Play Fire Audio
                             SliceLog.Console("ALOY Play Fire SFX");
-                            //fireSFXSource.Play();
                         }
 
                         if(telegraphed)
@@ -243,7 +276,6 @@ namespace SliceEngine
                                 // Spawn firing FX
                                 CreateFiringFX(transform.WorldPosition, transform.WorldRotationQuat.ToEuler());
 
-
                                 shotsFiredInBurst++;
 
                                 if (shotsFiredInBurst >= bulletsPerBurst)
@@ -275,6 +307,19 @@ namespace SliceEngine
             AimingMechWings amw = wings.As<AimingMechWings>();
             float denom = Utilities.Max(shotTimer + burstTimer, 0.0001f);
             amw.rotateSpeedMultiplier = Utilities.Clamp(5.0f / denom, 0.0f, 10.0f);
+        }
+
+        // Rotates a local-space offset into world space using the camera's facing direction
+        private Vector3 CameraRelativeOffset(Vector3 localOffset)
+        {
+            Vector3 forward = Bootstrap.CameraController.transform.Forward;
+            forward.y = 0;
+            float mag = forward.Magnitude();
+            if (mag > 0.001f) forward = forward / mag;
+
+            Vector3 right = new Vector3(forward.z, 0, -forward.x);
+
+            return right * localOffset.x + new Vector3(0, localOffset.y, 0) + forward * localOffset.z;
         }
     }
 }

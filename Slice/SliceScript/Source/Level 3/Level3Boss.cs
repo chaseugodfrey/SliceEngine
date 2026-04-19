@@ -956,7 +956,7 @@ namespace SliceEngine
             }
 
             float elapsed = 0f;
-            while (elapsed < shakeDuration && !isDead)
+            while (elapsed < shakeDuration && active)
             {
                 float x = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
                 float z = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
@@ -971,7 +971,7 @@ namespace SliceEngine
                 yield return null;
             }
 
-            if (!isDead)
+            if (active)
                 transform.Position = bossShakeOrigin;
             isShaking = false;
         }

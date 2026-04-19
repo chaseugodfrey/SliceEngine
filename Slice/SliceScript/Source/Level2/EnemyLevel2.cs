@@ -96,15 +96,24 @@ namespace SliceEngine
 
             public override void OnExit()
             {
-                Vector3 center = owner.GetComponent<Transform>().WorldPosition;
+                // Offsets in camera-local space: all positive Z keeps mechs in front of the player
+                Vector3[] offsets = new Vector3[]
+                {
+                    new Vector3(1,    0.7f, 1),
+                    new Vector3(-1,   0.7f, 1),
+                    new Vector3(2,    0.7f, 0),
+                    new Vector3(-2,   0.7f, 0),
+                    new Vector3(0,    0.7f, 1.5f)
+                };
+
+                Transform playerTr = Bootstrap.Player.GetComponent<Transform>();
+
                 for (int i = 0; i < numOfPoints; ++i)
                 {
-                    float angle = i * (2.0f * (float)Math.PI / numOfPoints) + orbitTimer;
-                    float x = (float)Math.Cos(angle) * (orbitRadius * 6);
-                    float z = (float)Math.Sin(angle) * (orbitRadius * 6);
-
-                    Vector3 worldTarget = center + new Vector3(x, 0f, z);
-                    enemyController.StartCoroutine(enemyController.MoveEnemy(enemyController.projectileShooters[i], worldTarget, 1.5f));
+                    AimingMech mech = enemyController.projectileShooters[i].As<AimingMech>();
+                    mech.followTarget = playerTr;
+                    mech.followOffset = offsets[i] * 20.0f;
+                    mech.useCameraRelativeOffset = true;
                 }
 
                 enemyController.movementDone = true;
@@ -383,6 +392,7 @@ namespace SliceEngine
                     GameObject bullet = CreateBullet(T.WorldPosition, T.WorldRotationQuat.ToEuler(), bulletScale, bulletSpeed, false, distanceBeforeDestroyBullet);
 
                     bullet.As<Projectile>().destroyOnPlayerImpact = true;
+                    owner.GetComponent<AudioSource>().Play();
                 }
 
                 if (timer >= stateDuration)
@@ -577,6 +587,7 @@ namespace SliceEngine
         float baseY = 0f;
 
 
+
         public override void OnCreate()
         {
             // Initialize state machine and states
@@ -661,7 +672,9 @@ namespace SliceEngine
         {
             //Console.WriteLine($"OnDamage for enemyLevel2 called: {currentHealth} and {maxHealth}");
             CreateGameObject("Prefabs/FX_TheBallDamaged.prefab").GetComponent<Transform>().Position = transform.Position - new Vector3(0,5,0);
-            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth); 
+            enemyHUD.As<EnemyHUD>().SetHealth((float)currentHealth / (float)maxHealth);
+            AudioSettings.PlaySFX("SwordHit");
+            StartCoroutine(HitShake());
 
             if (damageLeftTillSFX <= 0 )
             {
@@ -670,6 +683,42 @@ namespace SliceEngine
                 damageLeftTillSFX += 100;
             }
 
+        }
+
+        bool isShaking = false;
+        Vector3 bossShakeOrigin;
+
+        IEnumerator HitShake()
+        {
+            float shakeDuration = 0.3f;
+            float shakeMagnitude = 0.3f;
+            float dipMagnitude = 0.15f;
+
+            if (!isShaking)
+            {
+                bossShakeOrigin = transform.Position;
+                isShaking = true;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < shakeDuration && active)
+            {
+                float x = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+                float z = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+
+                float t = elapsed / shakeDuration;
+                float y = t < 0.5f
+                    ? -dipMagnitude * (t / 0.5f)
+                    : -dipMagnitude * (1f - (t - 0.5f) / 0.5f);
+
+                transform.Position = bossShakeOrigin + new Vector3(x, y, z);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (active)
+                transform.Position = bossShakeOrigin;
+            isShaking = false;
         }
 
         public override void OnUpdate(float dt)
