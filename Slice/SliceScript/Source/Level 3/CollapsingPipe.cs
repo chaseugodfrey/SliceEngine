@@ -60,6 +60,7 @@ namespace SliceEngine
             {
                 timer += Time.deltaTime;
                 transform.Scale = Vector3.Lerp(collapsedScale, initialScale, timer / collapseTime);
+                Bootstrap.CameraController.Shake(0.1f, 0.5f);
                 yield return null;
             }
             audio.Stop();

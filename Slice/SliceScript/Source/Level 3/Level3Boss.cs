@@ -176,14 +176,16 @@ namespace SliceEngine
                 SliceLog.Console("Summon State.");
 
                 // ONLY IF HAVE 4 SPAWNERS
+                // Offsets in player-local space: all have positive Z so mechs stay in player's forward hemisphere
                 Vector3[] offsets = new Vector3[]
                 {
-                    new Vector3(1, 1, 0),
-                    new Vector3(-1, 1, 0),
-                    new Vector3(0, 1, 1),
-                    new Vector3(0, 1, -1)
+                    new Vector3(1, 0.7f, 1),
+                    new Vector3(-1, 0.7f, 1),
+                    new Vector3(2, 0.7f, 0),
+                    new Vector3(-2, 0.7f, 0)
                 };
 
+                Transform playerTr = Bootstrap.Player.GetComponent<Transform>();
                 bool first = bossController.projectileSpawners.Count == 0;
 
                 for (int i = 0; i < 4; i++)
@@ -191,15 +193,16 @@ namespace SliceEngine
                     GameObject go;
 
                     if (first)
-                        go = bossController.CreateGameObject("Prefabs/AimingMechFollow.prefab");
+                        go = bossController.CreateGameObject(i < 2 ? "Prefabs/AimingMechFollow.prefab" : "Prefabs/AimingMechFollow2.prefab");
 
                     else
                         go = bossController.projectileSpawners[i].gameObject;
-                    
+
                     AimingMechFollow spawner = go.As<AimingMechFollow>();
                     spawner.GetComponent<Transform>().Position = owner.GetComponent<Transform>().Position;
                     spawner.followTarget = true;
-                    spawner.SetTarget(Bootstrap.Player.GetComponent<Transform>());
+                    spawner.SetTarget(playerTr);
+                    spawner.useCameraRelativeOffset = true;
                     spawner.offset = offsets[i] * 20.0f;
                     bossController.projectileSpawners.Add(spawner);
                 }
@@ -255,7 +258,7 @@ namespace SliceEngine
                 timer = 0.0f;
 
                 Vector3 targetPos = Bootstrap.Player.GetComponent<Transform>().Position;
-                targetPos.y = bossController.baseY;//owner.GetComponent<Transform>().Position.y;
+                targetPos.y = bossController.baseY;
                 bossController.StartCoroutine(bossController.MoveToPoint(bossController.transform.Position, targetPos, 0.8f));
                 ogPosition = targetPos;
 
@@ -922,6 +925,11 @@ namespace SliceEngine
             enemyHUD.As<Lvl3EnemyHUD>().SetShield((float)currentShield / (float)maxShield);
             enemyHUD.As<Lvl3EnemyHUD>().SetHealth(hpPercent);
 
+            GameObject fx = CreateGameObject("Prefabs/FX_TurretMechDamaged.prefab");
+            fx.GetComponent<Transform>().Position = Bootstrap.Player.transform.WorldPosition;
+            AudioSettings.PlaySFX("SwordHit");
+            StartCoroutine(HitShake());
+
             if (thresholdIndex < thresholds.Length)
             {
                 if (hpPercent <= thresholds[thresholdIndex])
@@ -930,6 +938,42 @@ namespace SliceEngine
                     thresholdIndex++;
                 }
             }
+        }
+
+        bool isShaking = false;
+        Vector3 bossShakeOrigin;
+
+        IEnumerator HitShake()
+        {
+            float shakeDuration = 0.3f;
+            float shakeMagnitude = 0.3f;
+            float dipMagnitude = 0.15f;
+
+            if (!isShaking)
+            {
+                bossShakeOrigin = transform.Position;
+                isShaking = true;
+            }
+
+            float elapsed = 0f;
+            while (elapsed < shakeDuration && !isDead)
+            {
+                float x = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+                float z = SliceRandom.RangeFloat(-1f, 1f) * shakeMagnitude;
+
+                float t = elapsed / shakeDuration;
+                float y = t < 0.5f
+                    ? -dipMagnitude * (t / 0.5f)
+                    : -dipMagnitude * (1f - (t - 0.5f) / 0.5f);
+
+                transform.Position = bossShakeOrigin + new Vector3(x, y, z);
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (!isDead)
+                transform.Position = bossShakeOrigin;
+            isShaking = false;
         }
 
         public bool SetupRecharging()

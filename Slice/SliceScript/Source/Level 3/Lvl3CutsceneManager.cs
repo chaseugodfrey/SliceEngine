@@ -28,6 +28,11 @@ namespace SliceEngine
         public GameObject x_CinematicBars;
 
         public float z_transitionDurationToDeath = 1.5f;
+        public float z_deathCamLookUpOffset = 10.0f;
+        public float z_introRiseShakeMagnitude = 0.5f;
+        public float z_introPlatformShakeDuration = 0.1f;
+        public float z_introPlatformShakeMagnitude = 20f;
+        public float z_introCameraHoldDuration = 1.0f;
 
         Transform camRigTr;
         Transform camTr;
@@ -106,6 +111,11 @@ namespace SliceEngine
 
         public override void OnUpdate(float dt)
         {
+            if (Input.IsKeyPressed(Keys.KEY_F01))
+            {
+                StartCoroutine(DeathFadeInOut(bossTr));
+            }
+
             // first cam tracks boss
             if (trackBoss)
             {
@@ -165,7 +175,7 @@ namespace SliceEngine
 
             camRigInitialPos = camRigTr.WorldPosition;
 
-            float maxTime = 6.0f;
+            float maxTime = 4.6f;
             float elapsedTime = 0.0f;
 
             // hide objects
@@ -179,11 +189,11 @@ namespace SliceEngine
             camInitialPos = camTr.Position;
             
             ArenaObj.GetComponent<AudioSource>().Play();
+            Bootstrap.CameraController.Shake(maxTime, z_introRiseShakeMagnitude);
             // rise up
             while (elapsedTime < maxTime)
             {
-                float t = elapsedTime / maxTime;
-                float rate = Utilities.SmoothStep(0.0f, 1.0f, t);
+                float rate = elapsedTime / maxTime;
 
                 camRigTr.Position = ArenaPivotTr.WorldPosition;
                 camRigTr.Rotation = ArenaPivotTr.Rotation;
@@ -195,6 +205,16 @@ namespace SliceEngine
                 elapsedTime += Time.deltaTime;
                 yield return null;
             }
+            Bootstrap.CameraController.Shake(z_introPlatformShakeDuration, z_introPlatformShakeMagnitude);
+            elapsedTime = 0.0f;
+            while (elapsedTime < z_introCameraHoldDuration)
+            {
+                camRigTr.Position = ArenaPivotTr.WorldPosition;
+                camRigTr.Rotation = ArenaPivotTr.Rotation;
+                elapsedTime += Time.deltaTime;
+                yield return null;
+            }
+
             PlayerTr.GetComponent<RigidBody>().Velocity = Vector3.Zero;
             elapsedTime = 0.0f;
             maxTime = 0.1f;
@@ -266,7 +286,7 @@ namespace SliceEngine
             while (elapsedTime < z_transitionDurationToDeath * 0.5f)
             {
                 elapsedTime += Time.deltaTime;
-                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                camRigTr.LookAt(boss.transform.WorldPosition + new Vector3(0, z_deathCamLookUpOffset, 0), Vector3.Up);
                 yield return null;
             }
 
@@ -278,7 +298,7 @@ namespace SliceEngine
             while (elapsedTime < z_transitionDurationToDeath)
             {
                 elapsedTime += Time.deltaTime;
-                camRigTr.LookAt(boss.transform.WorldPosition, Vector3.Up);
+                camRigTr.LookAt(boss.transform.WorldPosition + new Vector3(0, z_deathCamLookUpOffset, 0), Vector3.Up);
                 SetRectAlpha(1.0f - (elapsedTime / z_transitionDurationToDeath));
                 yield return null;
             }

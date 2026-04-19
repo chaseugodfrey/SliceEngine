@@ -17,11 +17,12 @@ namespace SliceEngine
         public float followOscillatorTiming = 2.5f;
         public float followExternalModifier = 1.0f;
 
+        // When true, offset is treated as camera-local space so mechs stay in the player's view
+        public bool useCameraRelativeOffset = false;
+
         public override void OnUpdate(float dt)
         {
-
             FollowTarget(dt);
-            //projectileSM.OnUpdate(dt);
         }
 
         public void SetTarget(Transform targetTransform = null, float speedModifier = 1.0f)
@@ -45,13 +46,31 @@ namespace SliceEngine
                     float distance = Utilities.Distance3D(transform.Position, destination);
                     float tightness = Utilities.Clamp(distance / followRange, 0.0f, 1.0f) - followTightness;
                     followTightness += tightness * 0.5f;
-                    destination = target.WorldPosition + offset;
+
+                    Vector3 worldOffset = offset;
+                    if (useCameraRelativeOffset)
+                        worldOffset = CameraRelativeOffset(offset);
+
+                    destination = target.WorldPosition + worldOffset;
 
                     Vector3 direction = (destination - transform.Position).Normalize();
                     transform.Position = transform.Position + direction * followTightness * dt * 100f * followOscillator * followExternalModifier;
-
                 }
             }
+        }
+
+        // Rotates a local-space offset into world space using the camera's facing direction,
+        // keeping mechs within the player's view.
+        private Vector3 CameraRelativeOffset(Vector3 localOffset)
+        {
+            Vector3 forward = Bootstrap.CameraController.transform.Forward;
+            forward.y = 0;
+            float mag = forward.Magnitude();
+            if (mag > 0.001f) forward = forward / mag;
+
+            Vector3 right = new Vector3(forward.z, 0, -forward.x);
+
+            return right * localOffset.x + new Vector3(0, localOffset.y, 0) + forward * localOffset.z;
         }
 
         public void DestroyChildren()
